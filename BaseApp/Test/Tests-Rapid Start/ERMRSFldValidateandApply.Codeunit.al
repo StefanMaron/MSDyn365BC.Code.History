@@ -1027,5 +1027,62 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         // [THEN] FieldRef value is not changed and is equal to ' '
         Assert.AreEqual(' ', Format(FieldRef.Value), 'Wrong FieldRef value');
     end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyConfigPackagePostCodeRecord()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        PostCode: Record "Post Code";
+        CountryRegionCode: Code[10];
+    begin
+        // [SCENARIO 411676] Configuration Package should correctly apply Post Code record
+        Initialize();
+
+        // [GIVEN] Post Code record with "Country/Region Code" = ''
+        LibraryERM.CreatePostCode(PostCode);
+        CountryRegionCode := PostCode."Country/Region Code";
+        PostCode."Country/Region Code" := '';
+        PostCode.Modify();
+
+        // [GIVEN] Config. Package with Post Code record, "Country/Region Code" = 'BE'
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Post Code",
+          PostCode.FieldNo(Code),
+          PostCode.Code,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Post Code",
+          PostCode.FieldNo(City),
+          PostCode.City,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Post Code",
+          PostCode.FieldNo("Country/Region Code"),
+          CountryRegionCode,
+          SingleEntryRecNo);
+
+        // [WHEN] Package is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] Configuration Package "No. of Package Errors" = 0
+        ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Post Code");
+        ConfigPackageTable.CalcFields("No. of Package Errors");
+        ConfigPackageTable.TestField("No. of Package Errors", 0);
+
+        // [THEN] Post Code record is updated, "Country/Region Code" = 'BE'
+        PostCode.GET(PostCode.Code, PostCode.City);
+        PostCode.TestField("Country/Region Code", CountryRegionCode);
+    end;
+
 }
 

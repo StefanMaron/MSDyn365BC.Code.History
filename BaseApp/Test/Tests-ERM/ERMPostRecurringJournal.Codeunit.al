@@ -27,6 +27,8 @@ codeunit 134227 "ERM PostRecurringJournal"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
         OneDocSameNoErr: Label 'There must be one   invoice, credit memo, or finance charge memo with the same Document No.';
+        GenJnlDocType: Enum "Gen. Journal Document Type";
+        GenJnlAccountType: Enum "Gen. Journal Account Type";
 
     [Test]
     [Scope('OnPrem')]
@@ -1081,6 +1083,58 @@ codeunit 134227 "ERM PostRecurringJournal"
         VerifyGLEntryNotExists(GenJournalBatch.Name);
     end;
 
+    [Test]
+    procedure DueDateWhenPostRecurringJnlRVMethodForCustomer()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostingDate: Date;
+    begin
+        // [SCENARIO 407413] Due Date of Customer Ledger Entries when post recurring journal line with Reversing Variable method.
+
+        // [GIVEN] Recurring Journal Line with Posting Date "D" for Customer.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLineWithType(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable", GenJnlDocType::" ",
+            GenJnlAccountType::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        PostingDate := LibraryRandom.RandDate(-20);
+        UpdatePostingDateOnGenJournalLine(GenJournalLine, PostingDate);
+        CreateAllocationLine(GenJournalLine);
+
+        // [WHEN] Post recurring journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Two Customer Ledger Entries are created. First entry has Due Date = "D", second entry has Due Date = "D" + 1.
+        VerifyCustomerLedgerEntryDueDateForRVMethod(GenJournalLine."Account No.", GenJournalLine."Document Type", PostingDate);
+    end;
+
+    [Test]
+    procedure DueDateWhenPostRecurringJnlRVMethodForVendor()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        PostingDate: Date;
+    begin
+        // [SCENARIO 407413] Due Date of Vendor Ledger Entries when post recurring journal line with Reversing Variable method.
+
+        // [GIVEN] Recurring Journal Line with Posting Date "D" for Vendor.
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLineWithType(
+            GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RV Reversing Variable", GenJnlDocType::" ",
+            GenJnlAccountType::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDecInRange(100, 200, 2));
+
+        PostingDate := LibraryRandom.RandDate(-20);
+        UpdatePostingDateOnGenJournalLine(GenJournalLine, PostingDate);
+        CreateAllocationLine(GenJournalLine);
+
+        // [WHEN] Post recurring journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Two Vendor Ledger Entries are created. First entry has Due Date = "D", second entry has Due Date = "D" + 1.
+        VerifyVendorLedgerEntryDueDateForRVMethod(GenJournalLine."Account No.", GenJournalLine."Document Type", PostingDate);
+    end;
+
     local procedure CreateGLAccountWithBalanceAtDate(PostingDate: Date; Balance: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1291,6 +1345,12 @@ codeunit 134227 "ERM PostRecurringJournal"
         GenJournalBatch.Modify(true);
     end;
 
+    local procedure UpdatePostingDateOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date)
+    begin
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify(true);
+    end;
+
     local procedure FindGLAccount(var GLAccount: Record "G/L Account")
     begin
         GLAccount.SetRange("VAT Prod. Posting Group", '');
@@ -1402,6 +1462,40 @@ codeunit 134227 "ERM PostRecurringJournal"
             FindFirst;
             TestField("Sales (LCY)", ExpectedAmount);
         end;
+    end;
+
+    local procedure VerifyCustomerLedgerEntryDueDateForRVMethod(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.SetRange("Posting Date", PostingDate);
+        CustLedgerEntry.SetRange(Positive, true);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Due Date", PostingDate);
+
+        CustLedgerEntry.SetRange("Posting Date", PostingDate + 1);
+        CustLedgerEntry.SetRange(Positive, false);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.TestField("Due Date", PostingDate + 1);
+    end;
+
+    local procedure VerifyVendorLedgerEntryDueDateForRVMethod(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; PostingDate: Date)
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.SetRange("Posting Date", PostingDate);
+        VendorLedgerEntry.SetRange(Positive, true);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.TestField("Due Date", PostingDate);
+
+        VendorLedgerEntry.SetRange("Posting Date", PostingDate + 1);
+        VendorLedgerEntry.SetRange(Positive, false);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.TestField("Due Date", PostingDate + 1);
     end;
 
     [ConfirmHandler]

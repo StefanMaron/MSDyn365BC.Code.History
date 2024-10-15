@@ -84,6 +84,10 @@ codeunit 147522 "SII Document Processing"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandIntInRange(100, 200));
+        // [GIVEN] ID Type is "02"
+        // BUG 408435: ID Type must be copied from General Journal Line to SII Doc. Upload State
+        GenJournalLine.Validate("ID Type", GenJournalLine."ID Type"::"02-VAT Registration No.");
+        GenJournalLine.Modify(true);
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -97,6 +101,9 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
+
+        // [THEN] ID Type of SII Doc. Upload State is "02"
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
 
         // [THEN] The SII job queue entry has been created
         // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
@@ -161,6 +168,10 @@ codeunit 147522 "SII Document Processing"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -LibraryRandom.RandIntInRange(100, 200));
+        // [GIVEN] ID Type is "02"
+        // BUG 408435: ID Type must be copied from General Journal Line to SII Doc. Upload State
+        GenJournalLine.Validate("ID Type", GenJournalLine."ID Type"::"02-VAT Registration No.");
+        GenJournalLine.Modify(true);
 
         // [WHEN] Post journal
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -174,6 +185,9 @@ codeunit 147522 "SII Document Processing"
 
         // [THEN] Version of SII Doc. Upload State is 1.1bis
         SIIDocUploadState.TestField("Version No.", SIIDocUploadState."Version No."::"2.1");
+
+        // [THEN] ID Type of SII Doc. Upload State is "02"
+        SIIDocUploadState.TestField(IDType, SIIDocUploadState.IDType::"02-VAT Registration No.");
 
         // [THEN] The SII job queue entry has been created
         // TFS ID 402592: Job Queue Entry triggers on general journal line posting with "Document Type" = Invoice
@@ -1524,6 +1538,48 @@ codeunit 147522 "SII Document Processing"
         SIIDocUploadState.TestField("Sales Special Scheme Code", SIIDocUploadState."Sales Special Scheme Code"::"02 Export");
     end;
     
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotPostRemovalSalesCreditMemoWithoutCorrectedInvNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 405655] Stan cannot post sales credit memo with "Removal" correction type and blank "Corrected Invoice No."
+
+        Initialize();
+        CreateSalesCrMemoWithType(SalesHeader, 0);
+        SalesHeader.Validate("Correction Type", SalesHeader."Correction Type"::Removal);
+        SalesHeader.Validate("Corrected Invoice No.", '');
+        SalesHeader.Modify(true);
+
+        asserterror SalesPost.Run(SalesHeader);
+
+        Assert.ExpectedError('Corrected Invoice No. must have a value in Sales Header');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotPostRemovalPurchCreditMemoWithoutCorrectedInvNo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchPost: Codeunit "Purch.-Post";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 405655] Stan cannot post purchase credit memo with "Removal" correction type and blank "Corrected Invoice No."
+
+        Initialize();
+        CreatePurchCrMemoWithType(PurchaseHeader, 0);
+        PurchaseHeader.Validate("Correction Type", PurchaseHeader."Correction Type"::Removal);
+        PurchaseHeader.Validate("Corrected Invoice No.", '');
+        PurchaseHeader.Modify(true);
+
+        asserterror PurchPost.Run(PurchaseHeader);
+
+        Assert.ExpectedError('Corrected Invoice No. must have a value in Purchase Header');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;

@@ -15,6 +15,7 @@ codeunit 10766 "Sales Cr.Memo Header - Edit"
         SalesCrMemoHeader."Special Scheme Code" := "Special Scheme Code";
         SalesCrMemoHeader."Cr. Memo Type" := "Cr. Memo Type";
         SalesCrMemoHeader."Correction Type" := "Correction Type";
+        SalesCrMemoHeader."Corrected Invoice No." := "Corrected Invoice No.";
         SalesCrMemoHeader.TestField("No.", "No.");
         SalesCrMemoHeader.Modify();
         Rec := SalesCrMemoHeader;

@@ -54,7 +54,7 @@ report 593 "Intrastat - Make Declaration"
 
                     "Tariff No." := DelChr("Tariff No.");
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", true)
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Declaration", false)
                     else begin
                         TestField("Tariff No.");
                         TestField("Country/Region Code");
@@ -120,6 +120,8 @@ report 593 "Intrastat - Make Declaration"
 
                 trigger OnPostDataItem()
                 begin
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
                     "Intrastat Jnl. Batch".Reported := true;
                     "Intrastat Jnl. Batch".Modify();
 

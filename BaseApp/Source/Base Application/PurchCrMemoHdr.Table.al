@@ -565,18 +565,9 @@ table 124 "Purch. Cr. Memo Hdr."
             trigger OnLookup()
             var
                 PurchaseInvoiceHeader: Record "Purch. Inv. Header";
-                PostedPurchaseInvoices: Page "Posted Purchase Invoices";
             begin
-                PurchaseInvoiceHeader.SetCurrentKey("No.");
-                PurchaseInvoiceHeader.SetRange("Pay-to Vendor No.", "Pay-to Vendor No.");
-                PurchaseInvoiceHeader.SetRange("No.", "Corrected Invoice No.");
-
-                PostedPurchaseInvoices.SetTableView(PurchaseInvoiceHeader);
-                PostedPurchaseInvoices.SetRecord(PurchaseInvoiceHeader);
-                PostedPurchaseInvoices.LookupMode(true);
-                if PostedPurchaseInvoices.RunModal = ACTION::LookupOK then
-                    PostedPurchaseInvoices.GetRecord(PurchaseInvoiceHeader);
-                Clear(PostedPurchaseInvoices);
+                if PurchaseInvoiceHeader.LookupInvoice("Pay-to Vendor No.") then
+                    Validate("Corrected Invoice No.", PurchaseInvoiceHeader."No.");
             end;
         }
         field(10706; "SII Status"; Option)
