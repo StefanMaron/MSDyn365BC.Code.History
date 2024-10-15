@@ -29,8 +29,17 @@ table 6203 "Transact. Storage Export State"
     }
 
     trigger OnInsert()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+        CountryCode: Text;
     begin
-        Rec."First Run Date" := Today();
+        CountryCode := EnvironmentInformation.GetApplicationFamily();
+        case CountryCode of
+            'DK':
+                Rec."First Run Date" := GetCollectDataFromDateDK();
+            else
+                Rec."First Run Date" := Today();
+        end;
     end;
 
     procedure ResetSetup()
@@ -39,5 +48,10 @@ table 6203 "Transact. Storage Export State"
             Insert(true);
         Rec."Number Of Attempts" := 3;
         Rec.Modify();
+    end;
+
+    local procedure GetCollectDataFromDateDK(): Date
+    begin
+        exit(20240101D);    // 1 January 2024
     end;
 }
