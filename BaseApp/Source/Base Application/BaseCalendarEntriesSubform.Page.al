@@ -164,12 +164,12 @@ page 7604 "Base Calendar Entries Subform"
         BaseCalendarChange.Description := Description;
         BaseCalendarChange.Nonworking := Nonworking;
         BaseCalendarChange.Day := Day;
-        OnUpdateBaseCalendarChanges(BaseCalendarChange);
+        OnUpdateBaseCalendarChanges(BaseCalendarChange, Rec);
         BaseCalendarChange.Insert();
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateBaseCalendarChanges(var BaseCalendarChange: Record "Base Calendar Change")
+    local procedure OnUpdateBaseCalendarChanges(var BaseCalendarChange: Record "Base Calendar Change"; var CustCalendarChange: Record "Customized Calendar Change")
     begin
     end;
 }

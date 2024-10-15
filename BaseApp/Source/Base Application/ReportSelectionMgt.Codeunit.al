@@ -336,7 +336,7 @@ codeunit 1901 "Report Selection Mgt."
                 InsertDACHRepSelection(Usage::"Issued Delivery Reminder", '1', REPORT::"Issued Delivery Reminder");
                 InsertDACHRepSelection(Usage::"Intrastat Checklist", '1', REPORT::"Intrastat - Checklist AT");
                 InsertDACHRepSelection(Usage::"Intrastat Form", '1', REPORT::"Intrastat - Form AT");
-                InsertDACHRepSelection(Usage::"Intrastat Disk", '1', REPORT::"Intrastat - Disk Tax Auth AT");
+                InsertDACHRepSelection(Usage::"Intrastat Disk", '1', REPORT::"Intrastat - Make Disk Tax Auth");
                 InsertDACHRepSelection(Usage::"Intrastat Disklabel", '1', REPORT::"Intrastat  Disk (Labels)");
             end;
     end;

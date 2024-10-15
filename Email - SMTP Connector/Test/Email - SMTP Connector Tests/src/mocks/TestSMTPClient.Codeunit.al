@@ -8,10 +8,10 @@ codeunit 139759 "Test SMTP Client" implements "SMTP Client"
 
     var
         SMTPAccount: Record "SMTP Account";
-        SMTPMessage: Codeunit "SMTP Message";
+        SMTPMessage: Codeunit "Connector SMTP Message";
         SMTPClientMock: Codeunit "SMTP Client Mock";
 
-    procedure Initialize(Account: Record "SMTP Account"; Message: codeunit "SMTP Message");
+    procedure Initialize(Account: Record "SMTP Account"; Message: codeunit "Connector SMTP Message");
     begin
         SMTPAccount := Account;
         SMTPMessage := Message;

@@ -45,7 +45,7 @@ codeunit 135007 "Error Message Posting Setup"
         Assert.ExpectedError(
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 GeneralPostingSetup.FieldCaption("Sales Account"),
-                GeneralPostingSetup.TableCaption()));
+                GeneralPostingSetup));
     end;
 
     [Test]
@@ -1100,7 +1100,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in General Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, GeneralPostingSetup.TableCaption(), GetGeneralPostingSetupFieldCaption(GeneralPostingSetup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, GeneralPostingSetup, GetGeneralPostingSetupFieldCaption(GeneralPostingSetup, FieldNo));
     end;
 
     local procedure GeneralPostingSetupScenario(FieldNo: Integer; BooleanParameter: Boolean)
@@ -1136,7 +1136,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in General Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, GeneralPostingSetup.TableCaption(), GetGeneralPostingSetupFieldCaption(GeneralPostingSetup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, GeneralPostingSetup, GetGeneralPostingSetupFieldCaption(GeneralPostingSetup, FieldNo));
     end;
 
     local procedure VATPostingSetupScenario(FieldNo: Integer; BooleanParameter: Boolean)
@@ -1169,7 +1169,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in VAT Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, VATPostingSetup.TableCaption(), GetVATPostingSetupFieldCaption(VATPostingSetup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, VATPostingSetup, GetVATPostingSetupFieldCaption(VATPostingSetup, FieldNo));
     end;
 
     local procedure InventoryPostingSetupScenario(FieldNo: Integer)
@@ -1209,7 +1209,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Inventory Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, InventoryPostingSetup.TableCaption(), GetInventoryPostingSetupFieldCaption(InventoryPostingSetup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, InventoryPostingSetup, GetInventoryPostingSetupFieldCaption(InventoryPostingSetup, FieldNo));
     end;
 
     local procedure CustomerPostingGroupScenario(FieldNo: Integer)
@@ -1245,7 +1245,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Customer Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, CustomerPostingGroup.TableCaption(), GetCustomerPostingGroupFieldCaption(CustomerPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, CustomerPostingGroup, GetCustomerPostingGroupFieldCaption(CustomerPostingGroup, FieldNo));
     end;
 
     local procedure CustomerPostingGroupScenario(FieldNo: Integer; BooleanParameter: Boolean)
@@ -1281,7 +1281,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Customer Posting Group."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, CustomerPostingGroup.TableCaption(), GetCustomerPostingGroupFieldCaption(CustomerPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, CustomerPostingGroup, GetCustomerPostingGroupFieldCaption(CustomerPostingGroup, FieldNo));
     end;
 
     local procedure VendorPostingGroupScenario(FieldNo: Integer)
@@ -1311,7 +1311,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Vendor Posting Group."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, VendorPostingGroup.TableCaption(), GetVendorPostingGroupFieldCaption(VendorPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, VendorPostingGroup, GetVendorPostingGroupFieldCaption(VendorPostingGroup, FieldNo));
     end;
 
     local procedure VendorPostingGroupScenario(FieldNo: Integer; BooleanParameter: Boolean)
@@ -1347,7 +1347,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Vendor Posting Group."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, VendorPostingGroup.TableCaption(), GetVendorPostingGroupFieldCaption(VendorPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, VendorPostingGroup, GetVendorPostingGroupFieldCaption(VendorPostingGroup, FieldNo));
     end;
 
     local procedure JobPostingGroupScenario(FieldNo: Integer)
@@ -1399,7 +1399,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in Job Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, JobPostingGroup.TableCaption(), GetJobPostingGroupFieldCaption(JobPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, JobPostingGroup, GetJobPostingGroupFieldCaption(JobPostingGroup, FieldNo));
     end;
 
     local procedure FAPostingGroupScenario(FieldNo: Integer)
@@ -1485,7 +1485,7 @@ codeunit 135007 "Error Message Posting Setup"
 
         // [THEN] Error message created "XXX is missing in FA Posting Setup."
         ErrorMessageHandler.AppendTo(TempErrorMessage);
-        VerifyErrorMessage(TempErrorMessage, FAPostingGroup.TableCaption(), GetFAPostingGroupFieldCaption(FAPostingGroup, FieldNo));
+        VerifyErrorMessage(TempErrorMessage, FAPostingGroup, GetFAPostingGroupFieldCaption(FAPostingGroup, FieldNo));
     end;
 
     local procedure CreateGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
@@ -1620,12 +1620,12 @@ codeunit 135007 "Error Message Posting Setup"
         exit(FldRef.Caption);
     end;
 
-    local procedure VerifyErrorMessage(var TempErrorMessage: Record "Error Message" temporary; TableCaption: Text; FieldCaption: Text)
+    local procedure VerifyErrorMessage(var TempErrorMessage: Record "Error Message" temporary; VariantRec: Variant; FieldCaption: Text)
     begin
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(
             Description,
-            LibraryErrorMessage.GetMissingAccountErrorMessage(FieldCaption, TableCaption));
+            LibraryErrorMessage.GetMissingAccountErrorMessage(FieldCaption, VariantRec));
         TempErrorMessage.TestField("Support Url", 'https://go.microsoft.com/fwlink/?linkid=2157418');
     end;
 

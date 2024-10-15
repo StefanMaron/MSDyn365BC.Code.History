@@ -970,7 +970,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Assert.ExpectedError(
             LibraryErrorMessage.GetMissingAccountErrorMessage(
                 GeneralPostingSetup.FieldCaption("COGS Account"),
-                GeneralPostingSetup.TableCaption()));
+                GeneralPostingSetup));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

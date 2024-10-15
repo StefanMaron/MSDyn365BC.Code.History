@@ -243,6 +243,8 @@ page 96 "Sales Cr. Memo Subform"
                     trigger OnValidate()
                     begin
                         QuantityOnAfterValidate();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
