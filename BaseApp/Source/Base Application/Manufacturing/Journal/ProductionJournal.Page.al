@@ -1015,7 +1015,7 @@ page 5510 "Production Journal"
 
     protected procedure MarkRelevantRec(var ItemJournalLine: Record "Item Journal Line")
     begin
-        ItemJournalLine := Rec;
+        ItemJournalLine.CopyFilters(Rec);
         if ItemJournalLine.FindSet() then begin
             repeat
                 case ItemJournalLine."Entry Type" of

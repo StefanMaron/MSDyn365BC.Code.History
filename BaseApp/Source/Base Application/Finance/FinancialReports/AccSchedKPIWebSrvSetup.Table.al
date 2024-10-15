@@ -323,7 +323,10 @@ table 135 "Acc. Sched. KPI Web Srv. Setup"
         WebService: Record "Web Service";
         TenantWebService: Record "Tenant Web Service";
         EnvironmentInfo: Codeunit "Environment Information";
+        AccSchedKPIEventHandler: Codeunit "Acc. Sched. KPI Event Handler";
     begin
+        AccSchedKPIEventHandler.ResetAccSchedKPIWevSrvSetup();
+
         if EnvironmentInfo.IsSaaS() then begin
             TenantWebService.SetRange("Object Type", WebService."Object Type"::Page);
             TenantWebService.SetRange("Object ID", PAGE::"Acc. Sched. KPI Web Service");

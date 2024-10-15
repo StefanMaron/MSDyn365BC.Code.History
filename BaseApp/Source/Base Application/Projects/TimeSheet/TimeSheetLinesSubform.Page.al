@@ -764,7 +764,7 @@ page 974 "Time Sheet Lines Subform"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetCommonTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
+        exit(TimeSheetApprovalMgt.GetCommonTimeSheetActionDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)

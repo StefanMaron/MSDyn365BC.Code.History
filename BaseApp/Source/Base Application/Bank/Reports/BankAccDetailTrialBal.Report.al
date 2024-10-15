@@ -26,7 +26,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(ExcludeBalanceOnly; ExcludeBalanceOnly)
+            column(ExcludeBalanceOnly; ExcludeBalanceOnlyReq)
             {
             }
             column(BankAccFilter; BankAccFilter)
@@ -38,7 +38,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
             column(StartBalance; StartBalance)
             {
             }
-            column(PrintOnlyOnePerPage; PrintOnlyOnePerPage)
+            column(PrintOnlyOnePerPage; PrintOnlyOnePerPageReq)
             {
             }
             column(ReportFilter; StrSubstNo('%1: %2', TableCaption(), BankAccFilter))
@@ -141,7 +141,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not PrintReversedEntries and Reversed then
+                    if not PrintReversedEntriesReq and Reversed then
                         CurrReport.Skip();
                     BankAccLedgEntryExists := true;
                     BankAccBalance := BankAccBalance + Amount;
@@ -159,7 +159,7 @@ report 1404 "Bank Acc. - Detail Trial Bal."
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not BankAccLedgEntryExists and ((StartBalance = 0) or ExcludeBalanceOnly) then begin
+                    if not BankAccLedgEntryExists and ((StartBalance = 0) or ExcludeBalanceOnlyReq) then begin
                         StartBalanceLCY := 0;
                         CurrReport.Skip();
                     end;
@@ -177,11 +177,11 @@ report 1404 "Bank Acc. - Detail Trial Bal."
                         StartBalanceLCY := "Net Change (LCY)";
                         SetFilter("Date Filter", DateFilter_BankAccount);
                     end;
-                CurrReport.PrintOnlyIfDetail := ExcludeBalanceOnly or (StartBalance = 0);
+                CurrReport.PrintOnlyIfDetail := ExcludeBalanceOnlyReq or (StartBalance = 0);
                 BankAccBalance := StartBalance;
                 BankAccBalanceLCY := StartBalanceLCY;
 
-                if PrintOnlyOnePerPage then
+                if PrintOnlyOnePerPageReq then
                     PageGroupNo := PageGroupNo + 1;
             end;
 
@@ -203,20 +203,20 @@ report 1404 "Bank Acc. - Detail Trial Bal."
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(PrintOnlyOnePerPage; PrintOnlyOnePerPage)
+                    field(PrintOnlyOnePerPage; PrintOnlyOnePerPageReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'New Page per Bank Account';
                         ToolTip = 'Specifies if you want to print each bank account on a separate page.';
                     }
-                    field(ExcludeBalanceOnly; ExcludeBalanceOnly)
+                    field(ExcludeBalanceOnly; ExcludeBalanceOnlyReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Exclude Bank Accs. That Have a Balance Only';
                         MultiLine = true;
                         ToolTip = 'Specifies if you do not want the report to include entries for bank accounts that have a balance but do not have a net change during the selected time period.';
                     }
-                    field(PrintReversedEntries; PrintReversedEntries)
+                    field(PrintReversedEntries; PrintReversedEntriesReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include Reversed Entries';
@@ -248,16 +248,10 @@ report 1404 "Bank Acc. - Detail Trial Bal."
 
     var
         Text000: Label 'Period: %1';
-        PrintOnlyOnePerPage: Boolean;
-        ExcludeBalanceOnly: Boolean;
         BankAccFilter: Text;
         DateFilter_BankAccount: Text;
         BankAccBalance: Decimal;
         BankAccBalanceLCY: Decimal;
-        StartBalance: Decimal;
-        StartBalanceLCY: Decimal;
-        BankAccLedgEntryExists: Boolean;
-        PrintReversedEntries: Boolean;
         PageGroupNo: Integer;
         BankAccDetailTrialBalCapLbl: Label 'Bank Acc. - Detail Trial Bal.';
         CurrReportPageNoCaptionLbl: Label 'Page';
@@ -268,11 +262,19 @@ report 1404 "Bank Acc. - Detail Trial Bal."
         BankAccBalanceLCYCaptionLbl: Label 'Balance (LCY)';
         ContinuedCaptionLbl: Label 'Continued';
 
+    protected var
+        BankAccLedgEntryExists: Boolean;
+        ExcludeBalanceOnlyReq: Boolean;
+        PrintOnlyOnePerPageReq: Boolean;
+        PrintReversedEntriesReq: Boolean;
+        StartBalance: Decimal;
+        StartBalanceLCY: Decimal;
+
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean; NewExcludeBalanceOnly: Boolean; NewPrintReversedEntries: Boolean)
     begin
-        PrintOnlyOnePerPage := NewPrintOnlyOnePerPage;
-        ExcludeBalanceOnly := NewExcludeBalanceOnly;
-        PrintReversedEntries := NewPrintReversedEntries;
+        PrintOnlyOnePerPageReq := NewPrintOnlyOnePerPage;
+        ExcludeBalanceOnlyReq := NewExcludeBalanceOnly;
+        PrintReversedEntriesReq := NewPrintReversedEntries;
     end;
 }
 

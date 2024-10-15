@@ -1460,8 +1460,11 @@ page 233 "Apply Vendor Entries"
                     if Rec."Entry No." <> RecBeforeRunPostApplicationVendorLedgerEntry."Entry No." then
                         Rec := RecBeforeRunPostApplicationVendorLedgerEntry;
                     PostApplication.GetParameters(NewApplyUnapplyParameters);
-                    if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
-                        Error(ApplicationDateErr, Rec.FieldCaption("Posting Date"), Rec.TableCaption());
+                    IsHandled := false;
+                    OnPostDirectApplicationOnBeforeCheckApplicationDate(Rec, NewApplyUnapplyParameters, ApplicationDate, PreviewMode, IsHandled);
+                    if not IsHandled then
+                        if NewApplyUnapplyParameters."Posting Date" < ApplicationDate then
+                            Error(ApplicationDateErr, Rec.FieldCaption("Posting Date"), Rec.TableCaption());
                 end else
                     exit;
                 OnPostDirectApplicationBeforeApply(GLSetup, NewApplyUnapplyParameters);
@@ -1751,6 +1754,11 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnQueryClosePage(CloseAction: Action; ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; ApplnType: Enum "Vendor Apply-to Type"; VendorLedgerEntry: Record "Vendor Ledger Entry"; CalcType: Enum "Vendor Apply Calculation Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDirectApplicationOnBeforeCheckApplicationDate(VendorLedgerEntry: Record "Vendor Ledger Entry"; NewApplyUnapplyParameters: Record "Apply Unapply Parameters"; ApplicationDate: Date; PreviewMode: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -70,6 +70,8 @@ codeunit 137159 "SCM Warehouse VII"
         UsageNotLinkedToBlankLineTypeMsg: Label 'Usage will not be linked to the project planning line because the Line Type field is empty';
         ReservationSpecificTrackingConfirmMessage: Label 'Do you want to reserve specific tracking numbers?';
         CrossDockQtyIsNotCalculatedMsg: Label 'Cross-dock quantity is not calculated';
+        JobIsNotFoundErr: Label 'Job is not found.';
+        PickQtyAndQtyPickedMustMatchErr: Label 'PickQty and Qty. Picked must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2323,6 +2325,84 @@ codeunit 137159 "SCM Warehouse VII"
         Assert.AreEqual(ToBin.Code, WhseWorksheetLine."To Bin Code", BlankCodeErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ReserveFromCurrentLineHandler,ConfirmHandlerNo,WhseSrcCreateDocReqHandler,DummyMessageHandler')]
+    [Scope('OnPrem')]
+    procedure ShowWarningWhenDeleteJobPlanningLineHavingQtyPicked()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        WhseActivityHeader: Record "Warehouse Activity Header";
+        JobNo: Code[20];
+        PickQty: Decimal;
+    begin
+        // [SCENARIO 488261] Warning is shown when stan deletes Job or Job Planning Lines having Qty. Picked greater than Qty. Posted.
+        Initialize();
+
+        // [GIVEN] Create full WMS Location.
+        CreateFullWarehouseSetup(Location);
+        UpdateLocation(Location);
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Purchase Order and Warehouse Receipt.
+        CreateWarehouseReceiptFromPurchaseOrder(PurchaseHeader, Item."No.", LibraryRandom.RandInt(0), Location.Code, false);
+
+        // [GIVEN] Post Warehouse Receipt.
+        PostWarehouseReceipt(PurchaseHeader."No.");
+
+        // [GIVEN] Create Job with Job Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Generate and save Quantity to be picked in a Variable.
+        PickQty := LibraryRandom.RandInt(0);
+
+        // [GIVEN] Create Job Planning Line.
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        UpdateJobPlanningLine(JobPlanningLine, Item."No.", Location.Code, PickQty);
+
+        // [GIVEN] Reserve Item from Job Planning Line.        
+        LibraryVariableStorage.Enqueue(ReservationSpecificTrackingConfirmMessage);
+        OpenReservationPage(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+
+        // [GIVEN] Find and save Job No. in a Variable.
+        Job.Get(JobTask."Job No.");
+        JobNo := Job."No.";
+
+        // [GIVEN] Create Warehouse Pick from Job.
+        OpenJobAndCreateWarehousePick(Job);
+
+        // [GIVEN] Validate Qty to Handle in Warehouse Activity Lines.
+        ValidateQtyToHandleInWhseActivityLines(Location, PickQty);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        FindWarehouseActivityHeader(WhseActivityHeader, Location.Code, WhseActivityHeader.Type::Pick);
+
+        // [GIVEN] Register Pick.
+        LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
+
+        // [WHEN] Delete Job.
+        asserterror Job.Delete(true);
+
+        // [VERIFY] Job is not deleted.
+        Assert.IsTrue(Job.Get(JobNo), JobIsNotFoundErr);
+
+        // [GIVEN] Find Job Planning Line.
+        JobPlanningLine.SetRange("Location Code", Location.Code);
+        JobPlanningLine.FindFirst();
+
+        // [WHEN] Delete Job PLanning Line.
+        asserterror JobPlanningLine.Delete(true);
+
+        // [VERIFY] Verify Job Planning Line is not deleted and has Qty. Picked.
+        Assert.AreEqual(PickQty, JobPlanningLine."Qty. Picked", PickQtyAndQtyPickedMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4215,6 +4295,19 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryWarehouse.CalculateBinReplenishment(BinContent, WhseWorksheetName, BinContent."Location Code", false, true, false);
     end;
 
+    local procedure ValidateQtyToHandleInWhseActivityLines(Location: Record Location; PickQty: Decimal)
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.Validate("Qty. to Handle", PickQty);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.FindLast();
+        WarehouseActivityLine.Validate("Qty. to Handle", PickQty);
+        WarehouseActivityLine.Modify(true);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -4224,6 +4317,13 @@ codeunit 137159 "SCM Warehouse VII"
         LibraryVariableStorage.Dequeue(ExpectedMessage);
         Assert.IsTrue(StrPos(ConfirmMessage, ExpectedMessage) > 0, ConfirmMessage);
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerNo(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 
     [ModalPageHandler]

@@ -101,7 +101,10 @@ page 283 "Recurring General Journal"
                     ToolTip = 'Specifies the type of account that the entry on the journal line will be posted to.';
 
                     trigger OnValidate()
+                    var
+                        GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
+                        GenJournalAllocAccMgt.PreventAllocationAccountsFromThisPage(Rec."Account Type");
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         CurrPage.SaveRecord();
                     end;
@@ -301,7 +304,8 @@ page 283 "Recurring General Journal"
                     ApplicationArea = All;
                     Caption = 'Allocation Account No.';
                     ToolTip = 'Specifies the allocation account number that will be used to distribute the amounts during the posting process.';
-                    Visible = UseAllocationAccountNumber;
+                    Visible = false;
+
                     trigger OnValidate()
                     var
                         GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
@@ -744,9 +748,8 @@ page 283 "Recurring General Journal"
                     ApplicationArea = All;
                     Caption = 'Redistribute Account Allocations';
                     Image = EditList;
-#pragma warning disable AA0219
+                    Visible = false;
                     ToolTip = 'Use this action to redistribute the account allocations for this line.';
-#pragma warning restore AA0219
 
                     trigger OnAction()
                     var
@@ -764,18 +767,20 @@ page 283 "Recurring General Journal"
                     ApplicationArea = All;
                     Caption = 'Generate lines from Allocation Account Line';
                     Image = CreateLinesFromJob;
-#pragma warning disable AA0219
+                    Visible = false;
                     ToolTip = 'Use this action to replace the Allocation Account line with the actual lines that would be generated from the line itself.';
-#pragma warning restore AA0219
 
                     trigger OnAction()
                     var
+                        BackupRec: Record "Gen. Journal Line";
                         GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
                         if (Rec."Account Type" <> Rec."Account Type"::"Allocation Account") and (Rec."Bal. Account Type" <> Rec."Bal. Account Type"::"Allocation Account") and (Rec."Selected Alloc. Account No." = '') then
                             Error(ActionOnlyAllowedForAllocationAccountsErr);
 
-                        GenJournalAllocAccMgt.CreateLines(Rec);
+                        BackupRec.Copy(Rec);
+                        BackupRec.SetRecFilter();
+                        GenJournalAllocAccMgt.CreateLines(BackupRec);
                         Rec.Delete();
                         CurrPage.Update(false);
                     end;
@@ -892,7 +897,6 @@ page 283 "Recurring General Journal"
 
     trigger OnOpenPage()
     var
-        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
         ServerSetting: Codeunit "Server Setting";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
@@ -900,7 +904,6 @@ page 283 "Recurring General Journal"
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        UseAllocationAccountNumber := AllocationAccountMgt.UseAllocationAccountNoField();
 
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
@@ -921,13 +924,10 @@ page 283 "Recurring General Journal"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlAlloc: Record "Gen. Jnl. Allocation";
-        GenJnlManagement: Codeunit GenJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         DistributeAmount: Codeunit "Recurring Amount - Distribute";
         ClientTypeManagement: Codeunit "Client Type Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        AccName: Text[100];
-        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         NumberOfRecords: Integer;
@@ -942,10 +942,13 @@ page 283 "Recurring General Journal"
         DimensionBalanceLine: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         VATDateEnabled: Boolean;
+#pragma warning disable AA0137
         UseAllocationAccountNumber: Boolean;
+#pragma warning restore AA0137
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Account Type or Balancing Account Type.';
 
     protected var
+        GenJnlManagement: Codeunit GenJnlManagement;
         CurrentJnlBatchName: Code[10];
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
@@ -956,6 +959,8 @@ page 283 "Recurring General Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        AccName: Text[100];
+        BalAccName: Text[100];
 
     local procedure UpdateBalance()
     var

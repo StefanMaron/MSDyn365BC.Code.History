@@ -138,20 +138,6 @@ table 5401 "Item Variant"
             if not PurchaseLine.IsEmpty() then
                 Error(CannotRenameItemUsedInPurchaseLinesErr, FieldCaption("Item No."), TableCaption());
         end;
-
-        if (xRec."Item No." = "Item No.") and (xRec.Code <> Code) then begin
-            SalesLine.SetRange(Type, SalesLine.Type::Item);
-            SalesLine.SetRange("No.", "Item No.");
-            SalesLine.SetRange("Variant Code", xRec.Code);
-            if not SalesLine.IsEmpty() then
-                SalesLine.ModifyAll("Variant Code", Code, true);
-
-            PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
-            PurchaseLine.SetRange("No.", "Item No.");
-            PurchaseLine.SetRange("Variant Code", xRec.Code);
-            if not PurchaseLine.IsEmpty() then
-                PurchaseLine.ModifyAll("Variant Code", Code, true);
-        end;
     end;
 
     trigger OnDelete()

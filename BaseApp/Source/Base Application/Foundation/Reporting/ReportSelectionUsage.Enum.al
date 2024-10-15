@@ -72,7 +72,7 @@ enum 77 "Report Selection Usage"
     value(84; "P.V.Remit.") { Caption = 'Purchase Vendor Remittance'; }
     value(85; "C.Statement") { Caption = 'Customer Statement'; }
     value(86; "V.Remittance") { Caption = 'Vendor Remittance'; }
-    value(87; "JQ") { Caption = 'Job Quote'; }
+    value(87; "JQ") { Caption = 'Project Quote'; }
     value(88; "S.Invoice Draft") { Caption = 'Sales Invoice Draft'; }
     value(89; "Pro Forma S. Invoice") { Caption = 'Pro Forma Sales Invoice'; }
     value(90; "S.Arch.Blanket") { Caption = 'Sales Archive Blanket Order'; }

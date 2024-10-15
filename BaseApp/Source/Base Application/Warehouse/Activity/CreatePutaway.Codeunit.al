@@ -131,6 +131,7 @@ codeunit 7313 "Create Put-away"
 
                     PutAwayTemplateLine.Reset();
                     PutAwayTemplateLine.SetRange("Put-away Template Code", PutAwayTemplateHeader.Code);
+                    OnCodeOnAfterFilterPutAwayTemplateLine(PutAwayTemplateLine, PostedWhseReceiptLine);
                     if not PutAwayTemplateLine.Find('-') then begin
                         MessageText := StrSubstNo(TemplateDoesNotExistMsg, PutAwayTemplateLine.TableCaption());
                         exit;
@@ -1249,6 +1250,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeSearchBin(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var Location: Record Location; var LineNo: Integer; BreakbulkNo: Integer; BreakbulkFilter: Boolean; var QtyToPutAwayBase: Decimal; var RemQtyToPutAwayBase: Decimal; BreakPackage: Boolean; Breakbulk: Boolean; CrossDockInfo: Option; PutAwayItemUnitofMeasure: Record "Item Unit of Measure"; DoNotFillQtytoHandle: Boolean; var EverythingHandled: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterFilterPutAwayTemplateLine(var PutAwayTemplateLine: Record "Put-away Template Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 }

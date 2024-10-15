@@ -15,6 +15,7 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
+        LinesInsertedToOrderMsg: Label '%1 lines inserted into the order %2.', Comment = '%1 = counters, %2 = Order No.';
 
     [Test]
     [HandlerFunctions('PostedPhysInvtOrderDiffReportHandler')]
@@ -598,6 +599,46 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
         PhysInventoryOrder.Close();
     end;
 
+    [Test]
+    [HandlerFunctions('CopyPhysInvtOrderRequestPageHandler,MessageHandlerValidateText')]
+    [Scope('OnPrem')]
+    procedure ValidateMessageOnCopyDocumentPhysInventoryOrder()
+    var
+        Item: Record Item;
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderHeader2: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInventoryOrder: TestPage "Physical Inventory Order";
+    begin
+        // [SCENARIO 507018] Non-meaningful placeholder in the copy document notification for the physical inventory orders.
+        Initialize();
+
+        // [GIVEN] Setup: Create Physical Inventory Order with Line, and create another Physical Inventory Order Header.
+        Item."No." := LibraryUTUtility.GetNewCode();
+        Item.Insert();
+        CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        CreatePhysInventoryOrderHeader(PhysInvtOrderHeader2);
+
+        // [WHEN] Invoke Action - CopyDocument of Page Physical Inventory Order.
+        Commit();  // COMMIT required because explicit COMMIT in OnPreReport Trigger of Report Copy Phys. Invt. Order.
+        LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside CopyPhysInvtOrderRequestPageHandler.
+
+        // [THEN] Message is displayed informing that one order line was inserted verifying in MessageHandlerValidateText 
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader."No.");
+        PhysInvtOrderLine.FindSet();
+        LibraryVariableStorage.Enqueue(StrSubstNo(LinesInsertedToOrderMsg, PhysInvtOrderLine.Count, PhysInvtOrderHeader2."No."));
+        PhysInventoryOrder.OpenEdit();
+        PhysInventoryOrder.FILTER.SetFilter("No.", PhysInvtOrderHeader2."No.");
+        PhysInventoryOrder.CopyDocument.Invoke();
+        PhysInventoryOrder.Close();
+
+        // [THEN] Verify: Physical Inventory Order Line successfully copied to second Physical Inventory Order.
+        PhysInvtOrderLine.SetRange("Document No.", PhysInvtOrderHeader2."No.");
+        PhysInvtOrderLine.FindFirst();
+        PhysInvtOrderLine.TestField("Item No.", Item."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -992,6 +1033,13 @@ codeunit 137451 "Phys. Invt. Order PAG UT"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerValidateText(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 }
 

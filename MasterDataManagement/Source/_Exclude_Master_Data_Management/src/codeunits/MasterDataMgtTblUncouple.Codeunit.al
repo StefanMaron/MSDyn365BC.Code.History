@@ -63,6 +63,7 @@ codeunit 7236 "Master Data Mgt. Tbl. Uncouple"
 
     local procedure UncoupleFilteredLocalRecords(var IntegrationTableMapping: Record "Integration Table Mapping"; var IntegrationTableSynch: Codeunit "Integration Table Synch."; var TempMasterDataMgtCoupling: Record "Master Data Mgt. Coupling" temporary)
     var
+        MasterDataMgtCoupling: Record "Master Data Mgt. Coupling";
         LocalRecordRef: RecordRef;
         IntegrationRecordRef: RecordRef;
     begin
@@ -70,7 +71,8 @@ codeunit 7236 "Master Data Mgt. Tbl. Uncouple"
         IntegrationTableMapping.SetRecordRefFilter(LocalRecordRef);
         if LocalRecordRef.FindSet() then
             repeat
-                if TempMasterDataMgtCoupling.IsLocalSystemIdCoupled(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value()) then begin
+                MasterDataMgtCoupling.Reset();
+                if TempMasterDataMgtCoupling.FindRowFromLocalSystemID(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value(), MasterDataMgtCoupling) then begin
                     Clear(IntegrationRecordRef);
                     IntegrationTableSynch.Uncouple(LocalRecordRef, IntegrationRecordRef);
                 end;

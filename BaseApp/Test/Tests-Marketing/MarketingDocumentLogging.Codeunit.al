@@ -1234,6 +1234,7 @@ codeunit 136202 "Marketing Document Logging"
     local procedure SetRDLCReportLayout(ReportID: Integer)
     var
         ReportLayoutSelection: Record "Report Layout Selection";
+        TenantReportLayoutSelection: Record "Tenant Report Layout Selection";
     begin
         ReportLayoutSelection.SetRange("Report ID", ReportID);
         ReportLayoutSelection.SetRange("Company Name", CompanyName);
@@ -1242,12 +1243,19 @@ codeunit 136202 "Marketing Document Logging"
             ReportLayoutSelection."Custom Report Layout Code" := '';
             ReportLayoutSelection.Modify();
         end else begin
-            ReportLayoutSelection."Report ID" := ReportID;
-            ReportLayoutSelection."Company Name" := CompanyName;
+            ReportLayoutSelection.Validate("Report ID", ReportID);
+            ReportLayoutSelection."Company Name" := CompanyName();
             ReportLayoutSelection.Type := ReportLayoutSelection.Type::"RDLC (built-in)";
             ReportLayoutSelection."Custom Report Layout Code" := '';
             ReportLayoutSelection.Insert();
         end;
+
+        TenantReportLayoutSelection.Init();
+        TenantReportLayoutSelection."Company Name" := CompanyName();
+        TenantReportLayoutSelection."Layout Name" := ReportLayoutSelection."Report Name";
+        TenantReportLayoutSelection."Report ID" := ReportID;
+        if not TenantReportLayoutSelection.Insert(true) then
+            TenantReportLayoutSelection.Modify(true);
     end;
 
     local procedure SalesOrderPageOpenArchiveAndDelete(SalesHeader: Record "Sales Header")

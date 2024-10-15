@@ -455,8 +455,17 @@ codeunit 1535 "Approvals Mgmt."
         exit(ApprovalEntry.FindFirst());
     end;
 
+    procedure FindLastApprovalEntryForCurrUser(var ApprovalEntry: Record "Approval Entry"; RecordID: RecordID): Boolean
+    begin
+        ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
+        ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        ApprovalEntry.SetRange("Approver ID", UserId);
+        exit(ApprovalEntry.FindLast());
+    end;
+
     procedure FindApprovalEntryByRecordId(var ApprovalEntry: Record "Approval Entry"; RecordID: RecordID): Boolean
     begin
+        ApprovalEntry.Reset();
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         exit(ApprovalEntry.FindLast());
@@ -1030,6 +1039,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         PurchaseHeader.CalcInvDiscForHeader();
         PurchPost.GetPurchLines(PurchaseHeader, TempPurchaseLine, 0);
+        OnCalcPurchaseDocAmountOnAfterPurchPostGetPurchLines(TempPurchaseLine);
         Clear(PurchPost);
         PurchPost.SumPurchLinesTemp(
           PurchaseHeader, TempPurchaseLine, 0, TotalPurchaseLine, TotalPurchaseLineLCY,
@@ -2475,8 +2485,11 @@ codeunit 1535 "Approvals Mgmt."
         if not GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
             exit;
 
-        if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) then
-            GenJnlBatchApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalBatch);
+        if FindLastApprovalEntryForCurrUser(ApprovalEntry, GenJournalBatch.RecordId) then
+            GenJnlBatchApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalBatch)
+        else
+            if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) then
+                GenJnlBatchApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalBatch);
     end;
 
     procedure GetGenJnlLineApprovalStatus(GenJournalLine: Record "Gen. Journal Line"; var GenJnlLineApprovalStatus: Text[20]; EnabledGenJnlLineWorkflowsExist: Boolean)
@@ -2487,8 +2500,11 @@ codeunit 1535 "Approvals Mgmt."
         if not EnabledGenJnlLineWorkflowsExist then
             exit;
 
-        if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) then
-            GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalLine);
+        if FindLastApprovalEntryForCurrUser(ApprovalEntry, GenJournalLine.RecordId) then
+            GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalLine)
+        else
+            if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) then
+                GenJnlLineApprovalStatus := GetApprovalStatusFromApprovalEntry(ApprovalEntry, GenJournalLine);
     end;
 
     local procedure GetApprovalStatusFromApprovalEntry(var ApprovalEntry: Record "Approval Entry"; GenJournalBatch: Record "Gen. Journal Batch"): Text[20]
@@ -2564,12 +2580,18 @@ codeunit 1535 "Approvals Mgmt."
     begin
         if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
             if IsGeneralJournalBatchApprovalsWorkflowEnabled(GenJournalBatch) then
-                if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
-                    GenJnlBatchApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
+                if FindLastApprovalEntryForCurrUser(ApprovalEntry, GenJournalBatch.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
+                    GenJnlBatchApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20)
+                else
+                    if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalBatch.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
+                        GenJnlBatchApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
 
         if IsGeneralJournalLineApprovalsWorkflowEnabled(GenJournalLine) then
-            if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
-                GenJnlLineApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
+            if FindLastApprovalEntryForCurrUser(ApprovalEntry, GenJournalLine.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
+                GenJnlLineApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20)
+            else
+                if FindApprovalEntryByRecordId(ApprovalEntry, GenJournalLine.RecordId) and (ApprovalEntry.Status = ApprovalEntry.Status::Approved) then
+                    GenJnlLineApprovalStatus := CopyStr(ImposedRestrictionLbl, 1, 20);
     end;
 
     local procedure FindOpenApprovalEntryForSequenceNo(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; SequenceNo: Integer): Boolean
@@ -3099,6 +3121,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendJournalLinesApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPurchaseDocAmountOnAfterPurchPostGetPurchLines(var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 }
