@@ -1824,12 +1824,12 @@ codeunit 442 "Sales-Post Prepayments"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInvoice(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreditMemo(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;

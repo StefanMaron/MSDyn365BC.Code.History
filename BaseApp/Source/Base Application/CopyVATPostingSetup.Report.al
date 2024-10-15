@@ -53,7 +53,7 @@ report 85 "Copy - VAT Posting Setup"
 #endif
                 // NAVCZ
 
-                OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch);
+                OnAfterCopyVATPostingSetup("VAT Posting Setup", VATPostingSetup, Sales, Purch, VATSetup);
 
                 if ConfirmManagement.GetResponseOrDefault(Text000, true) then
                     Modify;
@@ -231,7 +231,7 @@ report 85 "Copy - VAT Posting Setup"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; FromVATPostingSetup: Record "VAT Posting Setup"; Sales: Boolean; Purch: Boolean)
+    local procedure OnAfterCopyVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; FromVATPostingSetup: Record "VAT Posting Setup"; Sales: Boolean; Purch: Boolean; VATSetup: Boolean)
     begin
     end;
 }

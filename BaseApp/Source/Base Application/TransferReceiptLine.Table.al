@@ -231,6 +231,13 @@ table 5747 "Transfer Receipt Line"
     {
     }
 
+    trigger OnDelete()
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        ItemChargeAssignmentPurch.CheckAssignment("Purchase Applies-to Document Type"::"Transfer Receipt", "Document No.", "Line No.");
+    end;
+
     var
         DimMgt: Codeunit DimensionManagement;
 

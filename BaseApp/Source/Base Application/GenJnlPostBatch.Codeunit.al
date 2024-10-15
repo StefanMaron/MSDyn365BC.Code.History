@@ -354,11 +354,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         OnBeforeProcessBalanceOfLines(GenJnlLine, GenJnlBatch, GenJnlTemplate, IsProcessingKeySet);
         if not IsProcessingKeySet then
             if GenJnlTemplate."Force Doc. Balance" then
-                if ((GenJnlBatch."No. Series" = '') and (GenJnlBatch."Posting No. Series" = '')) or
-                   GenJnlTemplate.Recurring
-                then
-                    GenJnlLine.SetCurrentKey("Document No.");
-
+                GenJnlLine.SetCurrentKey("Document No.", "Posting Date");
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";
@@ -1546,7 +1542,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
                 InsertPostedGenJnlLine(GenJournalLine);
             end;
-            OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine);
+            OnAfterPostGenJnlLine(GenJnlLine5, SuppressCommit, GenJnlPostLine, IsPosted, GenJournalLine);
             if (GenJnlTemplate.Type = GenJnlTemplate.Type::Intercompany) and (CurrentICPartner <> '') and
                ("IC Direction" = "IC Direction"::Outgoing) and (ICTransactionNo > 0)
             then
@@ -1928,7 +1924,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnAfterPostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; CommitIsSuppressed: Boolean; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; IsPosted: Boolean; var PostingGenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

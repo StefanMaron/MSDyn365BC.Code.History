@@ -1,4 +1,4 @@
-table 32 "Item Ledger Entry"
+﻿table 32 "Item Ledger Entry"
 {
     Caption = 'Item Ledger Entry';
     DrillDownPageID = "Item Ledger Entries";
@@ -1019,7 +1019,7 @@ table 32 "Item Ledger Entry"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeVerifyOnInventory(Rec, IsHandled);
+        OnBeforeVerifyOnInventory(Rec, IsHandled, ErrorMessageText);
         if IsHandled then
             exit;
 
@@ -1031,11 +1031,13 @@ table 32 "Item Ledger Entry"
             "Entry Type"::Consumption, "Entry Type"::"Assembly Consumption", "Entry Type"::Transfer:
                 Error(ErrorMessageText);
             else begin
-                    Item.Get("Item No.");
-                    if Item.PreventNegativeInventory then
-                        Error(ErrorMessageText);
-                end;
+                Item.Get("Item No.");
+                if Item.PreventNegativeInventory() then
+                    Error(ErrorMessageText);
+            end;
         end;
+
+        OnAfterVerifyOnInventory(Rec, ErrorMessageText);
     end;
 
     procedure CalculateRemInventoryValue(ItemLedgEntryNo: Integer; ItemLedgEntryQty: Decimal; RemQty: Decimal; IncludeExpectedCost: Boolean; PostingDate: Date): Decimal
@@ -1334,12 +1336,17 @@ table 32 "Item Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifyOnInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeVerifyOnInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean; ErrorMessageText: Text)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnFilterLinesForReservationOnBeforeSetFilterVariantCode(var ItemLedgerEntry: Record "Item Ledger Entry"; var ReservationEntry: Record "Reservation Entry"; var Positive: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterVerifyOnInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; ErrorMessageText: Text)
     begin
     end;
 }

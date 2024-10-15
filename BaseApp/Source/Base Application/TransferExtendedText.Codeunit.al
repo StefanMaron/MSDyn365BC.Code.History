@@ -263,7 +263,7 @@ codeunit 378 "Transfer Extended Text"
         ToSalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
-        OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled, MakeUpdateRequired);
+        OnBeforeInsertSalesExtText(SalesLine, TempExtTextLine, IsHandled, MakeUpdateRequired, LastInsertedSalesLine);
         if IsHandled then
             exit;
 
@@ -836,7 +836,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertSalesExtText(var SalesLine: Record "Sales Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean)
+    local procedure OnBeforeInsertSalesExtText(var SalesLine: Record "Sales Line"; var TempExtTextLine: Record "Extended Text Line" temporary; var IsHandled: Boolean; var MakeUpdateRequired: Boolean; var LastInsertedSalesLine: Record "Sales Line")
     begin
     end;
 

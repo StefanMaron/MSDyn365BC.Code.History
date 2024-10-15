@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -78,7 +78,7 @@ page 461 "Inventory Setup"
                 field("Prevent Negative Inventory"; "Prevent Negative Inventory")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you can post transactions that will bring inventory levels below zero.';
+                    ToolTip = 'Specifies whether you can post a transaction that will bring the item''s inventory below zero. Negative inventory is always prevented for Consumption and Transfer type transactions.';
                 }
                 field("Skip Prompt to Create Item"; "Skip Prompt to Create Item")
                 {

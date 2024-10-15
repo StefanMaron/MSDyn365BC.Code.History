@@ -1272,6 +1272,8 @@ page 49 "Purchase Quote"
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action("Archive Document")

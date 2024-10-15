@@ -762,11 +762,15 @@ report 25 "Account Schedule"
         ColumnValuesDisplayed := AccSchedManagement.CalcCell(AccScheduleLine, ColumnLayout, UseAmtsInAddCurr);
         if AccSchedManagement.GetDivisionError then begin
             if ShowError in [ShowError::"Division by Zero", ShowError::Both] then
-                ColumnValuesAsText := Text002;
+                ColumnValuesAsText := Text002
+            else
+                ValueIsEmpty := true;
         end else
             if AccSchedManagement.GetPeriodError then begin
                 if ShowError in [ShowError::"Period Error", ShowError::Both] then
-                    ColumnValuesAsText := Text004;
+                    ColumnValuesAsText := Text004
+                else
+                    ValueIsEmpty := true;
             end else begin
                 if ColumnValuesDisplayed = 0 then
                     ValueIsEmpty := true;

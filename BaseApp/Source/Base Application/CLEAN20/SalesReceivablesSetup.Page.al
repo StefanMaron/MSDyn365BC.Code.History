@@ -174,9 +174,10 @@ page 459 "Sales & Receivables Setup"
                 }
                 field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                    Visible = false;
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {

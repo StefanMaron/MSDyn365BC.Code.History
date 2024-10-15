@@ -381,6 +381,8 @@ report 1003 "Post Invt. Cost to G/L - Test"
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -398,6 +400,12 @@ report 1003 "Post Invt. Cost to G/L - Test"
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.GetRecordOnce();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        end;
     }
 
     labels
@@ -679,11 +687,11 @@ report 1003 "Post Invt. Cost to G/L - Test"
                     exit(GenPostSetup.FieldCaption("Invt. Rounding Adj. Account"));
                 // NAVCZ
                 else begin
-                        IsHandled := false;
-                        OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
-                        if IsHandled then
-                            exit(AccountName);
-                    end;
+                    IsHandled := false;
+                    OnGetAccountNameInventoryAccountTypeCase(TempInvtPostToGLTestBuf, AccountName, IsHandled, InvtPostSetup, GenPostSetup);
+                    if IsHandled then
+                        exit(AccountName);
+                end;
             end;
 
         OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);

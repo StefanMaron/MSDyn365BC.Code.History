@@ -137,6 +137,7 @@ table 6505 "Lot No. Information"
         LotNoInfoNew.SetRange("Item No.", TrackingSpecification."Item No.");
         LotNoInfoNew.SetRange("Variant Code", TrackingSpecification."Variant Code");
         LotNoInfoNew.SetRange("Lot No.", LotNo);
+        OnShowCardOnAfterLotNoInfoNewSetFilters(LotNoInfoNew, TrackingSpecification);
 
         LotNoInfoForm.SetTableView(LotNoInfoNew);
         LotNoInfoForm.Run();
@@ -156,6 +157,11 @@ table 6505 "Lot No. Information"
 
         LotNoInfoForm.SetTableView(LotNoInfoNew);
         LotNoInfoForm.Run();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowCardOnAfterLotNoInfoNewSetFilters(var LotNoInformation: Record "Lot No. Information"; TrackingSpecification: Record "Tracking Specification")
+    begin
     end;
 }
 

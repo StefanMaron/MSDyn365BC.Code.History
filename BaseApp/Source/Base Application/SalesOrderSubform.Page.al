@@ -1601,7 +1601,7 @@ page 46 "Sales Order Subform"
 
     trigger OnModifyRecord(): Boolean
     begin
-        DocumentTotals.SalesDocTotalsNotUpToDate(); // NAVCZ
+        DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1899,6 +1899,8 @@ page 46 "Sales Order Subform"
 
     protected procedure QuantityOnAfterValidate()
     begin
+        OnBeforeQuantityOnAfterValidate(Rec, xRec);
+
         if Type = Type::Item then begin
             CurrPage.SaveRecord();
             case Reserve of
@@ -2001,7 +2003,14 @@ page 46 "Sales Order Subform"
     end;
 
     procedure DeltaUpdateTotals()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeltaUpdateTotals(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if SuppressTotals then
             exit;
 
@@ -2224,6 +2233,16 @@ page 46 "Sales Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSetDimensionsVisibility();
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line")
     begin
     end;
 }

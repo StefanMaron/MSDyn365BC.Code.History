@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
@@ -810,7 +810,6 @@ page 490 "Acc. Schedule Overview"
                 {
                     Caption = 'Export to Excel';
                     Image = ExportToExcel;
-
                     action("Create New Document")
                     {
                         ApplicationArea = Basic, Suite;

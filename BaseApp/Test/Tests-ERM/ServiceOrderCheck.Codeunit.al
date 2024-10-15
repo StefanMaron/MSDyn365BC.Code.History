@@ -1470,6 +1470,30 @@ codeunit 136114 "Service Order Check"
         Assert.ExpectedError(StrSubstNo(ReleasedStatusErr, ServiceHeader."Release Status"::Open, ServiceHeader."Document Type", ServiceHeader."No.", ServiceHeader."Release Status"::"Released to Ship"));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServOrderCheckResponseTimeThrowsErrorIfDefaultServiceHoursAreNotSet()
+    var
+        ServiceHour: Record "Service Hour";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO] ServOrderCheckResponseTime throws error if Default Service hours are not set
+
+        // [GIVEN] An empty Service Hour table and a pending Service Order
+        Initialize();
+        ServiceHour.DeleteAll();
+        CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
+        ServiceHeader.Validate(Status, ServiceHeader.Status::Pending);
+
+        // [WHEN] Codeunit "ServOrder-Check Response Time" is run
+        asserterror Codeunit.Run(Codeunit::"ServOrder-Check Response Time");
+
+        // [THEN] Error is thrown indicating the Defualt Service Hours are not setup
+        Assert.ExpectedError('not setup');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -959,6 +959,9 @@ page 256 "Payment Journal"
                         PromotedCategory = Category4;
                         PromotedIsBig = true;
                         ToolTip = 'Transmit the exported electronic payment file to the bank.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Action only related to NA local version';
+                        ObsoleteTag = '21.0';
 
                         trigger OnAction()
                         begin

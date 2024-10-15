@@ -336,6 +336,11 @@ page 39 "General Journal"
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                     Visible = AmountVisible;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
@@ -420,6 +425,7 @@ page 39 "General Journal"
                     begin
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                         ShowShortcutDimCode(ShortcutDimCode);
+                        CurrPage.SaveRecord();
                     end;
                 }
                 field("Bal. Gen. Posting Type"; "Bal. Gen. Posting Type")
@@ -427,12 +433,22 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general posting type associated with the balancing account that will be used when you post the entry on the journal line.';
                     Visible = NOT IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Bal. Gen. Bus. Posting Group"; "Bal. Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general business posting group code associated with the balancing account that will be used when you post the entry.';
                     Visible = NOT IsSimplePage;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.SaveRecord();
+                    end;
                 }
                 field("Bal. Gen. Prod. Posting Group"; "Bal. Gen. Prod. Posting Group")
                 {

@@ -244,7 +244,7 @@ page 30 "Item Card"
                     Caption = 'Prevent Negative Inventory';
                     Importance = Additional;
                     OptionCaption = 'Default (Yes),No,Yes';
-                    ToolTip = 'Specifies if you can post a transaction that will bring the item''s inventory below zero.';
+                    ToolTip = 'Specifies whether you can post a transaction that will bring the item''s inventory below zero. Negative inventory is always prevented for Consumption and Transfer type transactions.';
                     Visible = ShowPreventNegInventoryDefaultYes;
                 }
                 field(PreventNegInventoryDefaultNo; "Prevent Negative Inventory")
@@ -2852,6 +2852,7 @@ page 30 "Item Card"
 
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
+            OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else
@@ -2920,6 +2921,11 @@ page 30 "Item Card"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateItemFromTemplateOnAfterCurrPageUpdate(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateItemFromTemplateOnBeforeCurrPageUpdate(var Item: Record Item)
     begin
     end;
 

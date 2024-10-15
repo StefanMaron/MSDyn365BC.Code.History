@@ -87,7 +87,7 @@ report 595 "Adjust Exchange Rates"
                         GroupTotal: Boolean;
                     begin
                         BankAccount.Copy("Bank Account");
-                        if BankAccount.Next = 1 then begin
+                        if BankAccount.Next() = 1 then begin
                             if BankAccount."Bank Acc. Posting Group" <> "Bank Account"."Bank Acc. Posting Group" then
                                 GroupTotal := true;
                         end else
@@ -726,7 +726,7 @@ report 595 "Adjust Exchange Rates"
 
                         trigger OnValidate()
                         begin
-                            CheckPostingDate;
+                            CheckPostingDate();
                         end;
                     }
                     field(DocumentNo; PostingDocNo)
@@ -762,6 +762,8 @@ report 595 "Adjust Exchange Rates"
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -935,9 +937,9 @@ report 595 "Adjust Exchange Rates"
         GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
-                Error(Text11300Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
             if GenJnlLineReq."Journal Batch Name" = '' then
-                Error(Text11301Err);
+                Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
             Clear(NoSeriesMgt);
             Clear(PostingDocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
@@ -959,10 +961,10 @@ report 595 "Adjust Exchange Rates"
             GLSetup.TestField("Additional Reporting Currency");
 
             Currency3.Get(GLSetup."Additional Reporting Currency");
-            "G/L Account".Get(Currency3.GetRealizedGLGainsAccount);
+            "G/L Account".Get(Currency3.GetRealizedGLGainsAccount());
             "G/L Account".TestField("Exchange Rate Adjustment", "G/L Account"."Exchange Rate Adjustment"::"No Adjustment");
 
-            "G/L Account".Get(Currency3.GetRealizedGLLossesAccount);
+            "G/L Account".Get(Currency3.GetRealizedGLLossesAccount());
             "G/L Account".TestField("Exchange Rate Adjustment", "G/L Account"."Exchange Rate Adjustment"::"No Adjustment");
 
             with VATPostingSetup2 do
@@ -988,17 +990,17 @@ report 595 "Adjust Exchange Rates"
                 if Find('-') then
                     repeat
                         CheckExchRateAdjustment(
-                          "Tax Account (Purchases)", TableCaption, FieldCaption("Tax Account (Purchases)"));
+                          "Tax Account (Purchases)", TableCaption(), FieldCaption("Tax Account (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Reverse Charge (Purchases)", TableCaption, FieldCaption("Reverse Charge (Purchases)"));
+                          "Reverse Charge (Purchases)", TableCaption(), FieldCaption("Reverse Charge (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Purchases)", TableCaption, FieldCaption("Unreal. Tax Acc. (Purchases)"));
+                          "Unreal. Tax Acc. (Purchases)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Rev. Charge (Purch.)", TableCaption, FieldCaption("Unreal. Rev. Charge (Purch.)"));
+                          "Unreal. Rev. Charge (Purch.)", TableCaption(), FieldCaption("Unreal. Rev. Charge (Purch.)"));
                         CheckExchRateAdjustment(
-                          "Tax Account (Sales)", TableCaption, FieldCaption("Tax Account (Sales)"));
+                          "Tax Account (Sales)", TableCaption(), FieldCaption("Tax Account (Sales)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Sales)", TableCaption, FieldCaption("Unreal. Tax Acc. (Sales)"));
+                          "Unreal. Tax Acc. (Sales)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Sales)"));
                     until Next() = 0;
 
             AddCurrCurrencyFactor :=
@@ -1013,21 +1015,6 @@ report 595 "Adjust Exchange Rates"
     end;
 
     var
-        Text000Err: Label 'Document No. must be entered.';
-        Text001Txt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
-        Text004Txt: Label 'Do you wish to continue?';
-        Text005Err: Label 'The adjustment of exchange rates has been canceled.';
-        Text006Txt: Label 'Adjusting exchange rates...\\';
-        Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
-        Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
-        Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
-        Text010Txt: Label 'Adjustment      #4#############';
-        Text011Err: Label 'No currencies have been found.';
-        Text012Txt: Label 'Adjusting VAT Entries...\\';
-        Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
-        Text014Txt: Label 'Adjusting general ledger...\\';
-        Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
-        Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TempDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary;
         TempDtldCustLedgEntrySums: Record "Detailed Cust. Ledg. Entry" temporary;
@@ -1113,8 +1100,6 @@ report 595 "Adjust Exchange Rates"
         TotalCustomersAdjusted: Integer;
         TotalVendorsAdjusted: Integer;
         TotalGLAccountsAdjusted: Integer;
-        Text11300Err: Label 'Please enter a Journal Template Name.';
-        Text11301Err: Label 'Please enter a Journal Batch Name.';
         AdjCust: Boolean;
         AdjVend: Boolean;
         AdjBank: Boolean;
@@ -1130,6 +1115,23 @@ report 595 "Adjust Exchange Rates"
         BankAccFilters: Text;
         CustFilters: Text;
         VendFilters: Text;
+
+        Text000Err: Label 'Document No. must be entered.';
+        Text001Txt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
+        Text004Txt: Label 'Do you wish to continue?';
+        Text005Err: Label 'The adjustment of exchange rates has been canceled.';
+        Text006Txt: Label 'Adjusting exchange rates...\\';
+        Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
+        Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
+        Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
+        Text010Txt: Label 'Adjustment      #4#############';
+        Text011Err: Label 'No currencies have been found.';
+        Text012Txt: Label 'Adjusting VAT Entries...\\';
+        Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
+        Text014Txt: Label 'Adjusting general ledger...\\';
+        Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
+        Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
+        PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
         TextCZ001Txt: Label 'Exchange Rate Adjmt. of %1 %2 %3 %4';
         TextCZ002Txt: Label 'Exch. Rate Adj. of %1 %2';
         TextCZ003Txt: Label 'Gain';
@@ -1316,7 +1318,7 @@ report 595 "Adjust Exchange Rates"
             "Adjusted Base" := TempAdjExchRateBuffer.AdjBase;
             "Adjusted Base (LCY)" := TempAdjExchRateBuffer.AdjBaseLCY;
             "Adjusted Amt. (LCY)" := TempAdjExchRateBuffer.AdjAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1860,9 +1862,9 @@ report 595 "Adjust Exchange Rates"
 
         if GLAmtTotal <> 0 then begin
             if GLAmtTotal < 0 then
-                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
             else
-                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
             GenJnlLine.Description :=
                 StrSubstNo(
                 PostingDescription,
@@ -1879,9 +1881,9 @@ report 595 "Adjust Exchange Rates"
         end;
         if GLAddCurrAmtTotal <> 0 then begin
             if GLAddCurrAmtTotal < 0 then
-                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
             else
-                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
             GenJnlLine.Description :=
                 StrSubstNo(
                 PostingDescription, '',
@@ -1908,7 +1910,7 @@ report 595 "Adjust Exchange Rates"
             "Adjusted Amt. (LCY)" := GLAmtTotal;
             "Adjusted Base (Add.-Curr.)" := GLAddCurrNetChangeBase;
             "Adjusted Amt. (Add.-Curr.)" := GLAddCurrAmtTotal;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1923,10 +1925,10 @@ report 595 "Adjust Exchange Rates"
             GLAcc."Exchange Rate Adjustment" := GLAcc."Exchange Rate Adjustment"::"No Adjustment";
             Error(
               Text017Err,
-              GLAcc.FieldCaption("Exchange Rate Adjustment"), GLAcc.TableCaption,
+              GLAcc.FieldCaption("Exchange Rate Adjustment"), GLAcc.TableCaption(),
               GLAcc."No.", GLAcc."Exchange Rate Adjustment",
               SetupTableName, GLSetup.FieldCaption("VAT Exchange Rate Adjustment"),
-              GLSetup.TableCaption, SetupFieldName);
+              GLSetup.TableCaption(), SetupFieldName);
         end;
     end;
 
@@ -2048,7 +2050,7 @@ report 595 "Adjust Exchange Rates"
             GenJnlPostLine.Run(GenJnlLine);
             OnPostGenJnlLineOnAfterGenJnlPostLineRun(GenJnlLine, GenJnlPostLine);
 
-            exit(GenJnlPostLine.GetNextTransactionNo);
+            exit(GenJnlPostLine.GetNextTransactionNo());
         end;
     end;
 
@@ -2650,7 +2652,7 @@ report 595 "Adjust Exchange Rates"
     local procedure SetUnrealizedGainLossFilterCust(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
     begin
         with DtldCustLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
             SetRange("Cust. Ledger Entry No.", EntryNo);
             SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
@@ -2660,7 +2662,7 @@ report 595 "Adjust Exchange Rates"
     local procedure SetUnrealizedGainLossFilterVend(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryNo: Integer)
     begin
         with DtldVendLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
             SetRange("Vendor Ledger Entry No.", EntryNo);
             SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");

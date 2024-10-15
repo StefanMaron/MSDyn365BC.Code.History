@@ -202,8 +202,12 @@ codeunit 5063 ArchiveManagement
         PurchHeaderArchive: Record "Purchase Header Archive";
         PurchLineArchive: Record "Purchase Line Archive";
         PurchHeaderArchiveLast: Record "Purchase Header Archive";
+        IsHandled: Boolean;
     begin
-        OnBeforeStorePurchDocument(PurchHeader);
+        IsHandled := false;
+        OnBeforeStorePurchDocument(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         PurchHeaderArchive.Init();
         PurchHeaderArchive.TransferFields(PurchHeader);
@@ -461,9 +465,9 @@ codeunit 5063 ArchiveManagement
                     exit(1);
                 end;
             else begin
-                    OnGetNextOccurrenceNo(TableId, DocType, DocNo, OccurenceNo);
-                    exit(OccurenceNo)
-                end;
+                OnGetNextOccurrenceNo(TableId, DocType, DocNo, OccurenceNo);
+                exit(OccurenceNo)
+            end;
         end;
     end;
 
@@ -502,9 +506,9 @@ codeunit 5063 ArchiveManagement
                     exit(1);
                 end;
             else begin
-                    OnGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo);
-                    exit(VersionNo)
-                end;
+                OnGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo);
+                exit(VersionNo)
+            end;
         end;
     end;
 
@@ -917,7 +921,7 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeStorePurchDocument(var PurchHeader: Record "Purchase Header")
+    local procedure OnBeforeStorePurchDocument(var PurchHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

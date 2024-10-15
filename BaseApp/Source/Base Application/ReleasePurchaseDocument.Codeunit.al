@@ -38,7 +38,11 @@ codeunit 415 "Release Purchase Document"
             if Status = Status::Released then
                 exit;
 
-            OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode);
+            IsHandled := false;
+            OnBeforeReleasePurchaseDoc(PurchaseHeader, PreviewMode, SkipCheckReleaseRestrictions, IsHandled);
+            if IsHandled then
+                exit;
+
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
                 CheckPurchaseReleaseRestrictions;
 
@@ -282,7 +286,7 @@ codeunit 415 "Release Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean)
+    local procedure OnBeforeReleasePurchaseDoc(var PurchaseHeader: Record "Purchase Header"; PreviewMode: Boolean; var SkipCheckReleaseRestrictions: Boolean; var IsHandled: Boolean)
     begin
     end;
 

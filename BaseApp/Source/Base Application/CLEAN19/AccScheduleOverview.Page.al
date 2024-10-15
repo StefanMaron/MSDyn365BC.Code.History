@@ -1,4 +1,4 @@
-#if CLEAN19
+﻿#if CLEAN19
 page 490 "Acc. Schedule Overview"
 {
     Caption = 'Acc. Schedule Overview';
@@ -1214,8 +1214,17 @@ page 490 "Acc. Schedule Overview"
     end;
 
     procedure FormatStr(ColumnNo: Integer): Text
+    var
+        AddCurrency: Boolean;
+        Result: Text;
+        IsHandled: Boolean;
     begin
-        exit(MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
+        GLSetup.Get();
+        AddCurrency := TempFinancialReport.UseAmountsInAddCurrency and (GLSetup."Additional Reporting Currency" <> '');
+        Result := (MatrixMgt.FormatRoundingFactor(ColumnLayoutArr[ColumnNo]."Rounding Factor", UseAmtsInAddCurr));
+        OnAfterFormatStr(ColumnLayoutArr, UseAmtsInAddCurr, ColumnNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
     end;
 
 #if not CLEAN19
@@ -1340,6 +1349,11 @@ page 490 "Acc. Schedule Overview"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetStyleOnBeforeAssignColumnStyle(AccScheduleLine: Record "Acc. Schedule Line"; ColumnNo: Integer; RowLineNo: Integer; ColumnLineNo: Integer; var ColumnStyle: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatStr(ColumnLayoutArr: array[15] of Record "Column Layout"; UseAmtsInAddCurr: Boolean; ColumnNo: Integer; var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }

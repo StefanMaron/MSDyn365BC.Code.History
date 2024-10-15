@@ -53,6 +53,16 @@ codeunit 113 "Vend. Entry-Edit"
         VendLedgEntry: Record "Vendor Ledger Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
 
+    procedure SetOnHold(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewOnHold: Code[3])
+    var
+        xOnHold: Code[3];
+    begin
+        xOnHold := VendorLedgerEntry."On Hold";
+        VendorLedgerEntry."On Hold" := NewOnHold;
+        if xOnHold <> VendorLedgerEntry."On Hold" then
+            VendorLedgerEntry.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry"; FromVendLedgEntry: Record "Vendor Ledger Entry")
     begin

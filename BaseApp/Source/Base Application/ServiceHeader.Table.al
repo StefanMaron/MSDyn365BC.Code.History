@@ -3382,6 +3382,7 @@
 #if not CLEAN18
             end; // NAVCZ
 #endif
+            OnUpdateServLinesByFieldNoOnAfterServLineSetFilters(ServLine, Rec, xRec, ChangedFieldNo);
 
             if ServLine.Find('-') then
                 repeat
@@ -5214,6 +5215,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateServLineByChangedFieldName(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; ChangedFieldName: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateServLinesByFieldNoOnAfterServLineSetFilters(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; ChangedFieldNo: Integer)
     begin
     end;
 
