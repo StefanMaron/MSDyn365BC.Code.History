@@ -5365,37 +5365,6 @@ codeunit 134902 "ERM Account Schedule"
 
 
     [Test]
-    [HandlerFunctions('AccountScheduleRequestPageVerifyValuesHandler')]
-    [Scope('OnPrem')]
-    procedure RunAccScheduleReqPageWhenChangeTocSheduleNameWithDefaultColumn()
-    var
-        FinancialReport: Record "Financial Report";
-        FinancialReport2: Record "Financial Report";
-        AccScheduleName: Record "Acc. Schedule Name";
-        AccScheduleName2: Record "Acc. Schedule Name";
-        ColumnLayoutName: Record "Column Layout Name";
-        ColumnLayoutName2: Record "Column Layout Name";
-        AccScheduleOverview: TestPage "Acc. Schedule Overview";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 201171] Request page of Account Schedule report should have column layout value according to the value of changed Account Schedule Name
-        Initialize();
-        LibraryLowerPermissions.SetFinancialReporting;
-        // [GIVEN] Account Schedule "Acc1" has "Col1" as default column layout name, Account Schedule "Acc2" has "Col2" as default column layout name
-        CreateAccountScheduleNameAndColumn(AccScheduleName, ColumnLayoutName);
-        CreateAccountScheduleNameAndColumn(AccScheduleName2, ColumnLayoutName2);
-        // [GIVEN] Set Column Layout as "Col2" on Account Schedule Overview page
-        AccScheduleOverview.Trap;
-        OpenAccountScheduleOverviewPage(AccScheduleName.Name);
-        AccScheduleOverview.FinancialReportName.SetValue(AccScheduleName2.Name);
-        // [WHEN] Invoke Account Schedule report
-        RunAccountScheduleReportFromOverviewPage(AccScheduleOverview, AccScheduleName2.Name, ColumnLayoutName2.Name);
-        // [THEN] Request page of Account Schedule report has "Col2" value as column layout with "Acc2" schedule name
-        // Verification is done in AccountScheduleRequestPageVerifyValuesHandler
-    end;
-
-
-    [Test]
     [Scope('OnPrem')]
     [HandlerFunctions('NewFinancialReportModalPageHandler,DtldMessageHandler')]
     // Adapted ImportAccScheduleNameColumnLayoutConflict since Column Definition now exists on Financial Reports

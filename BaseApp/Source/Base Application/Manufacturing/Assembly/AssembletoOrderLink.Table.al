@@ -525,7 +525,7 @@ table 904 "Assemble-to-Order Link"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReserveAsmToSale(SalesLine, QtyToReserve, QtyToReserveBase, IsHandled);
+        OnBeforeReserveAsmToSale(SalesLine, QtyToReserve, QtyToReserveBase, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -699,17 +699,23 @@ table 904 "Assemble-to-Order Link"
 
     procedure RollUpPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
-        AsmLine: Record "Assembly Line";
+        AssemblyLine: Record "Assembly Line";
         CompSalesLine: Record "Sales Line";
         CompItem: Record Item;
-        Res: Record Resource;
+        Resource: Record Resource;
         Currency: Record Currency;
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
         LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         PriceType: Enum "Price Type";
         UnitPrice: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRollUpPrice(SalesLine, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.TestField(Quantity);
         SalesLine.TestField("Qty. to Asm. to Order (Base)");
         if not HideConfirm then
@@ -728,22 +734,22 @@ table 904 "Assemble-to-Order Link"
             Currency.TestField("Unit-Amount Rounding Precision");
         end;
 
-        AsmLine.SetRange("Document Type", AsmHeader."Document Type");
-        AsmLine.SetRange("Document No.", AsmHeader."No.");
-        if AsmLine.Find('-') then
+        AssemblyLine.SetRange("Document Type", AsmHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AsmHeader."No.");
+        if AssemblyLine.Find('-') then
             repeat
-                if AsmLine.Type in [AsmLine.Type::Item, AsmLine.Type::Resource] then begin
+                if AssemblyLine.Type in [AssemblyLine.Type::Item, AssemblyLine.Type::Resource] then begin
                     CompSalesLine := SalesLine;
                     CompSalesLine."Line No." := 0;
                     CompSalesLine.Quantity := 0;
                     CompSalesLine."Quantity (Base)" := 0;
 
-                    CompSalesLine."No." := AsmLine."No.";
-                    CompSalesLine."Variant Code" := AsmLine."Variant Code";
-                    CompSalesLine."Qty. per Unit of Measure" := AsmLine."Qty. per Unit of Measure";
+                    CompSalesLine."No." := AssemblyLine."No.";
+                    CompSalesLine."Variant Code" := AssemblyLine."Variant Code";
+                    CompSalesLine."Qty. per Unit of Measure" := AssemblyLine."Qty. per Unit of Measure";
 
-                    case AsmLine.Type of
-                        AsmLine.Type::Item:
+                    case AssemblyLine.Type of
+                        AssemblyLine.Type::Item:
                             begin
                                 CompItem.Get(CompSalesLine."No.");
                                 CompSalesLine.Type := CompSalesLine.Type::Item;
@@ -751,23 +757,23 @@ table 904 "Assemble-to-Order Link"
                                 CompSalesLine."Tax Group Code" := CompItem."Tax Group Code";
                                 CompSalesLine.Validate("VAT Prod. Posting Group", CompItem."VAT Prod. Posting Group");
                             end;
-                        AsmLine.Type::Resource:
+                        AssemblyLine.Type::Resource:
                             begin
-                                Res.Get(CompSalesLine."No.");
+                                Resource.Get(CompSalesLine."No.");
                                 CompSalesLine.Type := CompSalesLine.Type::Resource;
-                                CompSalesLine."Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
-                                CompSalesLine."Tax Group Code" := Res."Tax Group Code";
-                                CompSalesLine.Validate("VAT Prod. Posting Group", Res."VAT Prod. Posting Group");
+                                CompSalesLine."Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
+                                CompSalesLine."Tax Group Code" := Resource."Tax Group Code";
+                                CompSalesLine.Validate("VAT Prod. Posting Group", Resource."VAT Prod. Posting Group");
                             end;
                     end;
 
-                    CompSalesLine.Quantity := AsmLine.Quantity;
-                    CompSalesLine."Quantity (Base)" := AsmLine."Quantity (Base)";
-                    CompSalesLine."Unit of Measure Code" := AsmLine."Unit of Measure Code";
+                    CompSalesLine.Quantity := AssemblyLine.Quantity;
+                    CompSalesLine."Quantity (Base)" := AssemblyLine."Quantity (Base)";
+                    CompSalesLine."Unit of Measure Code" := AssemblyLine."Unit of Measure Code";
                     CompSalesLine."Unit Price" := 0;
                     CompSalesLine."Allow Line Disc." := false;
 
-                    OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine, AsmLine);
+                    OnRollUpPriceOnBeforeFindSalesLinePrice(SalesHeader, CompSalesLine, AssemblyLine);
 
                     CompSalesLine.GetLineWithPrice(LineWithPrice);
                     LineWithPrice.SetLine(PriceType::Sale, SalesHeader, CompSalesLine);
@@ -776,9 +782,9 @@ table 904 "Assemble-to-Order Link"
 
                     OnRollUpPriceOnAfterFindSalesLinePrice(SalesHeader, CompSalesLine);
 
-                    UnitPrice += CompSalesLine."Unit Price" * AsmLine.Quantity;
+                    UnitPrice += CompSalesLine."Unit Price" * AssemblyLine.Quantity;
                 end;
-            until AsmLine.Next() = 0;
+            until AssemblyLine.Next() = 0;
 
         UnitPrice := Round(UnitPrice / AsmHeader.Quantity, Currency."Unit-Amount Rounding Precision");
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -1395,7 +1401,7 @@ table 904 "Assemble-to-Order Link"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReserveAsmToSale(var SalesLine: Record "Sales Line"; QtyToReserve: Decimal; QtyToReserveBase: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeReserveAsmToSale(var SalesLine: Record "Sales Line"; QtyToReserve: Decimal; QtyToReserveBase: Decimal; var IsHandled: Boolean; var AssembletoOrderLink: Record "Assemble-to-Order Link")
     begin
     end;
 
@@ -1496,6 +1502,11 @@ table 904 "Assemble-to-Order Link"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReserveAsmToSale(var AssembletoOrderLink: Record "Assemble-to-Order Link"; var AsmHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line"; var TrackingSpecification: Record "Tracking Specification"; QtyToReserve: Decimal; QtyToReserveBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRollUpPrice(var SalesLine: Record "Sales Line"; var AssembleToOrderLink: Record "Assemble-to-Order Link"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -711,6 +711,7 @@ page 113 Budget
     var
         GLAcc: Record "G/L Account";
         "Matrix Page Step Type": Enum "Matrix Page Step Type";
+        IsHandled: Boolean;
     begin
         if GLAccBudgetBuf.GetFilter("Global Dimension 1 Filter") <> '' then
             GlobalDim1Filter := GLAccBudgetBuf.GetFilter("Global Dimension 1 Filter");
@@ -746,7 +747,11 @@ page 113 Budget
             ValidateColumnDimCode();
         end;
 
-        PeriodType := PeriodType::Month;
+        IsHandled := false;
+        OnOpenPageOnBeforeSetPeriodTypeMonth(PeriodType, IsHandled);
+        if not IsHandled then
+            PeriodType := PeriodType::Month;
+
         IncomeBalanceGLAccFilter := IncomeBalanceGLAccFilter::"Income Statement";
         if DateFilter = '' then
             ValidateDateFilter(Format(CalcDate('<-CY>', Today)) + '..' + Format(CalcDate('<CY>', Today)));
@@ -1370,6 +1375,11 @@ page 113 Budget
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDimSelectionOnBeforeDimSelectionLookup(var DimensionSelection: Page "Dimension Selection")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeSetPeriodTypeMonth(var PeriodType: Enum "Analysis Period Type"; var IsHandled: Boolean)
     begin
     end;
 }

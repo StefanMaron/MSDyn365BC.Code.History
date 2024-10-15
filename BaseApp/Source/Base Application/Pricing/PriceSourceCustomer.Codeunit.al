@@ -14,7 +14,12 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
     end;
 
     procedure GetId(var PriceSource: Record "Price Source")
+    var
+        Ishandled: Boolean;
     begin
+        OnBeforeGetId(PriceSource, Ishandled);
+        if Ishandled then
+            exit;
         if Customer.Get(PriceSource."Source No.") then begin
             PriceSource."Source ID" := Customer.SystemId;
             FillAdditionalFields(PriceSource);
@@ -69,6 +74,11 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetId(Var PriceSource: Record "Price Source"; var IsHandled: Boolean)
     begin
     end;
 }

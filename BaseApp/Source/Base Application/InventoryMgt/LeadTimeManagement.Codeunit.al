@@ -52,9 +52,15 @@ codeunit 5404 "Lead-Time Management"
         exit(Format(Location."Outbound Whse. Handling Time"));
     end;
 
-    local procedure WhseInBoundHandlingTime(LocationCode: Code[10]): Code[10]
+    local procedure WhseInBoundHandlingTime(LocationCode: Code[10]) Result: Code[10]
+    var
+        IsHandled: Boolean;
     begin
         // Returns the inbound warehouse handling time in a date formula
+        IsHandled := false;
+        OnBeforeWhseInBoundHandlingTime(LocationCode, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
         if LocationCode = '' then begin
             InvtSetup.Get();
@@ -319,6 +325,11 @@ codeunit 5404 "Lead-Time Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSafetyLeadTime(TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeWhseInBoundHandlingTime(LocationCode: Code[10]; var InboundWhseHandlingTime: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

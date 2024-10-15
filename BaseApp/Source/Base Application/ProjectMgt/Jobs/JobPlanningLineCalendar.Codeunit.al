@@ -43,6 +43,8 @@ codeunit 1034 "Job Planning Line - Calendar"
         UpdateJob();
         UpdateJobTask();
         UpdateResource();
+
+        OnAfterSetPlanningLine(NewJobPlanningLine);
     end;
 
     [Scope('OnPrem')]
@@ -319,6 +321,11 @@ codeunit 1034 "Job Planning Line - Calendar"
             SetPlanningLine(Rec);
             CreateAndSend();
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPlanningLine(NewJobPlanningLine: Record "Job Planning Line")
+    begin
     end;
 }
 

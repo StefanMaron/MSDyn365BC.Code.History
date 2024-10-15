@@ -561,6 +561,7 @@ report 118 "Finance Charge Memo"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 if not CompanyBankAccount.Get("Issued Fin. Charge Memo Header"."Company Bank Account Code") then

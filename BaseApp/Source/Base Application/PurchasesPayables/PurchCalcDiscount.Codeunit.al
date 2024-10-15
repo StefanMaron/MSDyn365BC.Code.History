@@ -145,7 +145,10 @@ codeunit 70 "Purch.-Calc.Discount"
                     repeat
                         if (TempServiceChargeLine."Receipt No." = '') and (TempServiceChargeLine."Qty. Rcd. Not Invoiced (Base)" = 0) then begin
                             PurchLine2 := TempServiceChargeLine;
-                            PurchLine2.Delete(true);
+                            IsHandled := false;
+                            OnCalculateInvoiceDiscountOnBeforeDeletePurchaseLine(UpdateHeader, PurchLine2, IsHandled);
+                            if not IsHandled then
+                                PurchLine2.Delete(true);
                         end;
                     until TempServiceChargeLine.Next() = 0;
 
@@ -290,6 +293,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeFindForCalcVATAmountLines(var PurchHeader: Record "Purchase Header"; var PurchLine2: Record "Purchase Line"; UpdateHeader: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeDeletePurchaseLine(UpdateHeader: Boolean; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }
