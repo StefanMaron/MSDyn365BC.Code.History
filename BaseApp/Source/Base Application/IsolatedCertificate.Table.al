@@ -13,6 +13,7 @@ table 1262 "Isolated Certificate"
         {
             Caption = 'Code';
             Editable = false;
+            DataClassification = CustomerContent;
         }
         field(2; Scope; Option)
         {
@@ -21,6 +22,7 @@ table 1262 "Isolated Certificate"
             NotBlank = true;
             OptionCaption = ',Company,User,Company and User';
             OptionMembers = ,Company,User,CompanyAndUser;
+            DataClassification = CustomerContent;
         }
         field(3; Password; Text[50])
         {
@@ -33,16 +35,19 @@ table 1262 "Isolated Certificate"
         {
             Caption = 'Expiry Date';
             Editable = false;
+            DataClassification = CustomerContent;
         }
         field(5; "Has Private Key"; Boolean)
         {
             Caption = 'Has Private Key';
             Editable = false;
+            DataClassification = CustomerContent;
         }
         field(6; Name; Text[50])
         {
             Caption = 'Name';
             NotBlank = true;
+            DataClassification = CustomerContent;
         }
         field(7; "User ID"; Code[50])
         {
@@ -67,16 +72,19 @@ table 1262 "Isolated Certificate"
         {
             Caption = 'ThumbPrint';
             Editable = false;
+            DataClassification = CustomerContent;
         }
         field(13; "Issued By"; Text[250])
         {
             Caption = 'Issued By';
             Editable = false;
+            DataClassification = CustomerContent;
         }
         field(14; "Issued To"; Text[250])
         {
             Caption = 'Issued To';
             Editable = false;
+            DataClassification = CustomerContent;
         }
     }
 

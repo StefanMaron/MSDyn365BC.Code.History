@@ -18,6 +18,11 @@ table 111 "Sales Shipment Line"
         {
             Caption = 'Document No.';
             TableRelation = "Sales Shipment Header";
+
+            trigger OnValidate()
+            begin
+                UpdateDocumentId();
+            end;
         }
         field(4; "Line No."; Integer)
         {
@@ -552,6 +557,10 @@ table 111 "Sales Shipment Line"
         field(8000; "Document Id"; Guid)
         {
             Caption = 'Document Id';
+            trigger OnValidate()
+            begin
+                UpdateDocumentNo();
+            end;
         }
     }
 
@@ -576,6 +585,9 @@ table 111 "Sales Shipment Line"
         key(Key6; "Bill-to Customer No.")
         {
         }
+        key(Key7; "Document Id")
+        {
+        }
     }
 
     fieldgroups
@@ -584,6 +596,11 @@ table 111 "Sales Shipment Line"
         {
         }
     }
+
+    trigger OnInsert()
+    begin
+        UpdateDocumentId();
+    end;
 
     trigger OnDelete()
     var
@@ -1069,10 +1086,27 @@ table 111 "Sales Shipment Line"
         "Document Id" := SalesShipmentHeader.SystemId;
     end;
 
+
+    local procedure UpdateDocumentNo()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+    begin
+        if IsNullGuid(Rec."Document Id") then begin
+            Clear(Rec."Document No.");
+            exit;
+        end;
+
+        if not SalesShipmentHeader.GetBySystemId(Rec."Document Id") then
+            exit;
+
+        "Document No." := SalesShipmentHeader."No.";
+    end;
+
     procedure UpdateReferencedIds()
     begin
         UpdateDocumentId();
     end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterClearSalesLineValues(var SalesShipmentLine: Record "Sales Shipment Line"; var SalesLine: Record "Sales Line")
