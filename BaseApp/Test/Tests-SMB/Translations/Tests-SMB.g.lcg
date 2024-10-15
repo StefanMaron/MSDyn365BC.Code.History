@@ -185,6 +185,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType InsertedEmployeeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3467874167 - NamedType 2421828853" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Template inserted with wrong data]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Cust/Vend/Item/Empl Templates - NamedType InsertedTemplateErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3777628910 - NamedType 2033492750" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA["#%&*:<>?\/{|}~]]></Val>
@@ -399,6 +408,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Item Price Including VAT - NamedType WrongUnitPriceExclVATErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 115408199 - NamedType 2684942257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Bus. Posting Gr. (Price) must have a value in Sales & Receivables Setup: Primary Key=. It cannot be zero or empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Item Price Including VAT - NamedType VATBusPostingGrErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 115408199 - NamedType 4059596643" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The VAT Posting Setup does not exist. Identification fields and values: VAT Bus. Posting Group='%1',VAT Prod. Posting Group='%2']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 -  VAT Bus. Posting Group, %2 - VAT Prod. Posting Group]D;]A;(LookupHint=Codeunit O365 Item Price Including VAT - NamedType VATPostingSetupErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3488805958 - NamedType 377180296" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

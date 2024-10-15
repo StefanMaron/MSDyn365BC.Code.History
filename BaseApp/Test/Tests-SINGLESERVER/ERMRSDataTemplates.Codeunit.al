@@ -1810,6 +1810,37 @@ codeunit 136601 "ERM RS Data Templates"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ConfigTemplateDefaultValueExpectingRelatedFieldDefaultValue()
+    var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 383383] In Configuration Template it is possible to use Default Value for field depending on value of another field.
+        Initialize();
+
+        // [GIVEN] Configuratrion Template with lines:
+        // [GIVEN] Line 1 "Field Name" = "Replenishment System", "Default Value" = "Assembly";
+        // [GIVEN] Line 2 "Field Name" = "Assembly Policy", "Default Value" is blank.
+        LibraryRapidStart.CreateConfigTemplateHeader(ConfigTemplateHeader);
+        InputTableInConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+        InputFieldInConfigTemplateLine(
+            ConfigTemplateLine, Item.FieldNo("Replenishment System"),
+            Item.FieldName("Replenishment System"), Format(Item."Replenishment System"::Assembly), false);
+        LibraryRapidStart.CreateConfigTemplateLine(ConfigTemplateLine, ConfigTemplateHeader.Code);
+
+        // [WHEN] Line 2 "Default Value" is validated with "Assemble-to-Order".
+        InputFieldInConfigTemplateLine(
+            ConfigTemplateLine, Item.FieldNo("Assembly Policy"),
+            Item.FieldName("Assembly Policy"), Format(Item."Assembly Policy"::"Assemble-to-Order"), false);
+
+        // [THEN] Line 2 "Default Value" = "Assemble-to-Order".
+        ConfigTemplateLine.TestField("Default Value", Format(Item."Assembly Policy"::"Assemble-to-Order"));
+    end;
+
     local procedure Initialize()
     var
         ConfigTmplSelectionRules: Record "Config. Tmpl. Selection Rules";
@@ -2037,7 +2068,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateCode);
-        ConfigTemplateLine.FindSet;
+        ConfigTemplateLine.FindSet();
         ConfigTemplateLine.TestField("Field ID", CustomerPostingGroupFieldID);
 
         ConfigTemplateLine.Next;
@@ -2060,7 +2091,7 @@ codeunit 136601 "ERM RS Data Templates"
         ConfigTemplateHeader.TestField(Enabled, SourceConfigTemplateHeader.Enabled);
 
         SourceConfigTemplateLine.SetRange("Data Template Code", SourceConfigTemplateCode);
-        SourceConfigTemplateLine.FindSet;
+        SourceConfigTemplateLine.FindSet();
         repeat
             ConfigTemplateLine.Get(ConfigTemplateCode, SourceConfigTemplateLine."Line No.");
             ConfigTemplateLine.TestField(Type, SourceConfigTemplateLine.Type);

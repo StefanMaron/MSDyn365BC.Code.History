@@ -8537,6 +8537,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GL Acct. Categories Page Tests - NamedType CannotDeleteSystemCategoryErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2782273548 - NamedType 2458315570" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You have changed one or more G/L account categories that account schedules use to calculate reports. We recommend that you update the account schedules with your changes by choosing the Generate Account Schedules action.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit GL Acct. Categories Page Tests - NamedType AccSchedUpdateNeededNotificationMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2984993011 - NamedType 483415882" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no subcategory description for %1 that matches '%2'.]]></Val>
@@ -9995,6 +10004,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - the price list code.]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType CannotDeleteActivePriceListErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2122422003 - NamedType 4182574153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Source No. must be filled]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType SourceNoMustBeFilledErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
@@ -10121,6 +10139,15 @@
       <Cmt Name="Dev"><![CDATA[%1 - source type value]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType SourceTypeMustBeErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 2400158524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot delete the active price list line %1 %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - the price list code, %2 - line no]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType CannotDeleteActivePriceListLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 1483249232" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Extended price calculation feature is not enabled.]]></Val>
@@ -10146,15 +10173,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType ViewExistingTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1374955379 - NamedType 690720733" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field name]D;]A;(LookupHint=Codeunit Price Source UT - NamedType MustHaveValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1374955379 - NamedType 581419275" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -34,7 +34,7 @@
   </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 3111640014" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This version of Common Data Service might not work correctly with the base integration solution. We recommend you upgrade to a supported version.]]></Val>
+      <Val><![CDATA[This version of Dataverse might not work correctly with the Dataverse Base Integration solution. We recommend you upgrade to a supported version.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -43,7 +43,7 @@
   </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 913821455" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The base integration solution was not detected in Common Data Service.]]></Val>
+      <Val><![CDATA[The base integration solution was not detected in Dataverse.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -61,7 +61,7 @@
   </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 370030606" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The default setup for Common Data Service synchronization has completed successfully.]]></Val>
+      <Val><![CDATA[The default setup for Dataverse synchronization has completed successfully.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -88,7 +88,7 @@
   </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 252921961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Connection to Common Data Service is broken and that it has been disabled due to an error: %1]]></Val>
+      <Val><![CDATA[Connection to Dataverse is broken and that it has been disabled due to an error: %1]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -97,7 +97,7 @@
   </Item>
   <Item ItemId=";Codeunit 3785033245 - NamedType 3528653586" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The user that is specified in the Common Data Service Connection Setup does not exist.]]></Val>
+      <Val><![CDATA[The user that is specified in the Dataverse Connection Setup does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -205,7 +205,7 @@
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 1090853174" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The application is set up to support secure connections (HTTPS) to the Common Data Service environment only. You cannot use HTTP.]]></Val>
+      <Val><![CDATA[The application is set up to support secure connections (HTTPS) to the Dataverse environment only. You cannot use HTTP.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -214,11 +214,11 @@
   </Item>
   <Item ItemId=";Codeunit 3289059696 - NamedType 3220810991" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You must register an Azure Active Directory application that will be used to connect to the Common Data Service environment and specify the application id, secret and redirect URL in the Common Data Service Connection Setup page.]]></Val>
+      <Val><![CDATA[You must register an Azure Active Directory application that will be used to connect to the Dataverse environment and specify the application id, secret and redirect URL in the Dataverse Connection Setup page.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[Common Data Service and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.]D;]A;(LookupHint=Codeunit CDS Connection Wizard Tests - NamedType MissingClientIdOrSecretOnPremErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3339774646 - NamedType 2732383653" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -259,7 +259,7 @@
   </Item>
   <Item ItemId=";Codeunit 3339774646 - NamedType 3974808153" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There is no user with ID %1 in CDS.]]></Val>
+      <Val><![CDATA[There is no user with ID %1 in Dataverse.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -727,7 +727,7 @@
   </Item>
   <Item ItemId=";Codeunit 1239683370 - NamedType 2318685411" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The CDS Transactioncurrency does not exist.]]></Val>
+      <Val><![CDATA[The Dataverse Transactioncurrency does not exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -866,7 +866,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - CDS service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Quotes Integr.Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 669819362 - NamedType 1841495612" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1010,7 +1010,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - CDS service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number]D;]A;(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType MissingWriteInProductNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 1525273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1303,7 +1303,7 @@
   </Item>
   <Item ItemId=";Codeunit 1002680501 - NamedType 4268495123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in Common Data Service.]]></Val>
+      <Val><![CDATA[Salesperson Code %1 must be coupled to a record in Dataverse.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

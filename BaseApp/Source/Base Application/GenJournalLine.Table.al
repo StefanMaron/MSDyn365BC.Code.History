@@ -646,7 +646,13 @@
                 PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
                 AccType: Enum "Gen. Journal Account Type";
                 AccNo: Code[20];
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupAppliesToDocNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 xRec.Amount := Amount;
                 xRec."Currency Code" := "Currency Code";
                 xRec."Posting Date" := "Posting Date";
@@ -4618,7 +4624,7 @@
             Description := Name;
     end;
 
-    local procedure IsAdHocDescription(): Boolean
+    local procedure IsAdHocDescription() Result: Boolean
     var
         GLAccount: Record "G/L Account";
         Customer: Record Customer;
@@ -4627,7 +4633,13 @@
         FixedAsset: Record "Fixed Asset";
         ICPartner: Record "IC Partner";
         Employee: Record Employee;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsAdHocDescription(Rec, xRec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Description = '' then
             exit(false);
         if xRec."Account No." = '' then
@@ -5118,11 +5130,14 @@
         if IsExportedToPaymentFile then
             if not ConfirmManagement.GetResponseOrDefault(ExportAgainQst, true) then
                 exit;
+
+        OnExportPaymentFileOnBeforeRunExport(Rec);
         BankAcc.Get("Bal. Account No.");
         if BankAcc.GetPaymentExportCodeunitID > 0 then
             CODEUNIT.Run(BankAcc.GetPaymentExportCodeunitID, Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", Rec);
+        OnExportPaymentFileOnAfterRunExport(Rec);
     end;
 
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
@@ -6903,6 +6918,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsAdHocDescription(GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeJobTaskIsSet(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -6994,6 +7014,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempJobJnlLimeOnBeforeValidateFields(var TempJobJnlLine: Record "Job Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportPaymentFileOnAfterRunExport(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportPaymentFileOnBeforeRunExport(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -7563,6 +7593,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeLookupAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

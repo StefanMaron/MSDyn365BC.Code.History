@@ -261,6 +261,12 @@
                         VATRegistrationLogMgt.AssistEditVendorVATReg(Rec);
                     end;
                 }
+                field("EORI Number"; "EORI Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the Economic Operators Registration and Identification number that is used when you exchange information with the customs authorities due to trade into or out of the European Union.';
+                    Visible = false;
+                }
                 field(GLN; GLN)
                 {
                     ApplicationArea = Basic, Suite;
@@ -954,7 +960,7 @@
             }
             group(ActionGroupCDS)
             {
-                Caption = 'Common Data Service';
+                Caption = 'Dataverse';
                 Image = Administration;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Enabled = (BlockedFilterApplied and (Blocked = Blocked::" ")) or not BlockedFilterApplied;
@@ -963,7 +969,7 @@
                     ApplicationArea = Suite;
                     Caption = 'Account';
                     Image = CoupledCustomer;
-                    ToolTip = 'Open the coupled Common Data Service account.';
+                    ToolTip = 'Open the coupled Dataverse account.';
 
                     trigger OnAction()
                     var
@@ -978,7 +984,7 @@
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
                     Image = Refresh;
-                    ToolTip = 'Send or get updated data to or from Common Data Service.';
+                    ToolTip = 'Send or get updated data to or from Dataverse.';
 
                     trigger OnAction()
                     var
@@ -991,14 +997,14 @@
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
                     Image = LinkAccount;
-                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Common Data Service record.';
+                    ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCDSCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = IM;
                         ApplicationArea = Suite;
                         Caption = 'Set Up Coupling';
                         Image = LinkAccount;
-                        ToolTip = 'Create or modify the coupling to a Common Data Service account.';
+                        ToolTip = 'Create or modify the coupling to a Dataverse account.';
 
                         trigger OnAction()
                         var
@@ -1014,7 +1020,7 @@
                         Caption = 'Delete Coupling';
                         Enabled = CRMIsCoupledToRecord;
                         Image = UnLinkAccount;
-                        ToolTip = 'Delete the coupling to a Common Data Service account.';
+                        ToolTip = 'Delete the coupling to a Dataverse account.';
 
                         trigger OnAction()
                         var
@@ -1333,9 +1339,14 @@
                     Image = Template;
                     //The property 'PromotedIsBig' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedIsBig = true;
-                    RunObject = Page "Config Templates";
-                    RunPageLink = "Table ID" = CONST(23);
                     ToolTip = 'View or edit vendor templates.';
+
+                    trigger OnAction()
+                    var
+                        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+                    begin
+                        VendorTemplMgt.ShowTemplates();
+                    end;
                 }
                 action(ApplyTemplate)
                 {
@@ -1371,9 +1382,9 @@
 
                     trigger OnAction()
                     var
-                        TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
+                        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
                     begin
-                        TempMiniVendorTemplate.SaveAsTemplate(Rec);
+                        VendorTemplMgt.SaveAsTemplate(Rec);
                     end;
                 }
                 action(MergeDuplicate)

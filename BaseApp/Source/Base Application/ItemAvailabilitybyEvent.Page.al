@@ -60,6 +60,7 @@ page 5530 "Item Availability by Event"
                             if VariantFilter <> '' then
                                 Item.SetFilter("Variant Filter", VariantFilter);
                             InitAndCalculatePeriodEntries;
+                            CurrPage.Update(false);
                         end;
                     end;
                 }
@@ -91,6 +92,7 @@ page 5530 "Item Availability by Event"
                             if LocationFilter <> '' then
                                 Item.SetFilter("Location Filter", LocationFilter);
                             InitAndCalculatePeriodEntries;
+                            CurrPage.Update(false);
                         end;
                     end;
                 }
@@ -607,6 +609,7 @@ page 5530 "Item Availability by Event"
                 Item.SetFilter("Variant Filter", VariantFilter);
             OnValidateItemNoOnBeforeInitAndCalculatePeriodEntries(Item);
             InitAndCalculatePeriodEntries;
+            CurrPage.Update(false);
         end;
     end;
 

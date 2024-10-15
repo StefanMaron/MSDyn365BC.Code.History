@@ -3999,6 +3999,46 @@ codeunit 134341 "UT Page Actions & Controls"
         VATStatementPreview.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FinChargeTermsCodeIsNotVisibleInVendorTemplateCard()
+    var
+        VendorTemplateCard: TestPage "Vendor Template Card";
+    begin
+        // [SCENARIO 379954] Open page "Vendor Template Card" and check visibility of the variable "Fin. Charge Terms Code"
+        
+        // [WHEN] Opened page 1344 "Vendor Template Card"
+        VendorTemplateCard.OpenEdit();
+
+        // [THEN] Variable "Fin. Charge Terms Code" is not visible
+        Assert.IsFalse(VendorTemplateCard."Fin. Charge Terms Code".Visible(), '');
+        VendorTemplateCard.Close();
+    end;
+    
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProfileCustomizationListHaveFiltersAfterRunningFrimProfileList()
+    var
+        ProfileList: TestPage "Profile List";
+        ProfileCustomizationList: TestPage "Profile Customization List";
+    begin
+        // [FEATURE] [UI] [Profile]
+        // [SCENARIO 382290] Open "Profile Customization List" and check filters
+        // [GIVEN] Opened "Profile List" page
+        ProfileCustomizationList.Trap();
+        ProfileList.OpenEdit();
+        ProfileList.First();
+
+        // [WHEN] Open "Profile Customization List" page from "Profile List"
+        ProfileList.ManageCustomizedPages.Invoke();
+
+        // [GIVEN] Filters are set to "App ID" and "Profile ID"
+        Assert.AreNotEqual(ProfileCustomizationList.Filter.GetFilter("App ID"), '', 'Filter "App ID" should not be empty');
+        Assert.AreNotEqual(ProfileCustomizationList.Filter.GetFilter("Profile ID"), '', 'Filter "Profile ID" should not be empty');
+        ProfileList.Close();
+        ProfileCustomizationList.Close();
+    end;
+
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";

@@ -12,8 +12,12 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         WrongAccSchedErr: Label 'Wrong Acc. Sched.';
         CannotDeleteSystemCategoryErr: Label '%1 is a system generated category and cannot be deleted.';
+        AccSchedUpdateNeededNotificationMsg: Label 'You have changed one or more G/L account categories that account schedules use to calculate reports. We recommend that you update the account schedules with your changes by choosing the Generate Account Schedules action.';
+        AccSchedUpdateNeededNotificationAction: Option "Check Message","Generate Account Schedules","Disable Notification";
 
     [Test]
     [Scope('OnPrem')]
@@ -217,6 +221,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // Verify
         Assert.AreEqual(BeforeDelCategoriesCount - 3, GLAccountCategory.Count, 'Wrong number of categories');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -319,6 +324,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // [THEN] G/L Account has "Account Subcategory Entry No." = 0
         VerifyGLAccountAccountSubcategoryEntryNo(GLAccountNo, 0);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -349,6 +355,7 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // [THEN] G/L Account "GL2" has "Account Subcategory Entry No." = 1
         VerifyGLAccountAccountSubcategoryEntryNo(GLAccountNo2, GLAccountCategory."Entry No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -385,6 +392,140 @@ codeunit 134442 "GL Acct. Categories Page Tests"
 
         // [THEN] G/L Account "GL2" has "Account Subcategory Entry No." = 2
         VerifyGLAccountAccountSubcategoryEntryNo(GLAccountNo2, GLAccountCategory."Entry No.");
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountCategoryNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure GLAccountCategoriesModifyGLAccTotaling()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategories: TestPage "G/L Account Categories";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 377715] User receive notification "You changed G/L Account categories which you are using in Account Schedules" after modify record in G/L Account Categories page
+
+        // [GIVEN] G/L Account Category "C1" opened in page "G/L Account Categories"
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+        GLAccountCategories.OpenEdit();
+        GLAccountCategories.Filter.SetFilter("Entry No.", Format(GLAccountCategory."Entry No."));
+
+        // [WHEN] G/L Accounts in Category changed to "ACC"
+        LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Check Message");
+        GLAccountCategories.GLAccTotaling.SetValue(CreateBalanceSheetGLAccountNo());
+
+        // [THEN] Notification "You changed G/L Account categories which you are using in Account Schedules"
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountCategoryNotificationHandler,OptionDialogForGenerateAccountSchedules')]
+    [Scope('OnPrem')]
+    procedure GLAccountCategoriesGenerateAccSchedFromNotification()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategories: TestPage "G/L Account Categories";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 377715] User can generate account schedules from notification "You changed G/L Account categories which you are using in Account Schedules" after modify record in G/L Account Categories page
+
+        // [GIVEN] G/L Account Category "C1" opened in page "G/L Account Categories"
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+        GLAccountCategory."Additional Report Definition" := GLAccountCategory."Additional Report Definition"::" ";
+        GLAccountCategory.Description := CopyStr(Format(CreateGuid()), 1, MaxStrLen((GLAccountCategory.Description)));
+        GLAccountCategory.Modify();
+        GLAccountCategories.OpenEdit();
+        GLAccountCategories.Filter.SetFilter("Entry No.", Format(GLAccountCategory."Entry No."));
+
+        // [WHEN] G/L Accounts in Category changed to "ACC" and "Generate Account Schedules" action picked on notification
+        LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Generate Account Schedules");
+        LibraryVariableStorage.Enqueue(2);
+        GLAccountCategories.GLAccTotaling.SetValue(CreateBalanceSheetGLAccountNo());
+
+        // [THEN] Account schedule "Balance Sheet" contains new account category "C1"
+        VerfiyBalanceSheetAccountScheduleLine(GLAccountCategory);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountCategoryNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure GLAccountCategoriesSkipShowNotification()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccountCategories: TestPage "G/L Account Categories";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 377715] User can disable notification "You changed G/L Account categories which you are using in Account Schedules" after modify record in G/L Account Categories page
+
+        // [GIVEN] G/L Account Category "C1" opened in page "G/L Account Categories"
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+        GLAccountCategories.OpenEdit();
+        GLAccountCategories.Filter.SetFilter("Entry No.", Format(GLAccountCategory."Entry No."));
+
+        // [WHEN] G/L Accounts in Category changed to "ACC" and "Don't show again" action picked
+        LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Disable Notification");
+        GLAccountCategories.GLAccTotaling.SetValue(CreateBalanceSheetGLAccountNo());
+
+        // [THEN] Notification is switched off for current user
+        VerifyMyNotificationsAccSchedUpdateNeeded();
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountCategoryNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure GLAccountCategoryDelete()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+    begin
+        // [FEATURE] 
+        // [SCENARIO 377715] User receive notification "You changed G/L Account categories which you are using in Account Schedules" after delete record in G/L Account Categories page
+
+        // [GIVEN] G/L Account Category "C1" 
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+
+        // [WHEN] Account Category "C1" is being deleted
+        LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Check Message");
+        GLAccountCategory.Delete(true);
+
+        // [THEN] Notification "You changed G/L Account categories which you are using in Account Schedules"
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLAccountCategoryNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure ChangeGLAccountSubCategory()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        GLAccount: Record "G/L Account";
+        GLAccountCard: TestPage "G/L Account Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 377715] User receive notification "You changed G/L Account categories which you are using in Account Schedules" after change Account Subcategory on G/L Account
+
+        // [GIVEN] G/L Account Category "C1" with "G/L Accounts in Category" = "A1"
+        LibraryERM.CreateGLAccountCategory(GLAccountCategory);
+        GLAccount.Get(CreateBalanceSheetGLAccountNo());
+        GLAccount.Validate("Account Category", GLAccountCategory."Account Category");
+        GLAccount.Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
+        GLAccount.Modify();
+
+        // [WHEN] Account Subcategory is being cleared for account "A1"
+        LibraryVariableStorage.Enqueue(AccSchedUpdateNeededNotificationAction::"Check Message");
+        GLAccountCard.OpenEdit();
+        GLAccountCard.Filter.SetFilter("No.", GLAccount."No.");
+        GLAccountCard.SubCategoryDescription.SetValue('');
+
+        // [THEN] Notification "You changed G/L Account categories which you are using in Account Schedules"
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure CreateGLAccountWithAccountSubcategoryEntryNo(AccountSubcategoryEntryNo: Integer): Code[20]
@@ -396,6 +537,30 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         GLAccount.Validate("Account Subcategory Entry No.", AccountSubcategoryEntryNo);
         GLAccount.Modify(true);
         exit(GLAccount."No.");
+    end;
+
+    local procedure CreateBalanceSheetGLAccountNo(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
+    end;
+
+    local procedure MockGenerateAccountSchedules()
+    var
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
+    begin
+        GLAccountCategoryMgt.ConfirmAndRunGenerateAccountSchedules();
+    end;
+
+    local procedure MockDisableNotification(var Notification: Notification)
+    var
+        CategGenerateAccSchedules: Codeunit "Categ. Generate Acc. Schedules";
+    begin
+        CategGenerateAccSchedules.HideAccSchedUpdateNeededNotificationForCurrentUser(Notification);
     end;
 
     local procedure SetAccountCategoryAndValidateIncomeBalanceField(GLAccountCategory: Record "G/L Account Category"; AccountCategory: Option; IncomeBalance: Option)
@@ -453,6 +618,50 @@ codeunit 134442 "GL Acct. Categories Page Tests"
         AccScheduleLine.TestField(
           Totaling,
           StrSubstNo('-%1+%2', AccScheduleLineArray[1]."Row No.", AccScheduleLineArray[2]."Row No."));
+    end;
+
+    local procedure VerfiyBalanceSheetAccountScheduleLine(GLAccountCategory: Record "G/L Account Category")
+    var
+        GLSetup: Record "General Ledger Setup";
+        AccScheduleLine: Record "Acc. Schedule Line";
+    begin
+        GLSetup.Get();
+
+        AccScheduleLine.SetRange("Schedule Name", GLSetup."Acc. Sched. for Balance Sheet");
+        AccScheduleLine.SetRange(Description, GLAccountCategory.Description);
+        AccScheduleLine.FindFirst();
+        AccScheduleLine.TestField(Totaling, GLAccountCategory.GetTotaling());
+    end;
+
+    local procedure VerifyMyNotificationsAccSchedUpdateNeeded()
+    var
+        GLAccountCategory: Record "G/L Account Category";
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.Get(UserId(), GLAccountCategory.GetAccSchedUpdateNeededNotificationId());
+        MyNotifications.TestField(Enabled, false);
+        MyNotifications.Delete();
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure GLAccountCategoryNotificationHandler(var Notification: Notification): Boolean
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            AccSchedUpdateNeededNotificationAction::"Check Message":
+                Assert.AreEqual(AccSchedUpdateNeededNotificationMsg, Notification.Message, 'A different notification is being sent.');
+            AccSchedUpdateNeededNotificationAction::"Generate Account Schedules":
+                MockGenerateAccountSchedules();
+            AccSchedUpdateNeededNotificationAction::"Disable Notification":
+                MockDisableNotification(Notification);
+        end;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure OptionDialogForGenerateAccountSchedules(Options: Text; var Choice: Integer; Instruction: Text)
+    begin
+        Choice := LibraryVariableStorage.DequeueInteger;
     end;
 }
 

@@ -72,6 +72,9 @@ table 5401 "Item Variant"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Item No.", "Code", Description)
+        {
+        }
     }
 
     trigger OnDelete()

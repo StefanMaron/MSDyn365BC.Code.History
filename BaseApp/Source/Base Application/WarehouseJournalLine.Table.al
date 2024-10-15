@@ -891,7 +891,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckBin(Rec, LocationCode, BinCode, Inbound, IsHandled);
+        OnBeforeCheckBin(Rec, LocationCode, BinCode, Inbound, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -1437,7 +1437,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
