@@ -321,6 +321,408 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,HandleEditDimensionSetEntriesPage,OverrideGLDistributionsPerQuantity')]
+    procedure TestOverrideGLAllocationSplitPerQuantity()
+    var
+        FirstDimensionValue: Record "Dimension Value";
+        SecondDimensionValue: Record "Dimension Value";
+        ThirdDimensionValue: Record "Dimension Value";
+        OverrideFirstDimensionValue: Record "Dimension Value";
+        OverrideSecondDimensionValue: Record "Dimension Value";
+        OverrideThirdDimensionValue: Record "Dimension Value";
+        DestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        AllocationAccount: Record "Allocation Account";
+        AllocAccManualOverride: Record "Alloc. Acc. Manual Override";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] A dimension that is defined as a department with three values
+        CreateDimensionsWithValues(FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue);
+        CreateDimensionsWithValues(OverrideFirstDimensionValue, OverrideSecondDimensionValue, OverrideThirdDimensionValue);
+
+        // [GIVEN] Three GL accounts with dimensions and balances and one Balancing G/L Account
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        DestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions and split per quantity
+        CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        // [GIVEN] The Sales Invoice with Item and Allocation account
+        CreateSalesInvoice(AllocationAccount."No.", SalesInvoice, SalesHeader);
+
+        // [GIVEN] User defines an override manually
+        LibraryVariableStorage.Enqueue(OverrideFirstDimensionValue.SystemId);
+        LibraryVariableStorage.Enqueue(OverrideSecondDimensionValue.SystemId);
+        LibraryVariableStorage.Enqueue(OverrideThirdDimensionValue.SystemId);
+        SalesInvoice.SalesLines.RedistributeAccAllocations.Invoke();
+
+        // [WHEN] The Sales Invoice is posted
+        SalesInvoice.Post.Invoke();
+        SalesInvoiceHeader.SetRange("Draft Invoice SystemId", SalesHeader.SystemId);
+        SalesInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"G/L Account");
+        Assert.AreEqual(3, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines created for the destination account');
+        SalesInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(1, SalesInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        // [THEN] Override values are used
+        FirstDimensionValue.SetRecFilter();
+        OverrideFirstDimensionValue.SetFilter(SystemId, '%1|%2', FirstDimensionValue.SystemId, OverrideFirstDimensionValue.SystemId);
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideFirstDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the first breakdown account');
+
+        SalesInvoiceLine.FindFirst();
+        Assert.AreEqual(Round(GetLineAmountToForceRounding() * GetOverrideQuantity(), AllocationAccountMgt.GetCurrencyRoundingPrecision(SalesInvoiceLine.GetCurrencyCode())), SalesInvoiceLine."Line Amount", 'The override amount was not used');
+        PostedAmount := SalesInvoiceLine."Line Amount";
+
+        SecondDimensionValue.SetRecFilter();
+        OverrideSecondDimensionValue.SetFilter(SystemId, '%1|%2', SecondDimensionValue.SystemId, OverrideSecondDimensionValue.SystemId);
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideSecondDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second breakdown account');
+        SalesInvoiceLine.FindFirst();
+        Assert.AreEqual(Round(GetLineAmountToForceRounding() * GetOverrideQuantity(), AllocationAccountMgt.GetCurrencyRoundingPrecision(SalesInvoiceLine.GetCurrencyCode())), SalesInvoiceLine."Line Amount", 'The override amount was not used');
+        PostedAmount += SalesInvoiceLine."Line Amount";
+
+        ThirdDimensionValue.SetRecFilter();
+        OverrideThirdDimensionValue.SetFilter(SystemId, '%1|%2', ThirdDimensionValue.SystemId, OverrideThirdDimensionValue.SystemId);
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(OverrideThirdDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the third breakdown account');
+        SalesInvoiceLine.FindFirst();
+        PostedAmount += SalesInvoiceLine."Line Amount";
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+        Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestAllocateToDifferentAccountsPerQuantityGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Sales Invoice with an Item and a Allocation Account
+        CreateSalesInvoice(AllocationAccount."No.", SalesInvoice, SalesHeader);
+
+        // [WHEN] The Sales Invoice is posted
+        SalesInvoice.Post.Invoke();
+        SalesInvoiceHeader.SetRange("Draft Invoice SystemId", SalesHeader.SystemId);
+        SalesInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines created for the first destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(1, SalesInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestReplaceAllocationAccountWithLinesPerQuantityGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Sales Invoice with an Item and a Allocation Account
+        CreateSalesInvoice(AllocationAccount."No.", SalesInvoice, SalesHeader);
+
+        // [WHEN] The Sales Invoice is posted
+        SalesInvoice.SalesLines.ReplaceAllocationAccountWithLines.Invoke();
+        SalesInvoice.Post.Invoke();
+        SalesInvoiceHeader.SetRange("Draft Invoice SystemId", SalesHeader.SystemId);
+        SalesInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines created for the first destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(1, SalesInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure TestReplaceAllocationAccountWithLinesPerAmountGLAllocation()
+    var
+        FirstDestinationGLAccount: Record "G/L Account";
+        SecondDestinationGLAccount: Record "G/L Account";
+        ThirdDestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        AllocationAccount: Record "Allocation Account";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        AllocationAccountPage: TestPage "Allocation Account";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] Three GL accounts with dimensions and balances, one Balancing G/L Account and three Destination G/L Accounts
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        FirstDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        SecondDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        ThirdDestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        AllocationAccount.Get(CreateAllocationAccountWithVariableDistribution(AllocationAccountPage));
+
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, FirstDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, FirstBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, SecondDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, SecondBreakdownGLAccount);
+
+        AllocationAccountPage.VariableAccountDistribution.New();
+        AddGLDestinationAccountForVariableDistribution(AllocationAccountPage, ThirdDestinationGLAccount);
+        AddGLBreakdownAccountForVariableDistribution(AllocationAccountPage, ThirdBreakdownGLAccount);
+        AllocationAccountPage.Close();
+
+        // [GIVEN] The Sales Invoice with an Item and a Allocation Account
+        CreateSalesInvoice(AllocationAccount."No.", SalesInvoice, SalesHeader);
+
+        // [WHEN] The Sales Invoice is posted
+        SalesInvoice.SalesLines.ReplaceAllocationAccountWithLines.Invoke();
+        SalesInvoice.Post.Invoke();
+        SalesInvoiceHeader.SetRange("Draft Invoice SystemId", SalesHeader.SystemId);
+        SalesInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"G/L Account");
+        SalesInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(3, SalesInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        SalesInvoiceLine.SetRange("No.", FirstDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines created for the first destination account');
+
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", SecondDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        SalesInvoiceLine.SetRange("No.", ThirdDestinationGLAccount."No.");
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second destination account');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,HandleEditDimensionSetEntriesPage')]
+    procedure TestAllocateToSameAccountFixedPerQuantityGLAllocation()
+    var
+        FirstDimensionValue: Record "Dimension Value";
+        SecondDimensionValue: Record "Dimension Value";
+        ThirdDimensionValue: Record "Dimension Value";
+        DestinationGLAccount: Record "G/L Account";
+        FirstBreakdownGLAccount: Record "G/L Account";
+        SecondBreakdownGLAccount: Record "G/L Account";
+        ThirdBreakdownGLAccount: Record "G/L Account";
+        BalancingGLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        AllocationAccount: Record "Allocation Account";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        PostedAmount: Decimal;
+    begin
+        Initialize();
+
+        // [GIVEN] A dimension that is defined as a department with three values
+        CreateDimensionsWithValues(FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue);
+
+        // [GIVEN] Three GL accounts with dimensions and balances and one Balancing G/L Account
+        CreateBreakdownAccountsWithBalances(FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
+        DestinationGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+        BalancingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        // [GIVEN] An Allocation Account with variable GL distributions
+        CreateAllocationAccountwithFixedGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount);
+        AllocationAccount."Document Lines Split" := AllocationAccount."Document Lines Split"::"Split Quantity";
+        AllocationAccount.Modify();
+
+        // [GIVEN] The Sales Invoice with Item and Allocation account
+        CreateSalesInvoice(AllocationAccount."No.", SalesInvoice, SalesHeader);
+
+        // [WHEN] The Sales Invoice is posted
+        SalesInvoice.Post.Invoke();
+        SalesInvoiceHeader.SetRange("Draft Invoice SystemId", SalesHeader.SystemId);
+        SalesInvoiceHeader.FindFirst();
+
+        // [THEN] The costs are split into mulitple ledger entries which has the same dimension code
+        SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
+        SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::"G/L Account");
+        Assert.AreEqual(3, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines created for the destination account');
+        SalesInvoiceLine.CalcSums(Quantity);
+        Assert.AreEqual(1, SalesInvoiceLine.Quantity, 'The quantity was not calculated correctly');
+
+        FirstDimensionValue.SetRecFilter();
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(FirstDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the first line');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 6);
+        PostedAmount := SalesInvoiceLine.Amount;
+
+        SecondDimensionValue.SetRecFilter();
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(SecondDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the second line');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 3);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        ThirdDimensionValue.SetRecFilter();
+        SalesInvoiceLine.SetRange("Dimension Set ID", CreateDimensionSetID(ThirdDimensionValue));
+        Assert.AreEqual(1, SalesInvoiceLine.Count(), 'Wrong number of Sales Invoice Lines for the third line');
+        SalesInvoiceLine.FindFirst();
+        VerifySalesLineAmount(SalesInvoiceLine, GetLineAmountToForceRounding(), 2);
+        PostedAmount += SalesInvoiceLine.Amount;
+
+        Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
     [HandlerFunctions('ConfirmHandlerTrue,HandleEditDimensionSetEntriesPage,OverrideGLDistributions')]
     procedure TestOverrideGLAllocationIsDeletedIfLineChanged()
     var
@@ -972,6 +1374,11 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
         exit(100.11);
     end;
 
+    local procedure GetOverrideQuantity(): Decimal
+    begin
+        exit(0.33);
+    end;
+
     [ModalPageHandler]
     procedure HandleEditDimensionSetEntriesPage(var EditDimensionSetEntriesPage: TestPage "Edit Dimension Set Entries")
     var
@@ -1021,6 +1428,25 @@ codeunit 134830 "Alloc. Account Sales E2E Tests"
 
         RedistributeAccAllocations.Next();
         RedistributeAccAllocations.Amount.SetValue(TotalAmount);
+        RedistributeAccAllocations.Dimensions.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OverrideGLDistributionsPerQuantity(var RedistributeAccAllocations: TestPage "Redistribute Acc. Allocations")
+    begin
+        RedistributeAccAllocations.First();
+        RedistributeAccAllocations.Quantity.SetValue(GetOverrideQuantity());
+
+        RedistributeAccAllocations.Dimensions.Invoke();
+
+        RedistributeAccAllocations.Next();
+        RedistributeAccAllocations.Quantity.SetValue(GetOverrideQuantity());
+
+        RedistributeAccAllocations.Dimensions.Invoke();
+
+        RedistributeAccAllocations.Next();
+        RedistributeAccAllocations.Quantity.SetValue(1 - GetOverrideQuantity() * 2);
         RedistributeAccAllocations.Dimensions.Invoke();
     end;
 }

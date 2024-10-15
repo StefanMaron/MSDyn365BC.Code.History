@@ -27,6 +27,11 @@ table 2670 "Allocation Account"
                 DeleteTheExistingSetupRecords();
             end;
         }
+        field(10; "Document Lines Split"; Option)
+        {
+            Caption = 'Split Document Lines';
+            OptionMembers = "Split Amount","Split Quantity";
+        }
     }
     keys
     {
