@@ -14,6 +14,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit O365 Preview RC Notifications - NamedType UnexpectedNotificationMsgTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Intrastat file was not created]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
@@ -32,13 +41,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType TransactionTypeMustHaveValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1767054922 - Control 3037438984 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
+      <Val><![CDATA[Enter Posting Date]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control PostingDate - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1767054922 - Control 341327183 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -50,22 +59,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control TransactionNo - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 1767054922 - Control 3037438984 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1767054922 - Control 2121772440 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Enter Posting Date]]></Val>
+      <Val><![CDATA[Execute Permission]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control PostingDate - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1767054922 - Control 684048196 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Near Max Limit]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control Near - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control ExecutePermission - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1767054922 - Control 960277968 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -77,40 +77,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control Max - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Page 1767054922 - Control 2121772440 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Page 1767054922 - Control 684048196 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Execute Permission]]></Val>
+      <Val><![CDATA[Near Max Limit]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control ExecutePermission - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1767054922 - Action 4082732986 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Make Transaction]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action MakeTransaction - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1767054922 - Action 1432039960 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Post Transaction]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action PostTransaction - Property Caption)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Page 1767054922 - Action 1105245267 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[G/L Entries]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action GLEntries - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Control Near - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1767054922 - Action 4220070561 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -129,6 +102,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action DeleteEntries - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1767054922 - Action 1105245267 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[G/L Entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action GLEntries - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1767054922 - Action 4082732986 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Make Transaction]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action MakeTransaction - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1767054922 - Action 1432039960 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Post Transaction]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Page License Test - C5 - Action PostTransaction - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

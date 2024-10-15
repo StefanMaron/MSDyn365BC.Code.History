@@ -196,7 +196,7 @@ codeunit 7317 "Whse. Integration Management"
         if WorkCenter.FindSet(false) then
             repeat
                 CheckLocationCode(Location, DATABASE::"Work Center", WorkCenter."No.");
-            until WorkCenter.Next = 0;
+            until WorkCenter.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

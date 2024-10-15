@@ -75,7 +75,7 @@ page 1816 "Job Creation Wizard"
                             trigger OnAssistEdit()
                             begin
                                 if AssistEdit(xRec) then
-                                    CurrPage.Update;
+                                    CurrPage.Update();
                             end;
                         }
                         field(Description; Description)

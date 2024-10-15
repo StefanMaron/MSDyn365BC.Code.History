@@ -184,7 +184,7 @@ table 9051 "Warehouse WMS Cue"
                         Location.Mark(true);
                     end else
                         LocationString := '''''' + '|';
-                until WhseEmployee.Next = 0;
+                until WhseEmployee.Next() = 0;
             Location.MarkedOnly(true);
             LocationString +=
               CopyStr(SelectionFilterManagement.GetSelectionFilterForLocation(Location), 1, MaxStrLen(LocationString));

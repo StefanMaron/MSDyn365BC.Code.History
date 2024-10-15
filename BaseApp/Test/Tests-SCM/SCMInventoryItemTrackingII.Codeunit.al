@@ -24,7 +24,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryPlanning: Codeunit "Library - Planning";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        AvailabilityWarning: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         DeleteItemTrackingCodeError: Label 'You cannot delete %1 %2 because it is used on one or more items.', Comment = '%1:FieldCaption1,%2:Value1';
         MultipleExpirDateError: Label 'There are multiple expiration dates registered for lot %1.';
         NegativeSelectedQuantityError: Label 'The value must be greater than or equal to 0. Value: -%1.';
@@ -35,11 +35,12 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         AssignSerialNoStatus: Label 'Assign Serial No must be TRUE.';
         ExistingSalesLnITError: Label 'Item tracking is defined for item %1 in the Sales Line.';
         WrongSerialNoErr: Label 'Serial No is wrong.';
-        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls;
+        TrackingOption: Option AssignSerialNo,AssignLotNo,VerifyLotNo,EditValue,SelectEntries,UpdateQtyToInvoice,AssignLotNo2,AssignQty,ReSelectEntries,AssignMoreThanPurchasedQty,SetNewLotNo,EditSNValue,SetNewSN,SetLotAndSerial,CheckExpDateControls,CreateCustomizedSN;
         TheLotNoInfoDoesNotExistErr: Label 'The Lot No. Information does not exist. Identification fields and values:';
         TheSerialNoInfoDoesNotExistErr: Label 'The Serial No. Information does not exist. Identification fields and values:';
         LotNoBySNNotFoundErr: Label 'A lot number could not be found for serial number';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
+        CreateSNInfo: Boolean;
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler')]
@@ -1004,6 +1005,112 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostItemJournalWithInbLotInfoAndCreateInfoCard()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        LotNo: Code[20];
+        LotNoInformation: Record "Lot No. Information";
+    begin
+
+        // [FEATURE] [Item Tracking] [Lot No. Info]
+        // [SCENARIO 319084] Posting of Item Journal Line with tracking code having Create Information Lot Card enabled
+        Initialize();
+
+        // [GIVEN] Assign item tracking code that must have inbound Lot no. info and auto create Lot info card to item "I"
+        CreateItemInboundLotInfoMustExistAutoInfoCard(Item);
+
+        // [WHEN] Create item journal line with lot number = "L1" and Post Item Journal
+        LotNo := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Lot No."), DATABASE::"Item Journal Line");
+        CreateItemWarehouseInventoryWithTrackingAttribute(ItemJournalLine, Item."No.", TrackingOption::EditValue, LotNo);
+
+        // [THEN] Lot number information card must be created
+        Assert.IsTrue(LotNoInformation.Get(Item."No.", '', LotNo), TheLotNoInfoDoesNotExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostItemJournalWithInbSNInfoAndCreateInfoCard()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SN: Code[20];
+        SerialNoInformation: Record "Serial No. Information";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+
+        // [FEATURE] [Item Tracking] [Serial No. Info]
+        // [SCENARIO 319084] Posting of Item Journal Line with tracking code having Create Information SN Card enabled
+        Initialize();
+
+        // [GIVEN] Assign item tracking code that must have inbound serial no. info and auto create SN info card to item "I"
+        CreateItemInboundSNInfoMustExistAutoInfoCard(Item);
+
+        // [WHEN] Create item journal line with serial number = "S1" and Post Item Journal
+        SN := LibraryUtility.GenerateRandomCode(ItemJournalLine.FieldNo("Serial No."), DATABASE::"Item Journal Line");
+        CreateItemWithTrackingAttrNoPosting(ItemJournalLine, Item."No.", TrackingOption::EditSNValue, SN, 1);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [THEN] Serial number information card must be created
+        Assert.IsTrue(SerialNoInformation.Get(Item."No.", '', SN), TheSerialNoInfoDoesNotExistErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,EnterQuantityToCreatePageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemJournalWithInbSNInfoAndAssignSNWithInfoCard()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SN: Code[20];
+        SerialNoInformation: Record "Serial No. Information";
+    begin
+
+        // [FEATURE] [Item Tracking] [Serial No. Info]
+        // [SCENARIO 319084] Creating information card from assign serial no. action on item tracking page
+        Initialize();
+
+        // [GIVEN] Assign item tracking code that must have inbound serial no. info and without creating SN info card to item "I"
+        CreateItemInboundSNInfoMustExist(Item);
+
+        // [WHEN] Create item journal line with serial number = "S1", create SN info from assign serial no. action
+        CreateSNInfo := true;
+        CreateItemWithTrackingAttrNoPosting(ItemJournalLine, Item."No.", TrackingOption::AssignSerialNo, '', 5);
+
+        // [THEN] Serial number information card must be created
+        AssertSNInfoExists(ItemJournalLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler,CustomizedSerialPageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemJournalWithInbSNInfoAndCustomizedSNWithInfoCard()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SN: Code[20];
+        SerialNoInformation: Record "Serial No. Information";
+    begin
+
+        // [FEATURE] [Item Tracking] [Serial No. Info]
+        // [SCENARIO 319084] Creating information card from Create Customized SN action on item tracking page
+        Initialize();
+
+        // [GIVEN] Assign item tracking code that must have inbound serial no. info and without creating SN info card to item "I"
+        CreateItemInboundSNInfoMustExist(Item);
+
+        // [WHEN] Create item journal line with serial number = "S1", create SN info from create customized serial no. action
+        CreateSNInfo := true;
+        CreateItemWithTrackingAttrNoPosting(ItemJournalLine, Item."No.", TrackingOption::CreateCustomizedSN, '', 5);
+
+        // [THEN] Serial number information card must be created
+        AssertSNInfoExists(ItemJournalLine);
+    end;
+
+    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure UpdateInventoryPutAwayLotSerialPurchase()
@@ -1456,6 +1563,31 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
     end;
 
+    local procedure CreateItemWithTrackingAttrNoPosting(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; TrackingOptionPar: Option; AttributeValue: Code[20]; Qty: Decimal)
+    var
+        Location: Record Location;
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateItemJournalLine(ItemJournalLine, ItemNo, Location.Code, '', Qty);
+        SetItemJournalLineTrackingAttribute(ItemJournalLine, TrackingOptionPar, AttributeValue);
+    end;
+
+    local procedure AssertSNInfoExists(ItemJnlLine: Record "Item Journal Line")
+    var
+        ReservationEntry: Record "Reservation Entry";
+        SerialNoInformation: Record "Serial No. Information";
+    begin
+        ReservationEntry.SetRange("Source Type", Database::"Item Journal Line");
+        ReservationEntry.SetRange("Source ID", ItemJnlLine."Journal Template Name");
+        ReservationEntry.SetRange("Source Batch Name", ItemJnlLine."Journal Batch Name");
+        ReservationEntry.SetRange("Source Ref. No.", ItemJnlLine."Line No.");
+
+        if (ReservationEntry.FindSet) then
+            repeat
+                Assert.IsTrue(SerialNoInformation.Get(ReservationEntry."Item No.", '', ReservationEntry."Serial No."), TheSerialNoInfoDoesNotExistErr);
+            until (ReservationEntry.Next = 0);
+    end;
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -1612,16 +1744,28 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     local procedure CreateItemInboundLotInfoMustExist(var Item: Record Item)
     begin
         CreateTrackedItem(
-          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(true, false, true, false));
+          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(true, false, true, false, false, false));
     end;
 
     local procedure CreateItemInboundSNInfoMustExist(var Item: Record Item)
     begin
         CreateTrackedItem(
-          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(false, true, false, true));
+          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(false, true, false, true, false, false));
     end;
 
-    local procedure CreateItemTrackingCodeInboundInfoMustExist(LotSpecific: Boolean; SNSpecific: Boolean; InboundLotNoInfoMustExist: Boolean; InboundSNInfoMustExist: Boolean): Code[10]
+    local procedure CreateItemInboundLotInfoMustExistAutoInfoCard(var Item: Record Item)
+    begin
+        CreateTrackedItem(
+          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(true, false, true, false, true, false));
+    end;
+
+    local procedure CreateItemInboundSNInfoMustExistAutoInfoCard(var Item: Record Item)
+    begin
+        CreateTrackedItem(
+          Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeInboundInfoMustExist(false, true, false, true, false, true));
+    end;
+
+    local procedure CreateItemTrackingCodeInboundInfoMustExist(LotSpecific: Boolean; SNSpecific: Boolean; InboundLotNoInfoMustExist: Boolean; InboundSNInfoMustExist: Boolean; AutoLotInfo: Boolean; AutoSNInfo: Boolean): Code[10]
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
@@ -1631,6 +1775,8 @@ codeunit 137261 "SCM Inventory Item Tracking II"
             Validate("SN Specific Tracking", SNSpecific);
             Validate("Lot Info. Inbound Must Exist", InboundLotNoInfoMustExist);
             Validate("SN Info. Inbound Must Exist", InboundSNInfoMustExist);
+            Validate("Create Lot No. Info on posting", AutoLotInfo);
+            Validate("Create SN Info on Posting", AutoSNInfo);
             Modify(true);
             exit(Code);
         end;
@@ -2211,7 +2357,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     begin
         with WarehouseEntry do begin
             SetRange("Item No.", ItemNo);
-            FindSet;
+            FindSet();
             repeat
                 Assert.AreEqual(ExpectedSerialNo, "Serial No.", WrongSerialNoErr);
             until Next = 0;
@@ -2233,6 +2379,7 @@ codeunit 137261 "SCM Inventory Item Tracking II"
     [Scope('OnPrem')]
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
+        EnterQuantityToCreate.CreateSNInfo.SetValue(CreateSNInfo);
         EnterQuantityToCreate.OK.Invoke;
     end;
 
@@ -2257,6 +2404,17 @@ codeunit 137261 "SCM Inventory Item Tracking II"
         EnterQuantityToCreate.QtyToCreate.SetValue(Quantity);
         EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
         EnterQuantityToCreate.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomizedSerialPageHandler(var EnterCustomizedSN: TestPage "Enter Customized SN")
+    begin
+        EnterCustomizedSN.QtyToCreate.SetValue(LibraryVariableStorage.DequeueInteger());
+        EnterCustomizedSN.CustomizedSN.SetValue(LibraryRandom.RandText(40));  // Random Text40 for Serial No.
+        EnterCustomizedSN.Increment.SetValue(LibraryRandom.RandInt(10));  // Random Value for Increment starting from 1.
+        EnterCustomizedSN.CreateSNInfo.SetValue(CreateSNInfo);
+        EnterCustomizedSN.OK.Invoke;
     end;
 
     [ModalPageHandler]
@@ -2359,6 +2517,12 @@ codeunit 137261 "SCM Inventory Item Tracking II"
                     ExpectedEditability := LibraryVariableStorage.DequeueBoolean();
                     Assert.AreEqual(ExpectedEditability, ItemTrackingLines."Expiration Date".Editable(), 'Expiration date is not editable');
                     Assert.AreEqual(ExpectedEditability, ItemTrackingLines."New Expiration Date".Editable(), 'New Expiration date is not editable');
+                end;
+            TrackingOption::CreateCustomizedSN:
+                begin
+                    LibraryVariableStorage.Dequeue(SN);
+                    LibraryVariableStorage.Enqueue(ItemTrackingLines.Quantity3.AsInteger());
+                    ItemTrackingLines."Create Customized SN".Invoke;
                 end;
         end;
         ItemTrackingLines.OK.Invoke;

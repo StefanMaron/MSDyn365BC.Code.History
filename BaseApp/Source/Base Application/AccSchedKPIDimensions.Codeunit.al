@@ -47,10 +47,10 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         CallingAccSchedLineID := AccSchedLine."Line No.";
         CallingColumnLayoutID := ColumnLayout."Line No.";
 
-        ColumnLayout.FindSet;
+        ColumnLayout.FindSet();
         repeat
             AddCellValueDimensions(AccSchedLine, ColumnLayout, TempAccSchedKPIBuffer2);
-        until ColumnLayout.Next = 0;
+        until ColumnLayout.Next() = 0;
 
         with TempAccSchedKPIBuffer2 do begin
             Reset;
@@ -111,7 +111,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     if GLAcc.Find('-') then
                         repeat
                             AddGLAccDimensions(GLAcc, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
             end;
 
             if AccSchedLine."Totaling Type" in
@@ -132,7 +132,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     if CostType.Find('-') then
                         repeat
                             AddCostTypeDimensions(CostType, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
-                        until CostType.Next = 0;
+                        until CostType.Next() = 0;
                 end;
             end;
 
@@ -153,7 +153,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     if CFAccount.Find('-') then
                         repeat
                             AddCFAccountDimensions(CFAccount, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
-                        until CFAccount.Next = 0;
+                        until CFAccount.Next() = 0;
             end;
         end;
     end;
@@ -165,8 +165,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         GLBudgetEntryDimensions: Query "G/L Budget Entry Dimensions";
         AnalysisViewEntryDimensions: Query "Analysis View Entry Dimensions";
         AnalysisViewBudgEntryDims: Query "Analysis View Budg. Entry Dims";
-        "Filter": Text;
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        FilterText: Text;
+        AmountType: Enum "Account Schedule Amount Type";
         AmountToAdd: Decimal;
     begin
         if ConflictAmountType(AccSchedLine, ColumnLayout."Amount Type", AmountType) then
@@ -183,15 +183,15 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     GLEntryDimensions.SetFilter(
                       Business_Unit_Code, AccSchedLine.GetFilter("Business Unit Filter"));
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 1 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"), '&');
-                    GLEntryDimensions.SetFilter(Global_Dimension_1_Code, Filter);
+                    GLEntryDimensions.SetFilter(Global_Dimension_1_Code, FilterText);
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 2 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"), '&');
-                    GLEntryDimensions.SetFilter(Global_Dimension_2_Code, Filter);
+                    GLEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
                     GLEntryDimensions.Open;
                     while GLEntryDimensions.Read do begin
@@ -210,13 +210,13 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     GLEntryDimensions.Close;
                 end else begin
                     if GLAcc.Totaling = '' then
-                        Filter := GLAcc."No."
+                        FilterText := GLAcc."No."
                     else
-                        Filter := GLAcc.Totaling;
+                        FilterText := GLAcc.Totaling;
 
                     FilterAnalysisViewEntriesDim(
                       AnalysisViewEntryDimensions, AccSchedName."Analysis View Name",
-                      AnalysisViewEntry."Account Source"::"G/L Account", Filter,
+                      AnalysisViewEntry."Account Source"::"G/L Account", FilterText,
                       GLAcc.GetFilter("Date Filter"), AccSchedLine);
 
                     AnalysisViewEntryDimensions.Open;
@@ -246,15 +246,15 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     GLBudgetEntryDimensions.SetFilter(
                       Business_Unit_Code, AccSchedLine.GetFilter("Business Unit Filter"));
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 1 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"), '&');
-                    GLBudgetEntryDimensions.SetFilter(Global_Dimension_1_Code, Filter);
+                    GLBudgetEntryDimensions.SetFilter(Global_Dimension_1_Code, FilterText);
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 2 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"), '&');
-                    GLBudgetEntryDimensions.SetFilter(Global_Dimension_2_Code, Filter);
+                    GLBudgetEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
                     GLBudgetEntryDimensions.Open;
                     while GLBudgetEntryDimensions.Read do begin
@@ -290,25 +290,25 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                     AnalysisViewBudgEntryDims.SetFilter(
                       Business_Unit_Code, AccSchedLine.GetFilter("Business Unit Filter"));
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 1 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(1, AccSchedLine."Dimension 1 Totaling"), '&');
-                    AnalysisViewBudgEntryDims.SetFilter(Dimension_1_Value_Code, Filter);
+                    AnalysisViewBudgEntryDims.SetFilter(Dimension_1_Value_Code, FilterText);
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 2 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(2, AccSchedLine."Dimension 2 Totaling"), '&');
-                    AnalysisViewBudgEntryDims.SetFilter(Dimension_2_Value_Code, Filter);
+                    AnalysisViewBudgEntryDims.SetFilter(Dimension_2_Value_Code, FilterText);
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 3 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(3, AccSchedLine."Dimension 3 Totaling"), '&');
-                    AnalysisViewBudgEntryDims.SetFilter(Dimension_3_Value_Code, Filter);
+                    AnalysisViewBudgEntryDims.SetFilter(Dimension_3_Value_Code, FilterText);
 
-                    Filter := CombineFilters(
+                    FilterText := CombineFilters(
                         AccSchedLine.GetFilter("Dimension 4 Filter"),
                         AccSchedManagement.GetDimTotalingFilter(4, AccSchedLine."Dimension 4 Totaling"), '&');
-                    AnalysisViewBudgEntryDims.SetFilter(Dimension_4_Value_Code, Filter);
+                    AnalysisViewBudgEntryDims.SetFilter(Dimension_4_Value_Code, FilterText);
 
                     AnalysisViewBudgEntryDims.Open;
                     while AnalysisViewBudgEntryDims.Read do begin
@@ -340,7 +340,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
     var
         CostEntry: Record "Cost Entry";
         CostBudgetEntry: Record "Cost Budget Entry";
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        AmountType: Enum "Account Schedule Amount Type";
         TestBalance: Boolean;
         Balance: Decimal;
         AmountToAdd: Decimal;
@@ -453,8 +453,8 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         AnalysisViewEntry: Record "Analysis View Entry";
         CFForecastEntryDimensions: Query "CF Forecast Entry Dimensions";
         AnalysisViewEntryDimensions: Query "Analysis View Entry Dimensions";
-        "Filter": Text;
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        FilterText: Text;
+        AmountType: Enum "Account Schedule Amount Type";
         AmountToAdd: Decimal;
     begin
         if ConflictAmountType(AccSchedLine, ColumnLayout."Amount Type", AmountType) then
@@ -471,13 +471,13 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 CFForecastEntryDimensions.SetFilter(
                   Cash_Flow_Forecast_No, AccSchedLine.GetFilter("Cash Flow Forecast Filter"));
 
-                Filter := CombineFilters(
+                FilterText := CombineFilters(
                     AccSchedLine.GetFilter("Dimension 1 Filter"), AccSchedLine."Dimension 1 Totaling", '&');
-                CFForecastEntryDimensions.SetFilter(Global_Dimension_1_Code, Filter);
+                CFForecastEntryDimensions.SetFilter(Global_Dimension_1_Code, FilterText);
 
-                Filter := CombineFilters(
+                FilterText := CombineFilters(
                     AccSchedLine.GetFilter("Dimension 2 Filter"), AccSchedLine."Dimension 2 Totaling", '&');
-                CFForecastEntryDimensions.SetFilter(Global_Dimension_2_Code, Filter);
+                CFForecastEntryDimensions.SetFilter(Global_Dimension_2_Code, FilterText);
 
                 CFForecastEntryDimensions.Open;
                 while CFForecastEntryDimensions.Read do begin
@@ -492,13 +492,13 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                 CFForecastEntryDimensions.Close;
             end else begin
                 if CFAccount.Totaling = '' then
-                    Filter := CFAccount."No."
+                    FilterText := CFAccount."No."
                 else
-                    Filter := CFAccount.Totaling;
+                    FilterText := CFAccount.Totaling;
 
                 FilterAnalysisViewEntriesDim(
                   AnalysisViewEntryDimensions, AccSchedName."Analysis View Name",
-                  AnalysisViewEntry."Account Source"::"Cash Flow Account", Filter,
+                  AnalysisViewEntry."Account Source"::"Cash Flow Account", FilterText,
                   CFAccount.GetFilter("Date Filter"), AccSchedLine);
                 AnalysisViewEntryDimensions.SetFilter(
                   Cash_Flow_Forecast_No, AccSchedLine.GetFilter("Cash Flow Forecast Filter"));
@@ -530,7 +530,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                       EvalExprWithDimFilter("Dimension Set ID", Expression, AccSchedLine, ColumnLayout, AccSchedKPIBuffer);
                     CheckAddDimsToResult(
                       AccSchedKPIBuffer, ColumnLayout, "Dimension Set ID", Value);
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure GetExpressionDimensions(var TempAccSchedKPIBufferExisting: Record "Acc. Sched. KPI Buffer" temporary; var TempAccSchedKPIBufferResulting: Record "Acc. Sched. KPI Buffer" temporary; LineFilter: Text)
@@ -545,7 +545,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                        ("Net Change Budget Last Year" <> 0) or ("Balance at Date Bud. Last Year" <> 0)
                     then
                         AddDimsToBuffer(TempAccSchedKPIBufferResulting, "Dimension Set ID")
-                until Next = 0;
+                until Next() = 0;
             SetRange("KPI Code");
         end;
     end;
@@ -716,7 +716,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
                                 if AccSchedLine."Line No." <> AccSchedLineID then
                                     Result +=
                                       GetCellValueWithDimFilter(ExistingAccSchedKPIBuffer, AccSchedLine, ColumnLayout, DimSetID);
-                            until AccSchedLine.Next = 0
+                            until AccSchedLine.Next() = 0
                         else
                             if IsFilter or (not Evaluate(Result, Expression)) then
                                 ShowError(IllegalValErr, AccSchedLine, ColumnLayout);
@@ -742,7 +742,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
           StrSubstNo(ColumnErr, ColumnLayout."Column No.", ColumnLayout."Line No.", ColumnLayout.Formula));
     end;
 
-    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Option "Net Amount","Debit Amount","Credit Amount"; var AmountType: Option): Boolean
+    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
            (AccSchedLine."Amount Type" = AccSchedLine."Amount Type"::"Net Amount")
@@ -835,7 +835,7 @@ codeunit 9 "Acc. Sched. KPI Dimensions"
         exit(Amount);
     end;
 
-    local procedure PassToResult(AccSchedLineShow: Option; Balance: Decimal) BalanceIsOK: Boolean
+    local procedure PassToResult(AccSchedLineShow: Enum "Acc. Schedule Line Show"; Balance: Decimal) BalanceIsOK: Boolean
     var
         AccScheduleLine: Record "Acc. Schedule Line";
     begin

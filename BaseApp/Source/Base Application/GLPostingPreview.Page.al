@@ -83,7 +83,7 @@ page 115 "G/L Posting Preview"
             repeat
                 Rec := TempDocumentEntry;
                 Insert;
-            until TempDocumentEntry.Next = 0;
+            until TempDocumentEntry.Next() = 0;
     end;
 }
 

@@ -280,6 +280,24 @@ codeunit 138500 "Common Demodata"
         Assert.RecordCount(CountryRegion, 31);
     end;
 
+    [Test]
+    procedure ContactsWithBusinessRelationAreNotNone()
+    var
+        Contact: Record Contact;
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        // [FEATURE] [Business Relation]
+        // [SCENARIO 388067] Contact's "Business Relation" is not 'None' if its company has a business relation 
+        if ContactBusinessRelation.FindSet() then
+            repeat
+                Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.");
+                if Contact.FindSet() then
+                    repeat
+                        Assert.AreNotEqual('None', Contact."Business Relation", Contact."No.");
+                    until Contact.Next() = 0;
+            until ContactBusinessRelation.Next() = 0;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Common Demodata");

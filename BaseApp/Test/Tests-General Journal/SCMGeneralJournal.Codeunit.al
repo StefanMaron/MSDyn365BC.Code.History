@@ -346,13 +346,13 @@ codeunit 137043 "SCM General Journal"
     begin
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
     end;
 
     local procedure FindStandardGeneralJournalLine(var StandardGeneralJournalLine: Record "Standard General Journal Line"; JournalTemplateName: Code[10])
     begin
         StandardGeneralJournalLine.SetRange("Journal Template Name", JournalTemplateName);
-        StandardGeneralJournalLine.FindSet;
+        StandardGeneralJournalLine.FindSet();
     end;
 
     local procedure VerifyStandardGeneralJournal(JournalTemplateName: Code[10]; NoOfLines: Integer)
@@ -390,7 +390,7 @@ codeunit 137043 "SCM General Journal"
         ActualAmount: Decimal;
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindSet;
+        CustLedgerEntry.FindSet();
         repeat
             CustLedgerEntry.CalcFields(Amount);
             ActualAmount += CustLedgerEntry.Amount;

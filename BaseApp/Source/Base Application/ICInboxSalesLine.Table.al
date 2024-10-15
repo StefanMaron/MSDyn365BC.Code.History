@@ -111,9 +111,13 @@ table 435 "IC Inbox Sales Line"
             ELSE
             IF ("IC Partner Ref. Type" = CONST(Item)) Item
             ELSE
+#if CLEAN16            
+            IF ("IC Partner Ref. Type" = CONST("Charge (Item)")) "Item Charge";
+#else            
             IF ("IC Partner Ref. Type" = CONST("Charge (Item)")) "Item Charge"
             ELSE
             IF ("IC Partner Ref. Type" = CONST("Cross reference")) "Item Cross Reference";
+#endif            
         }
         field(125; "IC Partner Code"; Code[20])
         {

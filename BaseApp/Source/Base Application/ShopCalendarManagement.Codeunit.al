@@ -1,5 +1,6 @@
 codeunit 99000755 "Shop Calendar Management"
 {
+    SingleInstance = true;
 
     trigger OnRun()
     begin
@@ -7,25 +8,22 @@ codeunit 99000755 "Shop Calendar Management"
 
     var
         ShopCalendarHoliday: Record "Shop Calendar Holiday";
+        WorkCenter: Record "Work Center";
+        CapUnitOfMeasure: Record "Capacity Unit of Measure";
         CalendarMgt: Codeunit "Calendar Management";
 
     procedure QtyperTimeUnitofMeasure(WorkCenterNo: Code[20]; UnitOfMeasureCode: Code[10]): Decimal
-    var
-        WorkCenter: Record "Work Center";
     begin
-        WorkCenter.Get(WorkCenterNo);
-
+        GetWorkCenter(WorkCenterNo);
         exit(TimeFactor(UnitOfMeasureCode) / TimeFactor(WorkCenter."Unit of Measure Code"));
     end;
 
     procedure TimeFactor(UnitOfMeasureCode: Code[10]) Factor: Decimal
-    var
-        CapUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
         if UnitOfMeasureCode = '' then
             exit(1);
 
-        CapUnitOfMeasure.Get(UnitOfMeasureCode);
+        GetCapUnitOfMeasure(UnitOfMeasureCode);
 
         case CapUnitOfMeasure.Type of
             CapUnitOfMeasure.Type::Seconds:
@@ -55,7 +53,6 @@ codeunit 99000755 "Shop Calendar Management"
 
     procedure CalculateSchedule(CapacityType: Enum "Capacity Type"; No: Code[20]; WorkCenterNo: Code[20]; StartingDate: Date; EndingDate: Date)
     var
-        WorkCenter: Record "Work Center";
         CalendarEntry: Record "Calendar Entry";
         CalAbsentEntry: Record "Calendar Absence Entry";
         ShopCalendar: Record "Shop Calendar Working Days";
@@ -64,7 +61,7 @@ codeunit 99000755 "Shop Calendar Management"
         CalAbsEntryExists: Boolean;
         IsHandled: Boolean;
     begin
-        WorkCenter.Get(WorkCenterNo);
+        GetWorkCenter(WorkCenterNo);
         WorkCenter.TestField("Shop Calendar Code");
 
         OnBeforeCalculateSchedule(WorkCenter, StartingDate);
@@ -118,7 +115,7 @@ codeunit 99000755 "Shop Calendar Management"
                                     InsertCalendarEntry(CalendarEntry, ShopCalendarHoliday."Ending Time", ShopCalendar."Ending Time");
                             end;
                     end;
-                until ShopCalendar.Next = 0;
+                until ShopCalendar.Next() = 0;
             CalAbsentEntry.SetRange(Updated, false);
             if PeriodDate = StartingDate then
                 CalAbsEntryExists := not CalAbsentEntry.IsEmpty;
@@ -140,6 +137,28 @@ codeunit 99000755 "Shop Calendar Management"
         CalEntry.Insert();
     end;
 
+    local procedure GetWorkCenter(WorkCenterNo: Code[20])
+    begin
+        if WorkCenter."No." = WorkCenterNo then
+            exit;
+        WorkCenter.Get(WorkCenterNo);
+    end;
+
+    local procedure GetCapUnitOfMeasure(UnitOfMeasureCode: Code[10])
+    begin
+        if CapUnitOfMeasure.Code = UnitOfMeasureCode then
+            exit;
+        CapUnitOfMeasure.Get(UnitOfMeasureCode);
+    end;
+
+    procedure ClearInternals()
+    begin
+        Clear(ShopCalendarHoliday);
+        Clear(WorkCenter);
+        Clear(CapUnitOfMeasure);
+        Clear(CalendarMgt);
+    end;
+
     procedure CalcTimeDelta(EndingTime: Time; StartingTime: Time): Integer
     begin
         exit(CalendarMgt.CalcTimeDelta(EndingTime, StartingTime));
@@ -156,7 +175,7 @@ codeunit 99000755 "Shop Calendar Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTimeFactor(CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
+    local procedure OnAfterTimeFactor(Var CapUnitOfMeasure: Record "Capacity Unit of Measure"; var Factor: Decimal)
     begin
     end;
 

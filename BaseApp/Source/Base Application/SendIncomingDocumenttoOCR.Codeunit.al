@@ -226,11 +226,11 @@ codeunit 133 "Send Incoming Document to OCR"
         with IncomingDocument do begin
             IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
             IncomingDocumentAttachment.SetFilter(Type, '%1|%2', IncomingDocumentAttachment.Type::PDF, IncomingDocumentAttachment.Type::Image);
-            if IncomingDocumentAttachment.IsEmpty then
+            if IncomingDocumentAttachment.IsEmpty() then
                 Error(NoOcrAttachmentErr);
             TestField("OCR Service Doc. Template Code");
             IncomingDocumentAttachment.SetRange("Use for OCR", true);
-            if IncomingDocumentAttachment.IsEmpty then begin
+            if IncomingDocumentAttachment.IsEmpty() then begin
                 IncomingDocumentAttachment.SetRange("Use for OCR");
                 IncomingDocumentAttachment.SetRange("Main Attachment", true);
                 IncomingDocumentAttachment.FindFirst;

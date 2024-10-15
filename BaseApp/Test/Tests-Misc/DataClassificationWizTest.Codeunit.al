@@ -186,16 +186,14 @@ codeunit 135152 "Data Classification Wiz. Tests"
         LibraryAssert.IsTrue(DataClassificationWizard.ActionFinish.Enabled, 'Action Finish was expected enabled');
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1754, 'OnOpenExcelSheet', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnOpenExcelSheet(var ExcelBuffer: Record "Excel Buffer"; var ShouldOpenFile: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classif. Import/Export", 'OnOpenExcelSheet', '', false, false)]
+    local procedure OnOpenExcelSheet(var ExcelBuffer: Record "Excel Buffer"; var ShouldOpenFile: Boolean)
     begin
         ShouldOpenFile := false;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1754, 'OnUploadExcelSheet', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnUploadExcelSheet(var ExcelBuffer: Record "Excel Buffer"; var ShouldUploadFile: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Classif. Import/Export", 'OnUploadExcelSheet', '', false, false)]
+    local procedure OnUploadExcelSheet(var ExcelBuffer: Record "Excel Buffer"; var ShouldUploadFile: Boolean)
     begin
         ShouldUploadFile := false;
         FillExcelBuffer(ExcelBuffer);

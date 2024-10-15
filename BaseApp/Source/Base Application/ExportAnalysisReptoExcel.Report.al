@@ -121,7 +121,7 @@ report 7113 "Export Analysis Rep. to Excel"
                               false,
                               '',
                               TempExcelBuffer."Cell Type"::Text);
-                        until ColumnLayout.Next = 0;
+                        until ColumnLayout.Next() = 0;
                     end;
                     repeat
                         RecNo := RecNo + 1;
@@ -152,9 +152,9 @@ report 7113 "Export Analysis Rep. to Excel"
                                   AnalysisLine.Underline,
                                   '',
                                   TempExcelBuffer."Cell Type"::Number)
-                            until ColumnLayout.Next = 0;
+                            until ColumnLayout.Next() = 0;
                         end;
-                    until AnalysisLine.Next = 0;
+                    until AnalysisLine.Next() = 0;
                 end;
 
                 Window.Close;

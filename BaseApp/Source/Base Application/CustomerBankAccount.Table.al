@@ -212,7 +212,7 @@ table 287 "Customer Bank Account"
         CustLedgerEntry.SetRange("Customer No.", "Customer No.");
         CustLedgerEntry.SetRange("Recipient Bank Account", Code);
         CustLedgerEntry.SetRange(Open, true);
-        if not CustLedgerEntry.IsEmpty then
+        if not CustLedgerEntry.IsEmpty() then
             Error(BankAccDeleteErr);
         if Customer.Get("Customer No.") and (Customer."Preferred Bank Account Code" = Code) then begin
             Customer."Preferred Bank Account Code" := '';

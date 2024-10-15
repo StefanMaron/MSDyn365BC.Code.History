@@ -1100,7 +1100,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         Contact.SetRange(Name, OriginalName);
         Assert.AreEqual(2, Contact.Count, 'There should be two contacts with the same name');
 
-        Contact.FindSet;
+        Contact.FindSet();
         repeat
             DuplicateManagement.MakeContIndex(Contact);
         until Contact.Next = 0;

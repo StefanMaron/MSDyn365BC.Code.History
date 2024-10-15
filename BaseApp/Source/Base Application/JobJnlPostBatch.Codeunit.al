@@ -98,7 +98,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 CheckRecurringLine(JobJnlLine);
                 JobJnlCheckLine.RunCheck(JobJnlLine);
                 OnAfterCheckJnlLine(JobJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     Find('-');
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -159,7 +159,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 OnBeforeJobJnlPostLine(JobJnlLine);
                 JobJnlPostLine.RunWithCheck(JobJnlLine);
                 OnAfterJobJnlPostLine(JobJnlLine);
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -253,7 +253,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                         then
                             JobJnlLine2.DeleteAmounts;
                         JobJnlLine2.Modify();
-                    until JobJnlLine2.Next = 0;
+                    until JobJnlLine2.Next() = 0;
                 end else begin
                     // Not a recurring journal
                     JobJnlLine2.CopyFilters(JobJnlLine);
@@ -294,7 +294,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 repeat
                     Evaluate(PostingNoSeriesNo, NoSeries.Description);
                     NoSeriesMgt2[PostingNoSeriesNo].SaveNoSeries;
-                until NoSeries.Next = 0;
+                until NoSeries.Next() = 0;
         end;
     end;
 

@@ -6,7 +6,7 @@ codeunit 5010 "Web Service Helper"
 
     var
         ODataV3DepricationDescriptionTok: Label 'OData V3';
-        ODataV3DepricationTok: Label 'OData V3 (on the page referred as OData) is being deprecated on SaaS. Please use OData V4.';
+        ODataV3DepricationTok: Label 'OData V3 is deprecated. Please use OData V4';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
 

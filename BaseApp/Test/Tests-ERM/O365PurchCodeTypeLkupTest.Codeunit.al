@@ -76,8 +76,8 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         StandardPurchaseCodeCard.Description.Value := LibraryUtility.GenerateGUID;
         StandardPurchaseCodeCard."Currency Code".Value := CreateOrFindCurrency;
 
-        TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FillLookupBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
+        TempOptionLookupBuffer.FindSet();
         repeat
             // [WHEN] Opening the SaaS type lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
@@ -238,7 +238,7 @@ codeunit 134653 "O365 Purch Code Type Lkup Test"
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
         TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next = 0;

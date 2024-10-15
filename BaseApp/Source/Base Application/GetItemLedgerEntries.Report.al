@@ -1,4 +1,4 @@
-report 594 "Get Item Ledger Entries"
+﻿report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries';
     Permissions = TableData "General Posting Setup" = imd;
@@ -35,7 +35,7 @@ report 594 "Get Item Ledger Entries"
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
-                                until ItemLedgEntry.Next = 0;
+                                until ItemLedgEntry.Next() = 0;
                         end;
                     end;
 
@@ -478,7 +478,7 @@ report 594 "Get Item Ledger Entries"
                                     Location.Get(ItemLedgEntry2."Location Code");
                                     if Location."Use As In-Transit" then
                                         Include := true;
-                                until Include or (ItemLedgEntry2.Next = 0);
+                                until Include or (ItemLedgEntry2.Next() = 0);
                             if not Include then
                                 exit(false);
                         end;
@@ -654,7 +654,7 @@ report 594 "Get Item Ledger Entries"
                             end;
                         end;
                     end;
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
 
             if Quantity <> TotalInvoicedQty then begin
                 TotalAmt := TotalAmt + TotalAmtExpected;

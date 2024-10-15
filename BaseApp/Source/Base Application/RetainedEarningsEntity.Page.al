@@ -11,6 +11,9 @@ page 5497 "Retained Earnings Entity"
     PageType = API;
     SourceTable = "Acc. Schedule Line Entity";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

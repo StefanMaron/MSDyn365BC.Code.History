@@ -629,7 +629,7 @@ table 5993 "Service Invoice Line"
                 TempVATAmountLine.CopyFromServInvLine(Rec);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure RowID1(): Text[250]
@@ -702,7 +702,7 @@ table 5993 "Service Invoice Line"
                         TempServShptLine := ServShptLine;
                         if TempServShptLine.Insert() then;
                     end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
     end;
 
     procedure FilterPstdDocLineValueEntries(var ValueEntry: Record "Value Entry")

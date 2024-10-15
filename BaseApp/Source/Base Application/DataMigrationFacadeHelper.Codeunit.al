@@ -340,7 +340,7 @@ codeunit 1797 "Data Migration Facade Helper"
             repeat
                 TempDimensionSetEntry.TransferFields(DimensionSetEntry);
                 TempDimensionSetEntry.Insert(true);
-            until DimensionSetEntry.Next = 0;
+            until DimensionSetEntry.Next() = 0;
 
         TempDimensionSetEntry.Init();
         TempDimensionSetEntry.Validate("Dimension Set ID", OldDimensionSetId);

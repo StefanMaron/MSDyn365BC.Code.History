@@ -1684,7 +1684,7 @@ codeunit 138012 "O365 Templates Test"
         Assert.AreNotEqual(OriginalLanguageID, OtherLanguageID, 'Language ID should be reverted to original languageID');
 
         ConfigTemplateLine.SetRange("Data Template Code", TemplateName);
-        ConfigTemplateLine.FindSet;
+        ConfigTemplateLine.FindSet();
 
         repeat
             Assert.AreEqual(OtherLanguageID, ConfigTemplateLine."Language ID", 'Wrong Language ID was set on configuration template line');
@@ -4045,7 +4045,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         ConfigTemplateHeader.SetRange(Enabled, true);
         LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Count);
-        ConfigTemplateHeader.FindSet;
+        ConfigTemplateHeader.FindSet();
         repeat
             LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Description);
         until ConfigTemplateHeader.Next = 0;
@@ -4229,7 +4229,7 @@ codeunit 138012 "O365 Templates Test"
         with ConfigTemplateLine do begin
             SetRange("Data Template Code", TemplateCode);
             SetRange(Type, Type::Field);
-            FindSet;
+            FindSet();
             repeat
                 FieldRef := RecRef.Field("Field ID");
                 Assert.AreEqual(
@@ -4435,7 +4435,7 @@ codeunit 138012 "O365 Templates Test"
         end;
     end;
 
-    local procedure VerifyDefaultDimensionsTemplateSavedCorrectly(ParentTemplateCode: Code[10]; DimensionCode: Code[20]; DimensionValueCode: Code[20]; ValuePosting: Option)
+    local procedure VerifyDefaultDimensionsTemplateSavedCorrectly(ParentTemplateCode: Code[10]; DimensionCode: Code[20]; DimensionValueCode: Code[20]; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         ConfigTemplateLine: Record "Config. Template Line";
         TempDimensionsTemplate: Record "Dimensions Template" temporary;
@@ -4462,7 +4462,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateLine.FindFirst;
 
         Field.Get(DATABASE::"Default Dimension", ConfigTemplateLine."Field ID");
-        ValuePostingText := SelectStr(ValuePosting + 1, Field.OptionString);
+        ValuePostingText := SelectStr(ValuePosting.AsInteger() + 1, Field.OptionString);
         Assert.AreEqual(ConfigTemplateLine."Default Value", ValuePostingText, 'Value in template does not match saved value');
 
         VerifyDefaultDimensionsTemplateRelatedToParentTemplate(ParentTemplateCode, DimensionConfigTemplateCode);
@@ -4506,7 +4506,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateLine: Record "Config. Template Line";
     begin
         ConfigTemplateHeader.SetRange(Description, ParentTemplateCode);
-        ConfigTemplateHeader.FindSet;
+        ConfigTemplateHeader.FindSet();
 
         repeat
             ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
@@ -4568,7 +4568,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         DefaultDimension.SetRange("No.", MasterRecordNo);
         DefaultDimension.SetRange("Table ID", TableID);
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
 
         repeat
             VerifyDefaultDimensionsTemplateSavedCorrectly(
@@ -4687,7 +4687,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Item);
         DefaultDimension.SetRange("No.", Item."No.");
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             VerifyDefaultDimensionsVsTemplate(
               DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));
@@ -4700,7 +4700,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Customer);
         DefaultDimension.SetRange("No.", Customer."No.");
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             VerifyDefaultDimensionsVsTemplate(
               DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));
@@ -4713,7 +4713,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         DefaultDimension.SetRange("Table ID", DATABASE::Vendor);
         DefaultDimension.SetRange("No.", Vendor."No.");
-        DefaultDimension.FindSet;
+        DefaultDimension.FindSet();
         repeat
             VerifyDefaultDimensionsVsTemplate(
               DefaultDimension, GetDimensionsTemplateCode(ConfigTemplateHeaderCode, DefaultDimension."Dimension Code"));

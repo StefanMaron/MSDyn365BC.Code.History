@@ -425,7 +425,7 @@ page 6000 "Dispatch Board"
         end;
         SetAllFilters;
 
-        if IsEmpty then begin
+        if IsEmpty() then begin
             ServOrderFilter := '';
             SetServOrderFilter;
         end;

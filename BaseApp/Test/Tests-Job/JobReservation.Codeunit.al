@@ -318,6 +318,44 @@ codeunit 136312 "Job Reservation"
     [Test]
     [HandlerFunctions('ReservationPageHandler')]
     [Scope('OnPrem')]
+    procedure ChangeJobPlanningLinesBinCodeAfterReserve()
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        ItemJournalLine1: Record "Item Journal Line";
+        ItemJournalLine2: Record "Item Journal Line";
+        Location: Record Location;
+        Item: Record Item;
+    begin
+        // Verify after Reserving order from job planning line, it is possible to modify Bin code.
+        Initialize(false);
+
+        // [GIVEN] Items available on location A - bin code X and bin code Y.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Bin Mandatory", true);
+        Location.Modify(true);
+        LibraryInventory.CreateItem(Item);
+        CreateItemJournalWithBin(ItemJournalLine1, Item, Location);
+        CreateItemJournalWithBin(ItemJournalLine2, Item, Location);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine1."Journal Template Name", ItemJournalLine1."Journal Batch Name");
+        LibraryInventory.PostItemJournalLine(ItemJournalLine2."Journal Template Name", ItemJournalLine2."Journal Batch Name");
+
+        // [GIVEN] Reserve Job Planning Line for the same item on location A and bin code X
+        CreateJobAndPlanningLine(JobPlanningLine, Item."No.");
+        JobPlanningLine.Validate("Location Code", ItemJournalLine1."Location Code");
+        JobPlanningLine.Validate("Bin Code", ItemJournalLine1."Bin Code");
+        JobPlanningLine.ShowReservation();
+
+        // [WHEN] Modify bin code after reserving.
+        JobPlanningLine.Validate("Bin Code", ItemJournalLine2."Bin Code");
+
+        // [THEN] Verify Job Planning Line for Reserved Quantity.
+        VerifyJobPlanningLine(JobPlanningLine, JobPlanningLine.Quantity);
+
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationPageHandler')]
+    [Scope('OnPrem')]
     procedure ModifyFactorsFromPurchaseOrderToJobOrder()
     var
         JobPlanningLine: Record "Job Planning Line";
@@ -462,6 +500,7 @@ codeunit 136312 "Job Reservation"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
     procedure CreateRequisitionWorksheetlineAndUpdateVendorNoCrossRef()
@@ -518,6 +557,7 @@ codeunit 136312 "Job Reservation"
         Assert.AreEqual(Vendor."No.", ReqWorksheet."Vendor No.".Value, VendorNoIsNotMatchErr);
         Assert.AreEqual(ItemCrossReference.Description, ReqWorksheet.Description.Value, NotResetErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -577,6 +617,7 @@ codeunit 136312 "Job Reservation"
         Assert.AreEqual(ItemReference.Description, ReqWorksheet.Description.Value, NotResetErr);
     end;
 
+#if not CLEAN17
     [Test]
     [Scope('OnPrem')]
     procedure CreateRequisitionWorksheetLineAndValidateVendorNoCrossRef()
@@ -625,6 +666,7 @@ codeunit 136312 "Job Reservation"
         // [THEN] "Description 2" in Requisition Line should be empty
         Assert.AreEqual('', RequisitionLine."Description 2", DescriptionEmptyErr);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1412,7 +1454,7 @@ codeunit 136312 "Job Reservation"
         CreateJobPlanningLine(JobPlanningLine, JobPlanningLine."Line Type"::Budget, JobTask, No);
     end;
 
-    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Option; JobTask: Record "Job Task"; No: Code[20])
+    local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task"; No: Code[20])
     begin
         // Use Random values for Quantity, Planning Date and Unit Cost because values are not important.
         LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
@@ -1588,6 +1630,43 @@ codeunit 136312 "Job Reservation"
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Surplus);
         Assert.IsTrue(ReservationEntry.IsEmpty, NotCreateReservationEntryErr);
+    end;
+
+    local procedure CreateItemJournalWithBin(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; Location: Record Location)
+    var
+        Bin: Record Bin;
+        BinContent: Record "Bin Content";
+        ItemJournalBatch: Record "Item Journal Batch";
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+
+        // Create Warehouse Employee and create a new Bin.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+
+        // Create Item and Bin Content for it.
+        LibraryWarehouse.CreateBinContent(
+          BinContent, Location.Code, '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
+
+        // Create Item Journal Line with Location, Bin and Random Quantity.
+        ItemJournalSetup(ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", LibraryRandom.RandDec(1000, 2));
+        ItemJournalLine.Validate("Location Code", Location.Code);
+        ItemJournalLine.Validate("Bin Code", Bin.Code);
+        ItemJournalLine.Modify(true);
+    end;
+
+    local procedure ItemJournalSetup(var ItemJournalBatch: Record "Item Journal Batch")
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Modify(true);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     [ModalPageHandler]

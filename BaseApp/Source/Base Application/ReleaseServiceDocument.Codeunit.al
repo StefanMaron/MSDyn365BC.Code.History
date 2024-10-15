@@ -39,7 +39,7 @@ codeunit 416 "Release Service Document"
                 ServLine.SetRange("Document No.", "No.");
                 ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
                 ServLine.SetFilter(Quantity, '<>0');
-                if ServLine.IsEmpty then
+                if ServLine.IsEmpty() then
                     Error(NothingToReleaseErr, "Document Type", "No.");
             end;
 
@@ -50,7 +50,7 @@ codeunit 416 "Release Service Document"
                 if ServLine.FindSet then
                     repeat
                         ServLine.TestField("Location Code");
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
                 ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
             end;
 

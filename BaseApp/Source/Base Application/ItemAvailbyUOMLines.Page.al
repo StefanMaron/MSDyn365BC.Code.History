@@ -244,10 +244,10 @@ page 5417 "Item Avail. by UOM Lines"
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
-                field("Item.""Scheduled Need (Qty.)"""; AdjustQty(Item."Scheduled Need (Qty.)"))
+                field("Item.""Scheduled Need (Qty.)"""; AdjustQty(Item."Qty. on Component Lines"))
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Scheduled Issue (Qty.)';
+                    Caption = 'Qty. on Component Lines';
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'Specifies the sum of items from planned production orders.';

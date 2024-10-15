@@ -152,7 +152,7 @@ table 5943 "Troubleshooting Header"
         repeat
             TblshtgHeader2.Get(TblshtgSetup2."Troubleshooting No.");
             TblshtgHeader2.Mark(true);
-        until TblshtgSetup2.Next = 0;
+        until TblshtgSetup2.Next() = 0;
     end;
 
     local procedure RunTroubleshooting()

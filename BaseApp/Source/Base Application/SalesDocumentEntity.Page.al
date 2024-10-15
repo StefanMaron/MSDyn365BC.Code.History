@@ -702,11 +702,16 @@ page 6402 "Sales Document Entity"
                     ApplicationArea = All;
                     Caption = 'Campaign No.', Locked = true;
                 }
+#if not CLEAN18
                 field(sellToCustomerTemplateCode; "Sell-to Customer Template Code")
                 {
                     ApplicationArea = All;
                     Caption = 'Sell-to Customer Template Code', Locked = true;
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field(sellToContactNumber; "Sell-to Contact No.")
                 {
                     ApplicationArea = All;
@@ -717,11 +722,16 @@ page 6402 "Sales Document Entity"
                     ApplicationArea = All;
                     Caption = 'Bill-to Contact No.', Locked = true;
                 }
+#if not CLEAN18
                 field(billToCustomerTemplateCode; "Bill-to Customer Template Code")
                 {
                     ApplicationArea = All;
                     Caption = 'Bill-to Customer Template Code', Locked = true;
+                    ObsoleteReason = 'Will be removed with other functionality related to "old" templates.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field(opportunityNumber; "Opportunity No.")
                 {
                     ApplicationArea = All;

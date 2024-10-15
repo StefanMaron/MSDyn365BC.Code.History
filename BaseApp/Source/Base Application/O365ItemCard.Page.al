@@ -197,15 +197,15 @@ page 2106 "O365 Item Card"
 
     local procedure CreateItemFromTemplate()
     var
-        ItemTemplate: Record "Item Template";
         Item: Record Item;
         O365SalesManagement: Codeunit "O365 Sales Management";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
     begin
         if NewMode then begin
-            if ItemTemplate.NewItemFromTemplate(Item) then begin
+            if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
                 Copy(Item);
                 O365SalesManagement.SetItemDefaultValues(Item);
-                CurrPage.Update;
+                CurrPage.Update();
             end;
             ItemCardStatus := ItemCardStatus::Delete;
             NewMode := false;

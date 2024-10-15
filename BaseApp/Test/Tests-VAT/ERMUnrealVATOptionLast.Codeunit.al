@@ -1257,7 +1257,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
     begin
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             VATAmount += VATEntry.Amount;
         until VATEntry.Next = 0;

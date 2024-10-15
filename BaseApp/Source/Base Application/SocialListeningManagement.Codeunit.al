@@ -179,7 +179,7 @@ codeunit 871 "Social Listening Management"
         exit(ID);
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleMSERegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         SocialListeningSetup: Record "Social Listening Setup";

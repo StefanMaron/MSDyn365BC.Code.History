@@ -34,7 +34,7 @@ page 6304 "Power BI Report Selection"
                         // IsPgclosedOkay is used to tell the caller of this page that inspite of the LookupCancel
                         // the action should be treated like a LookupOk
                         IsPgClosedOkay := true;
-                        SaveAndClose;
+                        SaveAndClose();
                     end;
                 }
                 field(Enabled; Enabled)
@@ -109,7 +109,7 @@ page 6304 "Power BI Report Selection"
                 trigger OnAction()
                 begin
                     Enabled := true;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(DisableReport)
@@ -129,7 +129,7 @@ page 6304 "Power BI Report Selection"
                 trigger OnAction()
                 begin
                     Enabled := false;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
             action(Refresh)
@@ -148,7 +148,7 @@ page 6304 "Power BI Report Selection"
                     IsErrorMessageVisible := false;
                     IsUrlFieldVisible := false;
 
-                    if not TryLoadReportsList then
+                    if not TryLoadReportsList() then
                         ShowLatestErrorMessage();
                 end;
             }
@@ -165,7 +165,7 @@ page 6304 "Power BI Report Selection"
                 trigger OnAction()
                 begin
                     // Opens a new browser tab to Power BI's content pack list, set to the My Organization tab.
-                    HyperLink(PowerBIServiceMgt.GetContentPacksMyOrganizationUrl);
+                    HyperLink(PowerBIServiceMgt.GetContentPacksMyOrganizationUrl());
                 end;
             }
             action(Services)
@@ -181,7 +181,7 @@ page 6304 "Power BI Report Selection"
                 trigger OnAction()
                 begin
                     // Opens a new browser tab to AppSource's content pack list, filtered to NAV reports.
-                    HyperLink(PowerBIServiceMgt.GetContentPacksServicesUrl);
+                    HyperLink(PowerBIServiceMgt.GetContentPacksServicesUrl());
                 end;
             }
             action(ConnectionInfo)
@@ -217,7 +217,7 @@ page 6304 "Power BI Report Selection"
 
     trigger OnOpenPage()
     begin
-        if not TryLoadReportsList then
+        if not TryLoadReportsList() then
             ShowLatestErrorMessage();
 
         IsSaaS := EnvironmentInfo.IsSaaS();
@@ -225,7 +225,7 @@ page 6304 "Power BI Report Selection"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        SaveAndClose;
+        SaveAndClose();
     end;
 
     var
@@ -271,18 +271,18 @@ page 6304 "Power BI Report Selection"
         ExceptionDetails: Text;
     begin
         // Clears and retrieves a list of all reports in the user's Power BI account.
-        Reset;
+        Reset();
         DeleteAll();
         PowerBIServiceMgt.GetReports(Rec, ExceptionMessage, ExceptionDetails, Context);
 
         HasReports := not IsEmpty;
-        if IsEmpty then
-            Insert; // Hack to prevent empty list error.
+        if IsEmpty() then
+            Insert(); // Hack to prevent empty list error.
 
         // Set sort order, scrollbar position, and filters.
         SetCurrentKey(ReportName);
-        FindFirst;
-        FilterReports;
+        FindFirst();
+        FilterReports();
     end;
 
     local procedure SaveAndClose()
@@ -295,7 +295,7 @@ page 6304 "Power BI Report Selection"
         TempPowerBiReportBuffer.Copy(Rec, true);
 
         // Clear out all old records before re-adding (easiest way to remove invalid rows, e.g. deleted reports).
-        PowerBiReportConfiguration.SetFilter("User Security ID", UserSecurityId);
+        PowerBiReportConfiguration.SetFilter("User Security ID", UserSecurityId());
         PowerBiReportConfiguration.SetFilter(Context, Context);
         PowerBiReportConfiguration.DeleteAll();
         PowerBiReportConfiguration.Reset();
@@ -304,15 +304,15 @@ page 6304 "Power BI Report Selection"
         if TempPowerBiReportBuffer.Find('-') then
             repeat
                 PowerBiReportConfiguration.Init();
-                PowerBiReportConfiguration."User Security ID" := UserSecurityId;
+                PowerBiReportConfiguration."User Security ID" := UserSecurityId();
                 PowerBiReportConfiguration."Report ID" := TempPowerBiReportBuffer.ReportID;
                 PowerBiReportConfiguration.Context := Context;
                 PowerBiReportConfiguration.Validate(ReportEmbedUrl, TempPowerBiReportBuffer.ReportEmbedUrl);
                 PowerBiReportConfiguration.Insert();
-            until TempPowerBiReportBuffer.Next = 0;
+            until TempPowerBiReportBuffer.Next() = 0;
 
         IsPgClosedOkay := true;
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     procedure IsPageClosedOkay(): Boolean
@@ -327,13 +327,13 @@ page 6304 "Power BI Report Selection"
         TextToShow := GetLastErrorText();
 
         // Dealing with 401 Unauthorized error URL, per page 6303.
-        if TextToShow = PowerBIServiceMgt.GetUnauthorizedErrorText then begin
+        if TextToShow = PowerBIServiceMgt.GetUnauthorizedErrorText() then begin
             ErrorUrlText := TextToShow;
-            ErrorUrlPath := PowerBIServiceMgt.GetPowerBIUrl;
+            ErrorUrlPath := PowerBIServiceMgt.GetPowerBIUrl();
             IsUrlFieldVisible := true;
         end else begin
             if TextToShow = '' then
-                TextToShow := PowerBIServiceMgt.GetGenericError;
+                TextToShow := PowerBIServiceMgt.GetGenericError();
 
             ErrorMessageText := TextToShow;
             IsErrorMessageVisible := true;

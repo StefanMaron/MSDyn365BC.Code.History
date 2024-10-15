@@ -7,6 +7,9 @@ page 5494 "Country/Regions Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Country/Region";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -70,7 +73,7 @@ page 5494 "Country/Regions Entity"
         RecRef: RecordRef;
     begin
         CountryRegion.SetRange(Code, Code);
-        if not CountryRegion.IsEmpty then
+        if not CountryRegion.IsEmpty() then
             Insert;
 
         Insert(true);

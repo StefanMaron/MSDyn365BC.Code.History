@@ -66,7 +66,7 @@ codeunit 8 AccSchedManagement
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         CheckTemplateAndSetFilter(CurrentSchedName, AccSchedLine);
-        if AccSchedLine.IsEmpty then
+        if AccSchedLine.IsEmpty() then
             exit;
         GeneralLedgerSetup.Get();
         if CurrentSchedName in
@@ -181,7 +181,7 @@ codeunit 8 AccSchedManagement
             repeat
                 TempColumnLayout := ColumnLayout;
                 TempColumnLayout.Insert();
-            until ColumnLayout.Next = 0;
+            until ColumnLayout.Next() = 0;
         if TempColumnLayout.Find('-') then;
     end;
 
@@ -230,7 +230,7 @@ codeunit 8 AccSchedManagement
                           (ColumnLayout2."Dimension 2 Totaling" <> '') or
                           (ColumnLayout2."Dimension 3 Totaling" <> '') or
                           (ColumnLayout2."Dimension 4 Totaling" <> '');
-                    until AnyColumnDimensions or (ColumnLayout2.Next = 0);
+                    until AnyColumnDimensions or (ColumnLayout2.Next() = 0);
                 if AnyColumnDimensions then
                     Error(
                       Text024,
@@ -282,7 +282,7 @@ codeunit 8 AccSchedManagement
                               AccSchedLine, ColumnLayout);
                         BasePercentLine[BaseIdx] := "Line No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         if BaseIdx = 0 then begin
@@ -435,7 +435,7 @@ codeunit 8 AccSchedManagement
                                         if GLAcc.Find('-') then
                                             repeat
                                                 Result := Result + CalcGLAcc(GLAcc, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                            until GLAcc.Next = 0;
+                                            until GLAcc.Next() = 0;
                                 end;
                             AccSchedLine."Totaling Type"::"Cost Type",
                             AccSchedLine."Totaling Type"::"Cost Type Total":
@@ -453,7 +453,7 @@ codeunit 8 AccSchedManagement
                                         if CostType.Find('-') then
                                             repeat
                                                 Result := Result + CalcCostType(CostType, AccSchedLine, ColumnLayout, CalcAddCurr);
-                                            until CostType.Next = 0;
+                                            until CostType.Next() = 0;
                                 end;
                             AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts",
                             AccSchedLine."Totaling Type"::"Cash Flow Total Accounts":
@@ -471,7 +471,7 @@ codeunit 8 AccSchedManagement
                                         if CFAccount.Find('-') then
                                             repeat
                                                 Result := Result + CalcCFAccount(CFAccount, AccSchedLine, ColumnLayout);
-                                            until CFAccount.Next = 0;
+                                            until CFAccount.Next() = 0;
                                 end;
                         end;
 
@@ -495,7 +495,7 @@ codeunit 8 AccSchedManagement
         GLBudgEntry: Record "G/L Budget Entry";
         AnalysisViewEntry: Record "Analysis View Entry";
         AnalysisViewBudgetEntry: Record "Analysis View Budget Entry";
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        AmountType: Enum "Account Schedule Amount Type";
         TestBalance: Boolean;
         Balance: Decimal;
         UseBusUnitFilter: Boolean;
@@ -680,7 +680,7 @@ codeunit 8 AccSchedManagement
             end;
 
             OnBeforeTestBalance(
-              GLAcc, AccSchedName, AccSchedLine, ColumnLayout, AmountType, ColValue, CalcAddCurr, TestBalance, GLEntry, GLBudgEntry);
+              GLAcc, AccSchedName, AccSchedLine, ColumnLayout, AmountType.AsInteger(), ColValue, CalcAddCurr, TestBalance, GLEntry, GLBudgEntry);
 
             if TestBalance then begin
                 if AccSchedLine.Show = AccSchedLine.Show::"When Positive Balance" then
@@ -698,7 +698,7 @@ codeunit 8 AccSchedManagement
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         AnalysisViewEntry: Record "Analysis View Entry";
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        AmountType: Enum "Account Schedule Amount Type";
         IsHandled: Boolean;
     begin
         ColValue := 0;
@@ -762,7 +762,7 @@ codeunit 8 AccSchedManagement
                     else
                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
                 end;
-            until AccSchedLine.Next = 0
+            until AccSchedLine.Next() = 0
         else
             if IsFilter or (not Evaluate(Result, Expression)) then
                 ShowError(Text012, SourceAccSchedLine, ColumnLayout);
@@ -787,7 +787,7 @@ codeunit 8 AccSchedManagement
                     else
                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr);
                 end;
-            until ColumnLayout.Next = 0
+            until ColumnLayout.Next() = 0
         else
             if IsFilter or (not Evaluate(Result, Expression)) then
                 ShowError(Text013, AccSchedLine, SourceColumnLayout);
@@ -1359,7 +1359,7 @@ codeunit 8 AccSchedManagement
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Posting Accounts";
                         OnInsertGLAccountsOnBeforeAccSchedLineInsert(AccSchedLine, GLAcc);
                         AccSchedLine.Insert();
-                    until GLAcc.Next = 0;
+                    until GLAcc.Next() = 0;
             end;
         end;
 
@@ -1399,7 +1399,7 @@ codeunit 8 AccSchedManagement
                         else
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cash Flow Entry Accounts";
                         AccSchedLine.Insert();
-                    until CashFlowAcc.Next = 0;
+                    until CashFlowAcc.Next() = 0;
             end;
         end;
     end;
@@ -1437,7 +1437,7 @@ codeunit 8 AccSchedManagement
                         else
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Cost Type";
                         AccSchedLine.Insert();
-                    until CostType.Next = 0;
+                    until CostType.Next() = 0;
             end;
         end;
     end;
@@ -1545,7 +1545,7 @@ codeunit 8 AccSchedManagement
                         ResultFilter := ResultFilter + '|';
                     ResultFilter := ResultFilter + DimVal.Totaling;
                 end;
-            until (DimVal.Next = 0) or not DimValTotaling;
+            until (DimVal.Next() = 0) or not DimValTotaling;
 
         if DimValTotaling then
             exit(ResultFilter);
@@ -1557,7 +1557,7 @@ codeunit 8 AccSchedManagement
     var
         CostEntry: Record "Cost Entry";
         CostBudgEntry: Record "Cost Budget Entry";
-        AmountType: Option "Net Amount","Debit Amount","Credit Amount";
+        AmountType: Enum "Account Schedule Amount Type";
         UseDimFilter: Boolean;
         TestBalance: Boolean;
         Balance: Decimal;
@@ -1878,7 +1878,7 @@ codeunit 8 AccSchedManagement
         EndDate := NewEndDate;
     end;
 
-    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Option "Net Amount","Debit Amount","Credit Amount"; var AmountType: Option): Boolean
+    local procedure ConflictAmountType(AccSchedLine: Record "Acc. Schedule Line"; ColumnLayoutAmtType: Enum "Account Schedule Amount Type"; var AmountType: Enum "Account Schedule Amount Type"): Boolean
     begin
         if (ColumnLayoutAmtType = AccSchedLine."Amount Type") or
            (AccSchedLine."Amount Type" = AccSchedLine."Amount Type"::"Net Amount")

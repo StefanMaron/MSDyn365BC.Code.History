@@ -123,7 +123,7 @@ table 1053 "Line Fee Note on Report Hist."
                   ReminderTermsTranslation."Language Code",
                   AddTextOnReport);
 
-            until ReminderTermsTranslation.Next = 0;
+            until ReminderTermsTranslation.Next() = 0;
     end;
 
     procedure Save(CustLedgerEntry: Record "Cust. Ledger Entry")

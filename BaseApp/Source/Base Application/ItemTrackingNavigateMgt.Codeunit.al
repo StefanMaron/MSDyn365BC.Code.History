@@ -1,4 +1,4 @@
-﻿codeunit 6529 "Item Tracking Navigate Mgt."
+codeunit 6529 "Item Tracking Navigate Mgt."
 {
 
     trigger OnRun()
@@ -6,7 +6,9 @@
     end;
 
     var
+        ItemFilters: Record Item;
         ItemLedgEntry: Record "Item Ledger Entry";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ReservEntry: Record "Reservation Entry";
         MiscArticleInfo: Record "Misc. Article Information";
         FixedAsset: Record "Fixed Asset";
@@ -20,6 +22,7 @@
         FiledContractLine: Record "Filed Contract Line";
         SerialNoInfo: Record "Serial No. Information";
         LotNoInfo: Record "Lot No. Information";
+        PackageNoInfo: Record "Package No. Information";
         WhseEntry: Record "Warehouse Entry";
         PostedInvtPutAwayLine: Record "Posted Invt. Put-away Line";
         PostedInvtPickLine: Record "Posted Invt. Pick Line";
@@ -61,38 +64,64 @@
 
     procedure FindTrackingRecords(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
     begin
-        if (SerialNoFilter = '') and (LotNoFilter = '') then
-            exit;
-
-        FindItemLedgerEntry(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindReservEntry(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindWhseActivLine(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindRegWhseActivLine(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindWhseEntry(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindPostedInvtPutAwayLine(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-        FindPostedInvtPickLine(SerialNoFilter, LotNoFilter, ItemNoFilter, VariantFilter);
-
-        // Only LotNos
-        if LotNoFilter <> '' then
-            FindLotNoInfo(LotNoFilter, ItemNoFilter, VariantFilter);
-
-        // Only SerialNos
-        if SerialNoFilter <> '' then begin
-            FindSerialNoInfo(SerialNoFilter, ItemNoFilter, VariantFilter);
-            FindSerialNoMisc(SerialNoFilter);
-            FindSerialNoFixedAsset(SerialNoFilter);
-            FindSerialNoServItemLine(SerialNoFilter, ItemNoFilter, VariantFilter);
-            FindSerialNoLoaner(SerialNoFilter, ItemNoFilter);
-            FindSerialNoServiceItem(SerialNoFilter, ItemNoFilter, VariantFilter);
-            FindSerialNoServiceItemComponent(SerialNoFilter, ItemNoFilter, VariantFilter);
-            FindSerialNoServContractLine(SerialNoFilter, ItemNoFilter, VariantFilter);
-            FindSerialNoFiledContractLine(SerialNoFilter, ItemNoFilter, VariantFilter);
-        end;
-
-        FindJobLedgEntry(SerialNoFilter, LotNoFilter, VariantFilter);
+        ItemFilters.SetFilter("No.", ItemNoFilter);
+        ItemFilters.SetFilter("Variant Filter", VariantFilter);
+        ItemFilters.SetFilter("Serial No. Filter", SerialNoFilter);
+        ItemFilters.SetFilter("Lot No. Filter", LotNoFilter);
+        FindTrackingRecords(ItemFilters);
     end;
 
-    local procedure FindLotNoInfo(LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    procedure FindTrackingRecords(SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    begin
+        ItemFilters.SetFilter("No.", ItemNoFilter);
+        ItemFilters.SetFilter("Variant Filter", VariantFilter);
+        ItemFilters.SetFilter("Serial No. Filter", SerialNoFilter);
+        ItemFilters.SetFilter("Lot No. Filter", LotNoFilter);
+        ItemFilters.SetFilter("Package No. Filter", PackageNoFilter);
+        FindTrackingRecords(ItemFilters);
+    end;
+
+    procedure FindTrackingRecords(var ItemFilters: Record Item)
+    begin
+        if (ItemFilters.GetFilter("Serial No. Filter") = '') and
+           (ItemFilters.GetFilter("Lot No. Filter") = '') and
+           (ItemFilters.GetFilter("Package No. Filter") = '')
+        then
+            exit;
+
+        FindItemLedgerEntry(ItemFilters);
+        FindReservEntry(ItemFilters);
+        FindWhseActivLine(ItemFilters);
+        FindRegWhseActivLine(ItemFilters);
+        FindWhseEntry(ItemFilters);
+        FindPostedInvtPutAwayLine(ItemFilters);
+        FindPostedInvtPickLine(ItemFilters);
+
+        // Only LotNos
+        if ItemFilters.GetFilter("Lot No. Filter") <> '' then
+            FindLotNoInfo(ItemFilters);
+
+        // Only SerialNos
+        if ItemFilters.GetFilter("Serial No. Filter") <> '' then begin
+            FindSerialNoInfo(ItemFilters);
+            FindSerialNoMisc(ItemFilters);
+            FindSerialNoFixedAsset(ItemFilters);
+            FindSerialNoServItemLine(ItemFilters);
+            FindSerialNoLoaner(ItemFilters);
+            FindSerialNoServiceItem(ItemFilters);
+            FindSerialNoServiceItemComponent(ItemFilters);
+            FindSerialNoServContractLine(ItemFilters);
+            FindSerialNoFiledContractLine(ItemFilters);
+        end;
+
+        // Only PackageNos
+        if ItemFilters.GetFilter("Package No. Filter") <> '' then
+            FindPackageNoInfo(ItemFilters);
+
+        FindJobLedgEntry(ItemFilters);
+    end;
+
+    local procedure FindLotNoInfo(var ItemFilters: Record Item)
     begin
         if not LotNoInfo.ReadPermission then
             exit;
@@ -100,18 +129,20 @@
         with LotNoInfo do begin
             Reset();
             if SetCurrentKey("Lot No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(LotNoInfo);
-                    InsertBufferRec(RecRef, '', "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Lot No." := "Lot No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoInfo(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoInfo(var ItemFilters: Record Item)
     begin
         if not SerialNoInfo.ReadPermission then
             exit;
@@ -119,18 +150,20 @@
         with SerialNoInfo do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(SerialNoInfo);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoMisc(SerialNoFilter: Text)
+    local procedure FindSerialNoMisc(var ItemFilters: Record Item)
     begin
         if not MiscArticleInfo.ReadPermission then
             exit;
@@ -138,16 +171,18 @@
         with MiscArticleInfo do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(MiscArticleInfo);
-                    InsertBufferRec(RecRef, "Serial No.", '', '', '');
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, '', '');
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoFixedAsset(SerialNoFilter: Text)
+    local procedure FindSerialNoFixedAsset(var ItemFilters: Record Item)
     begin
         if not FixedAsset.ReadPermission then
             exit;
@@ -155,16 +190,18 @@
         with FixedAsset do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(FixedAsset);
-                    InsertBufferRec(RecRef, "Serial No.", '', '', '');
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, '', '');
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoServItemLine(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoServItemLine(var ItemFilters: Record Item)
     begin
         if not ServItemLine.ReadPermission then
             exit;
@@ -172,18 +209,20 @@
         with ServItemLine do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ServItemLine);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoServiceItem(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoServiceItem(var ItemFilters: Record Item)
     begin
         if not ServiceItem.ReadPermission then
             exit;
@@ -191,18 +230,20 @@
         with ServiceItem do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ServiceItem);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoServiceItemComponent(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoServiceItemComponent(var ItemFilters: Record Item)
     begin
         if not ServiceItemComponent.ReadPermission then
             exit;
@@ -210,18 +251,20 @@
         with ServiceItemComponent do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Parent Service Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Parent Service Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ServiceItemComponent);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Parent Service Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Parent Service Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoServContractLine(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoServContractLine(var ItemFilters: Record Item)
     begin
         if not ServContractLine.ReadPermission then
             exit;
@@ -229,18 +272,20 @@
         with ServContractLine do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ServContractLine);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoLoaner(SerialNoFilter: Text; ItemNoFilter: Text)
+    local procedure FindSerialNoLoaner(var ItemFilters: Record Item)
     begin
         if not Loaner.ReadPermission then
             exit;
@@ -248,17 +293,19 @@
         with Loaner do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
             if FindSet() then
                 repeat
                     RecRef.GetTable(Loaner);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", '');
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", '');
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindSerialNoFiledContractLine(SerialNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindSerialNoFiledContractLine(var ItemFilters: Record Item)
     begin
         if not FiledContractLine.ReadPermission then
             exit;
@@ -266,14 +313,36 @@
         with FiledContractLine do begin
             Reset();
             if SetCurrentKey("Serial No.") then;
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(FiledContractLine);
-                    InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Serial No." := "Serial No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
+        end;
+    end;
+
+    local procedure FindPackageNoInfo(var ItemFilters: Record Item)
+    begin
+        if not PackageNoInfo.ReadPermission then
+            exit;
+
+        with PackageNoInfo do begin
+            Reset();
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
+            if FindSet() then
+                repeat
+                    RecRef.GetTable(PackageNoInfo);
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup."Package No." := "Package No.";
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
@@ -686,49 +755,59 @@
         end;
     end;
 
-    local procedure FindPostedInvtPickLine(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindPostedInvtPickLine(var ItemFilters: Record Item)
     begin
         if not PostedInvtPickLine.ReadPermission then
             exit;
 
         with PostedInvtPickLine do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(PostedInvtPickLine);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromPostedInvtPickLine(PostedInvtPickLine);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindPostedInvtPutAwayLine(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindPostedInvtPutAwayLine(var ItemFilters: Record Item)
     begin
         if not PostedInvtPutAwayLine.ReadPermission then
             exit;
 
         with PostedInvtPutAwayLine do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(PostedInvtPutAwayLine);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromPostedInvtPutAwayLine(PostedInvtPutAwayLine);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
@@ -749,30 +828,35 @@
         end;
     end;
 
-    local procedure FindRegWhseActivLine(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindRegWhseActivLine(var ItemFilters: Record Item)
     begin
         if not RgstrdWhseActivLine.ReadPermission then
             exit;
 
         with RgstrdWhseActivLine do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(RgstrdWhseActivLine);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromRegisteredWhseActivityLine(RgstrdWhseActivLine);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindItemLedgerEntry(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindItemLedgerEntry(var ItemFilters: Record Item)
     var
         IsHandled: Boolean;
     begin
@@ -781,18 +865,23 @@
 
         with ItemLedgEntry do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ItemLedgEntry);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
                     IsHandled := false;
                     OnFindItemLedgerEntryOnBeforeCaseDocumentType(ItemLedgEntry, RecRef, IsHandled);
                     if not IsHandled then
@@ -830,7 +919,7 @@
                                     FindProductionOrder("Document No.");
                         end;
                     OnFindTrackingRecordsForItemLedgerEntry(ItemLedgEntry);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -902,31 +991,36 @@
         end;
     end;
 
-    local procedure FindJobLedgEntry(SerialNoFilter: Text; LotNoFilter: Text; VariantFilter: Text)
+    local procedure FindJobLedgEntry(var ItemFilters: Record Item)
     begin
         if not JobLedgEntry.ReadPermission then
             exit;
 
         with JobLedgEntry do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(JobLedgEntry);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", '', "Variant Code");
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromJobLedgerEntry(JobLedgEntry);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, '', "Variant Code");
                     TempJobLedgEntry := JobLedgEntry;
                     if TempJobLedgEntry.Insert() then;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindReservEntry(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindReservEntry(var ItemFilters: Record Item)
     var
         IsHandled: Boolean;
     begin
@@ -935,18 +1029,23 @@
 
         with ReservEntry do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(ReservEntry);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
                     IsHandled := false;
                     OnFindReservEntryOnBeforeCaseDocumentType(ReservEntry, RecRef, IsHandled);
                     if not IsHandled then
@@ -974,53 +1073,63 @@
                             DATABASE::"Transfer Line":
                                 FindTransferLines;
                         end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindWhseActivLine(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindWhseActivLine(var ItemFilters: Record Item)
     begin
         if not WhseActivLine.ReadPermission then
             exit;
 
         with WhseActivLine do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(WhseActivLine);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromWhseActivityLine(WhseActivLine);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
-    local procedure FindWhseEntry(SerialNoFilter: Text; LotNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text)
+    local procedure FindWhseEntry(var ItemFilters: Record Item)
     begin
         if not WhseEntry.ReadPermission then
             exit;
 
         with WhseEntry do begin
             Reset();
-            if LotNoFilter <> '' then
+            if ItemFilters.GetFilter("Lot No. Filter") <> '' then
                 if SetCurrentKey("Lot No.") then;
-            if SerialNoFilter <> '' then
+            if ItemFilters.GetFilter("Package No. Filter") <> '' then
+                if SetCurrentKey("Package No.") then;
+            if ItemFilters.GetFilter("Serial No. Filter") <> '' then
                 if SetCurrentKey("Serial No.") then;
-            SetFilter("Lot No.", LotNoFilter);
-            SetFilter("Serial No.", SerialNoFilter);
-            SetFilter("Item No.", ItemNoFilter);
-            SetFilter("Variant Code", VariantFilter);
+            SetFilter("Lot No.", ItemFilters.GetFilter("Lot No. Filter"));
+            SetFilter("Serial No.", ItemFilters.GetFilter("Serial No. Filter"));
+            SetFilter("Package No.", ItemFilters.GetFilter("Package No. Filter"));
+            SetFilter("Item No.", ItemFilters.GetFilter("No."));
+            SetFilter("Variant Code", ItemFilters.GetFilter("Variant Filter"));
             if FindSet() then
                 repeat
                     RecRef.GetTable(WhseEntry);
-                    InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
-                until Next = 0;
+                    Clear(ItemTrackingSetup);
+                    ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+                    InsertBufferRec(RecRef, ItemTrackingSetup, "Item No.", "Variant Code");
+                until Next() = 0;
         end;
     end;
 
@@ -1055,6 +1164,8 @@
                 PAGE.Run(0, SerialNoInfo);
             DATABASE::"Lot No. Information":
                 PAGE.Run(0, LotNoInfo);
+            DATABASE::"Package No. Information":
+                PAGE.Run(0, PackageNoInfo);
             DATABASE::"Warehouse Entry":
                 PAGE.Run(0, WhseEntry);
             DATABASE::"Posted Whse. Shipment Line":
@@ -1131,35 +1242,36 @@
         TrackingRecRef: RecordRef;
     begin
         TrackingRecRef.GetTable(ItemLedgEntry);
-        with ItemLedgEntry do
-            InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code", TrackingRecRef);
+        Clear(ItemTrackingSetup);
+        ItemTrackingSetup.CopyTrackingFromItemLedgerEntry(ItemLedgEntry);
+        InsertBufferRec(RecRef, ItemTrackingSetup, ItemLedgEntry."Item No.", ItemLedgEntry."Variant Code", TrackingRecRef);
     end;
 
     local procedure InsertBufferRecFromReservEntry()
     begin
-        with ReservEntry do
-            InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
+        Clear(ItemTrackingSetup);
+        ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+        InsertBufferRec(RecRef, ItemTrackingSetup, ReservEntry."Item No.", ReservEntry."Variant Code");
     end;
 
-    local procedure InsertBufferRec(RecRef: RecordRef; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; VariantCode: Code[10])
+    procedure InsertBufferRec(RecRef: RecordRef; ItemTrackingSetup: Record "Item Tracking Setup"; ItemNo: Code[20]; VariantCode: Code[10])
     var
         DummyTrackingRecRef: RecordRef;
     begin
-        InsertBufferRec(RecRef, SerialNo, LotNo, ItemNo, VariantCode, DummyTrackingRecRef);
+        InsertBufferRec(RecRef, ItemTrackingSetup, ItemNo, VariantCode, DummyTrackingRecRef);
     end;
 
-    local procedure InsertBufferRec(RecRef: RecordRef; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; VariantCode: Code[10]; TrackingRecRef: RecordRef)
+    local procedure InsertBufferRec(RecRef: RecordRef; ItemTrackingSetup: Record "Item Tracking Setup"; ItemNo: Code[20]; VariantCode: Code[10]; TrackingRecRef: RecordRef)
     var
         KeyFldRef: FieldRef;
         KeyRef1: KeyRef;
         i: Integer;
     begin
-        if (SerialNo = '') and (LotNo = '') then
+        if not ItemTrackingSetup.TrackingExists() then
             exit;
 
         TempRecordBuffer.SetRange("Record Identifier", RecRef.RecordId);
-        TempRecordBuffer.SetRange("Serial No.", SerialNo);
-        TempRecordBuffer.SetRange("Lot No.", LotNo);
+        TempRecordBuffer.SetTrackingFilterFromItemTrackingSetup(ItemTrackingSetup);
         TempRecordBuffer.SetRange("Item No.", ItemNo);
         TempRecordBuffer.SetRange("Variant Code", VariantCode);
         if not TempRecordBuffer.Find('-') then begin
@@ -1216,10 +1328,9 @@
                 end;
             end;
 
-            TempRecordBuffer."Serial No." := SerialNo;
-            TempRecordBuffer."Lot No." := LotNo;
             TempRecordBuffer."Item No." := ItemNo;
             TempRecordBuffer."Variant Code" := VariantCode;
+            TempRecordBuffer.CopyTrackingFromItemTrackingSetup(ItemTrackingSetup);
 
             OnBeforeTempRecordBufferInsert(TempRecordBuffer, RecRef, TrackingRecRef);
             TempRecordBuffer.Insert();
@@ -1236,7 +1347,7 @@
             repeat
                 RecordBuffer := TempRecordBuffer;
                 RecordBuffer.Insert();
-            until TempRecordBuffer.Next = 0;
+            until TempRecordBuffer.Next() = 0;
     end;
 
     local procedure GetTableCaption(TableNumber: Integer): Text[250]

@@ -64,7 +64,7 @@ codeunit 135971 "Upgrade Profile V2 Tests"
         ApplicationAreaSetup.SetRange("Fixed Assets", false);
         ApplicationAreaSetup.SetRange("User ID", EmptyGuid);
         ApplicationAreaSetup.SetRange("Profile ID", '');
-        if ApplicationAreaSetup.IsEmpty then
+        if ApplicationAreaSetup.IsEmpty() then
             Assert.Fail('Empty ApplicationAreaSetup should not have been updated.');
 
         Clear(ApplicationAreaSetup);

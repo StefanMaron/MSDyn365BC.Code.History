@@ -4720,7 +4720,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         Item.Modify();
     end;
 
-    local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimValue: Record "Dimension Value"; ValuePosting: Option)
+    local procedure CreateItemWithDefaultDimension(var Item: Record Item; var DimValue: Record "Dimension Value"; ValuePosting: Enum "Default Dimension Value Posting Type")
     var
         DefaultDim: Record "Default Dimension";
     begin
@@ -5347,8 +5347,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         Assert.AreEqual(SalesLine.Count, PurchaseLine.Count, 'Number of records is not the same, not all lines were transfered');
 
-        PurchaseLine.FindSet;
-        SalesLine.FindSet;
+        PurchaseLine.FindSet();
+        SalesLine.FindSet();
         repeat
             case SalesLine.Type of
                 SalesLine.Type::" ":
@@ -5382,8 +5382,8 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         Assert.AreEqual(SalesLine.Count, PurchInvLine.Count, 'Number of records is not the same, not all lines were transfered');
 
-        SalesLine.FindSet;
-        PurchInvLine.FindSet;
+        SalesLine.FindSet();
+        PurchInvLine.FindSet();
         repeat
             case SalesLine.Type of
                 SalesLine.Type::" ":
@@ -5751,7 +5751,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         with SalesLine do begin
             SetRange("Document No.", SalesHeader."No.");
             SetRange("Document Type", SalesHeader."Document Type");
-            FindSet;
+            FindSet();
             while LineIndex > 1 do begin
                 Assert.AreEqual(1, Next, 'Expected more sales lines');
                 LineIndex -= 1;

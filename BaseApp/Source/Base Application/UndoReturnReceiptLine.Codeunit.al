@@ -64,7 +64,7 @@ codeunit 5816 "Undo Return Receipt Line"
             Clear(ItemJnlPostLine);
             SetRange(Correction, false);
             SetFilter(Quantity, '<>0');
-            if IsEmpty then
+            if IsEmpty() then
                 Error(AlreadyReversedErr);
 
             FindFirst();
@@ -72,15 +72,15 @@ codeunit 5816 "Undo Return Receipt Line"
                 if not HideDialog then
                     Window.Open(Text003);
                 CheckReturnRcptLine(ReturnRcptLine);
-            until Next = 0;
+            until Next() = 0;
 
             Find('-');
             repeat
                 TempGlobalItemLedgEntry.Reset();
-                if not TempGlobalItemLedgEntry.IsEmpty then
+                if not TempGlobalItemLedgEntry.IsEmpty() then
                     TempGlobalItemLedgEntry.DeleteAll();
                 TempGlobalItemEntryRelation.Reset();
-                if not TempGlobalItemEntryRelation.IsEmpty then
+                if not TempGlobalItemEntryRelation.IsEmpty() then
                     TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
@@ -124,7 +124,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 OnBeforeReturnRcptLineModify(ReturnRcptLine);
                 Modify;
                 OnAfterReturnRcptLineModify(ReturnRcptLine);
-            until Next = 0;
+            until Next() = 0;
 
             InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
@@ -294,7 +294,7 @@ codeunit 5816 "Undo Return Receipt Line"
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsReturnRcptLine(NewReturnRcptLine);
                 ItemEntryRelation.Insert();
-            until TempItemEntryRelation.Next = 0;
+            until TempItemEntryRelation.Next() = 0;
     end;
 
     local procedure UpdateItemTrkgApplFromEntry(SalesLine: Record "Sales Line")
@@ -310,7 +310,7 @@ codeunit 5816 "Undo Return Receipt Line"
                         ReservationEntry."Appl.-from Item Entry" := ItemApplicationEntry."Outbound Item Entry No.";
                         ReservationEntry.Modify();
                     end;
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

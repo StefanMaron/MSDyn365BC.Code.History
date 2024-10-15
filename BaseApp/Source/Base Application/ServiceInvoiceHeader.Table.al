@@ -489,11 +489,9 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Document Exchange Identifier';
         }
-        field(711; "Document Exchange Status"; Option)
+        field(711; "Document Exchange Status"; Enum "Service Document Exchange Status")
         {
             Caption = 'Document Exchange Status';
-            OptionCaption = 'Not Sent,Sent to Document Exchange Service,Delivered to Recipient,Delivery Failed,Pending Connection to Recipient';
-            OptionMembers = "Not Sent","Sent to Document Exchange Service","Delivered to Recipient","Delivery Failed","Pending Connection to Recipient";
         }
         field(712; "Doc. Exch. Original Identifier"; Text[50])
         {
@@ -887,7 +885,6 @@ table 5992 "Service Invoice Header"
         NavigatePage.Run;
     end;
 
-    [Scope('OnPrem')]
     procedure SendRecords()
     var
         DocumentSendingProfile: Record "Document Sending Profile";

@@ -1,4 +1,4 @@
-﻿codeunit 1012 "Job Jnl.-Post Line"
+codeunit 1012 "Job Jnl.-Post Line"
 {
     Permissions = TableData "Job Ledger Entry" = imd,
                   TableData "Job Register" = imd,
@@ -383,7 +383,7 @@
                         ValueEntry."Job Ledger Entry No." := JobLedgEntryNo;
                         ModifyValueEntry(ValueEntry);
                     end;
-                until ValueEntry.Next = 0;
+                until ValueEntry.Next() = 0;
             end;
         end;
     end;
@@ -449,7 +449,7 @@
                         repeat
                             WMSManagement.CheckWhseJnlLine(TempWarehouseJournalLine, 1, 0, false);
                             WhseJnlRegisterLine.RegisterWhseJnlLine(TempWarehouseJournalLine);
-                        until TempWarehouseJournalLine.Next = 0;
+                        until TempWarehouseJournalLine.Next() = 0;
                 end;
         end;
     end;

@@ -136,7 +136,7 @@ table 5091 "Sales Cycle Stage"
         OppEntry.SetRange(Active, true);
         OppEntry.SetRange("Sales Cycle Code", "Sales Cycle Code");
         OppEntry.SetRange("Sales Cycle Stage", Stage);
-        if not OppEntry.IsEmpty then
+        if not OppEntry.IsEmpty() then
             Error(Text000);
     end;
 

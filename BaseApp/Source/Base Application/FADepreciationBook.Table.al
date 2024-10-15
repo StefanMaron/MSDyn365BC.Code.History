@@ -112,10 +112,13 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             var
                 DeprBook2: Record "Depreciation Book";
+                IsHandled: Boolean;
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                if DeprBook2."Fiscal Year 365 Days" then
-                    Error(FiscalYear365Err);
+                OnBeforeValidateNoOfDepreYears("FA No.", DeprBook2, IsHandled);
+                if not IsHandled then
+                    if DeprBook2."Fiscal Year 365 Days" then
+                        Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -137,10 +140,13 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             var
                 DeprBook2: Record "Depreciation Book";
+                IsHandled: Boolean;
             begin
                 DeprBook2.Get("Depreciation Book Code");
-                if DeprBook2."Fiscal Year 365 Days" then
-                    Error(FiscalYear365Err);
+                OnBeforeValidateNoOfDeprMonths("FA No.", DeprBook2, IsHandled);
+                if not IsHandled then
+                    if DeprBook2."Fiscal Year 365 Days" then
+                        Error(FiscalYear365Err);
 
                 TestField("Depreciation Starting Date");
                 ModifyDeprFields;
@@ -231,12 +237,16 @@ table 5612 "FA Depreciation Book"
             Caption = 'Depreciation Ending Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestField("Depreciation Starting Date");
                 if ("Depreciation Ending Date" <> 0D) and not LinearMethod then
                     DeprMethodError;
                 ModifyDeprFields;
-                CalcDeprPeriod;
+                OnBeforeCalculateDepreEndingDate(Rec, "Depreciation Ending Date", IsHandled);
+                if not IsHandled then
+                    CalcDeprPeriod;
             end;
         }
         field(15; "Acquisition Cost"; Decimal)
@@ -677,7 +687,7 @@ table 5612 "FA Depreciation Book"
                 DefaultFADeprBook.SetRange("FA No.", "FA No.");
                 DefaultFADeprBook.SetFilter("Depreciation Book Code", '<>%1', "Depreciation Book Code");
                 DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
-                if not DefaultFADeprBook.IsEmpty then
+                if not DefaultFADeprBook.IsEmpty() then
                     FieldError("Default FA Depreciation Book", OnlyOneDefaultDeprBookErr);
             end;
         }
@@ -743,13 +753,18 @@ table 5612 "FA Depreciation Book"
     end;
 
     trigger OnModify()
+    var
+        IsHandled: Boolean;
     begin
         "Last Date Modified" := Today;
         LockTable();
         DeprBook.LockTable();
         DeprBook.Get("Depreciation Book Code");
-        if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
-            DeprBook.TestField("Fiscal Year 365 Days", false);
+        IsHandled := false;
+        OnBeforeModifyFADeprBook(Rec, IsHandled);
+        if not IsHandled then
+            if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
+                DeprBook.TestField("Fiscal Year 365 Days", false);
         CheckApplyDeprBookDefaults();
     end;
 
@@ -1009,6 +1024,26 @@ table 5612 "FA Depreciation Book"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var FADeprecBook: Record "FA Depreciation Book"; xFADeprecBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNoOfDepreYears(FANo: Code[20]; DeprecBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNoOfDeprMonths(FANo: Code[20]; DeprecBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateDepreEndingDate(var FADeprBook: Record "FA Depreciation Book"; DeprEndDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyFADeprBook(FADepreBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 }

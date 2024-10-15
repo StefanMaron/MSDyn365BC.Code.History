@@ -27,7 +27,7 @@ codeunit 360 "Accounting Period Mgt."
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit;
         AccountingPeriod.Get(NormalDate(PostingDate) + 1);
         AccountingPeriod.TestField("New Fiscal Year", true);
@@ -38,7 +38,7 @@ codeunit 360 "Accounting Period Mgt."
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then begin
+        if AccountingPeriod.IsEmpty() then begin
             if BalanceDate = 0D then
                 exit(CalcDate('<-CY>', WorkDate));
             exit(CalcDate('<-CY>', BalanceDate));
@@ -56,7 +56,7 @@ codeunit 360 "Accounting Period Mgt."
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then begin
+        if AccountingPeriod.IsEmpty() then begin
             if BalanceDate = 0D then
                 exit(CalcDate('<CY>', WorkDate));
             exit(CalcDate('<CY>', BalanceDate));
@@ -113,7 +113,7 @@ codeunit 360 "Accounting Period Mgt."
     var
         AccountingPeriod: Record "Accounting Period";
     begin
-        if AccountingPeriod.IsEmpty then
+        if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CY>', StartDate));
         AccountingPeriod."Starting Date" := StartDate;
         if AccountingPeriod.Find('>') then
@@ -192,7 +192,7 @@ codeunit 360 "Accounting Period Mgt."
         exit(CalcDate('<CM>', PostingDate));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 41, 'OnResolveDateFilterToken', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Filter Tokens", 'OnResolveDateFilterToken', '', false, false)]
     local procedure OnResolveDateFilterToken(DateToken: Text; var FromDate: Date; var ToDate: Date; var Handled: Boolean)
     var
         TextToken: Text;
@@ -218,7 +218,7 @@ codeunit 360 "Accounting Period Mgt."
     begin
         GetPositionDifferentCharacter(' ', DateToken, Position);
 
-        if AccountingPeriod.IsEmpty then begin
+        if AccountingPeriod.IsEmpty() then begin
             if FindYear then
                 AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate)
             else
@@ -265,7 +265,7 @@ codeunit 360 "Accounting Period Mgt."
             AccountingPeriod.Next(Numeral);
         end;
         Date1 := AccountingPeriod."Starting Date";
-        if AccountingPeriod.Next = 0 then
+        if AccountingPeriod.Next() = 0 then
             Date2 := DMY2Date(31, 12, 9999)
         else
             Date2 := AccountingPeriod."Starting Date" - 1;

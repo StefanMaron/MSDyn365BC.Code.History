@@ -48,7 +48,7 @@ codeunit 131104 "Library - TempNVBufferHandler"
         SkipDefaultSubscriber := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 823, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Name/Value Buffer", 'OnAfterInsertEvent', '', false, false)]
     local procedure TrackTempNameValueBufferOnAfterInsertEvent(var Rec: Record "Name/Value Buffer"; RunTrigger: Boolean)
     begin
         // it is default subscriber. So Skip - is FALSE by default
@@ -65,7 +65,7 @@ codeunit 131104 "Library - TempNVBufferHandler"
             LibraryVariableStorage.Enqueue(Rec.Value);
     end;
 
-    [EventSubscriber(ObjectType::Table, 823, 'OnAfterInsertEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Name/Value Buffer", 'OnAfterInsertEvent', '', false, false)]
     local procedure BackgroundCaseTrackTempNameValueBufferOnAfterInsertEvent(var Rec: Record "Name/Value Buffer"; RunTrigger: Boolean)
     begin
         // it is not default subscriber. So Run - is FALSE by default

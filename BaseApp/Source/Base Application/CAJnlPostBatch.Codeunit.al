@@ -60,7 +60,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
                 CAJnlCheckLine.RunCheck(CostJnlLine);
-                if Next = 0 then
+                if Next() = 0 then
                     FindFirst;
             until "Line No." = StartLineNo;
             NoOfRecords := LineCount;
@@ -76,13 +76,13 @@ codeunit 1103 "CA Jnl.-Post Batch"
 
             // Post lines
             LineCount := 0;
-            FindSet;
+            FindSet();
             repeat
                 LineCount := LineCount + 1;
                 Window.Update(3, LineCount);
                 Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
-            until Next = 0;
+            until Next() = 0;
 
             if not CostReg.FindLast or (CostReg."No." <> CostRegNo) then
                 CostRegNo := 0;
@@ -110,7 +110,7 @@ codeunit 1103 "CA Jnl.-Post Batch"
         if IsHandled then
             exit;
 
-        CostJnlLine.FindSet;
+        CostJnlLine.FindSet();
         CostJnlLine2.Copy(CostJnlLine);
         CostJnlLine2.CalcSums(Balance);
         if CostJnlLine2.Balance <> 0 then

@@ -697,7 +697,7 @@ codeunit 136311 "Job Reports II"
     END;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,DocumentEntriesReqPageHandler,NavigatePageHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler,DocumentEntriesReqPageHandler')]
     [Scope('OnPrem')]
     procedure DocumentEntriesForJobAndResource()
     var
@@ -705,33 +705,43 @@ codeunit 136311 "Job Reports II"
         JobJournalLine: Record "Job Journal Line";
         JobLedgerEntry: Record "Job Ledger Entry";
         ResLedgerEntry: Record "Res. Ledger Entry";
+        TempDocumentEntry: Record "Document Entry" temporary;
+        DocumentEntries: Report "Document Entries";
         JobLedgerEntries: TestPage "Job Ledger Entries";
     begin
-        // Verify: Verify Document Entries Report with Job Ledger, Res. Ledger and Unit Cost.
+        // [SCENARIO] Verify Document Entries Report with Job Ledger, Res. Ledger and Unit Cost.
+        Initialize();
 
-        // Setup: Create Job Task, create Job Journal Line and post.
-        Initialize;
+        // [GIVEN] Job Task, posted Job Journal Line.
         CreateJobWithJobTask(JobTask, CreateCurrencyWithExchangeRate);
         LibraryJob.CreateJobJournalLineForType(
-          JobJournalLine."Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
+            JobJournalLine."Line Type"::Billable, JobJournalLine.Type::Resource, JobTask, JobJournalLine);
         LibraryJob.PostJobJournal(JobJournalLine);
         LibraryVariableStorage.Enqueue(false);  // Enqueue for DocumentEntriesReqPageHandler.
-        JobLedgerEntries.OpenView;
-        JobLedgerEntries.FILTER.SetFilter("Job No.", JobTask."Job No.");
+        Commit();
 
-        // Exercise.
-        JobLedgerEntries."&Navigate".Invoke;  // Navigate.
-
-        // Verify: Verify Document Entries Report with Job Ledger, Res. Ledger and Unit Cost.
+        // [WHEN] Open Job Ledger Entries page, as if run Print from Navigate page
+        JobLedgerEntries.OpenView();
+        JobLedgerEntries.Filter.SetFilter("Job No.", JobTask."Job No.");
         JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
-        LibraryReportDataset.LoadDataSetFile;
+        JobLedgerEntry.FindFirst;
+        CollectDocEntries(JobLedgerEntry, TempDocumentEntry);
+        DocumentEntries.TransferDocEntries(TempDocumentEntry);
+        DocumentEntries.TransferFilters(JobLedgerEntry."Document No.", Format(JobLedgerEntry."Posting Date"));
+        DocumentEntries.Run(); // SaveAxXML in DocumentEntriesReqPageHandler
+
+        // [THEN] Verify Document Entries Report with Job Ledger, Res. Ledger and Unit Cost.
+        JobLedgerEntry.SetRange("Job No.", JobTask."Job No.");
+        LibraryReportDataset.LoadDataSetFile();
         VerifyDocumentEntries(JobLedgerEntry.TableCaption, JobLedgerEntry.Count);
         ResLedgerEntry.SetRange("Job No.", JobTask."Job No.");
         VerifyDocumentEntries(ResLedgerEntry.TableCaption, ResLedgerEntry.Count);
         FindJobLedgerEntry(JobLedgerEntry, JobTask."Job No.");
         LibraryReportDataset.SetRange(PostingDateTxt, Format(JobLedgerEntry."Posting Date"));
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(UnitCostResLedgEntryTxt, JobLedgerEntry."Unit Cost (LCY)");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -795,7 +805,24 @@ codeunit 136311 "Job Reports II"
         JobJournalBatchName := '';
     end;
 
-    local procedure CreateAndPostJobJournalLine(LineType: Option; CurrencyCode: Code[10]): Code[20]
+    local procedure CollectDocEntries(JobLedgerEntry: Record "Job Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
+    var
+        ResLedgerEntry: Record "Res. Ledger Entry";
+        Navigate: Page Navigate;
+    begin
+        ResLedgerEntry.Reset();
+        ResLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+        ResLedgerEntry.SetFilter("Document No.", JobLedgerEntry."Document No.");
+        ResLedgerEntry.SetRange("Posting Date", JobLedgerEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Res. Ledger Entry", ResLedgerEntry.TableCaption, ResLedgerEntry.Count);
+        JobLedgerEntry.Reset();
+        JobLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
+        JobLedgerEntry.SetFilter("Document No.", JobLedgerEntry."Document No.");
+        JobLedgerEntry.SetRange("Posting Date", JobLedgerEntry."Posting Date");
+        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Job Ledger Entry", JobLedgerEntry.TableCaption, JobLedgerEntry.Count);
+    end;
+
+    local procedure CreateAndPostJobJournalLine(LineType: Enum "Job Line Type"; CurrencyCode: Code[10]): Code[20]
     var
         JobJournalLine: Record "Job Journal Line";
         JobTask: Record "Job Task";
@@ -1246,7 +1273,7 @@ codeunit 136311 "Job Reports II"
 
         JobPlanningLine.SetRange("Job No.", JobPlanningLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
-        JobPlanningLine.FindSet;
+        JobPlanningLine.FindSet();
         repeat
             LibraryReportValidation.SetRange(JobPlanningLine.FieldCaption("No."), Format(JobPlanningLine."No."));
             LibraryReportValidation.SetColumn(Format(JobPlanningLine.FieldCaption(Quantity)));
@@ -1319,7 +1346,7 @@ codeunit 136311 "Job Reports II"
         VerifyJobReports(JobCalculateBatches.GetCurrencyCode(Job, 3, CurrencyField), JobLedgerEntry."Line Amount");
     end;
 
-    local procedure VerifyJobTransactionDetaisReportTotals(Job: array[2] of Record "Job"; JobTask: array[2, 2] of Record 1001; LineCost: array[2, 2, 2] of Decimal; LinePrice: array[2, 2, 2] of Decimal; LineAmount: array[2, 2, 2] of Decimal; LineDiscountAmount: array[2, 2, 2] of Decimal; CurrencyOption: Option);
+    local procedure VerifyJobTransactionDetaisReportTotals(Job: array[2] of Record "Job"; JobTask: array[2, 2] of Record "Job Task"; LineCost: array[2, 2, 2] of Decimal; LinePrice: array[2, 2, 2] of Decimal; LineAmount: array[2, 2, 2] of Decimal; LineDiscountAmount: array[2, 2, 2] of Decimal; CurrencyOption: Option);
     VAR
         JobToReport: Record "Job";
         JobCalculateBatches: Codeunit "Job Calculate Batches";
@@ -1406,12 +1433,9 @@ codeunit 136311 "Job Reports II"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure DocumentEntriesReqPageHandler(var DocumentEntries: TestRequestPage "Document Entries")
-    var
-        CurrecnyInLcy: Variant;
     begin
-        LibraryVariableStorage.Dequeue(CurrecnyInLcy);
-        DocumentEntries.PrintAmountsInLCY.SetValue(CurrecnyInLcy);  // Boolean Show Amount in LCY
-        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DocumentEntries.PrintAmountsInLCY.SetValue(LibraryVariableStorage.DequeueBoolean());  // Boolean Show Amount in LCY
+        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -1434,13 +1458,6 @@ codeunit 136311 "Job Reports II"
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
         JobTransferToSalesInvoice.OK.Invoke;
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure NavigatePageHandler(var Navigate: TestPage Navigate)
-    begin
-        Navigate.Print.Invoke;
     end;
 }
 

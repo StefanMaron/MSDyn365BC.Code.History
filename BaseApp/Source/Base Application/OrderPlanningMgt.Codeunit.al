@@ -1,4 +1,4 @@
-﻿codeunit 5522 "Order Planning Mgt."
+codeunit 5522 "Order Planning Mgt."
 {
     trigger OnRun()
     begin
@@ -94,7 +94,7 @@
 
                     InsertDemandLines(RequisitionLine);
                     Delete;
-                until Next = 0;
+                until Next() = 0;
 
             Window.Close;
 
@@ -138,7 +138,7 @@
                     InsertReqLineFromUnplannedDemand(ReqLine, Item);
                 end;
                 Delete;
-            until Next = 0;
+            until Next() = 0;
 
             Copy(UnplannedDemand);
         end;
@@ -475,7 +475,7 @@
                     OnInsertAltSupplyLocationOnBeforeTempReqLineInsert(TempReqLine);
                     TempReqLine.Insert();
                 end;
-            until Location.Next = 0;
+            until Location.Next() = 0;
 
         TempReqLine.SetRange("No.", TempReqLine."No.");
         if PAGE.RunModal(PAGE::"Get Alternative Supply", TempReqLine) = ACTION::LookupOK then begin
@@ -518,7 +518,7 @@
             if ReqLine2.Find('-') then
                 repeat
                     OrderQtyBase += ReqLine2."Quantity (Base)";
-                until ReqLine2.Next = 0;
+                until ReqLine2.Next() = 0;
         end;
     end;
 
@@ -549,7 +549,7 @@
                     AvailableQtyBase -= PromisedTransferQty(ReqLine, Location.Code);
                 if AvailableQtyBase > 0 then
                     AvailableQtyBaseTotal += AvailableQtyBase;
-            until Location.Next = 0;
+            until Location.Next() = 0;
 
         exit(AvailableQtyBaseTotal);
     end;

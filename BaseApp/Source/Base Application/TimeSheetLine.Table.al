@@ -19,11 +19,9 @@ table 951 "Time Sheet Line"
             Caption = 'Time Sheet Starting Date';
             Editable = false;
         }
-        field(5; Type; Option)
+        field(5; Type; Enum "Time Sheet Line Type")
         {
             Caption = 'Type';
-            OptionCaption = ' ,Resource,Job,Service,Absence,Assembly Order';
-            OptionMembers = " ",Resource,Job,Service,Absence,"Assembly Order";
 
             trigger OnValidate()
             begin
@@ -33,7 +31,7 @@ table 951 "Time Sheet Line"
                 if Type <> xRec.Type then begin
                     TimeSheetDetail.SetRange("Time Sheet No.", "Time Sheet No.");
                     TimeSheetDetail.SetRange("Time Sheet Line No.", "Line No.");
-                    if not TimeSheetDetail.IsEmpty then
+                    if not TimeSheetDetail.IsEmpty() then
                         TimeSheetDetail.DeleteAll();
                     "Job No." := '';
                     Clear("Job Id");
@@ -103,7 +101,7 @@ table 951 "Time Sheet Line"
                     Resource.TestField(Type, Resource.Type::Person);
                     Employee.Reset();
                     Employee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
-                    if Employee.IsEmpty then
+                    if Employee.IsEmpty() then
                         Error(Text001, TimeSheetHeader."Resource No.");
                 end;
             end;
@@ -329,7 +327,7 @@ table 951 "Time Sheet Line"
             repeat
                 TimeSheetDetail.CopyFromTimeSheetLine(Rec);
                 TimeSheetDetail.Modify();
-            until TimeSheetDetail.Next = 0;
+            until TimeSheetDetail.Next() = 0;
     end;
 
     local procedure GetTimeSheetResource(var Resource: Record Resource)

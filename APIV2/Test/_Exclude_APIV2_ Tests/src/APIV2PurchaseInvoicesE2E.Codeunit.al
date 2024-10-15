@@ -315,7 +315,7 @@ codeunit 139829 "APIV2 - Purchase Invoices E2E"
         RecordField: Record Field;
         ApiRecordRef: RecordRef;
         PageRecordRef: RecordRef;
-        PurchaseInvoice: TestPage 51;
+        PurchaseInvoice: TestPage "Purchase Invoice";
         VendorNo: Text;
         InvoiceDate: Date;
         ResponseText: Text;
@@ -459,7 +459,7 @@ codeunit 139829 "APIV2 - Purchase Invoices E2E"
         exit(InvoiceJSON);
     end;
 
-    local procedure CreateInvoiceThroughTestPage(var PurchaseInvoice: TestPage 51; Vendor: Record "Vendor"; DocumentDate: Date; PostingDate: Date)
+    local procedure CreateInvoiceThroughTestPage(var PurchaseInvoice: TestPage "Purchase Invoice"; Vendor: Record "Vendor"; DocumentDate: Date; PostingDate: Date)
     begin
         PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor No.".SetValue(Vendor."No.");

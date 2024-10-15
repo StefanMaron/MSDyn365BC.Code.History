@@ -413,7 +413,7 @@ table 297 "Issued Reminder Header"
                     DocumentSendingProfile.TrySendToEMail(
                       DummyReportSelections.Usage::Reminder.AsInteger(), IssuedReminderHeaderToSend, IssuedReminderHeaderToSend.FieldNo("No."),
                       ReportDistributionMgt.GetFullDocumentTypeText(Rec), IssuedReminderHeaderToSend.FieldNo("Customer No."), not HideDialog)
-                until IssuedReminderHeader.Next = 0;
+                until IssuedReminderHeader.Next() = 0;
         end else
             DocumentSendingProfile.TrySendToPrinter(
               DummyReportSelections.Usage::Reminder.AsInteger(), Rec,

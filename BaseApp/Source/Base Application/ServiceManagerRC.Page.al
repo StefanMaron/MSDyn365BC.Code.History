@@ -194,7 +194,7 @@ page 8908 "Service Manager Role Center"
                     ApplicationArea = Service;
                     Caption = 'Demand Overview';
                     RunObject = Page "Demand Overview";
-                    AccessByPermission = TableData 5900 = R;
+                    AccessByPermission = TableData "Service Header" = R;
                 }
                 group("Group4")
                 {
@@ -595,19 +595,19 @@ page 8908 "Service Manager Role Center"
                     {
                         ApplicationArea = Service;
                         Caption = 'Imp. IRIS to Area/Symptom Code';
-                        RunObject = XMLport 5900;
+                        RunObject = XMLport "Imp. IRIS to Area/Symptom Code";
                     }
                     action("Import IRIS to Fault Codes")
                     {
                         ApplicationArea = Service;
                         Caption = 'Import IRIS to Fault Codes';
-                        RunObject = XMLport 5901;
+                        RunObject = XMLport "Import IRIS to Fault Codes";
                     }
                     action("Import IRIS to Resol. Codes")
                     {
                         ApplicationArea = Service;
                         Caption = 'Import IRIS to Resol. Codes';
-                        RunObject = XMLport 5902;
+                        RunObject = XMLport "Import IRIS to Resol. Codes";
                     }
                 }
                 group("Group15")

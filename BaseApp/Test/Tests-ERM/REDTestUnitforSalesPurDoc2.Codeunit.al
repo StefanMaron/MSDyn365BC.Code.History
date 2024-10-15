@@ -875,7 +875,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         CreatePurchLineWithGLAccount(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, DeferralTemplateCode);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             FillTempAmountLines(TempGLEntry, PurchaseLine."Line No.", PurchaseLine."No.", PurchaseLine."Line Amount");
         until PurchaseLine.Next = 0;
@@ -922,7 +922,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         CreateSalesLineWithGLAccount(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup, DeferralTemplateCode);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindSet;
+        SalesLine.FindSet();
         repeat
             FillTempAmountLines(TempGLEntry, SalesLine."Line No.", SalesLine."No.", SalesLine."Line Amount");
         until SalesLine.Next = 0;
@@ -1714,8 +1714,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         PostedDeferralLine.CalcSums(Amount);
         DeferralAmount := PostedDeferralLine.Amount;
 
-        PostedDeferralLine.FindSet;
-        TempGLEntry.FindSet;
+        PostedDeferralLine.FindSet();
+        TempGLEntry.FindSet();
         VerifyGLEntrySum(GLEntry, StartingDate, DeferralGLAccountNo, Sign * DeferralAmount);
         VerifyGLEntrySum(GLEntry, PostedDeferralLine."Posting Date", DeferralGLAccountNo, -Sign * DeferralAmount);
 

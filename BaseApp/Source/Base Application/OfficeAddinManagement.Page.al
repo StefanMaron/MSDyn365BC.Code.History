@@ -139,7 +139,7 @@ page 1610 "Office Add-in Management"
                             ProgressWindow.Update(1, StrSubstNo(DeployingMsg, Name));
                             ProgressWindow.Update(2, 6000);
                             DeployManifest(OfficeAddin);
-                        until OfficeAddin.Next = 0;
+                        until OfficeAddin.Next() = 0;
                     Message(AppsInstalledMsg);
 
                     ProgressWindow.Close;
@@ -182,7 +182,7 @@ page 1610 "Office Add-in Management"
     var
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
     begin
-        if IsEmpty then
+        if IsEmpty() then
             AddinManifestManagement.CreateDefaultAddins(Rec);
     end;
 

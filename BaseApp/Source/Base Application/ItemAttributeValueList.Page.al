@@ -124,7 +124,7 @@ page 7504 "Item Attribute Value List"
                 TempItemAttributeValue.TransferFields(ItemAttributeValue);
                 OnLoadAttributesOnBeforeTempItemAttributeValueInsert(TempItemAttributeValue, ItemAttributeValueMapping, RelatedRecordCode);
                 TempItemAttributeValue.Insert();
-            until ItemAttributeValueMapping.Next = 0;
+            until ItemAttributeValueMapping.Next() = 0;
 
         PopulateItemAttributeValueSelection(TempItemAttributeValue, DATABASE::Item, ItemNo);
     end;

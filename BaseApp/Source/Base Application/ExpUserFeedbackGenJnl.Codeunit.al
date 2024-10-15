@@ -48,7 +48,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 GenJnlLine2.Validate("Check Exported", Flag);
                 GenJnlLine2.Validate("Exported to Payment File", Flag);
                 GenJnlLine2.Modify(true);
-            until GenJnlLine2.Next = 0;
+            until GenJnlLine2.Next() = 0;
     end;
 
     local procedure SetExportFlagOnAppliedVendorLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
@@ -70,7 +70,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 repeat
                     VendLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
-                until VendLedgerEntry.Next = 0;
+                until VendLedgerEntry.Next() = 0;
         end;
 
         VendLedgerEntry.Reset();
@@ -81,7 +81,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             repeat
                 VendLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgerEntry);
-            until VendLedgerEntry.Next = 0;
+            until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure SetExportFlagOnAppliedCustLedgerEntry(GenJnlLine: Record "Gen. Journal Line"; Flag: Boolean)
@@ -103,7 +103,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
                 repeat
                     CustLedgerEntry.Validate("Exported to Payment File", Flag);
                     CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
-                until CustLedgerEntry.Next = 0;
+                until CustLedgerEntry.Next() = 0;
         end;
 
         CustLedgerEntry.Reset();
@@ -115,7 +115,7 @@ codeunit 1278 "Exp. User Feedback Gen. Jnl."
             repeat
                 CustLedgerEntry.Validate("Exported to Payment File", Flag);
                 CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
-            until CustLedgerEntry.Next = 0;
+            until CustLedgerEntry.Next() = 0;
     end;
 }
 

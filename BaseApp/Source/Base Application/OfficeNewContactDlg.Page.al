@@ -130,7 +130,7 @@ page 1604 "Office New Contact Dlg"
             if NotLinked(Contact) then
                 Page.Run(Page::"Contact Card", Contact)
             else
-                Contact.ShowCustVendBank;
+                Contact.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
             CurrPage.Close;
         end;
     end;

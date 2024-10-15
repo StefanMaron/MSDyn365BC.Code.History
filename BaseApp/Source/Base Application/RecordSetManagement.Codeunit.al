@@ -15,11 +15,11 @@ codeunit 8400 "Record Set Management"
         CurrentKey: Integer;
     begin
         DataTypeManagement.GetRecordRef(RecordsVariant, SetRecordRef);
-        if SetRecordRef.IsEmpty then
+        if SetRecordRef.IsEmpty() then
             exit;
 
         SortAscending(SetRecordRef);
-        SetRecordRef.FindSet;
+        SetRecordRef.FindSet();
 
         CurrentKey := 0;
         repeat
@@ -28,7 +28,7 @@ codeunit 8400 "Record Set Management"
             TempRecordSetBuffer.No := CurrentKey;
             CurrentKey += 1;
             TempRecordSetBuffer.Insert();
-        until SetRecordRef.Next = 0;
+        until SetRecordRef.Next() = 0;
 
         TempRecordSetBuffer.FindFirst;
         exit(SaveSet(TempRecordSetBuffer));
@@ -43,13 +43,13 @@ codeunit 8400 "Record Set Management"
         ParentNodeID: Integer;
         NewSetNeeded: Boolean;
     begin
-        if TempRecordSetBuffer.IsEmpty then
+        if TempRecordSetBuffer.IsEmpty() then
             exit;
 
         TempCurrentRecordSetBuffer.Copy(TempRecordSetBuffer);
         TempRecordSetBuffer.SetCurrentKey("Value RecordID");
         TempRecordSetBuffer.Ascending(true);
-        TempRecordSetBuffer.FindSet;
+        TempRecordSetBuffer.FindSet();
 
         SetID := 0;
         ParentNodeID := 0;
@@ -66,7 +66,7 @@ codeunit 8400 "Record Set Management"
             ParentNodeID := RecordSetTree."Node ID";
             TempFoundRecordSetTree := RecordSetTree;
             TempFoundRecordSetTree.Insert();
-        until TempRecordSetBuffer.Next = 0;
+        until TempRecordSetBuffer.Next() = 0;
 
         if not NewSetNeeded then begin
             // Set might be a subset of existing set, we need to create a new one
@@ -101,7 +101,7 @@ codeunit 8400 "Record Set Management"
                 TempUnsortedRecordSetBuffer.No := CurrentKey + 1;
                 TempUnsortedRecordSetBuffer.Insert();
             end;
-        until RecordSetDefinition.Next = 0;
+        until RecordSetDefinition.Next() = 0;
 
         TempUnsortedRecordSetBuffer.SetCurrentKey("Value RecordID");
         TempUnsortedRecordSetBuffer.Ascending(true);
@@ -114,7 +114,7 @@ codeunit 8400 "Record Set Management"
             TempRecordSetBuffer.No := CurrentKey + 1;
             TempRecordSetBuffer."Value RecordID" := TempUnsortedRecordSetBuffer."Value RecordID";
             TempRecordSetBuffer.Insert();
-        until TempUnsortedRecordSetBuffer.Next = 0;
+        until TempUnsortedRecordSetBuffer.Next() = 0;
     end;
 
     procedure RenameRecord(RecRef: RecordRef; xRecRef: RecordRef)
@@ -122,7 +122,7 @@ codeunit 8400 "Record Set Management"
         RecordSetTree: Record "Record Set Tree";
     begin
         RecordSetTree.SetRange("Table No.", RecRef.Number);
-        if RecordSetTree.IsEmpty then
+        if RecordSetTree.IsEmpty() then
             exit;
 
         RecordSetTree.SetRange(Value, xRecRef.RecordId);
@@ -165,7 +165,7 @@ codeunit 8400 "Record Set Management"
         repeat
             CreateSetDefinitionLine(RecordSetDefinition, SetID, TempFoundRecordSetTree);
             SetID := RecordSetDefinition."Set ID";
-        until TempFoundRecordSetTree.Next = 0;
+        until TempFoundRecordSetTree.Next() = 0;
 
         exit(RecordSetDefinition."Set ID");
     end;
@@ -191,9 +191,9 @@ codeunit 8400 "Record Set Management"
             CurrentRecordSetDefinition.SetRange("Node ID");
             CurrentRecordSetDefinition.SetRange("Set ID", RecordSetDefinition."Set ID");
             if CurrentRecordSetDefinition.Find('+') then
-                if (CurrentRecordSetDefinition.Next = 0) and (CurrentRecordSetDefinition.Count = TempFoundRecordSetTree.Count) then
+                if (CurrentRecordSetDefinition.Next() = 0) and (CurrentRecordSetDefinition.Count = TempFoundRecordSetTree.Count) then
                     exit(CurrentRecordSetDefinition."Set ID");
-        until RecordSetDefinition.Next = 0;
+        until RecordSetDefinition.Next() = 0;
 
         exit;
     end;
@@ -204,7 +204,7 @@ codeunit 8400 "Record Set Management"
 
         // Node ID Is unique for a given path, all sets containing a node ID will be part of the subpath
         RecordSetDefinition.SetRange("Node ID", TempFoundRecordSetTree."Node ID");
-        RecordSetDefinition.FindSet;
+        RecordSetDefinition.FindSet();
     end;
 }
 

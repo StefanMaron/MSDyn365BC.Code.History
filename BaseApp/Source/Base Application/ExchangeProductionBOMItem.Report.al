@@ -93,7 +93,7 @@ report 99001043 "Exchange Production BOM Item"
                                                 ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
                                                 ProdBOMLine2.Insert();
                                             end;
-                                        until ProdBOMLine3.Next = 0;
+                                        until ProdBOMLine3.Next() = 0;
                                 end else
                                     FirstVersion := false;
                             end;
@@ -118,7 +118,7 @@ report 99001043 "Exchange Production BOM Item"
                                             ProdBOMLine2."Ending Date" := 0D;
                                             OnBeforeInsertNewProdBOMLine(ProdBOMLine2, ProdBOMLine3, QtyMultiply);
                                             ProdBOMLine2.Insert();
-                                        until ProdBOMLine3.Next = 0;
+                                        until ProdBOMLine3.Next() = 0;
                                 end else begin
                                     ProdBOMLine3.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
                                     ProdBOMLine3.SetRange("Version Code", ProdBOMVersionList."Version Code");
@@ -163,7 +163,7 @@ report 99001043 "Exchange Production BOM Item"
                         repeat
                             ProdBOMHeader.Validate(Status, ProdBOMHeader.Status::Certified);
                             ProdBOMHeader.Modify();
-                        until ProdBOMHeader.Next = 0;
+                        until ProdBOMHeader.Next() = 0;
 
                     ProdBOMVersionList.SetRange("Production BOM No.");
                     ProdBOMVersionList.MarkedOnly(true);
@@ -171,7 +171,7 @@ report 99001043 "Exchange Production BOM Item"
                         repeat
                             ProdBOMVersionList.Validate(Status, ProdBOMVersionList.Status::Certified);
                             ProdBOMVersionList.Modify();
-                        until ProdBOMVersionList.Next = 0;
+                        until ProdBOMVersionList.Next() = 0;
                 end;
             end;
         }

@@ -206,7 +206,7 @@ page 5898 "Posted Phys. Invt. Order Stat."
                             Error(UnknownEntryTypeErr);
                     end;
                 end;
-            until PstdPhysInvtOrderLine.Next = 0;
+            until PstdPhysInvtOrderLine.Next() = 0;
     end;
 
     var
