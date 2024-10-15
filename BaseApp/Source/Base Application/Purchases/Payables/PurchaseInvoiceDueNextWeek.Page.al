@@ -12,7 +12,7 @@ page 1162 "Purchase Invoice Due Next Week"
     ShowFilter = false;
     SourceTable = "Vendor Ledger Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

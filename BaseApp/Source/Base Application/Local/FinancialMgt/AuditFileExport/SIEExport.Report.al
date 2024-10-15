@@ -77,7 +77,7 @@ report 11207 "SIE Export"
                             Clear(SieDimensionPage);
                             SieDimensionPage.LookupMode(true);
                             SieDimensionPage.Run();
-                            ColumnDim := SieDimension.GetDimSelectionText;
+                            ColumnDim := SieDimension.GetDimSelectionText();
                         end;
                     }
                     field(FiscalYear; FiscalYear)
@@ -205,7 +205,7 @@ report 11207 "SIE Export"
 
         CompanyInfo.Get();
         ExportFile.Write(StrSubstNo('#FLAGGA  %1', 0));
-        ExportFile.Write(StrSubstNo('#PROGRAM  "%1"  "%2"', 'Microsoft Dynamics NAV', ApplicationSystemConstants.ApplicationVersion));
+        ExportFile.Write(StrSubstNo('#PROGRAM  "%1"  "%2"', 'Microsoft Dynamics NAV', ApplicationSystemConstants.ApplicationVersion()));
         ExportFile.Write(StrSubstNo('#FORMAT  %1', 'PC8'));
         ExportFile.Write(StrSubstNo('#GEN  %1  %2', FormatDate(Today), UserId));
         ExportFile.Write(StrSubstNo('#SIETYP  %1', Format(CopyStr(Format(ExportType), 1, 1))));
@@ -623,7 +623,7 @@ report 11207 "SIE Export"
 
     local procedure OnActivateForm()
     begin
-        ColumnDim := SieDimension.GetDimSelectionText;
+        ColumnDim := SieDimension.GetDimSelectionText();
     end;
 
     [Scope('OnPrem')]

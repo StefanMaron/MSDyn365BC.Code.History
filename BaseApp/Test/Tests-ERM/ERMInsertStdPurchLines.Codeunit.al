@@ -49,7 +49,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseQuoteVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -118,7 +118,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseQuoteVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -149,7 +149,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardCodesMgt.GetPurchRecurringLines(PurchaseHeader);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardCodesMgt.GetPurchRecurringLines(PurchaseHeader);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -260,7 +260,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseOrderVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -329,7 +329,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseOrderVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -352,7 +352,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseInvoiceVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -421,7 +421,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseInvoiceVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseCreditMemoVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -513,7 +513,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         SetPurchaseCreditMemoVendorNo(PurchaseHeader, VendorNo);
 
         // [THEN] There is no purchase standard codes notification
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -533,16 +533,16 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Order, RefMode::Automatic));
 
         // [GIVEN] Vendor List on vendor "V" record
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [GIVEN] Perform page action: New Purchase Document -> Purchase Order
-        PurchaseOrder.Trap;
-        VendorList.NewPurchaseOrder.Invoke;
+        PurchaseOrder.Trap();
+        VendorList.NewPurchaseOrder.Invoke();
 
         // [WHEN] Activate "Buy-from Vendor No." field
-        PurchaseOrder."Buy-from Vendor No.".Activate;
-        PurchaseOrder.PurchLines.First;
+        PurchaseOrder."Buy-from Vendor No.".Activate();
+        PurchaseOrder.PurchLines.First();
 
         // [THEN] Recurring purchase line created
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseOrder."No.".Value);
@@ -566,15 +566,15 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Invoice, RefMode::Automatic));
 
         // [GIVEN] Vendor List on vendor "V" record
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [GIVEN] Perform page action: New Purchase Document -> Purchase Invoice
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
 
         // [WHEN] Activate "Buy-from Vendor No." field
-        PurchaseInvoice."Buy-from Vendor No.".Activate;
+        PurchaseInvoice."Buy-from Vendor No.".Activate();
 
         // [THEN] Recurring purchase line created
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value);
@@ -598,15 +598,15 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::Quote, RefMode::Automatic));
 
         // [GIVEN] Vendor List on vendor "V" record
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [GIVEN] Perform page action: New Purchase Document -> Purchase Quote
-        PurchaseQuote.Trap;
-        VendorList.NewPurchaseQuote.Invoke;
+        PurchaseQuote.Trap();
+        VendorList.NewPurchaseQuote.Invoke();
 
         // [WHEN] Activate "Buy-from Vendor No." field
-        PurchaseQuote."Buy-from Vendor No.".Activate;
+        PurchaseQuote."Buy-from Vendor No.".Activate();
 
         // [THEN] Recurring purchase line created
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Quote, PurchaseQuote."No.".Value);
@@ -630,15 +630,15 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Vendor.Get(GetNewVendNoWithStandardPurchCode(RefDocType::"Credit Memo", RefMode::Automatic));
 
         // [GIVEN] Vendor List on vendor "V" record
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
         // [GIVEN] Perform page action: New Purchase Document -> Purchase Credit Memo
-        PurchaseCreditMemo.Trap;
-        VendorList.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorList.NewPurchaseCrMemo.Invoke();
 
         // [WHEN] Activate "Buy-from Vendor No." field
-        PurchaseCreditMemo."Buy-from Vendor No.".Activate;
+        PurchaseCreditMemo."Buy-from Vendor No.".Activate();
 
         // [THEN] Recurring purchase line created
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Credit Memo", PurchaseCreditMemo."No.".Value);
@@ -658,16 +658,16 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         LibraryApplicationArea.EnableFoundationSetup();
 
         // [WHEN] Open page Standard Vendor Purchase Codes
-        StandardVendorPurchaseCodes.OpenEdit;
+        StandardVendorPurchaseCodes.OpenEdit();
 
         // [THEN] Fields "Insert Rec Lines On..." are visible
-        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Quotes".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Orders".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Invoices".Visible, FieldNotVisibleErr);
-        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Cr. Memos".Visible, FieldNotVisibleErr);
+        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Quotes".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Orders".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Invoices".Visible(), FieldNotVisibleErr);
+        Assert.IsTrue(StandardVendorPurchaseCodes."Insert Rec. Lines On Cr. Memos".Visible(), FieldNotVisibleErr);
 
         // TearDown
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
@@ -691,7 +691,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
 
         // [THEN] Standard purchase code notification is not created
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -715,7 +715,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
 
         // [THEN] Standard purchase code notification is not created
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -742,7 +742,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseHeader.Validate("Buy-from Vendor No.", VendorNo);
 
         // [THEN] Standard purchase code notification is not created
-        VerifyNoPurchStdCodesNotification;
+        VerifyNoPurchStdCodesNotification();
     end;
 
     [Test]
@@ -775,8 +775,8 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
 
         // [THEN] Standard Purchase code notification created
-        Assert.AreEqual(PurchaseHeader."Document Type", LibraryVariableStorage.DequeueInteger, 'Unexpected document type');
-        Assert.AreEqual(PurchaseHeader."No.", LibraryVariableStorage.DequeueText, 'Unexpected document number');
+        Assert.AreEqual(PurchaseHeader."Document Type", LibraryVariableStorage.DequeueInteger(), 'Unexpected document type');
+        Assert.AreEqual(PurchaseHeader."No.", LibraryVariableStorage.DequeueText(), 'Unexpected document number');
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseHeader);
     end;
 
@@ -923,7 +923,6 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure RecurringPurchaseLinesAutomaticallyPopulatedToPurchaseInvoiceWithCurrency()
     var
         PurchaseHeader: Record "Purchase Header";
-        StandardVendorPurchCode: Record "Standard Vendor Purchase Code";
         StandardPurchaseCode: Record "Standard Purchase Code";
         Vendor: Record Vendor;
         CurrencyCode: Code[20];
@@ -1088,7 +1087,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         Vendor.Get(
             GetNewVendNoWithStandardPurchCodeForCode(RefDocType::Order, RefMode::Automatic, StdPurchCodeCode));
 
-        Commit;
+        Commit();
         LibraryVariableStorage.DequeueText(); // flush variable storage
         LibraryVariableStorage.Enqueue(false);
 
@@ -1178,8 +1177,8 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Insert Std. Purch. Lines");
         LibraryVariableStorage.Clear();
-        LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryPurchase.DisableWarningOnCloseUnpostedDoc();
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
 
         if isInitialized then
             exit;
@@ -1204,7 +1203,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         StandardVendorPurchaseCode.Init();
         StandardVendorPurchaseCode."Vendor No." := VendorNo;
-        StandardVendorPurchaseCode.Code := CreateStandardPurchaseCodeWithItemLine;
+        StandardVendorPurchaseCode.Code := CreateStandardPurchaseCodeWithItemLine();
         case DocType of
             RefDocType::Quote:
                 StandardVendorPurchaseCode."Insert Rec. Lines On Quotes" := Mode;
@@ -1230,7 +1229,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Insert();
     end;
@@ -1260,7 +1259,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardPurchaseLine: Record "Standard Purchase Line";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode;
+        StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode();
         StandardPurchaseLine.Type := StandardPurchaseLine.Type::Item;
         StandardPurchaseLine."No." := LibraryInventory.CreateItemNo();
         StandardPurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
@@ -1272,7 +1271,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     var
         StandardPurchaseLine: Record "Standard Purchase Line";
     begin
-        StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode;
+        StandardPurchaseLine."Standard Purchase Code" := CreateStandardPurchaseCode();
         StandardPurchaseLine.Description := LibraryUTUtility.GetNewCode();
         StandardPurchaseLine.Insert();
         exit(StandardPurchaseLine."Standard Purchase Code");
@@ -1313,8 +1312,6 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     end;
 
     local procedure GetNewVendNoWithStandardPurchCode(DocType: Option; Mode: Integer): Code[20]
-    var
-        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
         exit(
             GetNewVendNoWithStandardPurchCodeForCode(DocType, Mode, CreateStandardPurchaseCodeWithItemLine()));
@@ -1325,7 +1322,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
     begin
         StandardVendorPurchaseCode.Init();
-        StandardVendorPurchaseCode.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        StandardVendorPurchaseCode.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         StandardVendorPurchaseCode.Validate(Code, PurchCode);
         case DocType of
             RefDocType::Quote:
@@ -1421,7 +1418,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardPurchaseLine: Record "Standard Purchase Line";
     begin
         FilterOnPurchaseLine(PurchaseLine, PurchaseHeader);
-        Assert.IsTrue(PurchaseLine.FindFirst, StrSubstNo(ValueMustExistMsg, PurchaseLine.TableCaption()));
+        Assert.IsTrue(PurchaseLine.FindFirst(), StrSubstNo(ValueMustExistMsg, PurchaseLine.TableCaption()));
         FindStandardPurchaseLine(StandardPurchaseLine, PurchaseLine."Buy-from Vendor No.");
         PurchaseLine.TestField(Type, StandardPurchaseLine.Type);
         PurchaseLine.TestField("No.", StandardPurchaseLine."No.");
@@ -1435,7 +1432,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        TempNotificationContext.SetRange("Notification ID", StandardCodesMgt.GetPurchRecurringLinesNotificationId);
+        TempNotificationContext.SetRange("Notification ID", StandardCodesMgt.GetPurchRecurringLinesNotificationId());
         Assert.RecordIsEmpty(TempNotificationContext);
     end;
 
@@ -1447,9 +1444,9 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         TempNotificationContext.SetRange("Record ID", PurchaseHeader.RecordId);
-        Assert.IsTrue(TempNotificationContext.FindFirst, 'Notification not found');
+        Assert.IsTrue(TempNotificationContext.FindFirst(), 'Notification not found');
         Assert.AreEqual(
-          StandardCodesMgt.GetPurchRecurringLinesNotificationId,
+          StandardCodesMgt.GetPurchRecurringLinesNotificationId(),
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1463,7 +1460,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
         Assert.AreEqual(
-          StandardCodesMgt.GetPurchRecurringLinesNotificationId,
+          StandardCodesMgt.GetPurchRecurringLinesNotificationId(),
           TempNotificationContext."Notification ID",
           InvalidNotificationIdMsg);
         NotificationLifecycleMgt.RecallAllNotifications();
@@ -1494,14 +1491,14 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         LibraryVariableStorage.Dequeue(Code);
         StandardVendorPurchaseCodes.FILTER.SetFilter(Code, Code);
-        StandardVendorPurchaseCodes.OK.Invoke;
+        StandardVendorPurchaseCodes.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure StandardVendorPurchaseCodesCancelModalPageHandler(var StandardVendorPurchaseCodes: TestPage "Standard Vendor Purchase Codes")
     begin
-        StandardVendorPurchaseCodes.Cancel.Invoke;
+        StandardVendorPurchaseCodes.Cancel().Invoke();
     end;
 
     [SendNotificationHandler]
@@ -1532,7 +1529,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     procedure VendorLookupModalHandler(var VendorLookupPage: TestPage "Vendor Lookup")
     begin
         VendorLookupPage.Filter.SetFilter("No.", LibraryVariableStorage.PeekText(2));
-        VendorLookupPage.OK.Invoke;
+        VendorLookupPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

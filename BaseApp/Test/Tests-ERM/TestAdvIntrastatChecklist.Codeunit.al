@@ -486,7 +486,6 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
         FileTempBlob: Codeunit "Temp Blob";
         FileOutStream: OutStream;
-        ExportFormat: Enum "Intrastat Export Format";
     begin
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
@@ -494,7 +493,7 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
         Commit();
         FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat::"2022");
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, "Intrastat Export Format"::"2022");
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.UseRequestPage(true);

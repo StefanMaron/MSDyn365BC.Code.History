@@ -46,8 +46,10 @@ codeunit 144026 "SE Customer Reports"
         LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         BalanceReportErr: Label 'Balance(LCY) %1 must exist in the Report', Comment = '.';
+#if not CLEAN23
         ValueNotExistErr: Label 'Value must not exist.';
         ValueMustExistErr: Label 'Value must exist.';
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -70,7 +72,7 @@ codeunit 144026 "SE Customer Reports"
 
         // Verify: Verify Customer.Balance(LCY) exists in Report.
         Customer.CalcFields("Balance (LCY)");
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         Assert.IsTrue(
           LibraryReportValidation.CheckIfDecimalValueExists(Customer."Balance (LCY)"),
           StrSubstNo(BalanceReportErr, Customer."Balance (LCY)"));
@@ -177,7 +179,18 @@ codeunit 144026 "SE Customer Reports"
     end;
 
     local procedure Initialize()
+    var
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
         Clear(LibraryReportValidation);
         LibraryVariableStorage.Clear();
 
@@ -288,7 +301,7 @@ codeunit 144026 "SE Customer Reports"
         Statement.SetTableView(Customer);
         LibraryReportValidation.SetFileName(Customer.TableCaption + Format(CustomerNo));
         Statement.InitializeRequest(false, false, true, false, false, false, '1M+CM', DateChoice::"Due Date", true, WorkDate(), WorkDate());
-        Statement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        Statement.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 #if not CLEAN23
     local procedure SaveIncomeStatementReport(GLAccountNo: Code[20])
@@ -302,13 +315,13 @@ codeunit 144026 "SE Customer Reports"
         GLAccount.SetFilter("Date Filter", '%1..%2', CalcDate('<-CY+1Y>', WorkDate()), CalcDate('<CY+1Y>', WorkDate()));
         IncomeStatement.SetTableView(GLAccount);
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
-        IncomeStatement.SaveAsExcel(LibraryReportValidation.GetFileName);
+        IncomeStatement.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 
     local procedure VerifyValueOnReport(GLAccount: Record "G/L Account"; MustBeVisible: Boolean)
     begin
         GLAccount.CalcFields("Net Change");
-        LibraryReportValidation.OpenFile;
+        LibraryReportValidation.OpenFile();
         if MustBeVisible then
             Assert.IsTrue(LibraryReportValidation.CheckIfValueExists(Format(GLAccount.Name)), ValueMustExistErr)
         else
@@ -319,7 +332,7 @@ codeunit 144026 "SE Customer Reports"
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #if not CLEAN23
     [RequestPageHandler]
@@ -330,7 +343,7 @@ codeunit 144026 "SE Customer Reports"
     begin
         LibraryVariableStorage.Dequeue(ShowAllVariable);
         BalanceSheet.ShowAllAccounts.SetValue(ShowAllVariable);
-        BalanceSheet.SaveAsExcel(LibraryReportValidation.GetFileName);
+        BalanceSheet.SaveAsExcel(LibraryReportValidation.GetFileName());
     end;
 #endif
 }

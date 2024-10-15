@@ -39,6 +39,7 @@ table 5050 Contact
 {
     Caption = 'Contact';
     DataCaptionFields = "No.", Name;
+    DataClassification = CustomerContent;
     DrillDownPageID = "Contact List";
     LookupPageID = "Contact List";
     Permissions = TableData "Sales Header" = rm,
@@ -80,7 +81,7 @@ table 5050 Contact
 
                 if "No." <> xRec."No." then begin
                     RMSetup.Get();
-                    NoSeriesMgt.TestManual(RMSetup."Contact Nos.");
+                    NoSeries.TestManual(RMSetup."Contact Nos.");
                     "No. Series" := '';
                 end;
             end;
@@ -328,11 +329,24 @@ table 5050 Contact
                 SetSearchEmail();
             end;
         }
+#if not CLEAN24
         field(103; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(103; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(107; "No. Series"; Code[20])
         {
             Caption = 'No. Series';
@@ -400,7 +414,7 @@ table 5050 Contact
 
             trigger OnValidate()
             begin
-                if (CurrFieldNo <> 0) and ("No." <> '') then begin
+                if (CurrFieldNo <> 0) and (not IsNullGuid(Rec.SystemId)) then begin
                     TypeChange();
                     Modify();
                 end;
@@ -531,7 +545,7 @@ table 5050 Contact
         field(5066; "Next Task Date"; Date)
         {
             CalcFormula = min("To-do".Date where("Contact Company No." = field("Company No."),
-                                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                  "Contact No." = field(filter("Lookup Contact No.")),
                                                   Closed = const(false),
                                                   "System To-do Type" = const("Contact Attendee")));
             Caption = 'Next Task Date';
@@ -541,7 +555,7 @@ table 5050 Contact
         field(5067; "Last Date Attempted"; Date)
         {
             CalcFormula = max("Interaction Log Entry".Date where("Contact Company No." = field("Company No."),
-                                                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                  "Contact No." = field(filter("Lookup Contact No.")),
                                                                   "Initiated By" = const(Us),
                                                                   Postponed = const(false)));
             Caption = 'Last Date Attempted';
@@ -551,7 +565,7 @@ table 5050 Contact
         field(5068; "Date of Last Interaction"; Date)
         {
             CalcFormula = max("Interaction Log Entry".Date where("Contact Company No." = field("Company No."),
-                                                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                  "Contact No." = field(filter("Lookup Contact No.")),
                                                                   "Attempt Failed" = const(false),
                                                                   Postponed = const(false)));
             Caption = 'Date of Last Interaction';
@@ -592,9 +606,9 @@ table 5050 Contact
         }
         field(5074; "No. of Interactions"; Integer)
         {
-            CalcFormula = count("Interaction Log Entry" where("Contact Company No." = field(FILTER("Company No.")),
+            CalcFormula = count("Interaction Log Entry" where("Contact Company No." = field(filter("Company No.")),
                                                                Canceled = const(false),
-                                                               "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                               "Contact No." = field(filter("Lookup Contact No.")),
                                                                Date = field("Date Filter"),
                                                                Postponed = const(false)));
             Caption = 'No. of Interactions';
@@ -614,7 +628,7 @@ table 5050 Contact
             AutoFormatType = 1;
             CalcFormula = sum("Interaction Log Entry"."Cost (LCY)" where("Contact Company No." = field("Company No."),
                                                                           Canceled = const(false),
-                                                                          "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                          "Contact No." = field(filter("Lookup Contact No.")),
                                                                           Date = field("Date Filter"),
                                                                           Postponed = const(false)));
             Caption = 'Cost (LCY)';
@@ -625,7 +639,7 @@ table 5050 Contact
         {
             CalcFormula = sum("Interaction Log Entry"."Duration (Min.)" where("Contact Company No." = field("Company No."),
                                                                                Canceled = const(false),
-                                                                               "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                               "Contact No." = field(filter("Lookup Contact No.")),
                                                                                Date = field("Date Filter"),
                                                                                Postponed = const(false)));
             Caption = 'Duration (Min.)';
@@ -638,7 +652,7 @@ table 5050 Contact
             CalcFormula = count("Opportunity Entry" where(Active = const(true),
                                                            "Contact Company No." = field("Company No."),
                                                            "Estimated Close Date" = field("Date Filter"),
-                                                           "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                           "Contact No." = field(filter("Lookup Contact No.")),
                                                            "Action Taken" = field("Action Taken Filter")));
             Caption = 'No. of Opportunities';
             Editable = false;
@@ -650,7 +664,7 @@ table 5050 Contact
             CalcFormula = sum("Opportunity Entry"."Estimated Value (LCY)" where(Active = const(true),
                                                                                  "Contact Company No." = field("Company No."),
                                                                                  "Estimated Close Date" = field("Date Filter"),
-                                                                                 "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                                 "Contact No." = field(filter("Lookup Contact No.")),
                                                                                  "Action Taken" = field("Action Taken Filter")));
             Caption = 'Estimated Value (LCY)';
             Editable = false;
@@ -662,7 +676,7 @@ table 5050 Contact
             CalcFormula = sum("Opportunity Entry"."Calcd. Current Value (LCY)" where(Active = const(true),
                                                                                       "Contact Company No." = field("Company No."),
                                                                                       "Estimated Close Date" = field("Date Filter"),
-                                                                                      "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                                                      "Contact No." = field(filter("Lookup Contact No.")),
                                                                                       "Action Taken" = field("Action Taken Filter")));
             Caption = 'Calcd. Current Value (LCY)';
             Editable = false;
@@ -672,7 +686,7 @@ table 5050 Contact
         {
             CalcFormula = exist("Opportunity Entry" where(Active = const(true),
                                                            "Contact Company No." = field("Company No."),
-                                                           "Contact No." = field(FILTER("Lookup Contact No.")),
+                                                           "Contact No." = field(filter("Lookup Contact No.")),
                                                            "Sales Cycle Code" = field("Sales Cycle Filter"),
                                                            "Sales Cycle Stage" = field("Sales Cycle Stage Filter"),
                                                            "Salesperson Code" = field("Salesperson Filter"),
@@ -692,7 +706,7 @@ table 5050 Contact
         field(5083; "Task Entry Exists"; Boolean)
         {
             CalcFormula = exist("To-do" where("Contact Company No." = field("Company No."),
-                                               "Contact No." = field(FILTER("Lookup Contact No.")),
+                                               "Contact No." = field(filter("Lookup Contact No.")),
                                                "Team Code" = field("Team Filter"),
                                                "Salesperson Code" = field("Salesperson Filter"),
                                                "Campaign No." = field("Campaign Filter"),
@@ -1085,6 +1099,10 @@ table 5050 Contact
 
     trigger OnInsert()
     var
+        Contact: Record Contact;
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1096,7 +1114,31 @@ table 5050 Contact
 
         if "No." = '' then begin
             RMSetup.TestField("Contact Nos.");
-            NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", xRec."No. Series", 0D, "No.", "No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(RMSetup."Contact Nos.", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+                if NoSeries.AreRelated(RMSetup."Contact Nos.", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series"
+                else
+                    "No. Series" := RMSetup."Contact Nos.";
+                "No." := NoSeries.GetNextNo("No. Series");
+                Contact.ReadIsolation(IsolationLevel::ReadUncommitted);
+                Contact.SetLoadFields("No.");
+                while Contact.Get("No.") do
+                    "No." := NoSeries.GetNextNo("No. Series");
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("No. Series", RMSetup."Contact Nos.", 0D, "No.");
+            end;
+#else
+			if NoSeries.AreRelated(RMSetup."Contact Nos.", xRec."No. Series") then
+				"No. Series" := xRec."No. Series"
+			else
+				"No. Series" := RMSetup."Contact Nos.";
+            "No." := NoSeries.GetNextNo("No. Series");
+            Contact.ReadIsolation(IsolationLevel::ReadUncommitted);
+            Contact.SetLoadFields("No.");
+            while Contact.Get("No.") do
+                "No." := NoSeries.GetNextNo("No. Series");
+#endif
         end;
 
         if not SkipDefaults then begin
@@ -1160,7 +1202,7 @@ table 5050 Contact
         Salesperson: Record "Salesperson/Purchaser";
         PostCode: Record "Post Code";
         DuplMgt: Codeunit DuplicateManagement;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         UpdateCustVendBank: Codeunit "CustVendBank-Update";
         CampaignMgt: Codeunit "Campaign Target Group Mgt";
         SelectedBusRelationCodes: Text;
@@ -1421,12 +1463,11 @@ table 5050 Contact
             OnAfterSetTypeForContact(Rec, xRec);
             Validate("Lookup Contact No.");
 
-            if Cont.Get("No.") then begin
+            if Cont.Get("No.") then
                 if Type = Type::Company then
                     CheckDuplicates()
                 else
                     DuplMgt.RemoveContIndex(Rec, false);
-            end;
         end;
         OnAfterTypeChange(Rec);
     end;
@@ -1441,18 +1482,14 @@ table 5050 Contact
         if IsHandled then
             exit(Result);
 
-        with Cont do begin
-            Cont := Rec;
-            RMSetup.Get();
-            RMSetup.TestField("Contact Nos.");
-            if NoSeriesMgt.SelectSeries(RMSetup."Contact Nos.", OldCont."No. Series", "No. Series") then begin
-                RMSetup.Get();
-                RMSetup.TestField("Contact Nos.");
-                NoSeriesMgt.SetSeries("No.");
-                OnAssistEditOnAfterNoSeriesMgtSetSeries(Cont, OldCont);
-                Rec := Cont;
-                exit(true);
-            end;
+        Cont := Rec;
+        RMSetup.Get();
+        RMSetup.TestField("Contact Nos.");
+        if NoSeries.LookupRelatedNoSeries(RMSetup."Contact Nos.", OldCont."No. Series", Cont."No. Series") then begin
+            Cont."No." := NoSeries.GetNextNo(Cont."No. Series");
+            OnAssistEditOnAfterNoSeriesMgtSetSeries(Cont, OldCont);
+            Rec := Cont;
+            exit(true);
         end;
     end;
 
@@ -1872,7 +1909,7 @@ table 5050 Contact
 
         IsHandled := false;
         OnShowCustVendBankOnBeforeRunPage(Rec, RecSelected, ContBusRel, IsHandled);
-        if IsHandled THEN
+        if IsHandled then
             exit;
 
         if RecSelected then
@@ -2440,7 +2477,7 @@ table 5050 Contact
         IsHandled: Boolean;
     begin
         OnBeforeGetSalutation(Rec, SalutationType, LanguageCode, IsHandled, Salutation);
-        IF IsHandled THEN
+        if IsHandled then
             exit(Salutation);
 
         if not SalutationFormula.Get("Salutation Code", LanguageCode, SalutationType) then
@@ -3282,7 +3319,7 @@ table 5050 Contact
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeVendorInsert(var Vend: Record Vendor; var Contact: Record Contact; VendorTemplateCode: Code[20])
     begin
     end;

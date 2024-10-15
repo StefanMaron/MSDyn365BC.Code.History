@@ -362,6 +362,11 @@ page 5077 "Create Interaction"
                         Enabled = IsMainInfoSet;
                         Importance = Additional;
                         ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
+
+                        trigger OnValidate()
+                        begin
+                            InteractionLogEntry.Evaluation := Rec.Evaluation;
+                        end;
                     }
                     field(ShowMoreLess4; GetShowMoreLessLbl(ShowLessStep4))
                     {
@@ -578,12 +583,6 @@ page 5077 "Create Interaction"
         CurrPage.Update(false);
     end;
 
-    trigger OnQueryClosePage(CloseAction: Action): Boolean
-    begin
-        if UpdateLogEntry then
-            InteractionLogEntry.Modify();
-    end;
-
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
@@ -602,7 +601,6 @@ page 5077 "Create Interaction"
         IsContactEditable: Boolean;
         ShowLessStep1: Boolean;
         ShowLessStep4: Boolean;
-        UpdateLogEntry: Boolean;
         Step1InstructionTxt: Label 'This wizard helps you to create interactions and record information regarding their cost, duration, connection to a campaign and eventually create opportunity in last step.';
         Step2InstructionTxt: Label 'Depending on wizard action set on interaction template, when you choose Next wizard will:';
         Step2OpenInstructionTxt: Label 'Open - opens attachment added to interaction template for your review';
@@ -694,7 +692,6 @@ page 5077 "Create Interaction"
                 end;
             Step::"Step 4":
                 begin
-                    InteractionLogEntry.CopyFromSegment(Rec);
                     InteractionLogEntry.Modify();
                     CurrPage.Close();
                 end;

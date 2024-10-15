@@ -49,7 +49,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -1 * LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -1 * LibraryRandom.RandDec(100, 2));
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.", -1 * GenJournalLine.Amount / 2);
@@ -78,7 +78,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -1 * LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -1 * LibraryRandom.RandDec(100, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         InvoiceNo := GenJournalLine."Document No.";
 
@@ -111,7 +111,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -1 * LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -1 * LibraryRandom.RandDec(100, 2));
         InvoiceNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryERM.CreateGeneralJnlLine(
@@ -148,7 +148,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
         ToleranceAmount :=
-          CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup, TolerancePct);
+          CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup(), TolerancePct);
 
         // Exercise: Apply Payment with Invoice.
         ApplyFromGeneralJournal(GenJournalLine."Document Type", GenJournalLine."Account No.");
@@ -183,7 +183,7 @@ codeunit 134022 "ERM Payment Tolerance"
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
         ToleranceAmount :=
-          CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup, TolerancePct);
+          CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup(), TolerancePct);
         ApplyFromGeneralJournal(GenJournalLine."Document Type", GenJournalLine."Account No.");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -219,7 +219,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryVariableStorage.Enqueue(PostingAction::" ");
         TolerancePct := LibraryRandom.RandDec(10, 2);
         SetPmtTolerance(true, false, TolerancePct);
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         DocumentNo := CreateAndPostSalesInvoice(SalesLine);
         Amount := CalcHalfToleranceAmount(SalesLine."Line Amount", TolerancePct, CurrencyCode);
         AmountInclVAT := CalcHalfToleranceAmount(SalesLine."Amount Including VAT", TolerancePct, CurrencyCode);
@@ -232,7 +232,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
+          Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
@@ -260,7 +260,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryVariableStorage.Enqueue(PostingAction::" ");
         TolerancePct := LibraryRandom.RandDec(10, 2);
         SetPmtTolerance(true, false, TolerancePct);
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         DocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine);
         Amount := CalcHalfToleranceAmount(PurchaseLine."Line Amount", TolerancePct, CurrencyCode);
         AmountInclVAT := CalcHalfToleranceAmount(PurchaseLine."Amount Including VAT", TolerancePct, CurrencyCode);
@@ -273,7 +273,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision,
+          Amount, CalcHalfToleranceAmount(Abs(GLEntry.Amount), TolerancePct, CurrencyCode), LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
@@ -643,8 +643,8 @@ codeunit 134022 "ERM Payment Tolerance"
         Initialize();
         GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);  // CustomerNoToApply is used in report handler
-        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());  // CustomerNoToApply is used in report handler
+        CurrencyCode := CreateCurrencyWithGainLossAccount();
         AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
 
         // Exercise: Create and Post One Credit Memo with currency and two refunds. Apply it through Customer Ledger Entries. Run Adjust Currency Exchange Rate
@@ -685,11 +685,11 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Setup: Update Pmt. Discount Grace Period in General Ledger Setup. Create a Customer with Payment term code having Calc. Discount on Credit Memo.
         // Create Currency with its currency exchange rate.
-        Initialize;
+        Initialize();
         GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);  // CustomerNoToApply is used in report handler
-        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        CustomerNoToApply := CreateCustomerWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());  // CustomerNoToApply is used in report handler
+        CurrencyCode := CreateCurrencyWithGainLossAccount();
         AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
 
         // Exercise: Create and Post One Credit Memo with currency and two refunds. Apply it through Customer Ledger Entries. Run Adjust Currency Exchange Rate
@@ -733,8 +733,8 @@ codeunit 134022 "ERM Payment Tolerance"
         Initialize();
         GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);
-        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());
+        CurrencyCode := CreateCurrencyWithGainLossAccount();
         AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
 
         // Exercise: Create and Post One Invoice currency and two Payments. Apply it through Vendor Ledger Entries. Run Adjust Currency Exchange Rate
@@ -780,8 +780,8 @@ codeunit 134022 "ERM Payment Tolerance"
         Initialize();
         GenJournalLineAmount := 10 * LibraryRandom.RandDec(1000, 2);
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<' + Format(LibraryRandom.RandInt(5)) + 'D>');
-        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo);
-        CurrencyCode := CreateCurrencyWithGainLossAccount;
+        VendorNoToApply := CreateVendorWithPmtTerms(CreatePaymentTermsWithDiscOnCreditMemo());
+        CurrencyCode := CreateCurrencyWithGainLossAccount();
         AdjustmentFactor := CreateAndUpdateCurrencyExchangeRate(CurrencyCode);
 
         // Exercise: Create and Post One Invoice currency and two Payments. Apply it through Vendor Ledger Entries. Run Adjust Currency Exchange Rate
@@ -1746,7 +1746,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostSalesInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, 0);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Customer Entries" page subtotals:
         // [THEN] "Balance" = 0
@@ -1768,15 +1768,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Credit Memo with "Amount" = 20
         // [GIVEN] Payment with "Amount" = 77.99 (100 - 20 - 2 - 0.01)
-        CreatePostSalesInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, -LibraryERM.GetAmountRoundingPrecision);
+        CreatePostSalesInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, -LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Customer Entries" page subtotals:
         // [THEN] "Balance" = 20.01
         // [THEN] "Pmt. Disc. Amount" = 0
-        VerifyBalanceAndPmtDiscEnqueuedFromHandler(PmtDiscAmount + LibraryERM.GetAmountRoundingPrecision, 0);
+        VerifyBalanceAndPmtDiscEnqueuedFromHandler(PmtDiscAmount + LibraryERM.GetAmountRoundingPrecision(), 0);
     end;
 
     [Test]
@@ -1793,15 +1793,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Credit Memo with "Amount" = 20
         // [GIVEN] Payment with "Amount" = 78.01 (100 - 20 - 2 + 0.01)
-        CreatePostSalesInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, LibraryERM.GetAmountRoundingPrecision);
+        CreatePostSalesInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Customer Entries" page subtotals:
         // [THEN] "Balance" = -0.01
         // [THEN] "Pmt. Disc. Amount" = -2
-        VerifyBalanceAndPmtDiscEnqueuedFromHandler(-LibraryERM.GetAmountRoundingPrecision, -PmtDiscAmount);
+        VerifyBalanceAndPmtDiscEnqueuedFromHandler(-LibraryERM.GetAmountRoundingPrecision(), -PmtDiscAmount);
     end;
 
     [Test]
@@ -1821,7 +1821,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePostPurchaseInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, 0);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Vendor Entries" page subtotals:
         // [THEN] "Balance" = 0
@@ -1843,15 +1843,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Credit Memo with "Amount" = 20
         // [GIVEN] Payment with "Amount" = 78.01 (100 - 20 - 2 + 0.01)
-        CreatePostPurchaseInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, LibraryERM.GetAmountRoundingPrecision);
+        CreatePostPurchaseInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Vendor Entries" page subtotals:
         // [THEN] "Balance" = 0.01
         // [THEN] "Pmt. Disc. Amount" = 2
-        VerifyBalanceAndPmtDiscEnqueuedFromHandler(LibraryERM.GetAmountRoundingPrecision, PmtDiscAmount);
+        VerifyBalanceAndPmtDiscEnqueuedFromHandler(LibraryERM.GetAmountRoundingPrecision(), PmtDiscAmount);
     end;
 
     [Test]
@@ -1868,15 +1868,15 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Invoice with "Amount" = 100, "Pmt Discount Possible" = 2
         // [GIVEN] Credit Memo with "Amount" = 20
         // [GIVEN] Payment with "Amount" = 77.99 (100 - 20 - 2 - 0.01)
-        CreatePostPurchaseInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, -LibraryERM.GetAmountRoundingPrecision);
+        CreatePostPurchaseInvoiceCrMemoAndOpenPmtJournal(GeneralJournal, PmtDiscAmount, -LibraryERM.GetAmountRoundingPrecision());
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Vendor Entries" page subtotals:
         // [THEN] "Balance" = -20.01
         // [THEN] "Pmt. Disc. Amount" = 0
-        VerifyBalanceAndPmtDiscEnqueuedFromHandler(-PmtDiscAmount - LibraryERM.GetAmountRoundingPrecision, 0);
+        VerifyBalanceAndPmtDiscEnqueuedFromHandler(-PmtDiscAmount - LibraryERM.GetAmountRoundingPrecision(), 0);
     end;
 
     [Test]
@@ -1987,12 +1987,12 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Customer, CustNo, -PmtAmount);
 
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJnlLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(-PmtDiscAmount);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoices
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] "Pmt. Disc. Amount" = 2 on "Apply Customer Entries" page in total footer section
         // Verification done in handler ApplyCustomerEntriesAndVerifyPmtDiscHandler
@@ -2034,12 +2034,12 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor, VendNo, PmtAmount);
 
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJnlLine."Journal Batch Name");
         LibraryVariableStorage.Enqueue(PmtDiscAmount);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoices
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] "Pmt. Disc. Amount" = 2 on "Apply Vendor Entries" page in total footer section
         // Verification done in handler ApplyVendorEntriesAndVerifyPmtDiscHandler
@@ -2088,7 +2088,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Sales Pmt. Disc. Debit Acc.", CustLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2138,7 +2138,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Sales Pmt. Disc. Debit Acc.", CustLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2196,7 +2196,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Sales Pmt. Tol. Debit Acc.", -PmtTolAmount);
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2242,7 +2242,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Purch. Pmt. Disc. Credit Acc.", VendLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2292,7 +2292,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Purch. Pmt. Disc. Credit Acc.", VendLedgEntry."Remaining Pmt. Disc. Possible");
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2350,7 +2350,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenPostingSetup."Purch. Pmt. Tol. Debit Acc.", -PmtTolAmount);
 
         // Tear Down
-        LibraryERM.ClearAdjustPmtDiscInVATSetup;
+        LibraryERM.ClearAdjustPmtDiscInVATSetup();
     end;
 
     [Test]
@@ -2369,10 +2369,10 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Credit Memo with "Amount" = -50, "Pmt Discount Possible" = -1
         // [GIVEN] Payment with "Amount" = 77 (100 - 20 - 2 - 1)
         CreatePostInvAndCrMemoWithDiscAndOpenPmtJournal(
-          GeneralJournal, PmtDiscAmount, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, 1);
+          GeneralJournal, PmtDiscAmount, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), 1);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Customer Entries" page subtotals:
         // [THEN] "Balance" = 0
@@ -2396,10 +2396,10 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Credit Memo with "Amount" = -50, "Pmt Discount Possible" = -1
         // [GIVEN] Payment with "Amount" = 77 (100 - 20 - 2 - 1)
         CreatePostInvAndCrMemoWithDiscAndOpenPmtJournal(
-          GeneralJournal, PmtDiscAmount, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, -1);
+          GeneralJournal, PmtDiscAmount, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -1);
 
         // [WHEN] Open "Apply Entries" for Payment and apply to both Invoice and Credit Memo
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // [THEN] There are following "Apply Vendor Entries" page subtotals:
         // [THEN] "Balance" = 0
@@ -2446,7 +2446,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = -200, "Amount" = -300, "Remaining Amount" = 0
         VerifyCustomerInvoiceAndPayment(
           CustomerNo, InvoiceNo, PaymentNo, 0, 0, -PaymentAmountLCY, -(PaymentAmountLCY + MaxPmtTolAmountLCY), 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2473,7 +2473,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, LibraryERM.GetAmountRoundingPrecision);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, LibraryERM.GetAmountRoundingPrecision());
 
         // [GIVEN] Customer FCY invoice with Amount = 600.01 FCY (= 300 LCY)
         // [GIVEN] Customer LCY payment with Amount = 200
@@ -2489,7 +2489,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = -200, "Amount" = -300, "Remaining Amount" = 0
         VerifyCustomerInvoiceAndPayment(
           CustomerNo, InvoiceNo, PaymentNo, 0, 0, -PaymentAmountLCY, -(PaymentAmountLCY + MaxPmtTolAmountLCY), 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2516,7 +2516,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, -LibraryERM.GetAmountRoundingPrecision);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, -LibraryERM.GetAmountRoundingPrecision());
 
         // [GIVEN] Customer FCY invoice with Amount = 599.99 FCY (= 300 LCY)
         // [GIVEN] Customer LCY payment with Amount = 200
@@ -2532,7 +2532,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = -200, "Amount" = -300, "Remaining Amount" = 0
         VerifyCustomerInvoiceAndPayment(
           CustomerNo, InvoiceNo, PaymentNo, 0, 0, -PaymentAmountLCY, -(PaymentAmountLCY + MaxPmtTolAmountLCY), 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2560,7 +2560,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, LibraryERM.GetAmountRoundingPrecision, 0);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, LibraryERM.GetAmountRoundingPrecision(), 0);
 
         // [GIVEN] Customer FCY invoice with Amount = 600.02 FCY (= 300.01 LCY)
         // [GIVEN] Customer LCY payment with Amount = 200
@@ -2603,7 +2603,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, -LibraryERM.GetAmountRoundingPrecision, 0);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, -LibraryERM.GetAmountRoundingPrecision(), 0);
 
         // [GIVEN] Customer FCY invoice with Amount = 599.98 FCY (= 299.99 LCY)
         // [GIVEN] Customer LCY payment with Amount = 200
@@ -2618,8 +2618,8 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = -200, "Amount" = -299.99, "Remaining Amount" = 0
         VerifyCustomerInvoiceAndPayment(
           CustomerNo, InvoiceNo, PaymentNo, 0, 0,
-          -PaymentAmountLCY, -(PaymentAmountLCY + MaxPmtTolAmountLCY - LibraryERM.GetAmountRoundingPrecision), 0);
-        LibraryVariableStorage.AssertEmpty;
+          -PaymentAmountLCY, -(PaymentAmountLCY + MaxPmtTolAmountLCY - LibraryERM.GetAmountRoundingPrecision()), 0);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2662,7 +2662,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = 200, "Amount" = 300, "Remaining Amount" = 0
         VerifyVendorInvoiceAndPayment(
           VendorNo, InvoiceNo, PaymentNo, 0, 0, PaymentAmountLCY, PaymentAmountLCY + MaxPmtTolAmountLCY, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2689,7 +2689,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, LibraryERM.GetAmountRoundingPrecision);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, LibraryERM.GetAmountRoundingPrecision());
 
         // [GIVEN] Vendor FCY invoice with Amount = 600.01 FCY (= 300 LCY)
         // [GIVEN] Vendor LCY payment with Amount = 200
@@ -2705,7 +2705,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = 200, "Amount" = 300, "Remaining Amount" = 0
         VerifyVendorInvoiceAndPayment(
           VendorNo, InvoiceNo, PaymentNo, 0, 0, PaymentAmountLCY, PaymentAmountLCY + MaxPmtTolAmountLCY, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2732,7 +2732,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, -LibraryERM.GetAmountRoundingPrecision);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, 0, -LibraryERM.GetAmountRoundingPrecision());
 
         // [GIVEN] Vendor FCY invoice with Amount = 599.99 FCY (= 300 LCY)
         // [GIVEN] Vendor LCY payment with Amount = 200
@@ -2748,7 +2748,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = 200, "Amount" = 300, "Remaining Amount" = 0
         VerifyVendorInvoiceAndPayment(
           VendorNo, InvoiceNo, PaymentNo, 0, 0, PaymentAmountLCY, PaymentAmountLCY + MaxPmtTolAmountLCY, 0);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2776,7 +2776,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, LibraryERM.GetAmountRoundingPrecision, 0);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, LibraryERM.GetAmountRoundingPrecision(), 0);
 
         // [GIVEN] Vendor FCY invoice with Amount = 600.02 FCY (= 300.01 LCY)
         // [GIVEN] Vendor LCY payment with Amount = 200
@@ -2819,7 +2819,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Currency "X" with Exchange:Relational ratio = 2, "Max. Payment Tolerance Amount" = 200 FCY (= 100 LCY)
         ApplyPostPmtTolFCYInvoice_SetupAndPrepareAmounts(
           MaxPmtTolAmount, MaxPmtTolAmountLCY, CurrencyCode,
-          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, -LibraryERM.GetAmountRoundingPrecision, 0);
+          PaymentAmountLCY, PaymentAmountFCY, InvoiceAmountFCY, -LibraryERM.GetAmountRoundingPrecision(), 0);
 
         // [GIVEN] Vendor FCY invoice with Amount = 599.98 FCY (= 299.99 LCY)
         // [GIVEN] Vendor LCY payment with Amount = 200
@@ -2834,8 +2834,8 @@ codeunit 134022 "ERM Payment Tolerance"
         // [THEN] Payment ledger entry has "Original Amount" = 200, "Amount" = 299.99, "Remaining Amount" = 0
         VerifyVendorInvoiceAndPayment(
           VendorNo, InvoiceNo, PaymentNo, 0, 0,
-          PaymentAmountLCY, PaymentAmountLCY + MaxPmtTolAmountLCY - LibraryERM.GetAmountRoundingPrecision, 0);
-        LibraryVariableStorage.AssertEmpty;
+          PaymentAmountLCY, PaymentAmountLCY + MaxPmtTolAmountLCY - LibraryERM.GetAmountRoundingPrecision(), 0);
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2927,7 +2927,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] General Journal Line with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance (1-2%).
-        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -2939,9 +2939,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = "A1", "Balance" = 0.
-        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -2965,7 +2965,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] General Journal Line with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance (1-2%).
-        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -2977,9 +2977,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = -"A2", "Balance" = "A1" + "A2".
-        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(-ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(ApplyingAmount + AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(-ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(ApplyingAmount + AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3003,7 +3003,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] General Journal Line with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance (1-2%).
-        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -3015,9 +3015,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = "A1", "Balance" = 0.
-        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(-AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(-AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3041,7 +3041,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // [GIVEN] General Journal Line with Amount = "A2".
         // [GIVEN] Difference between ABS("A2") and ABS("A1") is less or equal than Payment Tolerance (1-2%).
-        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -3053,9 +3053,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Modify(true);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = -"A2", "Balance" = "A1" + "A2".
-        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(-ApplyingAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(ApplyingAmount - AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(-ApplyingAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(ApplyingAmount - AppliesToDocAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3083,9 +3083,9 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", PaymentAmount);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = "A1", "Balance" = 0.
-        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(InvoiceAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3113,9 +3113,9 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyAndPostCustomerEntry(GenJournalLine."Document No.", PaymentAmount);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = -"A2", "Balance" = "A1" + "A2".
-        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(-PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(PaymentAmount + InvoiceAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(-PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(PaymentAmount + InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3143,9 +3143,9 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyAndPostVendorEntry(GenJournalLine."Document No.", PaymentAmount);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = "A1", "Balance" = 0.
-        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(InvoiceAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3173,9 +3173,9 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyAndPostVendorEntry(GenJournalLine."Document No.", PaymentAmount);
 
         // [THEN] The values on the Payment Tolerance Warning page are: "Amount" = "A2", "Applied Amount" = -"A2", "Balance" = "A1" + "A2".
-        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applying Amount');
-        Assert.AreEqual(-PaymentAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Applied Amount');
-        Assert.AreEqual(PaymentAmount + InvoiceAmount, LibraryVariableStorage.DequeueDecimal, 'Incorrect Balance');
+        Assert.AreEqual(PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applying Amount');
+        Assert.AreEqual(-PaymentAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Applied Amount');
+        Assert.AreEqual(PaymentAmount + InvoiceAmount, LibraryVariableStorage.DequeueDecimal(), 'Incorrect Balance');
     end;
 
     [Test]
@@ -3200,9 +3200,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
 
         // [THEN] Payment Discount Tolerance Warning page shows customer name "CUSTNAME"
-        Assert.AreEqual(CustomerName, LibraryVariableStorage.DequeueText, InvalidCustomerVendorNameErr);
+        Assert.AreEqual(CustomerName, LibraryVariableStorage.DequeueText(), InvalidCustomerVendorNameErr);
         // [THEN] Payment Tolerance Warning page shows customer name "CUSTNAME"
-        Assert.AreEqual(CustomerName, LibraryVariableStorage.DequeueText, InvalidCustomerVendorNameErr);
+        Assert.AreEqual(CustomerName, LibraryVariableStorage.DequeueText(), InvalidCustomerVendorNameErr);
     end;
 
     [Test]
@@ -3227,9 +3227,9 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
 
         // [THEN] Payment Discount Tolerance Warning page shows vendor name "VENDNAME"
-        Assert.AreEqual(VendorName, LibraryVariableStorage.DequeueText, InvalidCustomerVendorNameErr);
+        Assert.AreEqual(VendorName, LibraryVariableStorage.DequeueText(), InvalidCustomerVendorNameErr);
         // [THEN] Payment Tolerance Warning page shows vendor name "VENDNAME"
-        Assert.AreEqual(VendorName, LibraryVariableStorage.DequeueText, InvalidCustomerVendorNameErr);
+        Assert.AreEqual(VendorName, LibraryVariableStorage.DequeueText(), InvalidCustomerVendorNameErr);
     end;
 
     [Test]
@@ -3267,18 +3267,18 @@ codeunit 134022 "ERM Payment Tolerance"
         Commit();
 
         // [GIVEN] Cash Receipt Page was open for Payment Gen. Journal Line
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.GotoRecord(GenJournalLine[2]);
         LibraryVariableStorage.Enqueue(GenJournalLine[2].Description);
 
         // [WHEN] Applies-to Doc. No. Lookup is used, selecting Invoice "SI1"
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
         // UI Handled by ApplyCustEntriesOKPageHandler and PaymentDiscToleranceWarningCheckNameHandler
 
         // [THEN] Payment Discount Tolerance Warning is shown, Amount updates to -"A1".
         CashReceiptJournal.Amount.AssertEquals(-GenJournalLine[1].Amount);
 
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal.OK().Invoke();
     end;
 
     [Test]
@@ -3387,7 +3387,7 @@ codeunit 134022 "ERM Payment Tolerance"
           FindDetailedCustLedgEntry(GenJournalLine."Account No.", DetailedCustLedgEntry."Entry Type"::"Payment Discount"),
           StrSubstNo(DetailedCustomerLedgerEntryMustNotExist, Format(DetailedCustLedgEntry."Entry Type"::"Payment Discount")));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -3497,7 +3497,7 @@ codeunit 134022 "ERM Payment Tolerance"
           FindDetailedVendorLedgEntry(GenJournalLine."Account No.", DetailedVendorLedgEntry."Entry Type"::"Payment Discount"),
           StrSubstNo(DetailedVendorLedgerEntryMustNotExistErr, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount")));
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
 
@@ -3550,7 +3550,7 @@ codeunit 134022 "ERM Payment Tolerance"
         BankAccount.Modify();
 
         // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = Customer Ledger Entry "CLE" - 0.01 (59.99)
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, Workdate, CustLedgerEntry."Remaining Amount" - 0.01);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), CustLedgerEntry."Remaining Amount" - 0.01);
         LibraryVariableStorage.Enqueue(FORMAT(PaymentApplicationProposal."Account Type"::Customer));
         LibraryVariableStorage.Enqueue(Customer."No.");
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Document No.");
@@ -3618,7 +3618,7 @@ codeunit 134022 "ERM Payment Tolerance"
         BankAccount.Modify();
 
         // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = Vendor Ledger Entry "VLE" - 0.01 (59.99)
-        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, Workdate, VendLedgerEntry."Remaining Amount" - 0.01);
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, WorkDate(), VendLedgerEntry."Remaining Amount" - 0.01);
         LibraryVariableStorage.Enqueue(FORMAT(PaymentApplicationProposal."Account Type"::Vendor));
         LibraryVariableStorage.Enqueue(Vendor."No.");
         LibraryVariableStorage.Enqueue(VendLedgerEntry."Document No.");
@@ -3652,7 +3652,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
@@ -3733,10 +3733,10 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GeneralJournal: TestPage "General Journal";
     begin
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.FILTER.SetFilter("Document Type", Format(DocumentType));
         GeneralJournal.FILTER.SetFilter("Account No.", AccountNo);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure ApplyVendLedEntryAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; AmountToApply: Decimal)
@@ -3774,48 +3774,44 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        CustomerLedgerEntries."Apply Entries".Invoke;
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure ApplyVendorLedgerEntries(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
-        VendorLedgerEntries.ActionApplyEntries.Invoke;
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyCustomerLedgerEntriesTwice(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        with CustomerLedgerEntries do begin
-            OpenView;
-            FILTER.SetFilter("Customer No.", CustomerNo);
-            FILTER.SetFilter("Document Type", Format(DocumentType));
-            "Apply Entries".Invoke;
-            UnapplyEntries.Invoke;
-            "Apply Entries".Invoke;
-        end;
+        CustomerLedgerEntries.OpenView();
+        CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
+        CustomerLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
+        CustomerLedgerEntries."Apply Entries".Invoke();
+        CustomerLedgerEntries.UnapplyEntries.Invoke();
+        CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure ApplyVendorLedgerEntriesTwice(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        with VendorLedgerEntries do begin
-            OpenView;
-            FILTER.SetFilter("Vendor No.", VendorNo);
-            FILTER.SetFilter("Document Type", Format(DocumentType));
-            ActionApplyEntries.Invoke;
-            UnapplyEntries.Invoke;
-            ActionApplyEntries.Invoke;
-        end;
+        VendorLedgerEntries.OpenView();
+        VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
+        VendorLedgerEntries.FILTER.SetFilter("Document Type", Format(DocumentType));
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
+        VendorLedgerEntries.UnapplyEntries.Invoke();
+        VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure ApplyPostCustomerPaymentUsingTolerance(CustomerNo: Code[20])
@@ -3838,12 +3834,12 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         CashReceiptJournal.FILTER.SetFilter("Document Type", Format(GenJournalLine."Document Type"));
         CashReceiptJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        CashReceiptJournal.OK().Invoke();
     end;
 
     local procedure CreateCashReceiptJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -3861,7 +3857,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, AccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
     end;
 
     local procedure CreatePaymentOfGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; AmountToApply: Decimal; PaymentDate: Date; ApplyToDocNo: Code[20])
@@ -3885,7 +3881,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine."Journal Batch Name" := GenJnlBatchName;
         CreatePaymentOfGenJournalLine(
           GenJournalLine, AccountType, '',
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           0, PostingDate, '');
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
         GenJournalLine.Validate(Amount, -PmtAmount);
@@ -3931,7 +3927,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
 
         CreatePaymentTerms(PaymentTerms);
-        SetPmtToleranceWithGracePeriod;
+        SetPmtToleranceWithGracePeriod();
 
         CreateAndPostInvoiceOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer,
@@ -3944,7 +3940,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryVariableStorage.Enqueue(PostingAction::"Remaining Amount");
 
         CreatePaymentTerms(PaymentTerms);
-        SetPmtToleranceWithGracePeriod;
+        SetPmtToleranceWithGracePeriod();
         CreateVendorWithPmtTerms(PaymentTerms.Code);
 
         CreateAndPostInvoiceOfGenJournalLine(
@@ -3989,7 +3985,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CreatePaymentTerms(PaymentTerms);
         CreateAndPostGenJournalLines(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code), Amount, -Amount,
-          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate()));
+          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod(), WorkDate()));
     end;
 
     local procedure CreateAndPostSalesCreditMemo(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]): Code[20]
@@ -4070,9 +4066,9 @@ codeunit 134022 "ERM Payment Tolerance"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure CreateModifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -4119,7 +4115,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         CreateGenJournalLineWithCurrencyCode(
           GenJnlLine, AccNo, '', GenJnlLine."Document Type"::"Credit Memo", Amount,
-          WorkDate, AccType);
+          WorkDate(), AccType);
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
         CrMemoNo := GenJnlLine."Document No.";
         PaymentAmount :=
@@ -4128,7 +4124,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJnlLine, GenJnlLine."Document Type"::Payment, AccType, GenJnlLine."Account No.", PaymentAmount);
         GenJnlLine.Validate("Posting Date",
-          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod, WorkDate()));
+          CalcDate(Format(PaymentTerms."Discount Date Calculation") + '+' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod(), WorkDate()));
         GenJnlLine.Modify(true);
     end;
 
@@ -4277,7 +4273,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -4290,13 +4286,13 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateCurrencyAndUpdateCurrencyExchangeRate(var CurrencyCode: Code[10])
     begin
-        CurrencyCode := CreateCurrencyAndExchangeRate;
+        CurrencyCode := CreateCurrencyAndExchangeRate();
         UpdateCurrencyExchangeRate(CurrencyCode);
     end;
 
@@ -4340,7 +4336,7 @@ codeunit 134022 "ERM Payment Tolerance"
             LibraryERM.CreateGeneralJnlLineWithBalAcc(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
               "Document Type"::Payment, "Account Type"::Customer, AccountNo,
-              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+              "Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
             Validate("Posting Date", PostingDate);
             Modify(true);
         end;
@@ -4393,7 +4389,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // Posted Invoice
         CreateAndPostGenJnlLineWithPaymentTerms(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, PaymentTerms.Code, InvAmount);
+          LibrarySales.CreateCustomerNo(), PaymentTerms.Code, InvAmount);
 
         // Posted Credit Memo
         CreateAndPostGenJnlLineWithPaymentTerms(
@@ -4407,7 +4403,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Open payment journal
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
     end;
 
@@ -4430,7 +4426,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // Posted Invoice
         CreateAndPostGenJnlLineWithPaymentTerms(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, PaymentTerms.Code, -InvAmount);
+          LibraryPurchase.CreateVendorNo(), PaymentTerms.Code, -InvAmount);
 
         // Posted Credit Memo
         CreateAndPostGenJnlLineWithPaymentTerms(
@@ -4444,7 +4440,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Open payment journal
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
     end;
 
@@ -4475,7 +4471,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine, GenJournalLine."Document Type"::Payment,
           AccountType, GenJournalLine."Account No.", -Sign * PmtAmount);
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
     end;
 
@@ -4577,7 +4573,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Customer.Validate(Name, CopyStr(CustomerName, 1, MaxStrLen(Customer.Name)));
         Customer.Modify(true);
 
-        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := -CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -4597,7 +4593,7 @@ codeunit 134022 "ERM Payment Tolerance"
         Vendor.Validate(Name, CopyStr(VendorName, 1, MaxStrLen(Vendor.Name)));
         Vendor.Modify(true);
 
-        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct, '');
+        ApplyingAmount := CalcHalfToleranceAmount(AppliesToDocAmount, LibraryPmtDiscSetup.GetPmtTolerancePct(), '');
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, GenJournalLine."Account No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
@@ -4713,9 +4709,9 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         LibraryVariableStorage.Enqueue(TemplateName);
         LibraryVariableStorage.Enqueue(PostingAction::"Payment Tolerance Accounts");
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(BatchName);
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
     end;
 
     local procedure SalesCreditMemoCopyDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -4840,7 +4836,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GLEntry: Record "G/L Entry";
     begin
         FindGLEntry(GLEntry, DocumentType, DocumentNo, GLAccountNo);
-        Assert.AreNearlyEqual(GLEntry.Amount, Round(Amount), LibraryERM.GetAmountRoundingPrecision, AmountVerificationMsg);
+        Assert.AreNearlyEqual(GLEntry.Amount, Round(Amount), LibraryERM.GetAmountRoundingPrecision(), AmountVerificationMsg);
     end;
 
     local procedure VerifyVATAmountInGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)
@@ -4911,7 +4907,7 @@ codeunit 134022 "ERM Payment Tolerance"
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount");
-        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Remaining Amount"), RemainingAmount, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
@@ -4986,9 +4982,9 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure VerifyBalanceAndPmtDiscEnqueuedFromHandler(Balance: Decimal; PmtDisc: Decimal)
     begin
         // Values enqueued from ApplyCustomerEntriesHandler or ApplyVendorEntriesHandler
-        Assert.AreEqual(Balance, LibraryVariableStorage.DequeueDecimal, 'Balance is incorrect');
-        Assert.AreEqual(PmtDisc, LibraryVariableStorage.DequeueDecimal, 'Payment discount is incorrect');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(Balance, LibraryVariableStorage.DequeueDecimal(), 'Balance is incorrect');
+        Assert.AreEqual(PmtDisc, LibraryVariableStorage.DequeueDecimal(), 'Payment discount is incorrect');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CreateBankPmtReconcWithLine(BankAcc: Record "Bank Account"; var BankAccRecon: Record "Bank Acc. Reconciliation"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal)
@@ -5011,9 +5007,9 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
     begin
-        PaymentReconciliationJournal.OpenEdit;
+        PaymentReconciliationJournal.OpenEdit();
         PaymentReconciliationJournal.GotoRecord(BankAccReconciliationLine);
-        PaymentReconciliationJournal.ApplyEntries.Invoke;
+        PaymentReconciliationJournal.ApplyEntries.Invoke();
     end;
 
     local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
@@ -5026,46 +5022,46 @@ codeunit 134022 "ERM Payment Tolerance"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyPostCustomerEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntryPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyPostVendorEntryPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyCustomerEntryPageHandler(var UnapplyCustomerEntries: TestPage "Unapply Customer Entries")
     begin
-        UnapplyCustomerEntries.Unapply.Invoke;
+        UnapplyCustomerEntries.Unapply.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure UnapplyVendorEntryPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [ConfirmHandler]
@@ -5086,16 +5082,16 @@ codeunit 134022 "ERM Payment Tolerance"
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandlerSelectLastDocument(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.Last;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.Last();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5103,7 +5099,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure PaymentToleranceWarningHandler(var PaymentToleranceWarning: Page "Payment Tolerance Warning"; var Response: Action)
     begin
         // Modal Page Handler for Payment Tolerance Warning.
-        PaymentToleranceWarning.InitializeOption(LibraryVariableStorage.DequeueInteger);
+        PaymentToleranceWarning.InitializeOption(LibraryVariableStorage.DequeueInteger());
         Response := ACTION::Yes;
     end;
 
@@ -5111,11 +5107,11 @@ codeunit 134022 "ERM Payment Tolerance"
     [Scope('OnPrem')]
     procedure PaymentToleranceWarningCheckValuesHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
-        PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger);
+        PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger());
         LibraryVariableStorage.Enqueue(PaymentToleranceWarning.ApplyingAmount.Value);
         LibraryVariableStorage.Enqueue(PaymentToleranceWarning.AppliedAmount.Value);
         LibraryVariableStorage.Enqueue(PaymentToleranceWarning.BalanceAmount.Value);
-        PaymentToleranceWarning.Yes.Invoke;
+        PaymentToleranceWarning.Yes().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5129,49 +5125,49 @@ codeunit 134022 "ERM Payment Tolerance"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntryPageHandlerForMultipleDocument(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.FILTER.SetFilter("Customer No.", LibraryVariableStorage.DequeueText);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries.FILTER.SetFilter("Customer No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.Next();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         Commit();
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntryPageHandlerForMultipleDocument(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         Commit();
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SetAppliesToIDAndCheckBalanceOnCustEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.FILTER.SetFilter("Customer No.", LibraryVariableStorage.DequeueText);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.ControlBalance.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ApplyCustomerEntries.FILTER.SetFilter("Customer No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.ControlBalance.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SetAppliesToIDAndCheckBalanceOnVendEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ControlBalance.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ApplyVendorEntries.FILTER.SetFilter("Vendor No.", LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ControlBalance.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostApplicationHandler(var PostApplication: TestPage "Post Application")
     begin
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5179,7 +5175,7 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure PaymentDiscToleranceWarningHandler(var PaymentDiscToleranceWarning: Page "Payment Disc Tolerance Warning"; var Response: Action)
     begin
         // Modal Page Handler for Payment Discount Tolerance Warning.
-        PaymentDiscToleranceWarning.InitializeNewPostingAction(LibraryVariableStorage.DequeueInteger);
+        PaymentDiscToleranceWarning.InitializeNewPostingAction(LibraryVariableStorage.DequeueInteger());
         Response := ACTION::Yes
     end;
 
@@ -5189,73 +5185,73 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         // Modal Page Handler for Payment Discount Tolerance Warning.
         LibraryVariableStorage.Enqueue(PaymentDiscToleranceWarning.AccountName.Value);
-        PaymentDiscToleranceWarning.Yes.Invoke;
+        PaymentDiscToleranceWarning.Yes().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentToleranceWarningCheckNameHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
-        PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger);
+        PaymentToleranceWarning.Posting.SetValue(LibraryVariableStorage.DequeueInteger());
         LibraryVariableStorage.Enqueue(PaymentToleranceWarning.AccountName.Value);
-        PaymentToleranceWarning.Yes.Invoke;
+        PaymentToleranceWarning.Yes().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.Next();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         // Enqueue values to verify in test case
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.ControlBalance.Value);
         LibraryVariableStorage.Enqueue(ApplyCustomerEntries.PmtDiscountAmount.Value);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesAndVerifyPmtDiscHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.Next();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         // Enqueue values to verify in test case
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.ControlBalance.Value);
         LibraryVariableStorage.Enqueue(ApplyVendorEntries.PmtDiscountAmount.Value);
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesAndVerifyPmtDiscHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.PmtDiscountAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
 
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GenJnlTemplateHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -5269,22 +5265,22 @@ codeunit 134022 "ERM Payment Tolerance"
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustEntriesOKPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5293,12 +5289,12 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         PaymentApplicationProposal: Record "Payment Application Proposal";
     begin
-        PaymentApplication.FILTER.SetFilter("Account Type", LibraryVariableStorage.DequeueText);
-        PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Account Type", LibraryVariableStorage.DequeueText());
+        PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText());
         PaymentApplication.FILTER.SetFilter("Document Type", Format(PaymentApplicationProposal."Document Type"::Invoice));
-        PaymentApplication.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
         PaymentApplication.Applied.SetValue(true);
-        PaymentApplication.OK.Invoke;
+        PaymentApplication.OK().Invoke();
     end;
 
     [ConfirmHandler]

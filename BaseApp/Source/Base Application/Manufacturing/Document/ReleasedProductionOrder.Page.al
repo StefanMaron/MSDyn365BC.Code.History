@@ -141,72 +141,6 @@ page 99000831 "Released Production Order"
             group(Schedule)
             {
                 Caption = 'Schedule';
-#if not CLEAN17
-                field("Starting Time"; StartingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Time", StartingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Starting Date"; StartingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the starting date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Starting Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Starting Date", StartingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Time"; EndingTime)
-                {
-                    ApplicationArea = Manufacturing;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending time of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Time", EndingTime);
-                        CurrPage.Update(true);
-                    end;
-                }
-                field("Ending Date"; EndingDate)
-                {
-                    ApplicationArea = Manufacturing;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the ending date of the production order.';
-                    Visible = DateAndTimeFieldVisible;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Ending Date-Time field should be used instead.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnValidate()
-                    begin
-                        Rec.Validate("Ending Date", EndingDate);
-                        CurrPage.Update(true);
-                    end;
-                }
-#endif
                 field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
@@ -734,24 +668,9 @@ page 99000831 "Released Production Order"
     var
         Item: Record Item;
     begin
-#if not CLEAN17
-        Rec.GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
-#endif
         if Rec."Variant Code" = '' then
             VariantCodeMandatory := Item.IsVariantMandatory(Rec."Source Type" = Rec."Source Type"::Item, Rec."Source No.");
     end;
-
-#if not CLEAN17
-    trigger OnInit()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-
-    trigger OnOpenPage()
-    begin
-        DateAndTimeFieldVisible := false;
-    end;
-#endif
 
     var
         CopyProdOrderDoc: Report "Copy Production Order Document";
@@ -759,13 +678,6 @@ page 99000831 "Released Production Order"
         Text000: Label 'Inbound Whse. Requests are created.';
         Text001: Label 'No Inbound Whse. Request is created.';
         Text002: Label 'Inbound Whse. Requests have already been created.';
-#if not CLEAN17
-        StartingTime: Time;
-        EndingTime: Time;
-        StartingDate: Date;
-        EndingDate: Date;
-        DateAndTimeFieldVisible: Boolean;
-#endif
         VariantCodeMandatory: Boolean;
 
     local procedure ShortcutDimension1CodeOnAfterV()

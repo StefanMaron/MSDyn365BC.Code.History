@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Analysis;
 table 7110 "Analysis Field Value"
 {
     Caption = 'Analysis Field Value';
+    DataClassification = CustomerContent;
 
     fields
     {

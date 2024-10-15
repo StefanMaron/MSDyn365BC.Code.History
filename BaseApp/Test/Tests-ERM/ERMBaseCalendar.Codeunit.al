@@ -54,7 +54,6 @@ codeunit 134233 "ERM Base Calendar"
         CustomizedCalendarChange: Record "Customized Calendar Change";
         CompanyInformation: Record "Company Information";
         ShippingAgent: Record "Shipping Agent";
-        DateFormula: DateFormula;
     begin
         // [FEATURE] [Shipment Agent]
         // [SCENARIO 345913] Base calendar is taken from Company Information if Shipment Agent Services does not exist.
@@ -325,7 +324,7 @@ codeunit 134233 "ERM Base Calendar"
         Customer.Modify(true);
         CreateCustomizedCalendarChange(
           CustomizedCalendarChange, BaseCalendar.Code, CustomizedCalendarChange."Source Type"::Customer, Customer."No.", '',
-          WorkDate, false);
+          WorkDate(), false);
         CreateCustomizedCalendarEntry(
           CustomizedCalendarEntry, BaseCalendar.Code,
           CustomizedCalendarEntry."Source Type"::Customer, Customer."No.",
@@ -348,7 +347,7 @@ codeunit 134233 "ERM Base Calendar"
         Vendor.Modify(true);
         CreateCustomizedCalendarChange(
           CustomizedCalendarChange, BaseCalendar.Code, CustomizedCalendarChange."Source Type"::Vendor, Vendor."No.", '',
-          WorkDate, false);
+          WorkDate(), false);
         CreateCustomizedCalendarEntry(
           CustomizedCalendarEntry, BaseCalendar.Code,
           CustomizedCalendarEntry."Source Type"::Vendor, Vendor."No.",
@@ -372,7 +371,7 @@ codeunit 134233 "ERM Base Calendar"
         Location.Modify(true);
         CreateCustomizedCalendarChange(
           CustomizedCalendarChange, BaseCalendar.Code, CustomizedCalendarChange."Source Type"::Location, Location.Code, '',
-          WorkDate, false);
+          WorkDate(), false);
         CreateCustomizedCalendarEntry(
           CustomizedCalendarEntry, BaseCalendar.Code,
           CustomizedCalendarEntry."Source Type"::Location, Location.Code,
@@ -397,7 +396,7 @@ codeunit 134233 "ERM Base Calendar"
         LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
         CreateCustomizedCalendarChange(
           CustomizedCalendarChange, BaseCalendar.Code, CustomizedCalendarChange."Source Type"::"Shipping Agent", ShippingAgent.Code, '',
-          WorkDate, false);
+          WorkDate(), false);
         CreateCustomizedCalendarEntry(
           CustomizedCalendarEntry, BaseCalendar.Code,
           CustomizedCalendarEntry."Source Type"::"Shipping Agent", ShippingAgent.Code,

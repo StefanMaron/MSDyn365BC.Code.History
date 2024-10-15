@@ -10,6 +10,7 @@ using Microsoft.Warehouse.Activity;
 table 9050 "Warehouse Basic Cue"
 {
     Caption = 'Warehouse Basic Cue';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -20,7 +21,7 @@ table 9050 "Warehouse Basic Cue"
         field(2; "Rlsd. Sales Orders Until Today"; Integer)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Count("Sales Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Sales Header" where("Document Type" = filter(Order),
                                                       Status = filter(Released),
                                                       "Shipment Date" = field("Date Filter"),
                                                       "Location Code" = field("Location Filter")));
@@ -30,7 +31,7 @@ table 9050 "Warehouse Basic Cue"
         }
         field(3; "Posted Sales Shipments - Today"; Integer)
         {
-            CalcFormula = Count("Sales Shipment Header" where("Posting Date" = field("Date Filter2"),
+            CalcFormula = count("Sales Shipment Header" where("Posting Date" = field("Date Filter2"),
                                                                "Location Code" = field("Location Filter")));
             Caption = 'Posted Sales Shipments - Today';
             Editable = false;
@@ -39,7 +40,7 @@ table 9050 "Warehouse Basic Cue"
         field(4; "Exp. Purch. Orders Until Today"; Integer)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Count("Purchase Header" where("Document Type" = filter(Order),
+            CalcFormula = count("Purchase Header" where("Document Type" = filter(Order),
                                                          Status = filter(Released),
                                                          "Expected Receipt Date" = field("Date Filter"),
                                                          "Location Code" = field("Location Filter")));
@@ -49,7 +50,7 @@ table 9050 "Warehouse Basic Cue"
         }
         field(5; "Posted Purch. Receipts - Today"; Integer)
         {
-            CalcFormula = Count("Purch. Rcpt. Header" where("Posting Date" = field("Date Filter2"),
+            CalcFormula = count("Purch. Rcpt. Header" where("Posting Date" = field("Date Filter2"),
                                                              "Location Code" = field("Location Filter")));
             Caption = 'Posted Purch. Receipts - Today';
             Editable = false;
@@ -57,7 +58,7 @@ table 9050 "Warehouse Basic Cue"
         }
         field(6; "Invt. Picks Until Today"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter("Invt. Pick"),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter("Invt. Pick"),
                                                                    "Shipment Date" = field("Date Filter"),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'Invt. Picks Until Today';
@@ -66,7 +67,7 @@ table 9050 "Warehouse Basic Cue"
         }
         field(7; "Invt. Put-aways Until Today"; Integer)
         {
-            CalcFormula = Count("Warehouse Activity Header" where(Type = filter("Invt. Put-away"),
+            CalcFormula = count("Warehouse Activity Header" where(Type = filter("Invt. Put-away"),
                                                                    "Shipment Date" = field("Date Filter"),
                                                                    "Location Code" = field("Location Filter")));
             Caption = 'Invt. Put-aways Until Today';
@@ -75,7 +76,7 @@ table 9050 "Warehouse Basic Cue"
         }
         field(8; "Open Phys. Invt. Orders"; Integer)
         {
-            CalcFormula = Count("Phys. Invt. Order Header" where(Status = const(Open)));
+            CalcFormula = count("Phys. Invt. Order Header" where(Status = const(Open)));
             Caption = 'Open Phys. Invt. Orders';
             Editable = false;
             FieldClass = FlowField;

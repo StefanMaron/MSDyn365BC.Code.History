@@ -1,6 +1,8 @@
 namespace Microsoft.Service.Ledger;
 
+#pragma warning disable AL0659
 enum 5909 "Service Ledger Entry Document Type"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

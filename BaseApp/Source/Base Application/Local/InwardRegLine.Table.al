@@ -15,6 +15,7 @@ table 11201 "Inward Reg. Line"
     ObsoleteReason = 'Replaced by extension';
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

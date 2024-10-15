@@ -9,21 +9,19 @@ codeunit 5941 "ContractDiscount-Find"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-		OnBeforeFindContractDiscount(Rec, IsHandled);
-		if IsHandled then
-		  exit;
+        OnBeforeFindContractDiscount(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         ContractServDiscount.Copy(Rec);
 
-        with ContractServDiscount do begin
-            SetRange("Contract Type", "Contract Type"::Contract);
-            SetRange("Contract No.", "Contract No.");
-            SetRange(Type, Type);
-            SetFilter("No.", '%1|%2', "No.", '');
-            SetRange("Starting Date", 0D, "Starting Date");
-            if not FindLast() then
-                "Discount %" := 0;
-        end;
+        ContractServDiscount.SetRange("Contract Type", ContractServDiscount."Contract Type"::Contract);
+        ContractServDiscount.SetRange("Contract No.", ContractServDiscount."Contract No.");
+        ContractServDiscount.SetRange(Type, ContractServDiscount.Type);
+        ContractServDiscount.SetFilter("No.", '%1|%2', ContractServDiscount."No.", '');
+        ContractServDiscount.SetRange("Starting Date", 0D, ContractServDiscount."Starting Date");
+        if not ContractServDiscount.FindLast() then
+            ContractServDiscount."Discount %" := 0;
 
         Rec := ContractServDiscount;
     end;

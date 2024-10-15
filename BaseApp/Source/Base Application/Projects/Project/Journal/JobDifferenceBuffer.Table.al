@@ -2,19 +2,20 @@ namespace Microsoft.Projects.Project.Journal;
 
 table 1019 "Job Difference Buffer"
 {
-    Caption = 'Job Difference Buffer';
+    Caption = 'Project Difference Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
         }
         field(2; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             DataClassification = SystemMetadata;
         }
         field(3; Type; Enum "Job Journal Line Type")

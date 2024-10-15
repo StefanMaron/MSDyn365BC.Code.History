@@ -61,7 +61,6 @@ codeunit 137404 "SCM Manufacturing"
         WorkShiftShouldExistErr: Label 'The work shift start from %1 with allocated time %2 on %3 should exist';
         WorkShiftShouldNotExistErr: Label 'The work shift for non-working day should not exist';
         ProdOrderStartingDateErr: Label 'The Production Order''s Starting Date is wrong with Forward refreshing when setup time ends at Midnight ';
-        ItemShouldExistErr: Label 'Item %1 should exist in Production Forecast Matrix';
         ProdOrderLineBinCodeErr: Label 'Wrong "Prod. Order Line" BinCode value';
         IsNotOnInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
         WrongDateTimeErr: Label 'Wrong %1 in Prod. Order Line.';
@@ -2367,7 +2366,7 @@ codeunit 137404 "SCM Manufacturing"
         // [GIVEN] Multi-level production order is created. Component is reserved with Expected Receipt Date = WORKDATE
         CreateAndRefreshProdOrderForMakeToOrderItem(ProductionOrder);
 
-        // [WHEN] Manufacturing Ending Date is set to WORKDATE - 1 day
+        // [WHEN] Manufacturing Ending Date is set to WorkDate() - 1 day
         LibraryVariableStorage.Enqueue(ReservationDateConflictTxt);
         LibraryVariableStorage.Enqueue(0);
         FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", ProductionOrder."Source No.");
@@ -2528,7 +2527,7 @@ codeunit 137404 "SCM Manufacturing"
         Components[1] := FindProductionBOMComponent(ProdBOMHeader."No.");
         Components[2] := LibraryInventory.CreateItemNo();
 
-        // Production BOM version with 2 components: "I1" and "I2", active on WORKDATE + 1 day
+        // Production BOM version with 2 components: "I1" and "I2", active on WorkDate() + 1 day
         CreateProductionBOMVersionWithTwoComponents(
           ProdBomVersion, ProdBOMHeader, ProdBOMHeader."Unit of Measure Code", CalcDate('<1D>', WorkDate()), Components[1], Components[2]);
 
@@ -4011,6 +4010,149 @@ codeunit 137404 "SCM Manufacturing"
 
         // [THEN] Verify Report "Prod. Order Comp. and Routing" filters
         VerifyRelProductionOrderPage(ProductionOrder);
+    end;
+
+    [Test]
+    [HandlerFunctions('ReservationHandler,ReserveOptionDialog')]
+    [Scope('OnPrem')]
+    procedure PartialPostingTransferWithReservation()
+    var
+        BLUELocation: Record Location;
+        SILVERLocation: Record Location;
+        InTransitLocation: Record Location;
+        Item: Record Item;
+        ComponentItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ReservationEntry: Record "Reservation Entry";
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [SCENARIO] Partial posting of transfer orders with reservation, splits reservation accordingly.
+        // https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/500993
+        Initialize();
+
+        // [GIVEN] Create and setup locations.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(BLUELocation); // From locaiton
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(SILVERLocation); // To location
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation); // Transit location
+
+        // [GIVEN] Create item to produce and component item with reserve as optional.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItem(ComponentItem);
+        ComponentItem.Validate(Reserve, ComponentItem.Reserve::Optional);
+        ComponentItem.Modify(true);
+
+        // [GIVEN] Create a released production order where there is a need for 10 component item.
+        CreateAndRefreshProductionOrderWithItem(ProductionOrder, Enum::"Production Order Status"::Released, Item."No.", 1);
+        ProductionOrder.Validate("Due Date", CalcDate('<+1M+1D>', WorkDate()));
+        ProductionOrder.Modify(true);
+
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.", Item."No.");
+        ProdOrderLine.Validate(Quantity, 10);
+        ProdOrderLine.Modify(true);
+        CreateProdOrderComponent(ProdOrderComponent, Enum::"Production Order Status"::Released, ProductionOrder."No.", ProdOrderLine."Line No.", ComponentItem."No.", SILVERLocation.Code, 1);
+        ProdOrderComponent.Validate("Due Date", CalcDate('<+1M>', WorkDate()));
+        ProdOrderComponent.Modify(true);
+
+        // [GIVEN] Add 3 positive adjustment lines to component in BLUE location and post them.
+        SelectItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Type::Item);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem."No.", 5);
+        ItemJournalLine.Validate("Posting Date", CalcDate('<+7D>', WorkDate()));
+        ItemJournalLine.Validate("Location Code", BLUELocation.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem."No.", 3);
+        ItemJournalLine.Validate("Posting Date", CalcDate('<+7D>', WorkDate()));
+        ItemJournalLine.Validate("Location Code", BLUELocation.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.", ComponentItem."No.", 2);
+        ItemJournalLine.Validate("Posting Date", CalcDate('<+7D>', WorkDate()));
+        ItemJournalLine.Validate("Location Code", BLUELocation.Code);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+
+        // [GIVEN] Create transfer order to transfer 10 component items from BLUE to SILVER location.
+        LibraryInventory.CreateTransferHeader(TransferHeader, BLUELocation.Code, SILVERLocation.Code, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ComponentItem."No.", 10);
+        TransferLine.Validate("Shipment Date", CalcDate('<+14D>', WorkDate()));
+        TransferLine.Validate("Qty. to Ship", 6);
+        TransferLine.Modify(true);
+
+        // [GIVEN] Reserve all 10 component items bound for SILVER location .
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+
+        LibraryVariableStorage.Enqueue(2); // Inbound    
+        TransferOrder.TransferLines.Reserve.Invoke();
+        LibraryVariableStorage.Enqueue(1); // Outbound    
+        TransferOrder.TransferLines.Reserve.Invoke();
+        TransferOrder.Close();
+
+        // [WHEN] Post the transfer order partially. Ship and post only 6 component items.
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] 3 reservation entries are created for the 3 positive adjustment lines in SILVER location.
+        ReservationEntry.SetRange("Item No.", ComponentItem."No.");
+        ReservationEntry.SetRange("Location Code", SILVERLocation.Code);
+        ReservationEntry.SetRange("Source Type", Database::"Prod. Order Component");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", ProductionOrder."No.");
+        ReservationEntry.SetRange("Source Prod. Order Line", ProdOrderLine."Line No.");
+        Assert.RecordCount(ReservationEntry, 3);
+
+        // [THEN] Reservation entry 5, 3, 2 are split into 5, 1, 4 where 5 and 1 are received in the SILVER location.
+        // [THEN] Reservation entries received on the SILVER side do not have the 'Expected Receipt Date' set as it is already received.
+        // [THEN] Reservation entry for 4 is is still expected to be received on the 'Expected Receipt Date' on SILVER location and is reflected in the Reservation Entry. 
+        ReservationEntry.SetRange(Quantity, -5);
+        Assert.RecordCount(ReservationEntry, 1);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Expected Receipt Date", 0D);
+        ReservationEntry.SetRange(Quantity, -1);
+        Assert.RecordCount(ReservationEntry, 1);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Expected Receipt Date", 0D);
+        ReservationEntry.SetRange(Quantity, -4);
+        Assert.RecordCount(ReservationEntry, 1);
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Expected Receipt Date", TransferLine."Shipment Date");
+
+        // [WHEN] Change the shipment date to 2 days back and post 2 more component items.
+        TransferLine.Find();
+        TransferLine.Validate("Shipment Date", CalcDate('<-2D>', TransferLine."Shipment Date"));
+        TransferLine.Validate("Qty. to Ship", 2);
+        TransferLine.Modify(true);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN] Previously not received Reservation entry with qty. 4 is split into 2 with qty. 2.
+        ReservationEntry.SetRange("Item No.", ComponentItem."No.");
+        ReservationEntry.SetRange("Location Code", SILVERLocation.Code);
+        ReservationEntry.SetRange("Source Type", Database::"Prod. Order Component");
+        ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetRange("Source ID", ProductionOrder."No.");
+        ReservationEntry.SetRange("Source Prod. Order Line", ProdOrderLine."Line No.");
+        ReservationEntry.SetRange(Quantity);
+        Assert.RecordCount(ReservationEntry, 4);
+
+        ReservationEntry.SetRange(Quantity, -2);
+        Assert.RecordCount(ReservationEntry, 2);
+
+        // [WHEN] Posting consumption journal on the 8 component items.
+        CalculateConsumptionJournal(ItemJournalBatch, ProductionOrder."No.");
+        ItemJournalLine.Reset();
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.FindFirst();
+
+        // [THEN] Postig consumption journal on the 8 component items succeeds.
+        ItemJournalLine.Validate(Quantity, 8);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
     local procedure Initialize()
@@ -6558,6 +6700,14 @@ codeunit 137404 "SCM Manufacturing"
     procedure OptionDialog(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
         Choice := 1;  // Use 1 for Copy Dimensions from BOM.
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure ReserveOptionDialog(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [ModalPageHandler]

@@ -90,7 +90,7 @@ report 5986 "Prepaid Contr. Entries - Test"
             }
             dataitem(ErrorLoop; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(ErrorText; ErrorText)
                 {
                 }

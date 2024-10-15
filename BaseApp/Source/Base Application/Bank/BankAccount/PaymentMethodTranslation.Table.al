@@ -5,6 +5,7 @@ using System.Globalization;
 table 466 "Payment Method Translation"
 {
     Caption = 'Payment Method Translation';
+    DataClassification = CustomerContent;
 
     fields
     {

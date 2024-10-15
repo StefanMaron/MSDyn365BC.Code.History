@@ -51,7 +51,7 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [Reservation] [Item Tracking]
         // [SCENARIO 213778] When prod. order component line of firm planned order is reserved for specific lot tracking, the long caption on Reservation page should not cause an overflow error. It should be possible to carry out the reservation.
         Initialize();
-        UpdateManufacturingSetup;
+        UpdateManufacturingSetup();
 
         // [GIVEN] Lot-tracked item "C".
         LibraryItemTracking.CreateLotItem(CompItem);
@@ -106,20 +106,20 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [Sales] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that sales line will be re-created, should inform them that amount of existing item charge assignment will be cleared.
         Initialize();
-        ClearCustBusRelationCode;
+        ClearCustBusRelationCode();
 
         // [GIVEN] Sales order with two lines - for an item and an item charge, assigned to the item line.
         CreateSalesOrderWithItemAndItemChargeLines(SalesHeader, LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Change "Sell-to Customer No." on the sales header.
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // [THEN] The warning of re-creating lines includes a message about cleared charge assignment amount.
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ResetItemChargeAssignMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ResetItemChargeAssignMsg, LibraryVariableStorage.DequeueText());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -132,20 +132,20 @@ codeunit 137929 "SCM Orders UI"
         // [FEATURE] [Sales] [Item Charge]
         // [SCENARIO 264120] A confirmation message that warns a user that sales line will be re-created, should not include information of cleared item charge assignments, if there isn't any.
         Initialize();
-        ClearCustBusRelationCode;
+        ClearCustBusRelationCode();
 
         // [GIVEN] Sales order with two lines - for an item and an item charge, that is not assigned yet.
         CreateSalesOrderWithItemAndItemChargeLines(SalesHeader, 0);
 
         // [WHEN] Change "Sell-to Customer No." on the sales header.
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // [THEN] The warning of re-creating lines does not mention charge assignment.
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(StrPos(LibraryVariableStorage.DequeueText, ResetItemChargeAssignMsg) > 0, 'Redundant warning is raised.');
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(StrPos(LibraryVariableStorage.DequeueText(), ResetItemChargeAssignMsg) > 0, 'Redundant warning is raised.');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -163,14 +163,14 @@ codeunit 137929 "SCM Orders UI"
         CreatePurchaseOrderWithItemAndItemChargeLines(PurchaseHeader, LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Change "Buy-from Vendor No." on the purchase header.
-        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [THEN] The warning of re-creating lines includes a message about cleared charge assignment amount.
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ResetItemChargeAssignMsg, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ResetItemChargeAssignMsg, LibraryVariableStorage.DequeueText());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -188,14 +188,14 @@ codeunit 137929 "SCM Orders UI"
         CreatePurchaseOrderWithItemAndItemChargeLines(PurchaseHeader, 0);
 
         // [WHEN] Change "Buy-from Vendor No." on the purchase header.
-        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
 
         // [THEN] The warning of re-creating lines does not mention charge assignment.
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText);
-        Assert.IsFalse(StrPos(LibraryVariableStorage.DequeueText, ResetItemChargeAssignMsg) > 0, 'Redundant warning is raised.');
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.ExpectedMessage(ConfirmChangeMsg, LibraryVariableStorage.DequeueText());
+        Assert.IsFalse(StrPos(LibraryVariableStorage.DequeueText(), ResetItemChargeAssignMsg) > 0, 'Redundant warning is raised.');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -220,16 +220,16 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Purchase Order with Location and 10 PCS of Item
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         PurchaseLine.Validate("Location Code", Location.Code);
         PurchaseLine.Modify(true);
 
         // [GIVEN] Stan opened Purchase Order page
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.FILTER.SetFilter("Document Type", Format(PurchaseHeader."Document Type"));
-        PurchaseOrder.First;
+        PurchaseOrder.First();
 
         // [WHEN] Stan set Qty. to Receive = 10 in Purchase Order Subform
         PurchaseOrder.PurchLines."Qty. to Receive".SetValue(Quantity);
@@ -237,8 +237,8 @@ codeunit 137929 "SCM Orders UI"
         // [THEN] Message 'Warehouse Receive is required for this line.'
         Assert.AreEqual(
           StrSubstNo(WhseRequiredErr, Location.GetRequirementText(Location.FieldNo("Require Receive"))),
-          LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -263,16 +263,16 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Sales Order with Location and 10 PCS of Item
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Location Code", Location.Code);
         SalesLine.Modify(true);
 
         // [GIVEN] Stan opened Sales Order page
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.FILTER.SetFilter("Document Type", Format(SalesHeader."Document Type"));
-        SalesOrder.First;
+        SalesOrder.First();
 
         // [WHEN] Stan set Qty. to Ship = 10 in Sales Order Subform
         SalesOrder.SalesLines."Qty. to Ship".SetValue(Quantity);
@@ -280,8 +280,8 @@ codeunit 137929 "SCM Orders UI"
         // [THEN] Message 'Warehouse Shipment is required for this line.'
         Assert.AreEqual(
           StrSubstNo(WhseRequiredErr, Location.GetRequirementText(Location.FieldNo("Require Shipment"))),
-          LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -306,17 +306,17 @@ codeunit 137929 "SCM Orders UI"
         Location.Modify(true);
 
         // [GIVEN] Service Order with Location and 10 PCS of Item in Service Line
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+          ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         ServiceLine.Validate("Location Code", Location.Code);
         ServiceLine.Modify(true);
 
         // [GIVEN] Stan opened Service Lines page
-        ServiceLines.OpenEdit;
+        ServiceLines.OpenEdit();
         ServiceLines.FILTER.SetFilter("Document No.", ServiceLine."Document No.");
         ServiceLines.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
-        ServiceLines.First;
+        ServiceLines.First();
 
         // [WHEN] Stan set Qty. to Ship = 10 on Service Lines page
         ServiceLines."Qty. to Ship".SetValue(Quantity);
@@ -324,8 +324,8 @@ codeunit 137929 "SCM Orders UI"
         // [THEN] Message 'Warehouse Shipment is required for this line.'
         Assert.AreEqual(
           StrSubstNo(WhseRequiredErr, Location.GetRequirementText(Location.FieldNo("Require Shipment"))),
-          LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+          LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -356,21 +356,21 @@ codeunit 137929 "SCM Orders UI"
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
-        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [GIVEN] Stan opened Whse. Shipment Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
         // [GIVEN] Warehouse Shipment page opened showing Card
-        WarehouseShipment.Trap;
-        WhseShipmentLines.OpenEdit;
+        WarehouseShipment.Trap();
+        WhseShipmentLines.OpenEdit();
         WhseShipmentLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WhseShipmentLines."Show &Whse. Document".Invoke;
+        WhseShipmentLines."Show &Whse. Document".Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Ship" on the page ribbon
-        WarehouseShipment."Autofill Qty. to Ship".Invoke;
+        WarehouseShipment."Autofill Qty. to Ship".Invoke();
 
         // [THEN] Warehouse Shipment Line "L1" has Qty to Ship = <zero> (unchanged)
         WarehouseShipmentLine.Get(WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.");
@@ -408,21 +408,21 @@ codeunit 137929 "SCM Orders UI"
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
-        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [GIVEN] Stan opened Whse. Shipment Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
         // [GIVEN] Warehouse Shipment page opened showing <blank> Card
-        WarehouseShipment.Trap;
-        WhseShipmentLines.OpenEdit;
+        WarehouseShipment.Trap();
+        WhseShipmentLines.OpenEdit();
         WhseShipmentLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WhseShipmentLines."Show &Whse. Document".Invoke;
+        WhseShipmentLines."Show &Whse. Document".Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Ship" on the page ribbon
-        WarehouseShipment."Delete Qty. to Ship".Invoke;
+        WarehouseShipment."Delete Qty. to Ship".Invoke();
 
         // [THEN] Warehouse Shipment Line "L1" has Qty to Ship = 10 (unchanged)
         WarehouseShipmentLine.Get(WarehouseShipmentLine."No.", WarehouseShipmentLine."Line No.");
@@ -458,21 +458,21 @@ codeunit 137929 "SCM Orders UI"
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
-        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         // [GIVEN] Stan opened Whse. Receipt Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
         // [GIVEN] Warehouse Receipt page opened showing Card
-        WarehouseReceipt.Trap;
-        WhseReceiptLines.OpenEdit;
+        WarehouseReceipt.Trap();
+        WhseReceiptLines.OpenEdit();
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
             DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
-        WhseReceiptLines."Show &Whse. Document".Invoke;
+        WhseReceiptLines."Show &Whse. Document".Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Receive" on the page ribbon
-        WarehouseReceipt."Autofill Qty. to Receive".Invoke;
+        WarehouseReceipt."Autofill Qty. to Receive".Invoke();
 
         // [THEN] Warehouse Receipt Line "L1" has Qty to Ship = <zero> (unchanged)
         WarehouseReceiptLine.Get(WarehouseReceiptLine."No.", WarehouseReceiptLine."Line No.");
@@ -510,21 +510,21 @@ codeunit 137929 "SCM Orders UI"
         WarehouseEmployee.DeleteAll();
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
 
-        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
 
         // [GIVEN] Stan opened Whse. Receipt Lines page, selected Line "L2" and pushed "Show Whse. Document" on page ribbon
         // [GIVEN] Warehouse Receipt page opened showing Card
-        WarehouseReceipt.Trap;
-        WhseReceiptLines.OpenEdit;
+        WarehouseReceipt.Trap();
+        WhseReceiptLines.OpenEdit();
         WhseReceiptLines.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseReceiptNoBySourceDoc(
             DATABASE::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No."));
-        WhseReceiptLines."Show &Whse. Document".Invoke;
+        WhseReceiptLines."Show &Whse. Document".Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Receive" on the page ribbon
-        WarehouseReceipt."Delete Qty. to Receive".Invoke;
+        WarehouseReceipt."Delete Qty. to Receive".Invoke();
 
         // [THEN] Warehouse Receipt Line "L1" has Qty to Receive = 10 (unchanged)
         WarehouseReceiptLine.Get(WarehouseReceiptLine."No.", WarehouseReceiptLine."Line No.");
@@ -561,19 +561,19 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Sales Order with the Location and created Warehouse Shipment
-        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [GIVEN] Stan opened Warehouse Shipment page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)
         // [GIVEN] Stan ran Card action on Warehouse Activity Lines page ribbon (Warehouse Pick modal <blank> page opened)
-        WarehouseActivityLines.Trap;
-        WarehouseShipment.OpenEdit;
+        WarehouseActivityLines.Trap();
+        WarehouseShipment.OpenEdit();
         WarehouseShipment.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WarehouseShipment."Pick Lines".Invoke;
-        WarehouseActivityLines.Card.Invoke;
+        WarehouseShipment."Pick Lines".Invoke();
+        WarehouseActivityLines.Card.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Handle" on Warehouse Pick page ribbon
         // done in WarehousePickModalPageHandlerWithAutofillQty
@@ -616,19 +616,19 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Sales Order with the Location and created Warehouse Shipment
-        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreateSalesOrderWithLocationAndItem(SalesHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
         // [GIVEN] Stan opened Warehouse Shipment page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)
         // [GIVEN] Stan ran Card action on Warehouse Activity Lines page ribbon (Warehouse Pick modal <blank> page opened)
-        WarehouseActivityLines.Trap;
-        WarehouseShipment.OpenEdit;
+        WarehouseActivityLines.Trap();
+        WarehouseShipment.OpenEdit();
         WarehouseShipment.FILTER.SetFilter(
           "No.", LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
               DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No."));
-        WarehouseShipment."Pick Lines".Invoke;
-        WarehouseActivityLines.Card.Invoke;
+        WarehouseShipment."Pick Lines".Invoke();
+        WarehouseActivityLines.Card.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Handle" on Warehouse Pick page ribbon
         // done in WarehousePickModalPageHandlerWithDeleteQty
@@ -670,7 +670,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Purchase Order with the Location and posted Warehouse Receipt
-        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
@@ -680,11 +680,11 @@ codeunit 137929 "SCM Orders UI"
 
         // [GIVEN] Stan opened Posted Whse. Receipt page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)
         // [GIVEN] Stan ran Card action on Warehouse Activity Lines page ribbon (Warehouse Put-away modal <blank> page opened)
-        WarehouseActivityLines.Trap;
-        PostedWhseReceipt.OpenEdit;
+        WarehouseActivityLines.Trap();
+        PostedWhseReceipt.OpenEdit();
         PostedWhseReceipt.FILTER.SetFilter("Location Code", Location.Code);
-        PostedWhseReceipt."Put-away Lines".Invoke;
-        WarehouseActivityLines.Card.Invoke;
+        PostedWhseReceipt."Put-away Lines".Invoke();
+        WarehouseActivityLines.Card.Invoke();
 
         // [WHEN] Stan pushes "Autofill Qty. to Handle" on Warehouse Put-away page ribbon
         // done in WarehousePutAwayModalPageHandlerWithAutofillQty
@@ -728,7 +728,7 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
         // [GIVEN] Released Purchase Order with the Location and posted Warehouse Receipt
-        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo);
+        CreatePurchOrderWithLocationAndItem(PurchaseHeader, Location.Code, LibraryInventory.CreateItemNo());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         WarehouseReceiptHeader.Get(
@@ -738,11 +738,11 @@ codeunit 137929 "SCM Orders UI"
 
         // [GIVEN] Stan opened Posted Whse. Receipt page and navigated to Warehouse Activity Lines page and opened it (<blank> page opened)
         // [GIVEN] Stan ran Card action on Warehouse Activity Lines page ribbon (Warehouse Put-away modal <blank> page opened)
-        WarehouseActivityLines.Trap;
-        PostedWhseReceipt.OpenEdit;
+        WarehouseActivityLines.Trap();
+        PostedWhseReceipt.OpenEdit();
         PostedWhseReceipt.FILTER.SetFilter("Location Code", Location.Code);
-        PostedWhseReceipt."Put-away Lines".Invoke;
-        WarehouseActivityLines.Card.Invoke;
+        PostedWhseReceipt."Put-away Lines".Invoke();
+        WarehouseActivityLines.Card.Invoke();
 
         // [WHEN] Stan pushes "Delete Qty. to Handle" on Warehouse Put-away page ribbon
         // done in WarehousePutAwayModalPageHandlerWithDeleteQty
@@ -774,7 +774,7 @@ codeunit 137929 "SCM Orders UI"
             LibraryInventory.CreateItem(Item[Index]);
             LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item[Index]."Base Unit of Measure");
             LibraryManufacturing.CreateProductionBOMLine(
-              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo,
+              ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo(),
               LibraryRandom.RandInt(10));
             Item[Index].Validate("Production BOM No.", ProductionBOMHeader."No.");
             Item[Index].Validate(Description, LibraryUtility.GenerateGUID());
@@ -782,19 +782,19 @@ codeunit 137929 "SCM Orders UI"
         end;
 
         // [GIVEN] Stan opened page Item List filtered by Description "X"
-        ItemList.OpenEdit;
+        ItemList.OpenEdit();
         ItemList.FILTER.SetFilter(Description, Item[1].Description);
-        ItemList.First;
+        ItemList.First();
 
         // [GIVEN] Stan opened page BOM Structure for Item "I1"
-        BOMStructure.Trap;
-        ItemList.Structure.Invoke;
+        BOMStructure.Trap();
+        ItemList.Structure.Invoke();
 
         // [WHEN] Stan changes Item Filter to "I3" on page BOM Structure
         BOMStructure.ItemFilter.SetValue(Item[2]."No.");
 
         // [THEN] BOM for Item "I3" is shown
-        BOMStructure.First;
+        BOMStructure.First();
         BOMStructure."No.".AssertEquals(Item[2]."No.");
         BOMStructure.Description.AssertEquals(Item[2].Description);
     END;
@@ -853,7 +853,7 @@ codeunit 137929 "SCM Orders UI"
 
         // [GIVEN] Stan pushed Select Entries on the page ribbon (Item Tracking Summary page opened showing Selected Quantity 99)
         // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
-        Assert.AreEqual(BaseQty * 3, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
+        Assert.AreEqual(BaseQty * 3, LibraryVariableStorage.DequeueInteger(), WrongSelectedQuantityMsg);
 
         // [GIVEN] Stan specified Selected Quantity = 33 on page Item Tracking Summary and pushed OK
         // done in ItemTrackingSummaryModalPageHandlerWithUpdateSelectedQuantity
@@ -867,8 +867,8 @@ codeunit 137929 "SCM Orders UI"
         // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
 
         // [THEN] Item Tracking Summary page opens showing Selected Quantity 66
-        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger(), WrongSelectedQuantityMsg);
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         ItemJournalLine.Delete();
@@ -937,8 +937,8 @@ codeunit 137929 "SCM Orders UI"
         // done in ItemTrackingLinesModalPageHandlerWithMultipleAction
 
         // [THEN] Item Tracking Summary page opens showing Selected Quantity 66
-        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger, WrongSelectedQuantityMsg);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(BaseQty * 2, LibraryVariableStorage.DequeueInteger(), WrongSelectedQuantityMsg);
+        LibraryVariableStorage.AssertEmpty();
 
         // Tear Down
         ItemJournalLine.Delete();
@@ -1006,17 +1006,17 @@ codeunit 137929 "SCM Orders UI"
 
         // [GIVEN] Internal Movement for the Location
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, '');
-        InternalMovement.OpenEdit;
+        InternalMovement.OpenEdit();
         InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
 
         // [WHEN] Stan looks up From-Bin Code in Internal Movement Line
-        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup();
 
         // [THEN] Page Bin Content List opens showing 3 entries: two for Item "I1" and one for Item "I2"
-        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual(Item."No.", LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(Item."No.", LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1053,16 +1053,16 @@ codeunit 137929 "SCM Orders UI"
         // [GIVEN] Internal Movement for the Location with Item "I1" in Internal Movement Line
         LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, '');
         LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, ItemVariant."Item No.", '', '', 0);
-        InternalMovement.OpenEdit;
+        InternalMovement.OpenEdit();
         InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
 
         // [WHEN] Stan looks up From-Bin Code in the Internal Movement Line
-        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup();
 
         // [THEN] Page Bin Content List opens showing two entries for Item "I1"
-        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
-        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText(), '');
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1101,15 +1101,15 @@ codeunit 137929 "SCM Orders UI"
         LibraryWarehouse.CreateInternalMovementLine(InternalMovementHeader, InternalMovementLine, ItemVariant."Item No.", '', '', 0);
         InternalMovementLine.Validate("Variant Code", ItemVariant.Code);
         InternalMovementLine.Modify(true);
-        InternalMovement.OpenEdit;
+        InternalMovement.OpenEdit();
         InternalMovement.FILTER.SetFilter("No.", InternalMovementHeader."No.");
 
         // [WHEN] Stan looks up From-Bin Code in the Line
-        InternalMovement.InternalMovementLines."From Bin Code".Lookup;
+        InternalMovement.InternalMovementLines."From Bin Code".Lookup();
 
         // [THEN] Page Bin Content List opens showing just one entry for Item "I1"
-        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText, '');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(ItemVariant."Item No.", LibraryVariableStorage.DequeueText(), '');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1174,7 +1174,7 @@ codeunit 137929 "SCM Orders UI"
         // [GIVEN] Bin "B2" is set as "Shipment Bin Code" for Location "L".
         LibraryInventory.CreateItem(Item);
         CreateBinAndBinContent(DefaultBin, Item);
-        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID(), '', '');
         UpdateRequireShipmentOnLocation(DefaultBin."Location Code", true);
         UpdateShipmentBinCodeOnLocation(ShipmentBin."Location Code", ShipmentBin.Code);
 
@@ -1253,7 +1253,7 @@ codeunit 137929 "SCM Orders UI"
         // [GIVEN] Bin "B2" is set as "Shipment Bin Code" for Location "L".
         LibraryInventory.CreateItem(Item);
         CreateBinAndBinContent(DefaultBin, Item);
-        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(ShipmentBin, DefaultBin."Location Code", LibraryUtility.GenerateGUID(), '', '');
         UpdateRequireShipmentOnLocation(DefaultBin."Location Code", false);
         UpdateShipmentBinCodeOnLocation(ShipmentBin."Location Code", ShipmentBin.Code);
 
@@ -1349,7 +1349,7 @@ codeunit 137929 "SCM Orders UI"
         Location.Validate("Bin Mandatory", true);
         Location.Modify(true);
 
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(BinContent, Bin."Location Code", '', Bin.Code, Item."No.", '', Item."Base Unit of Measure");
         BinContent.Validate(Default, true);
         BinContent.Modify(true);
@@ -1397,7 +1397,7 @@ codeunit 137929 "SCM Orders UI"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, ItemNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), ItemNo,
           LibraryRandom.RandInt(10), LocationCode, WorkDate());
     end;
 
@@ -1406,7 +1406,7 @@ codeunit 137929 "SCM Orders UI"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo, ItemNo,
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(), ItemNo,
           LibraryRandom.RandInt(10), LocationCode, WorkDate());
     end;
 
@@ -1434,14 +1434,14 @@ codeunit 137929 "SCM Orders UI"
         SalesLineForItemCharge: Record "Sales Line";
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        LibraryNotificationMgt.DisableMyNotification(SalesHeader.GetModifyCustomerAddressNotificationId);
-        LibraryNotificationMgt.DisableMyNotification(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
+        LibraryNotificationMgt.DisableMyNotification(SalesHeader.GetModifyCustomerAddressNotificationId());
+        LibraryNotificationMgt.DisableMyNotification(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
 
         LibraryInventory.CreateItemCharge(ItemCharge);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
         LibrarySales.CreateSalesLine(
           SalesLineForItemCharge, SalesHeader, SalesLineForItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1);
         SalesLineForItemCharge.Validate("Unit Price", AmountToAssign);
@@ -1460,14 +1460,14 @@ codeunit 137929 "SCM Orders UI"
         PurchaseLineForItemCharge: Record "Purchase Line";
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        LibraryNotificationMgt.DisableMyNotification(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        LibraryNotificationMgt.DisableMyNotification(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        LibraryNotificationMgt.DisableMyNotification(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        LibraryNotificationMgt.DisableMyNotification(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         LibraryInventory.CreateItemCharge(ItemCharge);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '', WorkDate());
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLineForItemCharge, PurchaseHeader, PurchaseLineForItemCharge.Type::"Charge (Item)", ItemCharge."No.", 1);
         PurchaseLineForItemCharge.Validate("Direct Unit Cost", AmountToAssign);
@@ -1483,9 +1483,9 @@ codeunit 137929 "SCM Orders UI"
     var
         ProdOrderComponents: TestPage "Prod. Order Components";
     begin
-        ProdOrderComponents.OpenView;
+        ProdOrderComponents.OpenView();
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
-        ProdOrderComponents.Reserve.Invoke;
+        ProdOrderComponents.Reserve.Invoke();
         ProdOrderComponents.Close();
     end;
 
@@ -1532,35 +1532,35 @@ codeunit 137929 "SCM Orders UI"
     [Scope('OnPrem')]
     procedure WarehousePickModalPageHandlerWithAutofillQty(var WarehousePick: TestPage "Warehouse Pick")
     begin
-        WarehousePick."Autofill Qty. to Handle".Invoke;
+        WarehousePick."Autofill Qty. to Handle".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WarehousePickModalPageHandlerWithDeleteQty(var WarehousePick: TestPage "Warehouse Pick")
     begin
-        WarehousePick."Delete Qty. to Handle".Invoke;
+        WarehousePick."Delete Qty. to Handle".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WarehousePutAwayModalPageHandlerWithAutofillQty(var WarehousePutaway: TestPage "Warehouse Put-away")
     begin
-        WarehousePutaway."Autofill Qty. to Handle".Invoke;
+        WarehousePutaway."Autofill Qty. to Handle".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WarehousePutAwayModalPageHandlerWithDeleteQty(var WarehousePutaway: TestPage "Warehouse Put-away")
     begin
-        WarehousePutaway."Delete Qty. to Handle".Invoke;
+        WarehousePutaway."Delete Qty. to Handle".Invoke();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
@@ -1577,26 +1577,26 @@ codeunit 137929 "SCM Orders UI"
     var
         Qty: array[2] of Integer;
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingMode::SetLotAndQty:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueInteger());
                 end;
             ItemTrackingMode::OpenItemTrackingSummary:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             ItemTrackingMode::OpenItemTrackingSummaryTwice:
                 begin
-                    Qty[1] := LibraryVariableStorage.DequeueInteger;
-                    Qty[2] := LibraryVariableStorage.DequeueInteger;
+                    Qty[1] := LibraryVariableStorage.DequeueInteger();
+                    Qty[2] := LibraryVariableStorage.DequeueInteger();
                     LibraryVariableStorage.Enqueue(Qty[1]);
-                    ItemTrackingLines."Select Entries".Invoke;
-                    LibraryVariableStorage.DequeueInteger;
+                    ItemTrackingLines."Select Entries".Invoke();
+                    LibraryVariableStorage.DequeueInteger();
                     LibraryVariableStorage.Enqueue(Qty[2]);
-                    ItemTrackingLines."Select Entries".Invoke;
+                    ItemTrackingLines."Select Entries".Invoke();
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1605,10 +1605,10 @@ codeunit 137929 "SCM Orders UI"
     var
         SelectedQty: Integer;
     begin
-        SelectedQty := LibraryVariableStorage.DequeueInteger;
-        LibraryVariableStorage.Enqueue(ItemTrackingSummary."Selected Quantity".AsInteger);
+        SelectedQty := LibraryVariableStorage.DequeueInteger();
+        LibraryVariableStorage.Enqueue(ItemTrackingSummary."Selected Quantity".AsInteger());
         ItemTrackingSummary."Selected Quantity".SetValue(SelectedQty);
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1622,25 +1622,25 @@ codeunit 137929 "SCM Orders UI"
         TrackingOption := OptionValue;
         case TrackingOption of
             TrackingOption::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             TrackingOption::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             TrackingOption::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             TrackingOption::AssignGivenLotNo:
                 begin
-                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
                 end;
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingListPageHandler(var ItemTrackingList: TestPage "Item Tracking List")
     begin
-        ItemTrackingList.OK.Invoke;
+        ItemTrackingList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1648,10 +1648,10 @@ codeunit 137929 "SCM Orders UI"
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
         Assert.IsTrue(
-          (StrLen(Reservation.Caption) > 80) or LibraryVariableStorage.DequeueBoolean,
+          (StrLen(Reservation.Caption) > 80) or LibraryVariableStorage.DequeueBoolean(),
           'Caption text on Reservation page is not long enough for the test.');
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1665,7 +1665,7 @@ codeunit 137929 "SCM Orders UI"
     [Scope('OnPrem')]
     procedure BinContentsListModalPageHandlerWithEnqueueItem(var BinContentsList: TestPage "Bin Contents List")
     begin
-        BinContentsList.First;
+        BinContentsList.First();
         repeat
             LibraryVariableStorage.Enqueue(Format(BinContentsList."Item No."));
         until not BinContentsList.Next();

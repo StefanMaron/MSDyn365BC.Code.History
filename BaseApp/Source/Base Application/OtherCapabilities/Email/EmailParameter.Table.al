@@ -8,6 +8,7 @@ using Microsoft.Foundation.Reporting;
 table 9510 "Email Parameter"
 {
     Caption = 'Email Parameter';
+    DataClassification = CustomerContent;
 
     fields
     {

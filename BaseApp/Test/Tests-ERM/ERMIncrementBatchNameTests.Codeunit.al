@@ -30,8 +30,8 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'Yes'
-        AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
-        BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate."Increment Batch Name" := true;
         GenJournalTemplate.Modify();
@@ -71,8 +71,8 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         Initialize();
 
         // [GIVEN] Journal Batch 'BATCH00001', where "Increment Batch Name" is 'No'
-        AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
-        BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting;
+        AccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+        BalAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
 
         // [GIVEN] Journal Line in the Batch 'BATCH00001'
@@ -117,7 +117,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         BatchName := ItemJournalBatch.Name;
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::" ",
-          LibraryInventory.CreateItemNo, 100);
+          LibraryInventory.CreateItemNo(), 100);
 
         // [WHEN] Post the batch 'BATCH00001'
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
@@ -151,7 +151,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         BatchName := ItemJournalBatch.Name;
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, "Item Ledger Entry Type"::" ",
-          LibraryInventory.CreateItemNo, 100);
+          LibraryInventory.CreateItemNo(), 100);
 
         // [WHEN] Post the batch 'BATCH00001'
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
@@ -189,7 +189,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalTemplate.Name, ResJournalBatch.Name);
         ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Sale);
-        ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo);
+        ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo());
         ResJournalLine.Validate("Unit Price", 100);
         ResJournalLine.Modify(true);
 
@@ -227,7 +227,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalTemplate.Name, ResJournalBatch.Name);
         ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Entry Type", ResJournalLine."Entry Type"::Sale);
-        ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo);
+        ResJournalLine.Validate("Resource No.", LibraryResource.CreateResourceNo());
         ResJournalLine.Validate("Unit Price", 100);
         ResJournalLine.Modify(true);
 
@@ -262,7 +262,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type"::" ", JobTask, JobJournalLine);
-        JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo);
+        JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo());
         JobJournalLine.Validate(Quantity, 1);
         JobJournalLine.Validate("Unit Price (LCY)", 100);
         JobJournalLine.Modify(true);
@@ -304,7 +304,7 @@ codeunit 134465 "ERM Increment Batch Name Tests"
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobJournalLine(JobJournalLine."Line Type", JobTask, JobJournalLine);
-        JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo);
+        JobJournalLine.Validate("No.", LibraryResource.CreateResourceNo());
         JobJournalLine.Validate(Quantity, 1);
         JobJournalLine.Validate("Unit Price (LCY)", 100);
         JobJournalLine.Modify(true);

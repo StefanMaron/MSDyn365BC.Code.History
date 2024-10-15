@@ -25,6 +25,8 @@ using Microsoft.Utilities;
 
 table 7022 "Price Worksheet Line"
 {
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "Price List Code"; Code[20])

@@ -35,9 +35,6 @@ page 786 "Vendor Picture"
                 ApplicationArea = All;
                 Caption = 'Take';
                 Image = Camera;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Activate the camera on the device.';
                 Visible = CameraAvailable;
 

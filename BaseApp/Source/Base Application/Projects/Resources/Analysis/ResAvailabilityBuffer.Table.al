@@ -35,7 +35,7 @@ table 928 "Res. Availability Buffer"
         }
         field(11; "Qty. on Order (Job)"; Decimal)
         {
-            Caption = 'Qty. on Order (Job)';
+            Caption = 'Qty. on Order (Project)';
             DataClassification = SystemMetadata;
         }
         field(12; "Availability After Orders"; Decimal)
@@ -45,7 +45,7 @@ table 928 "Res. Availability Buffer"
         }
         field(13; "Job Quotes Allocation"; Decimal)
         {
-            Caption = 'Job Quotes Allocation';
+            Caption = 'Project Quotes Allocation';
             DataClassification = SystemMetadata;
         }
         field(14; "Availability After Quotes"; Decimal)

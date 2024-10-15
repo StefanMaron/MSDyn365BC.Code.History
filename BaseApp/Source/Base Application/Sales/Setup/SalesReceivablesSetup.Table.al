@@ -33,6 +33,7 @@ table 311 "Sales & Receivables Setup"
     Caption = 'Sales & Receivables Setup';
     DrillDownPageID = "Sales & Receivables Setup";
     LookupPageID = "Sales & Receivables Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -662,7 +663,7 @@ table 311 "Sales & Receivables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN21
+#if not CLEAN23
 
             trigger OnValidate()
             var

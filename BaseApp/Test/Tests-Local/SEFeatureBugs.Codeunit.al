@@ -1,4 +1,5 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144023 "SE Feature Bugs"
 {
     // 1. Test to verify Gen. Journal Line after Suggest Vendor Payment with Always Including Credit Memo as True.
@@ -20,6 +21,9 @@ codeunit 144023 "SE Feature Bugs"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -102,7 +106,7 @@ codeunit 144023 "SE Feature Bugs"
         FinChrgMemoTotal :=
           CalculateFinanceChargeMemoTotal(CustomerNo, DocumentNo, FinanceChargeTerms."Interest Period (Days)");
         IssuedFinChargeMemoHeader.SetRange("Customer No.", CustomerNo);
-        IssuedFinChargeMemoStat.Trap;
+        IssuedFinChargeMemoStat.Trap();
 
         // Exercise.
         OpenIssuedFinChargeMemoStatisticsPage(CustomerNo);
@@ -281,7 +285,6 @@ codeunit 144023 "SE Feature Bugs"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-        TempBlob: Codeunit "Temp Blob";
         FileName: Text;
         PostingDate: Date;
     begin
@@ -351,7 +354,7 @@ codeunit 144023 "SE Feature Bugs"
         DaysOverdue := IssuedFinChargeMemoHeader."Due Date" - IssuedFinChargeMemoLine."Due Date";
         FinanceChargeMemoAmount :=
           Round(IssuedFinChargeMemoLine."Remaining Amount" * (DaysOverdue / InterestPeriod) *
-            (IssuedFinChargeMemoLine."Interest Rate" / 100), LibraryERM.GetInvoiceRoundingPrecisionLCY);
+            (IssuedFinChargeMemoLine."Interest Rate" / 100), LibraryERM.GetInvoiceRoundingPrecisionLCY());
     end;
 
     local procedure CreateAndIssueFinanceChargeMemos(CustomerNo: Code[20])
@@ -418,10 +421,10 @@ codeunit 144023 "SE Feature Bugs"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(1000, 2));
+          LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(1000, 2));
 
         // TFS334845: The SIE export file cannot be used if the customer has a space character in a document number.
-        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateGUID + ' A A', 1, MaxStrLen(GenJournalLine."Document No."));
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateGUID() + ' A A', 1, MaxStrLen(GenJournalLine."Document No."));
         GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -465,7 +468,7 @@ codeunit 144023 "SE Feature Bugs"
         CreateFiscalYear: Report "Create Fiscal Year";
         PeriodLength: DateFormula;
     begin
-        StartDate := GetNextFiscalYearStartDate;
+        StartDate := GetNextFiscalYearStartDate();
         Evaluate(PeriodLength, '<1M>');
         CreateFiscalYear.InitializeRequest(NumberOfMonth, PeriodLength, StartDate);
         CreateFiscalYear.UseRequestPage(false);
@@ -502,9 +505,9 @@ codeunit 144023 "SE Feature Bugs"
     var
         IssuedFinChargeMemoList: TestPage "Issued Fin. Charge Memo List";
     begin
-        IssuedFinChargeMemoList.OpenEdit;
+        IssuedFinChargeMemoList.OpenEdit();
         IssuedFinChargeMemoList.FILTER.SetFilter("Customer No.", CustomerNo);
-        IssuedFinChargeMemoList.Statistics.Invoke;
+        IssuedFinChargeMemoList.Statistics.Invoke();
         IssuedFinChargeMemoList.Close();
     end;
 
@@ -556,7 +559,7 @@ codeunit 144023 "SE Feature Bugs"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Invoice, PaymentTerms.Code, Vendor."No.", CreateGLAccount,
+          PurchaseLine, PurchaseLine."Document Type"::Invoice, PaymentTerms.Code, Vendor."No.", CreateGLAccount(),
           LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));  // Take random Quantity and Direct Unit Cost.
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", PaymentTerms.Code, PurchaseLine."Buy-from Vendor No.",
@@ -649,7 +652,7 @@ codeunit 144023 "SE Feature Bugs"
         LibraryVariableStorage.Dequeue(No);
         CreateFinanceChargeMemos.DocumentDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         CreateFinanceChargeMemos.Customer.SetFilter("No.", No);
-        CreateFinanceChargeMemos.OK.Invoke;
+        CreateFinanceChargeMemos.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -662,7 +665,7 @@ codeunit 144023 "SE Feature Bugs"
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(AlwaysInclCreditMemo);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -673,7 +676,7 @@ codeunit 144023 "SE Feature Bugs"
     begin
         SIEExport.ExportType.SetValue(ExportType::"4. Transactions");
         SIEExport.FiscalYear.SetValue(Date2DMY(WorkDate(), 3));
-        SIEExport.OK.Invoke;
+        SIEExport.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -691,9 +694,9 @@ codeunit 144023 "SE Feature Bugs"
     [Scope('OnPrem')]
     procedure SIEImportRPH(var SIEImport: TestRequestPage "SIE Import")
     begin
-        SIEImport."GenJnlLine.""Journal Template Name""".SetValue(LibraryVariableStorage.DequeueText);
-        SIEImport."GenJnlLine.""Journal Batch Name""".SetValue(LibraryVariableStorage.DequeueText);
-        SIEImport.OK.Invoke;
+        SIEImport."GenJnlLine.""Journal Template Name""".SetValue(LibraryVariableStorage.DequeueText());
+        SIEImport."GenJnlLine.""Journal Batch Name""".SetValue(LibraryVariableStorage.DequeueText());
+        SIEImport.OK().Invoke();
     end;
 
     [RequestPageHandler]

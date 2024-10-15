@@ -30,9 +30,8 @@ codeunit 134198 "Price Worksheet Line UT"
         AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
         AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
-        NotPostingJobTaskTypeErr: Label 'Job Task Type must be equal to ''Posting''';
+        NotPostingJobTaskTypeErr: Label 'Project Task Type must be equal to ''Posting''';
         WrongPriceListCodeErr: Label 'The field Price List Code of table Price Worksheet Line contains a value (%1) that cannot be found';
-        WorkTypeCodeMustBeEmptyErr: Label 'Work Type Code can be set only if the product type is resourse or resource group.';
         FieldNotAllowedForAmountTypeErr: Label 'Field %1 is not allowed in the price list line where %2 is %3.',
             Comment = '%1 - the field caption; %2 - Amount Type field caption; %3 - amount type value: Discount or Price';
         AmountTypeMustBeDiscountErr: Label 'Defines must be equal to ''Discount''';
@@ -340,7 +339,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T010_ValidateSourceNo()
     var
         Customer: Record Customer;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -361,7 +359,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T011_ReValidateSourceType()
     var
         Customer: Record Customer;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -384,7 +381,6 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -407,7 +403,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T013_ValidateSourceID()
     var
         Customer: Record Customer;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -429,7 +424,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T014_LookupSourceNo()
     var
         Customer: Record Customer;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -454,7 +448,6 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Job: Record Job;
         JobTask: Record "Job Task";
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Source]
@@ -479,7 +472,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T016_LookupAssetNo()
     var
         Item: Record Item;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price Worksheet Line";
     begin
         // [FEATURE] [Asset]
@@ -549,7 +541,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T019_SourceTypeInLineMustBeInTheHeadersSourceGroup()
     var
-        Job: Record Job;
         PriceListHeader: Record "Price List Header";
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
@@ -1694,9 +1685,7 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Customer: Record Customer;
         ItemDiscountGroup: Record "Item Discount Group";
-        ItemUnitofMeasure: Record "Item Unit of Measure";
         PriceWorksheetLine: Record "Price Worksheet Line";
-        VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
         // [FEATURE] [Customer] [Item Discount Group]
         Initialize();
@@ -1911,7 +1900,6 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Customer: Record Customer;
         Resource: Record Resource;
-        Job: Record Job;
         PriceWorksheetLine: Record "Price Worksheet Line";
         WorkType: Record "Work Type";
     begin
@@ -1945,7 +1933,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T111_ValidateResourceGroupForVendor()
     var
         ResourceGroup: Record "Resource Group";
-        Job: Record Job;
         PriceWorksheetLine: Record "Price Worksheet Line";
         Vendor: Record Vendor;
         WorkType: Record "Work Type";
@@ -2007,7 +1994,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T113_ValidateAllCustomersSourceNoForItem()
     var
-        Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [All Customers]
@@ -2026,7 +2012,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T114_ValidateCustomerNoForItem()
     var
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
@@ -2059,7 +2044,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T115_ValidateCustomerPriceGroupForItem()
     var
         CustomerPriceGroup: Record "Customer Price Group";
-        Currency: Record Currency;
         Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
@@ -2116,7 +2100,6 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Contact: Record Contact;
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
@@ -2147,7 +2130,6 @@ codeunit 134198 "Price Worksheet Line UT"
     var
         Contact: Record Contact;
         Customer: Record Customer;
-        Currency: Record Currency;
         Item: Record Item;
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
@@ -2204,7 +2186,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T120_DeletePricesOnResourceDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Resource: Array[2] of Record Resource;
     begin
         // [FEATURE] [Resource]
@@ -2224,7 +2205,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T121_DeletePricesOnResourceGroupDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ResourceGroup: Array[2] of Record "Resource Group";
     begin
         // [FEATURE] [Resource Group]
@@ -2244,7 +2224,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T122_DeletePricesOnItemDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Item: Array[2] of Record Item;
     begin
         // [FEATURE] [Item]
@@ -2264,7 +2243,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T123_DeletePricesOnItemDiscountGroupDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
     begin
         // [FEATURE] [Item Discount Group]
@@ -2285,7 +2263,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T124_DeletePricesOnGLAccountDeletion()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-        PriceWorksheetLine: Record "Price Worksheet Line";
         GLAccount: Array[2] of Record "G/L Account";
     begin
         // [FEATURE] [G/L Account]
@@ -2309,7 +2286,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T125_DeletePricesOnServiceCostDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ServiceCost: Array[2] of Record "Service Cost";
     begin
         // [FEATURE] [Service Cost]
@@ -2329,7 +2305,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T126_DeletePricesOnItemVariantDeletion()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
     begin
@@ -2351,7 +2326,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T130_ModifyPricesOnResourceRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Resource: Array[2] of Record Resource;
         OldNo: Code[20];
     begin
@@ -2373,7 +2347,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T131_ModifyPricesOnResourceGroupRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ResourceGroup: Array[2] of Record "Resource Group";
         OldNo: Code[20];
     begin
@@ -2395,7 +2368,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T132_ModifyPricesOnItemRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Item: Array[2] of Record Item;
         OldNo: Code[20];
     begin
@@ -2417,7 +2389,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T133_ModifyPricesOnItemDiscountGroupRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ItemDiscountGroup: Array[2] of Record "Item Discount Group";
         OldNo: Code[20];
     begin
@@ -2439,7 +2410,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T134_ModifyPricesOnGLAccountRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         GLAccount: Array[2] of Record "G/L Account";
         OldNo: Code[20];
     begin
@@ -2461,7 +2431,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T135_ModifyPricesOnServiceCostRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         ServiceCost: Array[2] of Record "Service Cost";
         OldNo: Code[20];
     begin
@@ -2483,7 +2452,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T136_ModifyPricesOnItemVariantRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         Item: Record Item;
         ItemVariant: Array[2] of Record "Item Variant";
         OldNo: Code[10];
@@ -2507,7 +2475,6 @@ codeunit 134198 "Price Worksheet Line UT"
     [Test]
     procedure T137_ModifyPricesOnUnitOfMeasureRename()
     var
-        PriceWorksheetLine: Record "Price Worksheet Line";
         UnitOfMeasure: Array[2] of Record "Unit Of Measure";
         OldNo: Code[20];
     begin
@@ -3014,7 +2981,6 @@ codeunit 134198 "Price Worksheet Line UT"
     procedure T216_LookupProductNo()
     var
         Item: Record Item;
-        PriceWorksheetLine: Record "Price Worksheet Line";
         MockPriceWorksheetLine: TestPage "Mock Price List Line";
     begin
         // [FEATURE] [Asset]
@@ -3049,7 +3015,7 @@ codeunit 134198 "Price Worksheet Line UT"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Price Worksheet Line UT");
         LibraryERM.SetBlockDeleteGLAccount(false);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Price Worksheet Line UT");
     end;
 

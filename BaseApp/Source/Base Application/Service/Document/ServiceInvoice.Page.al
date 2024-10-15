@@ -3,8 +3,10 @@ namespace Microsoft.Service.Document;
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Service.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
@@ -31,6 +33,7 @@ page 5933 "Service Invoice"
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
+                    Visible = DocNoVisible;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnAssistEdit()
@@ -163,6 +166,13 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -543,6 +553,14 @@ page 5933 "Service Invoice"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -650,6 +668,23 @@ page 5933 "Service Invoice"
                     begin
                         Rec.ShowDocDim();
                         CurrPage.SaveRecord();
+                    end;
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action("Service Document Lo&g")
@@ -861,16 +896,10 @@ page 5933 "Service Invoice"
                 actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")
                 {
                 }
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }
@@ -910,7 +939,7 @@ page 5933 "Service Invoice"
         UserSetupManagement: Codeunit "User Setup Management";
     begin
         Rec."Responsibility Center" := UserSetupManagement.GetServiceFilter();
-        if Rec."No." = '' then
+        if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetCustomerFromFilter();
     end;
 
@@ -923,6 +952,7 @@ page 5933 "Service Invoice"
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
         ActivateFields();
+        SetDocNoVisible();
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
@@ -944,6 +974,7 @@ page 5933 "Service Invoice"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -955,7 +986,9 @@ page 5933 "Service Invoice"
         IsPostingGroupEditable: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
+        ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -964,6 +997,15 @@ page 5933 "Service Invoice"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
+        SetExtDocNoMandatoryCondition();
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Invoice, Rec."No.");
     end;
 
     local procedure SetControlAppearance()
@@ -981,6 +1023,12 @@ page 5933 "Service Invoice"
     begin
         if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
             ActivateFields();
+    end;
+
+    local procedure SetExtDocNoMandatoryCondition()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        ExternalDocNoMandatory := ServiceMgtSetup."Ext. Doc. No. Mandatory";
     end;
 
     procedure SetPostingGroupEditable()

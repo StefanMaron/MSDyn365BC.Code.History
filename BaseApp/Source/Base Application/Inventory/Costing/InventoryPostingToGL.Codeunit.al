@@ -80,17 +80,18 @@ codeunit 5802 "Inventory Posting To G/L"
         GLSetupRead: Boolean;
         SourceCodeSetupRead: Boolean;
         InvtSetupRead: Boolean;
-        Text000: Label '%1 %2 on %3';
-        Text001: Label '%1 - %2, %3,%4,%5,%6';
-        Text002: Label 'The following combination %1 = %2, %3 = %4, and %5 = %6 is not allowed.';
         RunOnlyCheck: Boolean;
         RunOnlyCheckSaved: Boolean;
         CalledFromItemPosting: Boolean;
         CalledFromTestReport: Boolean;
         GlobalPostPerPostGroup: Boolean;
-        Text003: Label '%1 %2';
         GlobalJnlTemplName: Code[10];
         GlobalJnlBatchName: Code[10];
+
+        Text000: Label '%1 %2 on %3';
+        Text001: Label '%1 - %2, %3,%4,%5,%6';
+        Text002: Label 'The following combination %1 = %2, %3 = %4, and %5 = %6 is not allowed.';
+        Text003: Label '%1 %2';
 
     procedure Initialize(PostPerPostGroup: Boolean)
     begin
@@ -135,63 +136,61 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit(Result);
 
-        with ValueEntry do begin
-            GetGLSetup();
-            GetInvtSetup();
-            if (not InvtSetup."Expected Cost Posting to G/L") and
-               ("Expected Cost Posted to G/L" = 0) and
-               "Expected Cost"
-            then
-                exit(false);
+        GetGLSetup();
+        GetInvtSetup();
+        if (not InvtSetup."Expected Cost Posting to G/L") and
+           (ValueEntry."Expected Cost Posted to G/L" = 0) and
+           ValueEntry."Expected Cost"
+        then
+            exit(false);
 
-            if not ("Entry Type" in ["Entry Type"::"Direct Cost", "Entry Type"::Revaluation]) and
-               not CalledFromTestReport
-            then begin
-                TestField("Expected Cost", false);
-                TestField("Cost Amount (Expected)", 0);
-                TestField("Cost Amount (Expected) (ACY)", 0);
-            end;
-
-            if InvtSetup."Expected Cost Posting to G/L" then begin
-                CalcCostToPost(ExpCostToPost, "Cost Amount (Expected)", "Expected Cost Posted to G/L", PostToGL);
-                CalcCostToPost(ExpCostToPostACY, "Cost Amount (Expected) (ACY)", "Exp. Cost Posted to G/L (ACY)", PostToGL);
-            end;
-            CalcCostToPost(CostToPost, "Cost Amount (Actual)", "Cost Posted to G/L", PostToGL);
-            CalcCostToPost(CostToPostACY, "Cost Amount (Actual) (ACY)", "Cost Posted to G/L (ACY)", PostToGL);
-            OnAfterCalcCostToPostFromBuffer(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, PostToGL);
-            PostBufDimNo := 0;
-
-            RunOnlyCheckSaved := RunOnlyCheck;
-            if not PostToGL then
-                exit(false);
-
-            OnBeforeBufferPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
-
-            case "Item Ledger Entry Type" of
-                "Item Ledger Entry Type"::Purchase:
-                    BufferPurchPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
-                "Item Ledger Entry Type"::Sale:
-                    BufferSalesPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
-                "Item Ledger Entry Type"::"Positive Adjmt.",
-                "Item Ledger Entry Type"::"Negative Adjmt.",
-                "Item Ledger Entry Type"::Transfer:
-                    BufferAdjmtPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
-                "Item Ledger Entry Type"::Consumption:
-                    BufferConsumpPosting(ValueEntry, CostToPost, CostToPostACY);
-                "Item Ledger Entry Type"::Output:
-                    BufferOutputPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
-                "Item Ledger Entry Type"::"Assembly Consumption":
-                    BufferAsmConsumpPosting(ValueEntry, CostToPost, CostToPostACY);
-                "Item Ledger Entry Type"::"Assembly Output":
-                    BufferAsmOutputPosting(ValueEntry, CostToPost, CostToPostACY);
-                "Item Ledger Entry Type"::" ":
-                    BufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
-
-            OnAfterBufferPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+        if not (ValueEntry."Entry Type" in [ValueEntry."Entry Type"::"Direct Cost", ValueEntry."Entry Type"::Revaluation]) and
+           not CalledFromTestReport
+        then begin
+            ValueEntry.TestField("Expected Cost", false);
+            ValueEntry.TestField("Cost Amount (Expected)", 0);
+            ValueEntry.TestField("Cost Amount (Expected) (ACY)", 0);
         end;
+
+        if InvtSetup."Expected Cost Posting to G/L" then begin
+            CalcCostToPost(ExpCostToPost, ValueEntry."Cost Amount (Expected)", ValueEntry."Expected Cost Posted to G/L", PostToGL);
+            CalcCostToPost(ExpCostToPostACY, ValueEntry."Cost Amount (Expected) (ACY)", ValueEntry."Exp. Cost Posted to G/L (ACY)", PostToGL);
+        end;
+        CalcCostToPost(CostToPost, ValueEntry."Cost Amount (Actual)", ValueEntry."Cost Posted to G/L", PostToGL);
+        CalcCostToPost(CostToPostACY, ValueEntry."Cost Amount (Actual) (ACY)", ValueEntry."Cost Posted to G/L (ACY)", PostToGL);
+        OnAfterCalcCostToPostFromBuffer(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, PostToGL);
+        PostBufDimNo := 0;
+
+        RunOnlyCheckSaved := RunOnlyCheck;
+        if not PostToGL then
+            exit(false);
+
+        OnBeforeBufferPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+
+        case ValueEntry."Item Ledger Entry Type" of
+            ValueEntry."Item Ledger Entry Type"::Purchase:
+                BufferPurchPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::Sale:
+                BufferSalesPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.",
+            ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.",
+            ValueEntry."Item Ledger Entry Type"::Transfer:
+                BufferAdjmtPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::Consumption:
+                BufferConsumpPosting(ValueEntry, CostToPost, CostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::Output:
+                BufferOutputPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::"Assembly Consumption":
+                BufferAsmConsumpPosting(ValueEntry, CostToPost, CostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::"Assembly Output":
+                BufferAsmOutputPosting(ValueEntry, CostToPost, CostToPostACY);
+            ValueEntry."Item Ledger Entry Type"::" ":
+                BufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
+
+        OnAfterBufferPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
 
         if UpdateGlobalInvtPostBuf(ValueEntry."Entry No.") then
             exit(true);
@@ -206,62 +205,61 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::"Indirect Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Variance:
-                    begin
-                        TestField("Variance Type", "Variance Type"::Purchase);
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
                         InitInvtPostBuf(
                           ValueEntry,
                           TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                          TempGlobalInvtPostingBuffer."Account Type"::"Purchase Variance",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
                           CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Revaluation:
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Rounding:
+                end;
+            ValueEntry."Entry Type"::"Indirect Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Variance:
+                begin
+                    ValueEntry.TestField(ValueEntry."Variance Type", ValueEntry."Variance Type"::Purchase);
                     InitInvtPostBuf(
                       ValueEntry,
                       TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::"Purchase Variance",
                       CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+                end;
+            ValueEntry."Entry Type"::Revaluation:
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
 
         OnAfterBufferPurchPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
@@ -274,47 +272,46 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::COGS,
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Revaluation:
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::COGS,
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::Revaluation:
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
 
         OnAfterBufferSalesPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
@@ -327,88 +324,87 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::"Indirect Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Variance:
-                    case "Variance Type" of
-                        "Variance Type"::Material:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::Capacity:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::Subcontracted:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::"Capacity Overhead":
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::"Manufacturing Overhead":
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
-                              CostToPost, CostToPostACY, false);
-                        else
-                            ErrorNonValidCombination(ValueEntry);
-                    end;
-                "Entry Type"::Revaluation:
-                    begin
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::"Indirect Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Variance:
+                case ValueEntry."Variance Type" of
+                    ValueEntry."Variance Type"::Material:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::Capacity:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::Subcontracted:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Capacity Overhead":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Manufacturing Overhead":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
+                          CostToPost, CostToPostACY, false);
+                    else
+                        ErrorNonValidCombination(ValueEntry);
+                end;
+            ValueEntry."Entry Type"::Revaluation:
+                begin
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
 
         OnAfterBufferOutputPosting(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
     end;
@@ -422,65 +418,63 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Revaluation,
-              "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Revaluation,
+              ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
 
         OnAfterBufferConsumpPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo, CostToPost, CostToPostACY);
     end;
 
     local procedure BufferCapacityPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
     begin
-        with ValueEntry do
-            if "Order Type" = "Order Type"::Assembly then
-                case "Entry Type" of
-                    "Entry Type"::"Direct Cost":
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                          CostToPost, CostToPostACY, false);
-                    "Entry Type"::"Indirect Cost":
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                          CostToPost, CostToPostACY, false);
-                    else
-                        ErrorNonValidCombination(ValueEntry);
-                end
-            else
-                case "Entry Type" of
-                    "Entry Type"::"Direct Cost":
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                          TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
-                          CostToPost, CostToPostACY, false);
-                    "Entry Type"::"Indirect Cost":
-                        InitInvtPostBuf(
-                          ValueEntry,
-                          TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
-                          TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                          CostToPost, CostToPostACY, false);
-                    else
-                        ErrorNonValidCombination(ValueEntry);
-                end;
+        if ValueEntry."Order Type" = ValueEntry."Order Type"::Assembly then
+            case ValueEntry."Entry Type" of
+                ValueEntry."Entry Type"::"Direct Cost":
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
+                      CostToPost, CostToPostACY, false);
+                ValueEntry."Entry Type"::"Indirect Cost":
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                      CostToPost, CostToPostACY, false);
+                else
+                    ErrorNonValidCombination(ValueEntry);
+            end
+        else
+            case ValueEntry."Entry Type" of
+                ValueEntry."Entry Type"::"Direct Cost":
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                      TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied",
+                      CostToPost, CostToPostACY, false);
+                ValueEntry."Entry Type"::"Indirect Cost":
+                    InitInvtPostBuf(
+                      ValueEntry,
+                      TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory",
+                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                      CostToPost, CostToPostACY, false);
+                else
+                    ErrorNonValidCombination(ValueEntry);
+            end;
 
         OnAfterBufferCapacityPosting(ValueEntry, CostToPost, CostToPostACY);
     end;
@@ -494,70 +488,69 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::"Indirect Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Variance:
-                    case "Variance Type" of
-                        "Variance Type"::Material:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::Capacity:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::Subcontracted:
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::"Capacity Overhead":
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
-                              CostToPost, CostToPostACY, false);
-                        "Variance Type"::"Manufacturing Overhead":
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
-                              CostToPost, CostToPostACY, false);
-                        else
-                            ErrorNonValidCombination(ValueEntry);
-                    end;
-                "Entry Type"::Revaluation:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::"Indirect Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Variance:
+                case ValueEntry."Variance Type" of
+                    ValueEntry."Variance Type"::Material:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Material Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::Capacity:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::Subcontracted:
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Capacity Overhead":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance",
+                          CostToPost, CostToPostACY, false);
+                    ValueEntry."Variance Type"::"Manufacturing Overhead":
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance",
+                          CostToPost, CostToPostACY, false);
+                    else
+                        ErrorNonValidCombination(ValueEntry);
+                end;
+            ValueEntry."Entry Type"::Revaluation:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
     end;
 
     local procedure BufferAsmConsumpPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
@@ -569,24 +562,23 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                "Entry Type"::Revaluation,
-              "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            ValueEntry."Entry Type"::Revaluation,
+              ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
     end;
 
     local procedure BufferAdjmtPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal)
@@ -597,34 +589,33 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            case "Entry Type" of
-                "Entry Type"::"Direct Cost":
-                    begin
-                        // Posting adjustments to Interim accounts (Service)
-                        if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
-                              TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
-                              ExpCostToPost, ExpCostToPostACY, true);
-                        if (CostToPost <> 0) or (CostToPostACY <> 0) then
-                            InitInvtPostBuf(
-                              ValueEntry,
-                              TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                              TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                              CostToPost, CostToPostACY, false);
-                    end;
-                "Entry Type"::Revaluation,
-              "Entry Type"::Rounding:
-                    InitInvtPostBuf(
-                      ValueEntry,
-                      TempGlobalInvtPostingBuffer."Account Type"::Inventory,
-                      TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
-                      CostToPost, CostToPostACY, false);
-                else
-                    ErrorNonValidCombination(ValueEntry);
-            end;
+        case ValueEntry."Entry Type" of
+            ValueEntry."Entry Type"::"Direct Cost":
+                begin
+                    // Posting adjustments to Interim accounts (Service)
+                    if (ExpCostToPost <> 0) or (ExpCostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)",
+                          TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)",
+                          ExpCostToPost, ExpCostToPostACY, true);
+                    if (CostToPost <> 0) or (CostToPostACY <> 0) then
+                        InitInvtPostBuf(
+                          ValueEntry,
+                          TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                          TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                          CostToPost, CostToPostACY, false);
+                end;
+            ValueEntry."Entry Type"::Revaluation,
+              ValueEntry."Entry Type"::Rounding:
+                InitInvtPostBuf(
+                  ValueEntry,
+                  TempGlobalInvtPostingBuffer."Account Type"::Inventory,
+                  TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.",
+                  CostToPost, CostToPostACY, false);
+            else
+                ErrorNonValidCombination(ValueEntry);
+        end;
 
         OnAfterBufferAdjmtPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
@@ -719,134 +710,130 @@ codeunit 5802 "Inventory Posting To G/L"
         GenPostingSetup: Record "General Posting Setup";
         IsHandled: Boolean;
     begin
-        with InvtPostBuf do begin
-            "Account No." := '';
-            "Account Type" := AccType;
-            "Bal. Account Type" := BalAccType;
-            "Location Code" := ValueEntry."Location Code";
-            "Inventory Posting Group" :=
-                GetInvPostingGroupCode(ValueEntry, AccType = "Account Type"::"WIP Inventory", ValueEntry."Inventory Posting Group");
-            "Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
-            "Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
-            "Posting Date" := ValueEntry."Posting Date";
+        InvtPostBuf."Account No." := '';
+        InvtPostBuf."Account Type" := AccType;
+        InvtPostBuf."Bal. Account Type" := BalAccType;
+        InvtPostBuf."Location Code" := ValueEntry."Location Code";
+        InvtPostBuf."Inventory Posting Group" :=
+            GetInvPostingGroupCode(ValueEntry, AccType = InvtPostBuf."Account Type"::"WIP Inventory", ValueEntry."Inventory Posting Group");
+        InvtPostBuf."Gen. Bus. Posting Group" := ValueEntry."Gen. Bus. Posting Group";
+        InvtPostBuf."Gen. Prod. Posting Group" := ValueEntry."Gen. Prod. Posting Group";
+        InvtPostBuf."Posting Date" := ValueEntry."Posting Date";
 
-            IsHandled := false;
-            OnBeforeGetInvtPostSetup(InvtPostingSetup, "Location Code", "Inventory Posting Group", GenPostingSetup, IsHandled, InvtPostBuf);
-            if not IsHandled then
-                if UseInvtPostSetup() then begin
+        IsHandled := false;
+        OnBeforeGetInvtPostSetup(InvtPostingSetup, InvtPostBuf."Location Code", InvtPostBuf."Inventory Posting Group", GenPostingSetup, IsHandled, InvtPostBuf);
+        if not IsHandled then
+            if InvtPostBuf.UseInvtPostSetup() then begin
+                if CalledFromItemPosting then
+                    InvtPostingSetup.Get(InvtPostBuf."Location Code", InvtPostBuf."Inventory Posting Group")
+                else
+                    if not InvtPostingSetup.Get(InvtPostBuf."Location Code", InvtPostBuf."Inventory Posting Group") then
+                        exit;
+            end else begin
+                if CalledFromItemPosting then
+                    GenPostingSetup.Get(InvtPostBuf."Gen. Bus. Posting Group", InvtPostBuf."Gen. Prod. Posting Group")
+                else
+                    if not GenPostingSetup.Get(InvtPostBuf."Gen. Bus. Posting Group", InvtPostBuf."Gen. Prod. Posting Group") then
+                        exit;
+                if not CalledFromTestReport then
+                    GenPostingSetup.TestField(Blocked, false);
+            end;
+
+        OnSetAccNoOnAfterGetPostingSetup(InvtPostBuf, InvtPostingSetup, GenPostingSetup, ValueEntry, InvtPostBuf.UseInvtPostSetup());
+
+        IsHandled := false;
+        OnBeforeSetAccNo(InvtPostBuf, ValueEntry, AccType.AsInteger(), BalAccType.AsInteger(), CalledFromItemPosting, IsHandled);
+        if not IsHandled then
+            case InvtPostBuf."Account Type" of
+                InvtPostBuf."Account Type"::Inventory:
                     if CalledFromItemPosting then
-                        InvtPostingSetup.Get("Location Code", "Inventory Posting Group")
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetInventoryAccount()
                     else
-                        if not InvtPostingSetup.Get("Location Code", "Inventory Posting Group") then
-                            exit;
-                end else begin
+                        InvtPostBuf."Account No." := InvtPostingSetup."Inventory Account";
+                InvtPostBuf."Account Type"::"Inventory (Interim)":
                     if CalledFromItemPosting then
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group")
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetInventoryAccountInterim()
                     else
-                        if not GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group") then
-                            exit;
-                    if not CalledFromTestReport then
-                        GenPostingSetup.TestField(Blocked, false);
-                end;
-
-            OnSetAccNoOnAfterGetPostingSetup(InvtPostBuf, InvtPostingSetup, GenPostingSetup, ValueEntry, UseInvtPostSetup());
-
-            IsHandled := false;
-            OnBeforeSetAccNo(InvtPostBuf, ValueEntry, AccType.AsInteger(), BalAccType.AsInteger(), CalledFromItemPosting, IsHandled);
-            if not IsHandled then
-                case "Account Type" of
-                    "Account Type"::Inventory:
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetInventoryAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Inventory Account";
-                    "Account Type"::"Inventory (Interim)":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetInventoryAccountInterim()
-                        else
-                            "Account No." := InvtPostingSetup."Inventory Account (Interim)";
-                    "Account Type"::"WIP Inventory":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetWIPAccount()
-                        else
-                            "Account No." := InvtPostingSetup."WIP Account";
-                    "Account Type"::"Material Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetMaterialVarianceAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Material Variance Account";
-                    "Account Type"::"Capacity Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetCapacityVarianceAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Capacity Variance Account";
-                    "Account Type"::"Subcontracted Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetSubcontractedVarianceAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Subcontracted Variance Account";
-                    "Account Type"::"Cap. Overhead Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetCapOverheadVarianceAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Cap. Overhead Variance Account";
-                    "Account Type"::"Mfg. Overhead Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := InvtPostingSetup.GetMfgOverheadVarianceAccount()
-                        else
-                            "Account No." := InvtPostingSetup."Mfg. Overhead Variance Account";
-                    "Account Type"::"Inventory Adjmt.":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetInventoryAdjmtAccount()
-                        else
-                            "Account No." := GenPostingSetup."Inventory Adjmt. Account";
-                    "Account Type"::"Direct Cost Applied":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetDirectCostAppliedAccount()
-                        else
-                            "Account No." := GenPostingSetup."Direct Cost Applied Account";
-                    "Account Type"::"Overhead Applied":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetOverheadAppliedAccount()
-                        else
-                            "Account No." := GenPostingSetup."Overhead Applied Account";
-                    "Account Type"::"Purchase Variance":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetPurchaseVarianceAccount()
-                        else
-                            "Account No." := GenPostingSetup."Purchase Variance Account";
-                    "Account Type"::COGS:
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetCOGSAccount()
-                        else
-                            "Account No." := GenPostingSetup."COGS Account";
-                    "Account Type"::"COGS (Interim)":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetCOGSInterimAccount()
-                        else
-                            "Account No." := GenPostingSetup."COGS Account (Interim)";
-                    "Account Type"::"Invt. Accrual (Interim)":
-                        if CalledFromItemPosting then
-                            "Account No." := GenPostingSetup.GetInventoryAccrualAccount()
-                        else
-                            "Account No." := GenPostingSetup."Invt. Accrual Acc. (Interim)";
-                end;
+                        InvtPostBuf."Account No." := InvtPostingSetup."Inventory Account (Interim)";
+                InvtPostBuf."Account Type"::"WIP Inventory":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetWIPAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."WIP Account";
+                InvtPostBuf."Account Type"::"Material Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetMaterialVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Material Variance Account";
+                InvtPostBuf."Account Type"::"Capacity Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetCapacityVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Capacity Variance Account";
+                InvtPostBuf."Account Type"::"Subcontracted Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetSubcontractedVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Subcontracted Variance Account";
+                InvtPostBuf."Account Type"::"Cap. Overhead Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetCapOverheadVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Cap. Overhead Variance Account";
+                InvtPostBuf."Account Type"::"Mfg. Overhead Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := InvtPostingSetup.GetMfgOverheadVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := InvtPostingSetup."Mfg. Overhead Variance Account";
+                InvtPostBuf."Account Type"::"Inventory Adjmt.":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetInventoryAdjmtAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Inventory Adjmt. Account";
+                InvtPostBuf."Account Type"::"Direct Cost Applied":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetDirectCostAppliedAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Direct Cost Applied Account";
+                InvtPostBuf."Account Type"::"Overhead Applied":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetOverheadAppliedAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Overhead Applied Account";
+                InvtPostBuf."Account Type"::"Purchase Variance":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetPurchaseVarianceAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Purchase Variance Account";
+                InvtPostBuf."Account Type"::COGS:
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetCOGSAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."COGS Account";
+                InvtPostBuf."Account Type"::"COGS (Interim)":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetCOGSInterimAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."COGS Account (Interim)";
+                InvtPostBuf."Account Type"::"Invt. Accrual (Interim)":
+                    if CalledFromItemPosting then
+                        InvtPostBuf."Account No." := GenPostingSetup.GetInventoryAccrualAccount()
+                    else
+                        InvtPostBuf."Account No." := GenPostingSetup."Invt. Accrual Acc. (Interim)";
+            end;
 
 
-            OnSetAccNoOnBeforeCheckAccNo(InvtPostBuf, InvtPostingSetup, GenPostingSetup, CalledFromItemPosting, ValueEntry);
-            CheckAccNo("Account No.");
+        OnSetAccNoOnBeforeCheckAccNo(InvtPostBuf, InvtPostingSetup, GenPostingSetup, CalledFromItemPosting, ValueEntry);
+        CheckAccNo(InvtPostBuf."Account No.");
 
-            OnAfterSetAccNo(InvtPostBuf, ValueEntry, CalledFromItemPosting);
-        end;
+        OnAfterSetAccNo(InvtPostBuf, ValueEntry, CalledFromItemPosting);
     end;
 
     local procedure SetPostBufAmounts(var InvtPostBuf: Record "Invt. Posting Buffer"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean)
     begin
-        with InvtPostBuf do begin
-            "Interim Account" := InterimAccount;
-            Amount := CostToPost;
-            "Amount (ACY)" := CostToPostACY;
-        end;
+        InvtPostBuf."Interim Account" := InterimAccount;
+        InvtPostBuf.Amount := CostToPost;
+        InvtPostBuf."Amount (ACY)" := CostToPostACY;
     end;
 
     local procedure UpdateGlobalInvtPostBuf(ValueEntryNo: Integer): Boolean
@@ -854,38 +841,36 @@ codeunit 5802 "Inventory Posting To G/L"
         i: Integer;
         ShouldInsertTempGLItemLedgRelation: Boolean;
     begin
-        with TempGlobalInvtPostingBuffer do begin
-            if not CalledFromTestReport then
-                for i := 1 to PostBufDimNo do
-                    if TempInvtPostBuf[i]."Account No." = '' then begin
-                        Clear(TempInvtPostBuf);
-                        exit(false);
-                    end;
-            for i := 1 to PostBufDimNo do begin
-                TempGlobalInvtPostingBuffer := TempInvtPostBuf[i];
-                "Dimension Set ID" := TempInvtPostBuf[i]."Dimension Set ID";
-                Negative := (TempInvtPostBuf[i].Amount < 0) or (TempInvtPostBuf[i]."Amount (ACY)" < 0);
+        if not CalledFromTestReport then
+            for i := 1 to PostBufDimNo do
+                if TempInvtPostBuf[i]."Account No." = '' then begin
+                    Clear(TempInvtPostBuf);
+                    exit(false);
+                end;
+        for i := 1 to PostBufDimNo do begin
+            TempGlobalInvtPostingBuffer := TempInvtPostBuf[i];
+            TempGlobalInvtPostingBuffer."Dimension Set ID" := TempInvtPostBuf[i]."Dimension Set ID";
+            TempGlobalInvtPostingBuffer.Negative := (TempInvtPostBuf[i].Amount < 0) or (TempInvtPostBuf[i]."Amount (ACY)" < 0);
 
-                UpdateReportAmounts();
-                if Find() then begin
-                    Amount := Amount + TempInvtPostBuf[i].Amount;
-                    "Amount (ACY)" := "Amount (ACY)" + TempInvtPostBuf[i]."Amount (ACY)";
-                    OnUpdateGlobalInvtPostBufOnBeforeModify(TempGlobalInvtPostingBuffer, TempInvtPostBuf[i]);
-                    Modify();
-                end else begin
-                    GlobalInvtPostBufEntryNo := GlobalInvtPostBufEntryNo + 1;
-                    "Entry No." := GlobalInvtPostBufEntryNo;
-                    Insert();
-                end;
-                ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport);
-                OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, TempGlobalInvtPostingBuffer, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
-                if ShouldInsertTempGLItemLedgRelation then begin
-                    TempGLItemLedgRelation.Init();
-                    TempGLItemLedgRelation."G/L Entry No." := "Entry No.";
-                    TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
-                    TempGLItemLedgRelation.Insert();
-                    OnAfterBufferGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBufEntryNo);
-                end;
+            UpdateReportAmounts();
+            if TempGlobalInvtPostingBuffer.Find() then begin
+                TempGlobalInvtPostingBuffer.Amount := TempGlobalInvtPostingBuffer.Amount + TempInvtPostBuf[i].Amount;
+                TempGlobalInvtPostingBuffer."Amount (ACY)" := TempGlobalInvtPostingBuffer."Amount (ACY)" + TempInvtPostBuf[i]."Amount (ACY)";
+                OnUpdateGlobalInvtPostBufOnBeforeModify(TempGlobalInvtPostingBuffer, TempInvtPostBuf[i]);
+                TempGlobalInvtPostingBuffer.Modify();
+            end else begin
+                GlobalInvtPostBufEntryNo := GlobalInvtPostBufEntryNo + 1;
+                TempGlobalInvtPostingBuffer."Entry No." := GlobalInvtPostBufEntryNo;
+                TempGlobalInvtPostingBuffer.Insert();
+            end;
+            ShouldInsertTempGLItemLedgRelation := not (RunOnlyCheck or CalledFromTestReport);
+            OnUpdateGlobalInvtPostBufOnAfterCalcShouldInsertTempGLItemLedgRelation(TempGLItemLedgRelation, TempGlobalInvtPostingBuffer, ValueEntryNo, RunOnlyCheck, CalledFromTestReport, ShouldInsertTempGLItemLedgRelation);
+            if ShouldInsertTempGLItemLedgRelation then begin
+                TempGLItemLedgRelation.Init();
+                TempGLItemLedgRelation."G/L Entry No." := TempGlobalInvtPostingBuffer."Entry No.";
+                TempGLItemLedgRelation."Value Entry No." := ValueEntryNo;
+                TempGLItemLedgRelation.Insert();
+                OnAfterBufferGLItemLedgRelation(TempGLItemLedgRelation, GlobalInvtPostBufEntryNo);
             end;
         end;
         Clear(TempInvtPostBuf);
@@ -894,61 +879,57 @@ codeunit 5802 "Inventory Posting To G/L"
 
     local procedure UpdateReportAmounts()
     begin
-        with TempGlobalInvtPostingBuffer do
-            case "Account Type" of
-                "Account Type"::Inventory, "Account Type"::"Inventory (Interim)":
-                    InvtAmt += Amount;
-                "Account Type"::"WIP Inventory":
-                    WIPInvtAmt += Amount;
-                "Account Type"::"Inventory Adjmt.":
-                    InvtAdjmtAmt += Amount;
-                "Account Type"::"Invt. Accrual (Interim)":
-                    InvtAdjmtAmt += Amount;
-                "Account Type"::"Direct Cost Applied":
-                    DirCostAmt += Amount;
-                "Account Type"::"Overhead Applied":
-                    OvhdCostAmt += Amount;
-                "Account Type"::"Purchase Variance":
-                    VarPurchCostAmt += Amount;
-                "Account Type"::COGS:
-                    COGSAmt += Amount;
-                "Account Type"::"COGS (Interim)":
-                    COGSAmt += Amount;
-                "Account Type"::"Material Variance", "Account Type"::"Capacity Variance",
-              "Account Type"::"Subcontracted Variance", "Account Type"::"Cap. Overhead Variance":
-                    VarMfgDirCostAmt += Amount;
-                "Account Type"::"Mfg. Overhead Variance":
-                    VarMfgOvhdCostAmt += Amount;
-            end;
+        case TempGlobalInvtPostingBuffer."Account Type" of
+            TempGlobalInvtPostingBuffer."Account Type"::Inventory, TempGlobalInvtPostingBuffer."Account Type"::"Inventory (Interim)":
+                InvtAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"WIP Inventory":
+                WIPInvtAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Inventory Adjmt.":
+                InvtAdjmtAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Invt. Accrual (Interim)":
+                InvtAdjmtAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Direct Cost Applied":
+                DirCostAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Overhead Applied":
+                OvhdCostAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Purchase Variance":
+                VarPurchCostAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::COGS:
+                COGSAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"COGS (Interim)":
+                COGSAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Material Variance", TempGlobalInvtPostingBuffer."Account Type"::"Capacity Variance",
+              TempGlobalInvtPostingBuffer."Account Type"::"Subcontracted Variance", TempGlobalInvtPostingBuffer."Account Type"::"Cap. Overhead Variance":
+                VarMfgDirCostAmt += TempGlobalInvtPostingBuffer.Amount;
+            TempGlobalInvtPostingBuffer."Account Type"::"Mfg. Overhead Variance":
+                VarMfgOvhdCostAmt += TempGlobalInvtPostingBuffer.Amount;
+        end;
 
         OnAfteUpdateReportAmounts(TempGlobalInvtPostingBuffer, InvtAmt, InvtAdjmtAmt, VarMfgDirCostAmt);
     end;
 
     local procedure ErrorNonValidCombination(ValueEntry: Record "Value Entry")
     begin
-        with ValueEntry do
-            if CalledFromTestReport then
-                InsertTempInvtPostToGLTestBuf(ValueEntry)
-            else
-                Error(
-                  Text002,
-                  FieldCaption("Item Ledger Entry Type"), "Item Ledger Entry Type",
-                  FieldCaption("Entry Type"), "Entry Type",
-                  FieldCaption("Expected Cost"), "Expected Cost")
+        if CalledFromTestReport then
+            InsertTempInvtPostToGLTestBuf(ValueEntry)
+        else
+            Error(
+              Text002,
+              ValueEntry.FieldCaption("Item Ledger Entry Type"), ValueEntry."Item Ledger Entry Type",
+              ValueEntry.FieldCaption("Entry Type"), ValueEntry."Entry Type",
+              ValueEntry.FieldCaption("Expected Cost"), ValueEntry."Expected Cost")
     end;
 
     local procedure InsertTempInvtPostToGLTestBuf(ValueEntry: Record "Value Entry")
     begin
-        with ValueEntry do begin
-            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
-            TempInvtPostToGLTestBuf."Posting Date" := "Posting Date";
-            TempInvtPostToGLTestBuf.Description := StrSubstNo(Text003, TableCaption(), "Entry No.");
-            TempInvtPostToGLTestBuf.Amount := "Cost Amount (Actual)";
-            TempInvtPostToGLTestBuf."Value Entry No." := "Entry No.";
-            TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
-            OnInsertTempInvtPostToGLTestBufOnBeforeInsert(TempInvtPostToGLTestBuf, ValueEntry);
-            TempInvtPostToGLTestBuf.Insert();
-        end;
+        TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
+        TempInvtPostToGLTestBuf."Posting Date" := ValueEntry."Posting Date";
+        TempInvtPostToGLTestBuf.Description := StrSubstNo(Text003, ValueEntry.TableCaption(), ValueEntry."Entry No.");
+        TempInvtPostToGLTestBuf.Amount := ValueEntry."Cost Amount (Actual)";
+        TempInvtPostToGLTestBuf."Value Entry No." := ValueEntry."Entry No.";
+        TempInvtPostToGLTestBuf."Dimension Set ID" := ValueEntry."Dimension Set ID";
+        OnInsertTempInvtPostToGLTestBufOnBeforeInsert(TempInvtPostToGLTestBuf, ValueEntry);
+        TempInvtPostToGLTestBuf.Insert();
     end;
 
     local procedure GetNextLineNo(): Integer
@@ -975,15 +956,14 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with ValueEntry do
-            PostInvtPostBuf(
-              ValueEntry,
-              "Document No.",
-              "External Document No.",
-              CopyStr(
-                StrSubstNo(Text000, "Entry Type", "Source No.", "Posting Date"),
-                1, MaxStrLen(DummyGenJnlLine.Description)),
-              false);
+        PostInvtPostBuf(
+            ValueEntry,
+            ValueEntry."Document No.",
+            ValueEntry."External Document No.",
+            CopyStr(
+            StrSubstNo(Text000, ValueEntry."Entry Type", ValueEntry."Source No.", ValueEntry."Posting Date"),
+            1, MaxStrLen(DummyGenJnlLine.Description)),
+            false);
     end;
 
     procedure PostInvtPostBufPerPostGrp(DocNo: Code[20]; Desc: Text[50])
@@ -997,21 +977,19 @@ codeunit 5802 "Inventory Posting To G/L"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        with TempGlobalInvtPostingBuffer do begin
-            Reset();
-            OnPostInvtPostBufferOnBeforeFind(TempGlobalInvtPostingBuffer, TempGLItemLedgRelation, ValueEntry);
-            if not FindSet() then
-                exit;
+        TempGlobalInvtPostingBuffer.Reset();
+        OnPostInvtPostBufferOnBeforeFind(TempGlobalInvtPostingBuffer, TempGLItemLedgRelation, ValueEntry);
+        if not TempGlobalInvtPostingBuffer.FindSet() then
+            exit;
 
-            PostInvtPostBufInitGenJnlLine(GenJnlLine, ValueEntry, DocNo, ExternalDocNo, Desc);
+        PostInvtPostBufInitGenJnlLine(GenJnlLine, ValueEntry, DocNo, ExternalDocNo, Desc);
 
-            PostInvtPostBufProcessGlobalInvtPostBuf(GenJnlLine, ValueEntry, PostPerPostGrp);
+        PostInvtPostBufProcessGlobalInvtPostBuf(GenJnlLine, ValueEntry, PostPerPostGrp);
 
-            RunOnlyCheck := RunOnlyCheckSaved;
-            OnPostInvtPostBufferOnAfterPostInvtPostBuf(TempGlobalInvtPostingBuffer, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
+        RunOnlyCheck := RunOnlyCheckSaved;
+        OnPostInvtPostBufferOnAfterPostInvtPostBuf(TempGlobalInvtPostingBuffer, ValueEntry, CalledFromItemPosting, CalledFromTestReport, RunOnlyCheck, PostPerPostGrp);
 
-            DeleteAll();
-        end;
+        TempGlobalInvtPostingBuffer.DeleteAll();
     end;
 
     local procedure PostInvtPostBufInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100])
@@ -1049,39 +1027,38 @@ codeunit 5802 "Inventory Posting To G/L"
         if IsHandled then
             exit;
 
-        with TempGlobalInvtPostingBuffer do
-            repeat
-                GenJnlLine.Validate("Posting Date", "Posting Date");
-                GenJnlLine.Validate("VAT Reporting Date", ValueEntry."VAT Reporting Date");
-                OnPostInvtPostBufOnBeforeSetAmt(GenJnlLine, ValueEntry, TempGlobalInvtPostingBuffer);
-                if SetAmt(GenJnlLine, Amount, "Amount (ACY)") then begin
-                    if PostPerPostGrp then
-                        SetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
-                    OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
-                    GenJnlLine."Account No." := "Account No.";
-                    GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-                    DimMgt.UpdateGlobalDimFromDimSetID(
-                      "Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
-                      GenJnlLine."Shortcut Dimension 2 Code");
-                    OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine, TempGlobalInvtPostingBuffer);
-                    if not CalledFromTestReport then
-                        if not RunOnlyCheck then begin
-                            if not CalledFromItemPosting then
-                                GenJnlPostLine.SetOverDimErr();
-                            OnBeforePostInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine);
-                            PostGenJnlLine(GenJnlLine);
-                        end else begin
-                            OnBeforeCheckInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
-                            CheckGenJnlLine(GenJnlLine);
-                        end
-                    else
-                        InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
-                end;
-                OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetAmt(GenJnlLine);
+        repeat
+            GenJnlLine.Validate("Posting Date", TempGlobalInvtPostingBuffer."Posting Date");
+            GenJnlLine.Validate("VAT Reporting Date", ValueEntry."VAT Reporting Date");
+            OnPostInvtPostBufOnBeforeSetAmt(GenJnlLine, ValueEntry, TempGlobalInvtPostingBuffer);
+            if SetAmt(GenJnlLine, TempGlobalInvtPostingBuffer.Amount, TempGlobalInvtPostingBuffer."Amount (ACY)") then begin
+                if PostPerPostGrp then
+                    SetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
+                OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetDesc(GenJnlLine, TempGlobalInvtPostingBuffer);
+                GenJnlLine."Account No." := TempGlobalInvtPostingBuffer."Account No.";
+                GenJnlLine."Dimension Set ID" := TempGlobalInvtPostingBuffer."Dimension Set ID";
+                DimMgt.UpdateGlobalDimFromDimSetID(
+                  TempGlobalInvtPostingBuffer."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
+                  GenJnlLine."Shortcut Dimension 2 Code");
+                OnPostInvtPostBufOnAfterUpdateGlobalDimFromDimSetID(GenJnlLine, TempGlobalInvtPostingBuffer);
+                if not CalledFromTestReport then
+                    if not RunOnlyCheck then begin
+                        if not CalledFromItemPosting then
+                            GenJnlPostLine.SetOverDimErr();
+                        OnBeforePostInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine);
+                        PostGenJnlLine(GenJnlLine);
+                    end else begin
+                        OnBeforeCheckInvtPostBuf(GenJnlLine, TempGlobalInvtPostingBuffer, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
+                        CheckGenJnlLine(GenJnlLine);
+                    end
+                else
+                    InsertTempInvtPostToGLTestBuf(GenJnlLine, ValueEntry);
+            end;
+            OnPostInvtPostBufProcessGlobalInvtPostBufOnAfterSetAmt(GenJnlLine);
 
-                if not CalledFromTestReport and not RunOnlyCheck then
-                    CreateGLItemLedgRelation(ValueEntry);
-            until Next() = 0;
+            if not CalledFromTestReport and not RunOnlyCheck then
+                CreateGLItemLedgRelation(ValueEntry);
+        until TempGlobalInvtPostingBuffer.Next() = 0;
     end;
 
     local procedure GetSourceCodeSetup()
@@ -1093,20 +1070,18 @@ codeunit 5802 "Inventory Posting To G/L"
 
     local procedure SetAmt(var GenJnlLine: Record "Gen. Journal Line"; Amt: Decimal; AmtACY: Decimal) HasAmountToPost: Boolean
     begin
-        with GenJnlLine do begin
-            "Additional-Currency Posting" := "Additional-Currency Posting"::None;
-            Validate(Amount, Amt);
+        GenJnlLine."Additional-Currency Posting" := GenJnlLine."Additional-Currency Posting"::None;
+        GenJnlLine.Validate(GenJnlLine.Amount, Amt);
 
-            GetGLSetup();
-            if GLSetup."Additional Reporting Currency" <> '' then begin
-                "Source Currency Code" := GLSetup."Additional Reporting Currency";
-                "Source Currency Amount" := AmtACY;
-                if (Amount = 0) and ("Source Currency Amount" <> 0) then begin
-                    "Additional-Currency Posting" :=
-                      "Additional-Currency Posting"::"Additional-Currency Amount Only";
-                    Validate(Amount, "Source Currency Amount");
-                    "Source Currency Amount" := 0;
-                end;
+        GetGLSetup();
+        if GLSetup."Additional Reporting Currency" <> '' then begin
+            GenJnlLine."Source Currency Code" := GLSetup."Additional Reporting Currency";
+            GenJnlLine."Source Currency Amount" := AmtACY;
+            if (GenJnlLine.Amount = 0) and (GenJnlLine."Source Currency Amount" <> 0) then begin
+                GenJnlLine."Additional-Currency Posting" :=
+                  GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only";
+                GenJnlLine.Validate(GenJnlLine.Amount, GenJnlLine."Source Currency Amount");
+                GenJnlLine."Source Currency Amount" := 0;
             end;
         end;
 
@@ -1116,51 +1091,48 @@ codeunit 5802 "Inventory Posting To G/L"
 
     procedure SetDesc(var GenJnlLine: Record "Gen. Journal Line"; InvtPostBuf: Record "Invt. Posting Buffer")
     begin
-        with InvtPostBuf do
-            GenJnlLine.Description :=
-              CopyStr(
-                StrSubstNo(
-                  Text001,
-                  "Account Type", "Bal. Account Type",
-                  "Location Code", "Inventory Posting Group",
-                  "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"),
-                1, MaxStrLen(GenJnlLine.Description));
+        GenJnlLine.Description :=
+            CopyStr(
+            StrSubstNo(
+                Text001,
+                InvtPostBuf."Account Type", InvtPostBuf."Bal. Account Type",
+                InvtPostBuf."Location Code", InvtPostBuf."Inventory Posting Group",
+                InvtPostBuf."Gen. Bus. Posting Group", InvtPostBuf."Gen. Prod. Posting Group"),
+            1, MaxStrLen(GenJnlLine.Description));
 
         OnAfterSetDesc(GenJnlLine, InvtPostBuf);
     end;
 
     local procedure InsertTempInvtPostToGLTestBuf(GenJnlLine: Record "Gen. Journal Line"; ValueEntry: Record "Value Entry")
     begin
-        with GenJnlLine do begin
-            TempInvtPostToGLTestBuf.Init();
-            TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
-            TempInvtPostToGLTestBuf."Posting Date" := "Posting Date";
-            TempInvtPostToGLTestBuf."Document No." := "Document No.";
-            TempInvtPostToGLTestBuf.Description := Description;
-            TempInvtPostToGLTestBuf."Account No." := "Account No.";
-            TempInvtPostToGLTestBuf.Amount := Amount;
-            TempInvtPostToGLTestBuf."Source Code" := "Source Code";
-            TempInvtPostToGLTestBuf."System-Created Entry" := true;
-            TempInvtPostToGLTestBuf."Value Entry No." := ValueEntry."Entry No.";
-            TempInvtPostToGLTestBuf."Additional-Currency Posting" := "Additional-Currency Posting";
-            TempInvtPostToGLTestBuf."Source Currency Code" := "Source Currency Code";
-            TempInvtPostToGLTestBuf."Source Currency Amount" := "Source Currency Amount";
-            TempInvtPostToGLTestBuf."Inventory Account Type" := TempGlobalInvtPostingBuffer."Account Type";
-            TempInvtPostToGLTestBuf."Dimension Set ID" := "Dimension Set ID";
-            if TempGlobalInvtPostingBuffer.UseInvtPostSetup() then begin
-                TempInvtPostToGLTestBuf."Location Code" := TempGlobalInvtPostingBuffer."Location Code";
-                TempInvtPostToGLTestBuf."Invt. Posting Group Code" :=
-                  GetInvPostingGroupCode(
-                    ValueEntry,
-                    TempInvtPostToGLTestBuf."Inventory Account Type" = TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory",
-                    TempGlobalInvtPostingBuffer."Inventory Posting Group")
-            end else begin
-                TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Bus. Posting Group";
-                TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Prod. Posting Group";
-            end;
-            OnInsertTempInvtPostToGLTestBufOnBeforeTempInvtPostToGLTestBufInsert(TempInvtPostToGLTestBuf, GenJnlLine, ValueEntry);
-            TempInvtPostToGLTestBuf.Insert();
+        TempInvtPostToGLTestBuf.Init();
+        TempInvtPostToGLTestBuf."Line No." := GetNextLineNo();
+        TempInvtPostToGLTestBuf."Posting Date" := GenJnlLine."Posting Date";
+        TempInvtPostToGLTestBuf."Document No." := GenJnlLine."Document No.";
+        TempInvtPostToGLTestBuf.Description := GenJnlLine.Description;
+        TempInvtPostToGLTestBuf."Account No." := GenJnlLine."Account No.";
+        TempInvtPostToGLTestBuf.Amount := GenJnlLine.Amount;
+        TempInvtPostToGLTestBuf."Source Code" := GenJnlLine."Source Code";
+        TempInvtPostToGLTestBuf."System-Created Entry" := true;
+        TempInvtPostToGLTestBuf."Value Entry No." := ValueEntry."Entry No.";
+        TempInvtPostToGLTestBuf."Additional-Currency Posting" := GenJnlLine."Additional-Currency Posting";
+        TempInvtPostToGLTestBuf."Source Currency Code" := GenJnlLine."Source Currency Code";
+        TempInvtPostToGLTestBuf."Source Currency Amount" := GenJnlLine."Source Currency Amount";
+        TempInvtPostToGLTestBuf."Inventory Account Type" := TempGlobalInvtPostingBuffer."Account Type";
+        TempInvtPostToGLTestBuf."Dimension Set ID" := GenJnlLine."Dimension Set ID";
+        if TempGlobalInvtPostingBuffer.UseInvtPostSetup() then begin
+            TempInvtPostToGLTestBuf."Location Code" := TempGlobalInvtPostingBuffer."Location Code";
+            TempInvtPostToGLTestBuf."Invt. Posting Group Code" :=
+              GetInvPostingGroupCode(
+                ValueEntry,
+                TempInvtPostToGLTestBuf."Inventory Account Type" = TempInvtPostToGLTestBuf."Inventory Account Type"::"WIP Inventory",
+                TempGlobalInvtPostingBuffer."Inventory Posting Group")
+        end else begin
+            TempInvtPostToGLTestBuf."Gen. Bus. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Bus. Posting Group";
+            TempInvtPostToGLTestBuf."Gen. Prod. Posting Group" := TempGlobalInvtPostingBuffer."Gen. Prod. Posting Group";
         end;
+        OnInsertTempInvtPostToGLTestBufOnBeforeTempInvtPostToGLTestBufInsert(TempInvtPostToGLTestBuf, GenJnlLine, ValueEntry);
+        TempInvtPostToGLTestBuf.Insert();
     end;
 
     local procedure CreateGLItemLedgRelation(var ValueEntry: Record "Value Entry")
@@ -1200,18 +1172,16 @@ codeunit 5802 "Inventory Posting To G/L"
 
     local procedure UpdateValueEntry(var ValueEntry: Record "Value Entry")
     begin
-        with ValueEntry do begin
-            if TempGlobalInvtPostingBuffer."Interim Account" then begin
-                "Expected Cost Posted to G/L" := "Cost Amount (Expected)";
-                "Exp. Cost Posted to G/L (ACY)" := "Cost Amount (Expected) (ACY)";
-            end else begin
-                "Cost Posted to G/L" := "Cost Amount (Actual)";
-                "Cost Posted to G/L (ACY)" := "Cost Amount (Actual) (ACY)";
-            end;
-            OnUpdateValueEntryOnBeforeModify(ValueEntry, TempGlobalInvtPostingBuffer);
-            if not CalledFromItemPosting then
-                Modify();
+        if TempGlobalInvtPostingBuffer."Interim Account" then begin
+            ValueEntry."Expected Cost Posted to G/L" := ValueEntry."Cost Amount (Expected)";
+            ValueEntry."Exp. Cost Posted to G/L (ACY)" := ValueEntry."Cost Amount (Expected) (ACY)";
+        end else begin
+            ValueEntry."Cost Posted to G/L" := ValueEntry."Cost Amount (Actual)";
+            ValueEntry."Cost Posted to G/L (ACY)" := ValueEntry."Cost Amount (Actual) (ACY)";
         end;
+        OnUpdateValueEntryOnBeforeModify(ValueEntry, TempGlobalInvtPostingBuffer);
+        if not CalledFromItemPosting then
+            ValueEntry.Modify();
     end;
 
     procedure GetTempInvtPostToGLTestBuf(var InvtPostToGLTestBuf: Record "Invt. Post to G/L Test Buffer")
@@ -1323,12 +1293,12 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitInvtPostBuf(var ValueEntry: Record "Value Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitTempInvtPostBuf(var TempInvtPostBuf: array[20] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer)
     begin
     end;
@@ -1353,7 +1323,7 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferAdjmtPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -1363,7 +1333,7 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferOutputPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -1373,12 +1343,12 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferPurchPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeBufferSalesPosting(var ValueEntry: Record "Value Entry"; var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; CostToPost: Decimal; CostToPostACY: Decimal; ExpCostToPost: Decimal; ExpCostToPostACY: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -1398,12 +1368,12 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInitInvtPostBuf(var ValueEntry: Record "Value Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInitInvtPostBufPerAccount(var ValueEntry: Record "Value Entry"; AccType: Enum "Invt. Posting Buffer Account Type"; BalAccType: Enum "Invt. Posting Buffer Account Type"; CostToPost: Decimal; CostToPostACY: Decimal; InterimAccount: Boolean; BalancingRecord: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1448,7 +1418,7 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnPostInvtPostBufferOnBeforeFind(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var TempGLItemLedgRelation: Record "G/L - Item Ledger Relation"; var ValueEntry: Record "Value Entry")
     begin
     end;

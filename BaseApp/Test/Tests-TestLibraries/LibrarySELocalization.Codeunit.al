@@ -1,5 +1,10 @@
+#if not CLEAN22
+#pragma warning disable AS0072
 codeunit 143001 "Library - SE Localization"
 {
+    ObsoleteReason = 'Not Used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -35,4 +40,4 @@ codeunit 143001 "Library - SE Localization"
     end;
 #endif
 }
-
+#endif

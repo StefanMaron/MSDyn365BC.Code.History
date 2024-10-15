@@ -153,7 +153,7 @@ codeunit 137018 "SCM Adjmt. of Expected Cost"
         // previous value entry has to have Cost Amount Expected = 250, Cost Amount Actual has to equal -250
         with ValueEntry do begin
             if "Entry No." = 0 then
-                FindLast
+                FindLast()
             else
                 Get("Entry No." - 1);
 

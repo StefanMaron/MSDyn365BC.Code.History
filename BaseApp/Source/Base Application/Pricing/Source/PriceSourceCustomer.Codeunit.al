@@ -6,6 +6,7 @@ namespace Microsoft.Pricing.Source;
 
 using Microsoft.Pricing.PriceList;
 using Microsoft.Sales.Customer;
+using Microsoft.Sales.Pricing;
 
 codeunit 7032 "Price Source - Customer" implements "Price Source"
 {
@@ -81,13 +82,37 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
         OnAfterFillAdditionalFields(PriceSource, Customer);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Price Source List", 'OnBeforeAddChildren', '', false, false)]
+    local procedure AddChildren(var Sender: Codeunit "Price Source List"; PriceSource: Record "Price Source"; var TempChildPriceSource: Record "Price Source" temporary);
+    var
+        Customer: Record Customer;
+        CustomerPriceGroup: Record "Customer Price Group";
+        CustomerDiscountGroup: Record "Customer Discount Group";
+    begin
+        if PriceSource."Source Type" = "Price Source Type"::Customer then begin
+            Customer.SetLoadFields("No.", "Customer Price Group", "Customer Disc. Group");
+            if Customer.Get(PriceSource."Source No.") then begin
+                CustomerPriceGroup.SetLoadFields(Code);
+                if CustomerPriceGroup.Get(Customer."Customer Price Group") then begin
+                    CustomerPriceGroup.ToPriceSource(TempChildPriceSource);
+                    Sender.Add(TempChildPriceSource);
+                end;
+                CustomerDiscountGroup.SetLoadFields(Code);
+                if CustomerDiscountGroup.Get(Customer."Customer Disc. Group") then begin
+                    CustomerDiscountGroup.ToPriceSource(TempChildPriceSource);
+                    Sender.Add(TempChildPriceSource);
+                end;
+            end;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterFillAdditionalFields(var PriceSource: Record "Price Source"; Customer: Record Customer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetId(Var PriceSource: Record "Price Source"; var IsHandled: Boolean)
+    local procedure OnBeforeGetId(var PriceSource: Record "Price Source"; var IsHandled: Boolean)
     begin
     end;
 }

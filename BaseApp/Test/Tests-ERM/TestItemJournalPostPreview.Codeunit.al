@@ -57,7 +57,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -93,7 +93,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 2);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -192,7 +192,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -294,7 +294,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
 
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -593,7 +593,7 @@ codeunit 134777 "Test Item Journal Post Preview"
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 
@@ -605,7 +605,7 @@ codeunit 134777 "Test Item Journal Post Preview"
     begin
         LibraryVariableStorage.Dequeue(DequeueVariant);
         CalculateInventory.Item.SetFilter("No.", DequeueVariant);
-        CalculateInventory.OK.Invoke();
+        CalculateInventory.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -616,7 +616,7 @@ codeunit 134777 "Test Item Journal Post Preview"
     begin
         GLPostingPreview.Trap();
         ProductionJournal.PreviewPosting.Invoke();
-        GLPostingPreview.OK.Invoke();
+        GLPostingPreview.OK().Invoke();
     end;
 }
 

@@ -23,7 +23,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         LibraryResource: Codeunit "Library - Resource";
         LibraryDocumentApprovals: Codeunit "Library - Document Approvals";
         LibraryWorkflow: Codeunit "Library - Workflow";
@@ -35,7 +37,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure CopyPurchOrdCopyHeadRecalcLine()
@@ -258,7 +260,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryPurchase.CreatePurchHeader(
           OriginalPurchHeader, OriginalPurchHeader."Document Type"::Order, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
-          PurchLine, OriginalPurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+          PurchLine, OriginalPurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
 
         // [WHEN] Copy Document "1001" to new Order "1002"
         CreatePurchHeaderForVendor(
@@ -351,7 +353,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure CopySalesOrdCopyHeadRecalcLine()
@@ -566,7 +568,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibrarySales.CreateSalesHeader(
           OriginalSalesHeader, OriginalSalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.CreateSalesLine(
-          SalesLine, OriginalSalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, OriginalSalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
         // [WHEN] Copy Document "1001" to new Order "1002"
         CreateSalesHeaderForCustomer(
@@ -707,7 +709,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Posted Sales Order with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::Order);
-        SetSalesInvoiceRoundingAccount(SalesHeader."Customer Posting Group", LibraryERM.CreateGLAccountWithSalesSetup);
+        SetSalesInvoiceRoundingAccount(SalesHeader."Customer Posting Group", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesInvHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Copy Sales Document.
@@ -802,7 +804,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Posted Sales Credit Memo with 2 lines of extended text divided by an empty line.
         CreateSalesDocWithExtLines(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
-        SetSalesInvoiceRoundingAccount(SalesHeader."Customer Posting Group", LibraryERM.CreateGLAccountWithSalesSetup);
+        SetSalesInvoiceRoundingAccount(SalesHeader."Customer Posting Group", LibraryERM.CreateGLAccountWithSalesSetup());
         SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         // [WHEN] Copy Sales Document.
@@ -1046,10 +1048,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Initialize();
 
         // [GIVEN] Company Information with "Ship-to Address" = "SA"
-        UpdateShiptoAddrOfCompany;
+        UpdateShiptoAddrOfCompany();
 
         // [GIVEN] Posted Sales Invoice "PSI"
-        PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '');
+        PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '');
 
         // [GIVEN] New Credit Memo "CM"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -1079,7 +1081,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CreateCustomerWithShiptoAddr(Customer);
 
         // [GIVEN] Company Info with Ship-to Address
-        UpdateShiptoAddrOfCompany;
+        UpdateShiptoAddrOfCompany();
 
         // [GIVEN] Posted Sales Credit Memo = "PCM"
         PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::"Credit Memo", Customer."No.", '');
@@ -1712,7 +1714,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] "Ship-to Name" = 'Main Address', "Ship-to Name 2" = 'Secondary Address'
         // [GIVEN] "Location Code" = '', "Ship-to Contact" = 'Ivanov Ivan'
         // [GIVEN] "Inbound Whse. Handling Time" = '4D'
-        LibraryPurchase.CreatePurchHeader(FromPurchaseHeader, FromPurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(FromPurchaseHeader, FromPurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         UpdateShiptoAddrOfPurchOrder(FromPurchaseHeader, '');
 
         // [GIVEN] A purchase order "PO2"
@@ -1749,7 +1751,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] "Ship-to Name" = 'Main Address', "Ship-to Name 2" = 'Secondary Address'
         // [GIVEN] "Location Code" = 'Warehouse 1', "Ship-to Contact" = 'Ivanov Ivan'
         // [GIVEN] "Inbound Whse. Handling Time" = '4D'
-        LibraryPurchase.CreatePurchHeader(FromPurchaseHeader, FromPurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(FromPurchaseHeader, FromPurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         UpdateShiptoAddrOfPurchOrder(FromPurchaseHeader, LibraryWarehouse.CreateLocation(Location));
 
         // [GIVEN] A purchase order "PO2"
@@ -1964,7 +1966,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] Item with zero unit price is added to sales invoice with line Unit Price = 50 and quantity = 2
         // [GIVEN] Discount Amount = 50 is applied to the sales invoice
         CreateSalesInvoiceWithInvDiscount(
-          SalesHeader, SalesLine, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(100, 200, 2));
+          SalesHeader, SalesLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [GIVEN] Sales invoice is copied with Include Header and Recalculate Lines to new sales order
         LibrarySales.CreateSalesHeader(ToSalesHeader, ToSalesHeader."Document Type"::Order, SalesHeader."Sell-to Customer No.");
@@ -2046,7 +2048,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         // [GIVEN] Item with zero unit cost is added to purchase invoice with line Unit Cost = 50 and quantity = 2
         // [GIVEN] Discount Amount = 50 is applied to the purchase invoice
         CreatePurchaseInvoiceWithInvDiscount(
-          PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(100, 200, 2));
+          PurchaseHeader, PurchaseLine, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [GIVEN] Purchase invoice is copied with Include Header and Recalculate Lines to new purchase order
         LibraryPurchase.CreatePurchHeader(ToPurchaseHeader, ToPurchaseHeader."Document Type"::Order, PurchaseHeader."Buy-from Vendor No.");
@@ -2475,64 +2477,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CorrectPostedPurchaseInvoiceWithZeroChargeItemUnitCost();
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        Item: Record "Item";
-        ItemCharge: Record "Item Charge";
-        Vendor: Record "Vendor";
-        PurchaseHeader: Record "Purchase Header";
-        PurchaseLineItem: Record "Purchase Line";
-        PurchaseLineChargeItem: Record "Purchase Line";
-        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
-        PurchInvHeader: Record "Purch. Inv. Header";
-        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
-        DirectUnitCost: Decimal;
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO 318774] Posted Sales Invoice is copied to Corrective Credit Memo with item charge of zero unit cost.
-        Initialize();
-
-        // [GIVEN] Purchase invoice with two lines - first with item, second one with item charge assigned to the first line.
-        GeneralLedgerSetup.Get();
-        DirectUnitCost := GeneralLedgerSetup."Unit-Amount Rounding Precision";
-        GeneralLedgerSetup.Validate("Unit-Amount Rounding Precision", GeneralLedgerSetup."Unit-Amount Rounding Precision" * 10);
-        GeneralLedgerSetup.Modify(true);
-        LibraryInventory.CreateItem(Item);
-        LibraryInventory.CreateItemCharge(ItemCharge);
-        LibraryPurchase.CreateVendor(Vendor);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-
-        CreatePurchaseLine(
-          PurchaseLineItem, PurchaseHeader, PurchaseLineItem.Type::Item, Item."No.",
-          LibraryRandom.RandIntInRange(100, 1000), DirectUnitCost);
-        CreatePurchaseLine(
-          PurchaseLineChargeItem, PurchaseHeader, PurchaseLineChargeItem.Type::"Charge (Item)", ItemCharge."No.",
-          LibraryRandom.RandIntInRange(100, 1000), DirectUnitCost);
-        LibraryInventory.CreateItemChargeAssignPurchase(
-          ItemChargeAssignmentPurch, PurchaseLineChargeItem,
-          PurchaseLineItem."Document Type", PurchaseLineItem."Document No.", PurchaseLineItem."Line No.", Item."No.");
-
-        // [GIVEN] Posted purchase invoice.
-        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-
-        // [WHEN] Invoke "Create Corrective Credit Memo" from posted purchase invoice.
-        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchaseHeader);
-
-        // [THEN] Two purchase lines are created for corrective credit memo.
-        PurchaseLineItem.SetRange("Buy-from Vendor No.", Vendor."No.");
-        Assert.RecordCount(PurchaseLineItem, 2);
-
-        // [THEN] Number of charge item purchase line created for corrective credit memo is the same as of charge item.
-        PurchaseLineItem.SetRange("No.", ItemCharge."No.");
-        PurchaseLineItem.FindFirst();
-        PurchaseLineItem.TestField("Unit Cost", 0);
-        PurchaseLineItem.TestField("Qty. to Assign", 0);
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure CorrectPostedPurchaseInvoiceWithStandardText()
     var
@@ -2549,13 +2493,13 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Purchase invoice with two lines - first with standard text, second one with item
         UpdatePurchaseSetupForCorrectiveMemo(false, true);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibrarySales.CreateStandardText(StandardText);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::" ",
           StandardText.Code, LibraryRandom.RandInt(10));
         CreatePurchaseLine(
-          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo,
+          PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(10), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Posted purchase invoice
@@ -2950,7 +2894,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     [Scope('OnPrem')]
     procedure CopyWorkDescriptionSalesArchiveShipment()
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         SalesHeader: Record "Sales Header";
         DestinationSalesHeader: Array[2] of Record "Sales Header";
         SalesHeaderArchive: Record "Sales Header Archive";
@@ -3013,7 +2956,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Item with extended text.
         // [GIVEN] Disable "Automatic Ext. Texts" for the item.
-        Item.Get(CreateItemWithExtText);
+        Item.Get(CreateItemWithExtText());
         Item.Validate("Automatic Ext. Texts", false);
         Item.Modify(true);
 
@@ -3052,7 +2995,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
         // [GIVEN] Item with extended text.
         // [GIVEN] Disable "Automatic Ext. Texts" for the item.
-        Item.Get(CreateItemWithExtText);
+        Item.Get(CreateItemWithExtText());
         Item.Validate("Automatic Ext. Texts", false);
         Item.Modify(true);
 
@@ -5427,7 +5370,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToSalesHeader.Insert(true);
 
         // [WHEN] Copy Sales Archive Return Order to Sales Order
-        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.",  true, false);
+        RunCopySalesDoc(SalesHeaderArchive."No.", ToSalesHeader, "Sales Document Type From"::"Arch. Return Order", SalesHeaderArchive."Doc. No. Occurrence", SalesHeaderArchive."Version No.", true, false);
 
         // [THEN] Verify new Sales Order is created without Received-from Country Code
         Assert.AreEqual('', ToSalesHeader."Rcvd.-from Count./Region Code", 'Received-from Country Code is set');
@@ -6745,7 +6688,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         UpdateShiptoAddrOfCompany();
 
         // [GIVEN] Posted Sales Invoice "PSI"
-        PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo, '');
+        PostedSalesDocNo := CreatePostSalesDocWithShiptoAddr(SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo(), '');
 
         // [GIVEN] New Return Order "RO"
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order");
@@ -6857,7 +6800,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -6952,8 +6895,6 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     end;
 
     local procedure RunCopySalesDocWithRequestPage(DocumentNo: Code[20]; NewSalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type From"; IncludeHeader: Boolean; RecalculateLines: Boolean; UseRequestPage: Boolean)
-    var
-        CopySalesDoc: Report "Copy Sales Document";
     begin
         RunCopySalesDocWithRequestPage(DocumentNo, NewSalesHeader, DocType, 0, 0, IncludeHeader, RecalculateLines, UseRequestPage);
     end;
@@ -7013,10 +6954,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 5));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 5));
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type, SalesLine."No.", 0);
         SalesLine.Validate("No.", '');
         SalesLine.Modify();
@@ -7033,10 +6974,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(2, 5));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(2, 5));
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type, PurchaseLine."No.", 0);
         PurchaseLine.Validate("No.", '');
         PurchaseLine.Modify();
@@ -7055,7 +6996,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
         GLAccountNo := SalesLine."No.";
@@ -7069,7 +7010,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
         ItemNo := SalesLine."No.";
@@ -7085,7 +7026,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         GLAccountNo := PurchaseLine."No.";
@@ -7099,7 +7040,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
         ItemNo := PurchaseLine."No.";
@@ -7171,7 +7112,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
         GLAccount.Rename(GLAccountNo);
         exit(GLAccountNo)
     end;
@@ -7180,7 +7121,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Rename(GLAccountNo);
         exit(GLAccountNo)
     end;
@@ -7190,8 +7131,8 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchLine: Record "Purchase Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, LibraryPurchase.CreateVendorNo);
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, CreateItemWithExtText,
+        LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, CreateItemWithExtText(),
           LibraryRandom.RandInt(100));
         PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchLine.Modify(true);
@@ -7211,7 +7152,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNoWithExtText, LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
@@ -7225,7 +7166,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(5));
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
@@ -7236,7 +7177,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(5));
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
         PurchaseLine.Modify(true);
@@ -7245,7 +7186,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
     local procedure CreatePurchHeaderWithPricesInclVAT(var PurchaseHeader: Record "Purchase Header"; PricesInclVAT: Boolean)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Prices Including VAT", PricesInclVAT);
         PurchaseHeader.Modify();
     end;
@@ -7287,7 +7228,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader."Prices Including VAT" := PricesInclVAT;
         PurchaseHeader.Modify();
 
@@ -7308,7 +7249,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ReturnShipmentHeader: Record "Return Shipment Header";
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", LibraryPurchase.CreateVendorNo());
         PurchaseHeader."Prices Including VAT" := PricesInclVAT;
         PurchaseHeader.Modify();
 
@@ -7326,7 +7267,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
     local procedure CreateSalesHeaderWithPricesInclVAT(var SalesHeader: Record "Sales Header"; PricesInclVAT: Boolean)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prices Including VAT", PricesInclVAT);
         SalesHeader.Modify();
     end;
@@ -7401,7 +7342,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Item.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateVendorItemDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; VendorCode: Code[20]; Item: Record Item)
     begin
         // Create a random discount without item quantity limitation (to be sure it is applied when recalculating lines)
@@ -7469,7 +7410,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         UpdateShiptoAddrSalesHeader(SalesHeader);
         SalesHeader.Validate("Ship-to Code", ShiptoCode);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(1, 10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(1, 10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -7495,7 +7436,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShipToAddress.Get(CustomerNo, ShipToAddress.Code);
         LibraryUtility.FillFieldMaxText(ShipToAddress, ShipToAddress.FieldNo(County));
         ShipToAddress.Get(CustomerNo, ShipToAddress.Code);
-        ShipToAddress.Validate("Post Code", CreatePostCode);
+        ShipToAddress.Validate("Post Code", CreatePostCode());
         ShipToAddress.Modify();
         exit(ShipToAddress.Code);
     end;
@@ -7631,7 +7572,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         CompanyInformation.Get();
         LibraryUtility.FillFieldMaxText(CompanyInformation, CompanyInformation.FieldNo("Ship-to Contact"));
         CompanyInformation.Get();
-        CompanyInformation.Validate("Ship-to Post Code", CreatePostCode);
+        CompanyInformation.Validate("Ship-to Post Code", CreatePostCode());
         CompanyInformation.Modify();
     end;
 
@@ -7648,7 +7589,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Location.Get(Location.Code);
         LibraryUtility.FillFieldMaxText(Location, Location.FieldNo(Contact));
         Location.Get(Location.Code);
-        Location.Validate("Post Code", CreatePostCode);
+        Location.Validate("Post Code", CreatePostCode());
         Location.Validate("Country/Region Code", CountryRegionCode);
         Location.Modify();
     end;
@@ -7665,7 +7606,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         LibraryUtility.FillFieldMaxText(SalesHeader, SalesHeader.FieldNo("Ship-to Contact"));
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
-        SalesHeader.Validate("Ship-to Post Code", CreatePostCode);
+        SalesHeader.Validate("Ship-to Post Code", CreatePostCode());
         SalesHeader.Modify();
     end;
 
@@ -7681,7 +7622,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Customer.Get(Customer."No.");
         LibraryUtility.FillFieldMaxText(Customer, Customer.FieldNo(Contact));
         Customer.Get(Customer."No.");
-        Customer.Validate("Post Code", CreatePostCode);
+        Customer.Validate("Post Code", CreatePostCode());
         Customer.Modify();
     end;
 
@@ -7988,9 +7929,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         RecRef.GetTable(CopiedDocument);
         RecRef.FindSet();
         repeat
-            ExpectedType := RecRef.Field(TypeFieldNo).Value;
+            ExpectedType := RecRef.Field(TypeFieldNo).Value();
             SalesLine.TestField(Type, ExpectedType);
-            ExpectedDescription := RecRef.Field(DescriptionFieldNo).Value;
+            ExpectedDescription := RecRef.Field(DescriptionFieldNo).Value();
             SalesLine.TestField(Description, ExpectedDescription);
             RecRef.Next();
         until SalesLine.Next() = 0;
@@ -8010,9 +7951,9 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         RecRef.GetTable(CopiedDocument);
         RecRef.FindSet();
         repeat
-            ExpectedType := RecRef.Field(TypeFieldNo).Value;
+            ExpectedType := RecRef.Field(TypeFieldNo).Value();
             PurchLine.TestField(Type, ExpectedType);
-            ExpectedDescription := RecRef.Field(DescriptionFieldNo).Value;
+            ExpectedDescription := RecRef.Field(DescriptionFieldNo).Value();
             PurchLine.TestField(Description, ExpectedDescription);
             RecRef.Next();
         until PurchLine.Next() = 0;
@@ -8123,7 +8064,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
             Assert.ExpectedMessage(ExpectedDescription, Description);
             if StepNext then
-                Next;
+                Next();
         end;
     end;
 
@@ -8199,7 +8140,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
             Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
             Assert.ExpectedMessage(ExpectedDescription, Description);
             if StepNext then
-                Next;
+                Next();
         end;
     end;
 
@@ -8477,14 +8418,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     procedure CopySalesDocReportHandlerOKWithEmptyDocumentNo(var CopySalesDocument: TestRequestPage "Copy Sales Document")
     begin
         CopySalesDocument.DocumentNo.Value := '';
-        CopySalesDocument.OK.Invoke;
+        CopySalesDocument.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke();
+        SalesList.OK().Invoke();
     end;
 
     [ConfirmHandler]

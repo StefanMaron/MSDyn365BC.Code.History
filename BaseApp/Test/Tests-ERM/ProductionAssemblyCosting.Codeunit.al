@@ -540,11 +540,11 @@ codeunit 137617 "Production & Assembly Costing"
         FromEntryTo := ItemLedgEntry."Entry No.";
         FromEntryTo -= 2;
 
-        // [GIVEN] Create and post assembly order consuming and producing the same item "I", due date = WORKDATE + 1 day.
-        // [GIVEN] Sell assembled items with fixed cost application on WORKDATE + 2 days.
+        // [GIVEN] Create and post assembly order consuming and producing the same item "I", due date = WorkDate() + 1 day.
+        // [GIVEN] Sell assembled items with fixed cost application on WorkDate() + 2 days.
         SelectItemJournalBatch(ItemJournalBatch);
         for I := 1 to 4 do begin
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate + 1, Item."No.", Location.Code, 2.44, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate() + 1, Item."No.", Location.Code, 2.44, '');
             LibraryAssembly.CreateAssemblyLine(
               AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 2.44, 1, '');
             AssemblyLine.Validate("Location Code", '');
@@ -554,12 +554,12 @@ codeunit 137617 "Production & Assembly Costing"
 
             ItemLedgEntry.FindLast();
             CreateItemJournalLineWithAppliesTo(
-              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate + 2);
+              ItemJournalBatch, ItemJournalLine."Entry Type"::Sale, Item."No.", 2.44, Location.Code, ItemLedgEntry."Entry No.", WorkDate() + 2);
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
         end;
 
-        // [GIVEN] Sell the remaining quantity, set posting date = WORKDATE + 3 days.
-        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate + 3);
+        // [GIVEN] Sell the remaining quantity, set posting date = WorkDate() + 3 days.
+        PostSalesItemJournalWithCostApplication(Item."No.", FromEntryTo, WorkDate() + 3);
 
         // [WHEN] Run "Adjust cost - item entries" batch job
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -1169,7 +1169,7 @@ codeunit 137617 "Production & Assembly Costing"
             FindSet();
             repeat
                 TestField("Cost Amount (Actual)", ActualCost);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1184,7 +1184,7 @@ codeunit 137617 "Production & Assembly Costing"
                 CalcFields("Cost Amount (Expected)", "Cost Amount (Actual)");
                 TestField("Cost Amount (Expected)", 0);
                 TestField("Cost Amount (Actual)", 0);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1248,7 +1248,7 @@ codeunit 137617 "Production & Assembly Costing"
     [Scope('OnPrem')]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
-        ProductionJournal.Post.Invoke;
+        ProductionJournal.Post.Invoke();
     end;
 
     [ConfirmHandler]

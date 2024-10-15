@@ -12,6 +12,7 @@ table 2002 "Azure Machine Learning Usage"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

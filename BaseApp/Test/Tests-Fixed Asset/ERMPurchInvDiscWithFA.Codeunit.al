@@ -38,8 +38,8 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         PurchFADiscAccount := UpdateGeneralPostingSetup(PurchaseLine);
 
         // Exercise: Post Purchase Invoice.
-        LibraryLowerPermissions.SetPurchDocsPost;
-        LibraryLowerPermissions.AddO365FAEdit;
+        LibraryLowerPermissions.SetPurchDocsPost();
+        LibraryLowerPermissions.AddO365FAEdit();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Verify: Verify GL Entry for Purchase Invoice Discount Amount.
@@ -48,7 +48,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         // Tear Down: Reset the initial value of Subtract Discount in Depreciation Book.
         LibraryLowerPermissions.SetOutsideO365Scope();
         UpdateDepreciationBook(OldSubtractDiscinPurchInv, OldSubtractDiscinPurchInv);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     local procedure Initialize()
@@ -77,7 +77,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
     begin
         FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
         FADepreciationBook.Modify(true);
         exit(FixedAsset."No.");
@@ -89,7 +89,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
 
         // Using Random values for calculation and value is not important for Test Case.
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", CreateFixedAsset, LibraryRandom.RandInt(5));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", CreateFixedAsset(), LibraryRandom.RandInt(5));
         PurchaseLine.Validate("Direct Unit Cost", 300 * LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Line Discount %", LibraryRandom.RandInt(15));
         PurchaseLine.Modify(true);
@@ -101,7 +101,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        GeneralPostingSetup.Validate("Purch. FA Disc. Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Purch. FA Disc. Account", LibraryERM.CreateGLAccountNo());
         GeneralPostingSetup.Modify(true);
         exit(GeneralPostingSetup."Purch. FA Disc. Account");
     end;
@@ -110,7 +110,7 @@ codeunit 134913 "ERM Purch Inv Disc With FA"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook);
+        DepreciationBook.Get(LibraryFixedAsset.GetDefaultDeprBook());
         OldSubtractDiscinPurchInv := DepreciationBook."Subtract Disc. in Purch. Inv.";
         DepreciationBook.Validate("Subtract Disc. in Purch. Inv.", SubtractDiscinPurchInv);
         DepreciationBook.Modify(true);

@@ -6,13 +6,15 @@ namespace Microsoft.EServices.EDocument;
 
 using System.Environment;
 
+#if not CLEAN22
+#pragma warning disable AS0109 // warning on table being made temporary
+#endif
 table 137 "Inc. Doc. Attachment Overview"
 {
     Caption = 'Inc. Doc. Attachment Overview';
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Table will be marked as TableType = Temporary. This means you can only use this table as temporary in your code.';
-    ObsoleteTag = '17.0';
+    TableType = Temporary;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

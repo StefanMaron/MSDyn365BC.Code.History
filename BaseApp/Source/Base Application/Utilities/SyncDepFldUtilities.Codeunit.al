@@ -87,6 +87,63 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
                 ObsoleteFieldValue := ValidFieldValue;
     end;
 
+    procedure SyncFieldsCode10(var ObsoleteFieldValue: Code[10]; var ValidFieldValue: Code[10])
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if ValidFieldValue <> '' then
+            ObsoleteFieldValue := ValidFieldValue;
+        if ObsoleteFieldValue <> '' then
+            ValidFieldValue := ObsoleteFieldValue;
+    end;
+
+    procedure SyncFieldsCode10(var ObsoleteFieldValue: Code[10]; var ValidFieldValue: Code[10]; PrevObsoleteFieldValue: Code[10]; PrevValidFieldValue: Code[10])
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+
+    procedure SyncFieldsCode20(var ObsoleteFieldValue: Code[20]; var ValidFieldValue: Code[20])
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if ValidFieldValue <> '' then
+            ObsoleteFieldValue := ValidFieldValue;
+        if ObsoleteFieldValue <> '' then
+            ValidFieldValue := ObsoleteFieldValue;
+    end;
+
+    procedure SyncFieldsCode20(var ObsoleteFieldValue: Code[20]; var ValidFieldValue: Code[20]; PrevObsoleteFieldValue: Code[20]; PrevValidFieldValue: Code[20])
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if (ObsoleteFieldValue = PrevObsoleteFieldValue) and (ValidFieldValue = PrevValidFieldValue) then
+            exit;
+
+        if ValidFieldValue <> PrevValidFieldValue then
+            ObsoleteFieldValue := ValidFieldValue
+        else
+            if ObsoleteFieldValue <> PrevObsoleteFieldValue then
+                ValidFieldValue := ObsoleteFieldValue
+            else
+                ObsoleteFieldValue := ValidFieldValue;
+    end;
+
     procedure SyncFields(var ObsoleteFieldValue: Text; var ValidFieldValue: Text)
     begin
         if ObsoleteFieldValue = ValidFieldValue then
@@ -147,6 +204,17 @@ codeunit 702 "Sync.Dep.Fld-Utilities"
                 ValidFieldValue := ObsoleteFieldValue
             else
                 ObsoleteFieldValue := ValidFieldValue;
+    end;
+
+    procedure SyncFields(var ObsoleteFieldValue: Integer; var ValidFieldValue: Integer)
+    begin
+        if ObsoleteFieldValue = ValidFieldValue then
+            exit;
+
+        if ValidFieldValue <> 0 then
+            ObsoleteFieldValue := ValidFieldValue;
+        if ObsoleteFieldValue <> 0 then
+            ValidFieldValue := ObsoleteFieldValue;
     end;
 
     procedure SyncFields(var ObsoleteFieldValue: Integer; var ValidFieldValue: Integer; PrevObsoleteFieldValue: Integer; PrevValidFieldValue: Integer)

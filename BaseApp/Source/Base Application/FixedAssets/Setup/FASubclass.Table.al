@@ -6,6 +6,7 @@ table 5608 "FA Subclass"
 {
     Caption = 'FA Subclass';
     LookupPageID = "FA Subclasses";
+    DataClassification = CustomerContent;
 
     fields
     {

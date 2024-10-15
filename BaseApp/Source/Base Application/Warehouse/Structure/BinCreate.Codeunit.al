@@ -44,30 +44,28 @@ codeunit 7318 "Bin Create"
         if IsHandled then
             exit;
 
-        with BinCreationWorksheetLine do begin
-            if EmptyLine() then
-                exit;
+        if BinCreationWorksheetLine.EmptyLine() then
+            exit;
 
-            Bin.Init();
-            Bin.Code := "Bin Code";
-            Bin.Description := Description;
-            Bin."Location Code" := "Location Code";
-            Bin.Dedicated := Dedicated;
-            GetLocation("Location Code");
-            Bin."Zone Code" := "Zone Code";
-            if Location."Directed Put-away and Pick" then
-                Bin."Bin Type Code" := "Bin Type Code";
-            Bin."Warehouse Class Code" := "Warehouse Class Code";
-            Bin."Block Movement" := "Block Movement";
-            Bin."Special Equipment Code" := "Special Equipment Code";
-            Bin."Bin Ranking" := "Bin Ranking";
-            Bin."Maximum Cubage" := "Maximum Cubage";
-            Bin."Maximum Weight" := "Maximum Weight";
-            Bin."Cross-Dock Bin" := "Cross-Dock Bin";
-            OnBeforeBinInsert(Bin, BinCreationWorksheetLine);
-            Bin.Insert(true);
-            OnAfterBinInsert(Bin, BinCreationWorksheetLine);
-        end;
+        Bin.Init();
+        Bin.Code := BinCreationWorksheetLine."Bin Code";
+        Bin.Description := BinCreationWorksheetLine.Description;
+        Bin."Location Code" := BinCreationWorksheetLine."Location Code";
+        Bin.Dedicated := BinCreationWorksheetLine.Dedicated;
+        GetLocation(BinCreationWorksheetLine."Location Code");
+        Bin."Zone Code" := BinCreationWorksheetLine."Zone Code";
+        if Location."Directed Put-away and Pick" then
+            Bin."Bin Type Code" := BinCreationWorksheetLine."Bin Type Code";
+        Bin."Warehouse Class Code" := BinCreationWorksheetLine."Warehouse Class Code";
+        Bin."Block Movement" := BinCreationWorksheetLine."Block Movement";
+        Bin."Special Equipment Code" := BinCreationWorksheetLine."Special Equipment Code";
+        Bin."Bin Ranking" := BinCreationWorksheetLine."Bin Ranking";
+        Bin."Maximum Cubage" := BinCreationWorksheetLine."Maximum Cubage";
+        Bin."Maximum Weight" := BinCreationWorksheetLine."Maximum Weight";
+        Bin."Cross-Dock Bin" := BinCreationWorksheetLine."Cross-Dock Bin";
+        OnBeforeBinInsert(Bin, BinCreationWorksheetLine);
+        Bin.Insert(true);
+        OnAfterBinInsert(Bin, BinCreationWorksheetLine);
     end;
 
     local procedure GetLocation(LocationCode: Code[10])

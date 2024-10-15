@@ -61,63 +61,61 @@ codeunit 5642 "FA Reclass. Transfer Line"
         if IsHandled then
             exit;
 
-        with FAReclassJnlLine do begin
-            if ("FA No." = '') and ("New FA No." = '') then
-                exit;
-            OldFA.Get("FA No.");
-            NewFA.Get("New FA No.");
-            FADeprBook.Get("FA No.", "Depreciation Book Code");
-            FADeprBook2.Get("New FA No.", "Depreciation Book Code");
-            OldFA.TestField(Blocked, false);
-            NewFA.TestField(Blocked, false);
-            OldFA.TestField(Inactive, false);
-            NewFA.TestField(Inactive, false);
+        if (FAReclassJnlLine."FA No." = '') and (FAReclassJnlLine."New FA No." = '') then
+            exit;
+        OldFA.Get(FAReclassJnlLine."FA No.");
+        NewFA.Get(FAReclassJnlLine."New FA No.");
+        FADeprBook.Get(FAReclassJnlLine."FA No.", FAReclassJnlLine."Depreciation Book Code");
+        FADeprBook2.Get(FAReclassJnlLine."New FA No.", FAReclassJnlLine."Depreciation Book Code");
+        OldFA.TestField(Blocked, false);
+        NewFA.TestField(Blocked, false);
+        OldFA.TestField(Inactive, false);
+        NewFA.TestField(Inactive, false);
 
-            if OldFA."Budgeted Asset" and not NewFA."Budgeted Asset" then
-                FieldError(
-                  "FA No.", StrSubstNo(Text000,
-                    OldFA.FieldCaption("Budgeted Asset"), FieldCaption("New FA No.")));
+        if OldFA."Budgeted Asset" and not NewFA."Budgeted Asset" then
+            FAReclassJnlLine.FieldError(
+              "FA No.", StrSubstNo(Text000,
+                OldFA.FieldCaption("Budgeted Asset"), FAReclassJnlLine.FieldCaption("New FA No.")));
 
-            if NewFA."Budgeted Asset" and not OldFA."Budgeted Asset" then
-                FieldError(
-                  "New FA No.", StrSubstNo(Text000,
-                    NewFA.FieldCaption("Budgeted Asset"), FieldCaption("FA No.")));
+        if NewFA."Budgeted Asset" and not OldFA."Budgeted Asset" then
+            FAReclassJnlLine.FieldError(
+              "New FA No.", StrSubstNo(Text000,
+                NewFA.FieldCaption("Budgeted Asset"), FAReclassJnlLine.FieldCaption("FA No.")));
 
-            if "FA No." = "New FA No." then
-                FieldError(
-                  "FA No.", StrSubstNo(Text001, FieldCaption("New FA No.")));
+        if FAReclassJnlLine."FA No." = FAReclassJnlLine."New FA No." then
+            FAReclassJnlLine.FieldError(
+              "FA No.", StrSubstNo(Text001, FAReclassJnlLine.FieldCaption("New FA No.")));
 
-            if FADeprBook."Disposal Date" > 0D then
-                Error(Text002, FAName(OldFA, "Depreciation Book Code"));
+        if FADeprBook."Disposal Date" > 0D then
+            Error(Text002, FAName(OldFA, FAReclassJnlLine."Depreciation Book Code"));
 
-            if FADeprBook2."Disposal Date" > 0D then
-                Error(Text002, FAName(NewFA, "Depreciation Book Code"));
+        if FADeprBook2."Disposal Date" > 0D then
+            Error(Text002, FAName(NewFA, FAReclassJnlLine."Depreciation Book Code"));
 
-            SetFAReclassType(FAReclassJnlLine);
-            CalcAmounts(FAReclassJnlLine);
-            CalcDB1DeprAmount(FAReclassJnlLine);
+        SetFAReclassType(FAReclassJnlLine);
+        CalcAmounts(FAReclassJnlLine);
+        CalcDB1DeprAmount(FAReclassJnlLine);
 
-            for OldNewFA := 0 to 1 do begin
-                j := 0;
-                while j < 9 do begin
-                    j := j + 1;
-                    if j = 7 then
-                        j := 9;
-                    Convert(OldNewFA, j, FAPostingType, Sign, FANo);
-                    i := FAPostingType.AsInteger() + 1;
-                    TemplateName := '';
-                    BatchName := '';
-                    if TransferType[i] and (Amounts[i] <> 0) then begin
-                        FAGetJnl.JnlName(
-                          "Depreciation Book Code", OldFA."Budgeted Asset", FAPostingType,
-                          TransferToGenJnl, TemplateName, BatchName);
-                        SetJnlRange();
-                        if TransferToGenJnl then
-                            InsertGenJnlLine(FAReclassJnlLine, FANo, Sign * Amounts[i], "Insert Bal. Account")
-                        else
-                            InsertFAJnlLine(FAReclassJnlLine, FANo, Sign * Amounts[i]);
-                        Done := true;
-                    end;
+        for OldNewFA := 0 to 1 do begin
+            j := 0;
+            while j < 9 do begin
+                j := j + 1;
+                if j = 7 then
+                    j := 9;
+                Convert(OldNewFA, j, FAPostingType, Sign, FANo);
+                i := FAPostingType.AsInteger() + 1;
+                TemplateName := '';
+                BatchName := '';
+                if TransferType[i] and (Amounts[i] <> 0) then begin
+                    FAGetJnl.JnlName(
+                      FAReclassJnlLine."Depreciation Book Code", OldFA."Budgeted Asset", FAPostingType,
+                      TransferToGenJnl, TemplateName, BatchName);
+                    SetJnlRange();
+                    if TransferToGenJnl then
+                        InsertGenJnlLine(FAReclassJnlLine, FANo, Sign * Amounts[i], FAReclassJnlLine."Insert Bal. Account")
+                    else
+                        InsertFAJnlLine(FAReclassJnlLine, FANo, Sign * Amounts[i]);
+                    Done := true;
                 end;
             end;
         end;
@@ -132,62 +130,56 @@ codeunit 5642 "FA Reclass. Transfer Line"
         if IsHandled then
             exit;
 
-        with FADeprBook do begin
-            CalcFields("Acquisition Cost");
-            if TransferType[2] then
-                CalcFields(Depreciation);
-            if TransferType[3] then
-                CalcFields("Write-Down");
-            if TransferType[4] then
-                CalcFields(Appreciation);
-            if TransferType[5] then
-                CalcFields("Custom 1");
-            if TransferType[6] then
-                CalcFields("Custom 2");
-            if TransferType[9] then
-                CalcFields("Salvage Value");
-            Amounts[1] := "Acquisition Cost";
-            Amounts[2] := Depreciation;
-            Amounts[3] := "Write-Down";
-            Amounts[4] := Appreciation;
-            Amounts[5] := "Custom 1";
-            Amounts[6] := "Custom 2";
-            Amounts[9] := "Salvage Value";
-            OnCalcAmountsOnAfterSetAmounts(FADeprBook, Amounts, TransferType);
-            if Amounts[1] = 0 then
-                Error(Text003,
-                  FAName(OldFA, "Depreciation Book Code"), FieldCaption("Acquisition Cost"));
-        end;
+        FADeprBook.CalcFields("Acquisition Cost");
+        if TransferType[2] then
+            FADeprBook.CalcFields(Depreciation);
+        if TransferType[3] then
+            FADeprBook.CalcFields("Write-Down");
+        if TransferType[4] then
+            FADeprBook.CalcFields(Appreciation);
+        if TransferType[5] then
+            FADeprBook.CalcFields("Custom 1");
+        if TransferType[6] then
+            FADeprBook.CalcFields("Custom 2");
+        if TransferType[9] then
+            FADeprBook.CalcFields("Salvage Value");
+        Amounts[1] := FADeprBook."Acquisition Cost";
+        Amounts[2] := FADeprBook.Depreciation;
+        Amounts[3] := FADeprBook."Write-Down";
+        Amounts[4] := FADeprBook.Appreciation;
+        Amounts[5] := FADeprBook."Custom 1";
+        Amounts[6] := FADeprBook."Custom 2";
+        Amounts[9] := FADeprBook."Salvage Value";
+        OnCalcAmountsOnAfterSetAmounts(FADeprBook, Amounts, TransferType);
+        if Amounts[1] = 0 then
+            Error(Text003,
+              FAName(OldFA, FADeprBook."Depreciation Book Code"), FADeprBook.FieldCaption("Acquisition Cost"));
 
-        with FAReclassJnlLine do begin
-            if "Reclassify Acq. Cost Amount" <> 0 then begin
-                if "Reclassify Acq. Cost Amount" > Amounts[1] then
-                    Error(Text004,
-                      FAName(OldFA, "Depreciation Book Code"),
-                      FieldCaption("Reclassify Acq. Cost Amount"),
-                      FADeprBook.FieldCaption("Acquisition Cost"));
-                "Reclassify Acq. Cost %" := "Reclassify Acq. Cost Amount" / Amounts[1] * 100;
-            end;
-            if "Reclassify Acq. Cost Amount" <> 0 then
-                Amounts[1] := "Reclassify Acq. Cost Amount"
-            else
-                Amounts[1] := Round(Amounts[1] * "Reclassify Acq. Cost %" / 100);
-            for i := 2 to 9 do
-                Amounts[i] := Round(Amounts[i] * "Reclassify Acq. Cost %" / 100);
+        if FAReclassJnlLine."Reclassify Acq. Cost Amount" <> 0 then begin
+            if FAReclassJnlLine."Reclassify Acq. Cost Amount" > Amounts[1] then
+                Error(Text004,
+                  FAName(OldFA, FAReclassJnlLine."Depreciation Book Code"),
+                  FAReclassJnlLine.FieldCaption("Reclassify Acq. Cost Amount"),
+                  FADeprBook.FieldCaption("Acquisition Cost"));
+            FAReclassJnlLine."Reclassify Acq. Cost %" := FAReclassJnlLine."Reclassify Acq. Cost Amount" / Amounts[1] * 100;
         end;
+        if FAReclassJnlLine."Reclassify Acq. Cost Amount" <> 0 then
+            Amounts[1] := FAReclassJnlLine."Reclassify Acq. Cost Amount"
+        else
+            Amounts[1] := Round(Amounts[1] * FAReclassJnlLine."Reclassify Acq. Cost %" / 100);
+        for i := 2 to 9 do
+            Amounts[i] := Round(Amounts[i] * FAReclassJnlLine."Reclassify Acq. Cost %" / 100);
     end;
 
     local procedure SetFAReclassType(var FAReclassJnlLine: Record "FA Reclass. Journal Line")
     begin
-        with FAReclassJnlLine do begin
-            TransferType[1] := "Reclassify Acquisition Cost";
-            TransferType[2] := "Reclassify Depreciation";
-            TransferType[3] := "Reclassify Write-Down";
-            TransferType[4] := "Reclassify Appreciation";
-            TransferType[5] := "Reclassify Custom 1";
-            TransferType[6] := "Reclassify Custom 2";
-            TransferType[9] := "Reclassify Salvage Value";
-        end;
+        TransferType[1] := FAReclassJnlLine."Reclassify Acquisition Cost";
+        TransferType[2] := FAReclassJnlLine."Reclassify Depreciation";
+        TransferType[3] := FAReclassJnlLine."Reclassify Write-Down";
+        TransferType[4] := FAReclassJnlLine."Reclassify Appreciation";
+        TransferType[5] := FAReclassJnlLine."Reclassify Custom 1";
+        TransferType[6] := FAReclassJnlLine."Reclassify Custom 2";
+        TransferType[9] := FAReclassJnlLine."Reclassify Salvage Value";
     end;
 
     local procedure SetJnlRange()
@@ -258,33 +250,31 @@ codeunit 5642 "FA Reclass. Transfer Line"
               FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, FAReclassJnlLine."FA Posting Date", false);
         end;
 
-        with FAJnlLine do begin
-            Init();
-            "Line No." := 0;
-            FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
-            "FA Posting Type" := FAPostingType;
-            Validate("FA No.", FANo);
-            "FA Posting Date" := FAReclassJnlLine."FA Posting Date";
-            "Posting Date" := FAReclassJnlLine."Posting Date";
-            if "Posting Date" = "FA Posting Date" then
-                "Posting Date" := 0D;
+        FAJnlLine.Init();
+        FAJnlLine."Line No." := 0;
+        FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
+        FAJnlLine."FA Posting Type" := FAPostingType;
+        FAJnlLine.Validate("FA No.", FANo);
+        FAJnlLine."FA Posting Date" := FAReclassJnlLine."FA Posting Date";
+        FAJnlLine."Posting Date" := FAReclassJnlLine."Posting Date";
+        if FAJnlLine."Posting Date" = FAJnlLine."FA Posting Date" then
+            FAJnlLine."Posting Date" := 0D;
 
-            "Document No." := FAReclassJnlLine."Document No.";
-            if "Document No." = '' then
-                "Document No." := FAJnlDocumentNo;
-            if "Document No." = '' then
-                FAReclassJnlLine.TestField("Document No.");
+        FAJnlLine."Document No." := FAReclassJnlLine."Document No.";
+        if FAJnlLine."Document No." = '' then
+            FAJnlLine."Document No." := FAJnlDocumentNo;
+        if FAJnlLine."Document No." = '' then
+            FAReclassJnlLine.TestField("Document No.");
 
-            "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
-            Validate("Depreciation Book Code", FAReclassJnlLine."Depreciation Book Code");
-            Validate(Amount, EntryAmount);
-            Description := FAReclassJnlLine.Description;
-            "FA Reclassification Entry" := true;
-            FAJnlNextLineNo := FAJnlNextLineNo + 10000;
-            "Line No." := FAJnlNextLineNo;
-            OnBeforeFAJnlLineInsert(FAJnlLine, FAReclassJnlLine, Sign);
-            Insert(true);
-        end;
+        FAJnlLine."Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
+        FAJnlLine.Validate("Depreciation Book Code", FAReclassJnlLine."Depreciation Book Code");
+        FAJnlLine.Validate(Amount, EntryAmount);
+        FAJnlLine.Description := FAReclassJnlLine.Description;
+        FAJnlLine."FA Reclassification Entry" := true;
+        FAJnlNextLineNo := FAJnlNextLineNo + 10000;
+        FAJnlLine."Line No." := FAJnlNextLineNo;
+        OnBeforeFAJnlLineInsert(FAJnlLine, FAReclassJnlLine, Sign);
+        FAJnlLine.Insert(true);
     end;
 
     local procedure InsertGenJnlLine(var FAReclassJnlLine: Record "FA Reclass. Journal Line"; FANo: Code[20]; EntryAmount: Decimal; BalAccount: Boolean)
@@ -387,19 +377,18 @@ codeunit 5642 "FA Reclass. Transfer Line"
         FADeprBook.TestField("Temp. Ending Date", 0D);
         FADeprBook2.TestField("Temp. Ending Date", 0D);
 
-        with AccountingPeriod do
-            if IsEmpty() then
-                DeprUntilDate := CalcDate('<-CY>', FAReclassJnlLine."FA Posting Date") - 1
-            else begin
-                SetRange("New Fiscal Year", true);
-                SetRange("Starting Date", FAReclassJnlLine."FA Posting Date", DMY2Date(31, 12, 9999));
-                if FindFirst() then begin
-                    if "Starting Date" <= 00000101D then
-                        Error(Text005, FieldCaption("Starting Date"), TableCaption);
-                    DeprUntilDate := "Starting Date" - 1
-                end else
-                    Error(Text005, FieldCaption("Starting Date"), TableCaption);
-            end;
+        if AccountingPeriod.IsEmpty() then
+            DeprUntilDate := CalcDate('<-CY>', FAReclassJnlLine."FA Posting Date") - 1
+        else begin
+            AccountingPeriod.SetRange("New Fiscal Year", true);
+            AccountingPeriod.SetRange("Starting Date", FAReclassJnlLine."FA Posting Date", DMY2Date(31, 12, 9999));
+            if AccountingPeriod.FindFirst() then begin
+                if AccountingPeriod."Starting Date" <= 00000101D then
+                    Error(Text005, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption);
+                DeprUntilDate := AccountingPeriod."Starting Date" - 1
+            end else
+                Error(Text005, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption);
+        end;
 
         CalculateDepr.Calculate(
           DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,

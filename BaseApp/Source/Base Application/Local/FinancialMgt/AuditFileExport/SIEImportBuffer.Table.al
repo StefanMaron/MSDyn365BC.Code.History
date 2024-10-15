@@ -16,6 +16,7 @@ table 11208 "SIE Import Buffer"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

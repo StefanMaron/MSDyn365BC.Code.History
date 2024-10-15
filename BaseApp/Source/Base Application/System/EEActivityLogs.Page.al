@@ -9,7 +9,8 @@ page 3302 "EE Activity Logs"
     PageType = List;
     PopulateAllFields = true;
     Editable = false;
-
+    InsertAllowed = false;
+    ModifyAllowed = false;
     SourceTable = "External Event Activity Log";
 
     layout
@@ -24,19 +25,24 @@ page 3302 "EE Activity Logs"
                     Caption = 'Activity Status';
                     ToolTip = 'Specifies the Activity Status.';
                 }
+                field(CreatedAt; Rec.SystemCreatedAt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Creeated at';
+                    ToolTip = 'Specifies creation time';
+                }
                 field(ActivityMessage; Rec."Activity Message")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Activity Message"';
-                    ToolTip = 'Specifies the Activity Message".';
+                    Caption = 'Activity Message';
+                    ToolTip = 'Specifies the Activity Message.';
                 }
                 field(NotificationUrl; Rec."Notification Url")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Notification Url"';
-                    ToolTip = 'Specifies the Notification Url".';
+                    Caption = 'Notification Url';
+                    ToolTip = 'Specifies the Notification Url.';
                 }
-
             }
         }
     }

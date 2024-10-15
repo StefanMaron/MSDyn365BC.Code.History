@@ -29,53 +29,49 @@ codeunit 904 "Whse.-Assembly Release"
         end;
 
         OldLocationCode := '';
-        with AssemblyHeader do begin
-            FilterAssemblyLine(AssemblyLine, "Document Type", "No.");
-            if AssemblyLine.Find('-') then begin
-                First := true;
-                repeat
-                    if First or (AssemblyLine."Location Code" <> OldLocationCode) then
-                        CreateWhseRqst(AssemblyHeader, AssemblyLine);
+        FilterAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
+        if AssemblyLine.Find('-') then begin
+            First := true;
+            repeat
+                if First or (AssemblyLine."Location Code" <> OldLocationCode) then
+                    CreateWhseRqst(AssemblyHeader, AssemblyLine);
 
-                    First := false;
-                    OldLocationCode := AssemblyLine."Location Code";
-                until AssemblyLine.Next() = 0;
-            end;
-
-            WhseRqst.Reset();
-            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-            WhseRqst.SetRange("Source Subtype", "Document Type");
-            WhseRqst.SetRange("Source No.", "No.");
-            WhseRqst.SetRange("Document Status", Status::Open);
-            WhseRqst.DeleteAll(true);
+                First := false;
+                OldLocationCode := AssemblyLine."Location Code";
+            until AssemblyLine.Next() = 0;
         end;
+
+        WhseRqst.Reset();
+        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WhseRqst.SetRange(Type, WhseRqst.Type);
+        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
+        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
+        WhseRqst.SetRange("Document Status", AssemblyHeader.Status::Open);
+        WhseRqst.DeleteAll(true);
     end;
 
     procedure Reopen(AssemblyHeader: Record "Assembly Header")
     begin
-        with AssemblyHeader do begin
-            if "Document Type" = "Document Type"::Order then
-                WhseRqst.Type := WhseRqst.Type::Outbound;
+        if AssemblyHeader."Document Type" = AssemblyHeader."Document Type"::Order then
+            WhseRqst.Type := WhseRqst.Type::Outbound;
 
-            WhseRqst.Reset();
-            WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-            WhseRqst.SetRange(Type, WhseRqst.Type);
-            WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-            WhseRqst.SetRange("Source Subtype", "Document Type");
-            WhseRqst.SetRange("Source No.", "No.");
-            WhseRqst.SetRange("Document Status", Status::Released);
-            WhseRqst.LockTable();
-            if not WhseRqst.IsEmpty() then
-                WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
+        WhseRqst.Reset();
+        WhseRqst.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WhseRqst.SetRange(Type, WhseRqst.Type);
+        WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
+        WhseRqst.SetRange("Source Subtype", AssemblyHeader."Document Type");
+        WhseRqst.SetRange("Source No.", AssemblyHeader."No.");
+        WhseRqst.SetRange("Document Status", AssemblyHeader.Status::Released);
+        WhseRqst.LockTable();
+        if not WhseRqst.IsEmpty() then
+            WhseRqst.ModifyAll("Document Status", WhseRqst."Document Status"::Open);
 
-            WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
-            WhsePickRqst.SetRange("Document No.", "No.");
-            WhsePickRqst.SetRange(Status, Status::Released);
-            if not WhsePickRqst.IsEmpty() then
-                WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
-        end;
+        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
+        WhsePickRqst.SetRange("Document No.", AssemblyHeader."No.");
+        WhsePickRqst.SetRange(Status, AssemblyHeader.Status::Released);
+        if not WhsePickRqst.IsEmpty() then
+            WhsePickRqst.ModifyAll(Status, WhsePickRqst.Status::Open);
     end;
 
     local procedure CreateWhseRqst(var AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
@@ -158,7 +154,7 @@ codeunit 904 "Whse.-Assembly Release"
         FilterAssemblyLine(AssemblyLine, AssemblyHeader."Document Type", AssemblyHeader."No.");
         AssemblyLine.SetRange("Location Code", LocationCode);
         AssemblyLine.SetFilter("Remaining Quantity", '<>0');
-        exit(not AssemblyLine.Find('-'));
+        exit(AssemblyLine.IsEmpty());
     end;
 
     procedure DeleteLine(AssemblyLine: Record "Assembly Line")
@@ -167,71 +163,66 @@ codeunit 904 "Whse.-Assembly Release"
         Location: Record Location;
         KeepWhseRqst: Boolean;
     begin
-        with AssemblyLine do begin
-            if Type <> Type::Item then
-                exit;
-            KeepWhseRqst := false;
-            if Location.Get("Location Code") then;
-            FilterAssemblyLine(AssemblyLine2, "Document Type", "Document No.");
-            AssemblyLine2.SetFilter("Line No.", '<>%1', "Line No.");
-            AssemblyLine2.SetRange("Location Code", "Location Code");
-            AssemblyLine2.SetFilter("Remaining Quantity", '<>0');
-            if AssemblyLine2.Find('-') then
-                // Other lines for same location exist in the order.
-                repeat
-                    if (not AssemblyLine2.CompletelyPicked()) or
-                       (not (Location."Require Pick" and Location."Require Shipment"))
-                    then
-                        KeepWhseRqst := true; // if lines are incompletely picked.
-                until (AssemblyLine2.Next() = 0) or KeepWhseRqst;
+        if AssemblyLine.Type <> AssemblyLine.Type::Item then
+            exit;
 
-            OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWhseRqst);
+        KeepWhseRqst := false;
+        if Location.Get(AssemblyLine."Location Code") then;
+        FilterAssemblyLine(AssemblyLine2, AssemblyLine."Document Type", AssemblyLine."Document No.");
+        AssemblyLine2.SetFilter("Line No.", '<>%1', AssemblyLine."Line No.");
+        AssemblyLine2.SetRange("Location Code", AssemblyLine."Location Code");
+        AssemblyLine2.SetFilter("Remaining Quantity", '<>0');
+        if AssemblyLine2.Find('-') then
+            // Other lines for same location exist in the order.
+            repeat
+                if (not AssemblyLine2.CompletelyPicked()) or
+                    (Location."Asm. Consump. Whse. Handling" <> Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)")
+                then
+                    KeepWhseRqst := true; // if lines are incompletely picked.
+            until (AssemblyLine2.Next() = 0) or KeepWhseRqst;
 
-            if not KeepWhseRqst then
-                if Location."Require Shipment" then
-                    DeleteWhsePickRqst(AssemblyLine, false)
-                else
-                    DeleteWhseRqst(AssemblyLine, false);
-        end;
+        OnDeleteLineOnBeforeDeleteWhseRqst(AssemblyLine2, KeepWhseRqst);
+
+        if not KeepWhseRqst then
+            if Location."Asm. Consump. Whse. Handling" in [Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)", Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)"] then
+                DeleteWhsePickRqst(AssemblyLine, false)
+            else
+                DeleteWhseRqst(AssemblyLine, false);
     end;
 
     local procedure DeleteWhsePickRqst(AssemblyLine: Record "Assembly Line"; DeleteAllWhsePickRqst: Boolean)
     begin
-        with AssemblyLine do begin
-            WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
-            WhsePickRqst.SetRange("Document No.", "Document No.");
-            if not DeleteAllWhsePickRqst then begin
-                WhsePickRqst.SetRange("Document Subtype", "Document Type");
-                WhsePickRqst.SetRange("Location Code", "Location Code");
-            end;
-            if not WhsePickRqst.IsEmpty() then
-                WhsePickRqst.DeleteAll(true);
+        WhsePickRqst.SetRange("Document Type", WhsePickRqst."Document Type"::Assembly);
+        WhsePickRqst.SetRange("Document No.", AssemblyLine."Document No.");
+        if not DeleteAllWhsePickRqst then begin
+            WhsePickRqst.SetRange("Document Subtype", AssemblyLine."Document Type");
+            WhsePickRqst.SetRange("Location Code", AssemblyLine."Location Code");
         end;
+        if not WhsePickRqst.IsEmpty() then
+            WhsePickRqst.DeleteAll(true);
     end;
 
     local procedure DeleteWhseRqst(AssemblyLine: Record "Assembly Line"; DeleteAllWhseRqst: Boolean)
     var
-        WhseRqst: Record "Warehouse Request";
+        WhseRqst2: Record "Warehouse Request";
     begin
-        with AssemblyLine do begin
-            if not DeleteAllWhseRqst then
-                case true of
-                    "Remaining Quantity" > 0:
-                        WhseRqst.SetRange(Type, WhseRqst.Type::Outbound);
-                    "Remaining Quantity" < 0:
-                        WhseRqst.SetRange(Type, WhseRqst.Type::Inbound);
-                    "Remaining Quantity" = 0:
-                        exit;
-                end;
-            WhseRqst.SetRange("Source Type", DATABASE::"Assembly Line");
-            WhseRqst.SetRange("Source No.", "Document No.");
-            if not DeleteAllWhseRqst then begin
-                WhseRqst.SetRange("Source Subtype", "Document Type");
-                WhseRqst.SetRange("Location Code", "Location Code");
+        if not DeleteAllWhseRqst then
+            case true of
+                AssemblyLine."Remaining Quantity" > 0:
+                    WhseRqst2.SetRange(Type, WhseRqst2.Type::Outbound);
+                AssemblyLine."Remaining Quantity" < 0:
+                    WhseRqst2.SetRange(Type, WhseRqst2.Type::Inbound);
+                AssemblyLine."Remaining Quantity" = 0:
+                    exit;
             end;
-            if not WhseRqst.IsEmpty() then
-                WhseRqst.DeleteAll(true);
+        WhseRqst2.SetRange("Source Type", DATABASE::"Assembly Line");
+        WhseRqst2.SetRange("Source No.", AssemblyLine."Document No.");
+        if not DeleteAllWhseRqst then begin
+            WhseRqst2.SetRange("Source Subtype", AssemblyLine."Document Type");
+            WhseRqst2.SetRange("Location Code", AssemblyLine."Location Code");
         end;
+        if not WhseRqst2.IsEmpty() then
+            WhseRqst2.DeleteAll(true);
     end;
 
     [IntegrationEvent(false, false)]

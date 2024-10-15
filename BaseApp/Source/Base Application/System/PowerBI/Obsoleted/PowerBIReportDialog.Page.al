@@ -1,7 +1,7 @@
 #if not CLEAN23
 namespace System.Integration.PowerBI;
 
-using System;
+using System.Integration;
 
 page 6305 "Power BI Report Dialog"
 {
@@ -17,7 +17,7 @@ page 6305 "Power BI Report Dialog"
     {
         area(content)
         {
-            usercontrol(WebPageViewer; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
+            usercontrol(WebPageViewer; WebPageViewer)
             {
                 ApplicationArea = Basic, Suite;
 
@@ -76,14 +76,15 @@ page 6305 "Power BI Report Dialog"
 
     local procedure SetReport()
     var
-        JsonArray: DotNet Array;
-        DotNetString: DotNet String;
+        JsonArray: JsonArray;
+        JsonValue: JsonValue;
     begin
         // subscribe to events
         CurrPage.WebPageViewer.SubscribeToEvent('message', EmbedUrl);
         CurrPage.WebPageViewer.Navigate(EmbedUrl);
-        JsonArray := JsonArray.CreateInstance(GetDotNetType(DotNetString), 1);
-        JsonArray.SetValue('{"statusCode":202,"headers":{}}', 0);
+
+        JsonValue.SetValue('{"statusCode":202,"headers":{}}');
+        JsonArray.Add(JsonValue);
         CurrPage.WebPageViewer.SetCallbacksFromSubscribedEventToIgnore('message', JsonArray);
     end;
 

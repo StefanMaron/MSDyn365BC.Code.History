@@ -94,30 +94,29 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     begin
         OnBeforeInitPost(BankAccRecon);
         GLSetup.Get();
-        with BankAccRecon do
-            case "Statement Type" of
-                "Statement Type"::"Bank Reconciliation":
-                    begin
-                        TestField("Statement Date");
-                        CheckLinesMatchEndingBalance(BankAccRecon, Difference);
-                    end;
-                "Statement Type"::"Payment Application":
-                    begin
-                        SourceCodeSetup.Get();
-                        SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
-                        PostPaymentsOnly := "Post Payments Only";
-                        if PreviewMode then
-                            exit;
-                        if not PostPaymentsOnly then
-                            if GuiAllowed then begin
-                                if PAGE.RunModal(Page::"Post Pmts and Rec. Bank Acc.", BankAccRecon) <> ACTION::LookupOK then
-                                    Error('');
+        case BankAccRecon."Statement Type" of
+            BankAccRecon."Statement Type"::"Bank Reconciliation":
+                begin
+                    BankAccRecon.TestField("Statement Date");
+                    CheckLinesMatchEndingBalance(BankAccRecon, Difference);
+                end;
+            BankAccRecon."Statement Type"::"Payment Application":
+                begin
+                    SourceCodeSetup.Get();
+                    SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
+                    PostPaymentsOnly := BankAccRecon."Post Payments Only";
+                    if PreviewMode then
+                        exit;
+                    if not PostPaymentsOnly then
+                        if GuiAllowed then begin
+                            if PAGE.RunModal(Page::"Post Pmts and Rec. Bank Acc.", BankAccRecon) <> ACTION::LookupOK then
+                                Error('');
 
-                                BankAccRecon.Get("Statement Type", "Bank Account No.", "Statement No.");
-                                CheckLinesMatchEndingBalance(BankAccRecon, Difference);
-                            end;
-                    end;
-            end;
+                            BankAccRecon.Get(BankAccRecon."Statement Type", BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
+                            CheckLinesMatchEndingBalance(BankAccRecon, Difference);
+                        end;
+                end;
+        end;
     end;
 
     local procedure StoreFieldsPrePosting(BankAccRecon: Record "Bank Acc. Reconciliation"; var PrePostingOutstdPayments: Decimal; var PrePostingOutstdBankTransactions: Decimal; var PrePostingGLBalance: Decimal; var PrePostingTotalPositiveDifference: Decimal; var PrePostingTotalNegativeDifference: Decimal)
@@ -164,85 +163,80 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 FeatureTelemetry.LogUptake('0000KMI', BankAccReconLine.GetPaymentRecJournalTelemetryFeatureName(), Enum::"Feature Uptake Status"::Used);
         end;
         StoreFieldsPrePosting(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
-        with BankAccRecon do begin
-            // Run through lines
-            BankAccReconLine.FilterBankRecLines(BankAccRecon);
-            OnPostAfterFilterBankAccRecLines(BankAccReconLine, BankAccRecon);
-            TotalAmount := 0;
-            TotalAppliedAmount := 0;
-            Lines := 0;
-            if BankAccReconLine.IsEmpty() then
-                if Confirm(MissingBankAccReconLineQst) then
-                    InsertEmptyBankAccReconLine(BankAccRecon)
-                else
-                    Error('');
-            BankAccLedgEntry.LockTable();
-            CheckLedgEntry.LockTable();
-
-            PostedStamentNo := GetPostedStamentNo(BankAccRecon);
-
-            if BankAccReconLine.FindSet() then
-                repeat
-                    Lines := Lines + 1;
-                    if GuiAllowed then
-                        if not PreviewMode then
-                            Window.Update(2, Lines);
-                    AppliedAmount := 0;
-
-                    BankAccReconLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
-                    if ("Statement Type" = "Statement Type"::"Bank Reconciliation") and BankAccRecMatchBuffer.FindFirst() then begin
-                        if (not BankAccRecMatchBuffer."Is Processed") then
-                            CloseBankAccLEManyToOne(BankAccRecMatchBuffer, AppliedAmount, BankAccRecon."Statement Date");
-                    end else begin
-                        // Adjust entries
-                        // Test amount and settled amount
-
-                        case "Statement Type" of
-                            "Statement Type"::"Bank Reconciliation":
-                                CloseBankAccLedgEntry(BankAccReconLine, AppliedAmount, BankAccRecon."Statement Date");
-                            "Statement Type"::"Payment Application":
-                                PostPaymentApplications(BankAccReconLine, AppliedAmount);
-                        end;
-                        OnBeforeAppliedAmountCheck(BankAccReconLine, AppliedAmount);
-                        BankAccReconLine.TestField("Applied Amount", AppliedAmount);
-                    end;
-                    TotalAmount += BankAccReconLine."Statement Amount";
-                    TotalAppliedAmount += AppliedAmount;
-                until BankAccReconLine.Next() = 0;
-
-            // Test amount
-            if "Statement Type" = "Statement Type"::"Payment Application" then
-                TotalTransAmtNotAppliedErr := NotFullyAppliedErr
+        // Run through lines
+        BankAccReconLine.FilterBankRecLines(BankAccRecon);
+        OnPostAfterFilterBankAccRecLines(BankAccReconLine, BankAccRecon);
+        TotalAmount := 0;
+        TotalAppliedAmount := 0;
+        Lines := 0;
+        if BankAccReconLine.IsEmpty() then
+            if Confirm(MissingBankAccReconLineQst) then
+                InsertEmptyBankAccReconLine(BankAccRecon)
             else
-                TotalTransAmtNotAppliedErr := Text003;
-            if TotalAmount <> TotalAppliedAmount then
-                Error(
-                  TotalTransAmtNotAppliedErr,
-                  TotalAppliedAmount, TotalAmount);
-            if Difference <> 0 then
-                Error(Text004, Difference, 0);
+                Error('');
+        BankAccLedgEntry.LockTable();
+        CheckLedgEntry.LockTable();
 
-            if PreviewMode then
-                exit;
+        PostedStamentNo := GetPostedStamentNo(BankAccRecon);
 
-            // Get bank
-            if not PostPaymentsOnly then
-                UpdateBank(BankAccRecon, TotalAmount);
+        if BankAccReconLine.FindSet() then
+            repeat
+                Lines := Lines + 1;
+                if GuiAllowed then
+                    if not PreviewMode then
+                        Window.Update(2, Lines);
+                AppliedAmount := 0;
 
-            case "Statement Type" of
-                "Statement Type"::"Bank Reconciliation":
-                    begin
-                        TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
-                        FeatureTelemetry.LogUsage('0000JLP', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
-                        Session.LogMessage('0000JLQ', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+                BankAccReconLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
+                if (BankAccRecon."Statement Type" = BankAccRecon."Statement Type"::"Bank Reconciliation") and BankAccRecMatchBuffer.FindFirst() then begin
+                    if (not BankAccRecMatchBuffer."Is Processed") then
+                        CloseBankAccLEManyToOne(BankAccRecMatchBuffer, AppliedAmount, BankAccRecon."Statement Date");
+                end else begin
+                    // Adjust entries
+                    // Test amount and settled amount
+                    case BankAccRecon."Statement Type" of
+                        BankAccRecon."Statement Type"::"Bank Reconciliation":
+                            CloseBankAccLedgEntry(BankAccReconLine, AppliedAmount, BankAccRecon."Statement Date");
+                        BankAccRecon."Statement Type"::"Payment Application":
+                            PostPaymentApplications(BankAccReconLine, AppliedAmount);
                     end;
-                "Statement Type"::"Payment Application":
-                    begin
-                        HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
-                        FeatureTelemetry.LogUsage('0000KMJ', BankAccReconLine.GetPaymentRecJournalTelemetryFeatureName(), EventNameTelemetryPmtTxt);
-                        Session.LogMessage('0000KMK', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecCategoryLbl);
-                    end;
-            end;
+                    OnBeforeAppliedAmountCheck(BankAccReconLine, AppliedAmount);
+                    BankAccReconLine.TestField("Applied Amount", AppliedAmount);
+                end;
+                TotalAmount += BankAccReconLine."Statement Amount";
+                TotalAppliedAmount += AppliedAmount;
+            until BankAccReconLine.Next() = 0;
+        // Test amount
+        if BankAccRecon."Statement Type" = BankAccRecon."Statement Type"::"Payment Application" then
+            TotalTransAmtNotAppliedErr := NotFullyAppliedErr
+        else
+            TotalTransAmtNotAppliedErr := Text003;
+        if TotalAmount <> TotalAppliedAmount then
+            Error(
+              TotalTransAmtNotAppliedErr,
+              TotalAppliedAmount, TotalAmount);
+        if Difference <> 0 then
+            Error(Text004, Difference, 0);
+
+        if PreviewMode then
+            exit;
+        // Get bank
+        if not PostPaymentsOnly then
+            UpdateBank(BankAccRecon, TotalAmount);
+
+        case BankAccRecon."Statement Type" of
+            BankAccRecon."Statement Type"::"Bank Reconciliation":
+                begin
+                    TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                    FeatureTelemetry.LogUsage('0000JLP', BankAccRecon.GetBankReconciliationTelemetryFeatureName(), EventNameTelemetryTxt);
+                    Session.LogMessage('0000JLQ', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+                end;
+            BankAccRecon."Statement Type"::"Payment Application":
+                begin
+                    HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
+                    FeatureTelemetry.LogUsage('0000KMJ', BankAccReconLine.GetPaymentRecJournalTelemetryFeatureName(), EventNameTelemetryPmtTxt);
+                    Session.LogMessage('0000KMK', Format(Lines), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentRecCategoryLbl);
+                end;
         end;
     end;
 
@@ -275,21 +269,19 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         OnBeforeFinalizePost(BankAccRecon);
         CreationDateTime := BankAccRecon.SystemCreatedAt;
         MatchedWithAI := AIMatchProposalsExist(BankAccRecon);
-        with BankAccRecon do begin
-            if BankAccReconLine.LinesExist(BankAccRecon) then
-                repeat
-                    AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
-                    AppliedPmtEntry.DeleteAll();
+        if BankAccReconLine.LinesExist(BankAccRecon) then
+            repeat
+                AppliedPmtEntry.FilterAppliedPmtEntry(BankAccReconLine);
+                AppliedPmtEntry.DeleteAll();
 
-                    BankAccReconLine.Delete();
-                    BankAccReconLine.ClearDataExchEntries();
-                    LineCount += 1;
+                BankAccReconLine.Delete();
+                BankAccReconLine.ClearDataExchEntries();
+                LineCount += 1;
 
-                until BankAccReconLine.Next() = 0;
+            until BankAccReconLine.Next() = 0;
 
-            Find();
-            Delete();
-        end;
+        BankAccRecon.Find();
+        BankAccRecon.Delete();
         TelemetryCategories.Add('Category', BankAccountRecCategoryLbl);
         TelemetryCategories.Add('MatchedWithAI', Format(MatchedWithAI, 0, 9));
         TelemetryCategories.Add('NumberOfLines', Format(LineCount));
@@ -319,16 +311,14 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
-        with BankAccReconLine do begin
-            LinesExist(BankAccRecon);
-            CalcSums("Statement Amount", Difference);
-            OnCheckLinesMatchEndingBalanceOnAfterCalcSums(BankAccReconLine);
+        BankAccReconLine.LinesExist(BankAccRecon);
+        BankAccReconLine.CalcSums(BankAccReconLine."Statement Amount", BankAccReconLine.Difference);
+        OnCheckLinesMatchEndingBalanceOnAfterCalcSums(BankAccReconLine);
 
-            if "Statement Amount" <>
-               BankAccRecon."Statement Ending Balance" - BankAccRecon."Balance Last Statement"
-            then
-                Error(StatementEndingBalanceErr, BankAccRecon.FieldCaption("Statement Ending Balance"));
-        end;
+        if BankAccReconLine."Statement Amount" <>
+           BankAccRecon."Statement Ending Balance" - BankAccRecon."Balance Last Statement"
+        then
+            Error(StatementEndingBalanceErr, BankAccRecon.FieldCaption("Statement Ending Balance"));
         Difference := BankAccReconLine.Difference;
     end;
 
@@ -398,7 +388,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccLedgEntry.SetRange("Statement No.", BankAccReconLine."Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", BankAccReconLine."Statement Line No.");
         OnCloseBankAccLedgEntryOnAfterBankAccLedgEntrySetFilters(BankAccLedgEntry, BankAccReconLine);
-        if BankAccLedgEntry.FindSet(true, true) then
+        if BankAccLedgEntry.FindSet(true) then
             repeat
                 AppliedAmount += BankAccLedgEntry."Remaining Amount";
                 BankAccLedgEntry."Remaining Amount" := 0;
@@ -448,48 +438,46 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             Error(TransactionAlreadyReconciledErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
 
         OnPostPaymentApplicationsOnAfterTransactionPostedAndReconciledCheck(BankAccReconLine, AppliedAmount, SourceCode);
-        with GenJnlLine do begin
-            if BankAccReconLine."Account No." = '' then
-                Error(LineNoTAppliedErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
-            BankAcc.Get(BankAccReconLine."Bank Account No.");
+        if BankAccReconLine."Account No." = '' then
+            Error(LineNoTAppliedErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
+        BankAcc.Get(BankAccReconLine."Bank Account No.");
 
-            Init();
-            SetSuppressCommit(true);
-            "Document Type" := "Document Type"::Payment;
+        GenJnlLine.Init();
+        GenJnlLine.SetSuppressCommit(true);
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
 
-            if IsRefund(BankAccReconLine) then
-                if BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::Employee then
-                    "Document Type" := "Document Type"::" "
-                else
-                    "Document Type" := "Document Type"::Refund;
+        if IsRefund(BankAccReconLine) then
+            if BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::Employee then
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::" "
+            else
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
 
-            "Posting Date" := BankAccReconLine."Transaction Date";
-            "VAT Reporting Date" := BankAccReconLine."Transaction Date";
-            "Account Type" := Enum::"Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
-            BankAccReconciliation.Get(
-              BankAccReconLine."Statement Type", BankAccReconLine."Bank Account No.", BankAccReconLine."Statement No.");
-            "Copy VAT Setup to Jnl. Lines" := BankAccReconciliation."Copy VAT Setup to Jnl. Line";
-            Validate("Account No.", BankAccReconLine.GetAppliedToAccountNo());
-            "Dimension Set ID" := BankAccReconLine."Dimension Set ID";
-            DimensionManagement.UpdateGlobalDimFromDimSetID(
-              BankAccReconLine."Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+        GenJnlLine."Posting Date" := BankAccReconLine."Transaction Date";
+        GenJnlLine."VAT Reporting Date" := BankAccReconLine."Transaction Date";
+        GenJnlLine."Account Type" := Enum::"Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
+        BankAccReconciliation.Get(
+          BankAccReconLine."Statement Type", BankAccReconLine."Bank Account No.", BankAccReconLine."Statement No.");
+        GenJnlLine."Copy VAT Setup to Jnl. Lines" := BankAccReconciliation."Copy VAT Setup to Jnl. Line";
+        GenJnlLine.Validate("Account No.", BankAccReconLine.GetAppliedToAccountNo());
+        GenJnlLine."Dimension Set ID" := BankAccReconLine."Dimension Set ID";
+        DimensionManagement.UpdateGlobalDimFromDimSetID(
+          BankAccReconLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code");
 
-            Description := BankAccReconLine.GetDescription();
+        GenJnlLine.Description := BankAccReconLine.GetDescription();
 
-            "Document No." := PostedStamentNo;
-            "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
-            "Bal. Account No." := BankAcc."No.";
+        GenJnlLine."Document No." := PostedStamentNo;
+        GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
+        GenJnlLine."Bal. Account No." := BankAcc."No.";
 
-            "Source Code" := SourceCode;
-            "Allow Zero-Amount Posting" := true;
+        GenJnlLine."Source Code" := SourceCode;
+        GenJnlLine."Allow Zero-Amount Posting" := true;
 
-            "Applies-to ID" := BankAccReconLine.GetAppliesToID();
-            if GLSetup."Journal Templ. Name Mandatory" then begin
-                GLSetup.TestField("Bank Acc. Recon. Template Name");
-                GLSetup.TestField("Bank Acc. Recon. Batch Name");
-                "Journal Template Name" := GLSetup."Bank Acc. Recon. Template Name";
-                "Journal Batch Name" := GLSetup."Bank Acc. Recon. Batch Name";
-            end;
+        GenJnlLine."Applies-to ID" := BankAccReconLine.GetAppliesToID();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GLSetup.TestField("Bank Acc. Recon. Template Name");
+            GLSetup.TestField("Bank Acc. Recon. Batch Name");
+            GenJnlLine."Journal Template Name" := GLSetup."Bank Acc. Recon. Template Name";
+            GenJnlLine."Journal Batch Name" := GLSetup."Bank Acc. Recon. Batch Name";
         end;
 
         IsApplied := false;
@@ -498,58 +486,57 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         if IsHandled then
             exit;
 
-        with AppliedPmtEntry do
-            if AppliedPmtEntryLinesExist(BankAccReconLine) then
-                repeat
-                    AppliedAmount += "Applied Amount" - "Applied Pmt. Discount";
-                    PaymentLineAmount += "Applied Amount" - "Applied Pmt. Discount";
-                    TestField("Account Type", BankAccReconLine."Account Type");
-                    TestField("Account No.", BankAccReconLine."Account No.");
-                    if "Applies-to Entry No." <> 0 then begin
-                        case "Account Type" of
-                            "Account Type"::Customer:
-                                ApplyCustLedgEntry(
-                                  AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
-                            "Account Type"::Vendor:
-                                ApplyVendLedgEntry(
-                                  AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
-                            "Account Type"::Employee:
-                                ApplyEmployeeLedgEntry(
-                                  AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, "Applied Pmt. Discount");
-                            "Account Type"::"Bank Account":
-                                begin
-                                    BankAccountLedgerEntry.Get("Applies-to Entry No.");
-                                    RemainingAmount := BankAccountLedgerEntry."Remaining Amount";
-                                    case true of
-                                        RemainingAmount = "Applied Amount":
-                                            begin
-                                                if not PostPaymentsOnly then
-                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", "Applied Amount", BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
-                                                PaymentLineAmount -= "Applied Amount";
+        if AppliedPmtEntry.AppliedPmtEntryLinesExist(BankAccReconLine) then
+            repeat
+                AppliedAmount += AppliedPmtEntry."Applied Amount" - AppliedPmtEntry."Applied Pmt. Discount";
+                PaymentLineAmount += AppliedPmtEntry."Applied Amount" - AppliedPmtEntry."Applied Pmt. Discount";
+                AppliedPmtEntry.TestField("Account Type", BankAccReconLine."Account Type");
+                AppliedPmtEntry.TestField("Account No.", BankAccReconLine."Account No.");
+                if AppliedPmtEntry."Applies-to Entry No." <> 0 then begin
+                    case AppliedPmtEntry."Account Type" of
+                        AppliedPmtEntry."Account Type"::Customer:
+                            ApplyCustLedgEntry(
+                              AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, AppliedPmtEntry."Applied Pmt. Discount");
+                        AppliedPmtEntry."Account Type"::Vendor:
+                            ApplyVendLedgEntry(
+                              AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, AppliedPmtEntry."Applied Pmt. Discount");
+                        AppliedPmtEntry."Account Type"::Employee:
+                            ApplyEmployeeLedgEntry(
+                              AppliedPmtEntry, GenJnlLine."Applies-to ID", GenJnlLine."Posting Date", 0D, 0D, AppliedPmtEntry."Applied Pmt. Discount");
+                        AppliedPmtEntry."Account Type"::"Bank Account":
+                            begin
+                                BankAccountLedgerEntry.Get(AppliedPmtEntry."Applies-to Entry No.");
+                                RemainingAmount := BankAccountLedgerEntry."Remaining Amount";
+                                case true of
+                                    RemainingAmount = AppliedPmtEntry."Applied Amount":
+                                        begin
+                                            if not PostPaymentsOnly then
+                                                CloseBankAccountLedgerEntry(AppliedPmtEntry."Applies-to Entry No.", AppliedPmtEntry."Applied Amount", BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
+                                            PaymentLineAmount -= AppliedPmtEntry."Applied Amount";
+                                        end;
+                                    Abs(RemainingAmount) > Abs(AppliedPmtEntry."Applied Amount"):
+                                        begin
+                                            if not PostPaymentsOnly then begin
+                                                Session.LogMessage('0000KSG', 'Partial application of BLE', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, '', '');
+                                                BankAccountLedgerEntry."Remaining Amount" -= AppliedPmtEntry."Applied Amount";
+                                                BankAccountLedgerEntry.Modify();
                                             end;
-                                        Abs(RemainingAmount) > Abs("Applied Amount"):
-                                            begin
-                                                if not PostPaymentsOnly then begin
-                                                    Session.LogMessage('0000KSG', 'Partial application of BLE', Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, '', '');
-                                                    BankAccountLedgerEntry."Remaining Amount" -= "Applied Amount";
-                                                    BankAccountLedgerEntry.Modify();
-                                                end;
-                                                PaymentLineAmount -= "Applied Amount";
-                                            end;
-                                        Abs(RemainingAmount) < Abs("Applied Amount"):
-                                            begin
-                                                if not PostPaymentsOnly then
-                                                    CloseBankAccountLedgerEntry("Applies-to Entry No.", RemainingAmount, BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
-                                                PaymentLineAmount -= RemainingAmount;
-                                            end;
-                                    end;
+                                            PaymentLineAmount -= AppliedPmtEntry."Applied Amount";
+                                        end;
+                                    Abs(RemainingAmount) < Abs(AppliedPmtEntry."Applied Amount"):
+                                        begin
+                                            if not PostPaymentsOnly then
+                                                CloseBankAccountLedgerEntry(AppliedPmtEntry."Applies-to Entry No.", RemainingAmount, BankAccReconciliation."Statement Date", BankAccReconLine."Statement Line No.");
+                                            PaymentLineAmount -= RemainingAmount;
+                                        end;
                                 end;
-                            else
-                                OnPostPaymentApplicationsOnAccountTypeCaseElse(AppliedPmtEntry, GenJnlLine);
-                        end;
-                        IsApplied := true;
+                            end;
+                        else
+                            OnPostPaymentApplicationsOnAccountTypeCaseElse(AppliedPmtEntry, GenJnlLine);
                     end;
-                until Next() = 0;
+                    IsApplied := true;
+                end;
+            until AppliedPmtEntry.Next() = 0;
 
         if PaymentLineAmount <> 0 then begin
             if not IsApplied then
@@ -589,14 +576,12 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     local procedure UpdateBank(BankAccRecon: Record "Bank Acc. Reconciliation"; Amt: Decimal)
     begin
-        with BankAcc do begin
-            LockTable();
-            Get(BankAccRecon."Bank Account No.");
-            TestField(Blocked, false);
-            "Last Statement No." := PostedStamentNo;
-            "Balance Last Statement" := BankAccRecon."Balance Last Statement" + Amt;
-            Modify();
-        end;
+        BankAcc.LockTable();
+        BankAcc.Get(BankAccRecon."Bank Account No.");
+        BankAcc.TestField(Blocked, false);
+        BankAcc."Last Statement No." := PostedStamentNo;
+        BankAcc."Balance Last Statement" := BankAccRecon."Balance Last Statement" + Amt;
+        BankAcc.Modify();
     end;
 
     local procedure TransferToBankStmt(BankAccRecon: Record "Bank Acc. Reconciliation"; PrePostingOutstdPayments: Decimal; PrePostingOutstdBankTransactions: Decimal; PrePostingGLBalance: Decimal; PrePostingTotalPositiveDifference: Decimal; PrePostingTotalNegativeDifference: Decimal)
@@ -699,34 +684,32 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         CurrExchRate: Record "Currency Exchange Rate";
         IsHandled: Boolean;
     begin
-        with CustLedgEntry do begin
-            Get(AppliedPmtEntry."Applies-to Entry No.");
-            TestField(Open);
-            BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+        CustLedgEntry.Get(AppliedPmtEntry."Applies-to Entry No.");
+        CustLedgEntry.TestField(Open);
+        BankAcc.Get(AppliedPmtEntry."Bank Account No.");
 
-            IsHandled := false;
-            OnBeforeApplyCustLedgEntry(CustLedgEntry, AppliedPmtEntry, BankAcc, AppliesToID, PostingDate, PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible, IsHandled);
-            if IsHandled then
-                exit;
+        IsHandled := false;
+        OnBeforeApplyCustLedgEntry(CustLedgEntry, AppliedPmtEntry, BankAcc, AppliesToID, PostingDate, PmtDiscDueDate, PmtDiscToleranceDate, RemPmtDiscPossible, IsHandled);
+        if IsHandled then
+            exit;
 
-            if AppliesToID = '' then begin
-                "Pmt. Discount Date" := PmtDiscDueDate;
-                "Pmt. Disc. Tolerance Date" := PmtDiscToleranceDate;
+        if AppliesToID = '' then begin
+            CustLedgEntry."Pmt. Discount Date" := PmtDiscDueDate;
+            CustLedgEntry."Pmt. Disc. Tolerance Date" := PmtDiscToleranceDate;
 
-                "Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
-                if BankAcc.IsInLocalCurrency() then
-                    "Remaining Pmt. Disc. Possible" :=
-                      CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", '', "Currency Code", PostingDate);
-            end else begin
-                "Applies-to ID" := AppliesToID;
-                "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
-            end;
-
-            if PreviewMode then
-                CustEntryEditNoCommit(CustLedgEntry)
-            else
-                CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
+            CustLedgEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
+            if BankAcc.IsInLocalCurrency() then
+                CustLedgEntry."Remaining Pmt. Disc. Possible" :=
+                  CurrExchRate.ExchangeAmount(CustLedgEntry."Remaining Pmt. Disc. Possible", '', CustLedgEntry."Currency Code", PostingDate);
+        end else begin
+            CustLedgEntry."Applies-to ID" := AppliesToID;
+            CustLedgEntry."Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
         end;
+
+        if PreviewMode then
+            CustEntryEditNoCommit(CustLedgEntry)
+        else
+            CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
     end;
 
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -740,28 +723,26 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         VendLedgEntry: Record "Vendor Ledger Entry";
         CurrExchRate: Record "Currency Exchange Rate";
     begin
-        with VendLedgEntry do begin
-            Get(AppliedPmtEntry."Applies-to Entry No.");
-            TestField(Open);
-            BankAcc.Get(AppliedPmtEntry."Bank Account No.");
-            if AppliesToID = '' then begin
-                "Pmt. Discount Date" := PmtDiscDueDate;
-                "Pmt. Disc. Tolerance Date" := PmtDiscToleranceDate;
+        VendLedgEntry.Get(AppliedPmtEntry."Applies-to Entry No.");
+        VendLedgEntry.TestField(Open);
+        BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+        if AppliesToID = '' then begin
+            VendLedgEntry."Pmt. Discount Date" := PmtDiscDueDate;
+            VendLedgEntry."Pmt. Disc. Tolerance Date" := PmtDiscToleranceDate;
 
-                "Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
-                if BankAcc.IsInLocalCurrency() then
-                    "Remaining Pmt. Disc. Possible" :=
-                      CurrExchRate.ExchangeAmount("Remaining Pmt. Disc. Possible", '', "Currency Code", PostingDate);
-            end else begin
-                "Applies-to ID" := AppliesToID;
-                "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
-            end;
-
-            if PreviewMode then
-                VendEntryEditNoCommit(VendLedgEntry)
-            else
-                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
+            VendLedgEntry."Remaining Pmt. Disc. Possible" := RemPmtDiscPossible;
+            if BankAcc.IsInLocalCurrency() then
+                VendLedgEntry."Remaining Pmt. Disc. Possible" :=
+                  CurrExchRate.ExchangeAmount(VendLedgEntry."Remaining Pmt. Disc. Possible", '', VendLedgEntry."Currency Code", PostingDate);
+        end else begin
+            VendLedgEntry."Applies-to ID" := AppliesToID;
+            VendLedgEntry."Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
         end;
+
+        if PreviewMode then
+            VendEntryEditNoCommit(VendLedgEntry)
+        else
+            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
     end;
 
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -774,20 +755,18 @@ codeunit 370 "Bank Acc. Reconciliation Post"
     var
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
     begin
-        with EmployeeLedgerEntry do begin
-            Get(AppliedPmtEntry."Applies-to Entry No.");
-            TestField(Open);
-            BankAcc.Get(AppliedPmtEntry."Bank Account No.");
-            if AppliesToID <> '' then begin
-                "Applies-to ID" := AppliesToID;
-                "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
-            end;
-
-            if PreviewMode then
-                EmplEntryEditNoCommit(EmployeeLedgerEntry)
-            else
-                CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
+        EmployeeLedgerEntry.Get(AppliedPmtEntry."Applies-to Entry No.");
+        EmployeeLedgerEntry.TestField(Open);
+        BankAcc.Get(AppliedPmtEntry."Bank Account No.");
+        if AppliesToID <> '' then begin
+            EmployeeLedgerEntry."Applies-to ID" := AppliesToID;
+            EmployeeLedgerEntry."Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
         end;
+
+        if PreviewMode then
+            EmplEntryEditNoCommit(EmployeeLedgerEntry)
+        else
+            CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
     end;
 
     [CommitBehavior(CommitBehavior::Ignore)]
@@ -801,57 +780,52 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            Get(EntryNo);
-            TestField(Open);
-            TestField("Remaining Amount", AppliedAmount);
-            "Remaining Amount" := 0;
-            Open := false;
-            "Statement Status" := "Statement Status"::Closed;
-            "Closed at Date" := StatementDate;
-            "Statement No." := PostedStamentNo;
-            "Statement Line No." := StatementLineNo;
-            Modify();
+        BankAccountLedgerEntry.Get(EntryNo);
+        BankAccountLedgerEntry.TestField(Open);
+        BankAccountLedgerEntry.TestField("Remaining Amount", AppliedAmount);
+        BankAccountLedgerEntry."Remaining Amount" := 0;
+        BankAccountLedgerEntry.Open := false;
+        BankAccountLedgerEntry."Statement Status" := BankAccountLedgerEntry."Statement Status"::Closed;
+        BankAccountLedgerEntry."Closed at Date" := StatementDate;
+        BankAccountLedgerEntry."Statement No." := PostedStamentNo;
+        BankAccountLedgerEntry."Statement Line No." := StatementLineNo;
+        BankAccountLedgerEntry.Modify();
 
-            CheckLedgerEntry.Reset();
-            CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
-            CheckLedgerEntry.SetRange(
-              "Bank Account Ledger Entry No.", "Entry No.");
-            CheckLedgerEntry.SetRange(Open, true);
-            if CheckLedgerEntry.FindSet() then
-                repeat
-                    CheckLedgerEntry.Open := false;
-                    CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
-                    CheckLedgEntry."Statement No." := PostedStamentNo;
-                    CheckLedgEntry."Statement Line No." := StatementLineNo;
-                    CheckLedgerEntry.Modify();
-                until CheckLedgerEntry.Next() = 0;
-        end;
+        CheckLedgerEntry.Reset();
+        CheckLedgerEntry.SetCurrentKey("Bank Account Ledger Entry No.");
+        CheckLedgerEntry.SetRange(
+          "Bank Account Ledger Entry No.", BankAccountLedgerEntry."Entry No.");
+        CheckLedgerEntry.SetRange(Open, true);
+        if CheckLedgerEntry.FindSet() then
+            repeat
+                CheckLedgerEntry.Open := false;
+                CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
+                CheckLedgEntry."Statement No." := PostedStamentNo;
+                CheckLedgEntry."Statement Line No." := StatementLineNo;
+                CheckLedgerEntry.Modify();
+            until CheckLedgerEntry.Next() = 0;
     end;
 
     local procedure GetNextStatementNoAndUpdateBankAccount(BankAccountNo: Code[20]): Code[20]
     var
         BankAccount: Record "Bank Account";
     begin
-        with BankAccount do begin
-            SetLoadFields("Last Statement No.");
-            Get(BankAccountNo);
-            if "Last Statement No." <> '' then
-                "Last Statement No." := IncStr("Last Statement No.")
-            else
-                "Last Statement No." := '1';
-            Modify();
-        end;
+        BankAccount.SetLoadFields("Last Statement No.");
+        BankAccount.Get(BankAccountNo);
+        if BankAccount."Last Statement No." <> '' then
+            BankAccount."Last Statement No." := IncStr(BankAccount."Last Statement No.")
+        else
+            BankAccount."Last Statement No." := '1';
+        BankAccount.Modify();
         exit(BankAccount."Last Statement No.");
     end;
 
     local procedure IsRefund(BankAccReconLine: Record "Bank Acc. Reconciliation Line"): Boolean
     begin
-        with BankAccReconLine do
-            if ("Account Type" = "Account Type"::Customer) and ("Statement Amount" < 0) or
-               ("Account Type" in ["Account Type"::Vendor, "Account Type"::Employee]) and ("Statement Amount" > 0)
-            then
-                exit(true);
+        if (BankAccReconLine."Account Type" = BankAccReconLine."Account Type"::Customer) and (BankAccReconLine."Statement Amount" < 0) or
+            (BankAccReconLine."Account Type" in [BankAccReconLine."Account Type"::Vendor, BankAccReconLine."Account Type"::Employee]) and (BankAccReconLine."Statement Amount" > 0)
+        then
+            exit(true);
         exit(false);
     end;
 

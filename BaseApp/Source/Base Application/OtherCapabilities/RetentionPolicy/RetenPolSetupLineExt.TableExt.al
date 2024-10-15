@@ -7,6 +7,7 @@ tableextension 3999 "Reten. Pol. Setup Line Ext." extends "Retention Policy Setu
         field(3999; "Keep Last Version"; Boolean)
         {
             Caption = 'Keep Last Document Version';
+            DataClassification = CustomerContent;
             InitValue = false;
         }
     }

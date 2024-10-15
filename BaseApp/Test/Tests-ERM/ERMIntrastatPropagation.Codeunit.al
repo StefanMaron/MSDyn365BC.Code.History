@@ -32,7 +32,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         // [GIVEN] Tariff number "TARIFF NUM" does not exists
         Initialize();
 
-        LibraryLowerPermissions.SetO365BusFull;
+        LibraryLowerPermissions.SetO365BusFull();
         TariffNumber.DeleteAll();
         Assert.RecordCount(TariffNumber, 0);
 
@@ -55,13 +55,13 @@ codeunit 134149 "ERM Intrastat Propagation"
         // [FEATURE] [Service] [Order]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Purchase" gets auto-filled in in new Service Orders
         Initialize();
-        LibraryLowerPermissions.SetO365BusinessPremium;
+        LibraryLowerPermissions.SetO365BusinessPremium();
 
         // [WHEN] Service Order is created
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [THEN] "Transaction Type" field = Intrastat Setup "Default Trans. - Purchase"
-        ServiceHeader.TestField("Transaction Type", GetDefaultTransactionType);
+        ServiceHeader.TestField("Transaction Type", GetDefaultTransactionType());
     end;
 
     [Test]
@@ -73,13 +73,13 @@ codeunit 134149 "ERM Intrastat Propagation"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Purchase" gets auto-filled in in new Service Invoices
         Initialize();
-        LibraryLowerPermissions.SetO365BusinessPremium;
+        LibraryLowerPermissions.SetO365BusinessPremium();
 
         // [WHEN] Service Invoice is created
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // [THEN] "Transaction Type" field = Intrastat Setup "Default Trans. - Purchase"
-        ServiceHeader.TestField("Transaction Type", GetDefaultTransactionType);
+        ServiceHeader.TestField("Transaction Type", GetDefaultTransactionType());
     end;
 
     [Test]
@@ -91,13 +91,13 @@ codeunit 134149 "ERM Intrastat Propagation"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 295133] Intrastat Setup field "Default Trans. - Return" gets auto-filled in in new Service Credit Memos
         Initialize();
-        LibraryLowerPermissions.SetO365BusinessPremium;
+        LibraryLowerPermissions.SetO365BusinessPremium();
 
         // [WHEN] Service Credit Memo is created
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
 
         // [THEN] "Transaction Type" field = Intrastat Setup "Default Trans. - Return"
-        ServiceHeader.TestField("Transaction Type", GetDefaultReturnTransactionType);
+        ServiceHeader.TestField("Transaction Type", GetDefaultReturnTransactionType());
     end;
 
     [Test]
@@ -171,7 +171,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         Vendor."Shipment Method Code" := '';
         Vendor.Modify();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
-        PurchaseHeader.TestField("Transaction Specification", GetDefaultTransactionSpecification);
+        PurchaseHeader.TestField("Transaction Specification", GetDefaultTransactionSpecification());
     end;
 
     [Test]
@@ -189,7 +189,7 @@ codeunit 134149 "ERM Intrastat Propagation"
         Vendor."Shipment Method Code" := '';
         Vendor.Modify();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
-        PurchaseHeader.TestField("Transaction Specification", GetDefaultReturnTransactionSpecification);
+        PurchaseHeader.TestField("Transaction Specification", GetDefaultReturnTransactionSpecification());
     end;
 
     local procedure Initialize()

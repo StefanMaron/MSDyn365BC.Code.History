@@ -88,7 +88,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -144,7 +144,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateTransportMethodTableData()
     begin
-        CreateTransportMethod;
+        CreateTransportMethod();
     end;
 
     procedure UpdateFAPostingGroup()
@@ -283,7 +283,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -324,7 +324,7 @@ codeunit 131305 "Library - ERM Country Data"
         if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;

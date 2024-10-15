@@ -13,6 +13,7 @@ table 1514 "Sent Notification Entry"
     LookupPageID = "Sent Notification Entries";
     Permissions = TableData "Sent Notification Entry" = rimd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

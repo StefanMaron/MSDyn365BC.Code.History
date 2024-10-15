@@ -1,7 +1,11 @@
+#if not CLEAN24
 namespace Microsoft.Bank.Deposit;
 
 codeunit 1504 "Deposits Page Mgt."
 {
+    ObsoleteReason = 'Pages used are the ones from the Bank Deposits extension. No other pages are provided, this codeunit was needed when NA had it''s own pages. Open directly the required pages or run the required reports in the Bank Deposits extension.';
+    ObsoleteTag = '24.0';
+    ObsoleteState = Pending;
 
     procedure SetSetupKey(DepositsSetupKey: Enum "Deposits Page Setup Key"; KeyValue: Integer)
     var
@@ -72,3 +76,4 @@ codeunit 1504 "Deposits Page Mgt."
     var
         DepositsPageSetupKey: Enum "Deposits Page Setup Key";
 }
+#endif

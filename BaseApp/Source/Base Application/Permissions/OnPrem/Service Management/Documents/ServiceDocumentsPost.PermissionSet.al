@@ -180,7 +180,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "Sales Discount Access" = R,
                   tabledata "Sales Header" = RIM,
                   tabledata "Sales Line" = RIM,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = R,
                   tabledata "Sales Price" = R,
 #endif
@@ -238,6 +238,7 @@ permissionset 8322 "Service Documents - Post"
                   tabledata "VAT Posting Parameters" = R,
                   tabledata "Warehouse Activity Line" = R,
                   tabledata "Warehouse Entry" = R,
+                  tabledata "Warehouse Reason Code" = R,
                   tabledata "Warehouse Receipt Line" = R,
                   tabledata "Warehouse Shipment Line" = R,
                   tabledata "Warranty Ledger Entry" = RIM,

@@ -15,21 +15,19 @@ codeunit 131352 "Library - Document Approvals"
     [Scope('OnPrem')]
     procedure CreateApprovalEntryBasic(var ApprovalEntry: Record "Approval Entry"; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; StatusOption: Enum "Approval Status"; LimitType: Enum "Workflow Approval Limit Type"; RecID: RecordID; ApprovalType: Enum "Workflow Approval Type"; DueDate: Date; AmountDec: Decimal)
     begin
-        with ApprovalEntry do begin
-            Init();
-            "Table ID" := TableId;
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Sequence No." := LibraryRandom.RandIntInRange(10000, 100000);
-            Status := StatusOption;
-            "Limit Type" := LimitType;
-            "Record ID to Approve" := RecID;
-            "Approval Type" := ApprovalType;
-            "Due Date" := DueDate;
-            Amount := AmountDec;
-            "Approver ID" := UserId();
-            Insert();
-        end;
+        ApprovalEntry.Init();
+        ApprovalEntry."Table ID" := TableId;
+        ApprovalEntry."Document Type" := DocumentType;
+        ApprovalEntry."Document No." := DocumentNo;
+        ApprovalEntry."Sequence No." := LibraryRandom.RandIntInRange(10000, 100000);
+        ApprovalEntry.Status := StatusOption;
+        ApprovalEntry."Limit Type" := LimitType;
+        ApprovalEntry."Record ID to Approve" := RecID;
+        ApprovalEntry."Approval Type" := ApprovalType;
+        ApprovalEntry."Due Date" := DueDate;
+        ApprovalEntry.Amount := AmountDec;
+        ApprovalEntry."Approver ID" := UserId();
+        ApprovalEntry.Insert();
     end;
 
     procedure CreateMockupUserSetup(var UserSetup: Record "User Setup")
@@ -269,7 +267,7 @@ codeunit 131352 "Library - Document Approvals"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);

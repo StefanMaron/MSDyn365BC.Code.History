@@ -14,6 +14,7 @@ table 3010590 "Fin. Charge Interest Rate"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -25,14 +25,13 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if SellToAddressJSON <> '' then
-            with SalesInvoiceEntityAggregate do begin
-                RecRef.GetTable(SalesInvoiceEntityAggregate);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(SellToAddressJSON, RecRef,
-                  FieldNo("Sell-to Address"), FieldNo("Sell-to Address 2"), FieldNo("Sell-to City"), FieldNo("Sell-to County"),
-                  FieldNo("Sell-to Country/Region Code"), FieldNo("Sell-to Post Code"));
-                RecRef.SetTable(SalesInvoiceEntityAggregate);
-            end;
+        if SellToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesInvoiceEntityAggregate);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(SellToAddressJSON, RecRef,
+              SalesInvoiceEntityAggregate.FieldNo("Sell-to Address"), SalesInvoiceEntityAggregate.FieldNo("Sell-to Address 2"), SalesInvoiceEntityAggregate.FieldNo("Sell-to City"), SalesInvoiceEntityAggregate.FieldNo("Sell-to County"),
+              SalesInvoiceEntityAggregate.FieldNo("Sell-to Country/Region Code"), SalesInvoiceEntityAggregate.FieldNo("Sell-to Post Code"));
+            RecRef.SetTable(SalesInvoiceEntityAggregate);
+        end;
     end;
 
     procedure ParseBillToCustomerAddressFromJSON(BillToAddressJSON: Text; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
@@ -40,14 +39,13 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if BillToAddressJSON <> '' then
-            with SalesInvoiceEntityAggregate do begin
-                RecRef.GetTable(SalesInvoiceEntityAggregate);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(BillToAddressJSON, RecRef,
-                  FieldNo("Bill-to Address"), FieldNo("Bill-to Address 2"), FieldNo("Bill-to City"), FieldNo("Bill-to County"),
-                  FieldNo("Bill-to Country/Region Code"), FieldNo("Bill-to Post Code"));
-                RecRef.SetTable(SalesInvoiceEntityAggregate);
-            end;
+        if BillToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesInvoiceEntityAggregate);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(BillToAddressJSON, RecRef,
+              SalesInvoiceEntityAggregate.FieldNo("Bill-to Address"), SalesInvoiceEntityAggregate.FieldNo("Bill-to Address 2"), SalesInvoiceEntityAggregate.FieldNo("Bill-to City"), SalesInvoiceEntityAggregate.FieldNo("Bill-to County"),
+              SalesInvoiceEntityAggregate.FieldNo("Bill-to Country/Region Code"), SalesInvoiceEntityAggregate.FieldNo("Bill-to Post Code"));
+            RecRef.SetTable(SalesInvoiceEntityAggregate);
+        end;
     end;
 
     procedure ParseShipToCustomerAddressFromJSON(ShipToAddressJSON: Text; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
@@ -55,41 +53,37 @@ codeunit 5475 "Graph Mgt - Sales Invoice"
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
         RecRef: RecordRef;
     begin
-        if ShipToAddressJSON <> '' then
-            with SalesInvoiceEntityAggregate do begin
-                RecRef.GetTable(SalesInvoiceEntityAggregate);
-                GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ShipToAddressJSON, RecRef,
-                  FieldNo("Ship-to Address"), FieldNo("Ship-to Address 2"), FieldNo("Ship-to City"), FieldNo("Ship-to County"),
-                  FieldNo("Ship-to Country/Region Code"), FieldNo("Ship-to Post Code"));
-                RecRef.SetTable(SalesInvoiceEntityAggregate);
-            end;
+        if ShipToAddressJSON <> '' then begin
+            RecRef.GetTable(SalesInvoiceEntityAggregate);
+            GraphMgtComplexTypes.ApplyPostalAddressFromJSON(ShipToAddressJSON, RecRef,
+              SalesInvoiceEntityAggregate.FieldNo("Ship-to Address"), SalesInvoiceEntityAggregate.FieldNo("Ship-to Address 2"), SalesInvoiceEntityAggregate.FieldNo("Ship-to City"), SalesInvoiceEntityAggregate.FieldNo("Ship-to County"),
+              SalesInvoiceEntityAggregate.FieldNo("Ship-to Country/Region Code"), SalesInvoiceEntityAggregate.FieldNo("Ship-to Post Code"));
+            RecRef.SetTable(SalesInvoiceEntityAggregate);
+        end;
     end;
 
     procedure SellToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesInvoiceEntityAggregate do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Sell-to Address", "Sell-to Address 2",
-              "Sell-to City", "Sell-to County", "Sell-to Country/Region Code", "Sell-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesInvoiceEntityAggregate."Sell-to Address", SalesInvoiceEntityAggregate."Sell-to Address 2",
+              SalesInvoiceEntityAggregate."Sell-to City", SalesInvoiceEntityAggregate."Sell-to County", SalesInvoiceEntityAggregate."Sell-to Country/Region Code", SalesInvoiceEntityAggregate."Sell-to Post Code", JSON);
     end;
 
     procedure BillToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesInvoiceEntityAggregate do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Bill-to Address", "Bill-to Address 2",
-              "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesInvoiceEntityAggregate."Bill-to Address", SalesInvoiceEntityAggregate."Bill-to Address 2",
+              SalesInvoiceEntityAggregate."Bill-to City", SalesInvoiceEntityAggregate."Bill-to County", SalesInvoiceEntityAggregate."Bill-to Country/Region Code", SalesInvoiceEntityAggregate."Bill-to Post Code", JSON);
     end;
 
     procedure ShipToCustomerAddressToJSON(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
-        with SalesInvoiceEntityAggregate do
-            GraphMgtComplexTypes.GetPostalAddressJSON("Ship-to Address", "Ship-to Address 2",
-              "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Post Code", JSON);
+        GraphMgtComplexTypes.GetPostalAddressJSON(SalesInvoiceEntityAggregate."Ship-to Address", SalesInvoiceEntityAggregate."Ship-to Address 2",
+              SalesInvoiceEntityAggregate."Ship-to City", SalesInvoiceEntityAggregate."Ship-to County", SalesInvoiceEntityAggregate."Ship-to Country/Region Code", SalesInvoiceEntityAggregate."Ship-to Post Code", JSON);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]

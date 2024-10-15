@@ -5,8 +5,10 @@ codeunit 143002 "ERM Dimension Subscriber - SE"
     begin
     end;
 
+#if not CLEAN22
     var
         LibraryDim: Codeunit "Library - Dimension";
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Library - Dimension", 'OnGetLocalTablesWithDimSetIDValidationIgnored', '', false, false)]
     local procedure GetCountOfLocalTablesWithDimSetIDValidationIgnored(var CountOfTablesIgnored: Integer)

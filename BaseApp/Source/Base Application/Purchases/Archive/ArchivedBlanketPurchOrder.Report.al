@@ -964,8 +964,8 @@ report 5174 "Archived Blanket Purch. Order"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Purchase Header Archive");
@@ -1032,7 +1032,7 @@ report 5174 "Archived Blanket Purch. Order"
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
         DimSetEntry: Record "Dimension Set Entry";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         VendAddr: array[8] of Text[100];
@@ -1133,15 +1133,13 @@ report 5174 "Archived Blanket Purch. Order"
 
     local procedure FormatDocumentFields(PurchaseHeaderArchive: Record "Purchase Header Archive")
     begin
-        with PurchaseHeaderArchive do begin
-            FormatDocument.SetPurchaser(SalespersonPurchaser, "Purchaser Code", PurchaserText);
-            FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
-            FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, "Prepmt. Payment Terms Code", "Language Code");
-            FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
-            ReferenceText := FormatDocument.SetText("Your Reference" <> '', FieldCaption("Your Reference"));
-            VATNoText := FormatDocument.SetText("VAT Registration No." <> '', FieldCaption("VAT Registration No."));
-            PricesInclVATtxt := Format("Prices Including VAT");
-        end;
+        FormatDocument.SetPurchaser(SalespersonPurchaser, PurchaseHeaderArchive."Purchaser Code", PurchaserText);
+        FormatDocument.SetPaymentTerms(PaymentTerms, PurchaseHeaderArchive."Payment Terms Code", PurchaseHeaderArchive."Language Code");
+        FormatDocument.SetPaymentTerms(PrepmtPaymentTerms, PurchaseHeaderArchive."Prepmt. Payment Terms Code", PurchaseHeaderArchive."Language Code");
+        FormatDocument.SetShipmentMethod(ShipmentMethod, PurchaseHeaderArchive."Shipment Method Code", PurchaseHeaderArchive."Language Code");
+        ReferenceText := FormatDocument.SetText(PurchaseHeaderArchive."Your Reference" <> '', PurchaseHeaderArchive.FieldCaption("Your Reference"));
+        VATNoText := FormatDocument.SetText(PurchaseHeaderArchive."VAT Registration No." <> '', PurchaseHeaderArchive.FieldCaption("VAT Registration No."));
+        PricesInclVATtxt := Format(PurchaseHeaderArchive."Prices Including VAT");
     end;
 }
 

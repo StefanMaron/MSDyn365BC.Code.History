@@ -9,35 +9,28 @@ codeunit 137266 "SCM Package Tracking Transfer"
     end;
 
     var
-        IsNotOnvInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
-        QtyToHandleMessage: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently 3. It must be 4.\\Check the assignment for serial number %2, lot number .';
-        PackageInfoNotExist: Label 'The Package No. Information does not exist.';
-        PackageNoRequired: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
-        Text001: Label 'Error in TearDown';
-        TextDT: Label 'Do you want to post the %1?';
-        Text000: Label '&Ship,&Receive';
         Assert: Codeunit Assert;
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         LibraryItemTracking: Codeunit "Library - Item Tracking";
-        CreateReservEntry: Codeunit "Create Reserv. Entry";
-        ReservMgt: Codeunit "Reservation Management";
-        InvSetup: Record "Inventory Setup";
         isInitialized: Boolean;
+        IsNotOnvInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.', Comment = '%1 - Item No.';
+        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6, package number %7.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No., %7 - Package No.';
+        PackageNoRequiredErr: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
+        TearDownErr: Label 'Error in TearDown';
         WrongInventoryErr: Label 'Wrong inventory.';
         SerTxt: Label 'SER';
         DoYouWantPostDirectTransferMsg: Label 'Do you want to post the Direct Transfer?';
-        IncorrectConfirmDialogOpenedMsg: Label 'Incorrect confirm dialog opened: ';
+        IncorrectConfirmDialogOpenedMsg: Label 'Incorrect confirm dialog opened: %1', Comment = '%1 - Error message';
         HasBeenDeletedMsg: Label 'is now deleted';
-        UnexpectedMsg: Label 'Unexpected message: ';
+        UnexpectedMsg: Label 'Unexpected message: %1', Comment = '%1 - Error message';
 
     local procedure Initialize()
     var
-        InvSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"SCM Package Tracking Transfer");
@@ -50,9 +43,9 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateLocalData();
 
-        InvSetup.Get();
-        InvSetup.Validate("Posted Direct Trans. Nos.", CreateNoSeries());
-        InvSetup.Modify();
+        InventorySetup.Get();
+        InventorySetup.Validate("Posted Direct Trans. Nos.", CreateNoSeries());
+        InventorySetup.Modify();
 
         isInitialized := true;
         Commit();
@@ -122,7 +115,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNoInfo: array[2] of Record "Package No. Information";
         PackageNo: Code[50];
         NewPackageNo: array[2] of Code[50];
-        Serial: Code[20];
+        Serial: Code[50];
         i: Integer;
     begin
         Initialize();
@@ -291,7 +284,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: array[2] of Record "Package No. Information";
         PackageNo: Code[50];
-        LotNo: array[2] of Code[20];
+        LotNo: array[2] of Code[50];
         NewPackageNo: array[2] of Code[50];
         i: Integer;
     begin
@@ -440,8 +433,8 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ItemTrackingCode: Record "Item Tracking Code";
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
-        PackageNo: array[2] of Code[50];
-        SerialNo: array[2] of Code[20];
+        PackageNo: array[3] of Code[50];
+        SerialNo: array[3] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -455,23 +448,40 @@ codeunit 137266 "SCM Package Tracking Transfer"
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
 
-        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 2, LocationFrom.Code);
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 3, LocationFrom.Code);
         for i := 1 to ArrayLen(SerialNo) do
             LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, SerialNo[i], '', PackageNo[i], 1);
         LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
 
         LibraryInventory.CreateTransferHeader(TransferHeader, LocationFrom.Code, LocationTo.Code, LocationTransit.Code);
-        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 2);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 3);
         for i := 1 to ArrayLen(SerialNo) do
             LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, SerialNo[i], '', PackageNo[i], 1);
+
+        TransferLine.Validate("Qty. to Ship", 2);
+        TransferLine.Modify();
+        Commit();
+
+        // [WHEN 449039] Post the transfer order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [THEN 449039] Cannot post the transfer order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 3, 2, SerialNo[3], '', PackageNo[3]));
+
+        // [WHEN 449039] Remove latest item tracking line
+        ReservationEntry.Delete(true);
+
+        // [WHEN 449039] Post the transfer order with package number and quantity to ship equal than the quantity to handle
         LibraryInventory.PostTransferHeader(TransferHeader, true, false);
 
-        for i := 1 to ArrayLen(SerialNo) do
+        // [THEN 449039] Valiate the quantity in the locations
+        for i := 1 to (ArrayLen(SerialNo) - 1) do
             LibraryItemTracking.CheckLastItemLedgerEntry(
               ItemLedgerEntry, Item."No.", LocationTransit.Code, SerialNo[i], '', PackageNo[i], 1);
         LibraryInventory.PostTransferHeader(TransferHeader, false, true);
 
-        for i := 1 to ArrayLen(SerialNo) do
+        for i := 1 to (ArrayLen(SerialNo) - 1) do
             LibraryItemTracking.CheckLastItemLedgerEntry(
               ItemLedgerEntry, Item."No.", LocationTo.Code, SerialNo[i], '', PackageNo[i], 1);
         CheckQuantityLocation(Item, LocationTransit.Code, 0);
@@ -495,8 +505,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PackageNo: array[2] of Code[50];
-        LotNo: array[3] of Code[20];
-        SerialNo: array[2] of Code[20];
+        LotNo: array[3] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -506,7 +515,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         for i := 1 to ArrayLen(PackageNo) do begin
             PackageNo[i] := LibraryUtility.GenerateGUID();
-            SerialNo[i] := LibraryUtility.GenerateGUID();
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
         end;
         for i := 1 to ArrayLen(LotNo) do
@@ -546,12 +554,10 @@ codeunit 137266 "SCM Package Tracking Transfer"
     [Scope('OnPrem')]
     procedure CheckTOwithBin()
     var
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         LocationTransit: Record Location;
         Item: Record Item;
-        ItemLedgerEntry: Record "Item Ledger Entry";
         ItemJnlLine: Record "Item Journal Line";
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
@@ -560,7 +566,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNoInfo: array[2] of Record "Package No. Information";
         PackageNo: array[2] of Code[50];
         BinCode: array[2] of Code[20];
-        Qty: Integer;
         i: Integer;
     begin
         Initialize();
@@ -604,7 +609,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckPartTransferOrderWithPackage()
+    procedure CheckPartialTransferOrderWithPackage()
     var
         LocationFrom: Record Location;
         LocationTo: Record Location;
@@ -647,12 +652,28 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, '', '', PackageNo[2], 10);
         TransferLine.Validate("Qty. to Ship", 15);
         TransferLine.Modify();
-        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+        Commit();
 
+        // [WHEN 449039] Post the transfer order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN 449039] Cannot post the transfer order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 20, 15, '', '', PackageNo[2]));
+
+        // [WHEN 449039] Modify the quantity to handle of Package[2] to 5
+        ReservationEntry.Validate("Qty. to Handle (Base)", 5);
+        ReservationEntry.Modify(true);
+
+        // [THEN 449039] Post the transfer order with package number and quantity to ship equal than the quantity to handle. Valiate the quantity in the locations
+        LibraryInventory.PostTransferHeader(TransferHeader, true, true);
         CheckQuantityLocation(Item, LocationFrom.Code, 5);
         CheckQuantityLocation(Item, LocationTo.Code, 15);
+
+        // [WHEN 449039] Post the remaining quantity
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
 
+        // [THEN 449039] Validate the quantity in the locations
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', '', PackageNo[1], 10);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', '', PackageNo[2], 5);
 
@@ -661,7 +682,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
     [Test]
     [Scope('OnPrem')]
-    procedure CheckPartTransferOrderWithPackageAndLot()
+    procedure CheckPartialTransferOrderWithPackageAndLot()
     var
         LocationFrom: Record Location;
         LocationTo: Record Location;
@@ -675,7 +696,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PackageNo: Code[50];
-        LotNo: array[3] of Code[20];
+        LotNo: array[3] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -701,15 +722,30 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, '', LotNo[3], PackageNo, 3);
         TransferLine.Validate("Qty. to Ship", 9);
         TransferLine.Modify();
+        Commit();
 
+        // [WHEN 449039] Post the transfer order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN 449039] Cannot post the transfer order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 10, 9, '', LotNo[3], PackageNo));
+
+        // [WHEN 449039] Modify the quantity to handle of Package[2] to 2
+        ReservationEntry.Validate("Qty. to Handle (Base)", 2);
+        ReservationEntry.Modify(true);
+
+        // [THEN 449039] Post the transfer order with package number and quantity to ship equal than the quantity to handle. Valiate the quantity in the locations
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
         CheckQuantityLocation(Item, LocationFrom.Code, 1);
-
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', LotNo[1], PackageNo, 4);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', LotNo[2], PackageNo, 3);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', LotNo[3], PackageNo, 2);
 
+        // [WHEN 449039] Post the remaining quantity
         LibraryInventory.PostTransferHeader(TransferHeader, true, true);
+
+        // [THEN 449039] Validate the quantity in the locations
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", LocationTo.Code, '', LotNo[3], PackageNo, 1);
 
         TearDown();
@@ -795,7 +831,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PackageNo: Code[50];
-        SerialNo: array[7] of Code[20];
+        SerialNo: array[7] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -907,7 +943,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PackageNo: Code[50];
-        SerialNo: array[2] of Code[20];
+        SerialNo: array[2] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -948,7 +984,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PackageNo: array[2] of Code[50];
-        SerialNo: array[4] of Code[20];
+        SerialNo: array[4] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -975,7 +1011,8 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, SerialNo[3], '', PackageNo[1], 1);
 
         asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, false);
-        Assert.ExpectedError(StrSubstNo(QtyToHandleMessage, Item."No.", SerialNo[1]));
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 3, 4, SerialNo[1], '', PackageNo[1]));
 
         TearDown();
     end;
@@ -1078,8 +1115,8 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PurchaseLine: Record "Purchase Line";
         PurchaseHeader: Record "Purchase Header";
         PackageNo: array[3] of Code[50];
-        SerialNo: array[4] of Code[20];
-        NewSerialNo: array[4] of Code[20];
+        SerialNo: array[4] of Code[50];
+        NewSerialNo: array[4] of Code[50];
         Qty: Integer;
         i: Integer;
     begin
@@ -1091,9 +1128,8 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
         for i := 1 to ArrayLen(PackageNo) do
             PackageNo[i] := LibraryUtility.GenerateGUID();
-        for i := 1 to 2 do begin
+        for i := 1 to 2 do
             LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
-        end;
 
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, Vendor."No.", LocationFrom.Code);
         Qty := 4;
@@ -1159,7 +1195,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ItemTrackingCode: Record "Item Tracking Code";
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
-        InvSetup: Record "Inventory Setup";
         PackageNo: array[2] of Code[50];
         i: Integer;
     begin
@@ -1317,7 +1352,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         TransferLine: Record "Transfer Line";
         ItemTrackingCode: Record "Item Tracking Code";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: array[2] of Code[20];
+        LotNo: array[2] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -1364,7 +1399,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         TransferLine: Record "Transfer Line";
         ItemTrackingCode: Record "Item Tracking Code";
         ReservationEntry: Record "Reservation Entry";
-        LotNo: array[2] of Code[20];
+        LotNo: array[2] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -1429,7 +1464,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         CreateTransferSNTracking(ReservationEntry, TransferLine[1], SerTxt, '', 4);
 
         asserterror LibraryInventory.PostTransferHeader(TransferHeader, true, false);
-        Assert.ExpectedError(StrSubstNo(PackageNoRequired, Item[1]."No."));
+        Assert.ExpectedError(StrSubstNo(PackageNoRequiredErr, Item[1]."No."));
 
         TearDown();
     end;
@@ -1441,7 +1476,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
     var
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -1453,7 +1487,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         PackageNoInfo: array[2] of Record "Package No. Information";
         PackageNo: Code[50];
         NewPackageNo: array[2] of Code[50];
-        SerialNo: array[20] of Code[20];
+        SerialNo: array[20] of Code[50];
         i: Integer;
     begin
         Initialize();
@@ -1500,7 +1534,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
     [Scope('OnPrem')]
     procedure CheckDTInventoryErrMsg()
     var
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: Record Item;
@@ -1546,7 +1579,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
     [Scope('OnPrem')]
     procedure CheckDTwithManyLines()
     var
-        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
         LocationFrom: Record Location;
         LocationTo: Record Location;
         Item: array[2] of Record Item;
@@ -1701,7 +1733,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
     local procedure CreateTransferSNTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[10]; LotNo: Code[50]; Quantity: Integer)
     var
         i: Integer;
-        Serial: Code[20];
+        Serial: Code[50];
     begin
         for i := 1 to Quantity do begin
             Serial := SerialNo + '0' + Format(i);
@@ -1712,7 +1744,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
     local procedure CreateJnlLineSNTracking(var ReservationEntry: Record "Reservation Entry"; ItemJnlLine: Record "Item Journal Line"; SerialNo: Code[10]; LotNo: Code[50]; Quantity: Decimal)
     var
         i: Integer;
-        Serial: Code[20];
+        Serial: Code[50];
     begin
         for i := 1 to Quantity do begin
             Serial := SerialNo + '0' + Format(i);
@@ -1727,7 +1759,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         TransferHeader.Modify();
     end;
 
-    local procedure CreateDirectTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; NewPackageNo: Code[50]; NewSN: Code[20]; NewLot: Code[20]; QtyBase: Integer)
+    local procedure CreateDirectTracking(var ReservationEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line"; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; NewPackageNo: Code[50]; NewSN: Code[50]; NewLot: Code[50]; QtyBase: Integer)
     begin
         LibraryItemTracking.CreateTransferOrderItemTracking(ReservationEntry, TransferLine, SerialNo, LotNo, QtyBase);
         ReservationEntry.Validate("Package No.", PackageNo);
@@ -1735,15 +1767,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         ReservationEntry.Validate("New Serial No.", NewSN);
         ReservationEntry.Validate("New Lot No.", NewLot);
         ReservationEntry.Modify(true);
-    end;
-
-    local procedure ReserveDTFromInv(var TransferLine: Record "Transfer Line"; Quantity: Integer)
-    var
-        AutoReserve: Boolean;
-    begin
-        ReservMgt.SetReservSource(TransferLine, "Transfer Direction"::Outbound);
-        TransferLine.TestField("Shipment Date");
-        ReservMgt.AutoReserveToShip(AutoReserve, '', TransferLine."Shipment Date", Quantity, Quantity);
     end;
 
     local procedure CreateBin(var Location: Record Location; BinCode: Code[20])
@@ -1756,34 +1779,34 @@ codeunit 137266 "SCM Package Tracking Transfer"
         BinLine.Insert(true);
     end;
 
-    local procedure CreateItemReclassJnlLine(var ItemJnlLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10])
+    local procedure CreateItemReclassJnlLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ItemNo: Code[20]; Qty: Decimal; LocationCode: Code[10]; NewLocationCode: Code[10])
     var
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
+        NoSeries: Codeunit "No. Series";
         LineNo: Integer;
     begin
         FindItemJournalTemplateTransfer(ItemJnlTemplate);
         LibraryInventory.FindItemJournalBatch(ItemJnlBatch, ItemJnlTemplate);
-        with ItemJnlLine do begin
-            SetRange("Journal Template Name", ItemJnlTemplate.Name);
-            SetRange("Journal Batch Name", ItemJnlBatch.Name);
-            if FindLast() then;
-            LineNo := "Line No." + 10000;
 
-            Init();
-            "Journal Template Name" := ItemJnlTemplate.Name;
-            "Journal Batch Name" := ItemJnlBatch.Name;
-            "Line No." := LineNo;
-            Insert(true);
-            Validate("Posting Date", PostingDate);
-            "Document No." := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", "Posting Date", true);
-            Validate("Entry Type", EntryType);
-            Validate("Item No.", ItemNo);
-            Validate(Quantity, Qty);
-            Validate("Location Code", LocationCode);
-            Validate("New Location Code", NewLocationCode);
-            Modify();
-        end;
+        ItemJournalLine.SetRange("Journal Template Name", ItemJnlTemplate.Name);
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJnlBatch.Name);
+        if ItemJournalLine.FindLast() then;
+        LineNo := ItemJournalLine."Line No." + 10000;
+
+        ItemJournalLine.Init();
+        ItemJournalLine."Journal Template Name" := ItemJnlTemplate.Name;
+        ItemJournalLine."Journal Batch Name" := ItemJnlBatch.Name;
+        ItemJournalLine."Line No." := LineNo;
+        ItemJournalLine.Insert(true);
+        ItemJournalLine.Validate("Posting Date", PostingDate);
+        ItemJournalLine."Document No." := NoSeries.GetNextNo(ItemJnlBatch."No. Series", ItemJournalLine."Posting Date");
+        ItemJournalLine.Validate("Entry Type", EntryType);
+        ItemJournalLine.Validate("Item No.", ItemNo);
+        ItemJournalLine.Validate(Quantity, Qty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Validate("New Location Code", NewLocationCode);
+        ItemJournalLine.Modify();
     end;
 
     local procedure FindItemJournalTemplateTransfer(var ItemJournalTemplate: Record "Item Journal Template")
@@ -1811,16 +1834,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
         exit(NoSeries.Code);
-    end;
-
-    local procedure CreateItemJnlBatch(var ItemJnlBatch: Record "Item Journal Batch"; ItemJnlTemplateName: Code[10])
-    begin
-        ItemJnlBatch.Init();
-        ItemJnlBatch.Validate("Journal Template Name", ItemJnlTemplateName);
-        ItemJnlBatch.Validate(
-          Name, CopyStr(LibraryUtility.GenerateRandomCode(ItemJnlBatch.FieldNo(Name), DATABASE::"Item Journal Batch"), 1,
-            MaxStrLen(ItemJnlBatch.Name)));
-        ItemJnlBatch.Insert(true);
     end;
 
     local procedure CreateTransferOrder(var TransferHeader: Record "Transfer Header"; FromCode: Code[10]; ToCode: Code[10]; InTransitCode: Code[10]; DirectTransfer: Boolean)
@@ -1857,20 +1870,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         Assert.AreEqual(Qty, BinCon.Quantity, WrongInventoryErr);
     end;
 
-    local procedure SetNewPackageNo(ItemNo: Code[20]; PackageNo: Code[50]; NewPackageNo: Code[50])
-    var
-        ReservationEntry: Record "Reservation Entry";
-    begin
-        ReservationEntry.Reset();
-        ReservationEntry.SetFilter("Item No.", ItemNo);
-        ReservationEntry.SetRange("Source Type", DATABASE::"Transfer Line");
-        ReservationEntry.FindLast();
-        ReservationEntry.Validate("Package No.", PackageNo);
-        ReservationEntry.Validate("New Package No.", NewPackageNo);
-        ReservationEntry.Validate("Item Tracking", "Item Tracking Entry Type"::"Package No.");
-        ReservationEntry.Modify();
-    end;
-
     local procedure GetBinContentFromItemJournalLine(ItemJournalBatch: Record "Item Journal Batch"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
     var
         BinContent: Record "Bin Content";
@@ -1895,37 +1894,6 @@ codeunit 137266 "SCM Package Tracking Transfer"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    local procedure GetNoSeries(Descr: Text[50]; StartNo: Code[20])
-    var
-        NoSeries: Record "No. Series";
-        NoSeriesLine: Record "No. Series Line";
-        ind: Code[20];
-    begin
-        NoSeries.SetRange(Description, Descr);
-        if NoSeries.FindFirst() then begin
-            ind := NoSeries.Code;
-            NoSeriesLine.SetRange("Series Code", ind);
-            if (not NoSeriesLine.FindFirst()) then begin
-                NoSeriesLine.Init();
-                NoSeriesLine.Validate("Series Code", ind);
-                NoSeriesLine.Validate("Starting No.", StartNo);
-                NoSeriesLine.Insert(true);
-            end
-        end
-        else begin
-            NoSeries.Init();
-            NoSeries.Validate(Code, Format(StartNo, 5));
-            NoSeries.Validate(Description, Descr);
-            NoSeries.Validate("Default Nos.", true);
-            NoSeries.Validate("Manual Nos.", true);
-            NoSeries.Insert();
-            NoSeriesLine.Init();
-            NoSeriesLine.Validate("Series Code", ind);
-            NoSeriesLine.Validate("Starting No.", StartNo);
-            NoSeriesLine.Insert(true);
-        end;
-    end;
-
     local procedure PostTransferDocument(var TransferHeader: Record "Transfer Header")
     var
         TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
@@ -1935,7 +1903,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
 
     local procedure TearDown()
     begin
-        asserterror Error(Text001);
+        asserterror Error(TearDownErr);
     end;
 
     [ConfirmHandler]
@@ -1945,7 +1913,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
         if StrPos(Question, DoYouWantPostDirectTransferMsg) <> 0 then
             Reply := true
         else
-            Error(IncorrectConfirmDialogOpenedMsg + Question);
+            Error(IncorrectConfirmDialogOpenedMsg, Question);
     end;
 
     [ConfirmHandler]
@@ -1959,7 +1927,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
     [Scope('OnPrem')]
     procedure MessageHandler(msg: Text[1024])
     var
-        temp: Text[100];
+        temp: Text[1024];
     begin
         if StrPos(msg, HasBeenDeletedMsg) <> 0 then
             temp := msg;
@@ -1967,7 +1935,7 @@ codeunit 137266 "SCM Package Tracking Transfer"
             temp:
                 ;
             else
-                Error(UnexpectedMsg + msg);
+                Error(UnexpectedMsg, msg);
         end;
     end;
 }

@@ -35,8 +35,8 @@ codeunit 138027 "O365 Aged Accounts"
         Initialize();
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesWeekView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -89,8 +89,8 @@ codeunit 138027 "O365 Aged Accounts"
         Initialize();
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesMonthView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -143,8 +143,8 @@ codeunit 138027 "O365 Aged Accounts"
         Initialize();
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesYearView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -198,8 +198,8 @@ codeunit 138027 "O365 Aged Accounts"
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesWeekView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -230,8 +230,8 @@ codeunit 138027 "O365 Aged Accounts"
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesMonthView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -262,8 +262,8 @@ codeunit 138027 "O365 Aged Accounts"
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead);
 
         // Create Customer Ledger Entries
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesYearView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -295,11 +295,11 @@ codeunit 138027 "O365 Aged Accounts"
         StartDate := WorkDate();
 
         // Create entries to exclude from verification
-        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup, StartDate, 100);
-        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup, StartDate, 1);
+        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup(), StartDate, 100);
+        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup(), StartDate, 1);
 
         // Create the entries for verification
-        CustGroupCode := CreateCustPostingGroup;
+        CustGroupCode := CreateCustPostingGroup();
         StartAmount := 1000;
         NoOfEntriesPerPeriod := CreateCustGroupLedgEntries2perWeek(CustGroupCode, StartDate, StartAmount);
         NoOfEntriesPerPeriod += CreateCustGroupLedgEntries2perWeek(CustGroupCode, StartDate, StartAmount);
@@ -336,8 +336,8 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        StartDate := CreateStartDate;
-        CustomerNo := CreateCustomer;
+        StartDate := CreateStartDate();
+        CustomerNo := CreateCustomer();
         CreateCustomerLedgEntriesWeekView(CustLedgerEntry, CustomerNo, StartDate);
 
         // Generate Aged Accounts Receivable Data Set
@@ -392,11 +392,11 @@ codeunit 138027 "O365 Aged Accounts"
 
         StartDate := Today;
         // Create entries to exclude from verification
-        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup, StartDate, 100);
-        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup, StartDate, 1);
+        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup(), StartDate, 100);
+        CreateCustGroupLedgEntries2perWeek(CreateCustPostingGroup(), StartDate, 1);
 
         // Create the entries for verification
-        CustGroupCode := CreateCustPostingGroup;
+        CustGroupCode := CreateCustPostingGroup();
         StartAmount := 1000;
         NoOfEntriesPerPeriod := CreateCustGroupLedgEntries2perWeek(CustGroupCode, StartDate, StartAmount);
         NoOfEntriesPerPeriod += CreateCustGroupLedgEntries2perWeek(CustGroupCode, StartDate, StartAmount);
@@ -429,11 +429,11 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        if BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID) then
+        if BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID()) then
             BusinessChartUserSetup.Delete();
 
-        AgedAccReceivableChart.OpenView;
-        Found := BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID);
+        AgedAccReceivableChart.OpenView();
+        Found := BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID());
 
         // Verify that the default values for User Setup are populated on open chart page
         Assert.IsTrue(Found, 'Business Chart record not inserted');
@@ -453,9 +453,9 @@ codeunit 138027 "O365 Aged Accounts"
         Initialize();
 
         BusinessChartUserSetup."Period Length" := BusinessChartUserSetup."Period Length"::Year;
-        BusinessChartUserSetup.SaveSetupPage(BusinessChartUserSetup, GetAgedAccReceivableChartID);
+        BusinessChartUserSetup.SaveSetupPage(BusinessChartUserSetup, GetAgedAccReceivableChartID());
 
-        Found := BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID);
+        Found := BusinessChartUserSetup.Get(UserId, BusinessChartUserSetup."Object Type"::Page, GetAgedAccReceivableChartID());
 
         // Verify that the selected values are saved
         Assert.IsTrue(Found, 'Business Chart record not inserted');
@@ -484,7 +484,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // Invoice 1
         DueDate := CalcDate('<1M>', WorkDate());
@@ -493,7 +493,7 @@ codeunit 138027 "O365 Aged Accounts"
         Days := 7; // Payment 7 days after due date
         PaymentDate := CalcDateDays(Days, DueDate);
         CreateDetailedCustLedgEntry(
-          CustLedgerEntry."Entry No.", GetDetailedCustLedgEntryNo, PaymentDate, DetailedCustLedgEntry."Document Type"::Payment);
+          CustLedgerEntry."Entry No.", GetDetailedCustLedgEntryNo(), PaymentDate, DetailedCustLedgEntry."Document Type"::Payment);
 
         NoOfInv += 1;
         DaysTotal += Days;
@@ -537,7 +537,7 @@ codeunit 138027 "O365 Aged Accounts"
         // Setup
         Initialize();
 
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
 
         // Invoice 1
         DueDate := CalcDate('<1M>', WorkDate());
@@ -643,7 +643,7 @@ codeunit 138027 "O365 Aged Accounts"
         DueDate: Date;
         Amount: Decimal;
     begin
-        CustLedgerEntry."Entry No." := GetCustLedgEntryNo;
+        CustLedgerEntry."Entry No." := GetCustLedgEntryNo();
 
         // Data entries that is included in columns
         PostingDate := StartDate;
@@ -724,7 +724,7 @@ codeunit 138027 "O365 Aged Accounts"
         DueDate: Date;
         Amount: Decimal;
     begin
-        CustLedgerEntry."Entry No." := GetCustLedgEntryNo;
+        CustLedgerEntry."Entry No." := GetCustLedgEntryNo();
 
         // Data entries that is included in columns
         PostingDate := StartDate;
@@ -805,7 +805,7 @@ codeunit 138027 "O365 Aged Accounts"
         DueDate: Date;
         Amount: Decimal;
     begin
-        CustLedgerEntry."Entry No." := GetCustLedgEntryNo;
+        CustLedgerEntry."Entry No." := GetCustLedgEntryNo();
 
         // Data entries that is included in columns
         PostingDate := StartDate;
@@ -921,7 +921,7 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         with CustLedgerEntry do begin
             Init();
-            "Entry No." := GetCustLedgEntryNo;
+            "Entry No." := GetCustLedgEntryNo();
             "Due Date" := DueDate;
             "Customer No." := CustomerNo;
             Open := DocOpen;
@@ -939,7 +939,7 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         with DetailedCustLedgEntry do begin
             Init();
-            "Entry No." := GetDetailedCustLedgEntryNo;
+            "Entry No." := GetDetailedCustLedgEntryNo();
             "Cust. Ledger Entry No." := CustLedgNo;
             "Posting Date" := PostingDate;
             "Amount (LCY)" := AmountLCY;
@@ -972,7 +972,7 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         with VendLedgEntry do begin
             Init();
-            "Entry No." := GetVendLedgEntryNo;
+            "Entry No." := GetVendLedgEntryNo();
             "Due Date" := DueDate;
             "Vendor No." := VendorNo;
             Open := true;
@@ -989,7 +989,7 @@ codeunit 138027 "O365 Aged Accounts"
     begin
         with DetailedVendLedgEntry do begin
             Init();
-            "Entry No." := GetDetailedVendLedgEntryNo;
+            "Entry No." := GetDetailedVendLedgEntryNo();
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Posting Date" := PostingDate;
             "Amount (LCY)" := AmountLCY;
@@ -1032,7 +1032,7 @@ codeunit 138027 "O365 Aged Accounts"
     var
         i: Integer;
     begin
-        CustomerLedgerEntries.First;
+        CustomerLedgerEntries.First();
         i := 1;
         while CustomerLedgerEntries.Next() do
             i += 1;
@@ -1052,7 +1052,7 @@ codeunit 138027 "O365 Aged Accounts"
         LibraryApplicationArea.EnableFoundationSetup();
         Clear(LibraryOfficeHostProvider);
         BindSubscription(LibraryOfficeHostProvider);
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         if IsInitialized then
             exit;
@@ -1069,7 +1069,7 @@ codeunit 138027 "O365 Aged Accounts"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -1081,7 +1081,7 @@ codeunit 138027 "O365 Aged Accounts"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;

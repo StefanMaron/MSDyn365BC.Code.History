@@ -237,7 +237,7 @@ page 7497 "Item From Picture Wizard"
 
             Step::Finish:
                 ShowFinalStep();
-        END;
+        end;
     end;
 
     local procedure NextStep(Backwards: Boolean)

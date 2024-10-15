@@ -63,7 +63,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
-        GlobalSetup;
+        GlobalSetup();
 
         isInitialized := true;
         Commit();
@@ -72,10 +72,10 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
     local procedure GlobalSetup()
     begin
-        SetupAssembly;
+        SetupAssembly();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        SetupManufacturingSetup;
-        SetupSalesAndReceivablesSetup;
+        SetupManufacturingSetup();
+        SetupSalesAndReceivablesSetup();
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         SetupLocation(Location);
     end;
@@ -87,24 +87,24 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         AssemblySetup.Get();
-        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Default Location for Orders", '');
         AssemblySetup.Modify(true);
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibraryPurchase.SetOrderNoSeriesInSetup();
     end;
 
     local procedure SetupLocation(var Location: Record Location)
@@ -389,11 +389,11 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
         EntrySummary.Init();
-        ReservationPage.First;
+        ReservationPage.First();
         if ReservationPage."Summary Type".Value =
            CopyStr(ItemLedgEntry.TableCaption(), 1, MaxStrLen(EntrySummary."Summary Type"))
         then
-            ReservationPage."Reserve from Current Line".Invoke;
+            ReservationPage."Reserve from Current Line".Invoke();
     end;
 
     [Normal]
@@ -960,7 +960,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
         // Change Assembly Order "Quantity to Assemble" to zero
         Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'There is no asm order');
 
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
 
         asserterror AsmOrder."Quantity to Assemble".SetValue(0);
@@ -1049,7 +1049,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'There is no asm order');
 
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
 
         asserterror AsmOrder."Quantity to Assemble".SetValue(NewQtyToShip + 1);
@@ -1088,7 +1088,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         AddComponentsToInventory(SalesLine);
 
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
 
         asserterror AsmOrder."Quantity to Assemble".SetValue(SalesLine."Qty. to Assemble to Order" + 1);
@@ -1130,7 +1130,7 @@ codeunit 137102 "SCM Kitting ATO in Whse"
 
         Assert.IsTrue(SalesLine.AsmToOrderExists(AssemblyHeader), 'There is no asm order');
 
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         PAGE.Run(PAGE::"Assembly Order", AssemblyHeader);
 
         asserterror AsmOrder."Quantity to Assemble".SetValue(NewQtyToShip - QtyOnStock - 1);

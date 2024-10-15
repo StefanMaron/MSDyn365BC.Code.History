@@ -34,13 +34,11 @@ codeunit 703 "Find Record Management"
         if IsHandled then
             exit(Found);
 
-        with RecRef do begin
-            xSecurityFilter := SecurityFiltering;
-            SecurityFiltering(SecurityFiltering::Ignored);
-            Found := FindLast();
-            if SecurityFiltering <> xSecurityFilter then
-                SecurityFiltering(xSecurityFilter)
-        end;
+        xSecurityFilter := RecRef.SecurityFiltering;
+        RecRef.SecurityFiltering(RecRef.SecurityFiltering::Ignored);
+        Found := RecRef.FindLast();
+        if RecRef.SecurityFiltering <> xSecurityFilter then
+            RecRef.SecurityFiltering(xSecurityFilter)
     end;
 
     [Scope('OnPrem')]
@@ -121,7 +119,7 @@ codeunit 703 "Find Record Management"
             if FldRef.Type = ExpectedFieldType then begin
                 if FldRef.Class = FieldClass::FlowField then
                     FldRef.CalcField();
-                Value := FldRef.Value;
+                Value := FldRef.Value();
                 exit(true);
             end;
         end;
@@ -210,7 +208,7 @@ codeunit 703 "Find Record Management"
             SearchFieldRef[1].SetRange(CopyStr(SearchText, 1, KeyNoMaxStrLen));
             RecRef.SetLoadFields(SearchFieldRef[1].Number);
             if RecRef.FindFirst() then begin
-                Result := SearchFieldRef[1].Value;
+                Result := SearchFieldRef[1].Value();
                 exit(1);
             end;
         end;
@@ -223,7 +221,7 @@ codeunit 703 "Find Record Management"
         if TrySetFilterOnFieldRef(SearchFieldRef[1], RecWithoutQuote + '*') then begin
             RecRef.SetLoadFields(SearchFieldRef[1].Number);
             if RecRef.FindFirst() then begin
-                Result := SearchFieldRef[1].Value;
+                Result := SearchFieldRef[1].Value();
                 exit(1);
             end;
         end;
@@ -235,7 +233,7 @@ codeunit 703 "Find Record Management"
         SearchFieldRef[2].SetRange(CopyStr(SearchText, 1, SearchFieldRef[2].Length));
         RecRef.SetLoadFields(SearchFieldRef[1].Number);
         if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value;
+            Result := SearchFieldRef[1].Value();
             exit(1);
         end;
         SearchFieldRef[2].SetRange();
@@ -245,7 +243,7 @@ codeunit 703 "Find Record Management"
         SearchFieldRef[2].SetFilter('''@' + RecWithoutQuote + '''');
         RecRef.SetLoadFields(SearchFieldRef[1].Number);
         if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value;
+            Result := SearchFieldRef[1].Value();
             exit(1);
         end;
         SearchFieldRef[2].SetRange();
@@ -258,7 +256,7 @@ codeunit 703 "Find Record Management"
         OnBeforeFindRecordStartingWithSearchString(Type, RecRef, RecFilterFromStart);
         RecRef.SetLoadFields(SearchFieldRef[1].Number);
         if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value;
+            Result := SearchFieldRef[1].Value();
             exit(1);
         end;
 
@@ -271,7 +269,7 @@ codeunit 703 "Find Record Management"
         OnBeforeFindRecordContainingSearchString(Type, RecRef, RecFilterContains);
         RecRef.SetLoadFields(SearchFieldRef[1].Number);
         if RecRef.FindFirst() then begin
-            Result := SearchFieldRef[1].Value;
+            Result := SearchFieldRef[1].Value();
             exit(RecRef.Count);
         end;
 
@@ -281,7 +279,7 @@ codeunit 703 "Find Record Management"
         if not IsHandled then begin
             RecRef.SetLoadFields(SearchFieldRef[1].Number);
             if FindRecordWithSimilarName(RecRef, SearchText, SearchFieldNo[2]) then begin
-                Result := SearchFieldRef[1].Value;
+                Result := SearchFieldRef[1].Value();
                 exit(1);
             end;
         end;
@@ -322,7 +320,7 @@ codeunit 703 "Find Record Management"
         if RecRef.FindSet() then
             repeat
                 RecCount += 1;
-                Description := RecRef.Field(DescriptionFieldNo).Value;
+                Description := RecRef.Field(DescriptionFieldNo).Value();
                 if Abs(TextLength - StrLen(Description)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(SearchText), UpperCase(Description)) <= Treshold then
                         exit(true);

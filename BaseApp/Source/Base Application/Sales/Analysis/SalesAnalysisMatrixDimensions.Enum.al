@@ -1,6 +1,8 @@
 namespace Microsoft.Sales.Analysis;
 
+#pragma warning disable AL0659
 enum 7158 "Sales Analysis Matrix Dimensions"
+#pragma warning restore AL0659
 {
     AssignmentCompatibility = true;
     Extensible = false;

@@ -128,7 +128,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         OCRServiceSetup: Record "OCR Service Setup";
     begin
         OCRServiceSetup.Init();
-        OCRServiceSetup.SetURLsToDefault;
+        OCRServiceSetup.SetURLsToDefault();
         OCRServiceSetup."Default OCR Doc. Template" := 'TEST';
         OCRServiceSetup.Enabled := Enable;
         if not OCRServiceSetup.Modify() then
@@ -142,7 +142,7 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
     end;
 
     local procedure CreateIncomingDoc(var IncomingDocument: Record "Incoming Document")
@@ -178,8 +178,8 @@ codeunit 134189 "WF Demo Ready for OCR Inc.Doc."
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         LibraryWorkflow.CopyWorkflow(
-          Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode));
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
+          Workflow, WorkflowSetup.GetWorkflowTemplateCode(WorkflowSetup.IncomingDocumentOCRWorkflowCode()));
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
         if WorkflowStep.FindFirst() then
             if WorkflowStepArgument.Get(WorkflowStep.Argument) then begin
                 WorkflowStepArgument."Notification User ID" := UserId;

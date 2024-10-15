@@ -32,7 +32,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
     begin
         // Create and Post General Journal Line for G/L Account with Currency. Reverse Transaction from G/L Entries and Verify Debit Amount
         // in G/L Entry and Balance for G/L Account.
-        ReverseDebitAmount(CreateCurrency);
+        ReverseDebitAmount(CreateCurrency());
     end;
 
     local procedure ReverseDebitAmount(CurrencyCode: Code[10])
@@ -62,7 +62,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
     begin
         // Create and Post General Journal Line for G/L Account with Currency. Reverse Transaction from G/L Entries and Verify Credit Amount
         // in G/L Entry and Balance for G/L Account.
-        ReverseCreditAmount(CreateCurrency);
+        ReverseCreditAmount(CreateCurrency());
     end;
 
     local procedure ReverseCreditAmount(CurrencyCode: Code[10])
@@ -100,7 +100,7 @@ codeunit 134145 "ERM Reverse Diff Amount Type"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amount);
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), Amount);
     end;
 
     local procedure CalculateAccountBalance(GLAccountNo: Code[20]): Decimal

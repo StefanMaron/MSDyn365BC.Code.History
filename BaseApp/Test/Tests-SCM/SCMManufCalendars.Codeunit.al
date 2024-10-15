@@ -122,7 +122,7 @@ codeunit 137076 "SCM Manuf Calendars"
         LibraryVariableStorage.Enqueue(WorkCenter."Capacity (Effective)");
 
         // Exercise and Verify: Open Show Matrix and Verify Column Captions and Matrix value on Work Center Calendar Matrix Page on Page Handler WorkCenterCalendarMatrixPage.
-        WorkCenterCalendar.ShowMatrix.Invoke;
+        WorkCenterCalendar.ShowMatrix.Invoke();
 
         // Tear Down.
         CleanupCalendarEntry(WorkCenter."No.");
@@ -255,7 +255,7 @@ codeunit 137076 "SCM Manuf Calendars"
           CalculateCapacityEffective(WorkCenter."Work Center Group Code", MatrixRecords[2], CapacityUnitOfMeasure.Code));
 
         // Exercise and Verify: Open Show Matrix and Verify Column Captions and Matrix value on Work Center Group Calendar Matrix Page on Page Handler WorkCenterGroupCalendarMatrixPageHandler.
-        WorkCtrGroupCalendar.ShowMatrix.Invoke;
+        WorkCtrGroupCalendar.ShowMatrix.Invoke();
 
         // Tear Down.
         CleanupCalendarEntry(WorkCenter."No.");
@@ -354,7 +354,7 @@ codeunit 137076 "SCM Manuf Calendars"
         LibraryVariableStorage.Enqueue(MachineCenter."Capacity (Effective)");
 
         // Exercise and Verify: Open Show Matrix and Verify Column Captions and Matrix value on Machine Center Calendar Matrix Page on Page Handler MachineCenterCalendarMatrixPageHandler.
-        MachineCenterCalendar.ShowMatrix.Invoke;
+        MachineCenterCalendar.ShowMatrix.Invoke();
 
         // Tear Down.
         CleanupCalendarEntry(MachineCenter."Work Center No.");
@@ -486,7 +486,7 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure CheckMaxDate_UT()
     begin
         // Verify MaxDate value
-        Assert.AreEqual(99991230D, CalendarMgt.GetMaxDate, MaxDateErr);
+        Assert.AreEqual(99991230D, CalendarMgt.GetMaxDate(), MaxDateErr);
     end;
 
     [Test]
@@ -858,11 +858,11 @@ codeunit 137076 "SCM Manuf Calendars"
     var
         MachineCenterPage: TestPage "Machine Center Card";
     begin
-        MachineCenterPage.OpenView;
+        MachineCenterPage.OpenView();
         MachineCenterPage.GotoKey(CalendarAbsenceEntry."No.");
 
         EnqueueAbsenceEntry(CalendarAbsenceEntry);
-        MachineCenterPage."A&bsence".Invoke;
+        MachineCenterPage."A&bsence".Invoke();
     end;
 
     local procedure CleanupCalendarEntry(WorkCenterNo: Code[20])
@@ -937,12 +937,12 @@ codeunit 137076 "SCM Manuf Calendars"
             FindSet();
             // Total time required for machine center setup is 60 minutes * 100 / 75 = 80 min. (as MC efficiency is 75%)
             VerifyCapacityLine(090700T, 102700T, "Time Type"::"Setup Time", 60, ProdOrderCapacityNeed);
-            Next;
+            Next();
             // Total run time is 60 min. * 10 pcs * 100 / 75 (75% efficiency) = 800 min.
             // Allocated time is 600 minutes, as it does not include efficiency multiplicator
             // Effective run time is 800 minutes
             VerifyCapacityLine(102700T, 160000T, "Time Type"::"Run Time", 249.75, ProdOrderCapacityNeed);
-            Next;
+            Next();
             // All times are backward calculated starting from the shift ending time
             // Move time - 13 minutes: 15:47 - 16:00 (efficiency multiplicator is not applied to move time and wait time)
             // Production takes 2 days:
@@ -973,10 +973,10 @@ codeunit 137076 "SCM Manuf Calendars"
         WorkCenterCard: TestPage "Work Center Card";
     begin
         // Open Work Center Page and Open Work Center Calendar. Update Period Type.
-        WorkCenterCard.OpenEdit;
+        WorkCenterCard.OpenEdit();
         WorkCenterCard.FILTER.SetFilter("No.", No);
-        WorkCenterCalendar.Trap;
-        WorkCenterCard."&Calendar".Invoke;
+        WorkCenterCalendar.Trap();
+        WorkCenterCard."&Calendar".Invoke();
         WorkCenterCalendar.PeriodType.SetValue(PeriodType);
     end;
 
@@ -985,10 +985,10 @@ codeunit 137076 "SCM Manuf Calendars"
         WorkCenterGroups: TestPage "Work Center Groups";
     begin
         // Open Work Center Group Page and Open Work Center Group Calendar. Update Period Type and Capacity Unit of Measure.
-        WorkCenterGroups.OpenEdit;
+        WorkCenterGroups.OpenEdit();
         WorkCenterGroups.FILTER.SetFilter(Code, WorkCenterGroupCode);
-        WorkCtrGroupCalendar.Trap;
-        WorkCenterGroups.Calendar.Invoke;
+        WorkCtrGroupCalendar.Trap();
+        WorkCenterGroups.Calendar.Invoke();
         WorkCtrGroupCalendar.PeriodType.SetValue(PeriodType);
         WorkCtrGroupCalendar.CapacityUoM.SetValue(CapacityUOM);
     end;
@@ -998,10 +998,10 @@ codeunit 137076 "SCM Manuf Calendars"
         MachineCenterCard: TestPage "Machine Center Card";
     begin
         // Open Machine Center Page and Open Machine Center Calendar. Update Period Type.
-        MachineCenterCard.OpenEdit;
+        MachineCenterCard.OpenEdit();
         MachineCenterCard.FILTER.SetFilter("No.", No);
-        MachineCenterCalendar.Trap;
-        MachineCenterCard."&Calendar".Invoke;
+        MachineCenterCalendar.Trap();
+        MachineCenterCard."&Calendar".Invoke();
         MachineCenterCalendar.PeriodType.SetValue(PeriodType);
     end;
 
@@ -1021,11 +1021,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterCalendarMatrixPageHandler(var WorkCenterCalendarMatrix: TestPage "Work Center Calendar Matrix")
     begin
         // Verify Work Center Calendar Matrix Page.
-        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, WorkCenterCalendarMatrix.Field1.Caption, CaptionError);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, WorkCenterCalendarMatrix.Field2.Caption, CaptionError);
-        WorkCenterCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        WorkCenterCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        WorkCenterCalendarMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), WorkCenterCalendarMatrix.Field1.Caption, CaptionError);
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), WorkCenterCalendarMatrix.Field2.Caption, CaptionError);
+        WorkCenterCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        WorkCenterCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -1033,11 +1033,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure WorkCenterGroupCalendarMatrixPageHandler(var WorkCtrGrpCalendarMatrix: TestPage "Work Ctr. Grp. Calendar Matrix")
     begin
         // Verify Work Center Group Calendar Matrix Page.
-        WorkCtrGrpCalendarMatrix.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, WorkCtrGrpCalendarMatrix.Field1.Caption, CaptionError);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, WorkCtrGrpCalendarMatrix.Field2.Caption, CaptionError);
-        WorkCtrGrpCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        WorkCtrGrpCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        WorkCtrGrpCalendarMatrix.FILTER.SetFilter(Code, LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), WorkCtrGrpCalendarMatrix.Field1.Caption, CaptionError);
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), WorkCtrGrpCalendarMatrix.Field2.Caption, CaptionError);
+        WorkCtrGrpCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        WorkCtrGrpCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -1045,11 +1045,11 @@ codeunit 137076 "SCM Manuf Calendars"
     procedure MachineCenterCalendarMatrixPageHandler(var MachineCenterCalendarMatrix: TestPage "Machine Center Calendar Matrix")
     begin
         // Verify Machine Center Calendar Matrix Page.
-        MachineCenterCalendarMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, MachineCenterCalendarMatrix.Field1.Caption, CaptionError);
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, MachineCenterCalendarMatrix.Field2.Caption, CaptionError);
-        MachineCenterCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
-        MachineCenterCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        MachineCenterCalendarMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), MachineCenterCalendarMatrix.Field1.Caption, CaptionError);
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), MachineCenterCalendarMatrix.Field2.Caption, CaptionError);
+        MachineCenterCalendarMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
+        MachineCenterCalendarMatrix.Field2.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [PageHandler]
@@ -1064,12 +1064,12 @@ codeunit 137076 "SCM Manuf Calendars"
     begin
         LibraryVariableStorage.Dequeue(QueuedVar);
         MachineCenterNo := QueuedVar;
-        AbsenceDate := LibraryVariableStorage.DequeueDate;
-        AbsenceStartingTime := LibraryVariableStorage.DequeueTime;
-        AbsenceEndingTime := LibraryVariableStorage.DequeueTime;
+        AbsenceDate := LibraryVariableStorage.DequeueDate();
+        AbsenceStartingTime := LibraryVariableStorage.DequeueTime();
+        AbsenceEndingTime := LibraryVariableStorage.DequeueTime();
 
         AbsencePage.GotoKey(1, MachineCenterNo, AbsenceDate, AbsenceStartingTime, AbsenceEndingTime);
-        AbsencePage.Update.Invoke;
+        AbsencePage.Update.Invoke();
     end;
 }
 

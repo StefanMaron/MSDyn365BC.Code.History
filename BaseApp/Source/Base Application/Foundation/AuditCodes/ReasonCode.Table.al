@@ -10,6 +10,7 @@ table 231 "Reason Code"
 {
     Caption = 'Reason Code';
     LookupPageID = "Reason Codes";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -30,7 +31,7 @@ table 231 "Reason Code"
         field(5901; "Contract Gain/Loss Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum("Contract Gain/Loss Entry".Amount where("Reason Code" = field(Code),
+            CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Reason Code" = field(Code),
                                                                        "Change Date" = field("Date Filter")));
             Caption = 'Contract Gain/Loss Amount';
             Editable = false;

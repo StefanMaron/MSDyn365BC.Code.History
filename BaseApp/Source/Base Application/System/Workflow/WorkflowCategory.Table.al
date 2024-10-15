@@ -5,6 +5,7 @@ table 1508 "Workflow Category"
     Caption = 'Workflow Category';
     LookupPageID = "Workflow Categories";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

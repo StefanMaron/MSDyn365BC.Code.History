@@ -4261,9 +4261,6 @@ End Function
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
         </Field>
-        <Field Name="HeaderText">
-          <DataField>HeaderText</DataField>
-        </Field>
         <Field Name="CompanyAddr7">
           <DataField>CompanyAddr7</DataField>
         </Field>
@@ -4314,6 +4311,9 @@ End Function
         </Field>
         <Field Name="ErrorText">
           <DataField>ErrorText</DataField>
+        </Field>
+        <Field Name="HeaderText">
+          <DataField>HeaderText</DataField>
         </Field>
       </Fields>
       <Query>

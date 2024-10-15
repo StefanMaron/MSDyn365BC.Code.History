@@ -7,6 +7,7 @@ namespace Microsoft.Integration.Entity;
 table 5499 "Aged Report Entity"
 {
     Caption = 'Aged Report Entity';
+    DataClassification = CustomerContent;
 
     fields
     {

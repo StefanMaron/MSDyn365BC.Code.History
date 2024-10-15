@@ -57,7 +57,7 @@ codeunit 132551 "Library - Setup Storage UT"
         // [GIVEN] When run "Test 3"
         Initialize();
         // [THEN] "G/L Setup" restored and "G/L Setup"."Amount Rounding Precision" = 1
-        Assert.AreEqual(0.00001, LibraryERM.GetAmountRoundingPrecision, TableWasNotRestoredErr);
+        Assert.AreEqual(0.00001, LibraryERM.GetAmountRoundingPrecision(), TableWasNotRestoredErr);
         // [THEN] "Purchases & Payables Setup" restored and "Purchases & Payables Setup"."Job Queue Category Code" = "X1"
         PurchasesPayablesSetup.Get();
         ExpectedJobQueueCategoryCode := JobQueueCategoryCodeTok;
@@ -124,7 +124,7 @@ codeunit 132551 "Library - Setup Storage UT"
         // [SCENARIO] Add setup table with single entry and non-empty value in simple primary key
         // [GIVEN] Table "T" without entries with empty value in a simple primary key
         UserSetup.DeleteAll();
-        CreateNewUserSetup;
+        CreateNewUserSetup();
         // [WHEN] Try backup "T"
         asserterror LibrarySetupStorage.Save(DATABASE::"User Setup");
         // [THEN] Error "The T does not exists. Identification fields and values: <PK>=''." thrown

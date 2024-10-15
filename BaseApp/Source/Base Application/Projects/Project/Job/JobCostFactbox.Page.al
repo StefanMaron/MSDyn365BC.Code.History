@@ -6,7 +6,7 @@ namespace Microsoft.Projects.Project.Job;
 
 page 1030 "Job Cost Factbox"
 {
-    Caption = 'Job Details';
+    Caption = 'Project Details';
     Editable = false;
     LinksAllowed = false;
     PageType = CardPart;
@@ -19,8 +19,8 @@ page 1030 "Job Cost Factbox"
             field("No."; Rec."No.")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job No.';
-                ToolTip = 'Specifies the job number.';
+                Caption = 'Project No.';
+                ToolTip = 'Specifies the project number.';
 
                 trigger OnDrillDown()
                 begin
@@ -43,7 +43,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Resource';
                     Editable = false;
-                    ToolTip = 'Specifies the total budgeted cost of resources associated with this job.';
+                    ToolTip = 'Specifies the total budgeted cost of resources associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -55,7 +55,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Item';
                     Editable = false;
-                    ToolTip = 'Specifies the total budgeted cost of items associated with this job.';
+                    ToolTip = 'Specifies the total budgeted cost of items associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -67,7 +67,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'G/L Account';
                     Editable = false;
-                    ToolTip = 'Specifies the total budgeted cost of general journal entries associated with this job.';
+                    ToolTip = 'Specifies the total budgeted cost of general journal entries associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -80,8 +80,8 @@ page 1030 "Job Cost Factbox"
                     Caption = 'Total';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies the total budget cost of a job.';
+                    StyleExpr = true;
+                    ToolTip = 'Specifies the total budget cost of a project.';
 
                     trigger OnDrillDown()
                     begin
@@ -105,7 +105,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Resource';
                     Editable = false;
-                    ToolTip = 'Specifies the total usage cost of resources associated with this job.';
+                    ToolTip = 'Specifies the total usage cost of resources associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -117,7 +117,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Item';
                     Editable = false;
-                    ToolTip = 'Specifies the total usage cost of items associated with this job.';
+                    ToolTip = 'Specifies the total usage cost of items associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -129,7 +129,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'G/L Account';
                     Editable = false;
-                    ToolTip = 'Specifies the total usage cost of general journal entries associated with this job.';
+                    ToolTip = 'Specifies the total usage cost of general journal entries associated with this project.';
 
                     trigger OnDrillDown()
                     begin
@@ -142,8 +142,8 @@ page 1030 "Job Cost Factbox"
                     Caption = 'Total';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies the total costs used for a job.';
+                    StyleExpr = true;
+                    ToolTip = 'Specifies the total costs used for a project.';
 
                     trigger OnDrillDown()
                     begin
@@ -167,7 +167,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Resource';
                     Editable = false;
-                    ToolTip = 'Specifies the total billable price of resources associated with this job.';
+                    ToolTip = 'Specifies the total billable price of resources associated with this project.';
 
                     trigger OnDrillDown()
                     var
@@ -184,7 +184,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Item';
                     Editable = false;
-                    ToolTip = 'Specifies the total billable price of items associated with this job.';
+                    ToolTip = 'Specifies the total billable price of items associated with this project.';
 
                     trigger OnDrillDown()
                     var
@@ -201,7 +201,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'G/L Account';
                     Editable = false;
-                    ToolTip = 'Specifies the total billable price for job planning lines of type G/L account.';
+                    ToolTip = 'Specifies the total billable price for project planning lines of type G/L account.';
 
                     trigger OnDrillDown()
                     var
@@ -219,8 +219,8 @@ page 1030 "Job Cost Factbox"
                     Caption = 'Total';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies the total billable price used for a job.';
+                    StyleExpr = true;
+                    ToolTip = 'Specifies the total billable price used for a project.';
 
                     trigger OnDrillDown()
                     var
@@ -249,7 +249,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Resource';
                     Editable = false;
-                    ToolTip = 'Specifies the total invoiced price of resources associated with this job.';
+                    ToolTip = 'Specifies the total invoiced price of resources associated with this project.';
 
                     trigger OnDrillDown()
                     var
@@ -266,7 +266,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'Item';
                     Editable = false;
-                    ToolTip = 'Specifies the total invoiced price of items associated with this job.';
+                    ToolTip = 'Specifies the total invoiced price of items associated with this project.';
 
                     trigger OnDrillDown()
                     var
@@ -283,7 +283,7 @@ page 1030 "Job Cost Factbox"
                     ApplicationArea = Jobs;
                     Caption = 'G/L Account';
                     Editable = false;
-                    ToolTip = 'Specifies the total invoiced price of general journal entries associated with this job.';
+                    ToolTip = 'Specifies the total invoiced price of general journal entries associated with this project.';
 
                     trigger OnDrillDown()
                     var
@@ -301,8 +301,8 @@ page 1030 "Job Cost Factbox"
                     Caption = 'Total';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
-                    ToolTip = 'Specifies the total invoiced price of a job.';
+                    StyleExpr = true;
+                    ToolTip = 'Specifies the total invoiced price of a project.';
 
                     trigger OnDrillDown()
                     var

@@ -56,12 +56,15 @@ codeunit 144018 "ERM REFINV"
         // Exercise.
 #if not CLEAN23
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", true);  // Using True for IncludeOrgInvInfo.
-#else
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
 
         // Verify.
         VerifySalesCreditMemo(SalesHeader, DocumentNo, DocumentNo);
+#else
+        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
+
+        // Verify.
+        VerifySalesCreditMemo(SalesHeader, DocumentNo);
+#endif
     end;
 
     [Test]
@@ -164,9 +167,9 @@ codeunit 144018 "ERM REFINV"
 #endif
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         UpdateQuantityOnSalesLine(
-          SalesHeader."No.", SalesLine."No.", SalesLine.Quantity / 2, SalesLine.Amount - LibraryERM.GetAmountRoundingPrecision);  // Using Random Value.
+          SalesHeader."No.", SalesLine."No.", SalesLine.Quantity / 2, SalesLine.Amount - LibraryERM.GetAmountRoundingPrecision());  // Using Random Value.
         SalesHeader.CalcFields(Amount);
-        VATAmount := Round(SalesHeader.Amount * SalesLine."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision);
+        VATAmount := Round(SalesHeader.Amount * SalesLine."VAT %" / 100, LibraryERM.GetAmountRoundingPrecision());
 
         // Exercise.
         PostedCreditMemoNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
@@ -193,11 +196,15 @@ codeunit 144018 "ERM REFINV"
         // Exercise.
 #if not CLEAN23
         CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.", false);
-#else
-        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
-#endif
+
         // Verify.
         VerifySalesCreditMemo(SalesHeader, '', DocumentNo);  // Blank for Source Inv. No.
+#else
+        CreateSalesCreditMemoFromPage(SalesHeader, DocumentNo, SalesLine."Sell-to Customer No.");
+
+        // Verify.
+        VerifySalesCreditMemo(SalesHeader, DocumentNo);  // Blank for Source Inv. No.
+#endif
     end;
 
     [Test]
@@ -235,6 +242,7 @@ codeunit 144018 "ERM REFINV"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
+        LibraryERM.SetEnableDataCheck(false);
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesLine: Record "Sales Line"): Code[20]
@@ -252,7 +260,7 @@ codeunit 144018 "ERM REFINV"
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesInvoice(SalesLine, SalesLine.Type::"G/L Account", CreateGLAccount);
+        CreateSalesInvoice(SalesLine, SalesLine.Type::"G/L Account", CreateGLAccount());
         SalesHeader.Get(SalesLine."Document Type"::Invoice, SalesLine."Document No.");
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
     end;
@@ -271,9 +279,9 @@ codeunit 144018 "ERM REFINV"
         EnqueueValueForCopySalesDocument(DocumentNo, SalesHeader."Sell-to Customer No.");  // Enqueue value for CopySalesDocumentRequestPageHandler
 #endif
         Commit();  // Commit is required.
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesCreditMemo.CopyDocument.Invoke;
+        SalesCreditMemo.CopyDocument.Invoke();
     end;
 
     local procedure CreateSalesInvoice(var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; No: Code[20])
@@ -343,7 +351,7 @@ codeunit 144018 "ERM REFINV"
         SalesLine.SetRange("No.", No);
         SalesLine.FindFirst();
         SalesLine.Validate(Quantity, Quantity);
-        SalesLine.Validate("Line Amount", Round(LineAmount / 2, LibraryERM.GetAmountRoundingPrecision));
+        SalesLine.Validate("Line Amount", Round(LineAmount / 2, LibraryERM.GetAmountRoundingPrecision()));
         SalesLine.Modify(true);
     end;
 
@@ -361,7 +369,7 @@ codeunit 144018 "ERM REFINV"
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", PostedCreditMemoNo);
         CustLedgerEntry.CalcFields(Amount);
-        Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
+        Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -374,7 +382,7 @@ codeunit 144018 "ERM REFINV"
         repeat
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
+        Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
     end;
 
     local procedure VerifySalesCreditMemoJobQueueEntry(PreAssignedNo: Code[20])
@@ -385,10 +393,14 @@ codeunit 144018 "ERM REFINV"
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Sales Post via Job Queue");
 
-        Assert.IsTrue(JobQueueEntry.FindFirst, JobQueueEntryErr);
+        Assert.IsTrue(JobQueueEntry.FindFirst(), JobQueueEntryErr);
     end;
 
+#if not CLEAN23
     local procedure VerifySalesCreditMemo(SalesHeader: Record "Sales Header"; DocumentNo: Code[20]; AppliesToDocNo: Code[20])
+#else
+    local procedure VerifySalesCreditMemo(SalesHeader: Record "Sales Header"; AppliesToDocNo: Code[20])
+#endif
     begin
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesHeader."No.");
         SalesHeader.TestField("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
@@ -400,7 +412,7 @@ codeunit 144018 "ERM REFINV"
 
     local procedure VerifyValuesOnSalesCreditMemo(Amount: Decimal; VATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmtCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(VATAmtCap, VATAmount);
     end;
@@ -428,7 +440,7 @@ codeunit 144018 "ERM REFINV"
 #if not CLEAN23
         CopySalesDocument.IncludeOrgInvInfo.SetValue(IncludeOrgInvInfo);
 #endif
-        CopySalesDocument.OK.Invoke;
+        CopySalesDocument.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -441,7 +453,7 @@ codeunit 144018 "ERM REFINV"
         LibraryVariableStorage.Dequeue(DocumentNoFilter);
         BatchPostSalesCreditMemos."Sales Header".SetFilter("No.", DocumentNoFilter);
         BatchPostSalesCreditMemos."Sales Header".SetFilter("Document Type", Format(SalesHeader."Document Type"::"Credit Memo"));
-        BatchPostSalesCreditMemos.OK.Invoke;
+        BatchPostSalesCreditMemos.OK().Invoke();
     end;
 
     [MessageHandler]

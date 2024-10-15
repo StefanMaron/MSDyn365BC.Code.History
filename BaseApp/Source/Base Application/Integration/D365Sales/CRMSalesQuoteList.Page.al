@@ -258,9 +258,11 @@ page 5351 "CRM Sales Quote List"
         Rec.FilterGroup(2);
         if CDSIntegrationMgt.GetCDSCompany(CDSCompany) then
             if not MultipleCompanies then
-                Rec.SetFilter(CompanyId, StrSubstno('%1|%2', CDSCompany.CompanyId, EmptyGuid))
-            else
+                Rec.SetFilter(CompanyId, '%1|%2', CDSCompany.CompanyId, EmptyGuid)
+            else begin
                 Rec.SetRange(CompanyId, CDSCompany.CompanyId);
+                ShowMultipleCompanyNotification();
+            end;
         Rec.FilterGroup(0);
     end;
 
@@ -271,10 +273,28 @@ page 5351 "CRM Sales Quote List"
         Coupled: Text;
         FirstColumnStyle: Text;
         AlreadyProcessedErr: Label 'The current record has already been processed in Business Central.';
+        MultipleCompanyNotificationLbl: Label 'You are connected to Dynamics 365 Sales from multiple companies. This page shows only Dynamics 365 Sales quotes with Company field set to this Business Central company. To see all quotes, change the filter on the page, or set their Company field in Dynamics 365 Sales.', Comment = 'Dynamics 365 Sales should not be translated';
+        LearnMoreLbl: Label 'Learn more';
 
     procedure SetCurrentlyCoupledCRMQuote(CRMQuote: Record "CRM Quote")
     begin
         CurrentlyCoupledCRMQuote := CRMQuote;
+    end;
+
+    local procedure ShowMultipleCompanyNotification()
+    var
+        MultipleCompanyNotification: Notification;
+    begin
+        MultipleCompanyNotification.Id := GetMultipleCompanyNotificationId();
+        MultipleCompanyNotification.Message(MultipleCompanyNotificationLbl);
+        MultipleCompanyNotification.Scope(NotificationScope::LocalScope);
+        MultipleCompanyNotification.AddAction(LearnMoreLbl, Codeunit::"CRM Integration Management", 'MultipleCompanyLearnMore');
+        MultipleCompanyNotification.Send();
+    end;
+
+    local procedure GetMultipleCompanyNotificationId(): Guid
+    begin
+        exit('76df9d19-549b-4cb8-8d81-43f2007e0188');
     end;
 }
 

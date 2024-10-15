@@ -90,14 +90,18 @@ codeunit 144003 "ERM EU 3-Party"
     var
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+#if not CLEAN23
         LibraryPurchase: Codeunit "Library - Purchase";
+#endif
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN23
         LibraryPlanning: Codeunit "Library - Planning";
+#endif
         EUThirdPartyItemTradeAmtCap: Label 'EU3PartyItemTradeAmt';
         EUThirdPartyServiceTradeAmtCap: Label 'EU3PartyServiceTradeAmt';
         TotalAmountCap: Label 'TotalAmount';
@@ -260,7 +264,7 @@ codeunit 144003 "ERM EU 3-Party"
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));  // Take random Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Validate("Purchasing Code", FindPurchasingCode);
+        SalesLine.Validate("Purchasing Code", FindPurchasingCode());
         SalesLine.Modify(true);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, EUThirdPartyTradePurchase, Customer."No.");
 
@@ -475,7 +479,7 @@ codeunit 144003 "ERM EU 3-Party"
 
         // Setup: Create Currency with Exchange rate and update Additional Reporting Currency on General Ledger Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         VATStatementPreviewForPurchaseInvoiceWithEUThirdPartyTrade(CurrencyCode);
     end;
@@ -499,11 +503,11 @@ codeunit 144003 "ERM EU 3-Party"
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");  // Enqueue for VATStatementTemplateListModalPageHandler.
         LibraryVariableStorage.Enqueue(
           LibraryERM.ConvertCurrency(PurchaseLine."Line Amount" * PurchaseLine."VAT %" / 100, CurrencyCode, '', WorkDate()));  // Enqueue for VATStatementPreviewPageHandler. Using Blank for ToCurrency.
-        VATStatement.OpenEdit;
+        VATStatement.OpenEdit();
         VATStatement.CurrentStmtName.SetValue(VATStatementLine."Statement Name");
 
         // Exercise.
-        VATStatement."P&review".Invoke;  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
+        VATStatement."P&review".Invoke();  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
 
         // Verify: Verification is done in VATStatementPreviewPageHandler.
         VATStatement.Close();
@@ -537,7 +541,7 @@ codeunit 144003 "ERM EU 3-Party"
 
         // Setup: Create Currency with Exchange rate and update Additional Reporting Currency on General Ledger Setup.
         Initialize();
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         VATStatementPreviewForSalesInvoiceWithEUThirdPartyTrade(CurrencyCode);
     end;
@@ -563,11 +567,11 @@ codeunit 144003 "ERM EU 3-Party"
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");  // Enqueue for VATStatementTemplateListModalPageHandler.
         LibraryVariableStorage.Enqueue(
           LibraryERM.ConvertCurrency(-SalesLine."Line Amount" * SalesLine."VAT %" / 100, CurrencyCode, '', WorkDate()));  // Enqueue for VATStatementPreviewPageHandler.  Using Blank for ToCurrency.
-        VATStatement.OpenEdit;
+        VATStatement.OpenEdit();
         VATStatement.CurrentStmtName.SetValue(VATStatementLine."Statement Name");
 
         // Exercise.
-        VATStatement."P&review".Invoke;  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
+        VATStatement."P&review".Invoke();  // Opens VATStatementTemplateListModalPageHandler and VATStatementPreviewPageHandler.
 
         // Verify: Verification of Column Value is done in VATStatementPreviewPageHandler.
         VATStatement.Close();
@@ -603,7 +607,7 @@ codeunit 144003 "ERM EU 3-Party"
         REPORT.Run(REPORT::"VAT Statement");  // Opens VATStatementRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(TotalAmountCap, -SalesLine."Line Amount" * SalesLine."VAT %" / 100);
 
         // Tear Down.
@@ -640,7 +644,7 @@ codeunit 144003 "ERM EU 3-Party"
         // Setup: Create Customer with VAT Registration No. Create a Sales Invoice with EUThirdParty Trade.
         Initialize();
         OldInvoiceRounding := UpdateSalesReceivablesSetup(false);  // False for Invoice Rounding.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrOnGeneralLedgerSetup(CurrencyCode);
         CreateVATPostingSetup(VATPostingSetup, EUService);
         CreateCustomerWithVATRegistrationNo(Customer, VATPostingSetup."VAT Bus. Posting Group");
@@ -651,7 +655,7 @@ codeunit 144003 "ERM EU 3-Party"
         REPORT.Run(REPORT::"VAT- VIES Declaration Tax Auth");  // Opens VATVIESDeclarationTaxAuthRequestPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, SalesLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists(Caption2, SalesLine."Line Amount");
 
@@ -825,7 +829,7 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, EUThirdPartyTrade, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 #endif
@@ -1047,14 +1051,14 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         LibraryVariableStorage.Dequeue(ColumnValue);
         VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(ColumnValue);
-        VATStatementPreview.OK.Invoke;
+        VATStatementPreview.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
     begin
-        SalesList.OK.Invoke;
+        SalesList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1065,7 +1069,7 @@ codeunit 144003 "ERM EU 3-Party"
     begin
         LibraryVariableStorage.Dequeue(VATStatementTemplateName);
         VATStatementTemplateList.FILTER.SetFilter(Name, VATStatementTemplateName);
-        VATStatementTemplateList.OK.Invoke;
+        VATStatementTemplateList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1079,7 +1083,7 @@ codeunit 144003 "ERM EU 3-Party"
         VATStatement.StartingDate.SetValue(WorkDate());
         VATStatement.EndingDate.SetValue(WorkDate());
         VATStatement.ShowAmtInAddCurrency.SetValue(true);
-        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1093,7 +1097,7 @@ codeunit 144003 "ERM EU 3-Party"
         VATVIESDeclarationTaxAuth.StartingDate.SetValue(WorkDate());
         VATVIESDeclarationTaxAuth.EndingDate.SetValue(WorkDate());
         VATVIESDeclarationTaxAuth.VATRegistrationNoFilter.SetValue(VATRegistrationNoFilter);
-        VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATVIESDeclarationTaxAuth.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

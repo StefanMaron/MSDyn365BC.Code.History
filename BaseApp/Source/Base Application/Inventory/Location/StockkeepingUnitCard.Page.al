@@ -105,7 +105,7 @@ page 5700 "Stockkeeping Unit Card"
                 field("Qty. on Job Order"; Rec."Qty. on Job Order")
                 {
                     ApplicationArea = Planning;
-                    ToolTip = 'Specifies how many units of the item are allocated to jobs, meaning listed on outstanding job planning lines.';
+                    ToolTip = 'Specifies how many units of the item are allocated to projects, meaning listed on outstanding project planning lines.';
                 }
                 field("Qty. on Assembly Order"; Rec."Qty. on Assembly Order")
                 {
@@ -571,7 +571,7 @@ page 5700 "Stockkeeping Unit Card"
                     Image = Translations;
                     RunObject = Page "Item Translations";
                     RunPageLink = "Item No." = field("Item No."),
-                                  "Variant Code" = field(FILTER("Variant Code"));
+                                  "Variant Code" = field(filter("Variant Code"));
                     ToolTip = 'View or edit translated item descriptions. Translated item descriptions are automatically inserted on documents according to the language code.';
                 }
                 action("E&xtended Texts")
@@ -691,24 +691,6 @@ page 5700 "Stockkeeping Unit Card"
                             ItemAvailFormsMgt.ShowItemAvailFromItem(Item, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
-#if not CLEAN21
-                    action(Timeline)
-                    {
-                        ApplicationArea = Planning;
-                        Caption = 'Timeline';
-                        Image = Timeline;
-                        ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                        ObsoleteTag = '21.0';
-
-                        trigger OnAction()
-                        begin
-                            Rec.ShowTimeline(Rec);
-                        end;
-                    }
-#endif                
                 }
                 action(Action124)
                 {

@@ -5,6 +5,7 @@ table 299 "Reminder Comment Line"
     Caption = 'Reminder Comment Line';
     DrillDownPageID = "Reminder Comment List";
     LookupPageID = "Reminder Comment List";
+    DataClassification = CustomerContent;
 
     fields
     {

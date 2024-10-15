@@ -3,8 +3,10 @@
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
+using Microsoft.Service.Setup;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Inventory.Availability;
 using Microsoft.Projects.Project.Ledger;
@@ -40,6 +42,7 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+                    Visible = DocNoVisible;
 
                     trigger OnAssistEdit()
                     begin
@@ -74,6 +77,16 @@ page 5900 "Service Order"
                             if Rec."Contact No." <> xRec."Contact No." then
                                 Rec.SetRange("Contact No.");
                     end;
+                }
+                group(Control114)
+                {
+                    ShowCaption = false;
+                    Visible = ShowQuoteNo;
+                    field("Quote No."; Rec."Quote No.")
+                    {
+                        ApplicationArea = Service;
+                        ToolTip = 'Specifies the number of the service quote that the service order was created from. You can track the number to service quote documents that you have printed, saved, or emailed.';
+                    }
                 }
                 group("Sell-To")
                 {
@@ -379,6 +392,13 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the related document was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ShowMandatory = ExternalDocNoMandatory;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
                 field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
@@ -745,6 +765,14 @@ page 5900 "Service Order"
                 SubPageLink = "No." = field("No."),
                               "Document Type" = field("Document Type");
             }
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -808,7 +836,7 @@ page 5900 "Service Order"
                     ApplicationArea = Planning;
                     Caption = 'Demand Overview';
                     Image = Forecast;
-                    ToolTip = 'Get an overview of demand for your items when planning sales, production, jobs, or service management and when they will be available.';
+                    ToolTip = 'Get an overview of demand for your items when planning sales, production, projects, or service management and when they will be available.';
 
                     trigger OnAction()
                     var
@@ -902,6 +930,23 @@ page 5900 "Service Order"
                                   "No." = field("No."),
                                   Type = const(General);
                     ToolTip = 'View or add comments for the record.';
+                }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
                 }
             }
             group("<Action36>")
@@ -1010,13 +1055,13 @@ page 5900 "Service Order"
                 action("&Job Ledger Entries")
                 {
                     ApplicationArea = Service;
-                    Caption = '&Job Ledger Entries';
+                    Caption = '&Project Ledger Entries';
                     Image = JobLedger;
                     RunObject = Page "Job Ledger Entries";
                     RunPageLink = "Service Order No." = field("No.");
                     RunPageView = sorting("Service Order No.", "Posting Date")
                                   where("Entry Type" = const(Usage));
-                    ToolTip = 'View all the job ledger entries that result from posting transactions in the service document that involve a job.';
+                    ToolTip = 'View all the project ledger entries that result from posting transactions in the service document that involve a project.';
                 }
             }
         }
@@ -1188,10 +1233,28 @@ page 5900 "Service Order"
 
                 trigger OnAction()
                 var
-                    DocPrint: Codeunit "Document-Print";
+                    DocumentPrint: Codeunit "Document-Print";
                 begin
                     CurrPage.Update(true);
-                    DocPrint.PrintServiceHeader(Rec);
+                    DocumentPrint.PrintServiceHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Ellipsis = true;
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceHeader: Record "Service Header";
+                    DocumentPrint: Codeunit "Document-Print";
+                begin
+                    ServiceHeader := Rec;
+                    ServiceHeader.SetRecFilter();
+                    DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                 end;
             }
         }
@@ -1231,8 +1294,16 @@ page 5900 "Service Order"
                     {
                     }
                 }
-                actionref("&Print_Promoted"; "&Print")
+                group(Category_CategoryPrint)
                 {
+                    ShowAs = SplitButton;
+
+                    actionref("&Print_Promoted"; "&Print")
+                    {
+                    }
+                    actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                    {
+                    }
                 }
                 actionref("Create Whse Shipment_Promoted"; "Create Whse Shipment")
                 {
@@ -1259,6 +1330,9 @@ page 5900 "Service Order"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 separator(Navigate_Separator)
@@ -1305,7 +1379,7 @@ page 5900 "Service Order"
     begin
         Rec."Document Type" := Rec."Document Type"::Order;
         Rec."Responsibility Center" := UserMgt.GetServiceFilter();
-        if Rec."No." = '' then
+        if (not DocNoVisible) and (Rec."No." = '') then
             Rec.SetCustomerFromFilter();
     end;
 
@@ -1319,6 +1393,7 @@ page 5900 "Service Order"
             DocumentIsPosted := (not Rec.Get(Rec."Document Type", Rec."No."));
 
         ActivateFields();
+        SetDocNoVisible();
         CheckShowBackgrValidationNotification();
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
@@ -1348,6 +1423,7 @@ page 5900 "Service Order"
         ServHeader: Record "Service Header";
         BillToContact: Record Contact;
         SellToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         ServOrderMgt: Codeunit ServOrderManagement;
         ServLogMgt: Codeunit ServLogManagement;
         UserMgt: Codeunit "User Setup Management";
@@ -1361,7 +1437,10 @@ page 5900 "Service Order"
         IsShipToCountyVisible: Boolean;
         ServiceDocCheckFactboxVisible: Boolean;
         IsServiceLinesEditable: Boolean;
+        ShowQuoteNo: Boolean;
+        ExternalDocNoMandatory: Boolean;
         VATDateEnabled: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1370,6 +1449,16 @@ page 5900 "Service Order"
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
         ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
+        ShowQuoteNo := Rec."Quote No." <> '';
+        SetExtDocNoMandatoryCondition();
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::"Order", Rec."No.");
     end;
 
     local procedure SetControlAppearance()
@@ -1395,6 +1484,12 @@ page 5900 "Service Order"
                 Rec.SetRange("Customer No.");
         IsServiceLinesEditable := Rec.ServiceLinesEditable();
         CurrPage.Update();
+    end;
+
+    local procedure SetExtDocNoMandatoryCondition()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        ExternalDocNoMandatory := ServiceMgtSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure BilltoCustomerNoOnAfterValidat()

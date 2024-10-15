@@ -38,7 +38,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Inventory Valuation");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
@@ -877,11 +877,11 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
 
         // [GIVEN] Set filters on Calculate Inventory Value. Fields Location Filter and Variant Filter, both filters longer than 10 characters
         Item.SetRecFilter();
-        Item.SetFilter("Location Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
-        Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID, LibraryUtility.GenerateGUID());
+        Item.SetFilter("Location Filter", '%1|%2', LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
+        Item.SetFilter("Variant Filter", '%1|%2', LibraryUtility.GenerateGUID(), LibraryUtility.GenerateGUID());
 
         // [WHEN] Run Inventory Valuation - Check
-        CalcInventoryValueCheck.SetProperties(WorkDate(), 0, true, true, false, true);
+        CalcInventoryValueCheck.SetParameters(WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry", true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification competed without errors
@@ -916,7 +916,7 @@ codeunit 137608 "SCM CETAF Inventory Valuation"
         Item.SetRecFilter();
         Item.SetRange("Location Filter", Location.Code);
         Item.SetRange("Variant Filter", ItemVariant.Code);
-        CalcInventoryValueCheck.SetProperties(WorkDate(), 0, true, true, false, true);
+        CalcInventoryValueCheck.SetParameters(WorkDate(), "Inventory Value Calc. Per"::"Item Ledger Entry", true, true, false, true);
         CalcInventoryValueCheck.RunCheck(Item, TempErrorBuffer);
 
         // [THEN] Verification returns error: "open outbound entry found".

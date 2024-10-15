@@ -95,7 +95,9 @@ page 161 "Purchase Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total quantity of G/L account entries, items, and/or resources in the purchase document.';
                 }
+#pragma warning disable AA0100
                 field("TotalPurchLine.""Units per Parcel"""; TotalPurchLine."Units per Parcel")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Parcels';
@@ -103,7 +105,9 @@ page 161 "Purchase Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total number of parcels in the purchase document.';
                 }
+#pragma warning disable AA0100
                 field("TotalPurchLine.""Net Weight"""; TotalPurchLine."Net Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Weight';
@@ -111,7 +115,9 @@ page 161 "Purchase Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total net weight of the items in the purchase document.';
                 }
+#pragma warning disable AA0100
                 field("TotalPurchLine.""Gross Weight"""; TotalPurchLine."Gross Weight")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Gross Weight';
@@ -119,7 +125,9 @@ page 161 "Purchase Statistics"
                     Editable = false;
                     ToolTip = 'Specifies the total gross weight of the items in the purchase document.';
                 }
+#pragma warning disable AA0100
                 field("TotalPurchLine.""Unit Volume"""; TotalPurchLine."Unit Volume")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Volume';
@@ -135,7 +143,9 @@ page 161 "Purchase Statistics"
             group(Vendor)
             {
                 Caption = 'Vendor';
+#pragma warning disable AA0100
                 field("Vend.""Balance (LCY)"""; Vend."Balance (LCY)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;

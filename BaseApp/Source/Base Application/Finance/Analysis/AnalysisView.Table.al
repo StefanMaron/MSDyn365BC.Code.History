@@ -17,6 +17,7 @@ table 363 "Analysis View"
     LookupPageID = "Analysis View List";
     Permissions = TableData "Analysis View Entry" = rimd,
                   TableData "Analysis View Budget Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -11,6 +11,7 @@ table 5390 "CRM Systemuserroles"
     Caption = 'CRM Systemuserroles';
     ExternalName = 'systemuserroles';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {

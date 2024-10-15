@@ -4,7 +4,7 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Pricing.Worksheet;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -59,7 +59,7 @@ page 7022 "Price Worksheet"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assign-to Group';
-                    ToolTip = 'Specifies a filter for which group the prices apply to: customer, vendor, or job.';
+                    ToolTip = 'Specifies a filter for which group the prices apply to: customer, vendor, or project.';
 
                     trigger OnValidate()
                     begin
@@ -156,7 +156,7 @@ page 7022 "Price Worksheet"
                     Visible = ParentSourceNoVisible;
                     Editable = ParentSourceNoEditable;
                     ShowMandatory = ParentSourceEditable;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Source No."; Rec."Source No.")
                 {
@@ -172,7 +172,7 @@ page 7022 "Price Worksheet"
                     Visible = AssignToParentNoVisible;
                     Editable = ParentSourceEditable;
                     ShowMandatory = ParentSourceEditable;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Assign-to No."; Rec."Assign-to No.")
                 {
@@ -279,7 +279,7 @@ page 7022 "Price Worksheet"
                     ApplicationArea = Basic, Suite;
                     Visible = SalesPriceVisible;
                     Editable = UnitPriceEditable;
-                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for project-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Existing Direct Unit Cost"; Rec."Existing Direct Unit Cost")
                 {
@@ -524,7 +524,7 @@ page 7022 "Price Worksheet"
         }
     }
 
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

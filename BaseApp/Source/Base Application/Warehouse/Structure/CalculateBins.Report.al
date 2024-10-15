@@ -11,13 +11,13 @@ report 7310 "Calculate Bins"
     {
         dataitem(Rack2; "Integer")
         {
-            DataItemTableView = SORTING(Number);
+            DataItemTableView = sorting(Number);
             dataitem(Section2; "Integer")
             {
-                DataItemTableView = SORTING(Number);
+                DataItemTableView = sorting(Number);
                 dataitem(Level2; "Integer")
                 {
-                    DataItemTableView = SORTING(Number);
+                    DataItemTableView = sorting(Number);
 
                     trigger OnAfterGetRecord()
                     begin
@@ -145,14 +145,18 @@ report 7310 "Calculate Bins"
                         Caption = 'Description';
                         ToolTip = 'Specifies the description of the bin.';
                     }
+#pragma warning disable AA0100
                     field("BinTemplateFilter.""Location Code"""; BinTemplateFilter."Location Code")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Location Code';
                         Editable = false;
                         ToolTip = 'Specifies the location where the warehouse activity takes place. ';
                     }
+#pragma warning disable AA0100
                     field("BinTemplateFilter.""Zone Code"""; BinTemplateFilter."Zone Code")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Zone Code';
@@ -295,21 +299,19 @@ report 7310 "Calculate Bins"
         else
             LineNo := 10000;
         BinCreationWkshLine.Init();
-        with BinCreationWkshLine do begin
-            "Worksheet Template Name" := CurrTemplateName;
-            Name := CurrWorksheetName;
-            "Location Code" := CurrLocationCode;
-            Dedicated := BinTemplateFilter.Dedicated;
-            "Zone Code" := BinTemplateFilter."Zone Code";
-            Description := BinTemplateFilter."Bin Description";
-            "Bin Type Code" := BinTemplateFilter."Bin Type Code";
-            "Warehouse Class Code" := BinTemplateFilter."Warehouse Class Code";
-            "Block Movement" := BinTemplateFilter."Block Movement";
-            "Special Equipment Code" := BinTemplateFilter."Special Equipment Code";
-            "Bin Ranking" := BinTemplateFilter."Bin Ranking";
-            "Maximum Cubage" := BinTemplateFilter."Maximum Cubage";
-            "Maximum Weight" := BinTemplateFilter."Maximum Weight";
-        end;
+        BinCreationWkshLine."Worksheet Template Name" := CurrTemplateName;
+        BinCreationWkshLine.Name := CurrWorksheetName;
+        BinCreationWkshLine."Location Code" := CurrLocationCode;
+        BinCreationWkshLine.Dedicated := BinTemplateFilter.Dedicated;
+        BinCreationWkshLine."Zone Code" := BinTemplateFilter."Zone Code";
+        BinCreationWkshLine.Description := BinTemplateFilter."Bin Description";
+        BinCreationWkshLine."Bin Type Code" := BinTemplateFilter."Bin Type Code";
+        BinCreationWkshLine."Warehouse Class Code" := BinTemplateFilter."Warehouse Class Code";
+        BinCreationWkshLine."Block Movement" := BinTemplateFilter."Block Movement";
+        BinCreationWkshLine."Special Equipment Code" := BinTemplateFilter."Special Equipment Code";
+        BinCreationWkshLine."Bin Ranking" := BinTemplateFilter."Bin Ranking";
+        BinCreationWkshLine."Maximum Cubage" := BinTemplateFilter."Maximum Cubage";
+        BinCreationWkshLine."Maximum Weight" := BinTemplateFilter."Maximum Weight";
     end;
 
     var

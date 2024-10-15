@@ -99,7 +99,7 @@ codeunit 144050 "ERM Regoff SE"
         // Setup.
         Initialize();
         CompanyInformation.Get();
-        RegisteredOffice := LibraryUTUtility.GetNewCode + NumberValue;  // Assign Registered Office value more than field length.
+        RegisteredOffice := LibraryUTUtility.GetNewCode() + NumberValue;  // Assign Registered Office value more than field length.
         TextCount := StrLen(RegisteredOffice);
 
         // Exercise.
@@ -364,7 +364,7 @@ codeunit 144050 "ERM Regoff SE"
 
     local procedure VerifyReportValue(FieldCaption: Text[50]; CaptionValue: Text[50]; FieldCaption3: Text[50]; CaptionValue3: Text[50])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FieldCaption, CaptionValue);
         LibraryReportDataset.AssertElementWithValueExists(FieldCaption3, CaptionValue3);
     end;
@@ -380,7 +380,7 @@ codeunit 144050 "ERM Regoff SE"
         LibraryVariableStorage.Dequeue(No);
         StandardSalesQuote.Header.SetFilter("Document Type", Format(DocumentType));
         StandardSalesQuote.Header.SetFilter("No.", No);
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

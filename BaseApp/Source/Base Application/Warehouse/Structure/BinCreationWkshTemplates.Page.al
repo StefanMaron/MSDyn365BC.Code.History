@@ -78,7 +78,7 @@ page 7370 "Bin Creation Wksh. Templates"
                     Caption = 'Names';
                     Image = Description;
                     RunObject = Page "Bin Creation Wksh. Names";
-                    RunPageLink = "Worksheet Template Name" = FIELD(Name);
+                    RunPageLink = "Worksheet Template Name" = field(Name);
                     ToolTip = 'View the list of available template names.';
                 }
             }

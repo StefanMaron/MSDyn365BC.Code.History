@@ -11,17 +11,25 @@ codeunit 134610 "Test User Permissions"
     var
         Assert: Codeunit Assert;
         LibraryPermissions: Codeunit "Library - Permissions";
+#if not CLEAN22
         LibraryUtility: Codeunit "Library - Utility";
+#endif
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN22
         LibraryXMLRead: Codeunit "Library - XML Read";
+#endif
         GlobalSourcePermissionSetRoleID: Code[20];
+#if not CLEAN22
         CopyToUserGroup: Code[20];
+#endif
         CopyToPermissionSet: Code[20];
         CopySuccessMsg: Label 'New permission set, %1, has been created.', Comment = 'New permission set, D365 Basic Set, has been created.';
+#if not CLEAN22
         WrongUserGroupCodeErr: Label 'Wrong User Group Code.';
         WrongRoleIDErr: Label 'Wrong Role ID for User Group.';
         SubscriptionPlanTok: Label 'My subscription plan';
         XTestPermissionTxt: Label 'TEST PERMISSION';
+#endif
         LibrarySingleServer: Codeunit "Library - Single Server";
 
     [Test]
@@ -39,8 +47,8 @@ codeunit 134610 "Test User Permissions"
         // Init: Not possible to delete existing users, so this will only give full coverage in a clean DB
 
         // Execute
-        Users.OpenEdit;
-        Users.AddMeAsSuper.Invoke;
+        Users.OpenEdit();
+        Users.AddMeAsSuper.Invoke();
         Users.Close();
 
         // Verify
@@ -48,7 +56,7 @@ codeunit 134610 "Test User Permissions"
         AccessControl.Get(User."User Security ID", 'SUPER');
         Permission.SetRange("Role ID", 'SUPER');
         Assert.IsTrue(Permission.Count >= 8, '');
-        TestCleanup;
+        TestCleanup();
     end;
 
 #if not CLEAN22
@@ -63,7 +71,7 @@ codeunit 134610 "Test User Permissions"
         // Verify that the OnDelete trigger of table 9000 also deletes from table 9003.
         // Init
         LibraryPermissions.CreateUserGroup(UserGroup, '');
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, CreateTenantPermissionSet);
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroup.Code, CreateTenantPermissionSet());
         UserGroupPermissionSet.SetRange("User Group Code", UserGroup.Code);
         Assert.AreEqual(1, UserGroupPermissionSet.Count, '');
 
@@ -72,7 +80,7 @@ codeunit 134610 "Test User Permissions"
 
         // Verfiy
         Assert.AreEqual(0, UserGroupPermissionSet.Count, '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -90,7 +98,7 @@ codeunit 134610 "Test User Permissions"
 
         // Execute + Verfiy
         asserterror UserGroup.Delete(true);
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -108,7 +116,7 @@ codeunit 134610 "Test User Permissions"
 
         // Execute + Verfiy
         asserterror UserGroup.Delete(true);
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -128,7 +136,7 @@ codeunit 134610 "Test User Permissions"
 
         // Execute / validate
         Assert.IsTrue(UserGroup.IsUserMember(User, ''), '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -152,7 +160,7 @@ codeunit 134610 "Test User Permissions"
 
         // Validate
         Assert.IsFalse(UserGroup.IsUserMember(User, ''), '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -178,7 +186,7 @@ codeunit 134610 "Test User Permissions"
 
         // Verification
         Assert.AreEqual(1, UserGroupMember.Count, '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -188,7 +196,7 @@ codeunit 134610 "Test User Permissions"
     begin
         // Test the OnInsert trigger of table 9001
         VerifyUserGroupMemberInsertDelete(false);
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -198,7 +206,7 @@ codeunit 134610 "Test User Permissions"
     begin
         // Test the OnDelete trigger of table 9001
         VerifyUserGroupMemberInsertDelete(true);
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -216,13 +224,13 @@ codeunit 134610 "Test User Permissions"
         CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
 
         // [WHEN] Add new Permission Set "P" to group "UG"
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet);
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet());
 
         // [THEN] User "U" has Permission Set "P"
         VerifyUserGroupAccessControlCount(UserGroupCode, UserSecurityID, 1);
 
         // Tear Down
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -247,7 +255,7 @@ codeunit 134610 "Test User Permissions"
         // [THEN] Then should be no error
 
         // Tear Down
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -263,7 +271,7 @@ codeunit 134610 "Test User Permissions"
 
         // [GIVEN] User "U" in User Group "UG" with User Group Permission Set "P"
         CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet);
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet());
 
         // [WHEN] Delete User Gorup Permission Set "P"
         UserGroupPermissionSet.Delete(true);
@@ -272,7 +280,7 @@ codeunit 134610 "Test User Permissions"
         VerifyUserGroupAccessControlCount(UserGroupCode, UserSecurityID, 0);
 
         // Tear Down
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -290,7 +298,7 @@ codeunit 134610 "Test User Permissions"
 
         // [GIVEN] User "U" in User Group "UG" with User Group Permission Set "P"
         CreateUserGroupWithUser(UserSecurityID, UserGroupCode);
-        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet);
+        CreateUserGroupPermissionSet(UserGroupPermissionSet, UserGroupCode, CreateTenantPermissionSet());
 
         // [WHEN] Rename User Group Permission Set from "P" to "P2"
         NewRoleID := CreateTenantPermissionSet()."Role ID";
@@ -308,7 +316,7 @@ codeunit 134610 "Test User Permissions"
           NewRoleID, UserGroupAccessControl."Role ID", UserGroupAccessControl.FieldCaption("Role ID"));
 
         // Tear Down
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -325,16 +333,16 @@ codeunit 134610 "Test User Permissions"
     begin
         // Tests that invoking action Copy Permission Set starts report 9802.
         // Init
-        CopyToUserGroup := CopyStr(GetGuidString, 1, 20);
+        CopyToUserGroup := CopyStr(GetGuidString(), 1, 20);
         LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
         LibraryPermissions.CreateUserGroup(UserGroup, '');
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, TenantPermissionSet."App ID", TenantPermissionSet."Role ID");
         LibraryPermissions.AddPermissionSetToUserGroup(AggregatePermissionSet, UserGroup.Code);
 
         // Execute
-        UserGroups.OpenEdit;
+        UserGroups.OpenEdit();
         UserGroups.GotoRecord(UserGroup);
-        UserGroups.CopyUserGroup.Invoke;
+        UserGroups.CopyUserGroup.Invoke();
         UserGroups.Close();
 
         // Verification: PageHandler is executed.
@@ -343,104 +351,7 @@ codeunit 134610 "Test User Permissions"
         Assert.RecordCount(UserGroupPermissionSet, 1);
         UserGroupPermissionSet.FindFirst();
         Assert.AreEqual(TenantPermissionSet."Role ID", UserGroupPermissionSet."Role ID", '');
-        TestCleanup;
-    end;
-#endif
-
-#if not CLEAN21
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestOpenCloseAllPermissionPage1()
-    begin
-        // Ensure that open/close of an empty permission set does not inadvertedly creates a 0-permission
-        VerifyOpenCloseAllPermissionPage(false);
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestOpenCloseAllPermissionPage2()
-    begin
-        // Ensure that open/close of an empty permission set does not inadvertedly creates a 0-permission
-        VerifyOpenCloseAllPermissionPage(true);
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestPermissionsPageInsertNewRecord1()
-    begin
-        // Tests insert of a new permission without inserting related tables
-        VerifyPermissionsPageInsertNewRecord(false);
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestPermissionsPageInsertNewRecordAddRelated()
-    begin
-        // Tests insert of a new permission and inserting related tables
-        VerifyPermissionsPageInsertNewRecord(true);
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestPermissionsPageSecurityFilterAssistEdit()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        Permissions: TestPage Permissions;
-    begin
-        // Init();
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', LibrarySingleServer.GetAppIdGuid());
-        TenantPermission.SetRange("Role ID", TenantPermissionSet."Role ID");
-        Assert.AreEqual(0, TenantPermission.Count, '');
-
-        // Execute
-        Permissions.OpenEdit;
-        Permissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-        Permissions."Security Filter".AssistEdit;
-
-        // Verify is done by lookup-handler
-
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure TestPermissionsPageAddRelatedTablesAction()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        // Init
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', ZeroGUID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSet."Role ID");
-        Assert.RecordIsEmpty(TenantPermission);
-
-        // Execute
-        TenantPermissions.OpenEdit;
-        TenantPermissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue(TenantPermissions."Object Type".GetOption(1));
-        TenantPermissions."Object ID".SetValue(DATABASE::"Sales Header");
-        TenantPermissions.Control8.SetValue(TenantPermissions.Control8.GetOption(1));
-        TenantPermissions.AddRelatedTablesAction.Invoke;
-        TenantPermissions.Close();
-
-        // Validate
-        Assert.IsTrue(TenantPermission.Count > 1, 'Number of tenant permissions must be more than 1.');
-
-        TestCleanup;
+        TestCleanup();
     end;
 #endif
 
@@ -464,14 +375,14 @@ codeunit 134610 "Test User Permissions"
         LibraryPermissions.GetMyUser(User);
 
         // Execute
-        PermissionSetbyUser.OpenEdit;
+        PermissionSetbyUser.OpenEdit();
         PermissionSetbyUser.Filter.SetFilter(Scope, 'Tenant');
         PermissionSetbyUser.ShowDomainName.SetValue(false);
         PermissionSetbyUser.SelectedCompany.SetValue(CompanyName);
-        MoreRecords := PermissionSetbyUser.First;
+        MoreRecords := PermissionSetbyUser.First();
         while MoreRecords and (CopyStr(PermissionSetbyUser."Role ID".Value, 1, 4) <> 'TEST') do
             MoreRecords := PermissionSetbyUser.Next();
-        SelectedPermissionSet := PermissionSetbyUser."Role ID".Value;
+        SelectedPermissionSet := PermissionSetbyUser."Role ID".Value();
         // test setup ensures Role Id is unique in tenant permissions
         TenantPermissionSet.Setrange("Role ID", SelectedPermissionSet);
         TenantPermissionSet.FindFirst();
@@ -493,22 +404,22 @@ codeunit 134610 "Test User Permissions"
         PermissionSetbyUser.Column9.SetValue(true);
         PermissionSetbyUser.Column10.SetValue(true);
         FirstUserID := PermissionSetbyUser.Column1.Caption;
-        PermissionSetbyUser.ColumnRight.Invoke;
+        PermissionSetbyUser.ColumnRight.Invoke();
         while FirstUserID <> PermissionSetbyUser.Column1.Caption do begin
             PermissionSetbyUser.Column10.SetValue(true);
             FirstUserID := PermissionSetbyUser.Column1.Caption;
-            PermissionSetbyUser.ColumnRight.Invoke;
+            PermissionSetbyUser.ColumnRight.Invoke();
         end;
-        PermissionSetbyUser.AllColumnsLeft.Invoke;
-        PermissionSetbyUser.ColumnLeft.Invoke;
-        PermissionSetbyUser.AllColumnsRight.Invoke;
+        PermissionSetbyUser.AllColumnsLeft.Invoke();
+        PermissionSetbyUser.ColumnLeft.Invoke();
+        PermissionSetbyUser.AllColumnsRight.Invoke();
 
         // Validate
         Assert.AreEqual(User.Count, AccessControl.Count, '');
         PermissionSetbyUser.AllUsersHavePermission.SetValue(false);
         Assert.AreEqual(0, AccessControl.Count, '');
         PermissionSetbyUser.Close();
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -525,23 +436,23 @@ codeunit 134610 "Test User Permissions"
         // Init
         LibraryVariableStorage.Clear();
 
-        CopyToPermissionSet := CopyStr(GetGuidString, 1, 20);
+        CopyToPermissionSet := CopyStr(GetGuidString(), 1, 20);
 
         // Execute
         LibraryVariableStorage.Enqueue(CopyToPermissionSet);
 
         AssignSuperToCurrentUser();
-        PermissionSetbyUser.OpenEdit;
-        PermissionSetbyUser.First;
-        PermissionSetbyUser.CopyPermissionSet.Invoke;
+        PermissionSetbyUser.OpenEdit();
+        PermissionSetbyUser.First();
+        PermissionSetbyUser.CopyPermissionSet.Invoke();
         PermissionSetbyUser.Close();
 
         // Verification: PageHandler is executed.
 
         TenantPermissionSet.Get(ZeroGUID, CopyToPermissionSet);
-        TestCleanup;
+        TestCleanup();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
 #if not CLEAN22
@@ -567,8 +478,8 @@ codeunit 134610 "Test User Permissions"
         AssignSuperToCurrentUser();
 
         // Execute
-        PermissionSetbyUserGroup.OpenEdit;
-        PermissionSetbyUserGroup.First;
+        PermissionSetbyUserGroup.OpenEdit();
+        PermissionSetbyUserGroup.First();
         while PermissionSetbyUserGroup."Role ID".Value <> 'TEST1' do
             PermissionSetbyUserGroup.Next();
         // test setup guarantees uniqueness
@@ -592,16 +503,16 @@ codeunit 134610 "Test User Permissions"
         PermissionSetbyUserGroup.Column10.SetValue(true);
         FirstUserGroupCode := PermissionSetbyUserGroup.Column1.Caption;
         LastUserGroupCode := FirstUserGroupCode;
-        PermissionSetbyUserGroup.ColumnRight.Invoke;
+        PermissionSetbyUserGroup.ColumnRight.Invoke();
         while LastUserGroupCode <> PermissionSetbyUserGroup.Column1.Caption do begin
             PermissionSetbyUserGroup.Column10.SetValue(true);
             LastUserGroupCode := PermissionSetbyUserGroup.Column1.Caption;
-            PermissionSetbyUserGroup.ColumnRight.Invoke;
+            PermissionSetbyUserGroup.ColumnRight.Invoke();
         end;
         LastUserGroupCode := PermissionSetbyUserGroup.Column10.Caption;
-        PermissionSetbyUserGroup.AllColumnsLeft.Invoke;
-        PermissionSetbyUserGroup.ColumnLeft.Invoke;
-        PermissionSetbyUserGroup.AllColumnsRight.Invoke;
+        PermissionSetbyUserGroup.AllColumnsLeft.Invoke();
+        PermissionSetbyUserGroup.ColumnLeft.Invoke();
+        PermissionSetbyUserGroup.AllColumnsRight.Invoke();
 
         // Validate
         Assert.AreEqual(UserGroup.Code, FirstUserGroupCode, '');
@@ -611,7 +522,7 @@ codeunit 134610 "Test User Permissions"
         PermissionSetbyUserGroup.AllUsersHavePermission.SetValue(false);
         Assert.AreEqual(0, UserGroupPermissionSet.Count, '');
         PermissionSetbyUserGroup.Close();
-        TestCleanup;
+        TestCleanup();
     end;
 
     local procedure CreateUsersUserGroupsPermissionSets()
@@ -628,7 +539,7 @@ codeunit 134610 "Test User Permissions"
         UserGroup.SetRange(Code);
         TenantPermissionSet.SetFilter("Role ID", 'TEST*');
         TenantPermissionSet.DeleteAll(true);
-        Initialize;
+        Initialize();
         for i := 1 to 15 do begin
             NewCode := StrSubstNo('TEST%1', i);
             User.SetRange("User Name", NewCode);
@@ -650,7 +561,6 @@ codeunit 134610 "Test User Permissions"
         User: Record User;
         UserGroup: Record "User Group";
         UserGroupMember: Record "User Group Member";
-        PermissionSet: Record "Permission Set";
         AzureADPlanTestLibrary: Codeunit "Azure AD Plan Test Library";
         UserbyUserGroup: TestPage "User by User Group";
         MoreRecords: Boolean;
@@ -671,9 +581,9 @@ codeunit 134610 "Test User Permissions"
 
         // Execute
         AssignSuperToCurrentUser();
-        UserbyUserGroup.OpenEdit;
+        UserbyUserGroup.OpenEdit();
         UserbyUserGroup.SelectedCompany.SetValue(CompanyName);
-        MoreRecords := UserbyUserGroup.First;
+        MoreRecords := UserbyUserGroup.First();
         while MoreRecords and (UserbyUserGroup."User Name".Value <> User."User Name") do
             MoreRecords := UserbyUserGroup.Next();
 
@@ -694,16 +604,16 @@ codeunit 134610 "Test User Permissions"
         UserbyUserGroup.Column10.SetValue(true);
         FirstUserGroupCode := UserbyUserGroup.Column1.Caption;
         LastUserGroupCode := FirstUserGroupCode;
-        UserbyUserGroup.ColumnRight.Invoke;
+        UserbyUserGroup.ColumnRight.Invoke();
         while LastUserGroupCode <> UserbyUserGroup.Column1.Caption do begin
             UserbyUserGroup.Column10.SetValue(true);
             LastUserGroupCode := UserbyUserGroup.Column1.Caption;
-            UserbyUserGroup.ColumnRight.Invoke;
+            UserbyUserGroup.ColumnRight.Invoke();
         end;
         LastUserGroupCode := UserbyUserGroup.Column10.Caption;
-        UserbyUserGroup.AllColumnsLeft.Invoke;
-        UserbyUserGroup.ColumnLeft.Invoke;
-        UserbyUserGroup.AllColumnsRight.Invoke;
+        UserbyUserGroup.AllColumnsLeft.Invoke();
+        UserbyUserGroup.ColumnLeft.Invoke();
+        UserbyUserGroup.AllColumnsRight.Invoke();
 
         // Validate
         Assert.AreEqual(UserGroup.Code, FirstUserGroupCode, '');
@@ -713,7 +623,7 @@ codeunit 134610 "Test User Permissions"
         UserbyUserGroup.MemberOfAllGroups.SetValue(false);
         Assert.AreEqual(0, UserGroupMember.Count, '');
         UserbyUserGroup.Close();
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -723,7 +633,7 @@ codeunit 134610 "Test User Permissions"
     procedure TestUserGroupPage()
     begin
         // Uses a requesthandler that selects users by opening the users window.
-        UserGroupPageSharedTest;
+        UserGroupPageSharedTest();
     end;
 
     local procedure UserGroupPageSharedTest()
@@ -740,12 +650,12 @@ codeunit 134610 "Test User Permissions"
         LibraryPermissions.GetMyUser(User);
 
         // Execute
-        UserGroups.OpenEdit;
-        RecordExists := UserGroups.First;
+        UserGroups.OpenEdit();
+        RecordExists := UserGroups.First();
         while RecordExists and (UserGroups.Code.Value <> UserGroup.Code) do
             RecordExists := UserGroups.Next();
         Assert.IsTrue(RecordExists, '');
-        UserGroups.UserGroupMembers.Invoke;
+        UserGroups.UserGroupMembers.Invoke();
         UserGroups.Close();
 
         // Validate
@@ -756,7 +666,7 @@ codeunit 134610 "Test User Permissions"
         Assert.AreEqual(1, UserGroupMember.Count, '');
         UserGroupMember.SetRange("Company Name", CompanyName);
         Assert.AreEqual(1, UserGroupMember.Count, '');
-        TestCleanup;
+        TestCleanup();
     end;
 #endif
 
@@ -794,7 +704,7 @@ codeunit 134610 "Test User Permissions"
 
         // Verify
         Assert.AreEqual(2, TenantPermission.Count, '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -829,7 +739,7 @@ codeunit 134610 "Test User Permissions"
         DestTenantPermission.SetRange("Role ID", DestTenantPermissionSet."Role ID");
         DestTenantPermission.SetRange("App ID", DestTenantPermissionSet."App ID");
         Assert.AreEqual(2, DestTenantPermission.Count(), '');
-        TestCleanup;
+        TestCleanup();
     end;
 
     [Test]
@@ -866,7 +776,7 @@ codeunit 134610 "Test User Permissions"
 
         // Verify
         Assert.AreEqual(1, TenantPermission.Count, '');
-        TestCleanup;
+        TestCleanup();
     end;
 
 #if not CLEAN22
@@ -901,7 +811,7 @@ codeunit 134610 "Test User Permissions"
     begin
         // [SCENARIO 201784] XML file with exported User groups have to contain permissions sets if ones have been assigned to user group.
 
-        TestCleanup;
+        TestCleanup();
         // [GIVEN] First User Group "UG1" with User Group Permission Set "UGPS1"
         UserGroupCode[1] := LibraryUtility.GenerateGUID();
         CreateUserGroupWithPermissionSet(RoleID[1], UserGroupCode[1]);
@@ -937,7 +847,7 @@ codeunit 134610 "Test User Permissions"
         // [SCENARIO] Purpose of the test is to validate Method InsertPermissionSetsFromUserGroup
         // [GIVEN] Existing Plan, User Groups with related Permission Sets defined in MembershipEntitlementsets
         PlanID := CreateGuid();
-        UserGroupName := InsertUserGroupAndPermissionset;
+        UserGroupName := InsertUserGroupAndPermissionset();
         MembershipEntitlementsFile := CreateMembershipEntitlementsFile(PlanID, UserGroupName);
         InputFile.Open(MembershipEntitlementsFile);
         InputFile.CreateInStream(EntitlementsStream);
@@ -1016,52 +926,6 @@ codeunit 134610 "Test User Permissions"
     end;
 #endif
 
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure PermissionsObjectNameForTheZeroObjectID()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        PermissionSets: TestPage "Permission Sets";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 217927] Page 9803 "Permissions" prints "Object Name" = "All objects of type..." for the "Object ID" = 0
-
-        // [GIVEN] A new permission set
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, LibraryUtility.GenerateGUID, ZeroGUID);
-        PermissionSets.OpenView;
-        PermissionSets.FILTER.SetFilter("App ID", ZeroGUID);
-        PermissionSets.FILTER.SetFilter("Role ID", TenantPermissionSet."Role ID");
-        // [GIVEN] Invoke Permissions page for the given permission set
-        TenantPermissions.Trap;
-        PermissionSets.Permissions.Invoke;
-        // [GIVEN] Permissions page has been opened with a new record having "Object Type" = "Table Data", "Object ID" = 0, "Object Name" = "All objects of type Table Data"
-        TenantPermissions."Object Type".AssertEquals('Table Data');
-        TenantPermissions."Object ID".AssertEquals(0);
-        TenantPermissions.ObjectName.AssertEquals('All objects of type Table Data');
-
-        // [GIVEN] Set "Object ID" = 15 ("G/L Account"),
-        TenantPermissions."Object ID".SetValue(DATABASE::"G/L Account");
-        // [GIVEN] Step next, previous record (delayed insert)
-        TenantPermissions.Next();
-        TenantPermissions.Previous;
-        // [GIVEN] "Object Name" = "Chart of Accounts"
-        TenantPermissions.ObjectName.AssertEquals('G/L Account');
-        // [GIVEN] A new record. Type "Object Type" = "Report", leave "Object ID" = 0
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue('Report');
-
-        // [WHEN] Step next, previous record (delayed insert)
-        TenantPermissions.Next();
-        TenantPermissions.Previous;
-
-        // [THEN] "Object Name" = "All objects of type Report"
-        TenantPermissions.ObjectName.AssertEquals('All objects of type Report');
-    end;
-#endif
-
 #if not CLEAN22
     [Test]
     [HandlerFunctions('ConfirmYes')]
@@ -1077,6 +941,7 @@ codeunit 134610 "Test User Permissions"
     begin
         // [SCENARIO 225576] User Card page is updated on insert\modify\delete user groups subpage
         LibraryPermissions.CreateUser(User, '', false);
+        AssignSuperToCurrentUser();
 
         // [GIVEN] User group "A" with permission set "B"
         LibraryPermissions.CreateUserGroup(UserGroup[1], '');
@@ -1088,7 +953,7 @@ codeunit 134610 "Test User Permissions"
         CreateUserGroupPermissionSet(UserGroupPermissionSet[2], UserGroup[2].Code, TenantPermissionSet[2]);
 
         // [GIVEN] User card
-        UserCard.OpenEdit;
+        UserCard.OpenEdit();
         UserCard.GotoRecord(User);
 
         // [GIVEN] Add user group "A"
@@ -1096,91 +961,22 @@ codeunit 134610 "Test User Permissions"
         UserCard.UserGroups.Next();
 
         // [GIVEN] User permission set 'TEST TOOL' has been added
-        UserCard.Permissions.First;
+        UserCard.Permissions.First();
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[1]."Role ID");
 
         // [WHEN] Add user group "B"
-        UserCard.UserGroups.LAST;
+        UserCard.UserGroups.Last();
         UserCard.UserGroups.Next();
         UserCard.UserGroups.UserGroupCode.SetValue(UserGroup[2].Code);
         UserCard.UserGroups.Next();
 
         // [THEN] User permission set 'TEST TABLES' has been added and is shown as first record in "User Permission Sets" subpage
         // (as 'TEST TABLES' > 'TEST TOOL' in alphabetical order)
-        UserCard.Permissions.First;
+        UserCard.Permissions.First();
         UserCard.Permissions.PermissionSet.AssertEquals(UserGroupPermissionSet[2]."Role ID");
         UserCard.Close();
 
-        TestCleanup;
-    end;
-#endif
-
-#if not CLEAN21
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure PermissionsPageObjectNameIsUpdatedOnObjectIDChanged()
-    var
-        SalesHeader: Record "Sales Header";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 259473] Object Name is updated when Object ID is changed on Permissions Page.
-
-        // [GIVEN] Permission Set.
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', ZeroGUID);
-
-        // [GIVEN] Permissions Page for the Permission Set.
-        TenantPermissions.OpenEdit;
-        TenantPermissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-
-        // [GIVEN] Add new Permission on Page with Type Table Data.
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue(TenantPermissions."Object Type".GetOption(1)); // Type does not matter for test
-
-        // [WHEN] Set Object ID as existing table number.
-        TenantPermissions."Object ID".SetValue(DATABASE::"Sales Header");
-
-        // [THEN] Object Name = Table Name.
-        TenantPermissions.ObjectName.AssertEquals(SalesHeader.TableName);
-
-        // Tear down.
-        TestCleanup;
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure PermissionsPageObjectNameIsUpdatedOnObjectTypeChanged()
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 262735] Object Name is updated when Object Type is changed on Permissions Page.
-
-        // [GIVEN] Permission Set.
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', ZeroGUID);
-
-        // [GIVEN] Permissions Page for the Permission Set.
-        TenantPermissions.OpenEdit;
-        TenantPermissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-
-        // [GIVEN] Add new Permission on Page with ID = 3 (Default Object Type is Table Data).
-        TenantPermissions.New;
-        TenantPermissions."Object ID".SetValue(CODEUNIT::"Service Info-Pane Management");
-
-        // [WHEN] Set Object Type = Codeunit.
-        TenantPermissions."Object Type".SetValue(TenantPermissions."Object Type".GetOption(4));
-
-        // [THEN] Object Name = Codeunit Name.
-        TenantPermissions.ObjectName.AssertEquals('Service Info-Pane Management');
-
-        // Tear down.
-        TestCleanup;
+        TestCleanup();
     end;
 #endif
 
@@ -1275,48 +1071,9 @@ codeunit 134610 "Test User Permissions"
     var
         UserGroups: TestPage "User Groups";
     begin
-        UserGroups.OpenEdit;
+        UserGroups.OpenEdit();
         UserGroups.FILTER.SetFilter(Code, UserGroupCode);
-        UserGroups.UserGroupMembers.Invoke;
-    end;
-#endif
-
-#if not CLEAN21
-    local procedure VerifyOpenCloseAllPermissionPage(HasPermission: Boolean)
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-        MoreRecords: Boolean;
-    begin
-        // Ensure that open/close of an empty permission set does not inadvertedly creates a 0-permission using Show all
-
-        // Execute
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', ZeroGUID);
-        TenantPermissionSet.SetRecFilter();
-        TenantPermission.SetRange("Role ID", TenantPermissionSet."Role ID");
-        Assert.RecordIsEmpty(TenantPermission);
-
-        TenantPermissions.OpenEdit;
-        TenantPermissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-        TenantPermissions.Show.SetValue(TenantPermissions.Show.GetOption(2));
-
-        MoreRecords := TenantPermissions.First;
-        Assert.IsTrue(MoreRecords, '');
-        if HasPermission then begin
-            while MoreRecords and (TenantPermissions."Object ID".AsInteger < 4) do
-                MoreRecords := TenantPermissions.Next();
-            TenantPermissions.Control8.Value := TenantPermissions.Control8.GetOption(2);
-            TenantPermissions.First;
-        end;
-        TenantPermissions.Close();
-
-        // Verify
-        if HasPermission then
-            Assert.RecordCount(TenantPermission, 1)
-        else
-            Assert.RecordIsEmpty(TenantPermission);
+        UserGroups.UserGroupMembers.Invoke();
     end;
 #endif
 
@@ -1365,59 +1122,6 @@ codeunit 134610 "Test User Permissions"
     end;
 #endif
 
-#if not CLEAN21
-    local procedure VerifyPermissionsPageInsertNewRecord(InsertReleatedTables: Boolean)
-    var
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        TenantPermissions: TestPage "Tenant Permissions";
-        ZeroGUID: Guid;
-    begin
-        // Tests insert of a new permission and with or without inserting related tables
-        // Init
-        LibraryPermissions.CreateTenantPermissionSet(TenantPermissionSet, '', ZeroGUID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSet."Role ID");
-        Assert.RecordIsEmpty(TenantPermission);
-
-        // Execute
-        TenantPermissions.OpenEdit;
-        TenantPermissions.CurrentRoleID.SetValue(TenantPermissionSet."Role ID");
-        TenantPermissions.AddRelatedTables.SetValue(InsertReleatedTables);
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue(TenantPermissions."Object Type".GetOption(1)); // TableData
-        TenantPermissions."Object ID".SetValue(DATABASE::"Sales Header");
-        TenantPermissions.Control8.SetValue(TenantPermissions.Control8.GetOption(2));
-        TenantPermissions.Control7.SetValue(TenantPermissions.Control7.GetOption(2));
-        TenantPermissions.Control6.SetValue(TenantPermissions.Control6.GetOption(2));
-        TenantPermissions.Control5.SetValue(TenantPermissions.Control5.GetOption(2));
-        TenantPermissions.AllowAllIndirect.Invoke;
-        TenantPermissions.AllowReadNo.Invoke;
-        TenantPermissions.AllowInsertIndirect.Invoke;
-        TenantPermissions.AllowModifyYes.Invoke;
-        TenantPermissions.AllowDeleteYes.Invoke;
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue(TenantPermissions."Object Type".GetOption(3)); // Report
-        TenantPermissions."Object ID".SetValue(REPORT::"Detail Trial Balance");
-        TenantPermissions.Previous;
-
-        // Verify
-        if InsertReleatedTables then
-            Assert.IsTrue(TenantPermission.Count > 2, 'Number of tenant permissions must be more than 2.')
-        else
-            Assert.RecordCount(TenantPermission, 2);
-
-        TenantPermissions.Next();
-        TenantPermissions.Control4.SetValue(TenantPermissions.Control4.GetOption(1));
-        TenantPermissions.Previous;
-        TenantPermissions.Close();
-
-        if InsertReleatedTables then
-            Assert.IsTrue(TenantPermission.Count > 1, 'Number of tenant permissions must be more than 1.')
-        else
-            Assert.RecordCount(TenantPermission, 1);
-    end;
-#endif
-
 #if not CLEAN22
     local procedure VerifyUserGroupAccessControlCount(UserGroupCode: Code[20]; UserSecurityID: Guid; ExpectedCount: Integer)
     var
@@ -1457,12 +1161,12 @@ codeunit 134610 "Test User Permissions"
         RecordExists: Boolean;
     begin
         // Selects current user and clicks OK
-        RecordExists := UserLookup.First;
+        RecordExists := UserLookup.First();
 
         while RecordExists and (UserLookup."User Name".Value <> UserId) do
             RecordExists := UserLookup.Next();
         Assert.IsTrue(RecordExists, '');
-        UserLookup.OK.Invoke;
+        UserLookup.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1471,7 +1175,7 @@ codeunit 134610 "Test User Permissions"
     begin
         CopyPermissionSet.NewPermissionSet.Value := CopyToPermissionSet;
         CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
-        CopyPermissionSet.OK.Invoke;
+        CopyPermissionSet.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1481,7 +1185,7 @@ codeunit 134610 "Test User Permissions"
         TenantPermissionSet: Record "Tenant Permission Set";
         CopiedRoleID: Code[20];
     begin
-        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         Assert.ExpectedMessage(StrSubstNo(CopySuccessMsg, CopiedRoleID), Message);
     end;
 
@@ -1491,7 +1195,7 @@ codeunit 134610 "Test User Permissions"
     procedure CopyUserGroupHandler(var CopyUserGroup: TestRequestPage "Copy User Group")
     begin
         CopyUserGroup.NewUserGroupCode.Value := CopyToUserGroup;
-        CopyUserGroup.OK.Invoke;
+        CopyUserGroup.OK().Invoke();
     end;
 #endif
 
@@ -1508,9 +1212,9 @@ codeunit 134610 "Test User Permissions"
     procedure UserGroupMembersHandler(var UserGroupMembers: TestPage "User Group Members")
     begin
         UserGroupMembers.SelectedCompany.SetValue('');
-        UserGroupMembers.AddUsers.Invoke;
+        UserGroupMembers.AddUsers.Invoke();
         UserGroupMembers.SelectedCompany.SetValue(CompanyName);
-        UserGroupMembers.AddUsers.Invoke;
+        UserGroupMembers.AddUsers.Invoke();
         UserGroupMembers.Close();
     end;
 
@@ -1540,8 +1244,8 @@ codeunit 134610 "Test User Permissions"
     begin
         Assert.IsTrue(AddSubractPermissionSet.DstnAggregatePermissionSet.Value <> GlobalSourcePermissionSetRoleID, '');
         AddSubractPermissionSet.SetOperation.SetValue(AddSubractPermissionSet.SetOperation.GetOption(SetOperationValue));
-        AddSubractPermissionSet.SourceAggregatePermissionSet.AssistEdit;
-        AddSubractPermissionSet.OK.Invoke;
+        AddSubractPermissionSet.SourceAggregatePermissionSet.AssistEdit();
+        AddSubractPermissionSet.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1569,7 +1273,7 @@ codeunit 134610 "Test User Permissions"
         // In this case we need manually clean up User table if test passed and User table
         // is modified during this test.
         // User Setup must cleaned too, due to reference to User table.
-        DeleteAllUsers;
+        DeleteAllUsers();
         UserSetup.DeleteAll();
         AccessControl.DeleteAll();
 #if not CLEAN22
@@ -1675,12 +1379,12 @@ codeunit 134610 "Test User Permissions"
         // verify User Group Plan exists
         UserGroupPlan.SetRange("Plan ID", PlanID);
         UserGroupPlan.SetRange("User Group Name", UserGroupName);
-        Assert.IsTrue(UserGroupPlan.FindFirst, 'User Group Plan doesn''t exist');
+        Assert.IsTrue(UserGroupPlan.FindFirst(), 'User Group Plan doesn''t exist');
 
         // verify Plan Permissionset
         LibraryXMLRead.Initialize(MembershipEntitlementsFile);
         UserGroupPermissionSet.SetRange("User Group Name", UserGroupName);
-        Assert.IsTrue(UserGroupPermissionSet.FindFirst, 'User Group Permissionset doesnt exist');
+        Assert.IsTrue(UserGroupPermissionSet.FindFirst(), 'User Group Permissionset doesnt exist');
         Assert.AreEqual(UserGroupPermissionSet."Role ID", XTestPermissionTxt, '');
 
         // verify Plan
@@ -1694,7 +1398,7 @@ codeunit 134610 "Test User Permissions"
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure AssignSuperToCurrentUser()
@@ -1715,8 +1419,8 @@ codeunit 134610 "Test User Permissions"
     procedure PermissionSetListHandler(var PermissionSetList: TestPage "Permission Set List")
     begin
         PermissionSetList.FILTER.SetFilter("Role ID", GlobalSourcePermissionSetRoleID);
-        PermissionSetList.First;
-        PermissionSetList.OK.Invoke;
+        PermissionSetList.First();
+        PermissionSetList.OK().Invoke();
     end;
 
     local procedure CreateUsersAndPermissionSets()
@@ -1729,7 +1433,7 @@ codeunit 134610 "Test User Permissions"
         // Creates a batch of test data, using other functions in this library
         TenantPermissionSet.SetFilter("Role ID", 'TEST*');
         TenantPermissionSet.DeleteAll(true);
-        Initialize;
+        Initialize();
         for i := 1 to 15 do begin
             NewCode := StrSubstNo('TEST%1', i);
             User.SetRange("User Name", NewCode);

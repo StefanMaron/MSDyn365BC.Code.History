@@ -64,7 +64,7 @@ codeunit 144001 EU3Trade
     begin
         // Create a Sales Invoice Line using Library Sales.
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
     end;
 
     local procedure PostSalesInvoice(SalesHeader: Record "Sales Header")

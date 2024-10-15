@@ -14,7 +14,8 @@ permissionset 2504 "Extension Management - Objects"
 
     IncludedPermissionSets = "Guided Experience - Objects";
 
-    Permissions = codeunit "Data Out Of Geo. App" = X,
+    Permissions = table "Extension Installation" = X,
+                  codeunit "Data Out Of Geo. App" = X,
                   codeunit "Extension Management" = X,
                   codeunit "Extension Marketplace" = X,
                   page "Delete Orphaned Extension Data" = X,
@@ -24,13 +25,16 @@ permissionset 2504 "Extension Management - Objects"
                   page "Extension Installation" = X,
                   page "Extension Logo Part" = X,
                   page "Extension Management" = X,
+#if not CLEAN24
+#pragma warning disable AL0432
                   page "Extension Marketplace" = X,
+#pragma warning restore AL0432                  
+#endif                  
                   page "Extension Settings" = X,
                   page "Extension Setup Launcher" = X,
                   page "Extn. Installation Progress" = X,
                   page "Extn. Orphaned App Details" = X,
                   page "Extn Deployment Status Detail" = X,
                   page "Marketplace Extn Deployment" = X,
-                  page "Upload And Deploy Extension" = X,
-                  table "Extension Installation" = X;
+                  page "Upload And Deploy Extension" = X;
 }

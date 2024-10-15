@@ -19,6 +19,7 @@ table 11207 "SIE Dimension"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -108,12 +109,10 @@ table 11207 "SIE Dimension"
         SelectedDimText: Text[250];
     begin
         SelectedDim.SetRange(Selected, true);
-        with SelectedDim do begin
-            if Find('-') then
-                repeat
-                    AddDimCodeToText("Dimension Code", SelectedDimText);
-                until Next() = 0;
-        end;
+        if SelectedDim.Find('-') then
+            repeat
+                SelectedDim.AddDimCodeToText(SelectedDim."Dimension Code", SelectedDimText);
+            until SelectedDim.Next() = 0;
         exit(SelectedDimText);
     end;
 }

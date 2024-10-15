@@ -82,5 +82,6 @@ enum 77 "Report Selection Usage"
     value(109; "P.Inventory Shipment") { Caption = 'Posted Inventory Shipment'; }
     value(110; "P.Inventory Receipt") { Caption = 'Posted Inventory Receipt'; }
     value(111; "P.Direct Transfer") { Caption = 'Posted Direct Transfer'; }
+    value(112; "Job Task Quote") { Caption = 'Project Task Quote'; }
 }
 

@@ -250,7 +250,7 @@ codeunit 5700 "User Setup Management"
 
         if NotificationType = NotificationType::Error then
             Error(AllowedDateErr, AllowPostingFromCaption, AllowPostingToCaption);
-        
+
         CreateAndSendNotification(InvokedBy, StrSubstNo(AllowedPostingDateMsg, AllowPostingFromCaption, AllowPostingToCaption), Notification);
         Error('');
     end;
@@ -271,7 +271,7 @@ codeunit 5700 "User Setup Management"
         CreateAndSendNotification(InvokedBy, StrSubstNo(AllowedVATDateMsg, AllowVATFromCaption, AllowVATToCaption), Notification);
         Error('');
     end;
-    
+
     procedure IsVATDateInAllowedPeriod(VATDate: Date; var SetupRecordID: RecordID; var FieldNo: Integer) Result: Boolean
     var
         VATSetup: Record "VAT Setup";
@@ -457,6 +457,32 @@ codeunit 5700 "User Setup Management"
                         begin
                             PostQty := true;
                             PostAmount := true;
+                        end;
+                end;
+    end;
+
+    procedure GetServiceInvoicePostingPolicy(var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean)
+    var
+        LocalUserSetup: Record "User Setup";
+    begin
+        Ship := false;
+        Consume := false;
+        Invoice := false;
+
+        if UserId <> '' then
+            if LocalUserSetup.Get(UserId) then
+                case LocalUserSetup."Service Invoice Posting Policy" of
+                    Enum::"Invoice Posting Policy"::Prohibited:
+                        begin
+                            Ship := true;
+                            Consume := true;
+                            Invoice := false;
+                        end;
+                    Enum::"Invoice Posting Policy"::Mandatory:
+                        begin
+                            Ship := true;
+                            Consume := false;
+                            Invoice := true;
                         end;
                 end;
     end;

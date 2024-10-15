@@ -21,56 +21,56 @@ codeunit 99000855 "Planning-Get Parameters"
     procedure AtSKU(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
         GetMfgSetUp();
-        with GlobalSKU do begin
-            if (ItemNo <> "Item No.") or
-               (VariantCode <> "Variant Code") or
-               (LocationCode <> "Location Code")
-            then begin
-                Clear(GlobalSKU);
-                SetRange("Item No.", ItemNo);
-                SetRange("Variant Code", VariantCode);
-                SetRange("Location Code", LocationCode);
-                if not FindFirst() then begin
-                    GetItem(ItemNo);
-                    "Item No." := ItemNo;
-                    "Variant Code" := VariantCode;
-                    "Location Code" := LocationCode;
-                    CopyFromItem(Item);
-                    OnAtSKUOnAfterCopyFromItem(GlobalSKU, Item, ItemNo, VariantCode, LocationCode);
-                    if LotForLot then begin
-                        "Reorder Point" := 0;
-                        "Maximum Inventory" := 0;
-                        "Reorder Quantity" := 0;
-                        case Item."Reordering Policy" of
-                            "Reordering Policy"::" ":
-                                "Reordering Policy" := "Reordering Policy"::" ";
-                            "Reordering Policy"::Order:
-                                "Reordering Policy" := "Reordering Policy"::Order;
-                            "Reordering Policy"::"Lot-for-Lot":
-                                "Reordering Policy" := "Reordering Policy"::"Lot-for-Lot";
-                            else
-                                "Reordering Policy" := "Reordering Policy"::"Lot-for-Lot";
+        if (ItemNo <> GlobalSKU."Item No.") or
+            (VariantCode <> GlobalSKU."Variant Code") or
+            (LocationCode <> GlobalSKU."Location Code")
+        then begin
+            Clear(GlobalSKU);
+            GlobalSKU.SetRange("Item No.", ItemNo);
+            GlobalSKU.SetRange("Variant Code", VariantCode);
+            GlobalSKU.SetRange("Location Code", LocationCode);
+            if not GlobalSKU.FindFirst() then begin
+                GetItem(ItemNo);
+                GlobalSKU."Item No." := ItemNo;
+                GlobalSKU."Variant Code" := VariantCode;
+                GlobalSKU."Location Code" := LocationCode;
+                GlobalSKU.CopyFromItem(Item);
+                OnAtSKUOnAfterCopyFromItem(GlobalSKU, Item, ItemNo, VariantCode, LocationCode);
+                if LotForLot then begin
+                    GlobalSKU."Reorder Point" := 0;
+                    GlobalSKU."Maximum Inventory" := 0;
+                    GlobalSKU."Reorder Quantity" := 0;
+                    case Item."Reordering Policy" of
+                        GlobalSKU."Reordering Policy"::" ":
+                            GlobalSKU."Reordering Policy" := GlobalSKU."Reordering Policy"::" ";
+                        GlobalSKU."Reordering Policy"::Order:
+                            GlobalSKU."Reordering Policy" := GlobalSKU."Reordering Policy"::Order;
+                        GlobalSKU."Reordering Policy"::"Lot-for-Lot":
+                            GlobalSKU."Reordering Policy" := GlobalSKU."Reordering Policy"::"Lot-for-Lot";
+                        else begin
+                            GlobalSKU."Reordering Policy" := GlobalSKU."Reordering Policy"::"Lot-for-Lot";
+                            GlobalSKU."Plan Minimal Supply" := true;
                         end;
-                        if "Reordering Policy" = "Reordering Policy"::"Lot-for-Lot" then
-                            "Include Inventory" := true
-                        else
-                            "Include Inventory" := Item."Include Inventory";
-                        "Minimum Order Quantity" := 0;
-                        "Maximum Order Quantity" := 0;
-                        "Safety Stock Quantity" := 0;
-                        "Order Multiple" := 0;
-                        "Overflow Level" := 0;
                     end;
+                    if GlobalSKU."Reordering Policy" = GlobalSKU."Reordering Policy"::"Lot-for-Lot" then
+                        GlobalSKU."Include Inventory" := true
+                    else
+                        GlobalSKU."Include Inventory" := Item."Include Inventory";
+                    GlobalSKU."Minimum Order Quantity" := 0;
+                    GlobalSKU."Maximum Order Quantity" := 0;
+                    GlobalSKU."Safety Stock Quantity" := 0;
+                    GlobalSKU."Order Multiple" := 0;
+                    GlobalSKU."Overflow Level" := 0;
                 end;
-                SetComponentsAtLocation(LocationCode);
             end;
-            if Format("Safety Lead Time") = '' then
-                if Format(MfgSetup."Default Safety Lead Time") <> '' then
-                    "Safety Lead Time" := MfgSetup."Default Safety Lead Time"
-                else
-                    Evaluate("Safety Lead Time", '<0D>');
-            AdjustInvalidSettings(GlobalSKU);
+            SetComponentsAtLocation(LocationCode);
         end;
+        if Format(GlobalSKU."Safety Lead Time") = '' then
+            if Format(MfgSetup."Default Safety Lead Time") <> '' then
+                GlobalSKU."Safety Lead Time" := MfgSetup."Default Safety Lead Time"
+            else
+                Evaluate(GlobalSKU."Safety Lead Time", '<0D>');
+        AdjustInvalidSettings(GlobalSKU);
         SKU := GlobalSKU;
 
         OnAfterAtSKU(SKU, GlobalSKU);

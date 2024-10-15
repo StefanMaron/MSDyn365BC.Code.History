@@ -28,43 +28,41 @@ report 5697 "Date Compress Insurance Ledger"
                 if ("Insurance No." <> '') and OnlyIndexEntries and not "Index Entry" then
                     CurrReport.Skip();
                 InsCoverageLedgEntry2 := "Ins. Coverage Ledger Entry";
-                with InsCoverageLedgEntry2 do begin
-                    SetCurrentKey("FA No.", "Insurance No.");
-                    CopyFilters("Ins. Coverage Ledger Entry");
+                InsCoverageLedgEntry2.SetCurrentKey("FA No.", "Insurance No.");
+                InsCoverageLedgEntry2.CopyFilters("Ins. Coverage Ledger Entry");
 
-                    SetRange("Insurance No.", "Insurance No.");
-                    SetRange("FA No.", "FA No.");
-                    SetRange("Document Type", "Document Type");
-                    SetRange("Index Entry", "Index Entry");
-                    SetRange("Disposed FA", "Disposed FA");
-                    SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
+                InsCoverageLedgEntry2.SetRange("Insurance No.", InsCoverageLedgEntry2."Insurance No.");
+                InsCoverageLedgEntry2.SetRange("FA No.", InsCoverageLedgEntry2."FA No.");
+                InsCoverageLedgEntry2.SetRange("Document Type", InsCoverageLedgEntry2."Document Type");
+                InsCoverageLedgEntry2.SetRange("Index Entry", InsCoverageLedgEntry2."Index Entry");
+                InsCoverageLedgEntry2.SetRange("Disposed FA", InsCoverageLedgEntry2."Disposed FA");
+                InsCoverageLedgEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(InsCoverageLedgEntry2."Posting Date", EntrdDateComprReg, true));
 
-                    if RetainNo(FieldNo("Document No.")) then
-                        SetRange("Document No.", "Document No.");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
+                if RetainNo(InsCoverageLedgEntry2.FieldNo("Document No.")) then
+                    InsCoverageLedgEntry2.SetRange("Document No.", InsCoverageLedgEntry2."Document No.");
+                if RetainNo(InsCoverageLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+                    InsCoverageLedgEntry2.SetRange("Global Dimension 1 Code", InsCoverageLedgEntry2."Global Dimension 1 Code");
+                if RetainNo(InsCoverageLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+                    InsCoverageLedgEntry2.SetRange("Global Dimension 2 Code", InsCoverageLedgEntry2."Global Dimension 2 Code");
 
-                    InitNewEntry(NewInsCoverageLedgEntry);
+                InitNewEntry(NewInsCoverageLedgEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, InsCoverageLedgEntry2."Dimension Set ID", InsCoverageLedgEntry2."Entry No.",
+                  0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewInsCoverageLedgEntry, InsCoverageLedgEntry2);
+                while InsCoverageLedgEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.",
-                      0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewInsCoverageLedgEntry, InsCoverageLedgEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.",
-                          ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewInsCoverageLedgEntry, InsCoverageLedgEntry2);
-                    end;
-
-                    InsertNewEntry(NewInsCoverageLedgEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, InsCoverageLedgEntry2."Dimension Set ID", InsCoverageLedgEntry2."Entry No.",
+                      ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewInsCoverageLedgEntry, InsCoverageLedgEntry2);
                 end;
+
+                InsertNewEntry(NewInsCoverageLedgEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -389,12 +387,10 @@ report 5697 "Date Compress Insurance Ledger"
 
     local procedure SummarizeEntry(var NewInsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry"; InsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry")
     begin
-        with InsCoverageLedgEntry do begin
-            NewInsCoverageLedgEntry.Amount := NewInsCoverageLedgEntry.Amount + Amount;
-            Delete();
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        NewInsCoverageLedgEntry.Amount := NewInsCoverageLedgEntry.Amount + InsCoverageLedgEntry.Amount;
+        InsCoverageLedgEntry.Delete();
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(InsCoverageLedgEntry);
     end;
@@ -428,32 +424,30 @@ report 5697 "Date Compress Insurance Ledger"
     procedure InitNewEntry(var NewInsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry")
     begin
         LastEntryNo := LastEntryNo + 1;
-        with InsCoverageLedgEntry2 do begin
-            NewInsCoverageLedgEntry.Init();
-            NewInsCoverageLedgEntry."Entry No." := LastEntryNo;
+        NewInsCoverageLedgEntry.Init();
+        NewInsCoverageLedgEntry."Entry No." := LastEntryNo;
 
-            NewInsCoverageLedgEntry."Insurance No." := "Insurance No.";
-            NewInsCoverageLedgEntry."FA No." := "FA No.";
-            NewInsCoverageLedgEntry."Document Type" := "Document Type";
-            NewInsCoverageLedgEntry."Index Entry" := "Index Entry";
-            NewInsCoverageLedgEntry."Disposed FA" := "Disposed FA";
+        NewInsCoverageLedgEntry."Insurance No." := InsCoverageLedgEntry2."Insurance No.";
+        NewInsCoverageLedgEntry."FA No." := InsCoverageLedgEntry2."FA No.";
+        NewInsCoverageLedgEntry."Document Type" := InsCoverageLedgEntry2."Document Type";
+        NewInsCoverageLedgEntry."Index Entry" := InsCoverageLedgEntry2."Index Entry";
+        NewInsCoverageLedgEntry."Disposed FA" := InsCoverageLedgEntry2."Disposed FA";
 
-            NewInsCoverageLedgEntry."Posting Date" := GetRangeMin("Posting Date");
-            NewInsCoverageLedgEntry.Description := EntrdInsCoverageLedgEntry.Description;
-            NewInsCoverageLedgEntry."Source Code" := SourceCodeSetup."Compress Insurance Ledger";
-            NewInsCoverageLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            if RetainNo(FieldNo("Document No.")) then
-                NewInsCoverageLedgEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                NewInsCoverageLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                NewInsCoverageLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
+        NewInsCoverageLedgEntry."Posting Date" := InsCoverageLedgEntry2.GetRangeMin("Posting Date");
+        NewInsCoverageLedgEntry.Description := EntrdInsCoverageLedgEntry.Description;
+        NewInsCoverageLedgEntry."Source Code" := SourceCodeSetup."Compress Insurance Ledger";
+        NewInsCoverageLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(InsCoverageLedgEntry2."User ID"));
+        if RetainNo(InsCoverageLedgEntry2.FieldNo("Document No.")) then
+            NewInsCoverageLedgEntry."Document No." := InsCoverageLedgEntry2."Document No.";
+        if RetainNo(InsCoverageLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+            NewInsCoverageLedgEntry."Global Dimension 1 Code" := InsCoverageLedgEntry2."Global Dimension 1 Code";
+        if RetainNo(InsCoverageLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+            NewInsCoverageLedgEntry."Global Dimension 2 Code" := InsCoverageLedgEntry2."Global Dimension 2 Code";
 
-            Window.Update(1, NewInsCoverageLedgEntry."Insurance No.");
-            Window.Update(2, NewInsCoverageLedgEntry."Posting Date");
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(3, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewInsCoverageLedgEntry."Insurance No.");
+        Window.Update(2, NewInsCoverageLedgEntry."Posting Date");
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(3, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewInsCoverageLedgEntry: Record "Ins. Coverage Ledger Entry"; DimEntryNo: Integer)

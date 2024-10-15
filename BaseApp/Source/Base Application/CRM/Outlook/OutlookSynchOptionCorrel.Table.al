@@ -5,6 +5,7 @@ using System.Reflection;
 table 5307 "Outlook Synch. Option Correl."
 {
     Caption = 'Outlook Synch. Option Correl.';
+    DataClassification = CustomerContent;
     ReplicateData = false;
     ObsoleteState = Removed;
     ObsoleteReason = 'Legacy outlook sync functionality has been removed.';

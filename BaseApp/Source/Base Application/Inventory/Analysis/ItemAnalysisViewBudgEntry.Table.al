@@ -12,6 +12,7 @@ table 7156 "Item Analysis View Budg. Entry"
     Caption = 'Item Analysis View Budg. Entry';
     DrillDownPageID = "Item Analy. View Budg. Entries";
     LookupPageID = "Item Analy. View Budg. Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

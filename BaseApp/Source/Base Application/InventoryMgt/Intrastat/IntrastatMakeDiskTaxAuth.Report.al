@@ -221,7 +221,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Text11201: Label '%1 exceeds the maximum value to be imported into IDEP.';
 
         Text001: Label 'WwWw';
-        Text002: Label 'INTRASTAT';
         Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
 
     local procedure FilterSourceLinesByIntrastatSetupExportTypes()

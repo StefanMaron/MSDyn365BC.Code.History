@@ -9,6 +9,7 @@ using Microsoft.Utilities;
 table 6083 "Serv. Price Adjustment Detail"
 {
     Caption = 'Serv. Price Adjustment Detail';
+    DataClassification = CustomerContent;
 
     fields
     {

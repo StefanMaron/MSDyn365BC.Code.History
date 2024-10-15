@@ -6,7 +6,8 @@ table 185 "Pmt. Rec. Applied-to Entry"
 {
     Caption = 'Payment Reconciliation Applied-to Entry';
     ReplicateData = false;
-    DataClassification = SystemMetadata;
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "Entry No."; Integer)

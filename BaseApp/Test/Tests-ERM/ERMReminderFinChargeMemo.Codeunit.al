@@ -219,7 +219,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // [GIVEN] Standard Text (Code = "ST1", Description = "SD1") with Extended Text "ET1".
         // [GIVEN] Standard Text (Code = "ST2", Description = "SD2") with Extended Text "ET2".
         // [GIVEN] Finance Charge Memo with line: "Type" = "", "No." = "ST1"
-        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo);
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo());
         MockFinChargeMemoLine(FinanceChargeMemoLine, FinanceChargeMemoHeader);
         ValidateFinChargeMemoLineStandardCode(
           FinanceChargeMemoLine, LibrarySales.CreateStandardTextWithExtendedText(StandardText, ExtendedText));
@@ -248,7 +248,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // [FEATURE] [Reminder]
         // [SCENARIO 209796] When printing multiple issued reminders there should be only one request page to print all of them for single customer
         Initialize();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         // [GIVEN] 2 Issued Reminders for a certain customer
         MockTwoIssuedRemindersSingleCustomer(IssuedReminderHeader);
@@ -260,7 +260,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         IssuedReminderHeader.PrintRecords(true, false, true);
 
         // [THEN] The reminder report request page appeared once for two reminders.
-        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger, 'The Reminder report should be called only once.');
+        Assert.AreEqual(1, LibraryVariableStorage.DequeueInteger(), 'The Reminder report should be called only once.');
     end;
 
     [Test]
@@ -336,7 +336,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Issued single level reminder
-        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms);
+        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms());
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
@@ -374,7 +374,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Issued single level reminder
-        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms);
+        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms());
 
         // [GIVEN] Issue reminder
         IssuedReminderHeader.Get(
@@ -397,7 +397,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     procedure CancelReminderDontUseSameDocumentNo()
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         ReminderNo: Code[20];
         NumberSeriesCode: Code[20];
         ExpectedDocumentNo: Code[20];
@@ -407,8 +407,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Create number series "CIR_NOS"
-        NumberSeriesCode := LibraryERM.CreateNoSeriesCode;
-        ExpectedDocumentNo := NoSeriesManagement.GetNextNo(NumberSeriesCode, Today, false);
+        NumberSeriesCode := LibraryERM.CreateNoSeriesCode();
+        ExpectedDocumentNo := NoSeries.PeekNextNo(NumberSeriesCode, Today());
 
         // [GIVEN] Set SalesSetup."Cancelled Issued Reminders Nos." = "CIR_NOS"
         SetSalesSetupCancelledIssuedRemindersNos(NumberSeriesCode);
@@ -465,7 +465,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Single level reminder "1" with "Remaining Amount" = "100"
-        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms);
+        ReminderNo := CreateReminderWithReminderTerms(CreateOneLevelReminderTerms());
 
         // [GIVEN] Issue reminder "1"
         IssuedReminderHeader.Get(
@@ -629,7 +629,6 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     procedure CancelMultilevelReminderFirstLevel()
     var
         Customer: Record Customer;
-        ReminderLevel: Record "Reminder Level";
         IssuedReminderHeader: array[2] of Record "Issued Reminder Header";
         ReminderHeaderNo: Code[20];
         ReminderTermsCode: Code[10];
@@ -671,14 +670,14 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             CancelNextLevelReminderErr,
             IssuedReminderHeader[2]."No.",
             IssuedReminderHeader[1]."No."),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid notificaion message');
 
         // [THEN] Action Show Issued Reminder opens issued reminder card with issued reminder "2"
-        Assert.AreEqual(IssuedReminderHeader[2]."No.", LibraryVariableStorage.DequeueText, 'Invalid Issued Reminder No.');
+        Assert.AreEqual(IssuedReminderHeader[2]."No.", LibraryVariableStorage.DequeueText(), 'Invalid Issued Reminder No.');
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -713,15 +712,15 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             CancelAppliedEntryReminderErr,
             ReminderCustLedgerEntryNo,
             IssuedReminderHeader."No."),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid notificaion message');
 
         // [WHEN] Choose action "Show customer ledger entry"
         // [THEN] Customer ledger entries page openend with entry "123"
-        Assert.AreEqual(ReminderCustLedgerEntryNo, LibraryVariableStorage.DequeueInteger, 'Invalid customer ledger entry no.');
+        Assert.AreEqual(ReminderCustLedgerEntryNo, LibraryVariableStorage.DequeueInteger(), 'Invalid customer ledger entry no.');
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -779,17 +778,17 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedReminders(IssuedReminderHeader);
 
         // [THEN] Dialog "One or more of the selected issued reminders could not be canceled. Do you want to see a list of the issued reminders that were not canceled? "
-        Assert.AreEqual(NotAllRemindersCancelledTxt, LibraryVariableStorage.DequeueText, 'Invalid dialog text');
+        Assert.AreEqual(NotAllRemindersCancelledTxt, LibraryVariableStorage.DequeueText(), 'Invalid dialog text');
 
         // [WHEN] Confirm "see a list" question
         // [THEN] Page Issued Reminders List" opened with filtered reminders "1" and "5" only
         Assert.AreEqual(
           StrSubstNo('%1|%2', FirstIssuedReminderNo, LastIssuedReminderNo),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Unexpected issued reminders');
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -810,7 +809,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Issued fin. charge memo
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
 
         // Create Finance Charge Memo and Suggest Lines for Customer. Issue Finance Charge Memo. Take Random integer to calculate Date.
@@ -879,7 +878,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NumberSeriesCode: Code[20];
         ExpectedDocumentNo: Code[20];
     begin
@@ -888,8 +887,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Create number series "CIR_NOS"
-        NumberSeriesCode := LibraryERM.CreateNoSeriesCode;
-        ExpectedDocumentNo := NoSeriesManagement.GetNextNo(NumberSeriesCode, Today, false);
+        NumberSeriesCode := LibraryERM.CreateNoSeriesCode();
+        ExpectedDocumentNo := NoSeries.PeekNextNo(NumberSeriesCode, Today);
 
         // [GIVEN] Set SalesSetup."Canc. Iss. Fin. Ch. Mem. Nos." = "CIR_NOS"
         SetSalesSetupCancelledIssuedFinChargeMemosNos(NumberSeriesCode);
@@ -979,7 +978,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] Issued fin. charge memo for several invoices
-        IssuedFinChargeMemoHeader.Get(IssuingFinanceChargeMemos(CreateFinChargeMemoForSeveralInvoices));
+        IssuedFinChargeMemoHeader.Get(IssuingFinanceChargeMemos(CreateFinChargeMemoForSeveralInvoices()));
 
         // [WHEN] Cancel issued reminder
         RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
@@ -1021,15 +1020,15 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             CancelAppliedEntryFinChargeMemoErr,
             ReminderCustLedgerEntryNo,
             IssuedFinChargeMemoHeader."No."),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Invalid notificaion message');
 
         // [WHEN] Choose action "Show customer ledger entry"
         // [THEN] Customer ledger entries page openend with entry "123"
-        Assert.AreEqual(ReminderCustLedgerEntryNo, LibraryVariableStorage.DequeueInteger, 'Invalid customer ledger entry no.');
+        Assert.AreEqual(ReminderCustLedgerEntryNo, LibraryVariableStorage.DequeueInteger(), 'Invalid customer ledger entry no.');
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1087,17 +1086,17 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         RunCancelIssuedFinChargeMemos(IssuedFinChargeMemoHeader);
 
         // [THEN] Dialog "One or more of the selected issued fin. charge memos could not be canceled. Do you want to see a list of the issued fin. charge memos that were not canceled? "
-        Assert.AreEqual(NotAllFinChMemosCancelledTxt, LibraryVariableStorage.DequeueText, 'Invalid dialog text');
+        Assert.AreEqual(NotAllFinChMemosCancelledTxt, LibraryVariableStorage.DequeueText(), 'Invalid dialog text');
 
         // [WHEN] Confirm "see a list" question
         // [THEN] Page Issued Reminders List" opened with filtered fin. charge memos "1" and "5" only
         Assert.AreEqual(
           StrSubstNo('%1|%2', FirstIssuedFinChMemoNo, LastIssuedFinChMemoNo),
-          LibraryVariableStorage.DequeueText,
+          LibraryVariableStorage.DequeueText(),
           'Unexpected issued reminders');
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1121,7 +1120,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Initialize();
 
         // [GIVEN] G/L Account with Default Dimension with Value Posting set to "Code Mandatory".
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GenProductPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
         GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
         GenProductPostingGroup.Modify(true);
@@ -1132,7 +1131,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         // [GIVEN] Finance Charge Memo with Finance Charge Memo Line for G/L Account.
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo);
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo());
         FinanceChargeMemoHeader.Validate("Fin. Charge Terms Code", FinanceChargeTerms.Code);
         FinanceChargeMemoHeader.Modify(true);
         LibraryERM.CreateFinanceChargeMemoLine(
@@ -1203,7 +1202,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
         // [THEN] VAT Registration No. caption printed in company information section
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CompanyVATRegistrationNoCaption', CompanyInformation.GetVATRegistrationNumberLbl());
     end;
 
@@ -1228,7 +1227,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         REPORT.Run(REPORT::"Finance Charge Memo", true, false, IssuedFinanceChargeMemoHeader);
 
         // [THEN] VAT Registration No. caption printed in company information section
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('CompanyVATRegistrationNoCaption', CompanyInformation.GetVATRegistrationNumberLbl());
     end;
 
@@ -1302,7 +1301,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // [GIVEN] Posted Sales Invoice for Customer "Cust" and Amount = 6 (if test fails there will be rounding line with amount 4)
         CreateCustomer(Customer, '', Currency.Code, CurrencyForReminderLevel."Reminder Terms Code");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), 1);
         SalesLine.Validate("Unit Price", 6);
         SalesLine.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -1365,6 +1364,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
     local procedure Initialize()
     var
+        FeatureKey: Record "Feature Key";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminder/Fin.Charge Memo");
@@ -1373,6 +1373,11 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         Clear(LibraryReportDataset);
         Clear(LibraryVariableStorage);
         LibrarySetupStorage.Restore();
+
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
 
         if IsInitialized then
             exit;
@@ -1397,7 +1402,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         // Take Random Quantity for Sales Invoice.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         exit(SalesHeader."Due Date");
     end;
@@ -1439,7 +1444,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         DueDate: Date;
     begin
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
 
         // Create Finance Charge Memo and Suggest Lines for Customer. Issue Finance Charge Memo. Take Random integer to calculate Date.
@@ -1457,7 +1462,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         i: Integer;
     begin
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency(), CreateOneLevelReminderTerms());
 
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
         for i := 1 to LibraryRandom.RandInt(5) do
@@ -1628,7 +1633,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderLevel: Record "Reminder Level";
         DueDate: Date;
     begin
-        CreateCustomer(Customer, '', CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, '', CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
         GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code", 0);
         DocumentDate := LibraryRandom.RandDateFrom(CalcDate(ReminderLevel."Grace Period", DueDate), LibraryRandom.RandIntInRange(1, 10));
@@ -1644,7 +1649,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         DueDate: Date;
     begin
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
         CreateSuggestFinanceChargeMemo(
           FinanceChargeMemoHeader, Customer."No.",
@@ -1860,7 +1865,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         if CustomerPostingGroup."Add. Fee per Line Account" = '' then begin
-            CustomerPostingGroup.Validate("Add. Fee per Line Account", LibraryERM.CreateGLAccountWithSalesSetup);
+            CustomerPostingGroup.Validate("Add. Fee per Line Account", LibraryERM.CreateGLAccountWithSalesSetup());
             CustomerPostingGroup.Modify();
         end;
     end;
@@ -1898,7 +1903,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         // Setup: Create Customer. Create and post Sales Invoice.
         Initialize();
-        CreateCustomer(Customer, '', CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, '', CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
         GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code", 0);
 
@@ -1910,14 +1915,14 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         ReminderNo := CreateReminder(Customer."No.", DocumentDate);
         IssuedReminderNo := IssueReminder(ReminderNo, DocumentDate);
         LibraryVariableStorage.Enqueue(ShowInLCY);  // Enqueue value for DocumentEntriesRequestPageHandler.
-        IssuedReminder.OpenView;
+        IssuedReminder.OpenView();
         IssuedReminder.FILTER.SetFilter("No.", IssuedReminderNo);
 
         // Exercise: Run Document Entries Report from NavigatePagehandler.
-        IssuedReminder."&Navigate".Invoke;  // Invoking Navigate.
+        IssuedReminder."&Navigate".Invoke();  // Invoking Navigate.
 
         // Verify: Verify Issued Reminder Table Name and number of Records on Document Entries Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         IssuedReminderHeader.SetRange("No.", IssuedReminderNo);
         VerifyDocumentEntries(TableName, IssuedReminderPage.Caption, NoOfRecords, IssuedReminderHeader.Count);
         IssuedReminderHeader.FindFirst();
@@ -1936,7 +1941,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         // Setup: Create Finance Charge Terms and Customer. Create and post Sales Invoice. Calculated Document Date.
         Initialize();
         LibraryFinanceChargeMemo.CreateFinanceChargeTermAndText(FinanceChargeTerms);
-        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency, CreateOneLevelReminderTerms);
+        CreateCustomer(Customer, FinanceChargeTerms.Code, CreateCurrency(), CreateOneLevelReminderTerms());
         DueDate := CreateAndPostSalesInvoice(Customer."No.");
 
         // Create Finance Charge Memo and Suggest Lines for Customer. Issue Finance Charge Memo. Take Random integer to calculate Date.
@@ -1945,14 +1950,14 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
             CalcDate(FinanceChargeTerms."Grace Period", DueDate)));
         IssuingFinanceChargeMemos(FinanceChargeMemoHeader."No.");
         LibraryVariableStorage.Enqueue(ShowInLCY);  // Enqueue value for DocumentEntriesRequestPageHandler.
-        IssuedFinanceChargeMemo.OpenView;
+        IssuedFinanceChargeMemo.OpenView();
         IssuedFinanceChargeMemo.FILTER.SetFilter("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
 
         // Exercise: Run Document Entries Report from NavigatePagehandler.
-        IssuedFinanceChargeMemo."&Navigate".Invoke;  // Invoking Navigate.
+        IssuedFinanceChargeMemo."&Navigate".Invoke();  // Invoking Navigate.
 
         // Verify: Verify Issued Reminder Table Name and number of Records on Document Entries Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         IssuedFinChargeMemoHeader.SetRange("Pre-Assigned No.", FinanceChargeMemoHeader."No.");
         VerifyDocumentEntries(TableName, IssuedFinanceChargeMemoPage.Caption, NoOfRecords, IssuedFinChargeMemoHeader.Count);
         IssuedFinChargeMemoHeader.FindFirst();
@@ -1998,11 +2003,11 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     local procedure IssuingFinanceChargeMemos(FinanceChargeMemoHeaderNo: Code[20]) IssuedFinChargeNo: Code[20]
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         FinanceChargeMemoHeader.Get(FinanceChargeMemoHeaderNo);
         FinanceChargeMemoHeader.SetRecFilter();
-        IssuedFinChargeNo := NoSeriesManagement.GetNextNo(FinanceChargeMemoHeader."Issuing No. Series", WorkDate(), false);
+        IssuedFinChargeNo := NoSeries.PeekNextNo(FinanceChargeMemoHeader."Issuing No. Series");
         LibraryERM.IssueFinanceChargeMemo(FinanceChargeMemoHeader);
     end;
 
@@ -2010,10 +2015,10 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         ReminderHeader: Record "Reminder Header";
         ReminderIssue: Codeunit "Reminder-Issue";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         ReminderHeader.Get(ReminderNo);
-        IssuedReminderNo := NoSeriesManagement.GetNextNo(ReminderHeader."Issuing No. Series", WorkDate(), false);
+        IssuedReminderNo := NoSeries.PeekNextNo(ReminderHeader."Issuing No. Series");
         ReminderIssue.Set(ReminderHeader, false, DocumentDate);
         LibraryERM.RunReminderIssue(ReminderIssue);
     end;
@@ -2089,7 +2094,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     local procedure VerifyDocumentEntries(RowCaption: Text[50]; RowValue: Variant; ColumnCaption: Text[50]; ColumnValue: Variant)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, ColumnValue);
     end;
 
@@ -2289,21 +2294,21 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandlerWithCalcCalls(var Reminder: TestRequestPage Reminder)
     begin
-        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger + 1); // count of handler call's
+        LibraryVariableStorage.Enqueue(LibraryVariableStorage.DequeueInteger() + 1); // count of handler call's
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReminderRequestPageHandler(var Reminder: TestRequestPage Reminder)
     begin
-        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Reminder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure FinanceChargeMemoRequestPageHandler(var FinanceChargeMemo: TestRequestPage "Finance Charge Memo")
     begin
-        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -2322,7 +2327,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     begin
         LibraryVariableStorage.Dequeue(ShowAmountInLCY);  // Dequeue variable.
         DocumentEntries.PrintAmountsInLCY.SetValue(ShowAmountInLCY);   // Setting Show Amount In LCY.
-        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DocumentEntries.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [PageHandler]
@@ -2330,7 +2335,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     procedure NavigatePagehandler(var Navigate: TestPage Navigate)
     begin
         Commit();  // Required to run the Document Entries report.
-        Navigate.Print.Invoke;
+        Navigate.Print.Invoke();
     end;
 
     [PageHandler]
@@ -2346,12 +2351,12 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         IssuedReminders: Text;
     begin
-        if IssuedReminderList.First then
+        if IssuedReminderList.First() then
             repeat
                 if IssuedReminders = '' then
                     IssuedReminders := IssuedReminderList."No.".Value
                 else
-                    IssuedReminders := IssuedReminders + '|' + IssuedReminderList."No.".Value;
+                    IssuedReminders := IssuedReminders + '|' + IssuedReminderList."No.".Value();
             until not IssuedReminderList.Next();
         LibraryVariableStorage.Enqueue(IssuedReminders);
     end;
@@ -2362,12 +2367,12 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         IssuedFinChargeMemos: Text;
     begin
-        if IssuedFinChargeMemoList.First then
+        if IssuedFinChargeMemoList.First() then
             repeat
                 if IssuedFinChargeMemos = '' then
                     IssuedFinChargeMemos := IssuedFinChargeMemoList."No.".Value
                 else
-                    IssuedFinChargeMemos := IssuedFinChargeMemos + '|' + IssuedFinChargeMemoList."No.".Value;
+                    IssuedFinChargeMemos := IssuedFinChargeMemos + '|' + IssuedFinChargeMemoList."No.".Value();
             until not IssuedFinChargeMemoList.Next();
         LibraryVariableStorage.Enqueue(IssuedFinChargeMemos);
     end;
@@ -2380,14 +2385,14 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
     begin
-        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean;
-        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean;
-        NewPostingDate := LibraryVariableStorage.DequeueDate;
+        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean();
+        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean();
+        NewPostingDate := LibraryVariableStorage.DequeueDate();
         BatchCancelIssuedReminders.UseSameDocumentNo.SetValue(UseSameDocumentNo);
         BatchCancelIssuedReminders.UseSamePostingDate.SetValue(UseSamePostingDate);
         if not UseSamePostingDate then
             BatchCancelIssuedReminders.NewPostingDate.SetValue(NewPostingDate);
-        BatchCancelIssuedReminders.OK.Invoke;
+        BatchCancelIssuedReminders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2398,14 +2403,14 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
     begin
-        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean;
-        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean;
-        NewPostingDate := LibraryVariableStorage.DequeueDate;
+        UseSameDocumentNo := LibraryVariableStorage.DequeueBoolean();
+        UseSamePostingDate := LibraryVariableStorage.DequeueBoolean();
+        NewPostingDate := LibraryVariableStorage.DequeueDate();
         CancelIssuedFinChargeMemos.UseSameDocumentNo.SetValue(UseSameDocumentNo);
         CancelIssuedFinChargeMemos.UseSamePostingDate.SetValue(UseSamePostingDate);
         if not UseSamePostingDate then
             CancelIssuedFinChargeMemos.NewPostingDate.SetValue(NewPostingDate);
-        CancelIssuedFinChargeMemos.OK.Invoke;
+        CancelIssuedFinChargeMemos.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2441,7 +2446,7 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
     var
         CancelIssuedFinChargeMemo: Codeunit "Cancel Issued Fin. Charge Memo";
     begin
-        if Notification.Id = CancelIssuedFinChargeMemo.GetAppliedCustomerLedgerEntryNotificationId then begin
+        if Notification.Id = CancelIssuedFinChargeMemo.GetAppliedCustomerLedgerEntryNotificationId() then begin
             LibraryVariableStorage.Enqueue(Format(Notification.Message));
             CancelIssuedFinChargeMemo.ShowCustomerLedgerEntry(Notification);
         end;

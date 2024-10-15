@@ -101,7 +101,7 @@ page 950 "Time Sheet"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -113,7 +113,7 @@ page 950 "Time Sheet"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                     Visible = false;
 
                     trigger OnValidate()
@@ -490,7 +490,7 @@ page 950 "Time Sheet"
                     ApplicationArea = Jobs;
                     Caption = '&Copy lines from previous time sheet';
                     Image = Copy;
-                    ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a job, the job number is copied.';
+                    ToolTip = 'Copy information from the previous time sheet, such as type and description, and then modify the lines. If a line is related to a project, the project number is copied.';
 
                     trigger OnAction()
                     begin
@@ -500,9 +500,9 @@ page 950 "Time Sheet"
                 action(CreateLinesFromJobPlanning)
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Create lines from &job planning';
+                    Caption = 'Create lines from &project planning';
                     Image = CreateLinesFromJob;
-                    ToolTip = 'Create time sheet lines that are based on job planning lines.';
+                    ToolTip = 'Create time sheet lines that are based on project planning lines.';
 
                     trigger OnAction()
                     begin
@@ -695,6 +695,7 @@ page 950 "Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
         ActionType: Option Submit,Reopen;
+        TimeSheetAction: Enum "Time Sheet Action";
     begin
         CurrPage.SaveRecord();
         case Action of
@@ -702,8 +703,22 @@ page 950 "Time Sheet"
                 FilterAllLines(TimeSheetLine, ActionType::Submit);
             Action::"Reopen All":
                 FilterAllLines(TimeSheetLine, ActionType::Reopen);
-            else
-                CurrPage.SetSelectionFilter(TimeSheetLine);
+            Action::"Submit Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Open, TimeSheetLine.Status::Rejected);
+                end;
+            Action::"Reopen Selected":
+                begin
+                    CurrPage.SetSelectionFilter(TimeSheetLine);
+                    TimeSheetLine.FilterGroup(2);
+                    TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+                    TimeSheetLine.FilterGroup(0);
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
+                end;
         end;
         OnProcessOnAfterTimeSheetLinesFiltered(TimeSheetLine, Action);
         TimeSheetMgt.CopyFilteredTimeSheetLinesToBuffer(TimeSheetLine, TempTimeSheetLine);
@@ -711,13 +726,24 @@ page 950 "Time Sheet"
             repeat
                 case Action of
                     Action::"Submit Selected",
-                  Action::"Submit All":
+                    Action::"Submit All":
                         TimeSheetApprovalMgt.Submit(TimeSheetLine);
                     Action::"Reopen Selected",
-                  Action::"Reopen All":
+                    Action::"Reopen All":
                         TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next() = 0;
+            until TimeSheetLine.Next() = 0
+        else begin
+            case Action of
+                Action::"Submit Selected",
+                Action::"Submit All":
+                    TimeSheetAction := TimeSheetAction::Submit;
+                Action::"Reopen Selected",
+                Action::"Reopen All":
+                    TimeSheetAction := TimeSheetAction::"Reopen Submitted";
+            end;
+            TimeSheetApprovalMgt.NoTimeSheetLinesToProcess(TimeSheetAction);
+        end;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(true);
     end;
@@ -815,7 +841,7 @@ page 950 "Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetTimeSheetDialogText(ActionType, TimeSheetLine.Count));
+        exit(TimeSheetApprovalMgt.GetTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,Reopen)
@@ -837,7 +863,7 @@ page 950 "Time Sheet"
 
     local procedure ShowDialog(ActionType: Option Submit,Reopen): Integer
     begin
-        exit(StrMenu(GetDialogText(ActionType), 1, TimeSheetApprovalMgt.GetTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetTimeSheetDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

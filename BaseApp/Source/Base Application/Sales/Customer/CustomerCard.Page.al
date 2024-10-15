@@ -197,7 +197,7 @@ page 21 "Customer Card"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total Sales - Fiscal Year';
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     Editable = false;
                     ToolTip = 'Specifies your total sales turnover with the customer in the current fiscal year. It is calculated from amounts excluding VAT on all completed and open invoices and credit memos.';
 
@@ -304,7 +304,7 @@ page 21 "Customer Card"
                         Editable = false;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the customer''s address on your preferred map website.';
 
                         trigger OnDrillDown()
@@ -734,7 +734,7 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Money Owed - Total';
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the payment amount that the customer owes for completed sales plus sales that are still ongoing. The value is calculated asynchronously so there might be a delay in updating this field.';
                     }
                     field(CreditLimit; Rec."Credit Limit (LCY)")
@@ -785,7 +785,9 @@ page 21 "Customer Card"
                             OpenCurrFiscalYearDetailedCustLedgerEntries();
                         end;
                     }
+#pragma warning disable AA0100
                     field("CustomerMgt.AvgDaysToPay(""No."")"; AvgDaysToPay)
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Average Collection Period (Days)';
@@ -856,7 +858,7 @@ page 21 "Customer Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Total Sales';
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies your total sales turnover with the customer in the current fiscal year. It is calculated from amounts excluding VAT on all completed and open invoices and credit memos.';
                     }
                     field(CustInvDiscAmountLCY; CustInvDiscAmountLCY)
@@ -879,7 +881,7 @@ page 21 "Customer Card"
             {
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("No.");
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             part("Attached Documents"; "Document Attachment Factbox")
             {
@@ -1227,7 +1229,7 @@ page 21 "Customer Card"
                     RunObject = Page "Customer Ledger Entries";
                     RunPageLink = "Customer No." = field("No.");
                     RunPageView = sorting("Customer No.")
-                                  order(Descending);
+                                  order(descending);
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View the history of transactions that have been posted for the selected record.';
                 }
@@ -1378,7 +1380,7 @@ page 21 "Customer Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1399,7 +1401,7 @@ page 21 "Customer Card"
                     end;
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1576,12 +1578,12 @@ page 21 "Customer Card"
                 action("&Jobs")
                 {
                     ApplicationArea = Jobs;
-                    Caption = '&Jobs';
+                    Caption = '&Projects';
                     Image = Job;
                     RunObject = Page "Job List";
                     RunPageLink = "Bill-to Customer No." = field("No.");
                     RunPageView = sorting("Bill-to Customer No.");
-                    ToolTip = 'Open the list of ongoing jobs.';
+                    ToolTip = 'Open the list of ongoing projects.';
                 }
             }
             group(Service)
@@ -1645,7 +1647,7 @@ page 21 "Customer Card"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Offer items or services to a customer.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewSalesInvoice)
             {
@@ -1657,7 +1659,7 @@ page 21 "Customer Card"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a sales invoice for the customer.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewSalesOrder)
             {
@@ -1669,7 +1671,7 @@ page 21 "Customer Card"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a sales order for the customer.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewSalesCreditMemo)
             {
@@ -1681,7 +1683,7 @@ page 21 "Customer Card"
                 RunPageLink = "Sell-to Customer No." = field("No.");
                 RunPageMode = Create;
                 ToolTip = 'Create a new sales credit memo to revert a posted sales invoice.';
-                Visible = NOT IsOfficeAddin;
+                Visible = not IsOfficeAddin;
             }
             action(NewSalesQuoteAddin)
             {
@@ -1904,7 +1906,7 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = (NOT OpenApprovalEntriesExist) AND EnabledApprovalWorkflowsExist AND CanRequestApprovalForFlow;
+                    Enabled = (not OpenApprovalEntriesExist) and EnabledApprovalWorkflowsExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -1921,7 +1923,7 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1974,20 +1976,6 @@ page 21 "Customer Card"
                         end;
                     }
 #endif
-#if not CLEAN21
-                    action(SeeFlows)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'See my flows';
-                        Image = Flow;
-                        RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Power Automate flows that you created.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                 }
             }
             group(Workflow)
@@ -1997,7 +1985,7 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Approval Workflow';
-                    Enabled = NOT EnabledApprovalWorkflowsExist;
+                    Enabled = not EnabledApprovalWorkflowsExist;
                     Image = CreateWorkflow;
                     ToolTip = 'Set up an approval workflow for creating or changing customers, by going through a few pages that will guide you.';
 
@@ -2292,27 +2280,9 @@ page 21 "Customer Card"
                 actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(CreateFlow_Promoted; CreateFlow)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
                 {
                 }
-#if not CLEAN21
-                actionref(SeeFlows_Promoted; SeeFlows)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -2349,8 +2319,7 @@ page 21 "Customer Card"
             group(Category_Category7)
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 6.';
-
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -2358,7 +2327,7 @@ page 21 "Customer Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2369,7 +2338,7 @@ page 21 "Customer Card"
                 actionref(PriceLists_Promoted; PriceLists)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Prices and Discounts Overview_Promoted"; "Prices and Discounts Overview")
                 {
                     ObsoleteState = Pending;
@@ -2426,43 +2395,6 @@ page 21 "Customer Card"
                 actionref("Item References_Promoted"; "Item References")
                 {
                 }
-#if not CLEAN21
-                actionref(Quotes_Promoted; Quotes)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref(Invoices_Promoted; Invoices)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref(Orders_Promoted; Orders)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref("Return Orders_Promoted"; "Return Orders")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-                actionref("&Jobs_Promoted"; "&Jobs")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Demoted: The page can be accessed from the FactBox.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category8)
             {

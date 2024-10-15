@@ -44,10 +44,17 @@ codeunit 123 "Calc. Running FA Balance"
             DateTotal := FALedgerEntry2.Amount;
             DayTotals.Add(FALedgerEntry."Posting Date", DateTotal);
         end;
+        RunningBalance := DateTotal;
         FALedgerEntry2.SetRange("Posting Date", FALedgerEntry."Posting Date");
-        FALedgerEntry2.SetFilter("Entry No.", '>%1', FALedgerEntry."Entry No.");
-        FALedgerEntry2.CalcSums(Amount);
-        RunningBalance := DateTotal - FALedgerEntry2.Amount;
-        EntryValues.Add(FALedgerEntry."Entry No.", RunningBalance);
+        FALedgerEntry2.SetCurrentKey("Entry No.");
+        FALedgerEntry2.Ascending(false);
+        if FALedgerEntry2.FindSet() then
+            repeat
+                if FALedgerEntry2."Entry No." = FALedgerEntry."Entry No." then
+                    RunningBalance := DateTotal;
+                if not EntryValues.ContainsKey(FALedgerEntry2."Entry No.") then
+                    EntryValues.Add(FALedgerEntry2."Entry No.", DateTotal);
+                DateTotal -= FALedgerEntry2.Amount;
+            until FALedgerEntry2.Next() = 0;
     end;
 }

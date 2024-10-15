@@ -10831,9 +10831,6 @@ End Function
         <Field Name="DocDateCaption">
           <DataField>DocDateCaption</DataField>
         </Field>
-        <Field Name="AllowInvDiscCaption">
-          <DataField>AllowInvDiscCaption</DataField>
-        </Field>
         <Field Name="BilltoCustNo_SalesHdrCaption">
           <DataField>BilltoCustNo_SalesHdrCaption</DataField>
         </Field>
@@ -10953,6 +10950,9 @@ End Function
         </Field>
         <Field Name="TotalAmountInclVATFormat">
           <DataField>TotalAmountInclVATFormat</DataField>
+        </Field>
+        <Field Name="AllowInvDiscCaption">
+          <DataField>AllowInvDiscCaption</DataField>
         </Field>
         <Field Name="Desc_SalesLineCaption">
           <DataField>Desc_SalesLineCaption</DataField>

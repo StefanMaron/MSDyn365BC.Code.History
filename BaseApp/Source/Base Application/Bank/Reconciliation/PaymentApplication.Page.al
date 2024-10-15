@@ -12,7 +12,7 @@ page 1292 "Payment Application"
     SourceTable = "Payment Application Proposal";
     SourceTableTemporary = true;
     SourceTableView = sorting("Sorting Order")
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {
@@ -27,7 +27,7 @@ page 1292 "Payment Application"
                     Caption = 'Payment Status';
                     Editable = false;
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies the application status of the payment, including information about the match confidence of payments that are applied automatically.';
                 }
                 field(TransactionDate; BankAccReconLine."Transaction Date")
@@ -64,7 +64,7 @@ page 1292 "Payment Application"
                         BlankZero = true;
                         Caption = 'Applied Amount';
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies the payment amount, excluding the value in the Applied Pmt. Discount field, that is applied to the open entry.';
 
                         trigger OnValidate()
@@ -594,17 +594,10 @@ page 1292 "Payment Application"
     end;
 
     local procedure UpdateAfterChangingApplication()
-#if not CLEAN21
-    var
-        MatchBankPayments: Codeunit "Match Bank Payments";
-#endif
     begin
         BankAccReconLine.SetManualApplication();
         UpdateToSystemMatchConfidence();
         UpdateTotals();
-#if not CLEAN21
-        MatchBankPayments.UpdateType(BankAccReconLine);
-#endif
     end;
 
     local procedure UpdateToSystemMatchConfidence()

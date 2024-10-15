@@ -17,6 +17,7 @@ table 520 "Availability Info. Buffer"
 {
     Caption = 'Availability Information Buffer';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -159,7 +160,7 @@ table 520 "Availability Info. Buffer"
                                                                             "Location Code" = field("Location Code Filter"),
                                                                             "Variant Code" = field("Variant Code Filter"),
                                                                             "Shipment Date" = field("Date Filter")));
-            Caption = 'Qty. on Job Order';
+            Caption = 'Qty. on Project Order';
             DecimalPlaces = 0 : 5;
             Editable = false;
             FieldClass = FlowField;

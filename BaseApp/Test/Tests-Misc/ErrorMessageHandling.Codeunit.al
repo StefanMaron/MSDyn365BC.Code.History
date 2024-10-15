@@ -10,7 +10,6 @@ codeunit 132500 "Error Message Handling"
 
     var
         Assert: Codeunit Assert;
-        TestPageIsNotOpenErr: Label 'The TestPage is not open.';
         LibraryErrorMessage: Codeunit "Library - Error Message";
         HandledErr: Label 'Handled Error %1', Comment = '%1 - number';
         UnhandledErr: Label 'Unhandled Error.';
@@ -114,22 +113,22 @@ codeunit 132500 "Error Message Handling"
         // [WHEN] Subscribe 1st directly: subscribers - 1, isActive - FALSE
         BindSubscription(ErrorMessageHandler[1]);
         VerifyCountOfActiveSubscribers(1);
-        Assert.IsFalse(ErrorMessageMgt.IsActive, 'after first one');
+        Assert.IsFalse(ErrorMessageMgt.IsActive(), 'after first one');
 
         // [WHEN] Subscribe 2nd officially: subscribers - 2, isActive - TRUE
         ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
         VerifyCountOfActiveSubscribers(2);
-        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after second one');
+        Assert.IsTrue(ErrorMessageMgt.IsActive(), 'after second one');
 
         // [WHEN] Subscribe 3rd directly: subscribers - 3, isActive - TRUE
         BindSubscription(ErrorMessageHandler[3]);
         VerifyCountOfActiveSubscribers(3);
-        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after third one');
+        Assert.IsTrue(ErrorMessageMgt.IsActive(), 'after third one');
 
         // [WHEN] Subscribe 4th officially: subscribers - 3, isActive - TRUE
         ErrorMessageMgt.Activate(ErrorMessageHandler[4]);
         VerifyCountOfActiveSubscribers(3);
-        Assert.IsTrue(ErrorMessageMgt.IsActive, 'after fourth one');
+        Assert.IsTrue(ErrorMessageMgt.IsActive(), 'after fourth one');
     end;
 
     [Test]
@@ -249,7 +248,7 @@ codeunit 132500 "Error Message Handling"
         AddFinishCall(TempErrorMessage);
 
         // [WHEN] Run posting with enabled error handling
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
 
         // [THEN] Page "Error Messages" is open, where are both errors: 'A' and 'B'
@@ -289,7 +288,6 @@ codeunit 132500 "Error Message Handling"
     [Test]
     procedure T012_UnhandledErrorAfterHandledOneEnabledHandlingLogToFile()
     var
-        TempActualErrorMessage: Record "Error Message" temporary;
         TempErrorMessage: Record "Error Message" temporary;
         PostingCodeunitMock: Codeunit "Posting Codeunit Mock";
         LogFile: File;
@@ -401,7 +399,7 @@ codeunit 132500 "Error Message Handling"
         AddFinishCall(TempErrorMessage);
 
         // [GIVEN] Run posting with enabled error handling
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         PostingCodeunitMock.TryRun(TempErrorMessage);
 
@@ -429,7 +427,7 @@ codeunit 132500 "Error Message Handling"
         AddFinishCall(TempErrorMessage);
 
         // [GIVEN] Run posting with enabled error handling
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         PostingCodeunitMock.TryRun(TempErrorMessage);
 
@@ -458,7 +456,7 @@ codeunit 132500 "Error Message Handling"
         AddUnhandledError(TempErrorMessage, UnhandledErr);
 
         // [GIVEN] Run posting with enabled error handling
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         PostingCodeunitMock.TryRun(TempErrorMessage);
 
@@ -487,7 +485,7 @@ codeunit 132500 "Error Message Handling"
         AddUnhandledError(TempErrorMessage, UnhandledErr);
 
         // [GIVEN] Run posting with enabled error handling
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         PostingCodeunitMock.TryRun(TempErrorMessage);
 
@@ -555,7 +553,7 @@ codeunit 132500 "Error Message Handling"
         Assert.ExpectedError('');
 
         // [THEN] "Error Messages" page shows error 'X' with context '3'
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessageHandler[1].ShowErrors();
         ErrorMessagesPage.Description.AssertEquals('Error3');
         ErrorMessagesPage."Additional Information".AssertEquals('3');
@@ -597,7 +595,7 @@ codeunit 132500 "Error Message Handling"
 
         // [GIVEN] Finish #1 fails
         asserterror ErrorMessageMgt.Finish(SalesInvoiceHeader[1].RecordId);
-        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'Is Transaction #1 not Stopped');
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped(), 'Is Transaction #1 not Stopped');
 
         // [GIVEN] push context '4' (document #2 posting)
         Assert.AreEqual(2, ErrorMessageMgt.PushContext(ErrorContextElement[2], SalesInvoiceHeader[2].RecordId, 0, '4'), 'Push#4');
@@ -606,7 +604,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.Finish(SalesInvoiceHeader[2].RecordId);
 
         // [THEN] "Error Messages" page shows error 'X' with Sales Invoice Header 'A', Info is '3'
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessageHandler.ShowErrors();
         ErrorMessagesPage.Context.AssertEquals(Format(SalesInvoiceHeader[1].RecordId));
         ErrorMessagesPage.Description.AssertEquals('Error3');
@@ -628,7 +626,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
         ErrorMessageMgt.LogError(4, 'Error', '');
         asserterror ErrorMessageMgt.Finish(4);
-        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
     end;
 
     [Test]
@@ -646,7 +644,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement, 4, 0, 'Context');
         ErrorMessageMgt.LogError(4, 'Error', '');
         ErrorMessageMgt.Finish(15);
-        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
     end;
 
     [Test]
@@ -664,7 +662,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement, 15, 0, 'Context');
         ErrorMessageMgt.LogWarning(0, 'Warning', 15, 0, '');
         ErrorMessageMgt.Finish(15);
-        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsFalse(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
     end;
 
     [Test]
@@ -686,7 +684,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement[3], 17, 0, '17');
         ErrorMessageMgt.LogError(17, 'Error17', '');
         asserterror ErrorMessageMgt.Finish(15);
-        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
         ErrorMessageMgt.GetErrorsInContext(15, TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.TestField("Message", 'Error17');
@@ -712,7 +710,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement[3], 17, 0, '17');
         ErrorMessageMgt.LogError(17, 'Error17', '');
         asserterror ErrorMessageMgt.Finish(4);
-        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
         ErrorMessageMgt.GetErrorsInContext(4, TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 1);
         TempErrorMessage.TestField("Message", 'Error17');
@@ -740,7 +738,7 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageMgt.PushContext(ErrorContextElement[4], 17, 0, '17#2');
         ErrorMessageMgt.LogError(17, 'Error17#2', '');
         asserterror ErrorMessageMgt.Finish(17);
-        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped, 'IsTransactionStopped');
+        Assert.IsTrue(ErrorMessageMgt.IsTransactionStopped(), 'IsTransactionStopped');
         ErrorMessageMgt.GetErrorsInContext(17, TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 3);
     end;
@@ -923,7 +921,7 @@ codeunit 132500 "Error Message Handling"
     begin
         // [FEATURE] [Context] [UT]
         Initialize();
-        TableNo := GetNotExistingTableNo;
+        TableNo := GetNotExistingTableNo();
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement, TableNo, 0, 'PushContext#1'), 'PushContext#1');
 
@@ -963,12 +961,12 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '6');
         // [GIVEN] 1 Error Message related to another register
-        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
+        LogSimpleMessage(TempErrorMessage, CreateGuid(), ErrorMessage."Message Type"::Error, 'X');
         TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] Open Error Message Register page
-        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.OpenView();
 
         // [THEN] One record in the page, where "Description" is 'A', "Created On" is '01.10.19 13:23', "User ID" is 'X',
         ErrorMessageRegisterPage.Description.AssertEquals(ErrorMessageRegister."Message");
@@ -980,12 +978,12 @@ codeunit 132500 "Error Message Handling"
         ErrorMessageRegisterPage.Information.AssertEquals('3');
 
         // [WHEN] run action Show
-        ErrorMessageRegisterPage.Show.Invoke;
+        ErrorMessageRegisterPage.Show.Invoke();
 
         // [THEN] open Error Messages modal page, where are 3 records
-        Assert.AreEqual(6, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
-        Assert.AreEqual('6', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(6, LibraryVariableStorage.DequeueInteger(), 'wrong number of records');
+        Assert.AreEqual('6', LibraryVariableStorage.DequeueText(), 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1010,19 +1008,19 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '4');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
         // [GIVEN] 1 'Error' Error Message related to another register
-        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Error, 'X');
+        LogSimpleMessage(TempErrorMessage, CreateGuid(), ErrorMessage."Message Type"::Error, 'X');
         TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
-        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.OpenView();
         ErrorMessageRegisterPage.Errors.AssertEquals('3');
         ErrorMessageRegisterPage.Errors.Drilldown();
 
         // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Error'
-        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
-        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText(), 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1047,19 +1045,19 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Warning, '4');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '5');
         // [GIVEN] 1 'Warning' Error Message related to another register
-        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Warning, 'X');
+        LogSimpleMessage(TempErrorMessage, CreateGuid(), ErrorMessage."Message Type"::Warning, 'X');
         TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
-        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.OpenView();
         ErrorMessageRegisterPage.Warnings.AssertEquals('3');
         ErrorMessageRegisterPage.Warnings.Drilldown();
 
         // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Warning'
-        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
-        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText(), 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1084,19 +1082,19 @@ codeunit 132500 "Error Message Handling"
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Information, '4');
         LogSimpleMessage(TempErrorMessage, ErrorMessageRegister.ID, ErrorMessage."Message Type"::Error, '5');
         // [GIVEN] 1 'Information' Error Message related to another register
-        LogSimpleMessage(TempErrorMessage, CreateGuid, ErrorMessage."Message Type"::Information, 'X');
+        LogSimpleMessage(TempErrorMessage, CreateGuid(), ErrorMessage."Message Type"::Information, 'X');
         TempErrorMessage.Reset();
         ErrorMessage.CopyFromTemp(TempErrorMessage);
 
         // [WHEN] DrillDown on "Errors" in Error Message Register page
-        ErrorMessageRegisterPage.OpenView;
+        ErrorMessageRegisterPage.OpenView();
         ErrorMessageRegisterPage.Information.AssertEquals('3');
         ErrorMessageRegisterPage.Information.Drilldown();
 
         // [THEN] open Error Messages modal page, where are 3 records with "Message Type" 'Information'
-        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger, 'wrong number of records');
-        Assert.AreEqual('4', LibraryVariableStorage.DequeueText, 'wron Description in the last record');
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(3, LibraryVariableStorage.DequeueInteger(), 'wrong number of records');
+        Assert.AreEqual('4', LibraryVariableStorage.DequeueText(), 'wron Description in the last record');
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1168,7 +1166,7 @@ codeunit 132500 "Error Message Handling"
         AddUnhandledError(TempErrorMessage, UnhandledErr);
         AddFinishCall(TempErrorMessage);
         // [WHEN] Run posting with enabled error handling
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         // [THEN] Error Messages list page open
         ErrorMessagesPage.Close();
@@ -1200,10 +1198,10 @@ codeunit 132500 "Error Message Handling"
         AddUnhandledError(TempErrorMessage, UnhandledErr);
         AddFinishCall(TempErrorMessage);
         // [WHEN] Run posting with enabled error handling twice
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         ErrorMessagesPage.Close();
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostingCodeunitMock.RunWithActiveErrorHandling(TempErrorMessage, false);
         ErrorMessagesPage.Close();
         // [THEN] 2 Error Registers each contains 2 'Error' records: 'A' and 'B'.
@@ -1232,17 +1230,17 @@ codeunit 132500 "Error Message Handling"
 
         NamedForwardLink.DeleteAll();
         NamedForwardLink.Init();
-        NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForAllowedPostingDate;
+        NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForAllowedPostingDate();
         NamedForwardLink.Description := NamedForwardLink.Name;
         NamedForwardLink.Link := 'https://go.microsoft.com/fwlink/?linkid=2208139';
         NamedForwardLink.Insert();
 
-        ForwardLinks.OpenEdit;
+        ForwardLinks.OpenEdit();
 
-        Assert.IsFalse(ForwardLinks.Name.Editable, 'Name should not be editable');
-        Assert.IsTrue(ForwardLinks.Description.Editable, 'Description should be editable');
-        Assert.IsTrue(ForwardLinks.Link.Editable, 'Link should be editable');
-        asserterror ForwardLinks.New;
+        Assert.IsFalse(ForwardLinks.Name.Editable(), 'Name should not be editable');
+        Assert.IsTrue(ForwardLinks.Description.Editable(), 'Description should be editable');
+        Assert.IsTrue(ForwardLinks.Link.Editable(), 'Link should be editable');
+        asserterror ForwardLinks.New();
         Assert.ExpectedError('Insert is not allowed. Page = Forward Links, Id = 1431.');
     end;
 
@@ -1260,8 +1258,8 @@ codeunit 132500 "Error Message Handling"
         NamedForwardLink.DeleteAll();
 
         // [WHEN] Run action "Load" on the page
-        ForwardLinks.OpenView;
-        ForwardLinks.Load.Invoke;
+        ForwardLinks.OpenView();
+        ForwardLinks.Load.Invoke();
 
         // [THEN] 9 records added
         Assert.RecordCount(NamedForwardLink, 10);
@@ -1437,7 +1435,7 @@ codeunit 132500 "Error Message Handling"
         Counter: Integer;
     begin
         Counter := 0;
-        if ErrorMessagesPage.First then
+        if ErrorMessagesPage.First() then
             Counter := 1;
         while ErrorMessagesPage.Next() do
             Counter += 1;

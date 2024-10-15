@@ -215,7 +215,7 @@ page 6051 "Service Contract List"
                     //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                     //PromotedCategory = "Report";
                     RunObject = Report "Contract Invoicing";
-                    ToolTip = 'Specifies billable profits for the job task that are related to G/L accounts.';
+                    ToolTip = 'Specifies billable profits for the project task that are related to G/L accounts.';
                 }
                 action("Contract Price Update - Test")
                 {

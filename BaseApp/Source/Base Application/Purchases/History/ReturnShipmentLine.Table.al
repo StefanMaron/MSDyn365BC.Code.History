@@ -38,6 +38,7 @@ table 6651 "Return Shipment Line"
     LookupPageID = "Posted Return Shipment Lines";
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Value Entry" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -180,7 +181,7 @@ table 6651 "Return Shipment Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -279,7 +280,7 @@ table 6651 "Return Shipment Line"
         }
         field(91; "Currency Code"; Code[10])
         {
-            CalcFormula = Lookup("Return Shipment Header"."Currency Code" where("No." = field("Document No.")));
+            CalcFormula = lookup("Return Shipment Header"."Currency Code" where("No." = field("Document No.")));
             Caption = 'Currency Code';
             Editable = false;
             FieldClass = FlowField;
@@ -333,7 +334,7 @@ table 6651 "Return Shipment Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(5401; "Prod. Order No."; Code[20])

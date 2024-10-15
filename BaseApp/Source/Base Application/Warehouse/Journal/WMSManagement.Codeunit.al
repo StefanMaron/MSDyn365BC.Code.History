@@ -12,10 +12,13 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 #if not CLEAN23
 using Microsoft.Manufacturing.Capacity;
+using Microsoft.Manufacturing.Setup;
 #endif
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Family;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
+using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
@@ -85,38 +88,36 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with ItemJnlLine do begin
-            if ((not "Phys. Inventory") and (Quantity = 0) and ("Invoiced Quantity" = 0)) or
-               ("Value Entry Type" in ["Value Entry Type"::Rounding, "Value Entry Type"::Revaluation]) or
-               Adjustment
-            then
-                exit(false);
+        if ((not ItemJnlLine."Phys. Inventory") and (ItemJnlLine.Quantity = 0) and (ItemJnlLine."Invoiced Quantity" = 0)) or
+        (ItemJnlLine."Value Entry Type" in [ItemJnlLine."Value Entry Type"::Rounding, ItemJnlLine."Value Entry Type"::Revaluation]) or
+        ItemJnlLine.Adjustment
+        then
+            exit(false);
 
-            if ToTransfer then
-                "Location Code" := "New Location Code";
-            GetLocation("Location Code");
-            OnCreateWhseJnlLineOnAfterGetLocation(ItemJnlLine, WhseJnlLine, Location);
-            InitWhseJnlLine(ItemJnlLine, WhseJnlLine, "Quantity (Base)");
-            SetZoneAndBins(ItemJnlLine, WhseJnlLine, ToTransfer);
-            if ("Journal Template Name" <> '') and ("Journal Batch Name" <> '') then begin
-                WhseJnlLine.SetSource(Database::"Item Journal Line", ItemJnlTemplateType, "Document No.", "Line No.", 0);
+        if ToTransfer then
+            ItemJnlLine."Location Code" := ItemJnlLine."New Location Code";
+        GetLocation(ItemJnlLine."Location Code");
+        OnCreateWhseJnlLineOnAfterGetLocation(ItemJnlLine, WhseJnlLine, Location);
+        InitWhseJnlLine(ItemJnlLine, WhseJnlLine, ItemJnlLine."Quantity (Base)");
+        SetZoneAndBins(ItemJnlLine, WhseJnlLine, ToTransfer);
+        if (ItemJnlLine."Journal Template Name" <> '') and (ItemJnlLine."Journal Batch Name" <> '') then begin
+            WhseJnlLine.SetSource(Database::"Item Journal Line", ItemJnlTemplateType, ItemJnlLine."Document No.", ItemJnlLine."Line No.", 0);
+            WhseJnlLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
+        end else
+            if ItemJnlLine."Job No." <> '' then begin
+                WhseJnlLine.SetSource(Database::"Job Journal Line", ItemJnlTemplateType, ItemJnlLine."Document No.", ItemJnlLine."Line No.", 0);
                 WhseJnlLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-            end else
-                if "Job No." <> '' then begin
-                    WhseJnlLine.SetSource(Database::"Job Journal Line", ItemJnlTemplateType, "Document No.", "Line No.", 0);
-                    WhseJnlLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WhseJnlLine."Source Type", WhseJnlLine."Source Subtype");
-                end;
-            WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::" ";
-            if "Job No." = '' then
-                WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Item Journal"
-            else
-                WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Job Journal";
-            WhseJnlLine."Reference No." := "Document No.";
-            TransferWhseItemTracking(WhseJnlLine, ItemJnlLine);
-            WhseJnlLine.Description := Description;
-            OnAfterCreateWhseJnlLine(WhseJnlLine, ItemJnlLine, ToTransfer);
-            exit(true);
-        end;
+            end;
+        WhseJnlLine."Whse. Document Type" := WhseJnlLine."Whse. Document Type"::" ";
+        if ItemJnlLine."Job No." = '' then
+            WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Item Journal"
+        else
+            WhseJnlLine."Reference Document" := WhseJnlLine."Reference Document"::"Job Journal";
+        WhseJnlLine."Reference No." := ItemJnlLine."Document No.";
+        TransferWhseItemTracking(WhseJnlLine, ItemJnlLine);
+        WhseJnlLine.Description := ItemJnlLine.Description;
+        OnAfterCreateWhseJnlLine(WhseJnlLine, ItemJnlLine, ToTransfer);
+        exit(true);
     end;
 
 #if not CLEAN23
@@ -152,97 +153,95 @@ codeunit 7302 "WMS Management"
             exit;
 
         GetItem(WarehouseJournalLine."Item No.");
-        with WarehouseJournalLine do begin
-            TestField("Location Code");
-            GetLocation("Location Code");
-            OnCheckWhseJnlLineOnAfterGetLocation(WarehouseJournalLine, Location, Item);
+        WarehouseJournalLine.TestField("Location Code");
+        GetLocation(WarehouseJournalLine."Location Code");
+        OnCheckWhseJnlLineOnAfterGetLocation(WarehouseJournalLine, Location, Item);
 
-            if SourceJnl = SourceJnl::WhseJnl then
-                CheckAdjBinCode(WarehouseJournalLine);
+        if SourceJnl = SourceJnl::WhseJnl then
+            CheckAdjBinCode(WarehouseJournalLine);
 
-            CheckWhseJnlLineTracking(WarehouseJournalLine);
+        CheckWhseJnlLineTracking(WarehouseJournalLine);
 
-            if "Entry Type" in ["Entry Type"::"Positive Adjmt.", "Entry Type"::Movement] then
-                if SourceJnl = SourceJnl::" " then begin
-                    CheckWhseDocumentToZoneCode(WarehouseJournalLine);
-                    if "To Bin Code" = '' then
-                        Error(
-                          Text006,
-                          FieldCaption("Bin Code"), "Whse. Document Type",
-                          FieldCaption("Whse. Document No."), "Whse. Document No.",
-                          FieldCaption("Line No."), "Whse. Document Line No.");
-                end else
-                    if ("Entry Type" <> "Entry Type"::Movement) or ToTransfer then begin
-                        CheckToZoneCode(WarehouseJournalLine);
-                        TestField("To Bin Code");
-                    end;
-            if "Entry Type" in ["Entry Type"::"Negative Adjmt.", "Entry Type"::Movement] then
-                if SourceJnl = SourceJnl::" " then begin
-                    CheckWhseDocumentFromZoneCode(WarehouseJournalLine);
-                    if "From Bin Code" = '' then
-                        Error(
-                          Text006,
-                          FieldCaption("Bin Code"), "Whse. Document Type",
-                          FieldCaption("Whse. Document No."), "Whse. Document No.",
-                          FieldCaption("Line No."), "Whse. Document Line No.");
-                end else
-                    if ("Entry Type" <> "Entry Type"::Movement) or not ToTransfer then begin
-                        if Location."Directed Put-away and Pick" then
-                            TestField("From Zone Code");
-                        TestField("From Bin Code");
-                    end;
-
-            QtyAbsBase := "Qty. (Absolute, Base)";
-            IsHandled := false;
-            OnCheckWhseJnlLineOnBeforeCheckBySourceJnl(WarehouseJournalLine, Bin, SourceJnl, BinContent, Location, DecreaseQtyBase, IsHandled);
-            if not IsHandled then begin
-                CheckDecreaseBinContent(WarehouseJournalLine, SourceJnl, DecreaseQtyBase);
-                case SourceJnl of
-                    SourceJnl::" ", SourceJnl::ItemJnl:
-                        if ("To Bin Code" <> '') and ("To Bin Code" <> Location."Adjustment Bin Code") then
-                            if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then begin
-                                if ("Reference Document" = "Reference Document"::"Posted Rcpt.") or
-                                       ("Reference Document" = "Reference Document"::"Posted Rtrn. Rcpt.") or
-                                       ("Reference Document" = "Reference Document"::"Posted T. Receipt") or
-                                       (not Location."Directed Put-away and Pick")
-                                then
-                                    DeductQty := 0
-                                else
-                                    DeductQty := "Qty. (Absolute, Base)";
-
-                                if BinContent.Get("Location Code", "To Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
-                                    BinContent.CheckIncreaseBinContent("Qty. (Absolute, Base)", DeductQty, Cubage, Weight, Cubage, Weight, true, false)
-                                else begin
-                                    GetBin("Location Code", "To Bin Code");
-                                    Bin.CheckIncreaseBin(Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
-                                end;
-                            end else
-                                CheckWarehouseClass("Location Code", "To Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-                    SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
-                        if "To Bin Code" <> '' then
-                            if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
-                                if BinContent.Get("Location Code", "To Bin Code", "Item No.", "Variant Code", "Unit of Measure Code") then
-                                    BinContent.CheckIncreaseBinContent("Qty. (Absolute)", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false)
-                                else begin
-                                    GetBin("Location Code", "To Bin Code");
-                                    Bin.CheckIncreaseBin(Bin.Code, "Item No.", "Qty. (Absolute)", Cubage, Weight, Cubage, Weight, true, false);
-                                end
-                            else
-                                CheckWarehouseClass("Location Code", "To Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-                    SourceJnl::WhseJnl:
-                        if ("To Bin Code" <> '') and
-                           ("To Bin Code" <> Location."Adjustment Bin Code") and
-                           Location."Check Whse. Class"
-                        then begin
-                            GetBin("Location Code", "To Bin Code");
-                            Bin.CheckWhseClass("Item No.", false);
-                        end;
+        if WarehouseJournalLine."Entry Type" in [WarehouseJournalLine."Entry Type"::"Positive Adjmt.", WarehouseJournalLine."Entry Type"::Movement] then
+            if SourceJnl = SourceJnl::" " then begin
+                CheckWhseDocumentToZoneCode(WarehouseJournalLine);
+                if WarehouseJournalLine."To Bin Code" = '' then
+                    Error(
+                      Text006,
+                      WarehouseJournalLine.FieldCaption("Bin Code"), WarehouseJournalLine."Whse. Document Type",
+                      WarehouseJournalLine.FieldCaption("Whse. Document No."), WarehouseJournalLine."Whse. Document No.",
+                      WarehouseJournalLine.FieldCaption("Line No."), WarehouseJournalLine."Whse. Document Line No.");
+            end else
+                if (WarehouseJournalLine."Entry Type" <> WarehouseJournalLine."Entry Type"::Movement) or ToTransfer then begin
+                    CheckToZoneCode(WarehouseJournalLine);
+                    WarehouseJournalLine.TestField(WarehouseJournalLine."To Bin Code");
                 end;
+        if WarehouseJournalLine."Entry Type" in [WarehouseJournalLine."Entry Type"::"Negative Adjmt.", WarehouseJournalLine."Entry Type"::Movement] then
+            if SourceJnl = SourceJnl::" " then begin
+                CheckWhseDocumentFromZoneCode(WarehouseJournalLine);
+                if WarehouseJournalLine."From Bin Code" = '' then
+                    Error(
+                      Text006,
+                      WarehouseJournalLine.FieldCaption("Bin Code"), WarehouseJournalLine."Whse. Document Type",
+                      WarehouseJournalLine.FieldCaption("Whse. Document No."), WarehouseJournalLine."Whse. Document No.",
+                      WarehouseJournalLine.FieldCaption("Line No."), WarehouseJournalLine."Whse. Document Line No.");
+            end else
+                if (WarehouseJournalLine."Entry Type" <> WarehouseJournalLine."Entry Type"::Movement) or not ToTransfer then begin
+                    if Location."Directed Put-away and Pick" then
+                        WarehouseJournalLine.TestField(WarehouseJournalLine."From Zone Code");
+                    WarehouseJournalLine.TestField(WarehouseJournalLine."From Bin Code");
+                end;
+
+        QtyAbsBase := WarehouseJournalLine."Qty. (Absolute, Base)";
+        IsHandled := false;
+        OnCheckWhseJnlLineOnBeforeCheckBySourceJnl(WarehouseJournalLine, Bin, SourceJnl, BinContent, Location, DecreaseQtyBase, IsHandled);
+        if not IsHandled then begin
+            CheckDecreaseBinContent(WarehouseJournalLine, SourceJnl, DecreaseQtyBase);
+            case SourceJnl of
+                SourceJnl::" ", SourceJnl::ItemJnl:
+                    if (WarehouseJournalLine."To Bin Code" <> '') and (WarehouseJournalLine."To Bin Code" <> Location."Adjustment Bin Code") then
+                        if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then begin
+                            if (WarehouseJournalLine."Reference Document" = WarehouseJournalLine."Reference Document"::"Posted Rcpt.") or
+                                   (WarehouseJournalLine."Reference Document" = WarehouseJournalLine."Reference Document"::"Posted Rtrn. Rcpt.") or
+                                   (WarehouseJournalLine."Reference Document" = WarehouseJournalLine."Reference Document"::"Posted T. Receipt") or
+                                   (not Location."Directed Put-away and Pick")
+                            then
+                                DeductQty := 0
+                            else
+                                DeductQty := WarehouseJournalLine."Qty. (Absolute, Base)";
+
+                            if BinContent.Get(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code") then
+                                BinContent.CheckIncreaseBinContent(WarehouseJournalLine."Qty. (Absolute, Base)", DeductQty, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, true, false)
+                            else begin
+                                GetBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                                Bin.CheckIncreaseBin(Bin.Code, WarehouseJournalLine."Item No.", WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, true, false);
+                            end;
+                        end else
+                            CheckWarehouseClass(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
+                    if WarehouseJournalLine."To Bin Code" <> '' then
+                        if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
+                            if BinContent.Get(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code") then
+                                BinContent.CheckIncreaseBinContent(WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, true, false)
+                            else begin
+                                GetBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                                Bin.CheckIncreaseBin(Bin.Code, WarehouseJournalLine."Item No.", WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight, true, false);
+                            end
+                        else
+                            CheckWarehouseClass(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code", WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                SourceJnl::WhseJnl:
+                    if (WarehouseJournalLine."To Bin Code" <> '') and
+                       (WarehouseJournalLine."To Bin Code" <> Location."Adjustment Bin Code") and
+                       Location."Check Whse. Class"
+                    then begin
+                        GetBin(WarehouseJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                        Bin.CheckWhseClass(WarehouseJournalLine."Item No.", false);
+                    end;
             end;
-            if QtyAbsBase <> "Qty. (Absolute, Base)" then begin
-                Validate("Qty. (Absolute, Base)");
-                Modify();
-            end;
+        end;
+        if QtyAbsBase <> WarehouseJournalLine."Qty. (Absolute, Base)" then begin
+            WarehouseJournalLine.Validate(WarehouseJournalLine."Qty. (Absolute, Base)");
+            WarehouseJournalLine.Modify();
         end;
 
         OnAfterCheckWhseJnlLine(WarehouseJournalLine, SourceJnl, DecreaseQtyBase, ToTransfer, Item);
@@ -273,39 +272,38 @@ codeunit 7302 "WMS Management"
             exit;
 
         GetLocation(WarehouseJournalLine."Location Code");
-        with WarehouseJournalLine do
-            case SourceJnl of
-                SourceJnl::" ", SourceJnl::ItemJnl:
-                    if ("From Bin Code" <> '') and
-                       ("From Bin Code" <> Location."Adjustment Bin Code") and
-                       Location."Directed Put-away and Pick"
-                    then begin
+        case SourceJnl of
+            SourceJnl::" ", SourceJnl::ItemJnl:
+                if (WarehouseJournalLine."From Bin Code" <> '') and
+                   (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") and
+                   Location."Directed Put-away and Pick"
+                then begin
+                    BinContent.Get(
+                      WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                      WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                    BinContent.CheckDecreaseBinContent(WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine."Qty. (Absolute, Base)", DecreaseQtyBase);
+                end;
+            SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
+                if (WarehouseJournalLine."From Bin Code" <> '') and
+                   Location."Directed Put-away and Pick"
+                then begin
+                    BinContent.Get(
+                      WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                      WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                    BinContent.CheckDecreaseBinContent(WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine."Qty. (Absolute, Base)", DecreaseQtyBase);
+                end;
+            SourceJnl::WhseJnl:
+                if (WarehouseJournalLine."From Bin Code" <> '') and
+                   (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") and
+                   Location."Directed Put-away and Pick"
+                then
+                    if not ItemTrackingMgt.GetWhseItemTrkgSetup(WarehouseJournalLine."Item No.") then begin
                         BinContent.Get(
-                          "Location Code", "From Bin Code",
-                          "Item No.", "Variant Code", "Unit of Measure Code");
-                        BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
+                          WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                          WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Unit of Measure Code");
+                        BinContent.CheckDecreaseBinContent(WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine."Qty. (Absolute, Base)", DecreaseQtyBase);
                     end;
-                SourceJnl::OutputJnl, SourceJnl::ConsumpJnl:
-                    if ("From Bin Code" <> '') and
-                       Location."Directed Put-away and Pick"
-                    then begin
-                        BinContent.Get(
-                          "Location Code", "From Bin Code",
-                          "Item No.", "Variant Code", "Unit of Measure Code");
-                        BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
-                    end;
-                SourceJnl::WhseJnl:
-                    if ("From Bin Code" <> '') and
-                       ("From Bin Code" <> Location."Adjustment Bin Code") and
-                       Location."Directed Put-away and Pick"
-                    then
-                        if not ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.") then begin
-                            BinContent.Get(
-                              "Location Code", "From Bin Code",
-                              "Item No.", "Variant Code", "Unit of Measure Code");
-                            BinContent.CheckDecreaseBinContent("Qty. (Absolute)", "Qty. (Absolute, Base)", DecreaseQtyBase);
-                        end;
-            end;
+        end;
     end;
 
     local procedure CheckWhseJnlLineTracking(var WarehouseJournalLine: Record "Warehouse Journal Line")
@@ -317,36 +315,35 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with WarehouseJournalLine do
-            if ItemTrackingCode.Get(Item."Item Tracking Code") then begin
-                if ("Serial No." <> '') and
-                   ("From Bin Code" <> '') and
-                   ItemTrackingCode."SN Specific Tracking" and
-                   ("From Bin Code" <> Location."Adjustment Bin Code") and
-                   (((Location."Adjustment Bin Code" <> '') and
-                     ("Entry Type" = "Entry Type"::Movement)) or
-                    (("Entry Type" <> "Entry Type"::Movement) or
-                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
-                then
-                    CheckSerialNo(
-                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Serial No.", CalcReservEntryQuantity());
+        if ItemTrackingCode.Get(Item."Item Tracking Code") then begin
+            if (WarehouseJournalLine."Serial No." <> '') and
+               (WarehouseJournalLine."From Bin Code" <> '') and
+               ItemTrackingCode."SN Specific Tracking" and
+               (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") and
+               (((Location."Adjustment Bin Code" <> '') and
+                 (WarehouseJournalLine."Entry Type" = WarehouseJournalLine."Entry Type"::Movement)) or
+                ((WarehouseJournalLine."Entry Type" <> WarehouseJournalLine."Entry Type"::Movement) or
+                 (WarehouseJournalLine."Source Document" = WarehouseJournalLine."Source Document"::"Reclass. Jnl.")))
+            then
+                CheckSerialNo(
+                  WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                  WarehouseJournalLine."Unit of Measure Code", WarehouseJournalLine."Serial No.", WarehouseJournalLine.CalcReservEntryQuantity());
 
-                if ("Lot No." <> '') and
-                   ("From Bin Code" <> '') and
-                   ItemTrackingCode."Lot Specific Tracking" and
-                   ("From Bin Code" <> Location."Adjustment Bin Code") and
-                   (((Location."Adjustment Bin Code" <> '') and
-                     ("Entry Type" = "Entry Type"::Movement)) or
-                    (("Entry Type" <> "Entry Type"::Movement) or
-                     ("Source Document" = "Source Document"::"Reclass. Jnl.")))
-                then
-                    CheckLotNo(
-                      "Item No.", "Variant Code", "Location Code", "From Bin Code",
-                      "Unit of Measure Code", "Lot No.", CalcReservEntryQuantity());
+            if (WarehouseJournalLine."Lot No." <> '') and
+               (WarehouseJournalLine."From Bin Code" <> '') and
+               ItemTrackingCode."Lot Specific Tracking" and
+               (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") and
+               (((Location."Adjustment Bin Code" <> '') and
+                 (WarehouseJournalLine."Entry Type" = WarehouseJournalLine."Entry Type"::Movement)) or
+                ((WarehouseJournalLine."Entry Type" <> WarehouseJournalLine."Entry Type"::Movement) or
+                 (WarehouseJournalLine."Source Document" = WarehouseJournalLine."Source Document"::"Reclass. Jnl.")))
+            then
+                CheckLotNo(
+                  WarehouseJournalLine."Item No.", WarehouseJournalLine."Variant Code", WarehouseJournalLine."Location Code", WarehouseJournalLine."From Bin Code",
+                  WarehouseJournalLine."Unit of Measure Code", WarehouseJournalLine."Lot No.", WarehouseJournalLine.CalcReservEntryQuantity());
 
-                OnCheckWhseJnlLineOnAfterCheckTracking(WarehouseJournalLine, ItemTrackingCode, Location);
-            end;
+            OnCheckWhseJnlLineOnAfterCheckTracking(WarehouseJournalLine, ItemTrackingCode, Location);
+        end;
     end;
 
     local procedure CheckWhseDocumentToZoneCode(WarehouseJournalLine: Record "Warehouse Journal Line")
@@ -358,13 +355,12 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with WarehouseJournalLine do
-            if Location."Directed Put-away and Pick" and ("To Zone Code" = '') then
-                Error(
-                  Text006,
-                  FieldCaption("Zone Code"), "Whse. Document Type",
-                  FieldCaption("Whse. Document No."), "Whse. Document No.",
-                  FieldCaption("Line No."), "Whse. Document Line No.");
+        if Location."Directed Put-away and Pick" and (WarehouseJournalLine."To Zone Code" = '') then
+            Error(
+              Text006,
+              WarehouseJournalLine.FieldCaption("Zone Code"), WarehouseJournalLine."Whse. Document Type",
+              WarehouseJournalLine.FieldCaption("Whse. Document No."), WarehouseJournalLine."Whse. Document No.",
+              WarehouseJournalLine.FieldCaption("Line No."), WarehouseJournalLine."Whse. Document Line No.");
     end;
 
     local procedure CheckWhseDocumentFromZoneCode(WarehouseJournalLine: Record "Warehouse Journal Line")
@@ -376,13 +372,12 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with WarehouseJournalLine do
-            if Location."Directed Put-away and Pick" and ("From Zone Code" = '') then
-                Error(
-                  Text006,
-                  FieldCaption("Zone Code"), "Whse. Document Type",
-                  FieldCaption("Whse. Document No."), "Whse. Document No.",
-                  FieldCaption("Line No."), "Whse. Document Line No.");
+        if Location."Directed Put-away and Pick" and (WarehouseJournalLine."From Zone Code" = '') then
+            Error(
+              Text006,
+              WarehouseJournalLine.FieldCaption("Zone Code"), WarehouseJournalLine."Whse. Document Type",
+              WarehouseJournalLine.FieldCaption("Whse. Document No."), WarehouseJournalLine."Whse. Document No.",
+              WarehouseJournalLine.FieldCaption("Line No."), WarehouseJournalLine."Whse. Document Line No.");
     end;
 
     local procedure CheckToZoneCode(WarehouseJournalLine: Record "Warehouse Journal Line")
@@ -403,35 +398,33 @@ codeunit 7302 "WMS Management"
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
         FieldCapTxt: Text;
     begin
-        with WarehouseJournalLine do begin
-            if "Entry Type" = "Entry Type"::Movement then
-                exit;
+        if WarehouseJournalLine."Entry Type" = WarehouseJournalLine."Entry Type"::Movement then
+            exit;
 
-            GetLocation("Location Code");
-            if not Location."Directed Put-away and Pick" then
-                exit;
+        GetLocation(WarehouseJournalLine."Location Code");
+        if not Location."Directed Put-away and Pick" then
+            exit;
 
-            WarehouseJournalTemplate.Get("Journal Template Name");
-            if WarehouseJournalTemplate.Type = WarehouseJournalTemplate.Type::Reclassification then
-                exit;
+        WarehouseJournalTemplate.Get(WarehouseJournalLine."Journal Template Name");
+        if WarehouseJournalTemplate.Type = WarehouseJournalTemplate.Type::Reclassification then
+            exit;
 
-            Location.TestField("Adjustment Bin Code");
-            case "Entry Type" of
-                "Entry Type"::"Positive Adjmt.":
-                    if ("From Bin Code" <> '') and ("From Bin Code" <> Location."Adjustment Bin Code") then
-                        FieldCapTxt := FieldCaption("From Bin Code");
-                "Entry Type"::"Negative Adjmt.":
-                    if ("To Bin Code" <> '') and ("To Bin Code" <> Location."Adjustment Bin Code") then
-                        FieldCapTxt := FieldCaption("To Bin Code");
-            end;
-            if FieldCapTxt <> '' then
-                Error(
-                  Text006,
-                  StrSubstNo('%1 = ''%2''', FieldCapTxt, Location."Adjustment Bin Code"),
-                  "Whse. Document Type",
-                  FieldCaption("Whse. Document No."), "Whse. Document No.",
-                  FieldCaption("Line No."), "Line No.");
+        Location.TestField("Adjustment Bin Code");
+        case WarehouseJournalLine."Entry Type" of
+            WarehouseJournalLine."Entry Type"::"Positive Adjmt.":
+                if (WarehouseJournalLine."From Bin Code" <> '') and (WarehouseJournalLine."From Bin Code" <> Location."Adjustment Bin Code") then
+                    FieldCapTxt := WarehouseJournalLine.FieldCaption("From Bin Code");
+            WarehouseJournalLine."Entry Type"::"Negative Adjmt.":
+                if (WarehouseJournalLine."To Bin Code" <> '') and (WarehouseJournalLine."To Bin Code" <> Location."Adjustment Bin Code") then
+                    FieldCapTxt := WarehouseJournalLine.FieldCaption("To Bin Code");
         end;
+        if FieldCapTxt <> '' then
+            Error(
+              Text006,
+              StrSubstNo('%1 = ''%2''', FieldCapTxt, Location."Adjustment Bin Code"),
+              WarehouseJournalLine."Whse. Document Type",
+              WarehouseJournalLine.FieldCaption("Whse. Document No."), WarehouseJournalLine."Whse. Document No.",
+              WarehouseJournalLine.FieldCaption("Line No."), WarehouseJournalLine."Line No.");
     end;
 
     procedure CheckItemJnlLineFieldChange(ItemJnlLine: Record "Item Journal Line"; xItemJnlLine: Record "Item Journal Line"; CurrFieldCaption: Text[30])
@@ -450,67 +443,65 @@ codeunit 7302 "WMS Management"
             exit;
 
         GetLocation(ItemJnlLine."Location Code");
-        with ItemJnlLine do begin
-            OnCheckIfBinIsEligible(ItemJnlLine, BinIsEligible);
+        OnCheckIfBinIsEligible(ItemJnlLine, BinIsEligible);
 
-            ShowError := CheckBinCodeChange("Location Code", "Bin Code", xItemJnlLine."Bin Code") and not BinIsEligible;
-            if not ShowError then
-                ShowError := CheckBinCodeChange("New Location Code", "New Bin Code", xItemJnlLine."New Bin Code");
+        ShowError := CheckBinCodeChange(ItemJnlLine."Location Code", ItemJnlLine."Bin Code", xItemJnlLine."Bin Code") and not BinIsEligible;
+        if not ShowError then
+            ShowError := CheckBinCodeChange(ItemJnlLine."New Location Code", ItemJnlLine."New Bin Code", xItemJnlLine."New Bin Code");
 
-            if ShowError then
-                Error(Text015,
-                  CurrFieldCaption,
-                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
+        if ShowError then
+            Error(Text015,
+              CurrFieldCaption,
+              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
 
-            if "Entry Type" in
-               ["Entry Type"::"Negative Adjmt.", "Entry Type"::"Positive Adjmt.", "Entry Type"::Sale, "Entry Type"::Purchase]
+        if ItemJnlLine."Entry Type" in
+           [ItemJnlLine."Entry Type"::"Negative Adjmt.", ItemJnlLine."Entry Type"::"Positive Adjmt.", ItemJnlLine."Entry Type"::Sale, ItemJnlLine."Entry Type"::Purchase]
+        then begin
+            if (ItemJnlLine."Location Code" <> xItemJnlLine."Location Code") and (xItemJnlLine."Location Code" <> '') then begin
+                GetLocation(xItemJnlLine."Location Code");
+                ShowError := Location."Directed Put-away and Pick";
+            end;
+
+            if ((ItemJnlLine."Item No." <> xItemJnlLine."Item No.") and (xItemJnlLine."Item No." <> '')) or
+               ((ItemJnlLine.Quantity <> xItemJnlLine.Quantity) and (xItemJnlLine.Quantity <> 0)) or
+               (ItemJnlLine."Variant Code" <> xItemJnlLine."Variant Code") or
+               (ItemJnlLine."Unit of Measure Code" <> xItemJnlLine."Unit of Measure Code") or
+               (ItemJnlLine."Entry Type" <> xItemJnlLine."Entry Type") or
+               (ItemJnlLine."Phys. Inventory" and
+                (ItemJnlLine."Qty. (Phys. Inventory)" <> xItemJnlLine."Qty. (Phys. Inventory)") or
+                (ItemJnlLine.Quantity <> xItemJnlLine.Quantity))
             then begin
-                if ("Location Code" <> xItemJnlLine."Location Code") and (xItemJnlLine."Location Code" <> '') then begin
-                    GetLocation(xItemJnlLine."Location Code");
-                    ShowError := Location."Directed Put-away and Pick";
-                end;
+                GetLocation(ItemJnlLine."Location Code");
+                ShowError := Location."Directed Put-away and Pick";
+            end;
 
-                if (("Item No." <> xItemJnlLine."Item No.") and (xItemJnlLine."Item No." <> '')) or
-                   ((Quantity <> xItemJnlLine.Quantity) and (xItemJnlLine.Quantity <> 0)) or
-                   ("Variant Code" <> xItemJnlLine."Variant Code") or
-                   ("Unit of Measure Code" <> xItemJnlLine."Unit of Measure Code") or
-                   ("Entry Type" <> xItemJnlLine."Entry Type") or
-                   ("Phys. Inventory" and
-                    ("Qty. (Phys. Inventory)" <> xItemJnlLine."Qty. (Phys. Inventory)") or
-                    (Quantity <> xItemJnlLine.Quantity))
-                then begin
-                    GetLocation("Location Code");
-                    ShowError := Location."Directed Put-away and Pick";
-                end;
-
-                if ShowError then begin
-                    if "Phys. Inventory" then
-                        Error(Text010,
-                          CurrFieldCaption,
-                          Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                          WhsePhysInvtJournal.Caption);
-
+            if ShowError then begin
+                if ItemJnlLine."Phys. Inventory" then
                     Error(Text010,
                       CurrFieldCaption,
                       Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                      WhseItemJournal.Caption);
-                end;
-                GetLocation("Location Code");
-                if not Location."Bin Mandatory" then
-                    exit;
-                if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then begin
-                    if ItemJnlLine."Bin Code" <> '' then begin
-                        CalcCubageAndWeight(ItemJnlLine."Item No.", ItemJnlLine."Unit of Measure Code", ItemJnlLine.Quantity, Cubage, Weight);
-                        if BinContent.Get(Location.Code, ItemJnlLine."Bin Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Unit of Measure Code") then
-                            BinContent.CheckIncreaseBinContent(Quantity, 0, 0, 0, Cubage, Weight, false, false)
-                        else begin
-                            GetBin(Location.Code, ItemJnlLine."Bin Code");
-                            Bin.CheckIncreaseBin(Bin.Code, ItemJnlLine."Item No.", ItemJnlLine.Quantity, 0, 0, Cubage, Weight, false, false);
-                        end;
-                    end
-                end else
-                    CheckWarehouseClass(Location.Code, ItemJnlLine."Bin Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Unit of Measure Code");
+                      WhsePhysInvtJournal.Caption);
+
+                Error(Text010,
+                  CurrFieldCaption,
+                  Location.TableCaption(), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                  WhseItemJournal.Caption);
             end;
+            GetLocation(ItemJnlLine."Location Code");
+            if not Location."Bin Mandatory" then
+                exit;
+            if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then begin
+                if ItemJnlLine."Bin Code" <> '' then begin
+                    CalcCubageAndWeight(ItemJnlLine."Item No.", ItemJnlLine."Unit of Measure Code", ItemJnlLine.Quantity, Cubage, Weight);
+                    if BinContent.Get(Location.Code, ItemJnlLine."Bin Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Unit of Measure Code") then
+                        BinContent.CheckIncreaseBinContent(ItemJnlLine.Quantity, 0, 0, 0, Cubage, Weight, false, false)
+                    else begin
+                        GetBin(Location.Code, ItemJnlLine."Bin Code");
+                        Bin.CheckIncreaseBin(Bin.Code, ItemJnlLine."Item No.", ItemJnlLine.Quantity, 0, 0, Cubage, Weight, false, false);
+                    end;
+                end
+            end else
+                CheckWarehouseClass(Location.Code, ItemJnlLine."Bin Code", ItemJnlLine."Item No.", ItemJnlLine."Variant Code", ItemJnlLine."Unit of Measure Code");
         end;
     end;
 
@@ -548,39 +539,37 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with ItemJournalLine do begin
-            if "Entry Type" in
-               ["Entry Type"::"Negative Adjmt.", "Entry Type"::"Positive Adjmt.", "Entry Type"::Sale, "Entry Type"::Purchase]
-            then
-                if "Location Code" <> xItemJournalLine."Location Code" then begin
-                    GetLocation(xItemJournalLine."Location Code");
-                    if not Location."Directed Put-away and Pick" then begin
-                        GetLocation("Location Code");
-                        if Location."Directed Put-away and Pick" then
-                            Error(Text011,
-                              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                              WhseItemJournal.Caption());
-                    end;
+        if ItemJournalLine."Entry Type" in
+            [ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemJournalLine."Entry Type"::Sale, ItemJournalLine."Entry Type"::Purchase]
+        then
+            if ItemJournalLine."Location Code" <> xItemJournalLine."Location Code" then begin
+                GetLocation(xItemJournalLine."Location Code");
+                if not Location."Directed Put-away and Pick" then begin
+                    GetLocation(ItemJournalLine."Location Code");
+                    if Location."Directed Put-away and Pick" then
+                        Error(Text011,
+                          LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                          WhseItemJournal.Caption());
                 end;
-
-            if "Entry Type" = "Entry Type"::Transfer then begin
-                if ("New Location Code" <> "Location Code") and
-                   (("Location Code" <> xItemJournalLine."Location Code") or
-                    ("New Location Code" <> xItemJournalLine."New Location Code"))
-                then begin
-                    GetLocation("Location Code");
-                    ShowError := Location."Directed Put-away and Pick";
-                    if not Location."Directed Put-away and Pick" then begin
-                        GetLocation("New Location Code");
-                        ShowError := Location."Directed Put-away and Pick";
-                    end;
-                end;
-
-                if ShowError then
-                    Error(Text012,
-                      LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
-                      TransferOrder.Caption);
             end;
+
+        if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer then begin
+            if (ItemJournalLine."New Location Code" <> ItemJournalLine."Location Code") and
+               ((ItemJournalLine."Location Code" <> xItemJournalLine."Location Code") or
+                (ItemJournalLine."New Location Code" <> xItemJournalLine."New Location Code"))
+            then begin
+                GetLocation(ItemJournalLine."Location Code");
+                ShowError := Location."Directed Put-away and Pick";
+                if not Location."Directed Put-away and Pick" then begin
+                    GetLocation(ItemJournalLine."New Location Code");
+                    ShowError := Location."Directed Put-away and Pick";
+                end;
+            end;
+
+            if ShowError then
+                Error(Text012,
+                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"),
+                  TransferOrder.Caption);
         end;
     end;
 
@@ -593,39 +582,38 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with TrackingSpecification do
-            if ("Source Type" = Database::"Item Journal Line") and
-               ("Item No." <> '') and
-               ("Location Code" <> '')
-            then begin
-                if "Source Subtype" in [0, 1, 2, 3] then
-                    if not HasSameTracking(xTrackingSpecification) or
-                       ((xTrackingSpecification."Expiration Date" <> 0D) and
-                        ("Expiration Date" <> xTrackingSpecification."Expiration Date")) or
-                       ("Quantity (Base)" <> xTrackingSpecification."Quantity (Base)")
-                    then begin
-                        GetLocation("Location Code");
-                        if Location."Directed Put-away and Pick" then begin
-                            GetItem("Item No.");
-                            if ItemTrackingCode.IsWarehouseTracking() then
-                                Error(Text013,
-                                  LowerCase(Item.TableCaption()),
-                                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
-                        end;
+        if (TrackingSpecification."Source Type" = Database::"Item Journal Line") and
+            (TrackingSpecification."Item No." <> '') and
+            (TrackingSpecification."Location Code" <> '')
+        then begin
+            if TrackingSpecification."Source Subtype" in [0, 1, 2, 3] then
+                if not TrackingSpecification.HasSameTracking(xTrackingSpecification) or
+                   ((xTrackingSpecification."Expiration Date" <> 0D) and
+                    (TrackingSpecification."Expiration Date" <> xTrackingSpecification."Expiration Date")) or
+                   (TrackingSpecification."Quantity (Base)" <> xTrackingSpecification."Quantity (Base)")
+                then begin
+                    GetLocation(TrackingSpecification."Location Code");
+                    if Location."Directed Put-away and Pick" then begin
+                        GetItem(TrackingSpecification."Item No.");
+                        if ItemTrackingCode.IsWarehouseTracking() then
+                            Error(Text013,
+                              LowerCase(Item.TableCaption()),
+                              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
                     end;
+                end;
 
-                if IsReclass() then
-                    if CheckTrackingSpecificationChangeNeeded(TrackingSpecification, xTrackingSpecification) then begin
-                        GetLocation("Location Code");
-                        if Location."Directed Put-away and Pick" then begin
-                            GetItem("Item No.");
-                            if ItemTrackingCode.IsWarehouseTracking() then
-                                Error(Text014,
-                                  LowerCase(Item.TableCaption()),
-                                  LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
-                        end;
+            if TrackingSpecification.IsReclass() then
+                if CheckTrackingSpecificationChangeNeeded(TrackingSpecification, xTrackingSpecification) then begin
+                    GetLocation(TrackingSpecification."Location Code");
+                    if Location."Directed Put-away and Pick" then begin
+                        GetItem(TrackingSpecification."Item No.");
+                        if ItemTrackingCode.IsWarehouseTracking() then
+                            Error(Text014,
+                              LowerCase(Item.TableCaption()),
+                              LowerCase(Location.TableCaption()), Location.Code, Location.FieldCaption("Directed Put-away and Pick"));
                     end;
-            end;
+                end;
+        end;
     end;
 
     local procedure CheckBinCodeChange(LocationCode: Code[10]; BinCode: Code[20]; xRecBinCode: Code[20]): Boolean
@@ -942,23 +930,22 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit(ErrorText);
 
-        with WarehouseActivityLine do
-            if WarehouseActivityLine3.TrackingFilterExists() then
-                ErrorText :=
-                  StrSubstNo(
-                    Text016,
-                    WarehouseActivityLine.FieldCaption("Item No."), WarehouseActivityLine."Item No.",
-                    WarehouseActivityLine.FieldCaption("Variant Code"), WarehouseActivityLine."Variant Code",
-                    WarehouseActivityLine.FieldCaption("Lot No."), WarehouseActivityLine."Lot No.",
-                    WarehouseActivityLine.FieldCaption("Serial No."), WarehouseActivityLine."Serial No.",
-                    QtyToPick, QtyToPutAway)
-            else
-                ErrorText :=
-                    StrSubstNo(
-                    Text005,
-                    WarehouseActivityLine.FieldCaption("Item No."), WarehouseActivityLine."Item No.",
-                    WarehouseActivityLine.FieldCaption("Variant Code"), WarehouseActivityLine."Variant Code",
-                    QtyToPick, QtyToPutAway);
+        if WarehouseActivityLine3.TrackingFilterExists() then
+            ErrorText :=
+              StrSubstNo(
+                Text016,
+                WarehouseActivityLine.FieldCaption("Item No."), WarehouseActivityLine."Item No.",
+                WarehouseActivityLine.FieldCaption("Variant Code"), WarehouseActivityLine."Variant Code",
+                WarehouseActivityLine.FieldCaption("Lot No."), WarehouseActivityLine."Lot No.",
+                WarehouseActivityLine.FieldCaption("Serial No."), WarehouseActivityLine."Serial No.",
+                QtyToPick, QtyToPutAway)
+        else
+            ErrorText :=
+                StrSubstNo(
+                Text005,
+                WarehouseActivityLine.FieldCaption("Item No."), WarehouseActivityLine."Item No.",
+                WarehouseActivityLine.FieldCaption("Variant Code"), WarehouseActivityLine."Variant Code",
+                QtyToPick, QtyToPutAway);
     end;
 
     procedure CheckPutAwayAvailability(BinCode: Code[20]; CheckFieldCaption: Text[100]; CheckTableCaption: Text[100]; ValueToPutAway: Decimal; ValueAvailable: Decimal; Prohibit: Boolean)
@@ -999,42 +986,40 @@ codeunit 7302 "WMS Management"
 
     internal procedure InitWhseJnlLine(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"; QuantityBase: Decimal)
     begin
-        with WarehouseJournalLine do begin
-            Init();
-            "Journal Template Name" := ItemJournalLine."Journal Template Name";
-            "Journal Batch Name" := ItemJournalLine."Journal Batch Name";
-            "Location Code" := ItemJournalLine."Location Code";
-            "Item No." := ItemJournalLine."Item No.";
-            "Registering Date" := ItemJournalLine."Posting Date";
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Variant Code" := ItemJournalLine."Variant Code";
-            if ItemJournalLine."Qty. per Unit of Measure" = 0 then
-                ItemJournalLine."Qty. per Unit of Measure" := 1;
-            GetLocation("Location Code");
-            if Location."Directed Put-away and Pick" then begin
-                Quantity := Round(QuantityBase / ItemJournalLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                "Unit of Measure Code" := ItemJournalLine."Unit of Measure Code";
-                "Qty. per Unit of Measure" := ItemJournalLine."Qty. per Unit of Measure";
-            end else begin
-                Quantity := QuantityBase;
-                "Unit of Measure Code" := GetBaseUOM(ItemJournalLine."Item No.");
-                "Qty. per Unit of Measure" := 1;
-            end;
-            OnInitWhseJnlLineOnAfterGetQuantity(ItemJournalLine, WarehouseJournalLine, Location);
-
-            "Qty. (Base)" := QuantityBase;
-            "Qty. (Absolute)" := Abs(Quantity);
-            "Qty. (Absolute, Base)" := Abs(QuantityBase);
-
-            "Source Code" := ItemJournalLine."Source Code";
-            "Reason Code" := ItemJournalLine."Reason Code";
-            "Registering No. Series" := ItemJournalLine."Posting No. Series";
-            if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
-                CalcCubageAndWeight(
-                  ItemJournalLine."Item No.", ItemJournalLine."Unit of Measure Code", "Qty. (Absolute)", Cubage, Weight);
-
-            OnInitWhseJnlLineCopyFromItemJnlLine(WarehouseJournalLine, ItemJournalLine);
+        WarehouseJournalLine.Init();
+        WarehouseJournalLine."Journal Template Name" := ItemJournalLine."Journal Template Name";
+        WarehouseJournalLine."Journal Batch Name" := ItemJournalLine."Journal Batch Name";
+        WarehouseJournalLine."Location Code" := ItemJournalLine."Location Code";
+        WarehouseJournalLine."Item No." := ItemJournalLine."Item No.";
+        WarehouseJournalLine."Registering Date" := ItemJournalLine."Posting Date";
+        WarehouseJournalLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(WarehouseJournalLine."User ID"));
+        WarehouseJournalLine."Variant Code" := ItemJournalLine."Variant Code";
+        if ItemJournalLine."Qty. per Unit of Measure" = 0 then
+            ItemJournalLine."Qty. per Unit of Measure" := 1;
+        GetLocation(WarehouseJournalLine."Location Code");
+        if Location."Directed Put-away and Pick" then begin
+            WarehouseJournalLine.Quantity := Round(QuantityBase / ItemJournalLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+            WarehouseJournalLine."Unit of Measure Code" := ItemJournalLine."Unit of Measure Code";
+            WarehouseJournalLine."Qty. per Unit of Measure" := ItemJournalLine."Qty. per Unit of Measure";
+        end else begin
+            WarehouseJournalLine.Quantity := QuantityBase;
+            WarehouseJournalLine."Unit of Measure Code" := GetBaseUOM(ItemJournalLine."Item No.");
+            WarehouseJournalLine."Qty. per Unit of Measure" := 1;
         end;
+        OnInitWhseJnlLineOnAfterGetQuantity(ItemJournalLine, WarehouseJournalLine, Location);
+
+        WarehouseJournalLine."Qty. (Base)" := QuantityBase;
+        WarehouseJournalLine."Qty. (Absolute)" := Abs(WarehouseJournalLine.Quantity);
+        WarehouseJournalLine."Qty. (Absolute, Base)" := Abs(QuantityBase);
+
+        WarehouseJournalLine."Source Code" := ItemJournalLine."Source Code";
+        WarehouseJournalLine."Reason Code" := ItemJournalLine."Reason Code";
+        WarehouseJournalLine."Registering No. Series" := ItemJournalLine."Posting No. Series";
+        if Location."Bin Capacity Policy" <> Location."Bin Capacity Policy"::"Never Check Capacity" then
+            CalcCubageAndWeight(
+              ItemJournalLine."Item No.", ItemJournalLine."Unit of Measure Code", WarehouseJournalLine."Qty. (Absolute)", WarehouseJournalLine.Cubage, WarehouseJournalLine.Weight);
+
+        OnInitWhseJnlLineCopyFromItemJnlLine(WarehouseJournalLine, ItemJournalLine);
     end;
 
     procedure InitErrorLog()
@@ -1094,16 +1079,16 @@ codeunit 7302 "WMS Management"
             exit(Filterstring);
         WarehouseEmployee.SetRange("User ID", UserName);
         WarehouseEmployee.SetFilter("Location Code", '<>%1', '');
-        IF WarehouseEmployee.Count > 1000 then  // if more, later filter length will exceed allowed length and it will use all values anyway
+        if WarehouseEmployee.Count > 1000 then  // if more, later filter length will exceed allowed length and it will use all values anyway
             exit(''); // can't filter to that many locations. Then remove filter
-        IF WarehouseEmployee.FindSet() then
-            REPEAT
+        if WarehouseEmployee.FindSet() then
+            repeat
                 AssignedLocations.Add(WarehouseEmployee."Location Code");
                 LocationAllowed := true;
                 OnBeforeLocationIsAllowed(WarehouseEmployee."Location Code", LocationAllowed);
                 if LocationAllowed then
                     Filterstring += '|' + StrSubstNo('''%1''', ConvertStr(WarehouseEmployee."Location Code", '''', '*'));
-            UNTIL WarehouseEmployee.Next() = 0;
+            until WarehouseEmployee.Next() = 0;
         if WhseEmplLocationBuffer.NeedToCheckLocationSubscribers() then
             if Location2.FindSet() then
                 repeat
@@ -1323,7 +1308,7 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        OnShowPostedSourceDoc(PostedSourceDoc, PostedSourceNo);
+        OnShowPostedSourceDoc(PostedSourceDoc.AsInteger(), PostedSourceNo);
     end;
 
     procedure ShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20])
@@ -1366,16 +1351,14 @@ codeunit 7302 "WMS Management"
 
     procedure SetTransferLine(TransferLine: Record "Transfer Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"; PostingType: Option Shipment,Receipt; PostedDocNo: Code[20])
     begin
-        with TransferLine do begin
-            WarehouseJournalLine.SetSource(Database::"Transfer Line", PostingType, "Document No.", "Line No.", 0);
-            WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
-            if PostingType = PostingType::Shipment then
-                WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Posted T. Shipment"
-            else
-                WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Posted T. Receipt";
-            WarehouseJournalLine."Reference No." := PostedDocNo;
-            WarehouseJournalLine."Entry Type" := PostingType;
-        end;
+        WarehouseJournalLine.SetSource(Database::"Transfer Line", PostingType, TransferLine."Document No.", TransferLine."Line No.", 0);
+        WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
+        if PostingType = PostingType::Shipment then
+            WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Posted T. Shipment"
+        else
+            WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Posted T. Receipt";
+        WarehouseJournalLine."Reference No." := PostedDocNo;
+        WarehouseJournalLine."Entry Type" := PostingType;
     end;
 
     local procedure SetZoneAndBins(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"; ToTransfer: Boolean)
@@ -1388,74 +1371,73 @@ codeunit 7302 "WMS Management"
         if IsHandled then
             exit;
 
-        with ItemJournalLine do
-            if (("Entry Type" in
-                 ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::"Assembly Output"]) and
-                (Quantity > 0)) or
-               (("Entry Type" in
-                 ["Entry Type"::Sale, "Entry Type"::"Negative Adjmt.", "Entry Type"::"Assembly Consumption"]) and
-                (Quantity < 0)) or
+        if ((ItemJournalLine."Entry Type" in
+                 [ItemJournalLine."Entry Type"::Purchase, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemJournalLine."Entry Type"::"Assembly Output"]) and
+                (ItemJournalLine.Quantity > 0)) or
+               ((ItemJournalLine."Entry Type" in
+                 [ItemJournalLine."Entry Type"::Sale, ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::"Assembly Consumption"]) and
+                (ItemJournalLine.Quantity < 0)) or
                ToTransfer
+        then begin
+            if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer then
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::Movement
+            else
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+            IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
+            OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick);
+            if IsDirectedPutAwayAndPick then
+                if ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::"Assembly Output", ItemJournalLine."Entry Type"::"Assembly Consumption"] then
+                    WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code"
+                else
+                    WarehouseJournalLine."To Bin Code" := GetWhseJnlLineBinCode(ItemJournalLine."Source Code", ItemJournalLine."Bin Code", Location."Adjustment Bin Code")
+            else
+                if ToTransfer then
+                    WarehouseJournalLine."To Bin Code" := ItemJournalLine."New Bin Code"
+                else
+                    WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
+            GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+            WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+        end else
+            if ((ItemJournalLine."Entry Type" in
+                 [ItemJournalLine."Entry Type"::Purchase, ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemJournalLine."Entry Type"::"Assembly Output"]) and
+                (ItemJournalLine.Quantity < 0)) or
+               ((ItemJournalLine."Entry Type" in
+                 [ItemJournalLine."Entry Type"::Sale, ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemJournalLine."Entry Type"::"Assembly Consumption"]) and
+                (ItemJournalLine.Quantity > 0)) or
+               ((ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer) and (not ToTransfer))
             then begin
-                if "Entry Type" = "Entry Type"::Transfer then
+                if ItemJournalLine."Entry Type" = ItemJournalLine."Entry Type"::Transfer then
                     WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::Movement
                 else
-                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
                 IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
                 OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick);
                 if IsDirectedPutAwayAndPick then
-                    if "Entry Type" in ["Entry Type"::"Assembly Output", "Entry Type"::"Assembly Consumption"] then
-                        WarehouseJournalLine."To Bin Code" := "Bin Code"
+                    if ItemJournalLine."Entry Type" in [ItemJournalLine."Entry Type"::"Assembly Output", ItemJournalLine."Entry Type"::"Assembly Consumption"] then
+                        WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code"
                     else
-                        WarehouseJournalLine."To Bin Code" := GetWhseJnlLineBinCode("Source Code", "Bin Code", Location."Adjustment Bin Code")
+                        WarehouseJournalLine."From Bin Code" := GetWhseJnlLineBinCode(ItemJournalLine."Source Code", ItemJournalLine."Bin Code", Location."Adjustment Bin Code")
                 else
-                    if ToTransfer then
-                        WarehouseJournalLine."To Bin Code" := "New Bin Code"
-                    else
-                        WarehouseJournalLine."To Bin Code" := "Bin Code";
-                GetBin("Location Code", WarehouseJournalLine."To Bin Code");
-                WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+                    WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code";
+                if Location."Directed Put-away and Pick" then begin
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                    WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
+                    WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
+                end;
+                if WarehouseJournalLine."From Zone Code" = '' then
+                    WarehouseJournalLine."From Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                if WarehouseJournalLine."From Bin Type Code" = '' then
+                    WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
             end else
-                if (("Entry Type" in
-                     ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::"Assembly Output"]) and
-                    (Quantity < 0)) or
-                   (("Entry Type" in
-                     ["Entry Type"::Sale, "Entry Type"::"Negative Adjmt.", "Entry Type"::"Assembly Consumption"]) and
-                    (Quantity > 0)) or
-                   (("Entry Type" = "Entry Type"::Transfer) and (not ToTransfer))
-                then begin
-                    if "Entry Type" = "Entry Type"::Transfer then
-                        WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::Movement
+                if ItemJournalLine."Phys. Inventory" and (ItemJournalLine.Quantity = 0) and (ItemJournalLine."Invoiced Quantity" = 0) then begin
+                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                    if Location."Directed Put-away and Pick" then
+                        WarehouseJournalLine."To Bin Code" := Location."Adjustment Bin Code"
                     else
-                        WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
-                    IsDirectedPutAwayAndPick := Location."Directed Put-away and Pick";
-                    OnSetZoneAndBinsOnAfterCalcIsDirectedPutAwayAndPick(ItemJournalLine, Location, IsDirectedPutAwayAndPick);
-                    if IsDirectedPutAwayAndPick then
-                        if "Entry Type" in ["Entry Type"::"Assembly Output", "Entry Type"::"Assembly Consumption"] then
-                            WarehouseJournalLine."From Bin Code" := "Bin Code"
-                        else
-                            WarehouseJournalLine."From Bin Code" := GetWhseJnlLineBinCode("Source Code", "Bin Code", Location."Adjustment Bin Code")
-                    else
-                        WarehouseJournalLine."From Bin Code" := "Bin Code";
-                    if Location."Directed Put-away and Pick" then begin
-                        GetBin("Location Code", WarehouseJournalLine."From Bin Code");
-                        WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
-                        WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
-                    end;
-                    if WarehouseJournalLine."From Zone Code" = '' then
-                        WarehouseJournalLine."From Zone Code" := GetZoneCode("Location Code", WarehouseJournalLine."From Bin Code");
-                    if WarehouseJournalLine."From Bin Type Code" = '' then
-                        WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode("Location Code", WarehouseJournalLine."From Bin Code");
-                end else
-                    if "Phys. Inventory" and (Quantity = 0) and ("Invoiced Quantity" = 0) then begin
-                        WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
-                        if Location."Directed Put-away and Pick" then
-                            WarehouseJournalLine."To Bin Code" := Location."Adjustment Bin Code"
-                        else
-                            WarehouseJournalLine."To Bin Code" := "Bin Code";
-                        GetBin("Location Code", WarehouseJournalLine."To Bin Code");
-                        WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
-                    end;
+                        WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                    WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+                end;
 
         OnAfterSetZoneAndBins(WarehouseJournalLine, ItemJournalLine, Location, Bin);
     end;
@@ -1736,14 +1718,33 @@ codeunit 7302 "WMS Management"
             exit(SalesLine."Qty. to Asm. to Order (Base)" <> 0);
     end;
 
+    procedure GetATOJobPlanningLine(SourceType: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceLineNo: Integer; var JobPlanningLine: Record "Job Planning Line"): Boolean
+    begin
+        if SourceType <> Database::Job then
+            exit(false);
+        JobPlanningLine.SetRange("Job No.", SourceID);
+        JobPlanningLine.SetRange("Job Contract Entry No.", SourceRefNo);
+        JobPlanningLine.SetRange("Line No.", SourceLineNo);
+        if JobPlanningLine.FindFirst() then
+            exit(JobPlanningLine."Qty. to Assemble (Base)" <> 0);
+    end;
+
     local procedure SetFiltersOnATOInvtPick(SalesLine: Record "Sales Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        with WarehouseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::"Invt. Pick");
-            SetSourceFilter(Database::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", 0, false);
-            SetRange("Assemble to Order", true);
-            SetTrackingFilterIfNotEmpty();
-        end;
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.SetSourceFilter(
+            Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0, false);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Assemble to Order", true);
+        WarehouseActivityLine.SetTrackingFilterIfNotEmpty();
+    end;
+
+    local procedure SetFiltersOnATOInvtPick(JobPlanningLine: Record "Job Planning Line"; var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.SetSourceFilter(
+            Database::"Job", 0, JobPlanningLine."Document No.", JobPlanningLine."Job Contract Entry No.", JobPlanningLine."Line No.", false);
+        WarehouseActivityLine.SetRange(WarehouseActivityLine."Assemble to Order", true);
+        WarehouseActivityLine.SetTrackingFilterIfNotEmpty();
     end;
 
     procedure ATOInvtPickExists(SalesLine: Record "Sales Line"): Boolean
@@ -1766,6 +1767,18 @@ codeunit 7302 "WMS Management"
             until WarehouseActivityLine.Next() = 0;
     end;
 
+    procedure CalcQtyBaseOnATOInvtPick(JobPlanningLine: Record "Job Planning Line"; WhseItemTrackingSetup: Record "Item Tracking Setup") QtyBase: Decimal
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.CopyTrackingFromItemTrackingSetup(WhseItemTrackingSetup);
+        SetFiltersOnATOInvtPick(JobPlanningLine, WarehouseActivityLine);
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                QtyBase += WarehouseActivityLine."Qty. Outstanding (Base)";
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
     procedure CheckOutboundBlockedBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10])
     begin
         CheckBlockedBin(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, false);
@@ -1778,10 +1791,9 @@ codeunit 7302 "WMS Management"
 
     local procedure SetFiltersOnATOWhseShpt(SalesLine: Record "Sales Line"; var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
-        with WarehouseShipmentLine do begin
-            SetSourceFilter(Database::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.", false);
-            SetRange("Assemble to Order", true);
-        end;
+        WarehouseShipmentLine.SetSourceFilter(
+            Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
+        WarehouseShipmentLine.SetRange(WarehouseShipmentLine."Assemble to Order", true);
     end;
 
     procedure ATOWhseShptExists(SalesLine: Record "Sales Line"): Boolean
@@ -1866,7 +1878,9 @@ codeunit 7302 "WMS Management"
     var
         ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
     begin
-        exit(ProdOrderWarehouseMgt.GetLastOperationFromBinCode(RoutingNo, RoutingVersionCode, LocationCode, UseFlushingMethod, FlushingMethod));
+        exit(
+            ProdOrderWarehouseMgt.GetLastOperationFromBinCode(
+                RoutingNo, RoutingVersionCode, LocationCode, UseFlushingMethod, Enum::"Flushing Method".FromInteger(FlushingMethod)));
     end;
 #endif
 
@@ -1906,7 +1920,9 @@ codeunit 7302 "WMS Management"
     var
         ProdOrderWarehouseMgt: Codeunit "Prod. Order Warehouse Mgt.";
     begin
-        exit(ProdOrderWarehouseMgt.GetProdCenterBinCode(Type, No, LocationCode, UseFlushingMethod, FlushingMethod));
+        exit(
+            ProdOrderWarehouseMgt.GetProdCenterBinCode(
+                Type, No, LocationCode, UseFlushingMethod, Enum::"Flushing Method".FromInteger(FlushingMethod)));
     end;
 #endif
 

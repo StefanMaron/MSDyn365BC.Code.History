@@ -2,7 +2,7 @@ namespace Microsoft.Projects.Project.Job;
 
 page 9154 "My Jobs"
 {
-    Caption = 'My Jobs';
+    Caption = 'My Projects';
     PageType = ListPart;
     SourceTable = "My Job";
 
@@ -16,7 +16,7 @@ page 9154 "My Jobs"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job numbers that are displayed in the My Job Cue on the Role Center.';
+                    ToolTip = 'Specifies the project numbers that are displayed in the My Project Cue on the Role Center.';
 
                     trigger OnValidate()
                     begin
@@ -27,13 +27,13 @@ page 9154 "My Jobs"
                 {
                     ApplicationArea = Jobs;
                     Enabled = false;
-                    ToolTip = 'Specifies a description of the job.';
+                    ToolTip = 'Specifies a description of the project.';
                 }
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the job''s status.';
+                    ToolTip = 'Specifies the project''s status.';
                 }
                 field("Bill-to Name"; Rec."Bill-to Name")
                 {
@@ -44,18 +44,18 @@ page 9154 "My Jobs"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the completion rate of the job.';
+                    ToolTip = 'Specifies the completion rate of the project.';
                 }
                 field("Percent Invoiced"; Rec."Percent Invoiced")
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies how much of the job has been invoiced.';
+                    ToolTip = 'Specifies how much of the project has been invoiced.';
                 }
                 field("Exclude from Business Chart"; Rec."Exclude from Business Chart")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies if this job should appear in the business charts for this role center.';
+                    ToolTip = 'Specifies if this project should appear in the business charts for this role center.';
                 }
             }
         }

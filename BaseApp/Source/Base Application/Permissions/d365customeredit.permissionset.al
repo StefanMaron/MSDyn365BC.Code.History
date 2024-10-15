@@ -118,7 +118,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Sales Discount Access" = Rd,
                   tabledata "Sales Header Archive" = rm,
                   tabledata "Sales Invoice Line" = rm,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = Rd,
                   tabledata "Sales Price" = Rid,
 #endif
@@ -146,6 +146,7 @@ permissionset 5729 "D365 CUSTOMER, EDIT"
                   tabledata "Vendor Ledger Entry" = rm,
                   tabledata "Warehouse Activity Header" = rm,
                   tabledata "Warehouse Activity Line" = rm,
+                  tabledata "Warehouse Reason Code" = RM,
                   tabledata "Warehouse Request" = rm,
                   tabledata "Warehouse Shipment Line" = rm,
                   tabledata "Warranty Ledger Entry" = rm,

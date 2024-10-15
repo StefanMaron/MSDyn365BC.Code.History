@@ -6,6 +6,7 @@ table 99000846 "Planning Buffer"
 {
     Caption = 'Planning Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

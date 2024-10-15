@@ -51,7 +51,7 @@ codeunit 144022 "UT Intrastat SE"
         Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
-          '', GetTransactionType, IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using blank for Country Code.
+          '', GetTransactionType(), IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo());  // Using blank for Country Code.
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 144022 "UT Intrastat SE"
         Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
-          GetCountryCode, '', IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo);  // Using blank for Transaction Type.
+          GetCountryCode(), '', IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, GetTariffNo());  // Using blank for Transaction Type.
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 144022 "UT Intrastat SE"
         Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
-          GetCountryCode, GetTransactionType, IntrastatLineValues, 0, IntrastatLineValues, GetTariffNo);  // Using 0 for Quantity.
+          GetCountryCode(), GetTransactionType(), IntrastatLineValues, 0, IntrastatLineValues, GetTariffNo());  // Using 0 for Quantity.
     end;
 
 
@@ -97,7 +97,7 @@ codeunit 144022 "UT Intrastat SE"
         Initialize();
         IntrastatLineValues := LibraryRandom.RandDec(100, 2);  // IntrastatLineValues used for Quantity, Net Weight and Amount.
         MakeDisketteWithEmptyFieldsOnIntrastatJournal(
-          GetCountryCode, GetTransactionType, IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, '');  // Using blank for Tariff No.
+          GetCountryCode(), GetTransactionType(), IntrastatLineValues, IntrastatLineValues, IntrastatLineValues, '');  // Using blank for Tariff No.
     end;
 
     local procedure MakeDisketteWithEmptyFieldsOnIntrastatJournal(CountryRegionCode: Code[10]; TransactionType: Code[10]; NetWeight: Decimal; Quantity: Decimal; Amount: Decimal; TariffNo: Code[20])
@@ -106,7 +106,7 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         // Setup: Create Intrastat Journal Line.
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
         CreateIntrastatJournalLine(IntrastatJnlLine, CountryRegionCode, TransactionType, NetWeight, Quantity, Amount, TariffNo);
         LibraryVariableStorage.Enqueue(Format(IntrastatJnlLine.Type));  // Enqueue values for IntrastatMakeDiskTaxAuthRequestPageHandler.
         Commit();  // Commit is explicitly called in Codeunit - 350 IntraJnlManagement for Template Selection.
@@ -124,7 +124,7 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         // Setup: Create Intrastat Journal Line.
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
         CreateIntrastatJournalLine(IntrastatJnlLine, CountryRegionCode, TransactionType, NetWeight, Quantity, Amount, TariffNo);
         LibraryVariableStorage.Enqueue(Format(IntrastatJnlLine.Type));  // Enqueue values for IntrastatMakeDiskTaxAuthRequestPageHandler.
         Commit();  // Commit is explicitly called in Codeunit - 350 IntraJnlManagement for Template Selection.
@@ -231,9 +231,9 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
         // Setup: Create Intrastat Journal Line.
-        IntrastatJournal.OpenEdit;
+        IntrastatJournal.OpenEdit();
         CreateIntrastatJournalLine(
-          IntrastatJnlLine, GetCountryCode, GetTransactionType, NetWeight, Quantity, Amount, GetTariffNo);
+          IntrastatJnlLine, GetCountryCode(), GetTransactionType(), NetWeight, Quantity, Amount, GetTariffNo());
         LibraryVariableStorage.Enqueue(Type);  // Enqueue values for IntrastatMakeDiskTaxAuthRequestPageHandler.
         Commit();  // Commit is explicitly called in Codeunit - 350 IntraJnlManagement for Template Selection.
 
@@ -257,8 +257,8 @@ codeunit 144022 "UT Intrastat SE"
 
         // [GIVEN] Intrastat journal line with "Transport Method" = '' and filled other mandatory fields
         CreateIntrastatJournalLine(
-          IntrastatJnlLine, GetCountryCode, GetTransactionType, LibraryRandom.RandDec(100, 2),
-          LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), GetTariffNo);
+          IntrastatJnlLine, GetCountryCode(), GetTransactionType(), LibraryRandom.RandDec(100, 2),
+          LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), GetTariffNo());
         IntrastatJnlLine.Validate("Transport Method", '');
         IntrastatJnlLine.Modify(true);
 
@@ -266,7 +266,7 @@ codeunit 144022 "UT Intrastat SE"
         RunIntrastatChecklistReport(IntrastatJnlLine);
 
         // [THEN] No error is occurred and intrastat journal line is printed
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.MoveToRow(1);
         LibraryReportDataset.AssertCurrentRowValueEquals('IntrastatJnlLinJnlTemName', IntrastatJnlLine."Journal Template Name");
         LibraryReportDataset.AssertCurrentRowValueEquals('IntrastatJnlLinJnlBatName', IntrastatJnlLine."Journal Batch Name");
@@ -289,7 +289,7 @@ codeunit 144022 "UT Intrastat SE"
             LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
 
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlTemplate.Name;
-        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlBatch.Name := LibraryUTUtility.GetNewCode10();
         IntrastatJnlBatch."Statistics Period" := Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod());
         IntrastatJnlBatch.Reported := false;
         IntrastatJnlBatch.Insert();
@@ -356,7 +356,7 @@ codeunit 144022 "UT Intrastat SE"
     local procedure MakeDisketteFromIntrastatJournal(IntrastatJournal: TestPage "Intrastat Journal"; CurrentJnlBatchName: Code[10])
     begin
         IntrastatJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        IntrastatJournal.CreateFile.Invoke;  // Call IntrastatMakeDiskTaxAuthRequestPageHandler.
+        IntrastatJournal.CreateFile.Invoke();  // Call IntrastatMakeDiskTaxAuthRequestPageHandler.
         IntrastatJournal.Close();
     end;
 
@@ -389,14 +389,14 @@ codeunit 144022 "UT Intrastat SE"
     begin
         LibraryVariableStorage.Dequeue(Type);
         IntrastatMakeDiskTaxAuth.IntrastatJnlLine.SetFilter(Type, Type);
-        IntrastatMakeDiskTaxAuth.OK.Invoke;
+        IntrastatMakeDiskTaxAuth.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatCheckList_RPH(var IntrastatChecklist: TestRequestPage "Intrastat - Checklist")
     begin
-        IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 #endif

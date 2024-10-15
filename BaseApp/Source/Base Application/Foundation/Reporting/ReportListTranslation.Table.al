@@ -10,6 +10,7 @@ table 378 "Report List Translation"
 {
     Caption = 'Report List Translation';
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -37,7 +38,7 @@ table 378 "Report List Translation"
         }
         field(4; "Language Name"; Text[80])
         {
-            CalcFormula = Lookup("Windows Language".Name where("Language ID" = field("Language ID")));
+            CalcFormula = lookup("Windows Language".Name where("Language ID" = field("Language ID")));
             Caption = 'Language Name';
             Editable = false;
             FieldClass = FlowField;

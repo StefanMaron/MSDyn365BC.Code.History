@@ -25,7 +25,6 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         CalculatePerValues: Option "Item Ledger Entry",Item;
-        CalculationBaseValues: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         isInitialized: Boolean;
         InvAmountDoNotMatchErr: Label 'The Inventory amount totals must be equal.';
         StandardCostRolledUpMsg: Label 'The standard costs have been rolled up successfully';
@@ -503,7 +502,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
         Item.SetRecFilter();
         Item.SetFilter("Location Filter", '%1|%2', Location[1].Code, Location[2].Code);
-        LibraryInventory.CreateStockKeepingUnit(Item, 0, false, true); // Create stockkeeping units per location
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, true); // Create stockkeeping units per location
 
         // [GIVEN] Post item stock on location "L1". Unit cost = "X1"
         UnitCost[1] := CreateAndPostItemJournalLine(Item."No.", LibraryRandom.RandInt(10), Location[1].Code);
@@ -831,7 +830,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         // [WHEN] Calling calculate inventory value function
         CreateRevalutionJournal(Item, ItemJournalLine, false, false,
-          CalculatePerValues::"Item Ledger Entry", CalculationBaseValues::"Standard Cost - Manufacturing");
+          "Inventory Value Calc. Per"::"Item Ledger Entry", "Inventory Value Calc. Base"::"Standard Cost - Manufacturing");
 
         ItemJournalLine.CalcSums(Quantity);
 
@@ -1706,7 +1705,7 @@ codeunit 137007 "SCM Inventory Costing"
     local procedure CreateItemWithStockkeepingUnitsPerLocation(var Item: Record Item)
     begin
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
-        LibraryInventory.CreateStockKeepingUnit(Item, 0, false, true); // Create stockkeeping units per location
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, true); // Create stockkeeping units per location
     end;
 
     local procedure CreateCertifiedProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; UnitOfMeasure: Code[10]; ProductionBOMLineType: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Decimal)
@@ -1783,7 +1782,7 @@ codeunit 137007 "SCM Inventory Costing"
             ItemJournalLine.DeleteAll();
     end;
 
-    local procedure CreateRevalutionJournal(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; ByLocation: Boolean; ByVariant: Boolean; CalculatePer: Option; CalculationBase: Option)
+    local procedure CreateRevalutionJournal(var Item: Record Item; var ItemJournalLine: Record "Item Journal Line"; ByLocation: Boolean; ByVariant: Boolean; CalculatePer: Enum "Inventory Value Calc. Per"; CalculationBase: Enum "Inventory Value Calc. Base")
     var
         ItemJournalBatch: Record "Item Journal Batch";
         CalculateInventoryValue: Report "Calculate Inventory Value";
@@ -1791,8 +1790,8 @@ codeunit 137007 "SCM Inventory Costing"
         CreateRevalutionItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        CalculateInventoryValue.InitializeRequest(WorkDate(), ItemJournalLine."Document No.", true,
-          CalculatePer, ByLocation, ByVariant, true, CalculationBase, false);
+        CalculateInventoryValue.SetParameters(
+            WorkDate(), ItemJournalLine."Document No.", true, CalculatePer, ByLocation, ByVariant, true, CalculationBase, false);
         Commit();
         CalculateInventoryValue.UseRequestPage(false);
         CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
@@ -1863,7 +1862,7 @@ codeunit 137007 "SCM Inventory Costing"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateRevalutionJournal(Item, ItemJournalLine, false, false, CalculatePerValues::Item, CalculationBaseValues::" ");
+        CreateRevalutionJournal(Item, ItemJournalLine, false, false, "Inventory Value Calc. Per"::Item, "Inventory Value Calc. Base"::" ");
         CostAmount := LibraryRandom.RandInt(10);
         ItemJournalLine.Validate("Unit Cost (Revalued)", CostAmount);
         ItemJournalLine.Modify();
@@ -2117,7 +2116,7 @@ codeunit 137007 "SCM Inventory Costing"
         RevaluedAmount := PostedAmount + LibraryRandom.RandInt(100);
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        CreateRevalutionJournal(Item, ItemJournalLine, ByLocation, ByVariant, CalculatePerValues::Item, CalculationBaseValues::" ");
+        CreateRevalutionJournal(Item, ItemJournalLine, ByLocation, ByVariant, "Inventory Value Calc. Per"::Item, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.Validate("Inventory Value (Revalued)", RevaluedAmount);
         ItemJournalLine.Modify(true);
     end;

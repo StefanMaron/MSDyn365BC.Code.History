@@ -29,6 +29,7 @@ table 5407 "Prod. Order Component"
     DrillDownPageID = "Prod. Order Comp. Line List";
     LookupPageID = "Prod. Order Comp. Line List";
     Permissions = TableData "Prod. Order Component" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -78,6 +79,7 @@ table 5407 "Prod. Order Component"
                 end;
 
                 Item.Get("Item No.");
+                Item.TestField(Blocked, false);
                 if "Item No." <> xRec."Item No." then begin
                     "Variant Code" := '';
                     OnValidateItemNoOnBeforeGetDefaultBin(Rec, Item);
@@ -205,7 +207,7 @@ table 5407 "Prod. Order Component"
             begin
                 if Item."No." <> "Item No." then
                     Item.Get("Item No.");
-                AssignDecsriptionFromItemOrVariant();
+                AssignDescriptionFromItemOrVariantAndCheckVariantNotBlocked();
                 GetDefaultBin();
                 ProdOrderWarehouseMgt.ProdComponentVerifyChange(Rec, xRec);
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
@@ -461,10 +463,8 @@ table 5407 "Prod. Order Component"
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
                     WMSManagement.FindBin("Location Code", "Bin Code", '');
-                    WhseIntegrationMgt.CheckBinTypeCode(Database::"Prod. Order Component",
-                      FieldCaption("Bin Code"),
-                      "Location Code",
-                      "Bin Code", 0);
+                    WhseIntegrationMgt.CheckBinTypeAndCode(
+                        Database::"Prod. Order Component", FieldCaption("Bin Code"), "Location Code", "Bin Code", 0);
                     CheckBin();
                 end;
             end;
@@ -1808,7 +1808,7 @@ table 5407 "Prod. Order Component"
         OnAfterSetFilterFromProdBOMLine(Rec, ProdBOMLine);
     end;
 
-    local procedure AssignDecsriptionFromItemOrVariant()
+    local procedure AssignDescriptionFromItemOrVariantAndCheckVariantNotBlocked()
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -1816,6 +1816,7 @@ table 5407 "Prod. Order Component"
             Description := Item.Description
         else begin
             ItemVariant.Get("Item No.", "Variant Code");
+            ItemVariant.TestField(Blocked, false);
             Description := ItemVariant.Description;
         end;
         OnAfterAssignDecsriptionFromItemOrVariant(Rec, xRec, Item, ItemVariant);

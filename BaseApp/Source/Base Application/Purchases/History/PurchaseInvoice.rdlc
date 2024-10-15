@@ -7876,6 +7876,15 @@ End Function
         <Field Name="AllowInvDiscCaption">
           <DataField>AllowInvDiscCaption</DataField>
         </Field>
+        <Field Name="PayToVendNo_PurchInvHeaderCaption">
+          <DataField>PayToVendNo_PurchInvHeaderCaption</DataField>
+        </Field>
+        <Field Name="PricesIncVAT_PurchInvHeaderCaption">
+          <DataField>PricesIncVAT_PurchInvHeaderCaption</DataField>
+        </Field>
+        <Field Name="BuyFromVendNo_PurchInvHeaderCaption">
+          <DataField>BuyFromVendNo_PurchInvHeaderCaption</DataField>
+        </Field>
         <Field Name="BuyFromContactPhoneNoLbl">
           <DataField>BuyFromContactPhoneNoLbl</DataField>
         </Field>
@@ -8127,15 +8136,6 @@ End Function
         </Field>
         <Field Name="TotalCaption">
           <DataField>TotalCaption</DataField>
-        </Field>
-        <Field Name="PayToVendNo_PurchInvHeaderCaption">
-          <DataField>PayToVendNo_PurchInvHeaderCaption</DataField>
-        </Field>
-        <Field Name="PricesIncVAT_PurchInvHeaderCaption">
-          <DataField>PricesIncVAT_PurchInvHeaderCaption</DataField>
-        </Field>
-        <Field Name="BuyFromVendNo_PurchInvHeaderCaption">
-          <DataField>BuyFromVendNo_PurchInvHeaderCaption</DataField>
         </Field>
         <Field Name="DimText_DimensionLoop1">
           <DataField>DimText_DimensionLoop1</DataField>

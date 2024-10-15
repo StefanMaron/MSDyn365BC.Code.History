@@ -330,8 +330,8 @@ codeunit 134317 "Workflow Additional Scenarios"
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(IntermediateApproverUserSetup);
 
-        LibraryWorkflow.CreateEnabledWorkflow(CustomerWorkflow, WorkflowSetup.CustomerWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(SalesDocWorkflow, WorkflowSetup.SalesOrderApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(CustomerWorkflow, WorkflowSetup.CustomerWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(SalesDocWorkflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
         LibraryWorkflow.SetWorkflowDirectApprover(SalesDocWorkflow.Code);
         LibraryWorkflow.EnableWorkflow(SalesDocWorkflow);
 
@@ -348,9 +348,9 @@ codeunit 134317 "Workflow Additional Scenarios"
         SalesDocApprovalEntry."Approver ID" := UserId;
         SalesDocApprovalEntry.Modify();
 
-        RequeststoApprove.OpenView;
+        RequeststoApprove.OpenView();
         RequeststoApprove.GotoRecord(SalesDocApprovalEntry);
-        RequeststoApprove.Approve.Invoke;
+        RequeststoApprove.Approve.Invoke();
 
         // Verify
         WorkflowStepInstance.SetRange("Workflow Code", SalesDocWorkflow.Code);
@@ -376,8 +376,8 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [THEN] The second workflow cannot be enabled.
 
         // Setup
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
-        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow1, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
+        LibraryWorkflow.CopyWorkflowTemplate(Workflow2, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         Workflow1.Validate(Enabled, true);
         Workflow1.Modify();
 
@@ -412,7 +412,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         // [GIVEN] Sales Document Approval Workflow "WF" with 3 events and responses, where every response matches the following event.
         // [GIVEN] "WF" has Approver as Approver Type and Direct Approver as Approver Limit Type.
         LibraryDocumentApprovals.SetupUsersForApprovals(UserSetup);
-        CreateWorkflowTableRelationsFromApprovalEntryToSalesHeader;
+        CreateWorkflowTableRelationsFromApprovalEntryToSalesHeader();
         CreateApprovalWorkflowForSalesDocWithThreeLinkedEventsAndResponses(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Invoice "SI" created by initial user and send to approval
@@ -420,7 +420,7 @@ codeunit 134317 "Workflow Additional Scenarios"
         ApprovalsMgmt.OnSendSalesDocForApproval(SalesHeader);
 
         // [GIVEN] All workflows including "WF" are disabled.
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
 
         // [WHEN] "SI" is approved.
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -560,15 +560,15 @@ codeunit 134317 "Workflow Additional Scenarios"
         SecondResponse: Integer;
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
-        EntryPoint := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+        EntryPoint := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
         LibraryWorkflow.InsertEventArgument(EntryPoint, StrSubstNo(SalesHeaderTypeCondnTxt, DocType));
 
         FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.SetStatusToPendingApprovalCode, EntryPoint);
+            WorkflowResponseHandling.SetStatusToPendingApprovalCode(), EntryPoint);
 
         SecondResponse := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode, FirstResponse);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, SecondResponse);
+            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode(), FirstResponse);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), SecondResponse);
 
         Workflow.Validate(Enabled, true);
         Workflow.Modify(true);
@@ -590,10 +590,10 @@ codeunit 134317 "Workflow Additional Scenarios"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointStepID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
 
         FirstResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode, EntryPointStepID);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateApprovalRequestsCode(), EntryPointStepID);
 
         WorkflowStep.SetRange(ID, FirstResponse);
         WorkflowStep.FindFirst();
@@ -602,17 +602,17 @@ codeunit 134317 "Workflow Additional Scenarios"
           WorkflowStepArgument."Approver Limit Type"::"Direct Approver", '', '');
 
         SecondResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode, FirstResponse);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.SendApprovalRequestForApprovalCode(), FirstResponse);
 
         SecondStepID :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode, SecondResponse);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode(), SecondResponse);
         ThirdResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, SecondStepID);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), SecondStepID);
 
         ThirdStepID :=
-          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleaseSalesDocCode, ThirdResponse);
+          LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleaseSalesDocCode(), ThirdResponse);
         FourthResponse :=
-          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode, ThirdStepID);
+          LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ShowMessageCode(), ThirdStepID);
 
         WorkflowStep.SetRange(ID, FourthResponse);
         WorkflowStep.FindFirst();
@@ -633,12 +633,12 @@ codeunit 134317 "Workflow Additional Scenarios"
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPoint :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
         LibraryWorkflow.InsertEventArgument(EntryPoint, StrSubstNo(PurchHeaderTypeCondnTxt, DocType));
 
         FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow,
-            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode, EntryPoint);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode, FirstResponse);
+            WorkflowResponseHandling.CreateAndApproveApprovalRequestAutomaticallyCode(), EntryPoint);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ReleaseDocumentCode(), FirstResponse);
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Amount: Decimal)
@@ -882,7 +882,7 @@ codeunit 134317 "Workflow Additional Scenarios"
     [Scope('OnPrem')]
     procedure ExpectedMessageHandler(Message: Text)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]

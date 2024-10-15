@@ -18,6 +18,7 @@ table 11200 "Inward Reg. Header"
     ObsoleteReason = 'Replaced by extension';
     ObsoleteState = Removed;
     ObsoleteTag = '19.0';
+    DataClassification = CustomerContent;
 
     fields
     {

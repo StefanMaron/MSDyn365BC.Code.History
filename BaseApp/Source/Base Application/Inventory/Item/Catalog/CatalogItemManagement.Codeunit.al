@@ -198,7 +198,7 @@ codeunit 5703 "Catalog Item Management"
     begin
         IsHandled := false;
         OnBeforeNonStockSales(NonStock, SalesLine2, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
         if (SalesLine2."Document Type" in
             [SalesLine2."Document Type"::"Return Order", SalesLine2."Document Type"::"Credit Memo"])
@@ -505,7 +505,7 @@ codeunit 5703 "Catalog Item Management"
 
         IsHandled := false;
         OnInsertItemUnitOfMeasuresOnBeforeItemUnitOfMeasureGet(UnitOfMeasureCode, IsHandled);
-        If not IsHandled then
+        if not IsHandled then
             if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
                 ItemUnitOfMeasure."Item No." := ItemNo;
                 ItemUnitOfMeasure.Code := UnitOfMeasureCode;
@@ -598,7 +598,10 @@ codeunit 5703 "Catalog Item Management"
     var
         InvtSetup: Record "Inventory Setup";
         ItemTempl: Record "Item Templ.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         OnBeforeGetItemNoFromNoSeries(NonstockItem, IsHandled);
@@ -615,8 +618,16 @@ codeunit 5703 "Catalog Item Management"
             NonstockItem."Item No. Series" := InvtSetup."Item Nos.";
         end;
 
-        NoSeriesMgt.InitSeries(NonstockItem."Item No. Series", '', 0D, NonstockItem."Item No.", NonstockItem."Item No. Series");
-
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(NonstockItem."Item No. Series", '', 0D, NonstockItem."Item No.", NonstockItem."No. Series", IsHandled);
+        if not IsHandled then begin
+#endif
+            NonstockItem."No. Series" := NonstockItem."Item No. Series";
+            NonstockItem."Item No." := NoSeries.GetNextNo(NonstockItem."No. Series");
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NonstockItem."No. Series", NonstockItem."Item No. Series", 0D, NonstockItem."Item No.");
+        end;
+#endif
         OnAfterGetItemNoFromNoSeries(NonstockItem);
     end;
 
@@ -695,7 +706,7 @@ codeunit 5703 "Catalog Item Management"
     begin
         IsHandled := false;
         OnBeforeCheckItemTemplateCode(NonstockItem, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         NonstockItem.TestField("Item Templ. Code");

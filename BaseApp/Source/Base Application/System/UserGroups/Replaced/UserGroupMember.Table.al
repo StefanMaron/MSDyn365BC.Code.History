@@ -22,6 +22,7 @@ table 9001 "User Group Member"
     ObsoleteReason = '[220_UserGroups] Replaced by the Security Group Member Buffer table and Security Group codeunit in the security groups system; by Access Control table in the permission sets system. To learn more, go to https://go.microsoft.com/fwlink/?linkid=2245709.';
     InherentEntitlements = X;
     InherentPermissions = X;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -46,21 +47,21 @@ table 9001 "User Group Member"
         }
         field(4; "User Name"; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("User Security ID")));
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("User Security ID")));
             Caption = 'User Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(5; "User Full Name"; Text[80])
         {
-            CalcFormula = Lookup(User."Full Name" where("User Security ID" = field("User Security ID")));
+            CalcFormula = lookup(User."Full Name" where("User Security ID" = field("User Security ID")));
             Caption = 'User Full Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "User Group Name"; Text[50])
         {
-            CalcFormula = Lookup("User Group".Name where(Code = field("User Group Code")));
+            CalcFormula = lookup("User Group".Name where(Code = field("User Group Code")));
             Caption = 'User Group Name';
             Editable = false;
             FieldClass = FlowField;

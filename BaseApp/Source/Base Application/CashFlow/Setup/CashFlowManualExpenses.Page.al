@@ -10,7 +10,7 @@ page 859 "Cash Flow Manual Expenses"
     PageType = List;
     SourceTable = "Cash Flow Manual Expense";
     SourceTableView = sorting("Starting Date")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout

@@ -77,7 +77,7 @@ page 2583 "Dim. Correct Ledger Entries"
                 {
                     ApplicationArea = Jobs;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
@@ -241,10 +241,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Add Related Entries';
                 Image = AddAction;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Find and add all entries that are related to the selected entry.';
 
                 trigger OnAction()
@@ -278,10 +274,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Add by Filter';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Add new entries to the correction by using filters.';
 
                 trigger OnAction()
@@ -324,10 +316,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Select Manually';
                 Image = PickLines;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select entries to correct manually.';
 
                 trigger OnAction()
@@ -365,10 +353,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Add by Dimension';
                 Image = MapDimensions;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Select entries to correct based on dimension values.';
 
                 trigger OnAction()
@@ -407,10 +391,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Remove entries';
                 Image = RemoveLine;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Exclude selected entries from the dimension correction.';
 
                 trigger OnAction()
@@ -440,10 +420,6 @@ page 2583 "Dim. Correct Ledger Entries"
                 ApplicationArea = All;
                 Caption = 'Manage Selection Criteria';
                 Image = History;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'See criteria that was used to select the entries for correction. This page will allow you to undo some steps.';
 
                 trigger OnAction()

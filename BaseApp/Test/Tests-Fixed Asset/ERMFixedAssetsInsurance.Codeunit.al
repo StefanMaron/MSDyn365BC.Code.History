@@ -163,7 +163,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Insurance);
         CommentLine.SetRange("No.", Insurance."No.");
         Assert.IsFalse(
-          CommentLine.FindFirst,
+          CommentLine.FindFirst(),
           StrSubstNo(
             CommentLineExistError, CommentLine.TableCaption(), CommentLine.FieldCaption("No."), CommentLine."No.",
             CommentLine.FieldCaption("Line No."), CommentLine."Line No."));
@@ -277,7 +277,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         Initialize();
 
         // 2. Exercise: Run Date Compress Insurance Ledger Report without Starting and Ending Dates.
-        asserterror RunDateCompressInsuranceLedger;
+        asserterror RunDateCompressInsuranceLedger();
 
         // 3. Verify: Verify error occurs on Running Date Compress Insurance Ledger Report without Starting and Ending Dates.
         Assert.ExpectedError(EndingDateError);
@@ -298,14 +298,14 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         // 1. Setup: Create and post Insurance Journal.
         Initialize();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        JournalBatchName := CreateAndPostInsuranceJournal;
+        JournalBatchName := CreateAndPostInsuranceJournal();
         FindInsuranceRegister(InsuranceRegister, JournalBatchName);
         Commit();
 
         // 2. Exercise: Run Date Compress Insurance Ledger Report with Starting and Ending Dates.
         StartingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         EndingDate := DateCompression.CalcMaxEndDate();
-        RunDateCompressInsuranceLedger;
+        RunDateCompressInsuranceLedger();
 
         // 3. Verify: Ins. Coverage Ledger Entries must be deleted after running the Date Compress Insurance Ledger Report.
         Assert.AreEqual(
@@ -337,14 +337,14 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         TotalInsuredAmount := CreatePostInsuranceJournalLine(InsuranceJournalBatch, FixedAsset."No.", Insurance."No.");
 
         // Exercise: Open Total Value Insured Page through Fixed Asset.
-        FixedAssetCard.OpenEdit;
+        FixedAssetCard.OpenEdit();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        TotalValueInsured.Trap;
-        FixedAssetCard."Total Value Ins&ured".Invoke;
+        TotalValueInsured.Trap();
+        FixedAssetCard."Total Value Ins&ured".Invoke();
 
         // Verify: Check Total Value on Total Value Insured Page after Posting Insurance Journal.
         Assert.AreEqual(
-          TotalInsuredAmount, TotalValueInsured.TotalValue."Total Value Insured".AsDEcimal,
+          TotalInsuredAmount, TotalValueInsured.TotalValue."Total Value Insured".AsDecimal(),
           StrSubstNo(InsuranceAmountError, TotalValueInsured.TotalValue."Total Value Insured".Caption));
     end;
 
@@ -373,12 +373,12 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         FANo := FixedAsset."No.";
 
         // Verify: Verify FA Posting Types Overview Matrix Page for Posted FA Value in FAPostingTypesOvervMatrixPageHandler.
-        FixedAssetCard.OpenView;
+        FixedAssetCard.OpenView();
         FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
-        FAPostingTypesOverview.Trap;
-        FixedAssetCard."FA Posting Types Overview".Invoke;
+        FAPostingTypesOverview.Trap();
+        FixedAssetCard."FA Posting Types Overview".Invoke();
         FAPostingTypesOverview.RoundingFactor.SetValue(RoundingFactorOption);
-        FAPostingTypesOverview.ShowMatrix.Invoke;
+        FAPostingTypesOverview.ShowMatrix.Invoke();
     end;
 
     [Test]
@@ -431,25 +431,25 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         FANo := FixedAsset."No.";
 
         // Verify: Verify FA Posting Types Overview Matrix Page with Rounding Factor through FAPostingTypesOvervMatrixPageHandler.
-        FixedAssetCard.OpenView;
+        FixedAssetCard.OpenView();
         FixedAssetCard.FILTER.SetFilter("No.", FANo);
-        FAPostingTypesOverview.Trap;
-        FixedAssetCard."FA Posting Types Overview".Invoke;
+        FAPostingTypesOverview.Trap();
+        FixedAssetCard."FA Posting Types Overview".Invoke();
         FAPostingTypesOverview.RoundingFactor.SetValue(RoundingFactor);
-        FAPostingTypesOverview.ShowMatrix.Invoke;
+        FAPostingTypesOverview.ShowMatrix.Invoke();
     end;
 
     local procedure CreateAndPostFAJournalLine(FixedAssetNo: Code[20]; DepreciationBookCode: Code[10]; GenLineAmount: Decimal)
     var
         FAJournalBatch: Record "FA Journal Batch";
         FAJournalLine: Record "FA Journal Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LibraryERM: Codeunit "Library - ERM";
     begin
         // Take Random Values for Different fields.
         SelectFAJournalBatch(FAJournalBatch);
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
-        FAJournalLine.Validate("Document No.", NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false));
+        FAJournalLine.Validate("Document No.", NoSeries.PeekNextNo(FAJournalBatch."No. Series"));
         FAJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
         FAJournalLine.Validate("FA Posting Date", WorkDate());
         FAJournalLine.Validate("FA No.", FixedAssetNo);
@@ -684,7 +684,7 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     var
         FAJournalSetup2: Record "FA Journal Setup";
     begin
-        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook);
+        FAJournalSetup2.SetRange("Depreciation Book Code", LibraryFixedAsset.GetDefaultDeprBook());
         FAJournalSetup2.FindFirst();
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
         FAJournalSetup.Modify(true);
@@ -763,8 +763,8 @@ codeunit 134452 "ERM Fixed Assets Insurance"
         DateCompressInsuranceLedger.PeriodLength.SetValue(DateComprRegister."Period Length"::Year);
         DateCompressInsuranceLedger.OnlyIndexEntries.SetValue(false);
         DateCompressInsuranceLedger.DocumentNo.SetValue(false);
-        DateCompressInsuranceLedger.RetainDimensions.AssistEdit;
-        DateCompressInsuranceLedger.OK.Invoke;
+        DateCompressInsuranceLedger.RetainDimensions.AssistEdit();
+        DateCompressInsuranceLedger.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -772,11 +772,11 @@ codeunit 134452 "ERM Fixed Assets Insurance"
     procedure DimensionSelectionHandler(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
         // Set Dimension Selection Multiple for all the rows.
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ConfirmHandler]

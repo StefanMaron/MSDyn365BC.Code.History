@@ -1,7 +1,6 @@
-﻿// this Page should always be the same as W1 version, except for action "Balance Sheet" and "Income Statement"
+// this Page should always be the same as W1 version, except for action "Balance Sheet" and "Income Statement"
 // it will be replaced with W1 version after CLEAN23, we keep it in SE because GDL view is created before CLEAN tags are processed
 // no breaking changes will be introduced as the page is exactly the same as W1 version
-
 namespace Microsoft.Finance.RoleCenters;
 
 using Microsoft.Bank.BankAccount;
@@ -140,17 +139,6 @@ page 9022 "Business Manager Role Center"
                 SubPageView = where(Context = const('Power BI Part III'));
                 Visible = false;
             }
-#if not CLEAN21
-            part(Control98; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI Context Settings" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

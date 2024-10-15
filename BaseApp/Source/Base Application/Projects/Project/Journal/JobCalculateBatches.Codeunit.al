@@ -19,7 +19,7 @@ codeunit 1005 "Job Calculate Batches"
         PeriodLength2: DateFormula;
 
         Text000: Label '%1 lines were successfully transferred to the journal.';
-        Text001: Label 'There is no remaining usage on the job(s).';
+        Text001: Label 'There is no remaining usage on the project(s).';
         Text002: Label 'The lines were successfully changed.';
         Text003: Label 'The From Date is later than the To Date.';
         Text004: Label 'You must specify %1.';
@@ -198,7 +198,7 @@ codeunit 1005 "Job Calculate Batches"
     procedure CreateJT(JobPlanningLine: Record "Job Planning Line")
     var
         Job: Record Job;
-        JT: Record "Job Task";
+        JobTask: Record "Job Task";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -206,31 +206,29 @@ codeunit 1005 "Job Calculate Batches"
         if IsHandled then
             exit;
 
-        with JobPlanningLine do begin
-            if Type = Type::Text then
-                exit;
-            if not "Schedule Line" then
-                exit;
-            Job.Get("Job No.");
-            JT.Get("Job No.", "Job Task No.");
-            JobDiffBuffer[1]."Job No." := "Job No.";
-            JobDiffBuffer[1]."Job Task No." := "Job Task No.";
-            JobDiffBuffer[1].Type := Type;
-            JobDiffBuffer[1]."No." := "No.";
-            JobDiffBuffer[1]."Location Code" := "Location Code";
-            JobDiffBuffer[1]."Variant Code" := "Variant Code";
-            JobDiffBuffer[1]."Unit of Measure code" := "Unit of Measure Code";
-            JobDiffBuffer[1]."Work Type Code" := "Work Type Code";
-            JobDiffBuffer[1].Quantity := Quantity;
-            JobDiffBuffer[1]."Line Amount" := "Line Amount";
-            OnCreateJTOnBeforeAssigneJobDiffBuffer2(JobDiffBuffer, JobPlanningLine);
-            JobDiffBuffer[2] := JobDiffBuffer[1];
-            if JobDiffBuffer[2].Find() then begin
-                JobDiffBuffer[2].Quantity := JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
-                JobDiffBuffer[2].Modify();
-            end else
-                JobDiffBuffer[1].Insert();
-        end;
+        if JobPlanningLine.Type = JobPlanningLine.Type::Text then
+            exit;
+        if not JobPlanningLine."Schedule Line" then
+            exit;
+        Job.Get(JobPlanningLine."Job No.");
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        JobDiffBuffer[1]."Job No." := JobPlanningLine."Job No.";
+        JobDiffBuffer[1]."Job Task No." := JobPlanningLine."Job Task No.";
+        JobDiffBuffer[1].Type := JobPlanningLine.Type;
+        JobDiffBuffer[1]."No." := JobPlanningLine."No.";
+        JobDiffBuffer[1]."Location Code" := JobPlanningLine."Location Code";
+        JobDiffBuffer[1]."Variant Code" := JobPlanningLine."Variant Code";
+        JobDiffBuffer[1]."Unit of Measure code" := JobPlanningLine."Unit of Measure Code";
+        JobDiffBuffer[1]."Work Type Code" := JobPlanningLine."Work Type Code";
+        JobDiffBuffer[1].Quantity := JobPlanningLine.Quantity;
+        JobDiffBuffer[1]."Line Amount" := JobPlanningLine."Line Amount";
+        OnCreateJTOnBeforeAssigneJobDiffBuffer2(JobDiffBuffer, JobPlanningLine);
+        JobDiffBuffer[2] := JobDiffBuffer[1];
+        if JobDiffBuffer[2].Find() then begin
+            JobDiffBuffer[2].Quantity := JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
+            JobDiffBuffer[2].Modify();
+        end else
+            JobDiffBuffer[1].Insert();
     end;
 
     procedure InitDiffBuffer()
@@ -393,67 +391,65 @@ codeunit 1005 "Job Calculate Batches"
     begin
         OnBeforeInsertDiffBuffer(JobLedgEntry, JobPlanningLine, JobDiffBuffer, LineType, CurrencyType);
 
-        if LineType = LineType::Schedule then
-            with JobPlanningLine do begin
-                if Type = Type::Text then
-                    exit;
-                if not "Schedule Line" then
-                    exit;
-                JobDiffBuffer[1].Type := Type;
-                JobDiffBuffer[1]."No." := "No.";
-                JobDiffBuffer[1]."Entry type" := JobDiffBuffer[1]."Entry type"::Budget;
-                JobDiffBuffer[1]."Unit of Measure code" := "Unit of Measure Code";
-                JobDiffBuffer[1]."Work Type Code" := "Work Type Code";
-                JobDiffBuffer[1].Quantity := Quantity;
-                if CurrencyType = CurrencyType::LCY then begin
-                    JobDiffBuffer[1]."Total Cost" := "Total Cost (LCY)";
-                    JobDiffBuffer[1]."Line Amount" := "Line Amount (LCY)";
-                end else begin
-                    JobDiffBuffer[1]."Total Cost" := "Total Cost";
-                    JobDiffBuffer[1]."Line Amount" := "Line Amount";
-                end;
-                JobDiffBuffer[2] := JobDiffBuffer[1];
-                if JobDiffBuffer[2].Find() then begin
-                    JobDiffBuffer[2].Quantity :=
-                      JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
-                    JobDiffBuffer[2]."Total Cost" :=
-                      JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
-                    JobDiffBuffer[2]."Line Amount" :=
-                      JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
-                    JobDiffBuffer[2].Modify();
-                end else
-                    JobDiffBuffer[1].Insert();
+        if LineType = LineType::Schedule then begin
+            if JobPlanningLine.Type = JobPlanningLine.Type::Text then
+                exit;
+            if not JobPlanningLine."Schedule Line" then
+                exit;
+            JobDiffBuffer[1].Type := JobPlanningLine.Type;
+            JobDiffBuffer[1]."No." := JobPlanningLine."No.";
+            JobDiffBuffer[1]."Entry type" := JobDiffBuffer[1]."Entry type"::Budget;
+            JobDiffBuffer[1]."Unit of Measure code" := JobPlanningLine."Unit of Measure Code";
+            JobDiffBuffer[1]."Work Type Code" := JobPlanningLine."Work Type Code";
+            JobDiffBuffer[1].Quantity := JobPlanningLine.Quantity;
+            if CurrencyType = CurrencyType::LCY then begin
+                JobDiffBuffer[1]."Total Cost" := JobPlanningLine."Total Cost (LCY)";
+                JobDiffBuffer[1]."Line Amount" := JobPlanningLine."Line Amount (LCY)";
+            end else begin
+                JobDiffBuffer[1]."Total Cost" := JobPlanningLine."Total Cost";
+                JobDiffBuffer[1]."Line Amount" := JobPlanningLine."Line Amount";
             end;
+            JobDiffBuffer[2] := JobDiffBuffer[1];
+            if JobDiffBuffer[2].Find() then begin
+                JobDiffBuffer[2].Quantity :=
+                    JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
+                JobDiffBuffer[2]."Total Cost" :=
+                    JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
+                JobDiffBuffer[2]."Line Amount" :=
+                    JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
+                JobDiffBuffer[2].Modify();
+            end else
+                JobDiffBuffer[1].Insert();
+        end;
 
-        if LineType = LineType::Usage then
-            with JobLedgEntry do begin
-                if "Entry Type" <> "Entry Type"::Usage then
-                    exit;
-                JobDiffBuffer[1].Type := Type;
-                JobDiffBuffer[1]."No." := "No.";
-                JobDiffBuffer[1]."Entry type" := JobDiffBuffer[1]."Entry type"::Usage;
-                JobDiffBuffer[1]."Unit of Measure code" := "Unit of Measure Code";
-                JobDiffBuffer[1]."Work Type Code" := "Work Type Code";
-                JobDiffBuffer[1].Quantity := Quantity;
-                if CurrencyType = CurrencyType::LCY then begin
-                    JobDiffBuffer[1]."Total Cost" := "Total Cost (LCY)";
-                    JobDiffBuffer[1]."Line Amount" := "Line Amount (LCY)";
-                end else begin
-                    JobDiffBuffer[1]."Total Cost" := "Total Cost";
-                    JobDiffBuffer[1]."Line Amount" := "Line Amount";
-                end;
-                JobDiffBuffer[2] := JobDiffBuffer[1];
-                if JobDiffBuffer[2].Find() then begin
-                    JobDiffBuffer[2].Quantity :=
-                      JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
-                    JobDiffBuffer[2]."Total Cost" :=
-                      JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
-                    JobDiffBuffer[2]."Line Amount" :=
-                      JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
-                    JobDiffBuffer[2].Modify();
-                end else
-                    JobDiffBuffer[1].Insert();
+        if LineType = LineType::Usage then begin
+            if JobLedgEntry."Entry Type" <> JobLedgEntry."Entry Type"::Usage then
+                exit;
+            JobDiffBuffer[1].Type := JobLedgEntry.Type;
+            JobDiffBuffer[1]."No." := JobLedgEntry."No.";
+            JobDiffBuffer[1]."Entry type" := JobDiffBuffer[1]."Entry type"::Usage;
+            JobDiffBuffer[1]."Unit of Measure code" := JobLedgEntry."Unit of Measure Code";
+            JobDiffBuffer[1]."Work Type Code" := JobLedgEntry."Work Type Code";
+            JobDiffBuffer[1].Quantity := JobLedgEntry.Quantity;
+            if CurrencyType = CurrencyType::LCY then begin
+                JobDiffBuffer[1]."Total Cost" := JobLedgEntry."Total Cost (LCY)";
+                JobDiffBuffer[1]."Line Amount" := JobLedgEntry."Line Amount (LCY)";
+            end else begin
+                JobDiffBuffer[1]."Total Cost" := JobLedgEntry."Total Cost";
+                JobDiffBuffer[1]."Line Amount" := JobLedgEntry."Line Amount";
             end;
+            JobDiffBuffer[2] := JobDiffBuffer[1];
+            if JobDiffBuffer[2].Find() then begin
+                JobDiffBuffer[2].Quantity :=
+                    JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
+                JobDiffBuffer[2]."Total Cost" :=
+                    JobDiffBuffer[2]."Total Cost" + JobDiffBuffer[1]."Total Cost";
+                JobDiffBuffer[2]."Line Amount" :=
+                    JobDiffBuffer[2]."Line Amount" + JobDiffBuffer[1]."Line Amount";
+                JobDiffBuffer[2].Modify();
+            end else
+                JobDiffBuffer[1].Insert();
+        end;
 
         OnAfterInsertDiffBuffer(JobLedgEntry, JobPlanningLine, JobDiffBuffer, LineType, CurrencyType);
     end;

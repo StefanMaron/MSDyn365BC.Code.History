@@ -5,6 +5,7 @@ table 5954 "Work-Hour Template"
     Caption = 'Work-Hour Template';
     LookupPageID = "Work-Hour Templates";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

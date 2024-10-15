@@ -126,7 +126,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [GIVEN] Posted payment "P" with Amount = (10000 - 200) + (2000 - 40) = 11760
         PaymentNo :=
           CreatePostPmtJournalLine(
-            WorkDate, GenJournalLine."Account Type"::Vendor, VendorNo,
+            WorkDate(), GenJournalLine."Account Type"::Vendor, VendorNo,
             InvoiceAmount[1] - DiscountAmount[1] + InvoiceAmount[2] - DiscountAmount[2]);
 
         // [GIVEN] Apply payment to both invoices
@@ -186,7 +186,7 @@ codeunit 134914 "ERM Payment Disc Application"
         // [GIVEN] Posted payment "P" with Amount = (2000 - 40) + (10000 - 200) = 11760
         PaymentNo :=
           CreatePostPmtJournalLine(
-            WorkDate, GenJournalLine."Account Type"::Vendor, VendorNo,
+            WorkDate(), GenJournalLine."Account Type"::Vendor, VendorNo,
             InvoiceAmount[1] - DiscountAmount[1] + InvoiceAmount[2] - DiscountAmount[2]);
 
         // [GIVEN] Apply payment to both invoices
@@ -252,14 +252,14 @@ codeunit 134914 "ERM Payment Disc Application"
         CrMemoLineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         DocumentNo[1] :=
           CreatePostDocWithSevLines(
-            WorkDate + 1, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
+            WorkDate() + 1, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
             VendorNo, GLAccountNo, PaymentTerms.Code, CrMemoLinesCount, -CrMemoLineAmount);
         // [GIVEN] Posted purchase invoice on 01-01-2017 with Amount = 2500 (4 lines, each has Amount = 625)
         InvLinesCount := LibraryRandom.RandIntInRange(2, 5);
         InvLineAmount := Round(CrMemoLineAmount * CrMemoLinesCount / InvLinesCount) + LibraryRandom.RandDecInRange(1000, 2000, 2);
         DocumentNo[2] :=
           CreatePostDocWithSevLines(
-            WorkDate, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+            WorkDate(), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
             VendorNo, GLAccountNo, PaymentTerms.Code, InvLinesCount, InvLineAmount);
         // [GIVEN] Posted payment on 10-01-2017 with Amount = 1250
         PmtAmount := InvLineAmount * InvLinesCount - CrMemoLineAmount * CrMemoLinesCount;
@@ -322,14 +322,14 @@ codeunit 134914 "ERM Payment Disc Application"
         CrMemoLineAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         DocumentNo[1] :=
           CreatePostDocWithSevLines(
-            WorkDate + 1, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
+            WorkDate() + 1, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
             CustomerNo, GLAccountNo, PaymentTerms.Code, CrMemoLinesCount, CrMemoLineAmount);
         // [GIVEN] Posted sales invoice on 01-01-2017 with Amount = 2500 (4 lines, each has Amount = 625)
         InvLinesCount := LibraryRandom.RandIntInRange(2, 5);
         InvLineAmount := Round(CrMemoLineAmount * CrMemoLinesCount / InvLinesCount) + LibraryRandom.RandDecInRange(1000, 2000, 2);
         DocumentNo[2] :=
           CreatePostDocWithSevLines(
-            WorkDate, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+            WorkDate(), GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
             CustomerNo, GLAccountNo, PaymentTerms.Code, InvLinesCount, -InvLineAmount);
         // [GIVEN] Posted payment on 10-01-2017 with Amount = 1250
         PmtAmount := InvLineAmount * InvLinesCount - CrMemoLineAmount * CrMemoLinesCount;
@@ -547,7 +547,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
@@ -687,7 +687,7 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         // Find GL Account and Modify VAT Posting Setup.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
 
@@ -730,7 +730,7 @@ codeunit 134914 "ERM Payment Disc Application"
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
         // Using Random values for calculation and value is not important for Test Case.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5));
 
@@ -784,7 +784,7 @@ codeunit 134914 "ERM Payment Disc Application"
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
         // Using Random values for calculation and value is not important for Test Case.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(5));
 
         // Posting Date is always Less than Payment Discount Date.
@@ -847,7 +847,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandIntInRange(10, 20));
         with VATPostingSetup do begin
             Validate("Adjust for Payment Discount", true);
-            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+            Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -1004,8 +1004,8 @@ codeunit 134914 "ERM Payment Disc Application"
     begin
         // Requirement of Test case we need to create and find different GL Accounts.
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo);
-        GeneralPostingSetup.Validate("Purch. Line Disc. Account", LibraryERM.CreateGLAccountNo);
+        GeneralPostingSetup.Validate("Sales Line Disc. Account", LibraryERM.CreateGLAccountNo());
+        GeneralPostingSetup.Validate("Purch. Line Disc. Account", LibraryERM.CreateGLAccountNo());
         LibraryERM.SetGeneralPostingSetupPurchPmtDiscAccounts(GeneralPostingSetup);
         LibraryERM.SetGeneralPostingSetupSalesPmtDiscAccounts(GeneralPostingSetup);
         GeneralPostingSetup.Modify(true);

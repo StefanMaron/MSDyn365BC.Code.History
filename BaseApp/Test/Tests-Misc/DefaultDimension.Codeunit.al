@@ -32,11 +32,11 @@ codeunit 134487 "Default Dimension"
         TableWithDefaultDim."No." := LibraryUtility.GenerateGUID();
         TableWithDefaultDim.Insert();
         // [GIVEN] Run 'Dimension - Single' action on the card page
-        MockMasterWithDimsCard.OpenView;
-        MockMasterWithDimsCard.Dimensions.Invoke;
+        MockMasterWithDimsCard.OpenView();
+        MockMasterWithDimsCard.Dimensions.Invoke();
 
         // [WHEN] Define the Default Dimension 'Department'-'ADM' for 'A' in the page
-        DimensionValue.Get(LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText); // by DefaultDimensionsMPH
+        DimensionValue.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText()); // by DefaultDimensionsMPH
 
         // [THEN] Default Dimension 'Department'-'ADM' for 'A' does exist
         DefaultDimension.Get(
@@ -62,11 +62,11 @@ codeunit 134487 "Default Dimension"
         // [GIVEN] Subscribed to COD408.OnAfterSetupObjectNoList to add table to the allowed table ID list
         BindSubscription(DefaultDimensionCodeunit);
         // [GIVEN] Run 'Dimension - Single' action on the card page
-        MockMasterWithoutDimsCard.OpenView;
-        MockMasterWithoutDimsCard.Dimensions.Invoke;
+        MockMasterWithoutDimsCard.OpenView();
+        MockMasterWithoutDimsCard.Dimensions.Invoke();
 
         // [WHEN] Define the Default Dimension 'Department'-'ADM' for 'A' in the page
-        DimensionValue.Get(LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText); // by DefaultDimensionsMPH
+        DimensionValue.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText()); // by DefaultDimensionsMPH
 
         // [THEN] Default Dimension 'Department'-'ADM' for 'A' does exist
         DefaultDimension.Get(
@@ -93,7 +93,7 @@ codeunit 134487 "Default Dimension"
                         TableMetadata.FieldError(ObsoleteState);
                     TestField("Object Caption");
                     Assert.IsTrue(PKContainsOneField("Object ID"), 'PK contains not one field:' + Format("Object ID"));
-                until Next = 0;
+                until Next() = 0;
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 134487 "Default Dimension"
         KeyRef := RecRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);
         FieldRef.Value := PK;
-        Assert.IsTrue(RecRef.Insert, 'INSERT has failed');
+        Assert.IsTrue(RecRef.Insert(), 'INSERT has failed');
         RecRef.Close();
     end;
 
@@ -258,10 +258,10 @@ codeunit 134487 "Default Dimension"
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
         LibraryVariableStorage.Enqueue(DimensionValue.Code);
-        DefaultDimensionsPage.New;
+        DefaultDimensionsPage.New();
         DefaultDimensionsPage."Dimension Code".SetValue(DimensionValue."Dimension Code");
         DefaultDimensionsPage."Dimension Value Code".SetValue(DimensionValue.Code);
-        DefaultDimensionsPage.OK.Invoke;
+        DefaultDimensionsPage.OK().Invoke();
     end;
 
     local procedure GetFieldNoGlobalDimension1ByTableNo(TableNo: Integer): Integer

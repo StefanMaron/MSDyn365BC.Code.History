@@ -113,7 +113,7 @@ codeunit 131921 "Library - CAMT File Mgt."
         WriteLine(OutStream, '        <NtryDtls>');
         WriteLine(OutStream, '          <TxDtls>');
         WriteLine(OutStream, '            <Refs>');
-        WriteLine(OutStream, '              <EndToEndId>' + LibraryUtility.GenerateGUID + '</EndToEndId>');
+        WriteLine(OutStream, '              <EndToEndId>' + LibraryUtility.GenerateGUID() + '</EndToEndId>');
         WriteLine(OutStream, '            </Refs>');
         if InstdAmt > 0 then begin
             WriteLine(OutStream, '            <AmtDtls>');
@@ -171,7 +171,7 @@ codeunit 131921 "Library - CAMT File Mgt."
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 }
 

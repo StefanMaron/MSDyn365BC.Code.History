@@ -23,43 +23,41 @@ report 97 "Date Compr. G/L Budget Entries"
             trigger OnAfterGetRecord()
             begin
                 GLBudgetEntry2 := "G/L Budget Entry";
-                with GLBudgetEntry2 do begin
-                    SetCurrentKey("Budget Name", "G/L Account No.", Date);
-                    CopyFilters("G/L Budget Entry");
-                    SetFilter(Date, DateComprMgt.GetDateFilter(Date, EntrdDateComprReg, false));
-                    SetRange("Budget Name", "Budget Name");
-                    SetRange("G/L Account No.", "G/L Account No.");
+                GLBudgetEntry2.SetCurrentKey("Budget Name", "G/L Account No.", Date);
+                GLBudgetEntry2.CopyFilters("G/L Budget Entry");
+                GLBudgetEntry2.SetFilter(Date, DateComprMgt.GetDateFilter(GLBudgetEntry2.Date, EntrdDateComprReg, false));
+                GLBudgetEntry2.SetRange("Budget Name", GLBudgetEntry2."Budget Name");
+                GLBudgetEntry2.SetRange("G/L Account No.", GLBudgetEntry2."G/L Account No.");
 
-                    LastEntryNo := LastEntryNo + 1;
+                LastEntryNo := LastEntryNo + 1;
 
-                    if RetainNo(FieldNo("Business Unit Code")) then
-                        SetRange("Business Unit Code", "Business Unit Code");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                    if Amount >= 0 then
-                        SetFilter(Amount, '>=0')
-                    else
-                        SetFilter(Amount, '<0');
+                if RetainNo(GLBudgetEntry2.FieldNo("Business Unit Code")) then
+                    GLBudgetEntry2.SetRange("Business Unit Code", GLBudgetEntry2."Business Unit Code");
+                if RetainNo(GLBudgetEntry2.FieldNo("Global Dimension 1 Code")) then
+                    GLBudgetEntry2.SetRange("Global Dimension 1 Code", GLBudgetEntry2."Global Dimension 1 Code");
+                if RetainNo(GLBudgetEntry2.FieldNo("Global Dimension 2 Code")) then
+                    GLBudgetEntry2.SetRange("Global Dimension 2 Code", GLBudgetEntry2."Global Dimension 2 Code");
+                if GLBudgetEntry2.Amount >= 0 then
+                    GLBudgetEntry2.SetFilter(Amount, '>=0')
+                else
+                    GLBudgetEntry2.SetFilter(Amount, '<0');
 
-                    InitNewEntry(NewGLBudgetEntry);
+                InitNewEntry(NewGLBudgetEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, GLBudgetEntry2."Dimension Set ID", GLBudgetEntry2."Entry No.", 0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewGLBudgetEntry, GLBudgetEntry2);
+                while GLBudgetEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.", 0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewGLBudgetEntry, GLBudgetEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.", ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewGLBudgetEntry, GLBudgetEntry2);
-                    end;
-
-                    InsertNewEntry(NewGLBudgetEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, GLBudgetEntry2."Dimension Set ID", GLBudgetEntry2."Entry No.", ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewGLBudgetEntry, GLBudgetEntry2);
                 end;
+
+                InsertNewEntry(NewGLBudgetEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -150,14 +148,18 @@ report 97 "Date Compr. G/L Budget Entries"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Starting Date';
                         ClosingDates = true;
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
@@ -171,7 +173,9 @@ report 97 "Date Compr. G/L Budget Entries"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -324,14 +328,12 @@ report 97 "Date Compr. G/L Budget Entries"
 
     local procedure SummarizeEntry(var NewGLBudgetEntry: Record "G/L Budget Entry"; GLBudgetEntry: Record "G/L Budget Entry")
     begin
-        with GLBudgetEntry do begin
-            NewGLBudgetEntry.Amount := NewGLBudgetEntry.Amount + Amount;
-            Delete();
-            if "Entry No." < LowestEntryNo then
-                LowestEntryNo := "Entry No.";
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(5, DateComprReg."No. Records Deleted");
-        end;
+        NewGLBudgetEntry.Amount := NewGLBudgetEntry.Amount + GLBudgetEntry.Amount;
+        GLBudgetEntry.Delete();
+        if GLBudgetEntry."Entry No." < LowestEntryNo then
+            LowestEntryNo := GLBudgetEntry."Entry No.";
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(5, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(GLBudgetEntry);
     end;
@@ -366,28 +368,26 @@ report 97 "Date Compr. G/L Budget Entries"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with GLBudgetEntry2 do begin
-            NewGLBudgetEntry.Init();
-            NewGLBudgetEntry."Entry No." := LastEntryNo;
-            NewGLBudgetEntry."Budget Name" := "Budget Name";
-            NewGLBudgetEntry."G/L Account No." := "G/L Account No.";
-            NewGLBudgetEntry.Date := GetRangeMin(Date);
-            NewGLBudgetEntry.Description := EntrdGLBudgetEntry.Description;
-            NewGLBudgetEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        NewGLBudgetEntry.Init();
+        NewGLBudgetEntry."Entry No." := LastEntryNo;
+        NewGLBudgetEntry."Budget Name" := GLBudgetEntry2."Budget Name";
+        NewGLBudgetEntry."G/L Account No." := GLBudgetEntry2."G/L Account No.";
+        NewGLBudgetEntry.Date := GLBudgetEntry2.GetRangeMin(Date);
+        NewGLBudgetEntry.Description := EntrdGLBudgetEntry.Description;
+        NewGLBudgetEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLBudgetEntry2."User ID"));
 
-            if RetainNo(FieldNo("Business Unit Code")) then
-                NewGLBudgetEntry."Business Unit Code" := "Business Unit Code";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                NewGLBudgetEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                NewGLBudgetEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
+        if RetainNo(GLBudgetEntry2.FieldNo("Business Unit Code")) then
+            NewGLBudgetEntry."Business Unit Code" := GLBudgetEntry2."Business Unit Code";
+        if RetainNo(GLBudgetEntry2.FieldNo("Global Dimension 1 Code")) then
+            NewGLBudgetEntry."Global Dimension 1 Code" := GLBudgetEntry2."Global Dimension 1 Code";
+        if RetainNo(GLBudgetEntry2.FieldNo("Global Dimension 2 Code")) then
+            NewGLBudgetEntry."Global Dimension 2 Code" := GLBudgetEntry2."Global Dimension 2 Code";
 
-            Window.Update(1, NewGLBudgetEntry."Budget Name");
-            Window.Update(2, NewGLBudgetEntry."G/L Account No.");
-            Window.Update(3, NewGLBudgetEntry.Date);
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(4, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewGLBudgetEntry."Budget Name");
+        Window.Update(2, NewGLBudgetEntry."G/L Account No.");
+        Window.Update(3, NewGLBudgetEntry.Date);
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(4, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewGLBudgetEntry: Record "G/L Budget Entry"; DimEntryNo: Integer)
@@ -423,11 +423,9 @@ report 97 "Date Compr. G/L Budget Entries"
         if EntrdDateComprReg."Ending Date" = 0D then
             EntrdDateComprReg."Ending Date" := DateCompression.CalcMaxEndDate();
 
-        with "G/L Budget Entry" do begin
-            InsertField(FieldNo("Business Unit Code"));
-            InsertField(FieldNo("Global Dimension 1 Code"));
-            InsertField(FieldNo("Global Dimension 2 Code"));
-        end;
+        InsertField("G/L Budget Entry".FieldNo("Business Unit Code"));
+        InsertField("G/L Budget Entry".FieldNo("Global Dimension 1 Code"));
+        InsertField("G/L Budget Entry".FieldNo("Global Dimension 2 Code"));
 
         DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         UseDataArchive := DataArchiveProviderExists;

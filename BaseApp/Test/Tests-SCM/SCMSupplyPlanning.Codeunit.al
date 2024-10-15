@@ -32,6 +32,7 @@ codeunit 137054 "SCM Supply Planning"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryAssembly: Codeunit "Library - Assembly";
         Assert: Codeunit Assert;
@@ -476,9 +477,9 @@ codeunit 137054 "SCM Supply Planning"
         SelectSalesLine(SalesLine, SalesHeader."No.");
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
     end;
 
     [Test]
@@ -505,9 +506,9 @@ codeunit 137054 "SCM Supply Planning"
         SelectSalesLine(SalesLine, SalesHeader."No.");
         LibrarySales.AutoReserveSalesLine(SalesLine);
 
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.SalesLines.Reserve.Invoke;
+        SalesOrder.SalesLines.Reserve.Invoke();
     end;
 
     [Test]
@@ -2000,7 +2001,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Open Planning Worksheet page and go to the generated requisition line.
         FindRequisitionLine(RequisitionLine, Item."No.");
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.GotoRecord(RequisitionLine);
 
         // Exercise: Update Due Date from Planning Worksheet page.
@@ -2008,7 +2009,7 @@ codeunit 137054 "SCM Supply Planning"
 
         // Verify: Verify calculating Ending Date from Due Date doesn't need to consider Vendor's calendar.
         FindRequisitionLine(RequisitionLine, Item."No.");
-        RequisitionLine.TestField("Ending Date", PlanningWorksheet."Due Date".AsDate - DefaultSafetyLeadTime);
+        RequisitionLine.TestField("Ending Date", PlanningWorksheet."Due Date".AsDate() - DefaultSafetyLeadTime);
 
         // Tear Down.
         UpdateDefaultSafetyLeadTimeOnManufacturingSetup(ManufacturingSetup."Default Safety Lead Time");
@@ -4029,8 +4030,7 @@ codeunit 137054 "SCM Supply Planning"
         CreatePlanWkshLineWithChangeQtyActionMessage(Item, Item."Replenishment System"::"Prod. Order", LibraryRandom.RandInt(50));
 
         // [GIVEN] Change Production Order status to Released.
-        LibraryManufacturing.ChangeStatusFirmPlanToReleased(
-          GetOrderNo(Item."No."), ProductionOrder.Status::"Firm Planned", ProductionOrder.Status::Released);
+        LibraryManufacturing.ChangeStatusFirmPlanToReleased(GetOrderNo(Item."No."));
 
         // [THEN] Production Order Status is Released.
         ProductionOrder.Get(ProductionOrder.Status::Released, GetOrderNo(Item."No."));
@@ -4427,7 +4427,7 @@ codeunit 137054 "SCM Supply Planning"
             SetRange("No.", Item."No.");
             FindSet();
             Assert.AreEqual(MaxQty, Quantity, QuantityErr);
-            Next;
+            Next();
             Assert.AreEqual(Qty, Quantity, QuantityErr);
         end;
     end;
@@ -4478,7 +4478,7 @@ codeunit 137054 "SCM Supply Planning"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,ConfirmHandlerYes,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AssemblyOrderWithReservationChangeStartingDate()
     var
@@ -4507,10 +4507,11 @@ codeunit 137054 "SCM Supply Planning"
         NameValueBuffer.TestField(Name, AvailabilityTok);
         NameValueBuffer.Next();
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,ConfirmHandlerYes,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AssemblyOrderWithReservationChangeEndingDate()
     var
@@ -4539,10 +4540,11 @@ codeunit 137054 "SCM Supply Planning"
         NameValueBuffer.TestField(Name, AvailabilityTok);
         NameValueBuffer.Next();
         VerifyNameValueBufferSequence(NameValueBuffer, ConfirmTok);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityModalPageHandler')]
+    [HandlerFunctions('AssemblyAvailabilityModalPageHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure AssemblyOrderWithReservationChangeDueDate()
     var
@@ -4569,6 +4571,7 @@ codeunit 137054 "SCM Supply Planning"
         Assert.RecordCount(NameValueBuffer, 3);
         NameValueBuffer.FindFirst();
         VerifyNameValueBufferSequence(NameValueBuffer, AvailabilityTok);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -4588,7 +4591,7 @@ codeunit 137054 "SCM Supply Planning"
         PrepareSupplyAndDemandWithDampenerQtyAndSafetyStock(Item, 10, 5, LibraryRandom.RandIntInRange(11, 15));
 
         // [WHEN] Calculate regenerative plan for the period that includes the second purchase only.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate + 1, GetRandomDateUsingWorkDate(90));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() + 1, GetRandomDateUsingWorkDate(90));
 
         // [THEN] No planning lines are created. No change is suggested for the purchase.
         FilterRequisitionLine(RequisitionLine, Item."No.");
@@ -4617,7 +4620,7 @@ codeunit 137054 "SCM Supply Planning"
         PrepareSupplyAndDemandWithDampenerQtyAndSafetyStock(Item, 10, SafetyStockQty, ExceedingQty);
 
         // [WHEN] Calculate regenerative plan for the period that includes the second purchase only.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate + 1, GetRandomDateUsingWorkDate(90));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() + 1, GetRandomDateUsingWorkDate(90));
 
         // [THEN] The purchase is suggested to be replanned so that "QP1" + "QP2" = "QS" + "S" (in the example, new "QP2" = 25).
         SelectPurchaseLine(PurchaseLine, GlobalPurchaseHeader[2]."No.");
@@ -4644,8 +4647,8 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Location" page is opened from Item Card
-        ItemAvailabilitybyLocation.Trap;
-        ItemCard.Location.Invoke;
+        ItemAvailabilitybyLocation.Trap();
+        ItemCard.Location.Invoke();
         ExpectedDate := GetCurrentDate(ItemAvailabilitybyLocation.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Item Period Length" = Month on "Item Availability By Location" page
@@ -4674,13 +4677,13 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Location" page is opened from Item Card with "Item Period Length" = Month
-        ItemAvailabilitybyLocation.Trap;
-        ItemCard.Location.Invoke;
+        ItemAvailabilitybyLocation.Trap();
+        ItemCard.Location.Invoke();
         ItemAvailabilitybyLocation.ItemPeriodLength.SetValue('Month');
         ExpectedDate := CalcDate('<1M>', GetCurrentDate(ItemAvailabilitybyLocation.FILTER.GetFilter("Date Filter")));
 
         // [WHEN] Press "Next Period" on "Item Availability By Location" page
-        ItemAvailabilitybyLocation.NextPeriod.Invoke;
+        ItemAvailabilitybyLocation.NextPeriod.Invoke();
 
         // [WHEN] "Date Filter" is "01.02.2017..28.02.2017" on "Item Availability By Location" page
         ItemAvailabilitybyLocation.DateFilter.AssertEquals(
@@ -4705,13 +4708,13 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Location" page is opened from Item Card with "Item Period Length" = Month
-        ItemAvailabilitybyLocation.Trap;
-        ItemCard.Location.Invoke;
+        ItemAvailabilitybyLocation.Trap();
+        ItemCard.Location.Invoke();
         ItemAvailabilitybyLocation.ItemPeriodLength.SetValue('Month');
         ExpectedDate := CalcDate('<-1M>', GetCurrentDate(ItemAvailabilitybyLocation.FILTER.GetFilter("Date Filter")));
 
         // [WHEN] Press "Next Previous" on "Item Availability By Location" page
-        ItemAvailabilitybyLocation.PreviousPeriod.Invoke;
+        ItemAvailabilitybyLocation.PreviousPeriod.Invoke();
 
         // [WHEN] "Date Filter" is "01.12.2016..31.12.2016" on "Item Availability By Location" page
         ItemAvailabilitybyLocation.DateFilter.AssertEquals(
@@ -4736,8 +4739,8 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Variant" page is opened from Item Card
-        ItemAvailabilitybyVariant.Trap;
-        ItemCard.Variant.Invoke;
+        ItemAvailabilitybyVariant.Trap();
+        ItemCard.Variant.Invoke();
         ExpectedDate := GetCurrentDate(ItemAvailabilitybyVariant.FILTER.GetFilter("Date Filter"));
 
         // [WHEN] Set "Item Period Length" = Month on "Item Availability By Variant" page
@@ -4766,13 +4769,13 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Variant" page is opened from Item Card with "Period Type" = Month
-        ItemAvailabilitybyVariant.Trap;
-        ItemCard.Variant.Invoke;
+        ItemAvailabilitybyVariant.Trap();
+        ItemCard.Variant.Invoke();
         ItemAvailabilitybyVariant.PeriodType.SetValue('Month');
         ExpectedDate := CalcDate('<1M>', GetCurrentDate(ItemAvailabilitybyVariant.FILTER.GetFilter("Date Filter")));
 
         // [WHEN] Press "Next Period" on "Item Availability By Variant" page
-        ItemAvailabilitybyVariant.NextPeriod.Invoke;
+        ItemAvailabilitybyVariant.NextPeriod.Invoke();
 
         // [WHEN] "Date Filter" is "01.02.2017..28.02.2017" on "Item Availability By Variant" page
         ItemAvailabilitybyVariant.DateFilter.AssertEquals(
@@ -4797,13 +4800,13 @@ codeunit 137054 "SCM Supply Planning"
         SetupItemCardScenario(ItemCard);
 
         // [GIVEN] "Item Availability by Variant" page is opened from Item Card with "Period Type" = Month
-        ItemAvailabilitybyVariant.Trap;
-        ItemCard.Variant.Invoke;
+        ItemAvailabilitybyVariant.Trap();
+        ItemCard.Variant.Invoke();
         ItemAvailabilitybyVariant.PeriodType.SetValue('Month');
         ExpectedDate := CalcDate('<-1M>', GetCurrentDate(ItemAvailabilitybyVariant.FILTER.GetFilter("Date Filter")));
 
         // [WHEN] Press "Next Previous" on "Item Availability By Variant" page
-        ItemAvailabilitybyVariant.PreviousPeriod.Invoke;
+        ItemAvailabilitybyVariant.PreviousPeriod.Invoke();
 
         // [WHEN] "Date Filter" is "01.12.2016..31.12.2016" on "Item Availability By Variant" page
         ItemAvailabilitybyVariant.DateFilter.AssertEquals(
@@ -5441,14 +5444,14 @@ codeunit 137054 "SCM Supply Planning"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -5462,7 +5465,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -5580,7 +5583,7 @@ codeunit 137054 "SCM Supply Planning"
         CreateDemand(DemandDateValue, DemandQuantityValue, Item."No.", 1); // Number of Sales Order : 1.
 
         // Exercise: Calculate Regenerative Plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + 30); // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate() + 30); // Dates based on WORKDATE. Planning Period - 1 Month, covers Sales shipments.
         AcceptActionMessageAndCarryOutActionMessagePlan(Item."No.", DummyCount);
         AssemblyHeader.SetRange("Item No.", Item."No.");
         AssemblyHeader.FindFirst();
@@ -5698,7 +5701,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         CreateItem(Item, Item."Replenishment System"::Purchase);
         UpdateItemReorderingPolicy(Item, Item."Reordering Policy"::Order);
-        UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo);
+        UpdateItemVendorNo(Item, LibraryPurchase.CreateVendorNo());
     end;
 
     local procedure CreateMQItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; MaximumInventory: Decimal; ReorderPoint: Decimal; SafetyStockQty: Decimal)
@@ -5755,10 +5758,9 @@ codeunit 137054 "SCM Supply Planning"
     local procedure CreateAndUpdateStockKeepingUnit(var Item: Record Item; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System")
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("Location Filter", LocationCode);
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::Location, false, false); // Use False for Item InInventory Only and Replace Previous SKUs fields.
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false); // Use False for Item InInventory Only and Replace Previous SKUs fields.
         StockkeepingUnit.Get(LocationCode, Item."No.", ''); // Use blank value for Variant Code.
         StockkeepingUnit.Validate("Replenishment System", ReplenishmentSystem);
         StockkeepingUnit.Modify(true);
@@ -5978,20 +5980,20 @@ codeunit 137054 "SCM Supply Planning"
     var
         FirmPlannedProdOrder: TestPage "Firm Planned Prod. Order";
     begin
-        FirmPlannedProdOrder.OpenEdit;
+        FirmPlannedProdOrder.OpenEdit();
         FirmPlannedProdOrder.FILTER.SetFilter("No.", ProdOrderNo);
         FirmPlannedProdOrder."Due Date".SetValue(DueDate);
-        FirmPlannedProdOrder.OK.Invoke;
+        FirmPlannedProdOrder.OK().Invoke();
     end;
 
     local procedure UpdateDueDateOnReleasedProdOrder(ProdOrderNo: Code[20]; DueDate: Date)
     var
         ReleasedProductionOrder: TestPage "Released Production Order";
     begin
-        ReleasedProductionOrder.OpenEdit;
+        ReleasedProductionOrder.OpenEdit();
         ReleasedProductionOrder.FILTER.SetFilter("No.", ProdOrderNo);
         ReleasedProductionOrder."Due Date".SetValue(DueDate);
-        ReleasedProductionOrder.OK.Invoke;
+        ReleasedProductionOrder.OK().Invoke();
     end;
 
     local procedure ReserveFromSupply(ReservationSource: Option)
@@ -6028,9 +6030,9 @@ codeunit 137054 "SCM Supply Planning"
     var
         AssemblyOrder: TestPage "Assembly Order";
     begin
-        AssemblyOrder.OpenEdit;
+        AssemblyOrder.OpenEdit();
         AssemblyOrder.FILTER.SetFilter("No.", No);
-        AssemblyOrder."&Reserve".Invoke;
+        AssemblyOrder."&Reserve".Invoke();
     end;
 
     local procedure ReserveProdOrderComponent(No: Code[20])
@@ -6038,66 +6040,66 @@ codeunit 137054 "SCM Supply Planning"
         ReleasedProdOrder: TestPage "Released Production Order";
         ProdOrderComponents: TestPage "Prod. Order Components";
     begin
-        ProdOrderComponents.Trap;
-        ReleasedProdOrder.OpenEdit;
+        ProdOrderComponents.Trap();
+        ReleasedProdOrder.OpenEdit();
         ReleasedProdOrder.FILTER.SetFilter("No.", No);
-        ReleasedProdOrder.ProdOrderLines.Components.Invoke; // Components
+        ReleasedProdOrder.ProdOrderLines.Components.Invoke(); // Components
 
-        ProdOrderComponents.Reserve.Invoke;
+        ProdOrderComponents.Reserve.Invoke();
     end;
 
     local procedure ReserveProdOrderLine(No: Code[20])
     var
         ReleasedProdOrder: TestPage "Released Production Order";
     begin
-        ReleasedProdOrder.OpenEdit;
+        ReleasedProdOrder.OpenEdit();
         ReleasedProdOrder.FILTER.SetFilter("No.", No);
-        ReleasedProdOrder.ProdOrderLines."&Reserve".Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        ReleasedProdOrder.ProdOrderLines."&Reserve".Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure ReservePurchaseLine(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.PurchLines.Reserve.Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        PurchaseOrder.PurchLines.Reserve.Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure ReservePurchaseReturnLine(No: Code[20])
     var
         PurchReturnOrder: TestPage "Purchase Return Order";
     begin
-        PurchReturnOrder.OpenEdit;
+        PurchReturnOrder.OpenEdit();
         PurchReturnOrder.FILTER.SetFilter("No.", No);
-        PurchReturnOrder.PurchLines.Reserve.Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        PurchReturnOrder.PurchLines.Reserve.Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure ReserveSalesLine(No: Code[20])
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.SalesLines.Reserve.Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        SalesOrder.SalesLines.Reserve.Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure ReserveSalesReturnLine(No: Code[20])
     var
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
-        SalesReturnOrder.SalesLines.Reserve.Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        SalesReturnOrder.SalesLines.Reserve.Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure ReserveTransferLine(No: Code[20])
     var
         TransferOrder: TestPage "Transfer Order";
     begin
-        TransferOrder.OpenEdit;
+        TransferOrder.OpenEdit();
         TransferOrder.FILTER.SetFilter("No.", No);
-        TransferOrder.TransferLines.Reserve.Invoke;  // Open the Page - Reservation on Handler ReservationPageHandler.
+        TransferOrder.TransferLines.Reserve.Invoke();  // Open the Page - Reservation on Handler ReservationPageHandler.
     end;
 
     local procedure UpdatePlanningFlexibilityOnSupplyDoc(SupplyType: Option)
@@ -6499,7 +6501,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         LibraryInventory.CreateItem(Item);
 
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         ItemCard.GotoRecord(Item);
     end;
 
@@ -6568,8 +6570,8 @@ codeunit 137054 "SCM Supply Planning"
     begin
         Commit();
         OpenPlanningWorksheetPage(PlanningWorksheet, Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
     local procedure CalculatePlanForReqWksh(Item: Record Item; StartingDate: Date; EndingDate: Date)
@@ -6647,7 +6649,7 @@ codeunit 137054 "SCM Supply Planning"
 
     local procedure OpenPlanningWorksheetPage(var PlanningWorksheet: TestPage "Planning Worksheet"; Name: Code[10])
     begin
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.CurrentWkshBatchName.SetValue(Name);
     end;
 
@@ -7037,7 +7039,7 @@ codeunit 137054 "SCM Supply Planning"
         SelectRequisitionLineForActionMessage(RequisitionLine2, No, ActionMessage, DueDate);
         for Count := 1 to NoOfLine do begin
             VerifyQuantityAndDateOnRequisitionLine(RequisitionLine2, OriginalDueDate, Quantity, 0);
-            RequisitionLine2.Next
+            RequisitionLine2.Next();
         end;
     end;
 
@@ -7146,7 +7148,7 @@ codeunit 137054 "SCM Supply Planning"
             FindRequisitionLine(RequisitionLine, ItemNo);
             for i := 1 to ArrayLen(DueDates) do begin
                 TestField("Due Date", DueDates[i] - 1);
-                Next;
+                Next();
             end;
         end;
     end;
@@ -7200,8 +7202,8 @@ codeunit 137054 "SCM Supply Planning"
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation.AvailableToReserve.Invoke;  // Open the page - Available Sales Line, on Handler AvailableSalesLinesPageHandler.
-        Reservation.OK.Invoke;
+        Reservation.AvailableToReserve.Invoke();  // Open the page - Available Sales Line, on Handler AvailableSalesLinesPageHandler.
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7212,7 +7214,7 @@ codeunit 137054 "SCM Supply Planning"
     begin
         LibraryVariableStorage.Dequeue(ProdOrderNo);
         AvailableProdOrderLines.FILTER.SetFilter("Prod. Order No.", Format(ProdOrderNo));
-        AvailableProdOrderLines.Reserve.Invoke;
+        AvailableProdOrderLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7220,7 +7222,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableAssemblyHeadersPageHandler(var AvailableAssemblyHeaders: TestPage "Available - Assembly Headers")
     begin
         AvailableAssemblyHeaders.FILTER.SetFilter("No.", GlobalAssemblyHeader[2]."No.");
-        AvailableAssemblyHeaders.Reserve.Invoke;
+        AvailableAssemblyHeaders.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7228,7 +7230,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableAssemblyLinesPageHandler(var AvailableAssemblyLines: TestPage "Available - Assembly Lines")
     begin
         AvailableAssemblyLines.FILTER.SetFilter("Document No.", GlobalAssemblyHeader[2]."No.");
-        AvailableAssemblyLines.Reserve.Invoke;
+        AvailableAssemblyLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7236,7 +7238,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableSalesLinesPageHandler(var AvailableSalesLines: TestPage "Available - Sales Lines")
     begin
         AvailableSalesLines.FILTER.SetFilter("Document No.", GlobalSalesHeader[2]."No.");
-        AvailableSalesLines.Reserve.Invoke;
+        AvailableSalesLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7244,7 +7246,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableProdOrderCompPageHandler(var AvailableProdOrderComp: TestPage "Available - Prod. Order Comp.")
     begin
         AvailableProdOrderComp.FILTER.SetFilter("Prod. Order No.", GlobalProductionOrder[2]."No.");
-        AvailableProdOrderComp.Reserve.Invoke;
+        AvailableProdOrderComp.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7252,28 +7254,28 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableProdOrderLinesPageHandler(var AvailableProdOrderLines: TestPage "Available - Prod. Order Lines")
     begin
         AvailableProdOrderLines.FILTER.SetFilter("Prod. Order No.", GlobalProductionOrder[2]."No.");
-        AvailableProdOrderLines.Reserve.Invoke;
+        AvailableProdOrderLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableSalesLinesCancelReservationPageHandler(var AvailableSalesLines: TestPage "Available - Sales Lines")
     begin
-        AvailableSalesLines.CancelReservation.Invoke;
+        AvailableSalesLines.CancelReservation.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailablePurchaseLinesPageHandler(var AvailablePurchaseLines: TestPage "Available - Purchase Lines")
     begin
-        AvailablePurchaseLines.Reserve.Invoke;
+        AvailablePurchaseLines.Reserve.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailablePurchaseLinesCancelReservationPageHandler(var AvailablePurchaseLines: TestPage "Available - Purchase Lines")
     begin
-        AvailablePurchaseLines.CancelReservation.Invoke;
+        AvailablePurchaseLines.CancelReservation.Invoke();
     end;
 
     [ModalPageHandler]
@@ -7281,7 +7283,7 @@ codeunit 137054 "SCM Supply Planning"
     procedure AvailableTransferLinesPageHandler(var AvailableTransferLines: TestPage "Available - Transfer Lines")
     begin
         AvailableTransferLines.FILTER.SetFilter("Document No.", GlobalTransferHeader[2]."No.");
-        AvailableTransferLines.Reserve.Invoke;
+        AvailableTransferLines.Reserve.Invoke();
     end;
 
     [RequestPageHandler]
@@ -7292,7 +7294,7 @@ codeunit 137054 "SCM Supply Planning"
         CalculatePlanPlanWksh.Item.SetFilter("No.", GlobalItemNo);
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRandomDateUsingWorkDate(90));
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -7321,10 +7323,18 @@ codeunit 137054 "SCM Supply Planning"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure AssemblyAvailabilityModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability")
+    procedure AssemblyAvailabilityModalPageHandler(var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
     begin
         InsertNameValueBufferEntry(AvailabilityTok);
-        AssemblyAvailability.Yes.Invoke;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure SendAssemblyAvailabilityNotificationHandler(var Notification: Notification): Boolean
+    var
+        AssemblyLineManagement: Codeunit "Assembly Line Management";
+    begin
+        AssemblyLineManagement.ShowNotificationDetails(Notification);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnBeforeModifyEvent', '', false, false)]

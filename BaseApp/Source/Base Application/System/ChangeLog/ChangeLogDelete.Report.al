@@ -1,16 +1,14 @@
-#if not CLEAN22
 namespace System.Diagnostics;
 
 using System.Utilities;
+using System.Reflection;
 
 report 510 "Change Log - Delete"
 {
     Caption = 'Change Log - Delete';
     Permissions = TableData "Change Log Entry" = rid;
     ProcessingOnly = true;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'The functionality has been replaced with the retention policy module in system application.';
-    ObsoleteTag = '17.0';
+    Extensible = false;
 
     dataset
     {
@@ -25,7 +23,12 @@ report 510 "Change Log - Delete"
             end;
 
             trigger OnPreDataItem()
+            var
+                TableKey: Codeunit "Table Key";
             begin
+                if ShouldDisableIndexes then
+                    TableKey.DisableAll(Database::"Change Log Entry");
+
                 SetRange(Protected, false);
                 SetRange("Field Log Entry Feature", "Field Log Entry Feature"::"Change Log");
                 DeleteAll();
@@ -35,13 +38,24 @@ report 510 "Change Log - Delete"
 
     requestpage
     {
+        SaveValues = true;
 
         layout
         {
-        }
+            area(content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
 
-        actions
-        {
+                    field(DisableIndexes; ShouldDisableIndexes)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Disable Indexes';
+                        ToolTip = 'Specifies if indexes should be disabled on the Change Log Entry table before deleting the records. This may speed up the process when a lot of records are deleted at once.';
+                    }
+                }
+            }
         }
 
         trigger OnOpenPage()
@@ -55,7 +69,7 @@ report 510 "Change Log - Delete"
             ChangeLogEntry: Record "Change Log Entry";
             ConfirmManagement: Codeunit "Confirm Management";
         begin
-            if CloseAction = ACTION::Cancel then
+            if CloseAction = Action::Cancel then
                 exit(true);
             if "Change Log Entry".GetFilter("Date and Time") <> '' then begin
                 ChangeLogEntry.CopyFilters("Change Log Entry");
@@ -71,32 +85,29 @@ report 510 "Change Log - Delete"
         end;
     }
 
-    labels
-    {
-    }
-
     trigger OnPostReport()
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if not GuiAllowed then
+        if not GuiAllowed() then
             exit;
         Window.Close();
         if not TempErrorMessage.IsEmpty() then begin
             if ConfirmManagement.GetResponse(SomeEntriesNotDeletedQst, true) then
-                PAGE.RunModal(PAGE::"Error Messages", TempErrorMessage);
+                Page.RunModal(Page::"Error Messages", TempErrorMessage);
         end else
             Message(DeletedMsg);
     end;
 
     trigger OnPreReport()
     begin
-        if GuiAllowed then
+        if GuiAllowed() then
             Window.Open(DialogMsg);
     end;
 
     var
         TempErrorMessage: Record "Error Message" temporary;
+        ShouldDisableIndexes: Boolean;
         Window: Dialog;
         DialogMsg: Label 'Entries are being deleted...\\@1@@@@@@@@@@@@';
         CounterTotal: Integer;
@@ -117,14 +128,11 @@ report 510 "Change Log - Delete"
         if ChangeLogEntry.FindSet(true) then
             repeat
                 Counter += 1;
-                if GuiAllowed then
+                if GuiAllowed() then
                     Window.Update(1, Round(Counter / CounterTotal * 10000, 1));
                 Commit();
-#pragma warning disable AL0432
-                if not CODEUNIT.Run(CODEUNIT::"Change Log Entry - Delete", ChangeLogEntry) then
-#pragma warning restore AL0432
+                if not Codeunit.Run(Codeunit::"Change Log Entry - Delete", ChangeLogEntry) then
                     TempErrorMessage.LogLastError();
             until ChangeLogEntry.Next() = 0;
     end;
 }
-#endif

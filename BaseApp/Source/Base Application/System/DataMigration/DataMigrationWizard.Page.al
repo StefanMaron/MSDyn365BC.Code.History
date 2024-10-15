@@ -32,8 +32,10 @@ page 1808 "Data Migration Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT DoneVisible;
+                Visible = TopBannerVisible and not DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesStandard.""Media Reference"""; MediaResourcesStandard."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -44,8 +46,10 @@ page 1808 "Data Migration Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND DoneVisible;
+                Visible = TopBannerVisible and DoneVisible;
+#pragma warning disable AA0100
                 field("MediaResourcesDone.""Media Reference"""; MediaResourcesDone."Media Reference")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -320,7 +324,7 @@ page 1808 "Data Migration Wizard"
                 {
                     Caption = 'That''s it!';
                     InstructionalText = 'You have completed the Data Migration assisted setup guide.';
-                    Visible = NOT ShowErrorsVisible;
+                    Visible = not ShowErrorsVisible;
                 }
                 group(Control58)
                 {
@@ -391,7 +395,7 @@ page 1808 "Data Migration Wizard"
                 Caption = 'Download Template';
                 Image = "Table";
                 InFooterBar = true;
-                Visible = DownloadTemplateVisible AND (Step = Step::Import);
+                Visible = DownloadTemplateVisible and (Step = Step::Import);
 
                 trigger OnAction()
                 var
@@ -408,7 +412,7 @@ page 1808 "Data Migration Wizard"
                 Caption = 'Settings';
                 Image = Setup;
                 InFooterBar = true;
-                Visible = DataMigrationSettingsVisible AND (Step = Step::Import);
+                Visible = DataMigrationSettingsVisible and (Step = Step::Import);
 
                 trigger OnAction()
                 var
@@ -425,7 +429,7 @@ page 1808 "Data Migration Wizard"
                 Caption = 'Advanced';
                 Image = Apply;
                 InFooterBar = true;
-                Visible = OpenAdvancedApplyVisible AND (Step = Step::Apply);
+                Visible = OpenAdvancedApplyVisible and (Step = Step::Apply);
 
                 trigger OnAction()
                 var
@@ -443,7 +447,7 @@ page 1808 "Data Migration Wizard"
                 Caption = 'Show Errors';
                 Image = ErrorLog;
                 InFooterBar = true;
-                Visible = ShowErrorsVisible AND ((Step = Step::Done) OR (Step = Step::ShowPostingGroupDoneStep));
+                Visible = ShowErrorsVisible and ((Step = Step::Done) or (Step = Step::ShowPostingGroupDoneStep));
 
                 trigger OnAction()
                 var
@@ -481,7 +485,7 @@ page 1808 "Data Migration Wizard"
                 Enabled = NextEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
-                Visible = NOT ApplyButtonVisible;
+                Visible = not ApplyButtonVisible;
 
                 trigger OnAction()
                 begin

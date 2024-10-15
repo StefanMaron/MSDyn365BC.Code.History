@@ -69,7 +69,7 @@ codeunit 134067 "Test VAT Clause"
         LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup1."VAT Bus. Posting Group", VATProdPostingGroup.Code);
         VATPostingSetup2.Validate("VAT Identifier",
-          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
         VATPostingSetup2.Modify(true);
 
         AssignVATClauseToVATPostingSetup(VATPostingSetup2, VATClause2);
@@ -106,7 +106,7 @@ codeunit 134067 "Test VAT Clause"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATBusinessPostingGroup.Code, VATPostingSetup1."VAT Prod. Posting Group");
         VATPostingSetup2.Validate("VAT Identifier",
-          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode(), 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
         VATPostingSetup2.Modify(true);
         AssignVATClauseToVATPostingSetup(VATPostingSetup2, VATClause2);
 
@@ -416,8 +416,8 @@ codeunit 134067 "Test VAT Clause"
         VATClause.Init();
         VATClause.Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(VATClause.FieldNo(Code), DATABASE::"VAT Clause"),
             1, LibraryUtility.GetFieldLength(DATABASE::"VAT Clause", VATClause.FieldNo(Code))));
-        VATClause.Validate(Description, GenerateVATClauseDescription);
-        VATClause.Validate("Description 2", GenerateVATClauseDescription);
+        VATClause.Validate(Description, GenerateVATClauseDescription());
+        VATClause.Validate("Description 2", GenerateVATClauseDescription());
         VATClause.Insert(true);
     end;
 
@@ -426,8 +426,8 @@ codeunit 134067 "Test VAT Clause"
         VATClauseTranslation.Init();
         VATClauseTranslation.Validate("VAT Clause Code", VATClause.Code);
         VATClauseTranslation.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
-        VATClauseTranslation.Validate(Description, GenerateVATClauseDescription);
-        VATClauseTranslation.Validate("Description 2", GenerateVATClauseDescription);
+        VATClauseTranslation.Validate(Description, GenerateVATClauseDescription());
+        VATClauseTranslation.Validate("Description 2", GenerateVATClauseDescription());
         VATClauseTranslation.Insert(true);
     end;
 
@@ -436,8 +436,8 @@ codeunit 134067 "Test VAT Clause"
         VATClauseByDocType.Init();
         VATClauseByDocType.Validate("VAT Clause Code", VATClause.Code);
         VATClauseByDocType.Validate("Document Type", DocumentType);
-        VATClauseByDocType.Validate(Description, GenerateVATClauseDescription);
-        VATClauseByDocType.Validate("Description 2", GenerateVATClauseDescription);
+        VATClauseByDocType.Validate(Description, GenerateVATClauseDescription());
+        VATClauseByDocType.Validate("Description 2", GenerateVATClauseDescription());
         VATClauseByDocType.Insert(true);
     end;
 
@@ -447,8 +447,8 @@ codeunit 134067 "Test VAT Clause"
         VATClauseByDocTypeTrans.Validate("VAT Clause Code", VATClauseByDocType."VAT Clause Code");
         VATClauseByDocTypeTrans.Validate("Document Type", VATClauseByDocType."Document Type");
         VATClauseByDocTypeTrans.Validate("Language Code", LibraryERM.GetAnyLanguageDifferentFromCurrent());
-        VATClauseByDocTypeTrans.Validate(Description, GenerateVATClauseDescription);
-        VATClauseByDocTypeTrans.Validate("Description 2", GenerateVATClauseDescription);
+        VATClauseByDocTypeTrans.Validate(Description, GenerateVATClauseDescription());
+        VATClauseByDocTypeTrans.Validate("Description 2", GenerateVATClauseDescription());
         VATClauseByDocTypeTrans.Insert(true);
     end;
 
@@ -510,9 +510,9 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure VerifySalesInvoiceVATClause(VATClauseCode: Code[20]; VATDescription: Code[250]; VATDescription2: Code[250])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
-        if LibraryReportDataset.GetNextRow then begin
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.AssertElementWithValueExists('VATClauseCode', VATClauseCode);
             LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription', VATDescription);
             LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription2', VATDescription2);
@@ -521,10 +521,10 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure VerifySalesInvoiceVATClauseDoesNotExist(SalesInvHdrNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_SalesInvHdr', SalesInvHdrNo);
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             Assert.IsFalse(LibraryReportDataset.CurrentRowHasElement('VATClauseCode') or
               LibraryReportDataset.CurrentRowHasElement('VATClauseDescription') or
               LibraryReportDataset.CurrentRowHasElement('VATClauseDescription2'), VATClauseDoesNotExistErr);

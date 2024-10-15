@@ -15,13 +15,13 @@ codeunit 131104 "Library - TempNVBufferHandler"
     [Scope('OnPrem')]
     procedure AssertQueueEmpty()
     begin
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Scope('OnPrem')]
     procedure AssertEntry(ExpecteValue: Text)
     begin
-        Assert.ExpectedMessage(ExpecteValue, LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(ExpecteValue, LibraryVariableStorage.DequeueText());
     end;
 
     [Scope('OnPrem')]

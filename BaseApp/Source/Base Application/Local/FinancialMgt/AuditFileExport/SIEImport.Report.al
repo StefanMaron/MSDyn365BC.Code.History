@@ -138,7 +138,7 @@ report 11208 "SIE Import"
                             else
                                 DocNo := DelChr("Import Field 3", '=', '"');
                             if StrLen(DocNo) = 0 then
-                                DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), false);
+                                DocNo := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series");
 
                             "Import Field 4" := DelChr("Import Field 4", '=<>', DelChr("Import Field 4", '=<>', '0123456789'));
                             // File format YYYYMMDD according to swedish standard
@@ -234,7 +234,7 @@ report 11208 "SIE Import"
                             Clear(SieDimensionPage);
                             SieDimensionPage.LookupMode(true);
                             SieDimensionPage.Run();
-                            ColumnDim := SieDimension.GetDimSelectionText;
+                            ColumnDim := SieDimension.GetDimSelectionText();
                         end;
                     }
                     field(InsertNewAccount; InsertNewAccount)
@@ -304,7 +304,7 @@ report 11208 "SIE Import"
         GenJnlLine: Record "Gen. Journal Line";
         GLAccount: Record "G/L Account";
         TempSieBuffer: Record "SIE Import Buffer";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         FeatureTelemetry: Codeunit "Feature Telemetry";
         SieDimensionPage: Page "SIE Dimensions";
         DialogWindow: Dialog;
@@ -409,7 +409,7 @@ report 11208 "SIE Import"
     procedure CreateGenJnlLine()
     begin
         if DocNo = '' then
-            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), false);
+            DocNo := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series");
         GenJnlLine.Init();
         GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
         GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;

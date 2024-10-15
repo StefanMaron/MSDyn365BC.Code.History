@@ -16,7 +16,6 @@ codeunit 136150 "Service Pages"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
@@ -42,12 +41,12 @@ codeunit 136150 "Service Pages"
 
         LibraryVariableStorage.Enqueue(3); // Ship & Invoice posting option
 
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder."Post and &Print".Invoke; // Post and Print
+        ServiceOrder."Post and &Print".Invoke(); // Post and Print
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -68,12 +67,12 @@ codeunit 136150 "Service Pages"
         LibraryVariableStorage.Enqueue(DoYouWantPostAndPrintTok);
         LibraryVariableStorage.Enqueue(true);
 
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
-        ServiceInvoice."Post and &Print".Invoke; // Post and Print
+        ServiceInvoice."Post and &Print".Invoke(); // Post and Print
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -94,12 +93,12 @@ codeunit 136150 "Service Pages"
         LibraryVariableStorage.Enqueue(DoYouWantPostAndPrintTok);
         LibraryVariableStorage.Enqueue(true);
 
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
-        ServiceCreditMemo."Post and &Print".Invoke; // Post and Print
+        ServiceCreditMemo."Post and &Print".Invoke(); // Post and Print
 
         NotificationLifecycleMgt.RecallAllNotifications();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -121,14 +120,14 @@ codeunit 136150 "Service Pages"
           LibraryERM.CreateCurrencyWithExchangeRate(LibraryRandom.RandDate(-10), ExchangeRate, ExchangeRate);
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
 
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.Filter.SetFilter("No.", ServiceHeader."No.");
 
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, CurrencyCode);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, '');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         ServiceOrder.Close();
     end;
@@ -712,6 +711,78 @@ codeunit 136150 "Service Pages"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromCustomerOnValidate()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+    begin
+        // [FEATURE] [Customer] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Service Document must be copied from Customer when the Customer has a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+
+        // [WHEN] Validate Cusotmer No. in new Service Document
+        ServiceHeader.Validate("Customer No.", Customer."No.");
+        ServiceHeader.Insert(true);
+
+        // [THEN] Service Document Salesperson Code is equal to Customer Salesperson Code
+        ServiceHeader.TestField("Salesperson Code", Customer."Salesperson Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromShiptoCodeOnValidate()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [FEATURE] [Ship-to Address] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Service Document must be copied from Ship-to Address when the Ship-to Address has a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Ship-to Address with Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+        CreateShiptoAddressWithSalesperson(ShipToAddress, Customer."No.");
+
+        // [WHEN] Validate Ship-to Address with a Salesperson Code in new Service Document
+        ServiceHeader.Validate("Customer No.", Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress."Code");
+        ServiceHeader.Insert(true);
+
+        // [THEN] Service Document Salesperson Code is equal to Ship-to Address Salesperson Code
+        ServiceHeader.TestField("Salesperson Code", ShipToAddress."Salesperson Code");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DefaultSalespersonCodeFromCustomerNoShiptoSalespersonOnValidate()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ShipToAddress: Record "Ship-to Address";
+    begin
+        // [FEATURE] [Ship-to Address] [Salesperson Code]
+        // [SCENARIO] "Salesperson Code" in Service Document must be copied from Customer when the Ship-to Address does not have a Salesperson Code
+        Initialize();
+
+        // [GIVEN] Customer with Ship-to Address without Salesperson Code
+        CreateCustomerWithSalesperson(Customer);
+        CreateShiptoAddressWithoutSalesperson(ShipToAddress, Customer."No.");
+
+        // [WHEN] Validate Ship-to Address without a Salesperson Code in new Service Document
+        ServiceHeader.Validate("Customer No.", Customer."No.");
+        ServiceHeader.Validate("Ship-to Code", ShipToAddress."Code");
+        ServiceHeader.Insert(true);
+
+        // [THEN] Service Document Salesperson Code is equal to Customer Salesperson Code
+        ServiceHeader.TestField("Salesperson Code", Customer."Salesperson Code");
+    end;
+
+    [Test]
     procedure ShipToAddressOnServiceInvoiceWhenSetShipToCode()
     var
         Customer: Record Customer;
@@ -774,6 +845,154 @@ codeunit 136150 "Service Pages"
         VerifyShipToFieldsAreFromCustomer(ServiceInvoice, Customer);
     end;
 
+    [Test]
+    [HandlerFunctions('SelectMultiItemsModalPageHandler,ConfirmHandlerYes')]
+    procedure SelectMultiItemOnServiceInvoice()
+    var
+        Customer: Record Customer;
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceInvoice: TestPage "Service Invoice";
+        ExpectedItemNo: Code[20];
+    begin
+        // [FEATURE] [Insert Multiple Items at once]
+        // [SCENARIO 426270] Action "Select items" on Invoice subpage adds selected items 
+        Initialize();
+        LibraryVariableStorage.Clear();
+
+        // [GIVEN] Created Customer
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create Service Invoice and set Customer for it. 
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+
+        // [GIVEN] Open Service Invoice page
+        ServiceInvoice.OpenEdit();
+        ServiceInvoice.GoToRecord(ServiceHeader);
+
+        // [WHEN] Call action Select Multi Items and select 
+        ServiceInvoice.ServLines.SelectMultiItems.Invoke();
+        ServiceInvoice.Close();
+
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+
+        // [THEN] Item "X" is added to a Service Invoice
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::Item);
+        Assert.RecordCount(ServiceLine, 1);
+
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("No.", ExpectedItemNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectMultiServiceItemsModalPageHandler,ConfirmHandlerYes,SelectTemplate')]
+    procedure SelectMultiItemOnServiceContract()
+    var
+        Customer: Record Customer;
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceContractTemplate: Record "Service Contract Template";
+        ServiceContract: TestPage "Service Contract";
+        ExpectedItemNo: Code[20];
+        CreatedServiceContractTemplate: Boolean;
+    begin
+        // [FEATURE] [Insert Multiple Service Items at once]
+        // [SCENARIO 426270] Action "Select service items" on Service Contract subpage adds selected items 
+        Initialize();
+        LibraryVariableStorage.Clear();
+
+        // [GIVEN] Created Customer and several Service Items
+        LibrarySales.CreateCustomer(Customer);
+        GenerateServiceItemsForCustomer(Customer, LibraryRandom.RandIntInRange(5, 10));
+
+        if ServiceContractTemplate.IsEmpty then begin
+            CreateServiceContractTemplate(ServiceContractTemplate, '<3M>', ServiceContractTemplate."Invoice Period"::Month, true, true, false, true);
+            CreatedServiceContractTemplate := true;
+        end;
+
+        // [GIVEN] Create Service Invoice and set Customer for it. 
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+
+        // [GIVEN] Open Service Contract page
+        ServiceContract.OpenEdit();
+        ServiceContract.GoToRecord(ServiceContractHeader);
+
+        // [WHEN] Call action Select Multi Items and select 
+        ServiceContract.ServContractLines.SelectMultiItems.Invoke();
+        ServiceContract.Close();
+
+        ExpectedItemNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, 20);
+
+        // [THEN] Item "X" is added to a Service Contract
+        ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
+        ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        Assert.RecordCount(ServiceContractLine, 1);
+
+        ServiceContractLine.FindFirst();
+        ServiceContractLine.TestField("Service Item No.", ExpectedItemNo);
+
+        if CreatedServiceContractTemplate then
+            ServiceContractTemplate.Delete();
+    end;
+
+    local procedure GenerateServiceItemsForCustomer(var Customer: Record Customer; NoOfItems: Integer)
+    var
+        ServiceItem: Record "Service Item";
+        i: Integer;
+    begin
+        for i := 1 to NoOfItems do begin
+            Clear(ServiceItem);
+            LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
+        end;
+    end;
+
+    local procedure CreateServiceContractTemplate(var ServiceContractTemplate: Record "Service Contract Template"; ServicePeriodTxt: Text; InvoicePeriod: Option; CombineInvoices: Boolean; ContractLinesOnInvoice: Boolean; InvoiceAfterService: Boolean; IsPrepaid: Boolean)
+    var
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        DefaultServicePeriod: DateFormula;
+    begin
+        if ServiceContractAccountGroup.IsEmpty then
+            LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
+
+        Evaluate(DefaultServicePeriod, ServicePeriodTxt);
+
+        LibraryService.CreateServiceContractTemplate(ServiceContractTemplate, DefaultServicePeriod);
+        ServiceContractTemplate.Validate("Invoice Period", InvoicePeriod);
+        ServiceContractTemplate.Validate(Prepaid, IsPrepaid);
+        ServiceContractTemplate.Validate("Combine Invoices", CombineInvoices);
+        ServiceContractTemplate.Validate("Contract Lines on Invoice", ContractLinesOnInvoice);
+        ServiceContractTemplate.Validate("Invoice after Service", InvoiceAfterService);
+        ServiceContractTemplate.Modify(true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectTemplate(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
+    begin
+        Response := ACTION::OK;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiItemsModalPageHandler(var ItemList: TestPage "Item List")
+    begin
+        ItemList.Filter.SetFilter("VAT Prod. Posting Group", '<>''''');
+        ItemList.Next();
+        LibraryVariableStorage.Enqueue(ItemList."No.".Value);
+        ItemList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectMultiServiceItemsModalPageHandler(var ServiceItemList: TestPage "Service Item List")
+    begin
+        ServiceItemList.Next();
+        LibraryVariableStorage.Enqueue(ServiceItemList."No.".Value);
+        ServiceItemList.OK().Invoke();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Pages");
@@ -792,8 +1011,6 @@ codeunit 136150 "Service Pages"
     end;
 
     local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
-    var
-        ServiceItemLine: Record "Service Item Line";
     begin
         LibraryService.CreateServiceDocumentForCustomerNo(ServiceHeader, DocumentType, CustomerNo);
     end;
@@ -821,13 +1038,44 @@ codeunit 136150 "Service Pages"
         LibraryWarehouse.CreateLocation(Location);
 
         LibrarySales.CreateShipToAddress(ShipToAddress, CustomerNo);
-        ShipToAddress.Validate(Address, LibraryUtility.GenerateGUID);
-        ShipToAddress.Validate("Address 2", LibraryUtility.GenerateGUID);
+        ShipToAddress.Validate(Address, LibraryUtility.GenerateGUID());
+        ShipToAddress.Validate("Address 2", LibraryUtility.GenerateGUID());
         ShipToAddress.Validate("Location Code", Location.Code);
         ShipToAddress.Validate("Country/Region Code", PostCode."Country/Region Code");
         ShipToAddress.Validate(City, PostCode.City);
         ShipToAddress.Validate("Post Code", PostCode.Code);
         ShipToAddress.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithSalesperson(var Customer: Record Customer)
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateSalesperson(Salesperson);
+        LibrarySales.CreateCustomerWithAddress(Customer);
+        Customer.Validate("Salesperson Code", Salesperson.Code);
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateShiptoAddressWithoutSalesperson(var ShiptoAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    var
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateShipToAddress(ShiptoAddress, CustomerNo);
+        ShiptoAddress.Validate("Salesperson Code", '');
+        ShiptoAddress.Modify(true);
+    end;
+
+    local procedure CreateShiptoAddressWithSalesperson(var ShiptoAddress: Record "Ship-to Address"; CustomerNo: Code[20])
+    var
+        Salesperson: Record "Salesperson/Purchaser";
+        LibrarySales: Codeunit "Library - Sales";
+    begin
+        LibrarySales.CreateSalesperson(Salesperson);
+        LibrarySales.CreateShipToAddress(ShiptoAddress, CustomerNo);
+        ShiptoAddress.Validate("Salesperson Code", Salesperson.Code);
+        ShiptoAddress.Modify(true);
     end;
 
     local procedure FindPaymentMethodWithBalanceAccount(): Code[10]
@@ -908,7 +1156,7 @@ codeunit 136150 "Service Pages"
     [Scope('OnPrem')]
     procedure StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
     begin
-        Choice := LibraryVariableStorage.DequeueInteger;
+        Choice := LibraryVariableStorage.DequeueInteger();
     end;
 
     [ReportHandler]
@@ -933,8 +1181,8 @@ codeunit 136150 "Service Pages"
     [Scope('OnPrem')]
     procedure ConfirmHandlerWithValidation(Question: Text[1024]; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [ConfirmHandler]
@@ -948,7 +1196,7 @@ codeunit 136150 "Service Pages"
     [Scope('OnPrem')]
     procedure PostAndSendConfirmationModalPageHandler(var PostandSendConfirmation: TestPage "Post and Send Confirmation")
     begin
-        PostandSendConfirmation.Yes.Invoke;
+        PostandSendConfirmation.Yes().Invoke();
     end;
 }
 

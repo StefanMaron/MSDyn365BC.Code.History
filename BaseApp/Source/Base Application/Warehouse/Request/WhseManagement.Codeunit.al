@@ -77,9 +77,6 @@ codeunit 5775 "Whse. Management"
 
     procedure GetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Journal Source Document"
     var
-#if not CLEAN21
-        SourceDocument: Option;
-#endif
         SourceDocumentType: Enum "Warehouse Journal Source Document";
         IsHandled: Boolean;
     begin
@@ -87,13 +84,6 @@ codeunit 5775 "Whse. Management"
         OnBeforeGetSourceDocumentType(SourceType, SourceSubtype, SourceDocumentType, IsHandled);
         if IsHandled then
             exit(SourceDocumentType);
-
-#if not CLEAN21
-        IsHandled := false;
-        OnBeforeGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
-        if IsHandled then
-            exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
-#endif
 
         case SourceType of
             Database::"Sales Line":
@@ -156,13 +146,6 @@ codeunit 5775 "Whse. Management"
         OnAfterGetSourceDocumentType(SourceType, SourceSubtype, SourceDocumentType, IsHandled);
         if IsHandled then
             exit(SourceDocumentType);
-
-#if not CLEAN21
-        IsHandled := false;
-        OnAfterGetSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
-        if IsHandled then
-            exit("Warehouse Journal Source Document".FromInteger(SourceDocument));
-#endif
 
         Error(Text000);
     end;
@@ -250,44 +233,41 @@ codeunit 5775 "Whse. Management"
         if IsHandled then
             exit(SourceType);
 
-        with WhseWkshLine do
-            case "Whse. Document Type" of
-                "Whse. Document Type"::Receipt:
-                    SourceType := Database::"Posted Whse. Receipt Line";
-                "Whse. Document Type"::Shipment:
-                    SourceType := Database::"Warehouse Shipment Line";
-                "Whse. Document Type"::Production:
-                    SourceType := Database::"Prod. Order Component";
-                "Whse. Document Type"::Assembly:
-                    SourceType := Database::"Assembly Line";
-                "Whse. Document Type"::"Internal Put-away":
-                    SourceType := Database::"Whse. Internal Put-away Line";
-                "Whse. Document Type"::"Internal Pick":
-                    SourceType := Database::"Whse. Internal Pick Line";
-                "Whse. Document Type"::Job:
-                    SourceType := Database::Job;
-            end;
+        case WhseWkshLine."Whse. Document Type" of
+            WhseWkshLine."Whse. Document Type"::Receipt:
+                SourceType := Database::"Posted Whse. Receipt Line";
+            WhseWkshLine."Whse. Document Type"::Shipment:
+                SourceType := Database::"Warehouse Shipment Line";
+            WhseWkshLine."Whse. Document Type"::Production:
+                SourceType := Database::"Prod. Order Component";
+            WhseWkshLine."Whse. Document Type"::Assembly:
+                SourceType := Database::"Assembly Line";
+            WhseWkshLine."Whse. Document Type"::"Internal Put-away":
+                SourceType := Database::"Whse. Internal Put-away Line";
+            WhseWkshLine."Whse. Document Type"::"Internal Pick":
+                SourceType := Database::"Whse. Internal Pick Line";
+            WhseWkshLine."Whse. Document Type"::Job:
+                SourceType := Database::Job;
+        end;
     end;
 
     procedure GetOutboundDocLineQtyOtsdg(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
     var
         WhseShptLine: Record "Warehouse Shipment Line";
     begin
-        with WhseShptLine do begin
-            SetCurrentKey("Source Type");
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            SetRange("Source Line No.", SourceLineNo);
-            if FindFirst() then begin
-                CalcFields("Pick Qty. (Base)", "Pick Qty.");
-                CalcSums(Quantity, "Qty. (Base)");
-                QtyOutstanding := Quantity - "Pick Qty." - "Qty. Picked";
-                QtyBaseOutstanding := "Qty. (Base)" - "Pick Qty. (Base)" - "Qty. Picked (Base)";
-            end else
-                GetSrcDocLineQtyOutstanding(SourceType, SourceSubType, SourceNo,
-                  SourceLineNo, SourceSubLineNo, QtyOutstanding, QtyBaseOutstanding);
-        end;
+        WhseShptLine.SetCurrentKey("Source Type");
+        WhseShptLine.SetRange("Source Type", SourceType);
+        WhseShptLine.SetRange("Source Subtype", SourceSubType);
+        WhseShptLine.SetRange("Source No.", SourceNo);
+        WhseShptLine.SetRange("Source Line No.", SourceLineNo);
+        if WhseShptLine.FindFirst() then begin
+            WhseShptLine.CalcFields(WhseShptLine."Pick Qty. (Base)", WhseShptLine."Pick Qty.");
+            WhseShptLine.CalcSums(WhseShptLine.Quantity, WhseShptLine."Qty. (Base)");
+            QtyOutstanding := WhseShptLine.Quantity - WhseShptLine."Pick Qty." - WhseShptLine."Qty. Picked";
+            QtyBaseOutstanding := WhseShptLine."Qty. (Base)" - WhseShptLine."Pick Qty. (Base)" - WhseShptLine."Qty. Picked (Base)";
+        end else
+            GetSrcDocLineQtyOutstanding(SourceType, SourceSubType, SourceNo,
+              SourceLineNo, SourceSubLineNo, QtyOutstanding, QtyBaseOutstanding);
     end;
 
     local procedure GetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
@@ -374,78 +354,68 @@ codeunit 5775 "Whse. Management"
 
     procedure SetSourceFilterForWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
-        with WarehouseReceiptLine do begin
-            if SetKey then
-                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", SourceType);
-            if SourceSubType >= 0 then
-                SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            if SourceLineNo >= 0 then
-                SetRange("Source Line No.", SourceLineNo);
-        end;
+        if SetKey then
+            WarehouseReceiptLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+        WarehouseReceiptLine.SetRange("Source Type", SourceType);
+        if SourceSubType >= 0 then
+            WarehouseReceiptLine.SetRange("Source Subtype", SourceSubType);
+        WarehouseReceiptLine.SetRange("Source No.", SourceNo);
+        if SourceLineNo >= 0 then
+            WarehouseReceiptLine.SetRange("Source Line No.", SourceLineNo);
 
         OnAfterSetSourceFilterForWhseRcptLine(WarehouseReceiptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
     procedure SetSourceFilterForWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
-        with WarehouseActivityLine do begin
-            if SetKey then
-                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", SourceType);
-            if SourceSubType >= 0 then
-                SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            if SourceLineNo >= 0 then
-                SetRange("Source Line No.", SourceLineNo);
-        end;
+        if SetKey then
+            WarehouseActivityLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+        WarehouseActivityLine.SetRange("Source Type", SourceType);
+        if SourceSubType >= 0 then
+            WarehouseActivityLine.SetRange("Source Subtype", SourceSubType);
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        if SourceLineNo >= 0 then
+            WarehouseActivityLine.SetRange("Source Line No.", SourceLineNo);
     end;
 
     procedure SetSourceFilterForWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
-        with WarehouseShipmentLine do begin
-            if SetKey then
-                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", SourceType);
-            if SourceSubType >= 0 then
-                SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            if SourceLineNo >= 0 then
-                SetRange("Source Line No.", SourceLineNo);
-        end;
+        if SetKey then
+            WarehouseShipmentLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+        WarehouseShipmentLine.SetRange("Source Type", SourceType);
+        if SourceSubType >= 0 then
+            WarehouseShipmentLine.SetRange("Source Subtype", SourceSubType);
+        WarehouseShipmentLine.SetRange("Source No.", SourceNo);
+        if SourceLineNo >= 0 then
+            WarehouseShipmentLine.SetRange("Source Line No.", SourceLineNo);
 
         OnAfterSetSourceFilterForWhseShptLine(WarehouseShipmentLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
     procedure SetSourceFilterForPostedWhseRcptLine(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
-        with PostedWhseReceiptLine do begin
-            if SetKey then
-                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", SourceType);
-            if SourceSubType >= 0 then
-                SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            if SourceLineNo >= 0 then
-                SetRange("Source Line No.", SourceLineNo);
-        end;
+        if SetKey then
+            PostedWhseReceiptLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+        PostedWhseReceiptLine.SetRange("Source Type", SourceType);
+        if SourceSubType >= 0 then
+            PostedWhseReceiptLine.SetRange("Source Subtype", SourceSubType);
+        PostedWhseReceiptLine.SetRange("Source No.", SourceNo);
+        if SourceLineNo >= 0 then
+            PostedWhseReceiptLine.SetRange("Source Line No.", SourceLineNo);
 
         OnAfterSetSourceFilterForPostedWhseRcptLine(PostedWhseReceiptLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
     procedure SetSourceFilterForPostedWhseShptLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
     begin
-        with PostedWhseShipmentLine do begin
-            if SetKey then
-                SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
-            SetRange("Source Type", SourceType);
-            if SourceSubType >= 0 then
-                SetRange("Source Subtype", SourceSubType);
-            SetRange("Source No.", SourceNo);
-            if SourceLineNo >= 0 then
-                SetRange("Source Line No.", SourceLineNo);
-        end;
+        if SetKey then
+            PostedWhseShipmentLine.SetCurrentKey("Source Type", "Source Subtype", "Source No.", "Source Line No.");
+        PostedWhseShipmentLine.SetRange("Source Type", SourceType);
+        if SourceSubType >= 0 then
+            PostedWhseShipmentLine.SetRange("Source Subtype", SourceSubType);
+        PostedWhseShipmentLine.SetRange("Source No.", SourceNo);
+        if SourceLineNo >= 0 then
+            PostedWhseShipmentLine.SetRange("Source Line No.", SourceLineNo);
 
         OnAfterSetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
@@ -455,26 +425,10 @@ codeunit 5775 "Whse. Management"
     begin
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced by event OnAfterGetSourceDocumentType()', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by event OnBeforeGetSourceDocumentType()', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Option; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer; var SourceDocumentType: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)

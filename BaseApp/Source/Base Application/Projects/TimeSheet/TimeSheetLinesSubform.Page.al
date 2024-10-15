@@ -23,6 +23,7 @@ page 974 "Time Sheet Lines Subform"
         {
             repeater(Control1)
             {
+                FreezeColumn = Status;
                 ShowCaption = false;
                 field(Type; Rec.Type)
                 {
@@ -40,6 +41,8 @@ page 974 "Time Sheet Lines Subform"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies information about the status of a time sheet line.';
+                    Style = Unfavorable;
+                    StyleExpr = Rec."Total Quantity" = 0;
                     Width = 4;
                 }
                 field(Description; Rec.Description)
@@ -66,8 +69,8 @@ page 974 "Time Sheet Lines Subform"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
-                    Visible = false;
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
+                    Visible = JobFieldsVisible;
 
                     trigger OnValidate()
                     begin
@@ -78,8 +81,8 @@ page 974 "Time Sheet Lines Subform"
                 {
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
-                    ToolTip = 'Specifies the number of the related job task.';
-                    Visible = false;
+                    ToolTip = 'Specifies the number of the related project task.';
+                    Visible = JobFieldsVisible;
 
                     trigger OnValidate()
                     begin
@@ -91,7 +94,7 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
                     ToolTip = 'Specifies a list of standard absence codes, from which you may select one.';
-                    Visible = false;
+                    Visible = AbsenceCauseVisible;
 
                     trigger OnValidate()
                     begin
@@ -103,7 +106,7 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
                     ToolTip = 'Specifies if the usage that you are posting is chargeable.';
-                    Visible = false;
+                    Visible = ChargeableVisible;
 
                     trigger OnValidate()
                     begin
@@ -115,7 +118,7 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Editable = AllowEdit;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
-                    Visible = false;
+                    Visible = WorkTypeCodeVisible;
 
                     trigger OnValidate()
                     begin
@@ -124,10 +127,10 @@ page 974 "Time Sheet Lines Subform"
                 }
                 field("Service Order No."; Rec."Service Order No.")
                 {
-                    ApplicationArea = Jobs;
+                    ApplicationArea = Service;
                     Editable = AllowEdit;
                     ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
-                    Visible = false;
+                    Visible = ServiceOrderNoVisible;
 
                     trigger OnValidate()
                     begin
@@ -298,8 +301,7 @@ page 974 "Time Sheet Lines Subform"
                     Caption = '&Submit';
                     Image = ReleaseDoc;
                     ShortCutKey = 'F9';
-                    ToolTip = 'Submit the time sheet line for approval.';
-                    Promoted = true;
+                    ToolTip = 'Submit the time sheet line for approval. Line must have a Type defined.';
                     Scope = Repeater;
                     Gesture = RightSwipe;
                     Enabled = SubmitLineEnabled;
@@ -315,10 +317,9 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Caption = '&Reopen';
                     Image = ReOpen;
-                    Promoted = true;
                     Scope = Repeater;
                     Gesture = LeftSwipe;
-                    ToolTip = 'Reopen the time sheet line, for example, after it has been rejected. The approver of a time sheet has permission to approve, reject, or reopen a time sheet. The approver can also submit a time sheet for approval.';
+                    ToolTip = 'Reopen the time sheet line, for example, after it has been rejected. Line must have a Type defined. The approver of a time sheet has permission to approve, reject, or reopen a time sheet. The approver can also submit a time sheet for approval.';
                     Enabled = ReopenSubmittedLineEnabled;
                     Visible = not ManagerTimeSheet;
 
@@ -333,8 +334,7 @@ page 974 "Time Sheet Lines Subform"
                     Caption = '&Approve';
                     Ellipsis = true;
                     Image = ReleaseDoc;
-                    ToolTip = 'Approve the lines on the time sheet.';
-                    Promoted = true;
+                    ToolTip = 'Approve the lines on the time sheet. Each line must have a Type defined.';
                     Scope = Repeater;
                     Gesture = RightSwipe;
                     Enabled = ApproveLineEnabled;
@@ -350,8 +350,7 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Caption = 'Reject';
                     Image = Reject;
-                    ToolTip = 'Reject the lines on the time sheet.';
-                    Promoted = true;
+                    ToolTip = 'Reject the lines on the time sheet. Each line must have a Type defined.';
                     Scope = Repeater;
                     Gesture = RightSwipe;
                     Enabled = RejectLineEnabled;
@@ -367,10 +366,9 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Caption = '&Reopen';
                     Image = ReOpen;
-                    Promoted = true;
                     Scope = Repeater;
                     Gesture = LeftSwipe;
-                    ToolTip = 'Reopen the approved or rejected time sheet line.';
+                    ToolTip = 'Reopen the approved or rejected time sheet line. Line must have a Type defined.';
                     Enabled = ReopenApprovedLineEnabled;
                     Visible = ManagerTimeSheet;
 
@@ -384,7 +382,6 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Jobs;
                     Caption = 'Time Sheet Allocation';
                     Image = Allocate;
-                    Promoted = true;
                     ToolTip = 'Allocate posted hours among days of the week on a time sheet.';
                     Enabled = Rec.Posted;
 
@@ -427,7 +424,6 @@ page 974 "Time Sheet Lines Subform"
                     ApplicationArea = Comments;
                     Caption = 'Comments';
                     Image = ViewComments;
-                    Promoted = true;
                     RunObject = Page "Time Sheet Comment Sheet";
                     RunPageLink = "No." = field("Time Sheet No."),
                                   "Time Sheet Line No." = field("Line No.");
@@ -448,6 +444,17 @@ page 974 "Time Sheet Lines Subform"
         UpdateControls();
     end;
 
+    trigger OnOpenPage()
+    begin
+        TimeSheetMgt.CheckTimeSheetLineFieldsVisible(WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible);
+    end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        if (BelowxRec) and (Rec.Status = Rec.Status::Open) then
+            Rec.Type := xRec.Type;
+    end;
+
     var
         TimeSheetDetail: Record "Time Sheet Detail";
         ColumnRecords: array[32] of Record Date;
@@ -457,6 +464,7 @@ page 974 "Time Sheet Lines Subform"
         NoOfColumns: Integer;
         ColumnCaption: array[32] of Text[1024];
         UnitOfMeasureCode: Code[10];
+        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
         InvalidTypeErr: Label 'The type of time sheet line cannot be empty.';
         DimensionCaptionTok: Label 'Dimensions';
 
@@ -524,11 +532,11 @@ page 974 "Time Sheet Lines Subform"
         end;
         AllowEdit := Rec.Status in [Rec.Status::Open, Rec.Status::Rejected];
 
-        SubmitLineEnabled := Rec.Status = Rec.Status::Open;
-        ReopenSubmittedLineEnabled := Rec.Status in [Rec.Status::Submitted, Rec.Status::Rejected];
-        ApproveLineEnabled := Rec.Status = Rec.Status::Submitted;
-        RejectLineEnabled := Rec.Status = Rec.Status::Submitted;
-        ReopenApprovedLineEnabled := Rec.Status in [Rec.Status::Approved, Rec.Status::Rejected];
+        SubmitLineEnabled := (Rec.Status = Rec.Status::Open) and (Rec.Type <> Rec.Type::" ");
+        ReopenSubmittedLineEnabled := (Rec.Status in [Rec.Status::Submitted, Rec.Status::Rejected]) and (Rec.Type <> Rec.Type::" ");
+        ApproveLineEnabled := (Rec.Status = Rec.Status::Submitted) and (Rec.Type <> Rec.Type::" ");
+        RejectLineEnabled := (Rec.Status = Rec.Status::Submitted) and (Rec.Type <> Rec.Type::" ");
+        ReopenApprovedLineEnabled := (Rec.Status in [Rec.Status::Approved, Rec.Status::Rejected]) and (Rec.Type <> Rec.Type::" ");
     end;
 
     procedure ValidateQuantity(ColumnNo: Integer)
@@ -577,6 +585,7 @@ page 974 "Time Sheet Lines Subform"
     var
         TimeSheetLine: Record "Time Sheet Line";
         TempTimeSheetLine: Record "Time Sheet Line" temporary;
+        TimeSheetAction: Enum "Time Sheet Action";
     begin
         CurrPage.SaveRecord();
         FilterLines(TimeSheetLine, ActionType, ProcessAll);
@@ -585,16 +594,45 @@ page 974 "Time Sheet Lines Subform"
         if TimeSheetLine.FindSet() then
             repeat
                 TimeSheetApprovalMgt.ProcessAction(TimeSheetLine, ActionType);
-            until TimeSheetLine.Next() = 0;
+            until TimeSheetLine.Next() = 0
+        else begin
+            case ActionType of
+                ActionType::Submit:
+                    TimeSheetAction := TimeSheetAction::Submit;
+                ActionType::Approve:
+                    TimeSheetAction := TimeSheetAction::Approve;
+                ActionType::Reject:
+                    TimeSheetAction := TimeSheetAction::Reject;
+                ActionType::ReopenSubmitted:
+                    TimeSheetAction := TimeSheetAction::"Reopen Submitted";
+                ActionType::ReopenApproved:
+                    TimeSheetAction := TimeSheetAction::"Reopen Approved";
+            end;
+            TimeSheetApprovalMgt.NoTimeSheetLinesToProcess(TimeSheetAction);
+        end;
         OnAfterProcess(TempTimeSheetLine, ActionType, ProcessAll);
         CurrPage.Update(true);
     end;
 
     local procedure FilterLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject; ProcessAll: Boolean)
     begin
-        if not ProcessAll then
-            CurrPage.SetSelectionFilter(TimeSheetLine)
-        else
+        if not ProcessAll then begin
+            CurrPage.SetSelectionFilter(TimeSheetLine);
+            TimeSheetLine.FilterGroup(2);
+            TimeSheetLine.SetFilter(Type, '<>%1', TimeSheetLine.Type::" ");
+            TimeSheetLine.FilterGroup(0);
+            case ActionType of
+                ActionType::Submit:
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Open);
+                ActionType::ReopenSubmitted:
+                    TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Submitted, TimeSheetLine.Status::Rejected);
+                ActionType::Reject,
+                ActionType::Approve:
+                    TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Submitted);
+                ActionType::ReopenApproved:
+                    TimeSheetLine.SetFilter(Status, '%1|%2', TimeSheetLine.Status::Approved, TimeSheetLine.Status::Rejected);
+            end;
+        end else
             FilterAllLines(TimeSheetLine, ActionType);
         OnAfterFilterLines(TimeSheetLine, ActionType, ProcessAll);
     end;
@@ -726,7 +764,7 @@ page 974 "Time Sheet Lines Subform"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FilterAllLines(TimeSheetLine, ActionType);
-        exit(TimeSheetApprovalMgt.GetCommonTimeSheetDialogText(ActionType, TimeSheetLine.Count));
+        exit(TimeSheetApprovalMgt.GetCommonTimeSheetDialogText(ActionType, TimeSheetLine.Count()));
     end;
 
     local procedure FilterAllLines(var TimeSheetLine: Record "Time Sheet Line"; ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject)
@@ -744,7 +782,7 @@ page 974 "Time Sheet Lines Subform"
 
     local procedure ShowDialog(ActionType: Option Submit,ReopenSubmitted,Approve,ReopenApproved,Reject): Integer
     begin
-        exit(StrMenu(GetDialogText(ActionType), 1, TimeSheetApprovalMgt.GetCommonTimeSheetDialogInstruction(ActionType)));
+        exit(StrMenu(GetDialogText(ActionType), 2, TimeSheetApprovalMgt.GetCommonTimeSheetDialogInstruction(ActionType)));
     end;
 
     [IntegrationEvent(false, false)]

@@ -33,13 +33,13 @@ page 1877 "VAT Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT FinalStepVisible;
+                Visible = TopBannerVisible and not FinalStepVisible;
             }
             group(Control98)
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND FinalStepVisible;
+                Visible = TopBannerVisible and FinalStepVisible;
             }
             group("<MediaRepositoryDone>")
             {
@@ -155,7 +155,7 @@ page 1877 "VAT Setup Wizard"
             group(Control17)
             {
                 ShowCaption = false;
-                Visible = ManualVATStepVisible OR FinalStepVisible;
+                Visible = ManualVATStepVisible or FinalStepVisible;
                 group("Manual setup required")
                 {
                     Caption = 'Manual setup required';

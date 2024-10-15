@@ -26,7 +26,7 @@ page 1368 "Monitor Field Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step <> Step::Finish);
+                Visible = TopBannerVisible and (Step <> Step::Finish);
                 field(MediaResourceStandardReference; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -200,7 +200,7 @@ page 1368 "Monitor Field Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step = Step::Finish);
+                Visible = TopBannerVisible and (Step = Step::Finish);
                 field(MediaResourceDoneReference; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -309,6 +309,7 @@ page 1368 "Monitor Field Setup Wizard"
         MonitorSensitiveField.GetSetupTable(FieldMonitoringSetup);
         MonitorUserId := FieldMonitoringSetup."User Id";
         EmailAccountName := FieldMonitoringSetup."Email Account Name";
+        EmailAccountId := FieldMonitoringSetup."Email Account Id";
         OpenMonitorWorksheetPage := true;
 
         ResetControls();

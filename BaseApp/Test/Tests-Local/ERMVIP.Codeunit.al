@@ -174,7 +174,7 @@ codeunit 144017 "ERM VIP"
     begin
         GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        Assert.AreEqual(RecordExist, GenJournalLine.FindFirst, RecordExistsMsg);
+        Assert.AreEqual(RecordExist, not GenJournalLine.IsEmpty(), RecordExistsMsg);
     end;
 
     [RequestPageHandler]
@@ -189,8 +189,7 @@ codeunit 144017 "ERM VIP"
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.AlwaysInclCreditMemo.SetValue(AlwaysInclCreditMemo);
-        SuggestVendorPayments.StartingDocumentNo.SetValue(VendorNo);  // Value is not important.
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 }
 #endif

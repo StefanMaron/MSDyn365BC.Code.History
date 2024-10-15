@@ -9,6 +9,7 @@ table 99000757 "Calendar Entry"
     Caption = 'Calendar Entry';
     DrillDownPageID = "Calendar Entries";
     LookupPageID = "Calendar Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

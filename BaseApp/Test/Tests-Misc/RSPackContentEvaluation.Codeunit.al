@@ -207,7 +207,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Cust. Ledger Entries are created
                 CustLedgEntry.FindLast();
                 CustLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -308,7 +308,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedInvoiceNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -335,7 +335,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
                 // [THEN] Vendor Ledger Entries are created
                 VendLedgEntry.FindLast();
                 VendLedgEntry.TestField("Document No.", PostedOrderNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

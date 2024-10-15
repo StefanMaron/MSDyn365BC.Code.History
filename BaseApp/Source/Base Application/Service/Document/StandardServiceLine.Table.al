@@ -12,6 +12,7 @@ using Microsoft.Utilities;
 table 5997 "Standard Service Line"
 {
     Caption = 'Standard Service Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,7 +45,7 @@ table 5997 "Standard Service Line"
             Caption = 'No.';
             TableRelation = if (Type = const(" ")) "Standard Text"
             else
-            if (Type = const(Item)) Item where(Blocked = const(false))
+            if (Type = const(Item)) Item where(Blocked = const(false), "Service Blocked" = const(false))
             else
             if (Type = const(Resource)) Resource
             else
@@ -77,7 +78,6 @@ table 5997 "Standard Service Line"
                         Type::Item:
                             begin
                                 Item.Get("No.");
-                                Item.TestField(Blocked, false);
                                 if Item.Type = Item.Type::Inventory then
                                     Item.TestField("Inventory Posting Group");
                                 Item.TestField("Gen. Prod. Posting Group");
@@ -152,6 +152,8 @@ table 5997 "Standard Service Line"
             Caption = 'Unit of Measure Code';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field("No."))
             else
+            if (Type = const(Resource)) "Resource Unit of Measure".Code where("Resource No." = field("No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()
@@ -186,7 +188,7 @@ table 5997 "Standard Service Line"
         field(11; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
+            TableRelation = if (Type = const(Item)) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false), "Service Blocked" = const(false));
 
             trigger OnValidate()
             var
@@ -202,9 +204,8 @@ table 5997 "Standard Service Line"
                 end;
 
                 TestField(Type, Type::Item);
-                ItemVariant.SetLoadFields(Description, Blocked);
+                ItemVariant.SetLoadFields(Description);
                 ItemVariant.Get("No.", "Variant Code");
-                ItemVariant.TestField(Blocked, false);
                 Description := ItemVariant.Description;
             end;
         }

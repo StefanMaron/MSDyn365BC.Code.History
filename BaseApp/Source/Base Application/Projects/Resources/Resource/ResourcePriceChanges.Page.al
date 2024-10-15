@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Pricing.Calculation;
@@ -49,7 +49,7 @@ page 493 "Resource Price Changes"
                 field("New Unit Price"; Rec."New Unit Price")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the new unit price that is valid for the selected combination of resource type, resource code, job number, or work type.';
+                    ToolTip = 'Specifies the new unit price that is valid for the selected combination of resource type, resource code, project number, or work type.';
                 }
             }
         }
