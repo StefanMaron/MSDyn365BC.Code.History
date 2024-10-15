@@ -77,7 +77,7 @@ codeunit 3010536 GlForeignCurrMgt
 
         GLSetup.Get();
         GlAcc.Get(AccNo);
-        if (GenJnlLine."Currency Code" = '') or (GenJnlLine."Currency Code" = GLSetup."LCY Code") then
+        if (GenJnlLine."Currency Code" = '') or ((GenJnlLine."Currency Code" = GLSetup."LCY Code") and (GlAcc."Currency Code" <> '')) then
             GenJnlLine."Currency Code" := GlAcc."Currency Code";
     end;
 
