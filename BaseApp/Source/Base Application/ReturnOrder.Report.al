@@ -129,6 +129,12 @@ report 6641 "Return Order"
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
                     column(BuyfromVendNo_PurchHdr; "Purchase Header"."Buy-from Vendor No.")
                     {
                     }

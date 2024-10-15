@@ -85,6 +85,9 @@ table 1014 "Job G/L Account Price"
         field(8; "Line Discount %"; Decimal)
         {
             Caption = 'Line Discount %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
         }
         field(9; "Unit Cost"; Decimal)
         {

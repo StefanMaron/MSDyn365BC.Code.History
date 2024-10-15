@@ -479,6 +479,7 @@ codeunit 144065 "Test CH VATSTAT"
         CalcAndPostVATSettlement.StartingDate.SetValue(Date);
         CalcAndPostVATSettlement.EndDateReq.SetValue(Date);
         CalcAndPostVATSettlement.PostingDt.SetValue(Date);
+        CalcAndPostVATSettlement.VATDt.SetValue(Date);
         CalcAndPostVATSettlement.DocumentNo.SetValue(DocumentNo);
         CalcAndPostVATSettlement.SettlementAcc.SetValue(SettlementAccountNo);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);

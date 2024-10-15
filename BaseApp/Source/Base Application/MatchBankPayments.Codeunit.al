@@ -721,6 +721,7 @@
     begin
         InitializeBankPmtApplSettings();
         TempLedgerEntryMatchingBuffer.Reset();
+        OnFindMatchingEntriesOnBeforeFindFirst(TempBankAccReconciliationLine, TempLedgerEntryMatchingBuffer, AccountType, ApplyEntries);
         if TempLedgerEntryMatchingBuffer.FindFirst() then
             repeat
                 FindMatchingEntry(TempLedgerEntryMatchingBuffer, TempBankAccReconciliationLine, AccountType, BankPmtApplRule);
@@ -2340,6 +2341,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; AccountType: Enum "Gen. Journal Account Type"; var TotalTimeDocumentNoMatching: Duration; var TotalTimeDocumentNoMatchingForBankLedgerEntry: Duration; var DocumentMatchedInfoText: Text; LogInfoText: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindMatchingEntriesOnBeforeFindFirst(var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; var SkipOtherEntries: Boolean)
     begin
     end;
 

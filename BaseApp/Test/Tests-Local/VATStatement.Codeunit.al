@@ -568,6 +568,7 @@ codeunit 144005 "VAT Statement"
         CalcAndPostVATSettlement.StartingDate.SetValue(WorkDate());
         CalcAndPostVATSettlement.EndDateReq.SetValue(WorkDate());
         CalcAndPostVATSettlement.PostingDt.SetValue(WorkDate());
+        CalcAndPostVATSettlement.VATDt.SetValue(WorkDate());
         CalcAndPostVATSettlement.DocumentNo.SetValue(DocumentNo);
         CalcAndPostVATSettlement.SettlementAcc.SetValue(SettlementAccountNo);
         CalcAndPostVATSettlement.ShowVATEntries.SetValue(true);

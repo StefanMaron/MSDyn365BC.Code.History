@@ -795,7 +795,13 @@ codeunit 950 "Time Sheet Management"
     procedure CheckResJnlLine(ResJnlLine: Record "Res. Journal Line")
     var
         MaxAvailableQty: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckResJnlLine(ResJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with ResJnlLine do begin
             TestField("Qty. per Unit of Measure");
             if not CheckTSLineDetailPosting(
@@ -1087,6 +1093,11 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobJnlLine(var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckResJnlLine(ResJournalLine: Record "Res. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

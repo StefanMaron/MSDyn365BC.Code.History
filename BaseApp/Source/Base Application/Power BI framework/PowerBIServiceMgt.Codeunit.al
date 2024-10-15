@@ -154,6 +154,7 @@ codeunit 6301 "Power BI Service Mgt."
         exit(PowerBIReportConfiguration.Get(UserSecurityId(), ReportId, EnglishContext));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure IsUserReadyForPowerBI(): Boolean
     begin

@@ -92,6 +92,12 @@ report 5174 "Archived Blanket Purch. Order"
                     column(CompanyAddr_6_; CompanyAddr[6])
                     {
                     }
+                    column(CompanyAddr_7_; CompanyAddr[7])
+                    {
+                    }
+                    column(CompanyAddr_8_; CompanyAddr[8])
+                    {
+                    }
                     column(Purchase_Header_Archive___Buy_from_Vendor_No__; "Purchase Header Archive"."Buy-from Vendor No.")
                     {
                     }

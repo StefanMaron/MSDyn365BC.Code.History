@@ -13,7 +13,13 @@ table 225 "Post Code"
             trigger OnValidate()
             var
                 PostCode: Record "Post Code";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 PostCode.SetRange("Search City", "Search City");
                 PostCode.SetRange(Code, Code);
                 if not PostCode.IsEmpty() then
@@ -28,7 +34,12 @@ table 225 "Post Code"
             trigger OnValidate()
             var
                 PostCode: Record "Post Code";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCityField(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
                 TestField(Code);
                 "Search City" := City;
                 if xRec."Search City" <> "Search City" then begin
@@ -352,6 +363,16 @@ table 225 "Post Code"
 #endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateCityProcedure(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCityField(var PostCode: Record "Post Code"; xPostCode: Record "Post Code"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCode(var PostCode: Record "Post Code"; xPostCode: Record "Post Code"; var IsHandled: Boolean)
     begin
     end;
 
