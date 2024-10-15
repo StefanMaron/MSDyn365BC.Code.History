@@ -2482,6 +2482,44 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Item.TestField("Sales Unit of Measure", UnitOfMeasure.Code);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfigFieldMappingModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure AddNewFieldMapping()
+    var
+        ConfigPackageField: Record "Config. Package Field";
+        ConfigFieldMap: Record "Config. Field Map";
+        ConfigPackageManagement: Codeunit "Config. Package Management";
+    begin
+        // [GIVEN] There a config package field
+        ConfigPackageField."Package Code" := 'CODE';
+        ConfigPackageField."Table ID" := DATABASE::"Config. Package Field";
+        ConfigPackageField."Field ID" := ConfigPackageField.FieldNo(Dimension);
+
+        // [WHEN] The Config. Field Mapping page is opened
+        // [THEN] It is possible to add new values on the page (verified in the handler) 
+        ConfigPackageManagement.ShowFieldMapping(ConfigPackageField);
+
+        // [THEN] Config. Field Map has a record with the fields that correspond to the ones from Config. Package Field table
+        ConfigFieldMap.SetRange("Old Value", 'Old value');
+        ConfigFieldMap.SetRange("New Value", 'New value');
+
+        Assert.IsTrue(ConfigFieldMap.FindFirst(), 'The record should have been added to the Config. Field Map table');
+        Assert.AreEqual(ConfigFieldMap."Package Code", ConfigPackageField."Package Code", 'Package Code should be the same in Config. Package Field and Config. Field Map tables');
+        Assert.AreEqual(ConfigFieldMap."Table ID", ConfigPackageField."Table ID", 'Table ID should be the same in Config. Package Field and Config. Field Map tables');
+        Assert.AreEqual(ConfigFieldMap."Field ID", ConfigPackageField."Field ID", 'Field ID should be the same in Config. Package Field and Config. Field Map tables');
+
+        ConfigFieldMap.Delete();
+    end;
+
+    [ModalPageHandler]
+    procedure ConfigFieldMappingModalPageHandler(var ConfigFieldMapping: TestPage "Config. Field Mapping");
+    begin
+        ConfigFieldMapping."Old Value".SetValue('Old value');
+        ConfigFieldMapping."New Value".SetValue('New value');
+        ConfigFieldMapping.Next();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

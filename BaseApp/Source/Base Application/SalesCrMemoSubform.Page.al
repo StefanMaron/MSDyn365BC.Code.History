@@ -173,6 +173,12 @@
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -961,6 +967,36 @@
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                    begin
+                        EditinExcel.EditPageInExcel(
+                            'Sales_Cr_Memo_Line',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo(EditInExcelFilterTxt, Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
+                    end;
+
+                }
+            }
         }
     }
 
@@ -1042,8 +1078,11 @@
         UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
+        ExcelFileNameTxt: Label 'Sales Credit Memo %1 - Lines', Comment = '%1 = document number, ex. 10000';
+        EditInExcelFilterTxt: Label 'Document_No eq ''%1''', Locked = true;
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1067,8 +1106,11 @@
         VATAmount: Decimal;
 
     local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
     begin
         OnBeforeSetOpenPage();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
     end;
 
     procedure ApproveCalcInvDisc()

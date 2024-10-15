@@ -173,7 +173,7 @@ table 99000829 "Planning Component"
                     "Due Time" := 0T;
                 end;
 
-                OnValidateRoutingLinkCodeOnBeforeValidateDueDate(Rec, ReqLine);
+                OnValidateRoutingLinkCodeOnBeforeValidateDueDate(Rec, ReqLine, PlanningRtngLine);
                 Validate("Due Date");
             end;
         }
@@ -1122,8 +1122,8 @@ table 99000829 "Planning Component"
         BinCode: Code[20];
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
-        OnBeforeGetWMSDefaultBin(Rec, BinCode, IsHandled);
+        IsHandled := false;
+        OnBeforeGetWMSDefaultBin(Rec, BinCode, IsHandled, Location);
         if not IsHandled then
             if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("Item No.", "Variant Code", "Location Code", BinCode);
@@ -1193,7 +1193,7 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetWMSDefaultBin(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20]; var IsHandled: Boolean)
+    local procedure OnBeforeGetWMSDefaultBin(var PlanningComponent: Record "Planning Component"; var BinCode: Code[20]; var IsHandled: Boolean; Location: Record Location)
     begin
     end;
 
@@ -1218,7 +1218,7 @@ table 99000829 "Planning Component"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateRoutingLinkCodeOnBeforeValidateDueDate(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line")
+    local procedure OnValidateRoutingLinkCodeOnBeforeValidateDueDate(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line"; var PlanningRoutingLine: Record "Planning Routing Line")
     begin
     end;
 

@@ -269,8 +269,7 @@ page 5050 "Contact Card"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'History';
                 SubPageLink = "Contact Company No." = FIELD("Company No."),
-                                "Contact No." = FILTER(<> ''),
-                                "Contact No." = FIELD(FILTER("Lookup Contact No."));
+                                "Contact No." = FIELD("No.");
             }
             group(Communication)
             {

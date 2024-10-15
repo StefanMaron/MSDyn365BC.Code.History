@@ -148,7 +148,8 @@
                 }
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
+                    Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
                     Visible = false;

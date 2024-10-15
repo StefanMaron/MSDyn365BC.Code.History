@@ -670,7 +670,14 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     local procedure TestBOMVersionIsCertified(BOMVersionCode: Code[20]; ProdBOMHeader: Record "Production BOM Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestBOMVersionIsCertified(BOMVersionCode, ProdBOMHeader, LogErrors, IsHandled);
+        if IsHandled then
+            exit;
+
         if BOMVersionCode = '' then begin
             if ProdBOMHeader.Status <> ProdBOMHeader.Status::Certified then
                 if LogErrors then
@@ -978,7 +985,14 @@ codeunit 5812 "Calculate Standard Cost"
     end;
 
     local procedure TestRtngVersionIsCertified(RtngVersionCode: Code[20]; RtngHeader: Record "Routing Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestRtngVersionIsCertified(RtngVersionCode, RtngHeader, LogErrors, IsHandled);
+        if IsHandled then
+            exit;
+
         if RtngVersionCode = '' then begin
             if RtngHeader.Status <> RtngHeader.Status::Certified then
                 if LogErrors then
@@ -1025,6 +1039,16 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcAssemblyItemOnAfterCalcItemRolledupCost(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestBOMVersionIsCertified(BOMVersionCode: Code[20]; ProductionBOMHeader: Record "Production BOM Header"; LogErrors: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestRtngVersionIsCertified(RtngVersionCode: Code[20]; RoutingHeader: Record "Routing Header"; LogErrors: Boolean; var IsHandled: Boolean)
     begin
     end;
 

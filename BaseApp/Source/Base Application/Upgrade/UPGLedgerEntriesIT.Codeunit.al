@@ -7,7 +7,12 @@ codeunit 104151 "UPG.IT Detailed Ledger Entries"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpgradeDetailedVendorLedgerEntries;
         UpgradeDetailedCustomerLedgerEntries;
     end;

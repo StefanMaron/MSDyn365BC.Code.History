@@ -1,4 +1,4 @@
-codeunit 5790 "Available to Promise"
+﻿codeunit 5790 "Available to Promise"
 {
     Permissions = TableData "Prod. Order Line" = r,
                   TableData "Prod. Order Component" = r;
@@ -509,6 +509,7 @@ codeunit 5790 "Available to Promise"
           "Res. Qty. on Assembly Order",
           "Res. Qty. on Sales Returns",
           "Reserved Qty. on Prod. Order");
+        OnCalcAllItemFieldsOnAfterItemCalcFields(Item);
 
         AllFieldCalculated := true;
         PrevItemNo := Item."No.";
@@ -604,7 +605,13 @@ codeunit 5790 "Available to Promise"
     local procedure UpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item)
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesOrderAvail(AvailabilityAtDate, Item, ChangedSalesLine, CurrentOrderPromisingLine, ReqShipDate, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine do begin
             if FindLinesWithItemToPlan(Item, "Document Type"::Order) then
                 repeat
@@ -779,7 +786,17 @@ codeunit 5790 "Available to Promise"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesOrderAvail(var AvailabilityAtDate: Record "Availability at Date"; var Item: Record Item; ChangedSalesLine: Record "Sales Line"; CurrentOrderPromisingLine: Record "Order Promising Line"; ReqShipDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeQtyAvailableToPromise(var Item: Record Item; AvailabilityDate: Date; var GrossRequirement: Decimal; var ScheduledReceipt: Decimal; PeriodType: Option Day,Week,Month,Quarter,Year; LookaheadDateFormula: DateFormula; var AvailableToPromise: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcAllItemFieldsOnAfterItemCalcFields(var Item: Record Item)
     begin
     end;
 

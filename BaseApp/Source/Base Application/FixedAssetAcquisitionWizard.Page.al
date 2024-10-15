@@ -426,8 +426,9 @@ page 5551 "Fixed Asset Acquisition Wizard"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
+        GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        exit(GenJournalLine.Count = 0);
+        exit(GenJournalLine.IsEmpty());
     end;
 
     local procedure VerifyFADoNotExistInGLJournalLines()

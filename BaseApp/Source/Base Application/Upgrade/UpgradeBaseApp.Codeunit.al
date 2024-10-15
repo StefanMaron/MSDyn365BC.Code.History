@@ -4,6 +4,7 @@ codeunit 104000 "Upgrade - BaseApp"
     Permissions = TableData "User Group Plan" = rimd;
 
     var
+        HybridDeployment: Codeunit "Hybrid Deployment";
         ExcelTemplateIncomeStatementTxt: Label 'ExcelTemplateIncomeStatement', Locked = true;
         ExcelTemplateBalanceSheetTxt: Label 'ExcelTemplateBalanceSheet', Locked = true;
         ExcelTemplateTrialBalanceTxt: Label 'ExcelTemplateTrialBalance', Locked = true;
@@ -16,21 +17,20 @@ codeunit 104000 "Upgrade - BaseApp"
         AttemptingPowerBIUpdateTxt: Label 'Attempting to update PowerBI optin image for client type %1.', Locked = true;
 
     trigger OnCheckPreconditionsPerDatabase()
-    var
-        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
         HybridDeployment.VerifyCanStartUpgrade('');
     end;
 
     trigger OnCheckPreconditionsPerCompany()
-    var
-        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
         HybridDeployment.VerifyCanStartUpgrade(CompanyName());
     end;
 
     trigger OnUpgradePerDatabase()
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade('') then
+            exit;
+
         CreateWorkflowWebhookWebServices();
         CreateExcelTemplateWebServices();
         CopyRecordLinkURLsIntoOneField();
@@ -41,6 +41,9 @@ codeunit 104000 "Upgrade - BaseApp"
 
     trigger OnUpgradePerCompany()
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         ClearTemporaryTables();
 
         UpdateDefaultDimensionsReferencedIds();
@@ -59,8 +62,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSearchEmail();
         UpgradeEmailLogging();
         UpgradeIntegrationTableMapping();
-        UpgradeIntegrationFieldMappingForOpportunities();
-        UpgradeIntegrationFieldMappingForContacts();
+        UpgradeIntegrationFieldMapping();
         UpgradeWorkflowStepArgumentEventFilters();
         SetReviewRequiredOnBankPmtApplRules();
 
@@ -82,9 +84,10 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeWordTemplateTables();
         UpdatePriceSourceGroupInPriceListLines();
         UpdatePriceListLineStatus();
-        UpdateJobPlanningLinePlanningDueDate();
+        UpdateAllJobsResourcePrices();
         UpgradeCreditTransferIBAN();
         UpgradeDocumentDefaultLineType();
+        UpgradeOnlineMap();
     end;
 
     local procedure ClearTemporaryTables()
@@ -256,24 +259,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
     end;
 
-    local procedure UpdateJobPlanningLinePlanningDueDate()
-    var
-        JobPlanningLine: Record "Job Planning Line";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag()) then
-            exit;
-
-        if JobPlanningLine.FindSet() then
-            repeat
-                JobPlanningLine.UpdatePlannedDueDate();
-                JobPlanningLine.Modify();
-            until JobPlanningLine.Next() = 0;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobPlanningLinePlanningDueDateUpgradeTag());
-    end;
-
     local procedure UpdatePriceSourceGroupInPriceListLines()
     var
         PriceListLine: Record "Price List Line";
@@ -344,6 +329,49 @@ codeunit 104000 "Upgrade - BaseApp"
             until PriceListLine.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSyncPriceListLineStatusUpgradeTag());
+    end;
+
+    local procedure UpdateAllJobsResourcePrices()
+    var
+        NewPriceListLine: Record "Price List Line";
+        PriceListLine: Record "Price List Line";
+        EnvironmentInformation: Codeunit "Environment Information";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAllJobsResourcePriceUpgradeTag()) then
+            exit;
+
+        PriceListLine.SetRange(Status, "Price Status"::Active);
+        PriceListLine.SetRange("Source Type", "Price Source Type"::"All Jobs");
+        PriceListLine.SetFilter("Asset Type", '%1|%2', "Price Asset Type"::Resource, "Price Asset Type"::"Resource Group");
+        if EnvironmentInformation.IsSaaS() then
+            if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
+                exit;
+        if PriceListLine.Findset() then
+            repeat
+                NewPriceListLine := PriceListLine;
+                case PriceListLine."Price Type" of
+                    "Price Type"::Sale:
+                        NewPriceListLine."Source Type" := "Price Source Type"::"All Customers";
+                    "Price Type"::Purchase:
+                        NewPriceListLine."Source Type" := "Price Source Type"::"All Vendors";
+                end;
+                InsertPriceListLine(NewPriceListLine);
+            until PriceListLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAllJobsResourcePriceUpgradeTag());
+    end;
+
+    local procedure InsertPriceListLine(var PriceListLine: Record "Price List Line")
+    var
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+        PriceListManagement: Codeunit "Price List Management";
+    begin
+        CopyFromToPriceListLine.SetGenerateHeader();
+        CopyFromToPriceListLine.InitLineNo(PriceListLine);
+        if not PriceListManagement.FindDuplicatePrice(PriceListLine) then
+            PriceListLine.Insert(true);
     end;
 
     local procedure CreateWorkflowWebhookWebServices()
@@ -1609,6 +1637,13 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationTableMappingFilterForOpportunitiesUpgradeTag());
     end;
 
+    local procedure UpgradeIntegrationFieldMapping()
+    begin
+        UpgradeIntegrationFieldMappingForOpportunities();
+        UpgradeIntegrationFieldMappingForContacts();
+        UpgradeIntegrationFieldMappingForInvoices();
+    end;
+
     local procedure UpgradeIntegrationFieldMappingForOpportunities()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -1668,6 +1703,41 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationFieldMappingForContactsUpgradeTag());
+    end;
+
+    local procedure UpgradeIntegrationFieldMappingForInvoices()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        TempSalesInvoiceHeader: Record "Sales Invoice Header" temporary;
+        TempCRMInvoice: Record "CRM Invoice" temporary;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntegrationFieldMappingForInvoicesUpgradeTag()) then
+            exit;
+
+        IntegrationTableMapping.SetRange(Name, 'POSTEDSALESINV-INV');
+        IntegrationTableMapping.SetRange("Table ID", Database::"Sales Invoice Header");
+        IntegrationTableMapping.SetRange("Integration Table ID", Database::"CRM Invoice");
+        IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if IntegrationTableMapping.FindFirst() then begin
+            IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+            IntegrationFieldMapping.SetRange("Field No.", TempSalesInvoiceHeader.FieldNo("Work Description"));
+            if IntegrationFieldMapping.IsEmpty() then begin
+                IntegrationFieldMapping.SetRange("Field No.");
+                IntegrationFieldMapping.SetRange("Integration Table Field No.", TempCRMInvoice.FieldNo(Description));
+                if IntegrationFieldMapping.IsEmpty() then
+                    IntegrationFieldMapping.CreateRecord(
+                        IntegrationTableMapping.Name,
+                        TempSalesInvoiceHeader.FieldNo("Work Description"),
+                        TempCRMInvoice.FieldNo(Description),
+                        IntegrationFieldMapping.Direction::ToIntegrationTable,
+                        '', false, false);
+            end;
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntegrationFieldMappingForInvoicesUpgradeTag());
     end;
 
     local procedure GetContactIntegrationTableMappingName(): Text
@@ -2597,6 +2667,23 @@ codeunit 104000 "Upgrade - BaseApp"
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDocumentDefaultLineTypeUpgradeTag());
+    end;
+
+    procedure UpgradeOnlineMap()
+    var
+        OnlineMapSetup: Record "Online Map Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEnableOnlineMapUpgradeTag()) then
+            exit;
+        if OnlineMapSetup.FindSet() then
+            repeat
+                OnlineMapSetup.Enabled := true;
+                OnlineMapSetup.Modify();
+            until OnlineMapSetup.next = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEnableOnlineMapUpgradeTag());
     end;
 }
 

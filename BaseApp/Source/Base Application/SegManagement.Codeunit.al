@@ -28,12 +28,15 @@ codeunit 5051 SegManagement
         SegmentNo: Code[20];
         CampaignNo: Code[20];
         NextInteractLogEntryNo: Integer;
+        ShowIsNotEmptyError: Boolean;
     begin
         OnBeforeLogSegment(SegmentHeader, Deliver, Followup);
         LoggedSegment.LockTable();
         LoggedSegment.SetCurrentKey("Segment No.");
         LoggedSegment.SetRange("Segment No.", SegmentHeader."No.");
-        if not LoggedSegment.IsEmpty() then
+        ShowIsNotEmptyError := not LoggedSegment.IsEmpty();
+        OnLogSegmentOnAfterCalcShowIsNotEmptyError(LoggedSegment, Deliver, ShowIsNotEmptyError);
+        if ShowIsNotEmptyError then
             Error(Text000, LoggedSegment.TableCaption, SegmentHeader."No.");
 
         SegmentHeader.TestField(Description);
@@ -417,14 +420,7 @@ codeunit 5051 SegManagement
                 Campaign.Get("Campaign No.");
             case "Correspondence Type" of
                 "Correspondence Type"::Email:
-                    begin
-                        if Cont."E-Mail" = '' then
-                            "Correspondence Type" := "Correspondence Type"::" ";
-
-                        if ContAltAddr.Get("Contact No.", "Contact Alt. Address Code") then
-                            if ContAltAddr."E-Mail" <> '' then
-                                "Correspondence Type" := "Correspondence Type"::Email;
-                    end;
+                    AssignCorrespondenceTypeForEmail(SegmentLine, Cont, ContAltAddr);
                 "Correspondence Type"::Fax:
                     begin
                         if Cont."Fax No." = '' then
@@ -438,6 +434,23 @@ codeunit 5051 SegManagement
                     OnTestFieldsOnSegmentLineCorrespondenceTypeCaseElse(SegmentLine, Cont);
             end;
         end;
+    end;
+
+    local procedure AssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; var Contact: Record Contact; var ContactAltAddr: Record "Contact Alt. Address")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAssignCorrespondenceTypeForEmail(SegmentLine, Contact, ContactAltAddr, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Contact."E-Mail" = '' then
+            SegmentLine."Correspondence Type" := "Correspondence Type"::" ";
+
+        if ContactAltAddr.Get(SegmentLine."Contact No.", SegmentLine."Contact Alt. Address Code") then
+            if ContactAltAddr."E-Mail" <> '' then
+                SegmentLine."Correspondence Type" := "Correspondence Type"::Email;
     end;
 
     local procedure CopyFieldsToCampaignEntry(var CampaignEntry: Record "Campaign Entry"; var SegmentLine: Record "Segment Line")
@@ -671,6 +684,11 @@ codeunit 5051 SegManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignCorrespondenceTypeForEmail(var SegmentLine: Record "Segment Line"; Contact: Record Contact; ContactAltAddr: Record "Contact Alt. Address"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCampaignEntryNoModify(var SegmentLine: Record "Segment Line")
     begin
     end;
@@ -727,6 +745,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLogSegmentOnAfterCreateInteractionLogEntries(var SegmentHeader: Record "Segment Header"; var LoggedSegment: Record "Logged Segment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLogSegmentOnAfterCalcShowIsNotEmptyError(var LoggedSegment: Record "Logged Segment"; Deliver: Boolean; var ShowIsNotEmptyError: Boolean)
     begin
     end;
 

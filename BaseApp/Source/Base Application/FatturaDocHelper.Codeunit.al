@@ -206,6 +206,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Transmission Type" := NonPublicCompanyLbl;
         TempFatturaHeader."Fattura Document Type" :=
           CopyStr(TempVATEntry."Fattura Document Type", 1, MaxStrLen(TempFatturaHeader."Fattura Document Type"));
+        TempFatturaHeader."External Document No." := TempVATEntry."External Document No.";
         if TempFatturaHeader."Fattura Document Type" = '' then begin
             VATPostingSetup.Get(TempVATEntry."VAT Bus. Posting Group", TempVATEntry."VAT Prod. Posting Group");
             if VATPostingSetup."Fattura Document Type" = '' then
@@ -216,6 +217,7 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
         TempVATEntry.CalcSums(Amount, Base);
         TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
+        TempFatturaHeader."Self-Billing Document" := true;
         TempFatturaHeader.Insert();
         CollectSelfBillingDocLinesInformation(TempFatturaLine, TempVATEntry);
     end;
@@ -884,6 +886,7 @@ codeunit 12184 "Fattura Doc. Helper"
         ShptNo: Code[20];
         FatturaProjectCode: Code[15];
         FatturaTenderCode: Code[15];
+        Type: Text[20];
         CustomerPurchOrderNo: Text[35];
         ShipmentDate: Date;
         i: Integer;
@@ -897,8 +900,9 @@ codeunit 12184 "Fattura Doc. Helper"
                 FatturaProjectCode := '';
                 FatturaTenderCode := '';
                 CustomerPurchOrderNo := '';
+                Type := CopyStr(Format(LineRecRef.Field(LineTypeFieldNo).Value), 1, MaxStrLen(Type));
                 ShptNo := Format(LineRecRef.Field(ShipmentNoFieldNo).Value);
-                if (Format(LineRecRef.Field(LineTypeFieldNo).Value) = GetOptionCaptionValue(SalesLine.Type::Item)) and
+                if (Type = GetOptionCaptionValue(SalesLine.Type::Item)) and
                    (ShptNo <> '')
                 then begin
                     if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
@@ -915,11 +919,12 @@ codeunit 12184 "Fattura Doc. Helper"
                         CustomerPurchOrderNo := ServiceShipmentHeader."Customer Purchase Order No.";
                     end;
                     InsertShipmentBuffer(
-                      TempShptFatturaLine, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
+                      TempShptFatturaLine, Type, i, ShptNo, ShipmentDate, FatturaProjectCode, FatturaTenderCode,
                       CustomerPurchOrderNo, IsSplitPaymentLine(LineRecRef));
                 end;
-                if Format(LineRecRef.Field(LineTypeFieldNo).Value) = GetOptionCaptionValue(SalesLine.Type::"G/L Account") then
-                    InsertShipmentBuffer(TempShptFatturaLine, i, '', TempFatturaHeader."Posting Date", '', '', '', IsSplitPaymentLine(LineRecRef));
+                if Type = GetOptionCaptionValue(SalesLine.Type::"G/L Account") then
+                    InsertShipmentBuffer(
+                      TempShptFatturaLine, Type, i, '', TempFatturaHeader."Posting Date", '', '', '', IsSplitPaymentLine(LineRecRef));
                 if TempFatturaHeader."Order No." <> '' then begin
                     TempLineNumberBuffer.Init();
                     Evaluate(TempLineNumberBuffer."Old Line Number", Format(LineRecRef.Field(LineNoFieldNo).Value));
@@ -936,7 +941,7 @@ codeunit 12184 "Fattura Doc. Helper"
                         i += 1;
                         TempLineNumberBuffer.Get(SalesShipmentLine."Order Line No.");
                         InsertShipmentBuffer(
-                          TempShptFatturaLine, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
+                          TempShptFatturaLine, Type, TempLineNumberBuffer."New Line Number", SalesShipmentLine."Document No.",
                           SalesShipmentLine."Shipment Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
                     until SalesShipmentLine.Next() = 0;
             end else begin
@@ -947,7 +952,7 @@ codeunit 12184 "Fattura Doc. Helper"
                         i += 1;
                         TempLineNumberBuffer.Get(ServiceShipmentLine."Order Line No.");
                         InsertShipmentBuffer(
-                          TempShptFatturaLine, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
+                          TempShptFatturaLine, Type, TempLineNumberBuffer."New Line Number", ServiceShipmentLine."Document No.",
                           ServiceShipmentLine."Posting Date", FatturaProjectCode, FatturaTenderCode, CustomerPurchOrderNo, false);
                     until ServiceShipmentLine.Next() = 0;
             end;
@@ -1031,9 +1036,11 @@ codeunit 12184 "Fattura Doc. Helper"
 
     local procedure BuildShipmentDataBuffer(var TempFatturaLine: Record "Fattura Line" temporary; var TempShptFatturaLine: Record "Fattura Line" temporary)
     var
+        SalesLine: Record "Sales Line";
         MultipleOrders: Boolean;
     begin
         TempShptFatturaLine.Reset();
+        TempShptFatturaLine.SetRange(Type, GetOptionCaptionValue(SalesLine.Type::Item));
         if TempShptFatturaLine.FindSet() then begin
             MultipleOrders := TempShptFatturaLine.Count() > 1;
             Clear(TempFatturaLine);
@@ -1102,10 +1109,11 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine := OriginalFatturaLine;
     end;
 
-    local procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
+    local procedure InsertShipmentBuffer(var TempShptFatturaLine: Record "Fattura Line" temporary; Type: Text[20]; LineNo: Integer; ShipmentNo: Code[20]; ShipmentDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; CustomerPurchOrderNo: Text[35]; IsSplitLine: Boolean)
     begin
         if TempShptFatturaLine.FindLast() then;
         TempShptFatturaLine.Init();
+        TempShptFatturaLine.Type := Type;
         TempShptFatturaLine."Document No." := ShipmentNo;
         TempShptFatturaLine."Line No." := TempShptFatturaLine."Line No." + 10000;
         TempShptFatturaLine."Related Line No." := LineNo;

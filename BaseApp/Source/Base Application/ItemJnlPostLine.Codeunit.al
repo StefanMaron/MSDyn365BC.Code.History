@@ -1,4 +1,4 @@
-codeunit 22 "Item Jnl.-Post Line"
+﻿codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
                   TableData "Item Ledger Entry" = imd,
@@ -417,7 +417,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     end;
 
                     IsHandled := false;
-                    OnPostConsumptionOnBeforeCalcRemainingQuantity(ProdOrderComp, ItemJnlLine, NewRemainingQty, QtyToPost, IsHandled);
+                    OnPostConsumptionOnBeforeCalcRemainingQuantity(ProdOrderComp, ItemJnlLine, NewRemainingQty, QtyToPost, IsHandled, RemQtyToPost);
                     if not IsHandled then
                         "Remaining Quantity" := Round("Remaining Qty. (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
@@ -1172,7 +1172,7 @@ codeunit 22 "Item Jnl.-Post Line"
             OnItemQtyPostingOnAfterCalcInsertItemLedgEntryNeeded(ItemJnlLine, InsertItemLedgEntryNeeded);
             if InsertItemLedgEntryNeeded then begin
                 InsertItemLedgEntry(GlobalItemLedgEntry, false);
-                OnItemQtyPostingOnBeforeInsertApplEntry(GlobalItemLedgEntry);
+                OnItemQtyPostingOnBeforeInsertApplEntry(GlobalItemLedgEntry, ItemJnlLine);
                 if GlobalItemLedgEntry.Positive then
                     InsertApplEntry(
                       GlobalItemLedgEntry."Entry No.", GlobalItemLedgEntry."Entry No.",
@@ -1292,7 +1292,7 @@ codeunit 22 "Item Jnl.-Post Line"
         OldItemTrackingSetup: Record "Item Tracking Setup";
         xCalledFromInvtPutawayPick: Boolean;
     begin
-        OnBeforeFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine);
+        OnBeforeFlushOperation(ProdOrder, ProdOrderLine, ItemJnlLine, LastOperation);
 
         if ItemJnlLine."Operation No." = '' then
             exit;
@@ -1395,7 +1395,7 @@ codeunit 22 "Item Jnl.-Post Line"
         end else
             QtyToPost := ProdOrderComp.GetNeededQty(CalcBasedOn::"Expected Output", true);
         QtyToPost := UOMMgt.RoundToItemRndPrecision(QtyToPost, CompItem."Rounding Precision");
-        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost);
+        OnPostFlushedConsumpOnAfterCalcQtyToPost(ProdOrder, ProdOrderLine, ProdOrderComp, OutputQtyBase, QtyToPost, OldItemJnlLine);
         if QtyToPost = 0 then
             exit;
 
@@ -1823,6 +1823,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     OldItemLedgEntry.TestField("Location Code", ItemJnlLine."Location Code");
                     OnApplyItemLedgEntryOnBeforeCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry);
                     ReservEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                    OnApplyItemLedgEntryOnAfterCloseReservEntry(OldItemLedgEntry, ItemJnlLine, ItemLedgEntry, ReservEntry);
                     OldItemLedgEntry.CalcFields("Reserved Quantity");
                     AppliedQty := -Abs(ReservEntry."Quantity (Base)");
                 end;
@@ -1890,6 +1891,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     if ItemApplnEntry.CheckIsCyclicalLoop(AppliesFromItemLedgEntry, OldItemLedgEntry) then
                         AppliedQty := 0;
                 end;
+                OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgEntry, ItemLedgEntry, AppliedQty);
             end;
 
             CheckIsCyclicalLoop(ItemLedgEntry, OldItemLedgEntry, PrevAppliedItemLedgEntry, AppliedQty);
@@ -1930,7 +1932,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
                     CheckPostingDateWithExpirationDate(ItemLedgEntry);
 
-                    OnApplyItemLedgEntryOnBeforeInsertApplEntry(ItemLedgEntry, ItemJnlLine);
+                    OnApplyItemLedgEntryOnBeforeInsertApplEntry(ItemLedgEntry, ItemJnlLine, OldItemLedgEntry, GlobalItemLedgEntry, AppliedQty);
 
                     InsertApplEntry(
                       ItemLedgEntry."Entry No.", OldItemLedgEntry."Entry No.", ItemLedgEntry."Entry No.", 0,
@@ -1959,7 +1961,7 @@ codeunit 22 "Item Jnl.-Post Line"
                         InsertTransferEntry(ItemLedgEntry, OldItemLedgEntry, AppliedQty);
                 end;
 
-                UpdateItemLedgerEntryRemainingQuantity(ItemLedgEntry, AppliedQty);
+                UpdateItemLedgerEntryRemainingQuantity(ItemLedgEntry, AppliedQty, OldItemLedgEntry, CausedByTransfer);
 
                 ItemLedgEntry.CalcFields("Reserved Quantity");
                 if ItemLedgEntry."Remaining Quantity" + ItemLedgEntry."Reserved Quantity" = 0 then
@@ -1971,8 +1973,10 @@ codeunit 22 "Item Jnl.-Post Line"
         OnAfterApplyItemLedgEntry(GlobalItemLedgEntry, OldItemLedgEntry, ItemJnlLine);
     end;
 
-    local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal)
+    local procedure UpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; var OldItemLedgEntry: Record "Item Ledger Entry"; CausedByTransfer: Boolean)
     begin
+        OnBeforeUpdateItemLedgerEntryRemainingQuantity(ItemLedgerEntry, OldItemLedgEntry, AppliedQty, CausedByTransfer, AverageTransfer);
+
         ItemLedgerEntry."Remaining Quantity" := ItemLedgerEntry."Remaining Quantity" - AppliedQty;
         ItemLedgerEntry.Open := ItemLedgerEntry."Remaining Quantity" <> 0;
 
@@ -2486,7 +2490,7 @@ codeunit 22 "Item Jnl.-Post Line"
             PhysInvtLedgEntry."Phys Invt Counting Period Type" :=
               "Phys Invt Counting Period Type";
 
-            OnBeforeInsertPhysInvtLedgEntry(PhysInvtLedgEntry, ItemJnlLineOrigin);
+            OnBeforeInsertPhysInvtLedgEntry(PhysInvtLedgEntry, ItemJnlLineOrigin, ItemJnlLine);
             PhysInvtLedgEntry.Insert();
 
             InsertItemReg(0, PhysInvtLedgEntry."Entry No.", 0, 0);
@@ -2974,6 +2978,7 @@ codeunit 22 "Item Jnl.-Post Line"
     var
         InvdValueEntry: Record "Value Entry";
         InvoicedQty: Decimal;
+        ShouldCalcExpectedCost: Boolean;
     begin
         OnBeforeInsertValueEntryProcedure(ItemLedgEntry, ItemJnlLine);
         with ItemJnlLine do begin
@@ -3019,13 +3024,14 @@ codeunit 22 "Item Jnl.-Post Line"
                     ItemLedgEntry.Modify();
             end;
 
-            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry, TransferItem, InventoryPostingToGL);
-            if ((ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
-                (ValueEntry."Item Charge No." = '')) and
-               (((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
-                (Adjustment and not ValueEntry."Expected Cost")) and
-               not ExpectedCostPosted(ValueEntry)
-            then begin
+            ShouldCalcExpectedCost :=
+                ((ValueEntry."Entry Type" = ValueEntry."Entry Type"::"Direct Cost") and
+                    (ValueEntry."Item Charge No." = '')) and
+                (((Quantity = 0) and ("Invoiced Quantity" <> 0)) or
+                    (Adjustment and not ValueEntry."Expected Cost")) and
+                not ExpectedCostPosted(ValueEntry);
+            OnInsertValueEntryOnBeforeCalcExpectedCost(ItemJnlLine, ItemLedgEntry, ValueEntry, TransferItem, InventoryPostingToGL, ShouldCalcExpectedCost);
+            if ShouldCalcExpectedCost then begin
                 if ValueEntry."Invoiced Quantity" = 0 then begin
                     if InvdValueEntry.Get(ValueEntry."Applies-to Entry") then
                         InvoicedQty := InvdValueEntry."Invoiced Quantity"
@@ -5755,7 +5761,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertPhysInvtLedgEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeInsertPhysInvtLedgEntry(var PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; LastSplitItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -5905,7 +5911,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line");
+    local procedure OnBeforeFlushOperation(var ProdOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; var ItemJnlLine: Record "Item Journal Line"; LastOperation: Boolean);
     begin
     end;
 
@@ -6115,6 +6121,16 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemLedgerEntryRemainingQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgEntry: Record "Item Ledger Entry"; AppliedQty: Decimal; CausedByTransfer: Boolean; AverageTransfer: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnAfterCloseReservEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeCloseReservEntry(var OldItemLedgEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -6190,12 +6206,17 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnAfterSetAppliedQtyZero(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeCheckApplyEntry(var OldItemLedgEntry: Record "Item Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; var OldItemLedgEntry: Record "Item Ledger Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
     begin
     end;
 
@@ -6320,7 +6341,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal)
+    local procedure OnPostFlushedConsumpOnAfterCalcQtyToPost(ProductionOrder: Record "Production Order"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; ActOutputQtyBase: Decimal; var QtyToPost: Decimal; var OldItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6889,7 +6910,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
+    local procedure OnInsertValueEntryOnBeforeCalcExpectedCost(var ItemJnlLine: Record "Item Journal Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; TransferItemPBln: Boolean; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L"; var ShouldCalcExpectedCost: Boolean)
     begin
     end;
 
@@ -6954,7 +6975,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemQtyPostingOnBeforeInsertApplEntry(var GlobalItemLedgEntry: Record "Item Ledger Entry")
+    local procedure OnItemQtyPostingOnBeforeInsertApplEntry(var GlobalItemLedgEntry: Record "Item Ledger Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7024,7 +7045,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostConsumptionOnBeforeCalcRemainingQuantity(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line"; var NewRemainingQty: Decimal; var QtyToPost: Decimal; var IsHandled: Boolean)
+    local procedure OnPostConsumptionOnBeforeCalcRemainingQuantity(var ProdOrderComp: Record "Prod. Order Component"; var ItemJnlLine: Record "Item Journal Line"; var NewRemainingQty: Decimal; var QtyToPost: Decimal; var IsHandled: Boolean; var RemQtyToPost: Decimal)
     begin
     end;
 

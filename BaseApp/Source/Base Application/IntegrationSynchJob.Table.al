@@ -88,6 +88,9 @@ table 5338 "Integration Synch. Job"
         key(Key3; Type)
         {
         }
+        key(Key4; "Job Queue Log Entry No.")
+        {
+        }
     }
 
     fieldgroups

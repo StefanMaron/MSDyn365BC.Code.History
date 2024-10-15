@@ -1012,6 +1012,46 @@ codeunit 137272 "SCM Reservation V"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ReservationAvailHandler,AvailableSalesLinesModalPageHandler')]
+    procedure ReserveSalesLineFromPurchaseLineDoesNotAffectExistingReservation()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[2] of Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Sales]
+        // [SCENARIO 414126] Reserving sales line from purchase line does not affect existing reservations for this sales line.
+        Initialize();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Sales order for 8 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 8, '', WorkDate() + 10);
+
+        // [GIVEN] Purchase order with two lines, each for 4 pcs.
+        // [GIVEN] Reserve the second purchase line for the sales line.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[1], PurchaseHeader, PurchaseLine[1].Type::Item, Item."No.", 6);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine[2], PurchaseHeader, PurchaseLine[2].Type::Item, Item."No.", 4);
+        PurchaseLine[2].ShowReservation();
+
+        // [WHEN] Reserve the first purchase line for the sales line.
+        PurchaseLine[1].ShowReservation();
+
+        // [THEN] Each of two purchase lines is reserved for 4 pcs.
+        PurchaseLine[1].Find();
+        PurchaseLine[1].CalcFields("Reserved Quantity");
+        PurchaseLine[1].TestField("Reserved Quantity", 4);
+
+        PurchaseLine[2].Find();
+        PurchaseLine[2].CalcFields("Reserved Quantity");
+        PurchaseLine[2].TestField("Reserved Quantity", 4);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1778,6 +1818,12 @@ codeunit 137272 "SCM Reservation V"
     procedure AutoReservePageHandler(var Reservation: TestPage Reservation)
     begin
         Reservation."Auto Reserve".Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure AvailableSalesLinesModalPageHandler(var AvailableSalesLines: TestPage "Available - Sales Lines")
+    begin
+        AvailableSalesLines.Reserve.Invoke();
     end;
 }
 

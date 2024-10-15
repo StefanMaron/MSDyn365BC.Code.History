@@ -1,4 +1,4 @@
-codeunit 134157 "ERM Posting Rounding"
+﻿codeunit 134157 "ERM Posting Rounding"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -29,7 +29,6 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 268735] Posting of a purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on one of the G/L Accounts
         // [SCENARIO 268735] in case of balanced invoice posting buffer groups rounding
         Initialize();
-        SetPurchInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on GLAccount "A"
         CreatePurchaseInvoice_TFS268735(PurchaseHeader, GLAccountNo);
@@ -61,7 +60,6 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 396183] Posting of a purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         // [SCENARIO 396183] in case of non balanced invoice posting buffer groups rounding
         Initialize();
-        SetPurchInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Purchase invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         CreatePurchaseInvoice_TFS268735_2(PurchaseHeader, GLAccountNo);
@@ -93,7 +91,6 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 268735] Posting of a sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on one of the G/L Accounts
         // [SCENARIO 268735] in case of balanced invoice posting buffer groups rounding
         Initialize();
-        SetSalesInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines having zero balance on GLAccount "A"
         CreateSalesInvoice_TFS268735(SalesHeader, GLAccountNo);
@@ -126,7 +123,6 @@ codeunit 134157 "ERM Posting Rounding"
         // [SCENARIO 396183] Posting of a sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         // [SCENARIO 396183] in case of non balanced invoice posting buffer groups rounding
         Initialize();
-        SetSalesInvoicePosting("Sales Invoice Posting"::"Invoice Posting (Default)");
 
         // [GIVEN] Sales invoice with NO VAT, currency, several G/L Accounts with positive and negative lines
         CreateSalesInvoice_TFS268735_2(SalesHeader, GLAccountNo);
@@ -429,24 +425,6 @@ codeunit 134157 "ERM Posting Rounding"
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         exit(CustomerPostingGroup."Receivables Account");
-    end;
-
-    local procedure SetSalesInvoicePosting(InvoicePosting: Enum "Sales Invoice Posting")
-    var
-        SalesSetup: Record "Sales & Receivables Setup";
-    begin
-        SalesSetup.Get();
-        SalesSetup.Validate("Invoice Posting Setup", InvoicePosting);
-        SalesSetup.Modify();
-    end;
-
-    local procedure SetPurchInvoicePosting(InvoicePosting: Enum "Purchase Invoice Posting")
-    var
-        PurchSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchSetup.Get();
-        PurchSetup.Validate("Invoice Posting Setup", InvoicePosting);
-        PurchSetup.Modify();
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20]; ExpectedAmount: Decimal)

@@ -856,6 +856,9 @@
 
         ContBusRel.SetRange("Contact No.", "No.");
         ContBusRel.DeleteAll();
+
+        if not Find() then;
+
         case Type of
             Type::Company:
                 begin
@@ -1452,7 +1455,7 @@
             CustTemplate.Get(CustomerTemplateCode);
             CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustTemplate);
         end;
-        OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate);
+        OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(Cust, CustTemplate, Rec);
 
         OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
 
@@ -2658,11 +2661,12 @@
 
     procedure DisplayMap()
     var
-        MapPoint: Record "Online Map Setup";
-        MapMgt: Codeunit "Online Map Management";
+        OnlineMapSetup: Record "Online Map Setup";
+        OnlineMapManagement: Codeunit "Online Map Management";
     begin
-        if MapPoint.FindFirst then
-            MapMgt.MakeSelection(DATABASE::Contact, GetPosition)
+        OnlineMapSetup.SetRange(Enabled, true);
+        if OnlineMapSetup.FindFirst then
+            OnlineMapManagement.MakeSelection(DATABASE::Contact, GetPosition)
         else
             Message(Text033);
     end;
@@ -3428,7 +3432,7 @@
 #endif
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ.")
+    local procedure OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ."; var Contact: Record Contact)
     begin
     end;
 

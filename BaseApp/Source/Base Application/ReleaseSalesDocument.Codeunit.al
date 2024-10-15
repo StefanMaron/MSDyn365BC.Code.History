@@ -31,6 +31,7 @@
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
         PrintPostedDocuments: Boolean;
+        ShouldSetStatusPrepayment: Boolean;
         IsHandled: Boolean;
     begin
         with SalesHeader do begin
@@ -38,7 +39,7 @@
                 exit;
 
             IsHandled := false;
-            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled);
+            OnBeforeReleaseSalesDoc(SalesHeader, PreviewMode, IsHandled, SkipCheckReleaseRestrictions);
             if IsHandled then
                 exit;
             if not (PreviewMode or SkipCheckReleaseRestrictions) then
@@ -53,7 +54,7 @@
                     else
                         exit;
 
-            TestField("Sell-to Customer No.");
+            TestSellToCustomerNo(SalesHeader);
 
             IsHandled := false;
             OnCodeOnAfterCheckCustomerCreated(SalesHeader, PreviewMode, IsHandled);
@@ -105,7 +106,9 @@
             if IsHandled then
                 exit;
 
-            if PrepaymentMgt.TestSalesPrepayment(SalesHeader) and ("Document Type" = "Document Type"::Order) then begin
+            ShouldSetStatusPrepayment := PrepaymentMgt.TestSalesPrepayment(SalesHeader) and ("Document Type" = "Document Type"::Order);
+            OnCodeOnAfterCalcShouldSetStatusPrepayment(SalesHeader, PreviewMode, ShouldSetStatusPrepayment);
+            if ShouldSetStatusPrepayment then begin
                 Status := Status::"Pending Prepayment";
                 Modify(true);
                 OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
@@ -131,6 +134,18 @@
 
             OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
         end;
+    end;
+
+    local procedure TestSellToCustomerNo(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestSellToCustomerNo(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        SalesHeader.TestField("Sell-to Customer No.");
     end;
 
     procedure Reopen(var SalesHeader: Record "Sales Header")
@@ -160,16 +175,26 @@
     end;
 
     procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
-    var
-        PrepaymentMgt: Codeunit "Prepayment Mgt.";
     begin
-        OnPerformManualReleaseOnBeforeTestSalesPrepayment(SalesHeader, PreviewMode);
-        if PrepaymentMgt.TestSalesPrepayment(SalesHeader) then
-            Error(UnpostedPrepaymentAmountsErr, SalesHeader."Document Type", SalesHeader."No.");
+        CheckPrepaymentsForManualRelease(SalesHeader);
 
         OnBeforeManualReleaseSalesDoc(SalesHeader, PreviewMode);
         PerformManualCheckAndRelease(SalesHeader);
         OnAfterManualReleaseSalesDoc(SalesHeader, PreviewMode);
+    end;
+
+    local procedure CheckPrepaymentsForManualRelease(var SalesHeader: Record "Sales Header")
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnPerformManualReleaseOnBeforeTestSalesPrepayment(SalesHeader, PreviewMode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PrepaymentMgt.TestSalesPrepayment(SalesHeader) then
+            Error(UnpostedPrepaymentAmountsErr, SalesHeader."Document Type", SalesHeader."No.");
     end;
 
     procedure PerformManualCheckAndRelease(var SalesHeader: Record "Sales Header")
@@ -186,6 +211,7 @@
             if ("Document Type" = "Document Type"::Order) and PrepaymentMgt.TestSalesPayment(SalesHeader) then begin
                 if TestStatusIsNotPendingPrepayment then begin
                     Status := Status::"Pending Prepayment";
+                    OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(SalesHeader, PreviewMode);
                     Modify;
                     Commit();
                 end;
@@ -220,12 +246,24 @@
 
     procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
     begin
-        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
-            Error(Text003);
+        CheckReopenStatus(SalesHeader);
 
         OnBeforeManualReOpenSalesDoc(SalesHeader, PreviewMode);
         Reopen(SalesHeader);
         OnAfterManualReOpenSalesDoc(SalesHeader, PreviewMode);
+    end;
+
+    local procedure CheckReopenStatus(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckReopenStatus(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
+            Error(Text003);
     end;
 
     local procedure ReleaseATOs(SalesHeader: Record "Sales Header")
@@ -295,7 +333,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeTestSellToCustomerNo(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean; SkipCheckReleaseRestrictions: Boolean)
     begin
     end;
 
@@ -375,12 +418,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldSetStatusPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var ShouldSetStatusPrepayment: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCodeOnCheckTracking(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCustomerCreated(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckReopenStatus(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -395,7 +448,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
+    local procedure OnPerformManualReleaseOnBeforeTestSalesPrepayment(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPerformManualCheckAndReleaseOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean)
     begin
     end;
 

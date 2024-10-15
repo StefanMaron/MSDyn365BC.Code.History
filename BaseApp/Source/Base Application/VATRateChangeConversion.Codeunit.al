@@ -56,6 +56,7 @@ codeunit 550 "VAT Rate Change Conversion"
             Error(Text0016);
         TestVATPostingSetup();
         ProgressWindow.Open(Text0001 + Text0002);
+        OnConvertOnBeforeStartConvert(VATRateChangeSetup);
         with VATRateChangeSetup do begin
             ProgressWindow.Update;
             UpdateTable(
@@ -1846,6 +1847,11 @@ codeunit 550 "VAT Rate Change Conversion"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateService(var VATRateChangeSetup: Record "VAT Rate Change Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvertOnBeforeStartConvert(var VATRateChangeSetup: Record "VAT Rate Change Setup")
     begin
     end;
 

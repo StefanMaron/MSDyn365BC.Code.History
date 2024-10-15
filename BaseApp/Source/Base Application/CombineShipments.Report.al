@@ -154,6 +154,7 @@ report 295 "Combine Shipments"
                 Window.Close;
                 if SalesHeader."No." <> '' then begin // Not the first time
                     FinalizeSalesInvHeader;
+                    OnSalesShipmentHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv, HideDialog);
                     if (NoOfSalesInvErrors = 0) and not HideDialog then begin
                         if NoOfskippedShiment > 0 then
                             Message(
@@ -364,6 +365,7 @@ report 295 "Combine Shipments"
     local procedure FinalizeSalesInvHeader()
     var
         HasError: Boolean;
+        ShouldPostInv: Boolean;
     begin
         HasError := false;
         OnBeforeFinalizeSalesInvHeader(SalesHeader, HasAmount, HasError);
@@ -385,7 +387,9 @@ report 295 "Combine Shipments"
             Clear(SalesCalcDisc);
             Clear(SalesPost);
             NoOfSalesInv := NoOfSalesInv + 1;
-            if PostInv then begin
+            ShouldPostInv := PostInv;
+            OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(SalesHeader, NoOfSalesInv, ShouldPostInv);
+            if ShouldPostInv then begin
                 Clear(SalesPost);
                 if not SalesPost.Run(SalesHeader) then
                     NoOfSalesInvErrors := NoOfSalesInvErrors + 1;
@@ -460,7 +464,7 @@ report 295 "Combine Shipments"
           (SalesOrderHeader."Fattura Project Code" <> SalesHeader."Fattura Project Code") or
           (SalesOrderHeader."Fattura Tender Code" <> SalesHeader."Fattura Tender Code");
 
-        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, SalesShipmentLine);
+        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, SalesShipmentLine, "Sales Shipment Header");
         exit(Finalize);
     end;
 
@@ -515,6 +519,11 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnFinalizeSalesInvHeaderOnAfterCalcShouldPostInv(var SalesHeader: Record "Sales Header"; var NoOfSalesInv: Integer; var ShouldPostInv: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinalizeSalesInvHeaderOnBeforeDelete(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -525,7 +534,12 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; SalesShipmentLine: Record "Sales Shipment Line")
+    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; SalesShipmentLine: Record "Sales Shipment Line"; SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesShipmentHeaderOnAfterFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header"; var NoOfSalesInvErrors: Integer; PostInvoice: Boolean; var HideDialog: Boolean)
     begin
     end;
 }

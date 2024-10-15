@@ -1143,6 +1143,38 @@ codeunit 134326 "ERM Purchase Blanket Order"
             PurchaseLine."Line No."));
     end;
 
+    [Test]
+    procedure LinkingSpecialOrderPurchaseOrderToBlanketOrder()
+    var
+        Location: Record Location;
+        BlanketPurchaseHeader: Record "Purchase Header";
+        BlanketPurchaseLine: Record "Purchase Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Special Order]
+        // [SCENARIO 409265] Stan can link special order purchase to a blanket order.
+        Initialize();
+
+        LibraryWarehouse.CreateLocation(Location);
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          BlanketPurchaseHeader, BlanketPurchaseLine, BlanketPurchaseHeader."Document Type"::"Blanket Order", '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(50, 100), Location.Code, WorkDate());
+
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, BlanketPurchaseHeader."Buy-from Vendor No.",
+          BlanketPurchaseLine."No.", LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        PurchaseLine.Validate("Special Order", true);
+        PurchaseLine.Modify(true);
+
+        PurchaseLine.Validate("Blanket Order No.", BlanketPurchaseHeader."No.");
+        PurchaseLine.Validate("Blanket Order Line No.", BlanketPurchaseLine."Line No.");
+
+        PurchaseLine.TestField("Blanket Order No.", BlanketPurchaseHeader."No.");
+        PurchaseLine.TestField("Blanket Order Line No.", BlanketPurchaseLine."Line No.");
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";

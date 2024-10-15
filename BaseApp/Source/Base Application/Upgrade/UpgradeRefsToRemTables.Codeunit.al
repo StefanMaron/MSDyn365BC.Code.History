@@ -4,8 +4,12 @@ codeunit 104070 "Upgrade Refs To Rem. Tables"
 
     trigger OnUpgradePerCompany()
     var
+        HybridDeployment: Codeunit "Hybrid Deployment";
         RemovedTablesFilter: Text;
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+
         // There is no check for upgrade tags, as this code needs to run
         // on every upgrade (in case more tables got removed)
 

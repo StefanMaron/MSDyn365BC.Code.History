@@ -166,7 +166,14 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(ItemJournalLine, PriceListLine, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         if AmountType <> AmountType::Discount then
             Case CurrPriceType of
                 CurrPriceType::Sale:
@@ -198,6 +205,11 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPrice(var ItemJournalLine: Record "Item Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var ItemJournalLine: Record "Item Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }

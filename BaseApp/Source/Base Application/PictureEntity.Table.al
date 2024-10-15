@@ -75,7 +75,6 @@ table 5468 "Picture Entity"
         SetValuesFromMediaID(MediaID);
     end;
 
-    [Scope('OnPrem')]
     procedure LoadDataWithParentType(IdFilter: Text; ParentType: Enum "Picture Entity Parent Type")
     var
         MediaID: Guid;
@@ -148,7 +147,6 @@ table 5468 "Picture Entity"
         LoadData(StrSubstNo('=%1', Id));
     end;
 
-    [Scope('OnPrem')]
     procedure SavePictureWithParentType()
     var
         Customer: Record Customer;

@@ -2,6 +2,7 @@ codeunit 134920 "ERM General Journal UT"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -32,6 +33,8 @@ codeunit 134920 "ERM General Journal UT"
         WrongFieldVisibilityErr: Label 'Wrong field visiblity';
         CannotBeSpecifiedForRecurrJnlErr: Label 'cannot be specified when using recurring journals';
         GenJournalBatchFromGenJournalLineErr: Label 'General Journal must be opened with a Journal Batch that is equal to GenJournalLine."Journal Batch Name"';
+        MustSelectAndEmailBodyOrAttahmentErr: Label 'You must select an email body or attachment in report selection';
+        RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted.';
 
     [Test]
     [Scope('OnPrem')]
@@ -5035,6 +5038,116 @@ codeunit 134920 "ERM General Journal UT"
         GenJournalLine[3].TestField("Document No.", DocNos[2]);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendRemitAdviceDeletedAndCreatedEntryUT()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        SavedGenJournalLine: Record "Gen. Journal Line";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        JobQueueEntry: Record "Job Queue Entry";
+        Vendor: Record Vendor;
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        ERMGeneralJournalUT: Codeunit "ERM General Journal UT";
+        NoSeriesCode: Code[20];
+    begin
+        // [SCENARIO 409569] Create gen. jnl. line, send it via remittance report by email in background. Then delete original line and create a new one.
+        Initialize();
+
+        // [GIVEN] Vendor "V" with email
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor."E-Mail" := '1@1.com';
+        Vendor.Modify();
+
+        // [GIVEN] General journal line "GJL" with "V"
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        LibraryErm.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), NoSeriesCode);
+        SavedGenJournalLine := GenJournalLine;
+
+        // [GIVEN] "GJL" sent via remittance advice report by email in background
+        BindSubscription(ERMGeneralJournalUT);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile."E-Mail" := DocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
+        DocumentSendingProfile."E-Mail Attachment" := DocumentSendingProfile."E-Mail Attachment"::PDF;
+        DocumentSendingProfile.SendVendor(
+            "Report Selection Usage"::"V.Remittance".AsInteger(), GenJournalLine, GenJournalLine."Document No.", GenJournalLine."Account No.",
+            'Remittance Advice', GenJournalLine.FieldNo("Account No."), GenJournalLine.FieldNo("Document No."));
+        UnbindSubscription(ERMGeneralJournalUT);
+        UnbindSubscription(LibraryJobQueue);
+
+        // [WHEN] Delete "GJL" and create a new one "GJL2"
+        GenJournalLine.Delete();
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, SavedGenJournalLine."Journal Template Name", SavedGenJournalLine."Journal Batch Name",
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, SavedGenJournalLine."Account No.", 100);
+        asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(GenJournalLine.RecordId);
+
+        // [THEN] "GJL2" did NOT pass validation because it replaced the original "GJL"
+        Assert.ExpectedError(RecordDoesNotMatchErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SendRemitAdviceUT()
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        JobQueueEntry: Record "Job Queue Entry";
+        Vendor: Record Vendor;
+        ReportSelections: Record "Report Selections";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        ERMGeneralJournalUT: Codeunit "ERM General Journal UT";
+        NoSeriesCode: Code[20];
+    begin
+        // [SCENARIO 409569] Create gen. jnl. line and send it via remittance report by email in background
+        Initialize();
+
+        // [GIVEN] Clean report selection for remittance advice to get error in ShowNoBodyNoAttachmentError () and just to skip report generation and save time.
+        // [GIVEN] Record verification pass earlier in SendEmailInBackground().
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
+        ReportSelections.DeleteAll();
+
+        // [GIVEN] Vendor "V" with email
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor."E-Mail" := '1@1.com';
+        Vendor.Modify();
+
+        // [GIVEN] General journal line "GJL" with "V"
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        LibraryErm.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        CreateGenJournalLine(
+            GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor, Vendor."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), NoSeriesCode);
+
+        // [WHEN] Send "GJL" via remittance advice report by email in background
+        BindSubscription(ERMGeneralJournalUT);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile."E-Mail" := DocumentSendingProfile."E-Mail"::"Yes (Use Default Settings)";
+        DocumentSendingProfile."E-Mail Attachment" := DocumentSendingProfile."E-Mail Attachment"::PDF;
+        DocumentSendingProfile.SendVendor(
+            "Report Selection Usage"::"V.Remittance".AsInteger(), GenJournalLine, GenJournalLine."Document No.", GenJournalLine."Account No.",
+            'Remittance Advice', GenJournalLine.FieldNo("Account No."), GenJournalLine.FieldNo("Document No."));
+        UnbindSubscription(ERMGeneralJournalUT);
+        UnbindSubscription(LibraryJobQueue);
+        asserterror LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(GenJournalLine.RecordId);
+
+        // [THEN] "GJL" passed validation in DocumentMailing and job failed on getting body for email due to cleared report selection
+        Assert.ExpectedError(MustSelectAndEmailBodyOrAttahmentErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -6051,6 +6164,15 @@ codeunit 134920 "ERM General Journal UT"
     procedure YesConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Mail Management", 'OnBeforeIsEnabled', '', false, false)]
+    local procedure OnBeforeIsEnabled(OutlookSupported: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+        // subscriber required to emulate new email experience and send email in background
+        OutlookSupported := false;
+        Result := true;
+        IsHandled := true;
     end;
 }
 

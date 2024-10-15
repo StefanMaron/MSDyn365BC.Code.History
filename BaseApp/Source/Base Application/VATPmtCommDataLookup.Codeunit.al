@@ -373,6 +373,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
             VATEntry.SetFilter(
               "VAT Calculation Type", '<>%1&<>%2',
               VATEntry."VAT Calculation Type"::"Reverse Charge VAT", VATEntry."VAT Calculation Type"::"Full VAT");
+            OnGetTotalSalesOnAfterVATEntrySetFilters(VATEntry);
             repeat
                 VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -395,6 +396,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
         if VATPostingSetup.FindSet then begin
             VATEntry.SetRange(Type, VATEntry.Type::Purchase);
             VATEntry.SetFilter("VAT Calculation Type", '<>%1', VATEntry."VAT Calculation Type"::"Full VAT");
+            OnGetTotalPurchasesOnAfterVATEntrySetFilters(VATEntry);
             repeat
                 VATEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                 VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -412,6 +414,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     procedure GetVATSales(): Decimal
     begin
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        OnGetVATSalesOnAfterVATEntrySetFilters(VATEntry);
         VATEntry.CalcSums(Amount);
         VATSales := -VATEntry.Amount;
         VATEntry.SetRange(Type);
@@ -422,6 +425,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     procedure GetVATPurchases(): Decimal
     begin
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        OnGetVATPurchasesOnAfterVATEntrySetFilters(VATEntry);
         VATEntry.CalcSums(Amount);
         VATPurchases := VATEntry.Amount;
         VATEntry.SetRange(Type);
@@ -540,6 +544,26 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
     begin
         exit(Format(Date2DMY(GivenDate, 3)) + '/' +
           ConvertStr(Format(Date2DMY(GivenDate, 2), 2), ' ', '0'));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTotalPurchasesOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTotalSalesOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATPurchasesOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATSalesOnAfterVATEntrySetFilters(var VATEntry: Record "VAT Entry")
+    begin
     end;
 }
 

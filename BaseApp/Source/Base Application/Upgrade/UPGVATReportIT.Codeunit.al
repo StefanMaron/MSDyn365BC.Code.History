@@ -7,7 +7,12 @@ codeunit 104152 "UPG.VAT Report IT"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         UpgradeVATReportHeader();
     end;
 
