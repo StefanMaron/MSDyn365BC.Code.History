@@ -1,4 +1,4 @@
-﻿table 37 "Sales Line"
+table 37 "Sales Line"
 {
     Caption = 'Sales Line';
     DrillDownPageID = "Sales Lines";
@@ -4468,6 +4468,10 @@
         RemLineAmountToInvoice: Decimal;
     begin
         if "Prepayment %" <> 0 then begin
+            if "System-Created Entry" then
+                if Type = Type::"G/L Account" then
+                    if not IsServiceChargeLine() then
+                        exit;
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
             if "Unit Price" < 0 then

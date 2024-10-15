@@ -239,7 +239,7 @@
         field(29; "Purchaser Code"; Code[20])
         {
             Caption = 'Purchaser Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
