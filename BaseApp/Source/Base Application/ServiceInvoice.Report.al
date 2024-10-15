@@ -691,6 +691,7 @@ report 5911 "Service - Invoice"
             trigger OnAfterGetRecord()
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Invoice Header");
                 FormatDocumentFields("Service Invoice Header");

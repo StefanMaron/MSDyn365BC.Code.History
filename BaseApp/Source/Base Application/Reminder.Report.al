@@ -665,6 +665,7 @@ report 117 Reminder
                 DocumentTools: Codeunit DocumentTools;
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
 
