@@ -42,6 +42,7 @@ codeunit 29 "Error Message Handler"
 
     procedure Activate(var ErrorMessageHandler: Codeunit "Error Message Handler"): Boolean
     begin
+        OnBeforeActivateErrorMessageHandler(ErrorMessageHandler);
         Active := BindSubscription(ErrorMessageHandler);
         exit(Active);
     end;
@@ -266,6 +267,11 @@ codeunit 29 "Error Message Handler"
     begin
         if Active then
             TempErrorMessage.LogLastError();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeActivateErrorMessageHandler(var ErrorMessageHandler: Codeunit "Error Message Handler")
+    begin
     end;
 }
 

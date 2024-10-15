@@ -141,6 +141,9 @@
                   tabledata "Customer Posting Group" = RIMD,
                   tabledata "Customer Price Group" = RIMD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN20
+                  tabledata "Customer Template" = RIMD,
+#endif
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
                   tabledata "Data Exch." = RIMD,

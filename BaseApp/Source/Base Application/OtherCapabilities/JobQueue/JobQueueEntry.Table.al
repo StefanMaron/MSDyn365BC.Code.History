@@ -748,6 +748,7 @@ table 472 "Job Queue Entry"
 
     procedure Restart()
     begin
+        OnBeforeRestart(Rec);
         RefreshLocked();
         ClearServiceValues();
         if (Status = Status::"On Hold with Inactivity Timeout") and ("Inactivity Timeout Period" > 0) then
@@ -1192,6 +1193,7 @@ table 472 "Job Queue Entry"
         "Report Request Page Options" := Params <> '';
 
         SetXmlContent(Params);
+        OnAfterSetReportParameters(Rec);
     end;
 
     [Scope('OnPrem')]
@@ -1319,6 +1321,7 @@ table 472 "Job Queue Entry"
             "Starting Time" := StartingTime;
             "Maximum No. of Attempts to Run" := MaxAttemptsToRun;
             "Rerun Delay (sec.)" := RerunDelay;
+            OnScheduleRecurrentJobQueueEntryOnBeforeEnqueueTask(Rec);
             EnqueueTask();
         end;
     end;
@@ -1504,6 +1507,21 @@ table 472 "Job Queue Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCleanupAfterExecution(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRestart(JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReportParameters(var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnScheduleRecurrentJobQueueEntryOnBeforeEnqueueTask(var JobQueueEntry: Record "Job Queue Entry")
     begin
     end;
 }

@@ -753,9 +753,14 @@
             Caption = 'Usage Link';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                if "Usage Link" and ("Line Type" = "Line Type"::Billable) then
-                    Error(UsageLinkErr, FieldCaption("Usage Link"), TableCaption(), FieldCaption("Line Type"), "Line Type");
+                IsHandled := false;
+                OnBeforeValidateUsageLink(Rec, xRec, IsHandled);
+                if not IsHandled then
+                    if "Usage Link" and ("Line Type" = "Line Type"::Billable) then
+                        Error(UsageLinkErr, FieldCaption("Usage Link"), TableCaption(), FieldCaption("Line Type"), "Line Type");
 
                 ControlUsageLink();
 
@@ -1280,6 +1285,7 @@
     trigger OnDelete()
     var
         JobUsageLink: Record "Job Usage Link";
+        IsHandled: Boolean;
     begin
         ValidateModification(true, 0);
         CheckRelatedJobPlanningLineInvoice();
@@ -1288,8 +1294,11 @@
             JobUsageLink.SetRange("Job No.", "Job No.");
             JobUsageLink.SetRange("Job Task No.", "Job Task No.");
             JobUsageLink.SetRange("Line No.", "Line No.");
-            if not JobUsageLink.IsEmpty() then
-                Error(JobUsageLinkErr, TableCaption);
+            IsHandled := false;
+            OnDeleteOnAfterSetFilterOnJobUsageLink(Rec, JobUsageLink, IsHandled);
+            if not IsHandled then
+                if not JobUsageLink.IsEmpty() then
+                    Error(JobUsageLinkErr, TableCaption);
         end;
 
         if (Quantity <> 0) and ItemExists("No.") then begin
@@ -1349,7 +1358,14 @@
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Error(RecordRenameErr, FieldCaption("Job No."), FieldCaption("Job Task No."), TableCaption);
     end;
 
@@ -2172,7 +2188,7 @@
         end else
             ClearValues();
 
-        OnUseOnBeforeModify(Rec, xRec);
+        OnUseOnBeforeModify(Rec, xRec, AmountRoundingPrecision, UnitAmountRoundingPrecision, AmountRoundingPrecisionFCY, UnitAmountRoundingPrecisionFCY);
         Modify(true);
     end;
 
@@ -2316,8 +2332,11 @@
         JobUsageLink.SetRange("Job No.", "Job No.");
         JobUsageLink.SetRange("Job Task No.", "Job Task No.");
         JobUsageLink.SetRange("Line No.", "Line No.");
-        if not JobUsageLink.IsEmpty() and not "Usage Link" then
-            Error(ControlUsageLinkErr, TableCaption(), FieldCaption("Schedule Line"), FieldCaption("Usage Link"));
+        IsHandled := false;
+        OnControlUsageLinkOnAfterSetFilterJobUsageLink(Rec, JobUsageLink, Job, CurrFieldNo, IsHandled);
+        if not IsHandled then
+            if not JobUsageLink.IsEmpty() and not "Usage Link" then
+                Error(ControlUsageLinkErr, TableCaption(), FieldCaption("Schedule Line"), FieldCaption("Usage Link"));
 
         Validate("Remaining Qty.", Quantity - "Qty. Posted");
         Validate("Qty. to Transfer to Journal", Quantity - "Qty. Posted");
@@ -2502,9 +2521,17 @@
         exit(Find('-'));
     end;
 
-    procedure LinesWithItemToPlanExist(var Item: Record Item): Boolean
+    procedure LinesWithItemToPlanExist(var Item2: Record Item): Boolean
+    var
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
-        FilterLinesWithItemToPlan(Item);
+        IsHandled := false;
+        OnBeforeLinesWithItemToPlanExist(Item2, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        FilterLinesWithItemToPlan(Item2);
         exit(not IsEmpty);
     end;
 
@@ -3084,12 +3111,37 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line")
+    local procedure OnUseOnBeforeModify(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; AmountRoundingPrecision: Decimal; UnitAmountRoundingPrecision: Decimal; AmountRoundingPrecisionFCY: Decimal; UnitAmountRoundingPrecisionFCY: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateNoOnAfterCopyFromAccount(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var Job: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLinesWithItemToPlanExist(var Item: Record Item; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUsageLink(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterSetFilterOnJobUsageLink(JobPlanningLine: Record "Job Planning Line"; var JobUsageLink: Record "Job Usage Link"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnControlUsageLinkOnAfterSetFilterJobUsageLink(var JobPlanningLine: Record "Job Planning Line"; var JobUsageLink: Record "Job Usage Link"; Job: Record Job; CallingFieldNo: Integer; var IsHandling: Boolean)
     begin
     end;
 }

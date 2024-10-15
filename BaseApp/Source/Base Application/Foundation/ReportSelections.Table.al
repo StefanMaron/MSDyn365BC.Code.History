@@ -442,6 +442,7 @@ table 77 "Report Selections"
         CustomReportSelection.SetRange("Source Type", TableNo);
         CustomReportSelection.SetRange(Usage, TempReportSelections.Usage);
         CustomReportSelection.SetRange("Report ID", TempReportSelections."Report ID");
+        OnGetAccountNoFilterForCustomReportLayoutOnAfterSetCustomReportSelectionFilters(CustomReportSelection, TempReportSelections);
 
         ReportInvolvedInCustomSelection := not CustomReportSelection.IsEmpty();
 
@@ -2345,6 +2346,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnSaveAsDocumentAttachmentOnBeforeCanSaveReportAsPDF(var TempAttachReportSelections: Record "Report Selections" temporary; RecRef: RecordRef; DocumentNo: Code[20]; AccountNo: Code[20]; NumberOfReportsAttached: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAccountNoFilterForCustomReportLayoutOnAfterSetCustomReportSelectionFilters(var CustomReportSelection: Record "Custom Report Selection"; var TempReportSelections: Record "Report Selections" temporary)
     begin
     end;
 }

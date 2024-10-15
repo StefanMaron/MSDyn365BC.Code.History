@@ -794,8 +794,11 @@
         OnBeforeGetDefaultDimIDProcedure(DefaultDimSource, SourceCode, GlobalDim1Code, GlobalDim2Code, InheritFromDimSetID, InheritFromTableNo, DimVal);
 
         GetGLSetup(GLSetupShortcutDimCode);
-        if InheritFromDimSetID > 0 then
-            GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
+        IsHandled := false;
+        OnGetDefaultDimIDOnBeforeGetInheritDimensionSet(TempDimSetEntry0, InheritFromDimSetID, InheritFromTableNo, IsHandled);
+        if not IsHandled then
+            if InheritFromDimSetID > 0 then
+                GetDimensionSet(TempDimSetEntry0, InheritFromDimSetID);
         if TempDimSetEntry0.FindSet() then
             repeat
                 InsertTempDimBufEntry(TempDimBuf, InheritFromTableNo, 0, TempDimSetEntry0."Dimension Code", TempDimSetEntry0."Dimension Value Code");
@@ -853,7 +856,9 @@
 #if not CLEAN20
         RunEventOnGetDefaultDimIDOnBeforeFindNewDimSetID(TempDimBuf, DefaultDimSource, GlobalDim1Code, GlobalDim2Code);
 #endif
-        OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(TempDimBuf, DefaultDimSource, GlobalDim1Code, GlobalDim2Code);
+        OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(
+            TempDimBuf, DefaultDimSource, GlobalDim1Code, GlobalDim2Code, SourceCode,
+            GLSetupShortcutDimCode, TempDimSetEntry0, InheritFromDimSetID, InheritFromTableNo);
 
         TempDimBuf.Reset();
         if TempDimBuf.FindSet() then begin
@@ -2610,6 +2615,8 @@
         DimVisible6 := GLSetup."Shortcut Dimension 6 Code" <> '';
         DimVisible7 := GLSetup."Shortcut Dimension 7 Code" <> '';
         DimVisible8 := GLSetup."Shortcut Dimension 8 Code" <> '';
+
+        OnAfterUseShortcutDims(DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
     end;
 
     procedure OpenAllowedDimValuesPerAccount(var DefaultDimension: Record "Default Dimension")
@@ -3443,7 +3450,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(var TempDimensionBuffer: Record "Dimension Buffer" temporary; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
+    local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetIDProcedure(var TempDimensionBuffer: Record "Dimension Buffer" temporary; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; SourceCode: Code[20]; GLSetupShortcutDimCode: array[8] of Code[20]; var TempDimensionSetEntry0: Record "Dimension Set Entry" temporary; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimIDOnBeforeGetInheritDimensionSet(var TempDimensionSetEntry0: Record "Dimension Set Entry" temporary; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUseShortcutDims(var DimVisible1: Boolean; var DimVisible2: Boolean; var DimVisible3: Boolean; var DimVisible4: Boolean; var DimVisible5: Boolean; var DimVisible6: Boolean; var DimVisible7: Boolean; var DimVisible8: Boolean)
     begin
     end;
 }

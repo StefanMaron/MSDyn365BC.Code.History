@@ -1,7 +1,7 @@
 report 307 "Vendor - Order Summary"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './VendorOrderSummary.rdlc';
+    RDLCLayout = './PurchasesPayables/VendorOrderSummary.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Vendor - Order Summary';
     UsageCategory = ReportsAndAnalysis;

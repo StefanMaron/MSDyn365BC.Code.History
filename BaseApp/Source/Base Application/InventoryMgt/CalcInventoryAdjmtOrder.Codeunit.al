@@ -138,45 +138,48 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
                 end;
     end;
 
-    local procedure UpdateOutputAdjmtBuf(ItemLedgEntry: Record "Item Ledger Entry"; InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var InvtAdjmtBuffer: Record "Inventory Adjustment Buffer")
+    local procedure UpdateOutputAdjmtBuf(ItemLedgerEntry: Record "Item Ledger Entry"; InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer")
     begin
-        with InvtAdjmtEntryOrder do begin
+        OnBeforeUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder, ItemLedgerEntry, InventoryAdjustmentBuffer);
+
+        with InventoryAdjmtEntryOrder do begin
             if HasNewCost("Direct Cost", "Direct Cost (ACY)") or not "Completely Invoiced" then
-                InvtAdjmtBuffer.AddCost(
-                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Direct Cost", "Cost Variance Type"::" ", "Direct Cost", "Direct Cost (ACY)");
+                InventoryAdjustmentBuffer.AddCost(
+                  ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Direct Cost", "Cost Variance Type"::" ", "Direct Cost", "Direct Cost (ACY)");
             if HasNewCost("Indirect Cost", "Indirect Cost (ACY)") then
-                InvtAdjmtBuffer.AddCost(
-                  ItemLedgEntry."Entry No.", InvtAdjmtBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", "Indirect Cost", "Indirect Cost (ACY)");
+                InventoryAdjustmentBuffer.AddCost(
+                  ItemLedgerEntry."Entry No.", InventoryAdjustmentBuffer."Entry Type"::"Indirect Cost", "Cost Variance Type"::" ", "Indirect Cost", "Indirect Cost (ACY)");
 
             if Item."Costing Method" <> Item."Costing Method"::Standard then
                 exit;
 
             if HasNewCost("Single-Level Material Cost", "Single-Lvl Material Cost (ACY)") then
-                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
-                  InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Material,
+                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Material,
                   "Single-Level Material Cost", "Single-Lvl Material Cost (ACY)");
 
             if HasNewCost("Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)") then
-                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
-                  InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Capacity,
+                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Capacity,
                   "Single-Level Capacity Cost", "Single-Lvl Capacity Cost (ACY)");
 
             if HasNewCost("Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)") then
-                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
-                  InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::"Capacity Overhead",
+                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Capacity Overhead",
                   "Single-Level Cap. Ovhd Cost", "Single-Lvl Cap. Ovhd Cost(ACY)");
 
             if HasNewCost("Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)") then
-                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
-                  InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::"Manufacturing Overhead",
+                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::"Manufacturing Overhead",
                   "Single-Level Mfg. Ovhd Cost", "Single-Lvl Mfg. Ovhd Cost(ACY)");
 
             if HasNewCost("Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)") then
-                InvtAdjmtBuffer.AddCost(ItemLedgEntry."Entry No.",
-                  InvtAdjmtBuffer."Entry Type"::Variance, InvtAdjmtBuffer."Variance Type"::Subcontracted,
+                InventoryAdjustmentBuffer.AddCost(ItemLedgerEntry."Entry No.",
+                  InventoryAdjustmentBuffer."Entry Type"::Variance, InventoryAdjustmentBuffer."Variance Type"::Subcontracted,
                   "Single-Level Subcontrd. Cost", "Single-Lvl Subcontrd Cost(ACY)");
         end;
-        OnAfterUpdateOutputAdjmtBuf(InvtAdjmtEntryOrder, ItemLedgEntry, InvtAdjmtBuffer);
+
+        OnAfterUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder, ItemLedgerEntry, InventoryAdjustmentBuffer);
     end;
 
     local procedure CalcStandardCost(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; OutputQty: Decimal)
@@ -252,21 +255,21 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
             CalcActualMaterialCostQuery.SetRange(Order_Line_No_, InvtAdjmtEntryOrder."Order Line No.");
         CalcActualMaterialCostQuery.Open();
 
-        OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
+        OnCalcActualMaterialCostsOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder, CalcActualMaterialCostQuery, IsHandled);
+        if not IsHandled then
+            while CalcActualMaterialCostQuery.Read() do begin
+                InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
+                    -CalcActualMaterialCostQuery.Cost_Amount__Actual_,
+                    -CalcActualMaterialCostQuery.Cost_Amount__Actual___ACY_
+                );
+                InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
+                    -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl__,
+                    -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl___ACY_
+                );
 
-        while CalcActualMaterialCostQuery.Read() do begin
-            InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
-                -CalcActualMaterialCostQuery.Cost_Amount__Actual_,
-                -CalcActualMaterialCostQuery.Cost_Amount__Actual___ACY_
-            );
-            InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(
-                -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl__,
-                -CalcActualMaterialCostQuery.Cost_Amount__Non_Invtbl___ACY_
-            );
-
-            if CalcActualMaterialCostQuery.Positive then
-                AdjustForRevNegCon(InvtAdjmtEntryOrder, CalcActualMaterialCostQuery.Entry_No_);
-        end;
+                if CalcActualMaterialCostQuery.Positive then
+                    AdjustForRevNegCon(InvtAdjmtEntryOrder, CalcActualMaterialCostQuery.Entry_No_);
+            end;
     end;
 
     local procedure AdjustForRevNegCon(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgEntryNo: Integer)
@@ -434,6 +437,11 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOutputAdjmtBuf(InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; ItemLedgerEntry: Record "Item Ledger Entry"; var InventoryAdjustmentBuffer: Record "Inventory Adjustment Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcActualCapacityCosts(var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var IsHandled: Boolean)
     begin
     end;
@@ -454,7 +462,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCalcActualMaterialCostsOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
+    local procedure OnCalcActualMaterialCostsOnAfterSetFilters(var ItemLedgEntry: Record "Item Ledger Entry"; var InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var CalculateActualMaterialCost: Query "Calculate Actual Material Cost"; var IsHandled: Boolean)
     begin
     end;
 

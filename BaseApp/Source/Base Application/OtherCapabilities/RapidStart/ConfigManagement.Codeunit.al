@@ -118,6 +118,7 @@ codeunit 8616 "Config. Management"
                     if not TempFieldRec.Get(TableNumber, FieldRec."No.") then begin
                         FromCompanyFieldRef := FromCompanyRecRef.Field(FieldRec."No.");
                         ToCompanyFieldRef := ToCompanyRecRef.Field(FieldRec."No.");
+                        OnTransferContentOnBeforeToCompanyFieldRefValue(FieldRec, FromCompanyFieldRef);
                         ToCompanyFieldRef.Value(FromCompanyFieldRef.Value);
                     end;
                 until FieldRec.Next() = 0;
@@ -924,6 +925,11 @@ codeunit 8616 "Config. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDataDialog(var ConfigLine: Record "Config. Line"; NewCompanyName: Text[30]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferContentOnBeforeToCompanyFieldRefValue(FieldRec: Record "Field"; FromCompanyFieldRef: FieldRef)
     begin
     end;
 }

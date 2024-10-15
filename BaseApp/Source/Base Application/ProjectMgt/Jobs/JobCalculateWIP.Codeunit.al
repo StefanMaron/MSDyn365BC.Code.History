@@ -156,7 +156,11 @@ codeunit 1000 "Job Calculate WIP"
         JobWIPWarning: Record "Job WIP Warning";
         RecognizedCostAmount: Decimal;
         UsageTotalCost: Decimal;
+        IsHandled: Boolean;
     begin
+        RecognizedCostAmount := 0;
+        UsageTotalCost := 0;
+
         JobTask.SetRange("Job No.", Job."No.");
         JobTask.SetRange("Job Task No.", FromJobTask, ToJobTask);
         JobTask.SetFilter("WIP-Total", '<> %1', JobTask."WIP-Total"::Excluded);
@@ -183,20 +187,28 @@ codeunit 1000 "Job Calculate WIP"
                       "Contract (Invoiced Price)",
                       "Contract (Invoiced Cost)");
 
+                    OnJobTaskCalcWIPOnBeforeCalcWIP(JobTask);
+
                     CalcWIP(JobTask, JobWIPTotal);
                     JobTask.Modify();
 
                     JobWIPTotal."Calc. Recog. Costs Amount" += JobTask."Recognized Costs Amount";
                     JobWIPTotal."Calc. Recog. Sales Amount" += JobTask."Recognized Sales Amount";
-
-                    CreateTempJobWIPBuffers(JobTask, JobWIPTotal);
+                    IsHandled := false;
+                    OnJobTaskCalcWIPOnBeforeCreateTempJobWIPBuffer(JobTask, JobWIPTotal, IsHandled);
+                    if not IsHandled then
+                        CreateTempJobWIPBuffers(JobTask, JobWIPTotal);
                     if (JobTask."Recognized Costs Amount" <> 0) and (AccruedCostsJobTask."Job Task No." = '') then begin
                         AccruedCostsJobTask := JobTask;
                         AccruedCostsJobWIPTotal := JobWIPTotal;
                     end;
 
-                    RecognizedCostAmount += JobTask."Recognized Costs Amount";
-                    UsageTotalCost += JobTask."Usage (Total Cost)";
+                    IsHandled := false;
+                    OnJobTaskCalcWIPOnBeforeSumJobTaskCosts(JobTask, RecognizedCostAmount, UsageTotalCost, IsHandled);
+                    if not IsHandled then begin
+                        RecognizedCostAmount += JobTask."Recognized Costs Amount";
+                        UsageTotalCost += JobTask."Usage (Total Cost)";
+                    end;
 
                     JobWIPTotalChanged := false;
                     WIPAmount := 0;
@@ -232,6 +244,8 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     local procedure CreateJobWIPTotal(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total")
+    var
+        IsHandled: Boolean;
     begin
         OnBeforeCreateJobWIPTotal(JobTask);
         JobWIPTotalChanged := true;
@@ -239,32 +253,34 @@ codeunit 1000 "Job Calculate WIP"
         RecognizedAllocationPercentage := 0;
 
         JobWIPTotal.Init();
+        IsHandled := false;
+        OnCreateJobWIPTotalOnBeforeLoopJobTask(JobTask, JobWIPTotal, IsHandled);
+        if not IsHandled then
+            if JobTask.Find('-') then
+                repeat
+                    if JobTask."Job Task Type" = JobTask."Job Task Type"::Posting then begin
+                        JobTask.CalcFields(
+                          "Schedule (Total Cost)",
+                          "Schedule (Total Price)",
+                          "Usage (Total Cost)",
+                          "Usage (Total Price)",
+                          "Contract (Total Cost)",
+                          "Contract (Total Price)",
+                          "Contract (Invoiced Price)",
+                          "Contract (Invoiced Cost)");
 
-        if JobTask.Find('-') then
-            repeat
-                if JobTask."Job Task Type" = JobTask."Job Task Type"::Posting then begin
-                    JobTask.CalcFields(
-                      "Schedule (Total Cost)",
-                      "Schedule (Total Price)",
-                      "Usage (Total Cost)",
-                      "Usage (Total Price)",
-                      "Contract (Total Cost)",
-                      "Contract (Total Price)",
-                      "Contract (Invoiced Price)",
-                      "Contract (Invoiced Cost)");
+                        JobWIPTotal."Schedule (Total Cost)" += JobTask."Schedule (Total Cost)";
+                        JobWIPTotal."Schedule (Total Price)" += JobTask."Schedule (Total Price)";
+                        JobWIPTotal."Usage (Total Cost)" += JobTask."Usage (Total Cost)";
+                        JobWIPTotal."Usage (Total Price)" += JobTask."Usage (Total Price)";
+                        JobWIPTotal."Contract (Total Cost)" += JobTask."Contract (Total Cost)";
+                        JobWIPTotal."Contract (Total Price)" += JobTask."Contract (Total Price)";
+                        JobWIPTotal."Contract (Invoiced Price)" += JobTask."Contract (Invoiced Price)";
+                        JobWIPTotal."Contract (Invoiced Cost)" += JobTask."Contract (Invoiced Cost)";
 
-                    JobWIPTotal."Schedule (Total Cost)" += JobTask."Schedule (Total Cost)";
-                    JobWIPTotal."Schedule (Total Price)" += JobTask."Schedule (Total Price)";
-                    JobWIPTotal."Usage (Total Cost)" += JobTask."Usage (Total Cost)";
-                    JobWIPTotal."Usage (Total Price)" += JobTask."Usage (Total Price)";
-                    JobWIPTotal."Contract (Total Cost)" += JobTask."Contract (Total Cost)";
-                    JobWIPTotal."Contract (Total Price)" += JobTask."Contract (Total Price)";
-                    JobWIPTotal."Contract (Invoiced Price)" += JobTask."Contract (Invoiced Price)";
-                    JobWIPTotal."Contract (Invoiced Cost)" += JobTask."Contract (Invoiced Cost)";
-
-                    OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(JobTask, JobWIPTotal);
-                end;
-            until JobTask.Next() = 0;
+                        OnCreateJobWIPTotalOnAfterUpdateJobWIPTotal(JobTask, JobWIPTotal);
+                    end;
+                until JobTask.Next() = 0;
 
         // Get values from the "WIP-Total"::Total Job Task, which always is the last entry in the range:
         JobWIPTotal."Job No." := JobTask."Job No.";
@@ -287,6 +303,7 @@ codeunit 1000 "Job Calculate WIP"
         if JobComplete then begin
             JobTask."Recognized Sales Amount" := JobTask."Contract (Invoiced Price)";
             JobTask."Recognized Costs Amount" := JobTask."Usage (Total Cost)";
+            OnCaclWIPOnAfterRecognizedAmounts(JobTask);
             exit;
         end;
 
@@ -644,7 +661,8 @@ codeunit 1000 "Job Calculate WIP"
             JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Sale);
             if JobWIPMethod.Get(JobWIPTotal."WIP Method") then
                 if JobWIPMethod."Recognized Sales" = JobWIPMethod."Recognized Sales"::"Usage (Total Price)" then
-                    JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
+                    if JobTask."Contract (Invoiced Price)" < JobTask."Recognized Sales Amount" then
+                        JobLedgerEntry.SetRange("Entry Type", JobLedgerEntry."Entry Type"::Usage);
         end;
         if JobLedgerEntry.FindSet() then
             repeat
@@ -660,6 +678,7 @@ codeunit 1000 "Job Calculate WIP"
         Clear(TempJobWIPBuffer);
         TempJobWIPBuffer[1]."Dim Combination ID" := JobLedgerEntry."Dimension Set ID";
         TempJobWIPBuffer[1]."Job Complete" := JobComplete;
+        OnBeforeCreateWIPBufferEntryFromLedgerOnBeforeAssignPostingGroup(TempJobWIPBuffer[1], JobLedgerEntry, JobComplete);
         if JobTask."Job Posting Group" = '' then begin
             Job.Get(JobTask."Job No.");
             Job.TestField("Job Posting Group");
@@ -696,6 +715,7 @@ codeunit 1000 "Job Calculate WIP"
                 end;
         end;
 
+        OnCreateWIPBufferEntryFromLedgerOnBeforeModifyJobLedgerEntry(JobLedgerEntry, TempJobWIPBuffer, BufferType);
         JobLedgerEntry.Modify();
 
         if TempJobWIPBuffer[1]."WIP Entry Amount" <> 0 then begin
@@ -937,48 +957,58 @@ codeunit 1000 "Job Calculate WIP"
             GLAmount := -GLAmount;
 
         InsertWIPGL(JobWIPGLEntry."G/L Account No.", JobWIPGLEntry."G/L Bal. Account No.", JnlPostingDate, JnlDocNo, SourceCode,
-          GLAmount, JobWIPGLEntry.Description, JobWIPGLEntry."Job No.", JobWIPGLEntry."Dimension Set ID");
+          GLAmount, JobWIPGLEntry.Description, JobWIPGLEntry."Job No.", JobWIPGLEntry."Dimension Set ID", Reversed, JobWIPGLEntry);
     end;
 
-    local procedure InsertWIPGL(AccNo: Code[20]; BalAccNo: Code[20]; JnlPostingDate: Date; JnlDocNo: Code[20]; SourceCode: Code[10]; GLAmount: Decimal; JnlDescription: Text[100]; JobNo: Code[20]; JobWIPGLEntryDimSetID: Integer)
+    local procedure InsertWIPGL(AccNo: Code[20]; BalAccNo: Code[20]; JnlPostingDate: Date; JnlDocNo: Code[20]; SourceCode: Code[10]; GLAmount: Decimal; JnlDescription: Text[100]; JobNo: Code[20]; JobWIPGLEntryDimSetID: Integer; Reversed: Boolean; JobWIPGLEntry: Record "Job WIP G/L Entry")
     var
         GenJnlLine: Record "Gen. Journal Line";
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
-        GLAcc.Get(AccNo);
-        with GenJnlLine do begin
-            Init();
-            "Posting Date" := JnlPostingDate;
-            "Account No." := AccNo;
-            "Bal. Account No." := BalAccNo;
-            "Tax Area Code" := GLAcc."Tax Area Code";
-            "Tax Liable" := GLAcc."Tax Liable";
-            "Tax Group Code" := GLAcc."Tax Group Code";
-            Amount := GLAmount;
-            "Document No." := JnlDocNo;
-            "Source Code" := SourceCode;
-            Description := JnlDescription;
-            "Job No." := JobNo;
-            "System-Created Entry" := true;
-            "Dimension Set ID" := JobWIPGLEntryDimSetID;
+        IsHandled := false;
+        OnBeforeInsertWIPGL(JnlPostingDate, JnlDocNo, SourceCode, GLAmount, JobWIPGLEntry, Reversed, IsHandled);
+        if not IsHandled then begin
+            GLAcc.Get(AccNo);
+
+            GenJnlLine.Init();
+            GenJnlLine."Posting Date" := JnlPostingDate;
+            GenJnlLine."Account No." := AccNo;
+            GenJnlLine."Bal. Account No." := BalAccNo;
+            GenJnlLine."Tax Area Code" := GLAcc."Tax Area Code";
+            GenJnlLine."Tax Liable" := GLAcc."Tax Liable";
+            GenJnlLine."Tax Group Code" := GLAcc."Tax Group Code";
+            GenJnlLine.Amount := GLAmount;
+            GenJnlLine."Document No." := JnlDocNo;
+            GenJnlLine."Source Code" := SourceCode;
+            GenJnlLine.Description := JnlDescription;
+            GenJnlLine."Job No." := JobNo;
+            GenJnlLine."System-Created Entry" := true;
+            GenJnlLine."Dimension Set ID" := JobWIPGLEntryDimSetID;
             GetGLSetup();
             if GLSetup."Journal Templ. Name Mandatory" then begin
-                "Journal Template Name" := GenJnlBatch."Journal Template Name";
-                "Journal Batch Name" := GenJnlBatch.Name;
+                GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             end;
-        end;
-        Clear(DimMgt);
-        DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
-          GenJnlLine."Shortcut Dimension 2 Code");
 
-        OnInsertWIPGLOnBeforeGenJnPostLine(GenJnlLine);
-        GenJnPostLine.RunWithCheck(GenJnlLine);
+            Clear(DimMgt);
+            DimMgt.UpdateGlobalDimFromDimSetID(GenJnlLine."Dimension Set ID", GenJnlLine."Shortcut Dimension 1 Code",
+              GenJnlLine."Shortcut Dimension 2 Code");
+
+            OnInsertWIPGLOnBeforeGenJnPostLine(GenJnlLine, Reversed);
+            GenJnPostLine.RunWithCheck(GenJnlLine);
+        end;
     end;
 
     local procedure CheckJobGLAcc(AccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
+        OnBeforeCheckJobGLAcc(AccNo, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAcc.Get(AccNo);
         GLAcc.CheckGLAcc();
         GLAcc.TestField("Gen. Posting Type", GLAcc."Gen. Posting Type"::" ");
@@ -1030,7 +1060,16 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     local procedure GetAppliedCostsWIPEntryAmount(JobTask: Record "Job Task"; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean): Decimal
+    var
+        IsHandled: Boolean;
+        Result: Decimal;
     begin
+        IsHandled := false;
+        Result := 0;
+        OnBeforeGetAppliedCostsWIPEntryAmount(JobTask, JobWIPMethod, AppliedAccrued, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(GetAppliedCostsAmount(JobTask."Recognized Costs Amount", JobTask."Usage (Total Cost)", JobWIPMethod, AppliedAccrued));
     end;
 
@@ -1088,8 +1127,15 @@ codeunit 1000 "Job Calculate WIP"
     local procedure GetWIPEntryAmount(BufferType: Enum "Job WIP Buffer Type"; JobTask: Record "Job Task"; WIPMethodCode: Code[20]; AppliedAccrued: Boolean): Decimal
     var
         JobWIPMethod: Record "Job WIP Method";
+        IsHandled: Boolean;
+        Result: Decimal;
     begin
         JobWIPMethod.Get(WIPMethodCode);
+        IsHandled := false;
+        Result := 0;
+        OnBeforeGetWIPEntryAmount(BufferType, JobTask, JobWIPMethod, AppliedAccrued, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
         case BufferType of
             BufferType::"Applied Costs":
                 exit(GetAppliedCostsWIPEntryAmount(JobTask, JobWIPMethod, AppliedAccrued));
@@ -1273,7 +1319,7 @@ codeunit 1000 "Job Calculate WIP"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertWIPGLOnBeforeGenJnPostLine(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnInsertWIPGLOnBeforeGenJnPostLine(var GenJournalLine: Record "Gen. Journal Line"; Reversed: Boolean)
     begin
     end;
 
@@ -1299,6 +1345,61 @@ codeunit 1000 "Job Calculate WIP"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcWIP(var JobTask: Record "Job Task"; JobWIPTotal: Record "Job WIP Total"; JobComplete: Boolean; var RecognizedAllocationPercentage: Decimal; var JobWIPTotalChanged: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobTaskCalcWIPOnBeforeCreateTempJobWIPBuffer(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobTaskCalcWIPOnBeforeCalcWIP(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCaclWIPOnAfterRecognizedAmounts(var JobTask: Record "Job Task")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWIPBufferEntryFromLedgerOnBeforeModifyJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; var TempJobWIPBuffer: array[2] of Record "Job WIP Buffer" temporary; JobWIPBufferType: Enum "Job WIP Buffer Type")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAppliedCostsWIPEntryAmount(JobTask: Record "Job Task"; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWIPBufferEntryFromLedgerOnBeforeAssignPostingGroup(var TempJobWIPBuffer: Record "Job WIP Buffer"; var JobLedgerEntry: Record "Job Ledger Entry"; JobComplete: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertWIPGL(JnlPostingDate: Date; JnlDocNo: Code[20]; SourceCode: Code[10]; GLAmount: Decimal; JobWIPGLEntry: Record "Job WIP G/L Entry"; Reversed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnJobTaskCalcWIPOnBeforeSumJobTaskCosts(var JobTask: Record "Job Task"; var RecognizedCostAmount: Decimal; var UsageTotalCost: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateJobWIPTotalOnBeforeLoopJobTask(var JobTask: Record "Job Task"; var JobWIPTotal: Record "Job WIP Total"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWIPEntryAmount(JobWIPBufferType: Enum "Job WIP Buffer Type"; JobTask: Record "Job Task"; JobWIPMethod: Record "Job WIP Method"; AppliedAccrued: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobGLAcc(AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

@@ -397,6 +397,9 @@
                   tabledata "Customer Price Group" = RM,
                   tabledata "Customer Sales Buffer" = RIMD,
                   tabledata "Customer Templ." = RIMD,
+#if not CLEAN20
+                  tabledata "Customer Template" = RM,
+#endif
                   tabledata "Customized Calendar Change" = RM,
                   tabledata "Customized Calendar Entry" = RM,
                   tabledata "CV Ledger Entry Buffer" = RM,

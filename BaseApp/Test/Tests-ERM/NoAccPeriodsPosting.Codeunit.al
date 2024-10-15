@@ -307,6 +307,44 @@ codeunit 134361 "No Acc. Periods: Posting"
         VerifyItemLedgEntryCostAmount(Item."No.", -UnitCost * ItemJournalLine.Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PreviewPostGenJournalWithDeferralTemplateWithError()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJnlPost: Codeunit "Gen. Jnl.-Post";
+        GLAccountNo: Code[20];
+        DocumentNo: Code[20];
+    begin
+        // [SCENARIO 470572] Not possible to post a Deferral when the Document No exist, an error message occurs when trying to post, 
+        // however, this error message does not appear when doing the Preview Posting.
+        Initialize();
+
+        // [GIVEN] Create G/L Account with Deferral template code
+        GLAccountNo := CreateGLAccountWithStraightLineDeferral();
+
+        // [GIVEN] Create Gen. Journal Batch
+        CreateGenJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create Gen. Journal Line 
+        CreateGenJournalLineForDeferralEntry(GenJournalLine, GenJournalBatch, GLAccountNo);
+
+        // [WHEN] Save Document no. when Gen. Journal Line has Document No.
+        DocumentNo := GenJournalLine."Document No.";
+
+        // [THEN] Post Gen. Journal Line 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Create Gen. Journal Line with same Document  No. 
+        CreateGenJournalLineForDeferralEntry(GenJournalLine, GenJournalBatch, GLAccountNo);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Modify(true);
+
+        // [VERIFY] Verify Error will come during Posting Preview.
+        asserterror GenJnlPost.Preview(GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         AccountingPeriod: Record "Accounting Period";
@@ -519,6 +557,25 @@ codeunit 134361 "No Acc. Periods: Posting"
             CalcFields("Cost Amount (Actual)");
             TestField("Cost Amount (Actual)", CostAmount);
         end;
+    end;
+
+    local procedure CreateGenJournalLineForDeferralEntry(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; GLAccountNo: Code[20])
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Posting Date", WorkDate());
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
     [MessageHandler]

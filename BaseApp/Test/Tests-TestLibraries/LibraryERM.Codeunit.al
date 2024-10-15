@@ -403,6 +403,25 @@
         CountryRegion.Insert(true);
     end;
 
+    procedure CreateCountryRegionTranslation(CountryRegionCode: Code[10]; var CountryRegionTranslation: Record "Country/Region Translation")
+    var
+        LanguageCode: Code[10];
+        NameTranslation: Text[50];
+    begin
+        LanguageCode := GetAnyLanguageDifferentFromCurrent();
+        NameTranslation := CopyStr(LibraryRandom.RandText(MaxStrLen(NameTranslation)), 1, MaxStrLen(NameTranslation));
+        CreateCountryRegionTranslation(CountryRegionCode, LanguageCode, NameTranslation, CountryRegionTranslation);
+    end;
+
+    procedure CreateCountryRegionTranslation(CountryRegionCode: Code[10]; LanguageCode: Code[10]; NameTranslation: Text[50]; var CountryRegionTranslation: Record "Country/Region Translation")
+    begin
+        CountryRegionTranslation.Init();
+        CountryRegionTranslation.Validate("Country/Region Code", CountryRegionCode);
+        CountryRegionTranslation.Validate("Language Code", LanguageCode);
+        CountryRegionTranslation.Validate(Name, NameTranslation);
+        CountryRegionTranslation.Insert(true);
+    end;
+
     procedure CreateTerritory(var Territory: Record Territory)
     begin
         Territory.Init();

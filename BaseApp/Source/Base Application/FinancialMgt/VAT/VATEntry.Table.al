@@ -1180,7 +1180,6 @@
     end;
 
     [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
     procedure OnAfterCopyFromGenJnlLine(var VATEntry: Record "VAT Entry"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;

@@ -264,7 +264,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckFAPostingDate(GenJnlLine, FAJnlLine, DeprBook, IsHandled);
+        OnBeforeCheckFAPostingDate(GenJnlLine, FAJnlLine, DeprBook, IsHandled, FADeprBook, GenJnlPosting);
         if IsHandled then
             exit;
 
@@ -703,7 +703,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckFAPostingDate(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckFAPostingDate(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean; FADepreciationBook: Record "FA Depreciation Book"; GenJnlPosting: Boolean)
     begin
     end;
 

@@ -307,7 +307,6 @@ page 143 "Posted Sales Invoices"
                 field("Coupled to Dataverse"; Rec."Coupled to Dataverse")
                 {
                     ApplicationArea = All;
-                    Caption = '<Document Exchange Status>';
                     ToolTip = 'Specifies that the posted sales order is coupled to a sales order in Dynamics 365 Sales.';
                     Visible = CRMIntegrationEnabled;
                 }

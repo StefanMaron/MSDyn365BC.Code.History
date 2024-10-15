@@ -1,7 +1,7 @@
 report 107 "Customer - Order Summary"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CustomerOrderSummary.rdlc';
+    RDLCLayout = './SalesReceivables/CustomerOrderSummary.rdlc';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer - Order Summary';
     PreviewMode = PrintLayout;

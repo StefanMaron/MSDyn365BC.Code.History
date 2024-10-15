@@ -76,18 +76,20 @@
 
             SalesLine.Reset();
 
-            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified, SalesLine);
-
-            SalesSetup.Get();
-            if SalesSetup."Calc. Inv. Discount" then begin
-                PostingDate := "Posting Date";
-                PrintPostedDocuments := "Print Posted Documents";
-                CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
-                LinesWereModified := true;
-                Get("Document Type", "No.");
-                "Print Posted Documents" := PrintPostedDocuments;
-                if PostingDate <> "Posting Date" then
-                    Validate("Posting Date", PostingDate);
+            IsHandled := false;
+            OnBeforeCalcInvDiscount(SalesHeader, PreviewMode, LinesWereModified, SalesLine, IsHandled);
+            if not IsHandled then begin
+                SalesSetup.Get();
+                if SalesSetup."Calc. Inv. Discount" then begin
+                    PostingDate := "Posting Date";
+                    PrintPostedDocuments := "Print Posted Documents";
+                    CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
+                    LinesWereModified := true;
+                    Get("Document Type", "No.");
+                    "Print Posted Documents" := PrintPostedDocuments;
+                    if PostingDate <> "Posting Date" then
+                        Validate("Posting Date", PostingDate);
+                end;
             end;
 
             IsHandled := false;
@@ -319,7 +321,13 @@
     var
         SalesLine: Record "Sales Line";
         AsmHeader: Record "Assembly Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeReleaseATOs(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         if SalesLine.FindSet() then
@@ -396,7 +404,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeCalcInvDiscount(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -567,6 +575,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnBeforeSetStatusReleased(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReleaseATOs(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -300,8 +300,6 @@
     end;
 
     var
-        UOMMgt: Codeunit "Unit of Measure Management";
-
         Text001: Label 'You cannot handle more than %1 units.';
         Text002: Label 'must not be less than %1';
         Text003: Label '%1 must be 0 or 1 when %2 is stated.';
@@ -329,10 +327,12 @@
     end;
 
     local procedure CalcQty(BaseQty: Decimal): Decimal
+    var
+        UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
     begin
         if "Qty. per Unit of Measure" = 0 then
             "Qty. per Unit of Measure" := 1;
-        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+        exit(Round(BaseQty / "Qty. per Unit of Measure", UnitOfMeasureManagement.QtyRndPrecision()));
     end;
 
     procedure InitQtyToHandle()
@@ -347,7 +347,7 @@
     var
         Location: Record Location;
         ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        ItemTrackingManagement: Codeunit "Item Tracking Management";
         ExpDate: Date;
         WarDate: Date;
         IsHandled: Boolean;
@@ -369,24 +369,24 @@
 
         ItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(Rec);
 
-        if ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location, ItemTrackingSetup, ExpDate) then begin
+        if ItemTrackingManagement.GetWhseExpirationDate("Item No.", "Variant Code", Location, ItemTrackingSetup, ExpDate) then begin
             "Expiration Date" := ExpDate;
             "Buffer Status2" := "Buffer Status2"::"ExpDate blocked";
         end;
 
         if IsReclass("Source Type", "Source Batch Name") then begin
             "New Expiration Date" := "Expiration Date";
-            if ItemTrackingMgt.GetWhseWarrantyDate("Item No.", "Variant Code", Location, ItemTrackingSetup, WarDate) then
+            if ItemTrackingManagement.GetWhseWarrantyDate("Item No.", "Variant Code", Location, ItemTrackingSetup, WarDate) then
                 "Warranty Date" := WarDate;
         end;
     end;
 
     procedure IsReclass(SourceType: Integer; SourceBatchName: Code[10]): Boolean
     var
-        WhseJnlLine: Record "Warehouse Journal Line";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
     begin
         if SourceType = DATABASE::"Warehouse Journal Line" then
-            exit(WhseJnlLine.IsReclass(SourceBatchName));
+            exit(WarehouseJournalLine.IsReclass(SourceBatchName));
 
         exit(false);
     end;
@@ -394,7 +394,7 @@
     procedure LookUpTrackingSummary(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; TrackingType: Enum "Item Tracking Type"; MaxQuantity: Decimal; SignFactor: Integer; SearchForSupply: Boolean)
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
-        WhseJnlLine: Record "Warehouse Journal Line";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
         WhseWorksheetLine: Record "Whse. Worksheet Line";
         WhseInternalPutawayLine: Record "Whse. Internal Put-away Line";
         InternalMovementLine: Record "Internal Movement Line";
@@ -410,10 +410,10 @@
         case WhseItemTrackingLine."Source Type" of
             DATABASE::"Warehouse Journal Line":
                 begin
-                    WhseJnlLine.Get(
+                    WarehouseJournalLine.Get(
                         WhseItemTrackingLine."Source Batch Name", WhseItemTrackingLine."Source ID",
                         WhseItemTrackingLine."Location Code", WhseItemTrackingLine."Source Ref. No.");
-                    BinCode := WhseJnlLine."Bin Code";
+                    BinCode := WarehouseJournalLine."Bin Code";
                 end;
             DATABASE::"Whse. Worksheet Line":
                 begin
@@ -510,46 +510,46 @@
         OnAfterCopyTrackingFromItemLedgEntry(Rec, ItemLedgerEntry);
     end;
 
-    procedure CopyTrackingFromPostedWhseReceiptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    procedure CopyTrackingFromPostedWhseReceiptLine(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
-        "Serial No." := PostedWhseRcptLine."Serial No.";
-        "Lot No." := PostedWhseRcptLine."Lot No.";
+        "Serial No." := PostedWhseReceiptLine."Serial No.";
+        "Lot No." := PostedWhseReceiptLine."Lot No.";
 
-        OnAfterCopyTrackingFromPostedWhseReceiptine(Rec, PostedWhseRcptLine);
+        OnAfterCopyTrackingFromPostedWhseReceiptine(Rec, PostedWhseReceiptLine);
     end;
 
-    procedure CopyTrackingFromReservEntry(ReservEntry: Record "Reservation Entry")
+    procedure CopyTrackingFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
-        "Serial No." := ReservEntry."Serial No.";
-        "Lot No." := ReservEntry."Lot No.";
-        "Warranty Date" := ReservEntry."Warranty Date";
-        "Expiration Date" := ReservEntry."Expiration Date";
+        "Serial No." := ReservationEntry."Serial No.";
+        "Lot No." := ReservationEntry."Lot No.";
+        "Warranty Date" := ReservationEntry."Warranty Date";
+        "Expiration Date" := ReservationEntry."Expiration Date";
 
-        OnAfterCopyTrackingFromReservEntry(Rec, ReservEntry);
+        OnAfterCopyTrackingFromReservEntry(Rec, ReservationEntry);
     end;
 
-    procedure CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    procedure CopyTrackingFromPostedWhseRcptLine(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
-        "Serial No." := PostedWhseRcptLine."Serial No.";
-        "Lot No." := PostedWhseRcptLine."Lot No.";
+        "Serial No." := PostedWhseReceiptLine."Serial No.";
+        "Lot No." := PostedWhseReceiptLine."Lot No.";
 
-        OnAfterCopyTrackingFromPostedWhseRcptLine(Rec, PostedWhseRcptLine);
+        OnAfterCopyTrackingFromPostedWhseRcptLine(Rec, PostedWhseReceiptLine);
     end;
 
-    procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    procedure CopyTrackingFromWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        "Serial No." := WhseActivityLine."Serial No.";
-        "Lot No." := WhseActivityLine."Lot No.";
+        "Serial No." := WarehouseActivityLine."Serial No.";
+        "Lot No." := WarehouseActivityLine."Lot No.";
 
-        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WarehouseActivityLine);
     end;
 
-    procedure CopyTrackingFromWhseEntry(WhseEntry: Record "Warehouse Entry")
+    procedure CopyTrackingFromWhseEntry(WarehouseEntry: Record "Warehouse Entry")
     begin
-        "Serial No." := WhseEntry."Serial No.";
-        "Lot No." := WhseEntry."Lot No.";
+        "Serial No." := WarehouseEntry."Serial No.";
+        "Lot No." := WarehouseEntry."Lot No.";
 
-        OnAfterCopyTrackingFromWhseEntry(Rec, WhseEntry);
+        OnAfterCopyTrackingFromWhseEntry(Rec, WarehouseEntry);
     end;
 
     procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -590,6 +590,8 @@
         SetRange("Source ID", SourceID);
         if SourceRefNo >= 0 then
             SetRange("Source Ref. No.", SourceRefNo);
+
+        OnAfterSetSourceFilter(Rec, SourceType, SourceSubtype, SourceID, SourceRefNo, SourceKey);
     end;
 
     procedure SetSourceFilter(SourceBatchName: Code[10]; SourceProdOrderLine: Integer)
@@ -631,12 +633,12 @@
         OnAfterSetTrackingFilterFromRelation(Rec, WhseItemEntryRelation);
     end;
 
-    procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
+    procedure SetTrackingFilterFromReservEntry(ReservationEntry: Record "Reservation Entry")
     begin
-        SetRange("Serial No.", ReservEntry."Serial No.");
-        SetRange("Lot No.", ReservEntry."Lot No.");
+        SetRange("Serial No.", ReservationEntry."Serial No.");
+        SetRange("Lot No.", ReservationEntry."Lot No.");
 
-        OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
+        OnAfterSetTrackingFilterFromReservEntry(Rec, ReservationEntry);
     end;
 
     procedure SetTrackingFilterFromSpec(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -647,12 +649,12 @@
         OnAfterSetTrackingFilterFromSpec(Rec, WhseItemTrackingLine);
     end;
 
-    procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    procedure SetTrackingFilterFromWhseActivityLine(WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
-        SetRange("Serial No.", WhseActivityLine."Serial No.");
-        SetRange("Lot No.", WhseActivityLine."Lot No.");
+        SetRange("Serial No.", WarehouseActivityLine."Serial No.");
+        SetRange("Lot No.", WarehouseActivityLine."Lot No.");
 
-        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WarehouseActivityLine);
     end;
 
     procedure SetTrackingFilterFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
@@ -849,6 +851,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetTrackingKey(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSourceFilter(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer; SourceKey: Boolean)
     begin
     end;
 }

@@ -1,7 +1,7 @@
 report 105 "Customer - Summary Aging"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CustomerSummaryAging.rdlc';
+    RDLCLayout = './SalesReceivables/CustomerSummaryAging.rdlc';
     AdditionalSearchTerms = 'customer balance,payment due';
     ApplicationArea = Basic, Suite;
     Caption = 'Customer - Summary Aging';

@@ -90,6 +90,7 @@ codeunit 1253 "Change Bank Rec. Statement No."
             repeat
                 BankAccReconciliationLine.TransferFields(TempBankAccReconciliationLine);
                 BankAccReconciliationLine."Statement No." := NewStatementNo;
+                OnCreateBankAccReconciliationWithNewStatementNoOnBeforeInsertBankAccReconciliationLine(BankAccReconciliationLine, BankAccReconciliation, TempBankAccReconciliation, TempBankAccReconciliationLine, TempBankAccRecMatchBuffer, NewStatementNo);
                 BankAccReconciliationLine.Insert();
             until TempBankAccReconciliationLine.Next() = 0;
 
@@ -121,5 +122,10 @@ codeunit 1253 "Change Bank Rec. Statement No."
         CheckLedgerEntry.SetFilter("Statement Status", '%1|%2', CheckLedgerEntry."Statement Status"::"Bank Acc. Entry Applied", CheckLedgerEntry."Statement Status"::"Check Entry Applied");
         if not CheckLedgerEntry.IsEmpty() then
             CheckLedgerEntry.ModifyAll("Statement No.", NewStatementNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateBankAccReconciliationWithNewStatementNoOnBeforeInsertBankAccReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankAccReconciliation: Record "Bank Acc. Reconciliation" temporary; var TempBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line" temporary; var TempBankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer" temporary; NewStatementNo: Code[20]);
+    begin
     end;
 }

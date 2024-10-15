@@ -341,6 +341,10 @@
             NewSalesShipmentLine."Qty. Invoiced (Base)" := NewSalesShipmentLine."Quantity (Base)";
             NewSalesShipmentLine.Correction := true;
             NewSalesShipmentLine."Dimension Set ID" := "Dimension Set ID";
+            NewSalesShipmentLine.Amount := -Amount;
+            NewSalesShipmentLine."Amount Including VAT" := -"Amount Including VAT";
+            NewSalesShipmentLine."Amount (LCY)" := -"Amount (LCY)";
+            NewSalesShipmentLine."Amount Including VAT (LCY)" := -"Amount Including VAT (LCY)";
             OnBeforeNewSalesShptLineInsert(NewSalesShipmentLine, OldSalesShipmentLine);
             NewSalesShipmentLine.Insert();
             OnAfterNewSalesShptLineInsert(NewSalesShipmentLine, OldSalesShipmentLine);

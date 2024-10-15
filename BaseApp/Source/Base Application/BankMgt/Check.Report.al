@@ -1,7 +1,7 @@
-﻿report 1401 Check
+report 1401 Check
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './Check.rdlc';
+    RDLCLayout = './BankMgt/Check.rdlc';
     Caption = 'Check';
     Permissions = TableData "Bank Account" = m;
 

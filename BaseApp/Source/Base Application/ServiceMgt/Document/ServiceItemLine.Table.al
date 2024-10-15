@@ -566,18 +566,18 @@ table 5901 "Service Item Line"
             Caption = 'Finishing Time';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 SkipResponseTimeHrsUpdate := true;
                 TestField("Finishing Date");
                 GetServHeader();
                 if "Finishing Time" <> 0T then begin
-                    if ("Finishing Date" = "Starting Date") and
-                       ("Finishing Time" < "Starting Time")
-                    then
-                        Error(
-                          Text022,
-                          FieldCaption("Finishing Time"),
-                          FieldCaption("Starting Time"));
+                    IsHandled := false;
+                    OnBeforeCheckFinishingTime(Rec, IsHandled);
+                    if not IsHandled then
+                        if ("Finishing Date" = "Starting Date") and ("Finishing Time" < "Starting Time") then
+                            Error(Text022, FieldCaption("Finishing Time"), FieldCaption("Starting Time"));
                     UpdateStartFinishDateTime("Document Type", "Document No.", "Line No.", "Starting Date", "Starting Time",
                       "Finishing Date", "Finishing Time", false);
                 end;
@@ -2404,6 +2404,7 @@ table 5901 "Service Item Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         if OldDimSetID <> "Dimension Set ID" then begin
+            OnShowDimensionsOnBeforeServiceItemLineModify(Rec);
             Modify();
             if ServLineExists() then
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
@@ -2841,6 +2842,16 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowDimensionsOnBeforeServiceItemLineModify(var ServiceItemLine: Record "Service Item Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFinishingTime(var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
     begin
     end;
 }

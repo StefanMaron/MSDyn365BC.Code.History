@@ -1,7 +1,7 @@
-﻿report 1002 "Post Inventory Cost to G/L"
+report 1002 "Post Inventory Cost to G/L"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './PostInventoryCosttoGL.rdlc';
+    RDLCLayout = './InventoryMgt/PostInventoryCosttoGL.rdlc';
     AdditionalSearchTerms = 'reconcile inventory';
     ApplicationArea = Basic, Suite;
     Caption = 'Post Inventory Cost to G/L';

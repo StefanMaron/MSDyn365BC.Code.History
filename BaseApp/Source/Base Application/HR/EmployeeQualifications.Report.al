@@ -1,7 +1,7 @@
 report 5206 "Employee - Qualifications"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './EmployeeQualifications.rdlc';
+    RDLCLayout = './HR/EmployeeQualifications.rdlc';
     ApplicationArea = BasicHR;
     Caption = 'Employee Qualifications';
     UsageCategory = ReportsAndAnalysis;

@@ -406,14 +406,18 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     procedure DeleteLine(var SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
-        with SalesLine do begin
+        IsHandled := false;
+        OnBeforeDeleteLine(SalesLine, IsHandled);
+        if not IsHandled then begin
             ReservMgt.SetReservSource(SalesLine);
             if DeleteItemTracking then
                 ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
             ReservMgt.DeleteReservEntries(true, 0);
             DeleteInvoiceSpecFromLine(SalesLine);
-            CalcFields("Reserved Qty. (Base)");
+            SalesLine.CalcFields("Reserved Qty. (Base)");
             AssignForPlanning(SalesLine);
         end;
     end;
@@ -780,7 +784,7 @@ codeunit 99000832 "Sales Line-Reserve"
         end;
 
         IsHandled := false;
-        OnTestSalesLineModificationOnBeforeTestVariantCode(NewSalesLine, OldSalesLine, IsHandled);
+        OnTestSalesLineModificationOnBeforeTestVariantCode(NewSalesLine, OldSalesLine, IsHandled, HasError);
         if not IsHandled then
             if NewSalesLine."Variant Code" <> OldSalesLine."Variant Code" then begin
                 if ThrowError then
@@ -789,7 +793,7 @@ codeunit 99000832 "Sales Line-Reserve"
             end;
 
         IsHandled := false;
-        OnTestSalesLineModificationOnBeforeTestLocationCode(NewSalesLine, OldSalesLine, IsHandled);
+        OnTestSalesLineModificationOnBeforeTestLocationCode(NewSalesLine, OldSalesLine, IsHandled, HasError);
         if not IsHandled then
             if NewSalesLine."Location Code" <> OldSalesLine."Location Code" then begin
                 if ThrowError then
@@ -1157,12 +1161,12 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnTestSalesLineModificationOnBeforeTestVariantCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; var HasError: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTestSalesLineModificationOnBeforeTestLocationCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnTestSalesLineModificationOnBeforeTestLocationCode(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean; var HasError: Boolean)
     begin
     end;
 
@@ -1263,6 +1267,11 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateReservation(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

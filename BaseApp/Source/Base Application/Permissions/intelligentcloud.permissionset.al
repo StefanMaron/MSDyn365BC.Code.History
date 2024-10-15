@@ -400,6 +400,9 @@
                   tabledata "Customer Price Group" = R,
                   tabledata "Customer Sales Buffer" = R,
                   tabledata "Customer Templ." = R,
+#if not CLEAN20
+                  tabledata "Customer Template" = R,
+#endif
                   tabledata "Customized Calendar Change" = R,
                   tabledata "Customized Calendar Entry" = R,
                   tabledata "CV Ledger Entry Buffer" = R,

@@ -477,7 +477,13 @@ codeunit 700 "Page Management"
     local procedure VerifyPageID(TableID: Integer; PageID: Integer): Boolean
     var
         PageMetadata: Record "Page Metadata";
+        IsHandled, Result : Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyPageID(TableID, PageID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(PageMetadata.Get(PageID) and (PageMetadata.SourceTable = TableID));
     end;
 
@@ -535,5 +541,10 @@ codeunit 700 "Page Management"
     local procedure OnPageRunAtFieldOnBeforeRunPage(var RecordRef: RecordRef; var PageID: Integer)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyPageID(TableID: Integer; PageID: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;    
 }
 

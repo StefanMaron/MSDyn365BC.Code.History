@@ -2027,7 +2027,6 @@ page 39 "General Journal"
     trigger OnOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
-        EnvironmentInfo: Codeunit "Environment Information";
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         LastGenJnlBatch: Code[10];
     begin
@@ -2054,7 +2053,6 @@ page 39 "General Journal"
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
 
-        IsSaaS := EnvironmentInfo.IsSaaS();
         SetDataForSimpleModeOnOpen();
 
         if IsSimplePage and (CurrentDocNo = '') and GenJnlManagement.IsBatchNoSeriesEmpty(CurrentJnlBatchName, Rec) then
@@ -2330,7 +2328,9 @@ page 39 "General Journal"
     local procedure SetControlVisibility()
     var
         GLSetup: Record "General Ledger Setup";
+        EnvironmentInfo: Codeunit "Environment Information";
     begin
+        IsSaaS := EnvironmentInfo.IsSaaS();
         GLSetup.Get();
         if IsSimplePage then begin
             AmountVisible := false;
