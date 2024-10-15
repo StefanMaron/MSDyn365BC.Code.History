@@ -1271,7 +1271,7 @@ table 7326 "Whse. Worksheet Line"
 
     procedure InitLineWithItem(DocumentType: Option; DocumentNo: Code[20]; DocumentLineNo: Integer; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; Qty: Decimal; QtyToHandle: Decimal; QtyPerUoM: Decimal)
     begin
-        Init;
+        Init();
         "Whse. Document Type" := DocumentType;
         "Whse. Document No." := DocumentNo;
         "Whse. Document Line No." := DocumentLineNo;
@@ -1281,6 +1281,7 @@ table 7326 "Whse. Worksheet Line"
         "Qty. (Base)" := Qty;
         "Qty. to Handle (Base)" := QtyToHandle;
         "Qty. per Unit of Measure" := QtyPerUoM;
+        OnAfterInitLineWithItem();
     end;
 
     procedure SetUpNewLine(WhseWkshTemplate: Code[10]; WhseWkshName: Code[10]; LocationCode: Code[10]; SortingMethod: Option " ",Item,Document,"Shelf/Bin No.","Due Date","Ship-To"; LineNo: Integer)
@@ -1490,6 +1491,11 @@ table 7326 "Whse. Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WhseWorksheetLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitLineWithItem()
     begin
     end;
 

@@ -164,12 +164,15 @@ codeunit 10753 "SII Job Upload Pending Docs."
             then
                 exit;
 
-            SIIDocUploadState.CreateNewRequest(
-              "Entry No.",
-              SIIDocUploadState."Document Source"::"Customer Ledger",
-              "Document Type",
-              "Document No.", "External Document No.",
-              "Posting Date")
+            IsHandled := false;
+            OnCreateSIIRequestForCustLedgEntryOnBeforeCreateNewRequest(CustLedgEntry, IsHandled);
+            if not IsHandled then
+                SIIDocUploadState.CreateNewRequest(
+                  "Entry No.",
+                  SIIDocUploadState."Document Source"::"Customer Ledger",
+                  "Document Type",
+                  "Document No.", "External Document No.",
+                  "Posting Date")
         end;
     end;
 
@@ -282,10 +285,13 @@ codeunit 10753 "SII Job Upload Pending Docs."
                     exit;
             end;
 
-            SIIDocUploadState.CreateNewCustPmtRequest(
-              "Entry No.",
-              CustLedgerEntry."Entry No.",
-              CustLedgerEntry."Document No.", "Posting Date");
+            IsHandled := false;
+            OnCreateSIIRequestForDtldCustLedgEntryOnBeforeCreateNewCustPmtRequest(DetailedCustLedgEntry, IsHandled);
+            if not IsHandled then
+                SIIDocUploadState.CreateNewCustPmtRequest(
+                  "Entry No.",
+                  CustLedgerEntry."Entry No.",
+                  CustLedgerEntry."Document No.", "Posting Date");
         end;
     end;
 
@@ -346,6 +352,16 @@ codeunit 10753 "SII Job Upload Pending Docs."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSIIRequestForDtldVendLedgEntry(DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSIIRequestForCustLedgEntryOnBeforeCreateNewRequest(CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSIIRequestForDtldCustLedgEntryOnBeforeCreateNewCustPmtRequest(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 }

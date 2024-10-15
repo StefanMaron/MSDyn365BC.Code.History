@@ -19,6 +19,8 @@ report 7000099 "Post Bill Group"
                 DataItemTableView = SORTING(Type, "Collection Agent", "Bill Gr./Pmt. Order No.") WHERE("Collection Agent" = CONST(Bank), Type = CONST(Receivable));
 
                 trigger OnAfterGetRecord()
+                var
+                    IsHandled: Boolean;
                 begin
                     DocCount := DocCount + 1;
                     Window.Update(2, DocCount);
@@ -61,23 +63,25 @@ report 7000099 "Post Bill Group"
 
                     CustPostingGr.TestField("Bills Account");
                     BalanceAccount := CustPostingGr."Bills Account";
-                    OnAfterGetBillsAccounts(Doc, CustLedgEntry, AccountNo, BalanceAccount);
-                    if TempBGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
-                        TempBGPOPostBuffer.Amount := TempBGPOPostBuffer.Amount + "Remaining Amount";
-                        if "Currency Code" <> '' then
-                            TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
-                        TempBGPOPostBuffer.Modify();
-                    end else begin
-                        TempBGPOPostBuffer.Account := AccountNo;
-                        TempBGPOPostBuffer."Balance Account" := BalanceAccount;
-                        TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
-                        TempBGPOPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
-                        TempBGPOPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
-                        TempBGPOPostBuffer.Amount := "Remaining Amount";
-                        if "Currency Code" <> '' then
-                            TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
-                        TempBGPOPostBuffer.Insert();
-                    end;
+                    IsHandled := false;
+                    OnAfterGetBillsAccounts(Doc, CustLedgEntry, AccountNo, BalanceAccount, BillGr, TempBGPOPostBuffer, IsHandled);
+                    if not IsHandled then
+                        if TempBGPOPostBuffer.Get(AccountNo, BalanceAccount, CustLedgEntry."Entry No.") then begin
+                            TempBGPOPostBuffer.Amount := TempBGPOPostBuffer.Amount + "Remaining Amount";
+                            if "Currency Code" <> '' then
+                                TempBGPOPostBuffer."Gain - Loss Amount (LCY)" += GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                            TempBGPOPostBuffer.Modify();
+                        end else begin
+                            TempBGPOPostBuffer.Account := AccountNo;
+                            TempBGPOPostBuffer."Balance Account" := BalanceAccount;
+                            TempBGPOPostBuffer."Entry No." := CustLedgEntry."Entry No.";
+                            TempBGPOPostBuffer."Global Dimension 1 Code" := CustLedgEntry."Global Dimension 1 Code";
+                            TempBGPOPostBuffer."Global Dimension 2 Code" := CustLedgEntry."Global Dimension 2 Code";
+                            TempBGPOPostBuffer.Amount := "Remaining Amount";
+                            if "Currency Code" <> '' then
+                                TempBGPOPostBuffer."Gain - Loss Amount (LCY)" := GainLossManagement("Remaining Amount", "Posting Date", "Currency Code");
+                            TempBGPOPostBuffer.Insert();
+                        end;
 
                     TempPostedDocBuffer.Init();
                     TempPostedDocBuffer.TransferFields(Doc);
@@ -750,7 +754,7 @@ report 7000099 "Post Bill Group"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetBillsAccounts(CarteraDoc: Record "Cartera Doc."; CustLedgerEntry: Record "Cust. Ledger Entry"; var AccountNo: Code[20]; var BalanceAccount: Code[20])
+    local procedure OnAfterGetBillsAccounts(CarteraDoc: Record "Cartera Doc."; CustLedgerEntry: Record "Cust. Ledger Entry"; var AccountNo: Code[20]; var BalanceAccount: Code[20]; BillGr: Record "Bill Group"; var BGPOPostBuffer: Record "BG/PO Post. Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 

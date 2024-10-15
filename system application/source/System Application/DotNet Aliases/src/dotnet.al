@@ -766,6 +766,10 @@ dotnet
         type("Microsoft.Dynamics.Nav.Runtime.Designer.Supportability.NavDesignerCompilationResult"; "NavDesignerCompilationResult")
         {
         }
+
+        type("Microsoft.Dynamics.Nav.Runtime.Designer.NavDesignerALProfileExportResponse"; "NavDesignerALProfileExportResponse")
+        {
+        }
     }
 
     assembly("Microsoft.Dynamics.Nav.O365ActionableMessageWrapper")
@@ -2061,6 +2065,10 @@ dotnet
         }
 
         type("System.Xml.Schema.ValidationEventArgs"; "ValidationEventArgs")
+        {
+        }
+
+        type("System.Xml.Schema.ValidationEventHandler"; "ValidationEventHandler")
         {
         }
 

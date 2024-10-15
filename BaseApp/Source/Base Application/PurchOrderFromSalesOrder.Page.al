@@ -130,6 +130,7 @@ page 1328 "Purch. Order From Sales Order"
             {
                 Caption = 'Item Availability by';
                 Image = ItemAvailability;
+                Enabled = Type = Type::Item;
                 action("Event")
                 {
                     ApplicationArea = Suite;
@@ -272,6 +273,7 @@ page 1328 "Purch. Order From Sales Order"
         AllItemsAreAvailableNotification: Notification;
     begin
         OrderPlanningMgt.PlanSpecificSalesOrder(Rec, OrderNo);
+
         SetRange(Level, 1);
 
         SetFilter("Replenishment System", '<>%1', "Replenishment System"::Purchase);
@@ -283,6 +285,9 @@ page 1328 "Purch. Order From Sales Order"
         SetRange("Replenishment System");
 
         SetFilter(Quantity, '>%1', 0);
+        if OrderNo <> '' then
+            SetFilter("Demand Order No.", OrderNo);
+
         if IsEmpty then begin
             AllItemsAreAvailableNotification.Message := EntireOrderIsAvailableTxt;
             AllItemsAreAvailableNotification.Scope := NOTIFICATIONSCOPE::LocalScope;

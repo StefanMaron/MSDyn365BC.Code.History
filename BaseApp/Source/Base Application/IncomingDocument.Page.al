@@ -1,4 +1,4 @@
-page 189 "Incoming Document"
+﻿page 189 "Incoming Document"
 {
     Caption = 'Incoming Document';
     PageType = Document;
@@ -90,6 +90,7 @@ page 189 "Incoming Document"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
+                    StyleExpr = StatusStyleText;
                     ToolTip = 'Specifies the status of the incoming document record.';
                 }
                 field("OCR Status"; "OCR Status")
@@ -1002,6 +1003,7 @@ page 189 "Incoming Document"
         RecordHasAttachment := HasAttachment;
         SetControlVisibility;
         AttachEnabled := "Entry No." <> 0;
+        StatusStyleText := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1049,6 +1051,8 @@ page 189 "Incoming Document"
         Camera: Codeunit Camera;
         [InDataSet]
         HasCamera: Boolean;
+        [InDataSet]
+        StatusStyleText: Text;
         URL: Text;
         AttachmentFileName: Text;
         RecordLinkTxt: Text;

@@ -1,4 +1,4 @@
-page 50 "Purchase Order"
+﻿page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
     PageType = Document;
@@ -227,7 +227,8 @@ page 50 "Purchase Order"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1853,6 +1854,7 @@ page 50 "Purchase Order"
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1934,6 +1936,8 @@ page 50 "Purchase Order"
         JobQueueVisible: Boolean;
         [InDataSet]
         JobQueueUsed: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         VendorInvoiceNoMandatory: Boolean;

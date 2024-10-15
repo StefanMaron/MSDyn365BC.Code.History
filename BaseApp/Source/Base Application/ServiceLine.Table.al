@@ -1126,7 +1126,7 @@ table 5902 "Service Line"
         }
         field(95; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(5902),
                                                                    "Source Subtype" = FIELD("Document Type"),
@@ -1640,7 +1640,7 @@ table 5902 "Service Line"
         }
         field(5495; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(5902),
                                                                             "Source Subtype" = FIELD("Document Type"),
@@ -1673,7 +1673,7 @@ table 5902 "Service Line"
         }
         field(5702; "Substitution Available"; Boolean)
         {
-            CalcFormula = Exist ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
                                                            "No." = FIELD("No."),
                                                            "Substitute Type" = CONST(Item)));
             Caption = 'Substitution Available';
@@ -1702,7 +1702,7 @@ table 5902 "Service Line"
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5902),
+            CalcFormula = Sum("Warehouse Shipment Line"."Qty. Outstanding (Base)" WHERE("Source Type" = CONST(5902),
                                                                                          "Source Subtype" = FIELD("Document Type"),
                                                                                          "Source No." = FIELD("Document No."),
                                                                                          "Source Line No." = FIELD("Line No.")));
@@ -1940,7 +1940,7 @@ table 5902 "Service Line"
         }
         field(5906; "Service Item Line Description"; Text[100])
         {
-            CalcFormula = Lookup ("Service Item Line".Description WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("Service Item Line".Description WHERE("Document Type" = FIELD("Document Type"),
                                                                         "Document No." = FIELD("Document No."),
                                                                         "Line No." = FIELD("Service Item Line No.")));
             Caption = 'Service Item Line Description';
@@ -2159,7 +2159,7 @@ table 5902 "Service Line"
             trigger OnValidate()
             begin
                 UpdateDiscountsAmounts;
-		        UpdateUnitPrice(FieldNo(Warranty));
+                UpdateUnitPrice(FieldNo(Warranty));
             end;
         }
         field(5936; "Contract No."; Code[20])
@@ -2630,6 +2630,7 @@ table 5902 "Service Line"
             ServiceLine2.SetRange("Document No.", "Document No.");
             ServiceLine2.SetRange("Attached to Line No.", "Line No.");
             ServiceLine2.SetFilter("Line No.", '<>%1', "Line No.");
+            OnDeleteOnAfterServiceLineSetFilter(ServiceLine2, Rec);
             ServiceLine2.DeleteAll(true);
         end;
     end;
@@ -5570,6 +5571,11 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowItemSub(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteOnAfterServiceLineSetFilter(var ServiceLine2: Record "Service Line"; var ServiceLine: Record "Service Line")
     begin
     end;
 }

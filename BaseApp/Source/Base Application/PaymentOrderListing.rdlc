@@ -2215,7 +2215,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.SetCaption(ReportItems!PageCaption1.Value,9)</Value>
+                      <Value />
                       <Style>
                         <FontSize>9pt</FontSize>
                       </Style>

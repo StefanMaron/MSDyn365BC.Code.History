@@ -145,6 +145,7 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
             var
                 CustLedgEntry2: Record "Cust. Ledger Entry";
                 PostedDoc2: Record "Posted Cartera Doc.";
+                IsHandled: Boolean;
             begin
                 if (DocCount = 0) or (GroupAmount = 0) then begin
                     if DueOnly then
@@ -156,7 +157,9 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
                       Text1100003 +
                       Text1100005);
                 end;
-                if BankAccPostBuffer.Find('-') then
+                IsHandled := false;
+                OnPostDataItemOnBeforeBankAccPostBufferLoop(BankAccPostBuffer, PostedDoc, PostedBillGr, GenJnlLine, GenJnlLineNextNo, SumLCYAmt, PostingDate, SourceCode, IsHandled);
+                if not IsHandled and BankAccPostBuffer.Find('-') then
                     repeat
                         CustLedgEntry2.Get(BankAccPostBuffer."Entry No.");
                         PostedDoc2.Get(0, CustLedgEntry2."Entry No.");
@@ -586,6 +589,11 @@ report 7000098 "Settle Docs. in Post. Bill Gr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostSettlementForPostedBillGroup(var GenJournalLine: Record "Gen. Journal Line"; PostedBillGroup: Record "Posted Bill Group"; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDataItemOnBeforeBankAccPostBufferLoop(var BankAccPostBuffer: Record "BG/PO Post. Buffer" temporary; PostedDoc: Record "Posted Cartera Doc."; PostedBillGr: Record "Posted Bill Group"; var GenJnlLine: Record "Gen. Journal Line"; var GenJnlLineNextNo: Integer; var SumLCYAmt: Decimal; PostingDate: Date; SourceCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 }

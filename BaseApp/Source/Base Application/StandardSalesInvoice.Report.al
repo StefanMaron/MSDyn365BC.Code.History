@@ -1149,6 +1149,8 @@ report 1306 "Standard Sales - Invoice"
                 TotalECAmount := 0;
                 TotalAmountInclVAT := 0;
                 TotalPaymentDiscOnVAT := 0;
+                if ("Order No." = '') and "Prepayment Invoice" then
+                    "Order No." := "Prepayment Order No.";
             end;
 
             trigger OnPreDataItem()

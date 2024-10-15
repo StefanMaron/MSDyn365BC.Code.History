@@ -19,6 +19,13 @@ codeunit 10752 "SII Doc. Upload Management"
         CommunicationErr: Label 'Communication error: %1.', Comment = '@1 is the error message.';
         ParseMatchDocumentErr: Label 'Parse error: couldn''t match the documents.';
         CertificateUsedInSIISetupQst: Label 'A certificate is used in the SII Setup. Do you really want to delete the certificate?';
+        // fault model labels
+        VATSIITok: Label 'VATSIITelemetryCategoryTok', Locked = true;
+        BatchSoapRequestMsg: Label 'Sending batch soap request of type %1', Locked = true;
+        BatchSoapRequestSuccMsg: Label 'Batch soap request of type %1 successfully executed', Locked = true;
+        GeneratingXmlMsg: Label 'Generating xml for document type %1', Locked = true;
+        GeneratingXmlSuccMsg: Label 'Xml successfully generated for document type %1', Locked = true;
+        GeneratingXmlErrMsg: Label 'Cannot generate xml: %1', Locked = true;
 
     local procedure InvokeBatchSoapRequest(SIISession: Record "SII Session"; var TempSIIHistoryBuffer: Record "SII History" temporary; RequestText: Text; RequestType: Option InvoiceIssuedRegistration,InvoiceReceivedRegistration,PaymentSentRegistration,PaymentReceivedRegistration,CollectionInCashRegistration; var ResponseText: Text): Boolean
     var
@@ -35,8 +42,11 @@ codeunit 10752 "SII Doc. Upload Management"
         WebServiceUrl: Text;
         StatusDescription: Text[250];
     begin
+        SendTraceTag('0000CNO', VATSIITok, VERBOSITY::Normal, StrSubstNo(BatchSoapRequestMsg, RequestType), DATACLASSIFICATION::SystemMetadata);
+
         CertificateEnabled := GetIsolatedCertificate(Cert);
         if not CertificateEnabled then begin
+            SendTraceTag('0000CNP', VATSIITok, VERBOSITY::Error, NoCertificateErr, DATACLASSIFICATION::SystemMetadata);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoCertificateErr);
             exit(false);
         end;
@@ -66,6 +76,7 @@ codeunit 10752 "SII Doc. Upload Management"
         ByteArray := Encoding.UTF8.GetBytes(RequestText);
         HttpWebRequest.ContentLength := ByteArray.Length;
         if not TryCreateRequestStream(HttpWebRequest, RequestStream) then begin
+            SendTraceTag('0000CNQ', VATSIITok, VERBOSITY::Error, NoConnectionErr, DATACLASSIFICATION::SystemMetadata);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoConnectionErr);
             exit(false);
         end;
@@ -73,6 +84,7 @@ codeunit 10752 "SII Doc. Upload Management"
         RequestStream.Write(ByteArray, 0, ByteArray.Length);
 
         if not TryGetWebResponse(HttpWebRequest, HttpWebResponse) then begin
+            SendTraceTag('0000CNR', VATSIITok, VERBOSITY::Error, NoResponseErr, DATACLASSIFICATION::SystemMetadata);
             ProcessBatchResponseCommunicationError(TempSIIHistoryBuffer, NoResponseErr);
             exit(false);
         end;
@@ -82,11 +94,13 @@ codeunit 10752 "SII Doc. Upload Management"
         ResponseText := ReadHttpResponseAsText(HttpWebResponse);
         SIISession.StoreResponseXml(ResponseText);
         if not StatusCode.Equals(StatusCode.Accepted) and not StatusCode.Equals(StatusCode.OK) then begin
+            SendTraceTag('0000CNS', VATSIITok, VERBOSITY::Error, StrSubstNo(CommunicationErr, StatusDescription), DATACLASSIFICATION::SystemMetadata);
             ProcessBatchResponseCommunicationError(
               TempSIIHistoryBuffer, StrSubstNo(CommunicationErr, StatusDescription));
             exit(false);
         end;
 
+        SendTraceTag('0000CNT', VATSIITok, VERBOSITY::Normal, StrSubstNo(BatchSoapRequestSuccMsg, RequestType), DATACLASSIFICATION::SystemMetadata);
         exit(true);
     end;
 
@@ -316,6 +330,8 @@ codeunit 10752 "SII Doc. Upload Management"
     begin
         OnBeforeTryGenerateXml(SIIDocUploadState, SIIHistory);
 
+        SendTraceTag('0000CNU', VATSIITok, VERBOSITY::Normal, StrSubstNo(GeneratingXmlMsg, SIIDocUploadState."Document Source"), DATACLASSIFICATION::SystemMetadata);
+
         SIIXMLCreator.SetSIIVersionNo(SIIDocUploadState."Version No.");
         SIIXMLCreator.SetIsRetryAccepted(SIIDocUploadState."Retry Accepted");
         case SIIDocUploadState."Document Source" of
@@ -329,8 +345,10 @@ codeunit 10752 "SII Doc. Upload Management"
                         RequestType := RequestType::CollectionInCashRegistration;
                     end else begin
                         CustLedgerEntry.SetRange("Entry No.", SIIDocUploadState."Entry No");
-                        if not CustLedgerEntry.FindFirst then
+                        if not CustLedgerEntry.FindFirst then begin
+                            SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoCustLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
                             Error(NoCustLedgerEntryErr);
+                        end;
                         RequestType := RequestType::InvoiceIssuedRegistration;
                     end;
                     IsSupported :=
@@ -345,8 +363,10 @@ codeunit 10752 "SII Doc. Upload Management"
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
                             VendorLedgerEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
-                    end else
+                    end else begin
+                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoVendLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
                         Error(NoVendLedgerEntryErr);
+                    end;
                 end;
             SIIDocUploadState."Document Source"::"Detailed Customer Ledger":
                 begin
@@ -356,8 +376,10 @@ codeunit 10752 "SII Doc. Upload Management"
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
                             DetailedCustLedgEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
-                    end else
+                    end else begin
+                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoDetailedCustLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
                         Error(NoDetailedCustLedgerEntryErr);
+                    end;
                 end;
             SIIDocUploadState."Document Source"::"Detailed Vendor Ledger":
                 begin
@@ -367,13 +389,19 @@ codeunit 10752 "SII Doc. Upload Management"
                         IsSupported :=
                           SIIXMLCreator.GenerateXml(
                             DetailedVendorLedgEntry, XMLDoc, SIIHistory."Upload Type", SIIDocUploadState."Is Credit Memo Removal");
-                    end else
+                    end else begin
+                        SendTraceTag('0000CNV', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, NoDetailedVendLedgerEntryErr), DATACLASSIFICATION::SystemMetadata);
                         Error(NoDetailedVendLedgerEntryErr);
+                    end;
                 end;
         end;
 
-        if not IsSupported then
+        if not IsSupported then begin
             Message := SIIXMLCreator.GetLastErrorMsg;
+            SendTraceTag('0000CNZ', VATSIITok, VERBOSITY::Error, StrSubstNo(GeneratingXmlErrMsg, SIIXMLCreator.GetLastErrorMsg()), DATACLASSIFICATION::SystemMetadata);
+        end else
+            SendTraceTag('0000CO0', VATSIITok, VERBOSITY::Normal, StrSubstNo(GeneratingXmlSuccMsg, SIIDocUploadState."Document Source"), DATACLASSIFICATION::SystemMetadata);
+
     end;
 
     local procedure CreateHistoryPendingBuffer(var TempSIIHistoryBuffer: Record "SII History" temporary; IsManual: Boolean)

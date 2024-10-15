@@ -237,6 +237,7 @@ page 5094 "Marketing Setup"
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the email address that you want to use in discovery of an Exchange Server. You specify a valid email address, which enables the discovery of the associated Exchange Server. You can validate the email address after you enter an address.';
+                    Enabled = not EmailLoggingEnabled;
 
                     trigger OnValidate()
                     begin
@@ -250,6 +251,7 @@ page 5094 "Marketing Setup"
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the address of your Exchange service. Setting this URL makes the email validation done by Validate Email Logging Setup faster.';
+                    Enabled = not EmailLoggingEnabled;
 
                     trigger OnValidate()
                     begin
@@ -259,10 +261,54 @@ page 5094 "Marketing Setup"
                         end;
                     end;
                 }
+                field("Exchange Client Id"; "Exchange Client Id")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Client ID';
+                    Visible = ClientCredentialsVisible;
+                    Enabled = not EmailLoggingEnabled;
+                    ToolTip = 'Specifies the ID of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        if "Exchange Client Id" <> xRec."Exchange Client Id" then begin
+                            OnAfterMarketingSetupEmailLoggingUsed();
+                            ExchangeWebServicesClient.InvalidateService();
+                        end;
+                    end;
+                }
+                field("Exchange Client Secret Key"; ExchangeClientSecretTemp)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Client Secret';
+                    ExtendedDatatype = Masked;
+                    Visible = ClientCredentialsVisible;
+                    Enabled = not EmailLoggingEnabled;
+                    ToolTip = 'Specifies the Azure Active Directory application secret that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+
+                    trigger OnValidate()
+                    begin
+                        OnAfterMarketingSetupEmailLoggingUsed();
+                        SetExchangeClientSecret(ExchangeClientSecretTemp);
+                        Commit();
+                        ExchangeWebServicesClient.InvalidateService();
+                    end;
+                }
+                field("Exchange Redirect URL"; "Exchange Redirect URL")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Redirect URL';
+                    ExtendedDatatype = URL;
+                    Visible = ClientCredentialsVisible;
+                    Enabled = not EmailLoggingEnabled;
+                    ToolTip = 'Specifies the redirect URL of the Azure Active Directory application that will be used to connect to Exchange.', Comment = 'Exchange and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
+                }
                 field("Exchange Account User Name"; "Exchange Account User Name")
                 {
                     ApplicationArea = RelationshipMgmt;
-                    ToolTip = 'Specifies the name of the user account that has access to Exchange.';
+                    Caption = 'Exchange User';
+                    ToolTip = 'Specifies the email account that the scheduled job must use to connect to Exchange and process emails.', Comment = 'Exchange is a name of a Microsoft Service and should not be translated.';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -278,6 +324,7 @@ page 5094 "Marketing Setup"
                     Caption = 'Exchange Account Password';
                     ExtendedDatatype = Masked;
                     ToolTip = 'Specifies the password of the user account that has access to Exchange.';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -291,6 +338,7 @@ page 5094 "Marketing Setup"
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of email messages that you want to process in one run of a job queue that has been set up to handle email logging. By default, the number of messages to process is 0, which means that email messages are not batched together. You can modify this value when you are fine tuning your process so that the execution of a job queue does not take too long. Any email message that is not logged in any particular run will be handled in a subsequent run that has been scheduled.';
+                    Enabled = not EmailLoggingEnabled;
 
                     trigger OnValidate()
                     begin
@@ -303,29 +351,68 @@ page 5094 "Marketing Setup"
                     field("Queue Folder Path"; "Queue Folder Path")
                     {
                         ApplicationArea = RelationshipMgmt;
-                        ToolTip = 'Specifies the name of the queue folder in Microsoft Outlook.';
+                        ToolTip = 'Specifies the path of the queue folder in Microsoft Outlook.';
+                        Enabled = not EmailLoggingEnabled;
 
                         trigger OnAssistEdit()
                         var
                             ExchangeFolder: Record "Exchange Folder";
+                            SetupEmailLogging: Codeunit "Setup Email Logging";
                         begin
-                            if GetExchangeFolder(ExchangeFolder, Text014) then
+                            if EmailLoggingEnabled then
+                                exit;
+                            if not TryInitExchangeService() then
+                                SignInExchangeAdminUser();
+                            InitExchangeService();
+                            if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text014) then
                                 SetQueueFolder(ExchangeFolder);
                         end;
                     }
                     field("Storage Folder Path"; "Storage Folder Path")
                     {
                         ApplicationArea = RelationshipMgmt;
-                        ToolTip = 'Specifies the name of the storage folder in Microsoft Outlook.';
+                        ToolTip = 'Specifies the path of the storage folder in Microsoft Outlook.';
+                        Enabled = not EmailLoggingEnabled;
 
                         trigger OnAssistEdit()
                         var
                             ExchangeFolder: Record "Exchange Folder";
+                            SetupEmailLogging: Codeunit "Setup Email Logging";
                         begin
-                            if GetExchangeFolder(ExchangeFolder, Text015) then
+                            if EmailLoggingEnabled then
+                                exit;
+                            if not TryInitExchangeService() then
+                                SignInExchangeAdminUser();
+                            InitExchangeService();
+                            if SetupEmailLogging.GetExchangeFolder(ExchangeWebServicesClient, ExchangeFolder, Text015) then
                                 SetStorageFolder(ExchangeFolder);
                         end;
                     }
+                }
+                field("Email Logging Enabled"; EmailLoggingEnabled)
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Enabled', Comment = 'Name of the check box that shows whether the Email Logging is enabled.';
+                    ToolTip = 'Specifies if email logging is enabled. When you select this field, you must sign in with an administrator user account and give consent to the application that will be used to connect to Exchange.';
+
+                    trigger OnValidate()
+                    var
+                        SetupEmailLogging: Codeunit "Setup Email Logging";
+                        ErrorMessage: Text;
+                    begin
+                        CurrPage.Update(true);
+                        if EmailLoggingEnabled then begin
+                            SignInExchangeAdminUser();
+                            if not ValidateEmailLoggingSetup(Rec, ErrorMessage) then
+                                Error(ErrorMessage);
+                            SendTraceTag('0000CIF', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingEnabledTxt, DataClassification::SystemMetadata);
+                            SetupEmailLogging.CreateEmailLoggingJobQueueSetup();
+                        end else begin
+                            SendTraceTag('0000CIG', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDisabledTxt, DataClassification::SystemMetadata);
+                            SetupEmailLogging.DeleteEmailLoggingJobQueueSetup();
+                        end;
+                        "Email Logging Enabled" := EmailLoggingEnabled;
+                    end;
                 }
             }
         }
@@ -379,6 +466,23 @@ page 5094 "Marketing Setup"
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+                action("Email Logging Assisted Setup")
+                {
+                    ApplicationArea = RelationshipMgmt;
+                    Caption = 'Email Logging Assisted Setup';
+                    Image = Setup;
+                    ToolTip = 'Runs Email Logging Setup Wizard.';
+                    Enabled = not EmailLoggingEnabled;
+
+                    trigger OnAction()
+                    var
+                        AssistedSetup: Codeunit "Assisted Setup";
+                    begin
+                        Commit(); // Make sure all data is committed before we run the wizard
+                        AssistedSetup.Run(Page::"Setup Email Logging");
+                        CurrPage.Update(false);
+                    end;
+                }
                 action("Validate EmailLogging Setup")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -402,6 +506,7 @@ page 5094 "Marketing Setup"
                     Caption = 'Clear Email Logging Setup';
                     Image = ClearLog;
                     ToolTip = 'Clear what is currently set up for email logging.';
+                    Enabled = not EmailLoggingEnabled;
 
                     trigger OnAction()
                     begin
@@ -433,8 +538,13 @@ page 5094 "Marketing Setup"
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS;
+        ClientCredentialsVisible := not SoftwareAsAService;
+
+        if SoftwareAsAService then
+            SetupEmailLogging.RegisterAssistedSetup();
     end;
 
     trigger OnOpenPage()
@@ -446,22 +556,22 @@ page 5094 "Marketing Setup"
         end;
 
         AttachmentStorageLocationEnabl := "Attachment Storage Type" = "Attachment Storage Type"::"Disk File";
-        ExchangeAccountPasswordTemp := '';
-        if ("Exchange Account User Name" <> '') and (not IsNullGuid("Exchange Account Password Key")) then
-            ExchangeAccountPasswordTemp := '**********';
+        ExchangeClientSecretTemp := '';
+        if ("Exchange Client Id" <> '') and (not IsNullGuid("Exchange Client Secret Key")) then
+            ExchangeClientSecretTemp := '**********';
+        EmailLoggingEnabled := "Email Logging Enabled";
     end;
 
     var
         ExchangeWebServicesClient: Codeunit "Exchange Web Services Client";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
         ExchangeAccountPasswordTemp: Text;
+        ExchangeClientSecretTemp: Text;
         [InDataSet]
         AttachmentStorageLocationEnabl: Boolean;
         Text004: Label 'You are about to add integration data to tables. This process may take several minutes. Do you want to continue?';
         Text005: Label 'The integration data has been added to the tables.';
         Text006: Label 'A valid email address is needed to find an instance of Exchange Server.';
-        Text007: Label 'Exchange Server cannot be found.';
-        Text008: Label 'The specified Exchange folder does not exist.';
         Text009: Label 'This clears the fields in your email logging setup. Do you want to continue?';
         Text010: Label 'The specified Queue folder does not exist or cannot be accessed.';
         Text011: Label 'The specified Storage folder does not exist or cannot be accessed.';
@@ -470,7 +580,14 @@ page 5094 "Marketing Setup"
         Text014: Label 'Select Queue folder';
         Text015: Label 'Select Storage folder';
         Text016: Label 'Interaction Template Setup';
+        EmailLoggingTelemetryCategoryTxt: Label 'AL Email Logging', Locked = true;
+        EmailLoggingEnabledTxt: Label 'Email Logging has been enabled from Marketing Setup page', Locked = true;
+        EmailLoggingDisabledTxt: Label 'Email Logging has been disabled from Marketing Setup page', Locked = true;
+        CannotConnectToExchangeErr: Label 'Could not connect to Exchange with the specified user.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
+        CannotInitializeConnectionToExchangeErr: Label 'Could not initialize connection to Exchange.', Comment = 'Exchange is a name of a Microsoft service and should not be translated.';
         SoftwareAsAService: Boolean;
+        ClientCredentialsVisible: Boolean;
+        EmailLoggingEnabled: Boolean;
 
     procedure SetAttachmentStorageType()
     begin
@@ -503,41 +620,69 @@ page 5094 "Marketing Setup"
         SetAttachmentStorageLocation;
     end;
 
+    [TryFunction]
+    [NonDebuggable]
+    local procedure TryInitExchangeService()
+    begin
+        InitExchangeService();
+    end;
+
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure InitExchangeService()
     var
-        Credentials: DotNet WebCredentials;
-        Result: Boolean;
+        SetupEmailLogging: Codeunit "Setup Email Logging";
+        WebCredentials: DotNet WebCredentials;
+        OAuthCredentials: DotNet OAuthCredentials;
+        Token: Text;
+        Initialized: Boolean;
     begin
         if "Autodiscovery E-Mail Address" = '' then
             Error(Text006);
 
-        if "Exchange Account User Name" <> '' then begin
-            CreateExchangeAccountCredentials(Credentials);
-            Result :=
-              ExchangeWebServicesClient.InitializeOnServer("Autodiscovery E-Mail Address",
-                "Exchange Service URL", Credentials.Credentials);
-        end else
-            Result := ExchangeWebServicesClient.InitializeOnClient("Autodiscovery E-Mail Address", "Exchange Service URL");
+        ExchangeWebServicesClient.InvalidateService();
 
-        if not Result then
-            Error(Text007);
+        if not IsNullGuid("Exchange Tenant Id Key") then begin
+            SetupEmailLogging.GetClientCredentialsAccessToken(GetExchangeTenantId(), Token);
+            OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+            Initialized := ExchangeWebServicesClient.InitializeOnServerWithImpersonation("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials);
+        end else
+            if "Exchange Account User Name" <> '' then begin
+                CreateExchangeAccountCredentials(WebCredentials);
+                Initialized := ExchangeWebServicesClient.InitializeOnServer("Autodiscovery E-Mail Address", "Exchange Service URL", WebCredentials.Credentials);
+            end else
+                Initialized := ExchangeWebServicesClient.InitializeOnClient("Autodiscovery E-Mail Address", "Exchange Service URL");
+
+        if not Initialized then
+            Error(CannotInitializeConnectionToExchangeErr);
+
+        if not ExchangeWebServicesClient.ValidateCredentialsOnServer() then
+            Error(CannotConnectToExchangeErr);
     end;
 
-    local procedure GetExchangeFolder(var ExchangeFolder: Record "Exchange Folder"; FoldersCaption: Text): Boolean
+    [NonDebuggable]
+    local procedure SignInExchangeAdminUser()
     var
-        ExchangeFoldersPage: Page "Exchange Folders";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
+        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+        OAuthCredentials: DotNet OAuthCredentials;
+        Token: Text;
+        TenantId: Text;
     begin
-        InitExchangeService;
-        ExchangeFoldersPage.Initialize(ExchangeWebServicesClient, FoldersCaption);
-        ExchangeFoldersPage.LookupMode(true);
-        if ACTION::LookupOK = ExchangeFoldersPage.RunModal then begin
-            ExchangeFoldersPage.GetRecord(ExchangeFolder);
-            if not ExchangeWebServicesClient.FolderExists(ExchangeFolder.ReadUniqueID) then
-                Error(Text008);
-            exit(true);
-        end;
-        exit(false);
+        if "Autodiscovery E-Mail Address" = '' then
+            Error(Text006);
+
+        SetupEmailLogging.PromptAdminConsent(Token);
+        SetupEmailLogging.ExtractTenantIdFromAccessToken(TenantId, Token);
+        OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+
+        if not ExchangeWebServicesServer.Initialize("Autodiscovery E-Mail Address", "Exchange Service URL", OAuthCredentials, false) then
+            Error(CannotInitializeConnectionToExchangeErr);
+
+        if not ExchangeWebServicesServer.ValidCredentials() then
+            Error(CannotConnectToExchangeErr);
+
+        SetExchangeTenantId(TenantId);
     end;
 
     [Scope('OnPrem')]
@@ -563,31 +708,33 @@ page 5094 "Marketing Setup"
             IsolatedStorageManagement.Delete(MarketingSetup."Exchange Account Password Key", DATASCOPE::Company);
         Clear(MarketingSetup."Exchange Account Password Key");
 
+        Clear(MarketingSetup."Exchange Client Id");
+        Clear(MarketingSetup."Exchange Redirect URL");
+
+        if not IsNullGuid(MarketingSetup."Exchange Client Secret Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Client Secret Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Client Secret Key");
+
+        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then
+            IsolatedStorageManagement.Delete(MarketingSetup."Exchange Tenant Id Key", DATASCOPE::Company);
+        Clear(MarketingSetup."Exchange Tenant Id Key");
+        Clear(MarketingSetup."Email Logging Enabled");
+
         MarketingSetup.Modify();
     end;
 
+    [NonDebuggable]
     local procedure ValidateEmailLoggingSetup(var MarketingSetup: Record "Marketing Setup"; var ErrorMsg: Text): Boolean
     var
         EmailLoggingDispatcher: Codeunit "Email Logging Dispatcher";
         ProgressWindow: Dialog;
-        Credentials: DotNet WebCredentials;
         ValidationCaption: Text;
-        CanInitialize: Boolean;
     begin
-        ExchangeWebServicesClient.InvalidateService;
-
         ValidationCaption := FieldCaption("Autodiscovery E-Mail Address");
         ProgressWindow.Open(Text013, ValidationCaption);
 
-        if "Exchange Account User Name" <> '' then begin
-            CreateExchangeAccountCredentials(Credentials);
-            CanInitialize := ExchangeWebServicesClient.InitializeOnServer("Autodiscovery E-Mail Address",
-                "Exchange Service URL", Credentials.Credentials);
-        end else
-            CanInitialize := ExchangeWebServicesClient.InitializeOnClient("Autodiscovery E-Mail Address", "Exchange Service URL");
-
-        if not CanInitialize then begin
-            ErrorMsg := Text006;
+        if not TryInitExchangeService() then begin
+            ErrorMsg := GetLastErrorText();
             exit(false);
         end;
 

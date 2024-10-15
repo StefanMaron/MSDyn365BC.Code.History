@@ -120,6 +120,7 @@ codeunit 7020 "Sales Line - Price" implements "Line With Price"
         Item: Record Item;
         Resource: Record Resource;
     begin
+        PriceCalculationBuffer."Price Calculation Method" := SalesLine."Price Calculation Method";
         case PriceCalculationBuffer."Asset Type" of
             PriceCalculationBuffer."Asset Type"::Item:
                 begin

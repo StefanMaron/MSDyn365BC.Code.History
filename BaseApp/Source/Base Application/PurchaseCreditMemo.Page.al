@@ -1,4 +1,4 @@
-page 52 "Purchase Credit Memo"
+﻿page 52 "Purchase Credit Memo"
 {
     Caption = 'Purchase Credit Memo';
     PageType = Document;
@@ -249,7 +249,8 @@ page 52 "Purchase Credit Memo"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     QuickEntry = false;
                     ToolTip = 'Specifies whether the record is open, is waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
@@ -1386,6 +1387,7 @@ page 52 "Purchase Credit Memo"
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1459,6 +1461,8 @@ page 52 "Purchase Credit Memo"
         JobQueueVisible: Boolean;
         [InDataSet]
         JobQueueUsed: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         VendorCreditMemoNoMandatory: Boolean;

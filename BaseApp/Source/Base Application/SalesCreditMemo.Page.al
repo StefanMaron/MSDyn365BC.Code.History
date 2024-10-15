@@ -1,4 +1,4 @@
-page 44 "Sales Credit Memo"
+﻿page 44 "Sales Credit Memo"
 {
     Caption = 'Sales Credit Memo';
     PageType = Document;
@@ -232,7 +232,8 @@ page 44 "Sales Credit Memo"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Corrected Invoice No."; "Corrected Invoice No.")
@@ -1281,6 +1282,7 @@ page 44 "Sales Credit Memo"
         SetControlAppearance;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1356,6 +1358,8 @@ page 44 "Sales Credit Memo"
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         [InDataSet]
         JobQueueVisible: Boolean;
         [InDataSet]

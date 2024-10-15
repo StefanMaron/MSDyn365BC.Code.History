@@ -1,4 +1,4 @@
-page 51 "Purchase Invoice"
+﻿page 51 "Purchase Invoice"
 {
     Caption = 'Purchase Invoice';
     PageType = Document;
@@ -219,7 +219,8 @@ page 51 "Purchase Invoice"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1420,6 +1421,7 @@ page 51 "Purchase Invoice"
         SetControlAppearance;
 
         SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
+        StatusStyleTxt := GetStatusStyleText();
     end;
 
     trigger OnAfterGetRecord()
@@ -1495,6 +1497,8 @@ page 51 "Purchase Invoice"
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
+        [InDataSet]
+        StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         VendorInvoiceNoMandatory: Boolean;

@@ -1000,7 +1000,10 @@ codeunit 10750 "SII XML Creator"
         NonTaxableAmount: Decimal;
     begin
         NonTaxableAmount := CalculateNonTaxableAmountVendor(VendLedgEntry);
-        if NonTaxableAmount = 0 then
+        if (NonTaxableAmount = 0) or
+           ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) and (NonTaxableAmount < 0)) or
+           ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and (NonTaxableAmount > 0))
+        then
             exit;
 
         TempVATEntryCalculated.Reset();

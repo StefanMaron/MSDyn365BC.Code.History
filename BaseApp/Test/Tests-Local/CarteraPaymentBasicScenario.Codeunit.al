@@ -1198,6 +1198,22 @@ codeunit 147500 "Cartera Payment Basic Scenario"
           -Round(1000 / 0.08 - 1000 / 0.08 - 1000 / 0.09), -12500);
     end;
 
+    [Test]
+    [HandlerFunctions('PaymentOrderListingRequestPageHandler')]
+    procedure PrintReportPaymentOrderListingAsPDF()
+    var
+        PaymentOrderListing: Report "Payment Order Listing";
+        PDFFileName: Text;
+    begin
+        Initialize();
+        // [WHEN] Run report 'Payment Order Listing'
+        PaymentOrderListing.RunModal();
+
+        // [THEN] Report is printed as PDF
+        PDFFileName := LibraryVariableStorage.DequeueText();
+        Assert.IsTrue(File.Exists(PDFFileName), 'PDF file does not exist');
+    end;
+
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -1769,6 +1785,16 @@ codeunit 147500 "Cartera Payment Basic Scenario"
         LibraryVariableStorage.Dequeue(BankAccountNo);
         BankAccountList.GotoKey(BankAccountNo);
         BankAccountList.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure PaymentOrderListingRequestPageHandler(var PaymentOrderListing: TestRequestPage "Payment Order Listing")
+    var
+        PDFFileName: Text;
+    begin
+        PDFFileName := LibraryReportDataset.GetFileName() + '.pdf';
+        LibraryVariableStorage.Enqueue(PDFFileName);
+        PaymentOrderListing.SaveAsPdf(PDFFileName);
     end;
 }
 

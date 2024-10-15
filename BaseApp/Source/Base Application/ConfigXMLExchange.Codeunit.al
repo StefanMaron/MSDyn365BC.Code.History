@@ -173,6 +173,9 @@ codeunit 8614 "Config. XML Exchange"
         ConfigPackageFilter: Record "Config. Package Filter";
         FieldRef: FieldRef;
     begin
+        if ConfigPackageTable."Cross-Column Filter" then
+            RecRef.FilterGroup(-1);
+
         ConfigPackageFilter.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageFilter.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageFilter.SetRange("Processing Rule No.", 0);
@@ -183,6 +186,9 @@ codeunit 8614 "Config. XML Exchange"
                     FieldRef.SetFilter(StrSubstNo('%1', ConfigPackageFilter."Field Filter"));
                 end;
             until ConfigPackageFilter.Next = 0;
+
+        if ConfigPackageTable."Cross-Column Filter" then
+            RecRef.FilterGroup(0);
     end;
 
     local procedure CreateRecordNodes(var PackageXML: DotNet XmlDocument; ConfigPackageTable: Record "Config. Package Table")

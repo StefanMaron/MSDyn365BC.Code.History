@@ -1,4 +1,4 @@
-codeunit 5772 "Whse.-Purch. Release"
+﻿codeunit 5772 "Whse.-Purch. Release"
 {
     Permissions = TableData "Warehouse Request" = rimd;
 
@@ -140,10 +140,17 @@ codeunit 5772 "Whse.-Purch. Release"
             SetRange("Source No.", PurchaseHeader."No.");
             SetRange("Document Status", DocumentStatus);
         end;
+
+        OnAfterFilterWarehouseRequest(WarehouseRequest, PurchaseHeader, DocumentStatus);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseRqst(var WhseRqst: Record "Warehouse Request"; var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; WhseType: Option Inbound,Outbound)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterWarehouseRequest(var WarehouseRequest: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header"; DocumentStatus: Option)
     begin
     end;
 

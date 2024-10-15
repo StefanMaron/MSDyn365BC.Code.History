@@ -1505,19 +1505,20 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Sales Order Integr. Test");
 
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
-        LibraryPatterns.SETNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryPatterns.SETNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        ResetDefaultCRMSetupConfiguration();
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
         Commit();
@@ -1848,6 +1849,24 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMOrganization.FindFirst;
         CRMOrganization.IsSOPIntegrationEnabled := EnabledSalesOrderIntegration;
         CRMOrganization.Modify();
+    end;
+
+    local procedure ResetDefaultCRMSetupConfiguration()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+    begin
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
+        CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 
     [ConfirmHandler]

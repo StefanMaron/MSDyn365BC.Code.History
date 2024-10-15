@@ -105,6 +105,8 @@ codeunit 96 "Purch.-Quote to Order"
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Modify();
         end;
+
+        OnAfterCreatePurchHeader(PurchOrderHeader, PurchHeader);
     end;
 
     local procedure AssignItemCharges(FromDocType: Option; FromDocNo: Code[20]; ToDocType: Option; ToDocNo: Code[20])
@@ -214,6 +216,11 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchHeaderOnBeforeInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreatePurchHeader(var PurchOrderHeader: Record "Purchase Header"; PurchHeader: Record "Purchase Header")
     begin
     end;
 }

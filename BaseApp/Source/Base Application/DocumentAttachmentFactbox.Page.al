@@ -11,7 +11,7 @@ page 1174 "Document Attachment Factbox"
             group(Control2)
             {
                 ShowCaption = false;
-                field(Documents; Count)
+                field(Documents; NumberOfRecords)
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';
@@ -37,6 +37,8 @@ page 1174 "Document Attachment Factbox"
                         RecRef: RecordRef;
                     begin
                         case "Table ID" of
+                            0:
+                                exit;
                             DATABASE::Customer:
                                 begin
                                     RecRef.Open(DATABASE::Customer);
@@ -135,5 +137,21 @@ page 1174 "Document Attachment Factbox"
     local procedure OnBeforeDrillDown(DocumentAttachment: Record "Document Attachment"; var RecRef: RecordRef)
     begin
     end;
+
+    trigger OnAfterGetCurrRecord()
+    var
+        currentFilterGroup: Integer;
+    begin
+        currentFilterGroup := FilterGroup;
+        FilterGroup := 4;
+
+        NumberOfRecords := 0;
+        if GetFilters() <> '' then
+            NumberOfRecords := Count;
+        FilterGroup := currentFilterGroup;
+    end;
+
+    var
+        NumberOfRecords: Integer;
 }
 

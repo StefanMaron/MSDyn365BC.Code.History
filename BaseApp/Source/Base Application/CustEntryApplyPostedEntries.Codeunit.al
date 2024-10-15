@@ -46,6 +46,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
     begin
+        OnBeforeApply(CustLedgEntry, DocumentNo, ApplicationDate);
         with CustLedgEntry do begin
             if ("Document Type" = "Document Type"::Bill) or
                (("Document Type" = "Document Type"::Invoice) and
@@ -283,6 +284,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         DtldCustLedgEntry.LockTable();
         CustLedgEntry.LockTable();
         CustLedgEntry.Get(DtldCustLedgEntry2."Cust. Ledger Entry No.");
+        OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(CustLedgEntry);
         CheckPostingDate(PostingDate, MaxPostingDate);
         if PostingDate < DtldCustLedgEntry2."Posting Date" then
             Error(MustNotBeBeforeErr);
@@ -376,6 +378,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         CustLedgEntry.Get(CustLedgEntryNo);
         if CustLedgEntry.Reversed then
             Error(CannotUnapplyInReversalErr, CustLedgEntryNo);
+        OnAfterCheckReversal(CustLedgEntry);
     end;
 
     procedure ApplyCustEntryFormEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
@@ -564,12 +567,22 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckReversal(CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterPostApplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostUnapplyCustLedgEntry(GenJournalLine: Record "Gen. Journal Line"; CustLedgerEntry: Record "Cust. Ledger Entry"; DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeApply(var CustLedgerEntry: Record "Cust. Ledger Entry"; var DocumentNo: Code[20]; var ApplicationDate: Date)
     begin
     end;
 
@@ -630,6 +643,11 @@ codeunit 226 "CustEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUnApplyCustomer(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostUnApplyCustomerCommitOnAfterGetCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry");
     begin
     end;
 }

@@ -34,6 +34,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         CannotCreatePurchaseOrderWithoutVendorErr: Label 'You cannot create purchase orders without specifying a vendor for all lines.';
         EntireOrderIsAvailableTxt: Label 'All items on the sales order are available.';
         NoPurchaseOrdersCreatedErr: Label 'No purchase orders are created.';
+        AllItemsAreAvailableErr: Label 'All items are available and no planning lines are created.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -3189,10 +3190,6 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
         LibraryVariableStorage.Enqueue(UnavailableQuantity);
         LibraryVariableStorage.Enqueue(UnavailableQuantity);
 
-        // [THEN] The available item has the full quantity on sales order and zero to be put on the Purchase Order
-        LibraryVariableStorage.Enqueue(0);
-        LibraryVariableStorage.Enqueue(AvailableQuantity);
-
         // [THEN] The partially available item has the full quantity on sales order half that to be put on the Purchase Order
         LibraryVariableStorage.Enqueue(PartialQuantity);
         LibraryVariableStorage.Enqueue(PartialQuantity * 2);
@@ -3205,7 +3202,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
     end;
 
     [Test]
-    [HandlerFunctions('UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler,AllItemsAreAvailableNotificationHandler')]
+    [HandlerFunctions('UserAcceptsWithoutChangesPurchOrderFromSalesOrderModalPageHandler')]
     [Scope('OnPrem')]
     procedure CreatePurchaseOrderFromSalesOrderWithAllAvailable()
     var
@@ -3237,7 +3234,7 @@ codeunit 138000 "O365 Simplify UI Sales Invoice"
 
         // [WHEN] Create Purchase Order From Sales Order
         asserterror SalesOrderCreatePurchaseOrder(SalesHeader, DummyPurchaseOrder);
-        Assert.ExpectedError(NoPurchaseOrdersCreatedErr);
+        Assert.ExpectedError(AllItemsAreAvailableErr);
         asserterror DummyPurchaseOrder.Close;
         Assert.ExpectedError('The TestPage is not open');
 

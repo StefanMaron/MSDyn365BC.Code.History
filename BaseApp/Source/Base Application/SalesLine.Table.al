@@ -509,11 +509,12 @@ table 37 "Sales Line"
                 IsHandled := false;
                 OnValidateDescriptionOnBeforeCannotFindDescrError(Rec, xRec, IsHandled);
                 if not IsHandled then
-                    if ("No." = '') and GuiAllowed and ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                        if "Document Type" in
-                           ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote, "Document Type"::"Credit Memo"]
-                        then
-                            Error(CannotFindDescErr, Type, Description);
+                    if ("No." = '') and GuiAllowed then
+                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
+                            if "Document Type" in
+                            ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::Quote, "Document Type"::"Credit Memo"]
+                            then
+                                Error(CannotFindDescErr, Type, Description);
             end;
         }
         field(12; "Description 2"; Text[50])
@@ -4078,7 +4079,6 @@ table 37 "Sales Line"
 
     local procedure UpdatePrepmtAmounts()
     var
-        RemLineAmountToInvoice: Decimal;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4086,6 +4086,21 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
+        if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
+            "Prepayment VAT Difference" := 0;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+            PrePaymentLineAmountEntered := false;
+        end;
+
+        if not IsTemporary() then
+            CheckPrepmtAmounts();
+    end;
+
+    local procedure CheckPrepmtAmounts()
+    var
+        RemLineAmountToInvoice: Decimal;
+    begin
         if "Prepayment %" <> 0 then begin
             if Quantity < 0 then
                 FieldError(Quantity, StrSubstNo(Text047, FieldCaption("Prepayment %")));
@@ -4093,15 +4108,11 @@ table 37 "Sales Line"
                 FieldError("Unit Price", StrSubstNo(Text047, FieldCaption("Prepayment %")));
         end;
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
-            "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
             if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
                 if IsServiceChargeLine() then
                     Error(CannotChangePrepaidServiceChargeErr);
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
             end;
-            PrePaymentLineAmountEntered := false;
             if "Prepmt. Line Amount" <> 0 then begin
                 RemLineAmountToInvoice :=
                   Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
@@ -4624,7 +4635,13 @@ table 37 "Sales Line"
     procedure ShowDimensions() IsChanged: Boolean
     var
         OldDimSetID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDimensions(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."));
@@ -5114,7 +5131,7 @@ table 37 "Sales Line"
         LineAmountToInvoiceDiscounted: Decimal;
         DeferralAmount: Decimal;
     begin
-        if IsUpdateVATOnLinesHandled(SalesHeader, SalesLine, VATAmountLine) then
+        if IsUpdateVATOnLinesHandled(SalesHeader, SalesLine, VATAmountLine, QtyType) then
             exit;
 
         LineWasModified := false;
@@ -5173,7 +5190,7 @@ table 37 "Sales Line"
                                 InvDiscAmount := 0;
 
                             OnUpdateVATOnLinesOnBeforeCalculateAmounts(SalesLine, SalesHeader);
-                            if QtyType = QtyType::General then
+                            if QtyType = QtyType::General then begin
                                 if SalesHeader."Prices Including VAT" then begin
                                     if (VATAmountLine.CalcLineAmount = 0) or ("Line Amount" = 0) then begin
                                         VATAmount := 0;
@@ -5216,8 +5233,11 @@ table 37 "Sales Line"
                                     OnUpdateVATOnLinesOnBeforeCalculateNewAmount(
                                       Rec, SalesHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmount, VATAmount);
                                     NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
-                                end
-                            else begin
+                                end;
+                                OnUpdateVATOnLinesOnAfterCalculateNewAmount(
+                                  Rec, SalesHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmountIncludingVAT, VATAmount,
+                                  NewAmount, NewVATBaseAmount);
+                            end else begin
                                 if VATAmountLine.CalcLineAmount = 0 then begin
                                     VATDifference := 0;
                                     ECDifference := 0;
@@ -5259,6 +5279,7 @@ table 37 "Sales Line"
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
                             TempVATAmountLineRemainder."EC Difference" := ECDifference - "EC Difference";
+                            OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount);
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
@@ -5268,10 +5289,10 @@ table 37 "Sales Line"
         OnAfterUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, QtyType);
     end;
 
-    local procedure IsUpdateVATOnLinesHandled(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line") IsHandled: Boolean
+    local procedure IsUpdateVATOnLinesHandled(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Integer) IsHandled: Boolean
     begin
         IsHandled := FALSE;
-        OnBeforeUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, IsHandled);
+        OnBeforeUpdateVATOnLines(SalesHeader, SalesLine, VATAmountLine, IsHandled, QtyType);
         exit(IsHandled);
     end;
 
@@ -6192,8 +6213,13 @@ table 37 "Sales Line"
     end;
 
     local procedure SetDefaultItemQuantity()
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeSetDefaultItemQuantity(Rec);
+        IsHandled := false;
+        OnBeforeSetDefaultItemQuantity(Rec, IsHandled);
+        if IsHandled then
+            exit;
 
         GetSalesSetup();
         if SalesSetup."Default Item Quantity" then begin
@@ -7003,10 +7029,16 @@ table 37 "Sales Line"
         exit(true);
     end;
 
-    local procedure CleanPurchaseLineSpecialOrderFields(): Boolean
+    local procedure CleanPurchaseLineSpecialOrderFields() Result: Boolean
     var
         PurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCleanPurchaseLineSpecialOrderFields(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if PurchaseLine.Get(PurchaseLine."Document Type"::Order, "Special Order Purchase No.", "Special Order Purch. Line No.") then begin
             if PurchaseLine."Qty. Received (Base)" < "Qty. Shipped (Base)" then
                 exit(false);
@@ -7445,6 +7477,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCleanPurchaseLineSpecialOrderFields(SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyFromItem(var SalesLine: Record "Sales Line"; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
@@ -7515,7 +7552,12 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetDefaultItemQuantity(var SalesLine: Record "Sales Line")
+    local procedure OnBeforeSetDefaultItemQuantity(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDimensions(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7580,7 +7622,7 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVATOnLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean);
+    local procedure OnBeforeUpdateVATOnLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; QtyType: Integer);
     begin
     end;
 
@@ -8000,7 +8042,17 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnAfterCalculateNewAmount(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATAmountLine: Record "VAT Amount Line"; VATAmountLineReminder: Record "VAT Amount Line"; var NewAmountIncludingVAT: Decimal; VATAmount: Decimal; var NewAmount: Decimal; var NewVATBaseAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeCalculateAmounts(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(SalesLine: Record "Sales Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line"; VATAmount: Decimal; NewVATBaseAmount: Decimal)
     begin
     end;
 

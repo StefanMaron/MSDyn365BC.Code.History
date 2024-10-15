@@ -28,55 +28,6 @@ codeunit 139196 "CDS Connection Setup Test"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('AssistedSetupModalHandler,ConfirmYes')]
-    [Scope('OnPrem')]
-    procedure RunAssistedSetupFromNormalSetupRecordMissing()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
-    begin
-        // [SCENARIO] CDS Connection Assisted Setup can be opened from CDS Connection Setup page
-        Initialize();
-        // [GIVEN] CDS Connection Setup record is missing
-        CDSConnectionSetup.DeleteAll();
-        // [GIVEN] CDS Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
-        // [GIVEN] Server Address is "TEST"
-        CDSConnectionSetupPage."Server Address".SetValue('TEST');
-
-        // [WHEN] Assisted Setup is invoked
-        CDSConnectionSetupPage."Assisted Setup".Invoke();
-
-        // [THEN] CDS Connection Setup wizard is opened and Server Address = "TEST"
-        // Wizard page is opened in AssistedSetupModalHandler
-        Assert.ExpectedMessage(CDSConnectionSetupPage."Server Address".Value(), LibraryVariableStorage.DequeueText());
-    end;
-
-    [Test]
-    [HandlerFunctions('AssistedSetupModalHandler,ConfirmYes')]
-    [Scope('OnPrem')]
-    procedure RunAssistedSetupFromNormalSetupRecordExists()
-    var
-        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
-    begin
-        // [SCENARIO] CDS Connection Assisted Setup can be opened from CDS Connection Setup page
-        Initialize();
-        // [GIVEN] CDS Connection Setup record exists
-        InitializeSetup(false);
-        // [GIVEN] CDS Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
-        // [GIVEN] Server Address is "TEST"
-        CDSConnectionSetupPage."Server Address".SetValue('TEST');
-
-        // [WHEN] Assisted Setup is invoked
-        CDSConnectionSetupPage."Assisted Setup".Invoke();
-
-        // [THEN] CDS Connection Setup wizard is opened and Server Address = "TEST"
-        // Wizard page is opened in AssistedSetupModalHandler
-        Assert.ExpectedMessage(CDSConnectionSetupPage."Server Address".Value(), LibraryVariableStorage.DequeueText());
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure NoCDSConnectionOnCompanyOpen()
     var
@@ -151,6 +102,7 @@ codeunit 139196 "CDS Connection Setup Test"
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
         CDSConnectionSetupPage: TestPage "CDS Connection Setup";
+        LatestSDKVersion: Integer;
     begin
         // [FEATURE] [UI] [SDK Version]
         Initialize();
@@ -164,14 +116,15 @@ codeunit 139196 "CDS Connection Setup Test"
         // [GIVEN] Open CDS Connection Setup page
         CDSConnectionSetupPage.OpenView();
 
-        // [THEN] Default Proxy Version is presented
-        CDSConnectionSetupPage."SDK Version".AssertEquals(9);
+        // [THEN] The latest SDK proxy version is by default
+        LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
+        CDSConnectionSetupPage."SDK Version".AssertEquals(LatestSDKVersion);
 
         // [WHEN] Close CDS Connection Setup page
         CDSConnectionSetupPage.Close();
         CDSConnectionSetup.Get();
         // [THEN] Default Proxy Version is saved
-        Assert.AreEqual(9, CDSConnectionSetup."Proxy Version", 'Default Proxy Version should be saved.');
+        Assert.AreEqual(LatestSDKVersion, CDSConnectionSetup."Proxy Version", 'Default Proxy Version should be saved.');
     end;
 
     [Test]
@@ -595,68 +548,6 @@ codeunit 139196 "CDS Connection Setup Test"
 
         asserterror CDSConnectionSetup.Validate("Is Enabled", true);
         Assert.ExpectedError(URLNamePswNeededErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure UserNameRequiredToEnable()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-
-        CDSConnectionSetup.DeleteAll();
-        CDSConnectionSetup.Init();
-        CDSConnectionSetup."Server Address" := '@@test@@';
-        CDSConnectionSetup.SetPassword('T3sting!');
-        CDSConnectionSetup.Insert();
-
-        asserterror CDSConnectionSetup.Validate("Is Enabled", true);
-        Assert.ExpectedError(URLNamePswNeededErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure PasswordRequiredToEnable()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-
-        CDSConnectionSetup.DeleteAll();
-        CDSConnectionSetup.Init();
-        CDSConnectionSetup."Server Address" := '@@test@@';
-        CDSConnectionSetup."User Name" := 'tester@domain.net';
-        CDSConnectionSetup.Insert();
-
-        asserterror CDSConnectionSetup.Validate("Is Enabled", true);
-        Assert.ExpectedError(URLNamePswNeededErr);
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure WorkingConnectionRequiredToEnable()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-    begin
-        // [FEATURE] [UT]
-        Initialize();
-        LibraryCRMIntegration.UnbindMockConnection();
-
-        // Enter details in the page and enable the connection
-        CDSConnectionSetup.DeleteAll();
-        CDSConnectionSetup.Init();
-        CDSConnectionSetup."Server Address" := 'https://nocrmhere.gov';
-        CDSConnectionSetup.Validate("User Name", 'tester@domain.net');
-        CDSConnectionSetup.SetPassword('T3sting!');
-        CDSConnectionSetup.Insert();
-
-        asserterror CDSConnectionSetup.Validate("Is Enabled", true);
     end;
 
     [Test]
@@ -1404,13 +1295,6 @@ codeunit 139196 "CDS Connection Setup Test"
     procedure ConnectionBrokenNotificationHandler(var ConnectionBrokenNotification: Notification): Boolean
     begin
         LibraryVariableStorage.Enqueue(ConnectionBrokenNotification.Message());
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AssistedSetupModalHandler(var CDSConnectionSetupWizard: TestPage "CDS Connection Setup Wizard")
-    begin
-        LibraryVariableStorage.Enqueue(CDSConnectionSetupWizard.ServerAddress.Value());
     end;
 
     [ModalPageHandler]

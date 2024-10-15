@@ -47,13 +47,25 @@ codeunit 230 GenJnlManagement
 
     procedure TemplateSelectionFromBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
-        GenJnlLine: Record "Gen. Journal Line";
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
         OpenFromBatch := true;
         GenJnlTemplate.Get(GenJnlBatch."Journal Template Name");
         GenJnlTemplate.TestField("Page ID");
         GenJnlBatch.TestField(Name);
+
+        OpenJournalPageFromBatch(GenJnlBatch, GenJnlTemplate);
+    end;
+
+    local procedure OpenJournalPageFromBatch(var GenJnlBatch: Record "Gen. Journal Batch"; GenJnlTemplate: Record "Gen. Journal Template")
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenJournalPageFromBatch(GenJnlBatch, GenJnlTemplate, IsHandled);
+        if IsHandled then
+            exit;
 
         GenJnlLine.FilterGroup := 2;
         GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
@@ -424,6 +436,7 @@ codeunit 230 GenJnlManagement
                         GenJnlTemplate.Description := Text003;
                     end;
                     GenJnlTemplate.Validate(Type);
+                    OnFindTemplateFromSelectionOnBeforeGenJnlTemplateInsert(GenJnlTemplate);
                     GenJnlTemplate.Insert();
                     Commit();
                 end;
@@ -474,7 +487,17 @@ codeunit 230 GenJnlManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJournalPageFromBatch(var GenJnlBatch: Record "Gen. Journal Batch"; var GenJnlTemplate: Record "Gen. Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTemplateSelectionSetFilter(var GenJnlTemplate: Record "Gen. Journal Template"; var PageTemplate: Option; var RecurringJnl: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindTemplateFromSelectionOnBeforeGenJnlTemplateInsert(var GenJnlTemplate: Record "Gen. Journal Template")
     begin
     end;
 }

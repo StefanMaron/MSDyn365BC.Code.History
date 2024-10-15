@@ -125,15 +125,18 @@ table 5901 "Service Item Line"
                             end;
                     end;
 
-                    if (ServItem."Ship-to Code" <> ServHeader."Ship-to Code") and not HideDialogBox then
-                        if not ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(
-                               Text040, ServItem.TableCaption,
-                               FieldCaption("Ship-to Code"), Cust.TableCaption), true)
-                        then begin
-                            "Service Item No." := xRec."Service Item No.";
-                            exit;
-                        end;
+                    IsHandled := false;
+                    OnBeforeCheckShipToCode(Rec, ServItem, ServHeader, IsHandled);
+                    if not IsHandled then
+                        if (ServItem."Ship-to Code" <> ServHeader."Ship-to Code") and not HideDialogBox then
+                            if not ConfirmManagement.GetResponseOrDefault(
+                                 StrSubstNo(
+                                   Text040, ServItem.TableCaption,
+                                   FieldCaption("Ship-to Code"), Cust.TableCaption), true)
+                            then begin
+                                "Service Item No." := xRec."Service Item No.";
+                                exit;
+                            end;
                     "Ship-to Code" := ServItem."Ship-to Code";
                     SetServItemInfo(ServItem);
 
@@ -2503,6 +2506,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShipToCode(var ServiceItemLine: Record "Service Item Line"; ServItem: Record "Service Item"; ServHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }
