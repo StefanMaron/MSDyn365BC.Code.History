@@ -5,6 +5,7 @@ codeunit 1820 "Customer Consent Mgt."
         CustConsentConfirmation: Page "Cust. Consent Confirmation";
     begin
         CustConsentConfirmation.LookupMode(true);
-        exit(CustConsentConfirmation.RunModal() = Action::Yes);
+        CustConsentConfirmation.RunModal();
+        exit(CustConsentConfirmation.WasAgreed())
     end;
 }

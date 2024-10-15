@@ -228,7 +228,6 @@ report 292 "Copy Sales Document"
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Shipment';
         Text002: Label 'Undo Return Receipt';
-        Text003: Label 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Posted Shipment,Posted Invoice,Posted Return Receipt,Posted Credit Memo';
         FromDocNoOccurrence: Integer;
         FromDocVersionNo: Integer;
         DocNoNotSerErr: Label 'Select a document number to continue, or choose Cancel to close the page.';
@@ -266,10 +265,7 @@ report 292 "Copy Sales Document"
                                [SalesHeader."Document Type"::"Return Order", SalesHeader."Document Type"::"Credit Memo"]
                             then begin
                                 FromDocType2 := FromDocType2::"Posted Invoice";
-                                Message(
-                                    Text000,
-                                    SelectStr(1 + FromDocType.AsInteger(), Text003),
-                                    SelectStr(1 + FromDocType2.AsInteger(), Text003), Text001);
+                                Message(Text000, FromDocType, FromDocType2, Text001);
                             end;
                         end;
                     FromDocType::"Posted Invoice":
@@ -285,10 +281,7 @@ report 292 "Copy Sales Document"
                                [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]
                             then begin
                                 FromDocType2 := FromDocType2::"Posted Credit Memo";
-                                Message(
-                                    Text000,
-                                    SelectStr(1 + FromDocType.AsInteger(), Text003),
-                                    SelectStr(1 + FromDocType2.AsInteger(), Text003), Text002);
+                                Message(Text000, FromDocType, FromDocType2, Text002);
                             end;
                         end;
                     FromDocType::"Posted Credit Memo":

@@ -1098,19 +1098,25 @@ codeunit 99000774 "Calculate Routing Line"
     local procedure CalculateRoutingLineFixed()
     var
         FixedProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        CalcEndDate: Boolean;
+        CalcStartDate: Boolean;
     begin
         FixedProdOrderRoutingLine := ProdOrderRoutingLine;
         if FixedProdOrderRoutingLine."Starting Date-Time" > FixedProdOrderRoutingLine."Ending Date-Time" then
             Error(Text007);
 
         // Calculate wait and move time, find end of runtime
-        CalcRoutingLineBack(true);
+        CalcEndDate := true;
+        OnCalculateRoutingLineFixedOnBeforeCalcRoutingLineBack(ProdOrderRoutingLine, CalcEndDate);
+        CalcRoutingLineBack(CalcEndDate);
         RunEndingDateTime :=
           CreateDateTime(ProdOrderRoutingLine."Starting Date", ProdOrderRoutingLine."Starting Time");
 
         // Find start of runtime
         ProdOrderRoutingLine := FixedProdOrderRoutingLine;
-        CalcRoutingLineForward(true);
+        CalcStartDate := true;
+        OnCalculateRoutingLineFixedOnBeforeCalcRoutingLineForward(ProdOrderRoutingLine, CalcStartDate);
+        CalcRoutingLineForward(CalcStartDate);
 
         ProdOrderRoutingLine."Starting Time" := FixedProdOrderRoutingLine."Starting Time";
         ProdOrderRoutingLine."Starting Date" := FixedProdOrderRoutingLine."Starting Date";
@@ -2141,6 +2147,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineFixedOnBeforeCalcRoutingLineBack(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcEndDate: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineFixedOnBeforeCalcRoutingLineForward(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var CalcStartDate: Boolean)
     begin
     end;
 }

@@ -26,10 +26,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         CurrReport.Skip();
 
 #if CLEAN19
-                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true);
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false);
 #else
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
                     else begin
                         TestField("Tariff No.");
                         TestField("Country/Region Code");
@@ -66,6 +66,16 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
                     "Internal Ref. No." := IntraReferenceNo;
                     Modify;
+                end;
+
+                trigger OnPostDataItem()
+                begin
+#if CLEAN19
+                    IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
+#endif                
                 end;
             }
             dataitem(IntrastatJnlLine2; "Intrastat Jnl. Line")
@@ -281,7 +291,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
               Format("Transaction Type", 1) + ';' +
               PadStr("Tariff No.", 8, '0') + ';' +
               Format(QuantityAmt, 0, '<Sign><Integer><Decimals>') + ';' +
-              Format(Round(TotalWeightAmt, 1), 0, '<Sign><Integer><Decimals>') + ';' +
+              Format(Round(TotalWeightAmt, 1, '>'), 0, '<Sign><Integer><Decimals>') + ';' +
               Format(StatisticalValueAmt, 0, '<Sign><Integer><Decimals>'));
         end;
     end;
