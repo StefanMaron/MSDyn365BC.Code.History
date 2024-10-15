@@ -297,6 +297,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeDefaultDimensions();
         UpgradeDimensionValues();
         UpgradeGLAccountAPIType();
+        UpgradeInvoicesCreatedFromOrders();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -348,6 +349,24 @@ codeunit 104000 "Upgrade - BaseApp"
             UNTIL SalesInvoiceEntityAggregate.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesInvoiceEntityAggregateUpgradeTag());
+    end;
+
+    local procedure UpgradeInvoicesCreatedFromOrders()
+    var
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
+        PurchInvAggregator: Codeunit "Purch. Inv. Aggregator";
+        GraphMgtSalesOrderBuffer: Codeunit "Graph Mgt - Sales Order Buffer";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPISalesInvoicesCreatedFromOrders())) then
+            SalesInvoiceAggregator.FixInvoicesCreatedFromOrders();
+
+        if not (UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetFixAPIPurchaseInvoicesCreatedFromOrders())) then
+            PurchInvAggregator.FixInvoicesCreatedFromOrders();
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDeleteSalesOrdersOrphanedRecords()) then
+            GraphMgtSalesOrderBuffer.DeleteOrphanedRecords();
     end;
 
     local procedure UpgradePurchInvEntityAggregate()

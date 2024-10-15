@@ -758,7 +758,7 @@ page 21 "Customer Card"
             {
                 ApplicationArea = All;
                 Caption = 'Special Prices & Discounts';
-                Visible = FoundationOnly AND (NOT LoadOnDemand);
+                Visible = FoundationOnly and (not LoadOnDemand) and (not ExtendedPriceEnabled);
                 SubPageLink = "Sales Code" = FIELD("No."),
                               "Sales Type" = CONST(Customer);
                 ObsoleteState = Pending;
