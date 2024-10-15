@@ -14,9 +14,19 @@ codeunit 280 "My Records Demo Setup"
 
     local procedure SetupMyRecords()
     var
+        ClientTypeManagement: Codeunit "Client Type Management";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
     begin
-        if not CompanyInformationMgt.IsDemoCompany then
+        if not GuiAllowed() then
+            exit;
+
+        if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+            exit;
+
+        if GetExecutionContext() <> ExecutionContext::Normal then
+            exit;
+
+        if not CompanyInformationMgt.IsDemoCompany() then
             exit;
 
         if SetupMyCustomer then

@@ -99,6 +99,7 @@ codeunit 416 "Release Service Document"
 
     procedure PerformManualReopen(var ServHeader: Record "Service Header")
     begin
+        OnBeforePerformManualReopen(ServHeader);
         Reopen(ServHeader);
     end;
 
@@ -134,6 +135,11 @@ codeunit 416 "Release Service Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPerformManualRelease(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePerformManualReopen(var ServiceHeader: Record "Service Header")
     begin
     end;
 

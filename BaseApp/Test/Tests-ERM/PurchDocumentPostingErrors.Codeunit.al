@@ -701,13 +701,18 @@ codeunit 132502 "Purch. Document Posting Errors"
     end;
 
     local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Document Posting Errors");
         LibraryErrorMessage.Clear;
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
+
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purch. Document Posting Errors");
+
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 

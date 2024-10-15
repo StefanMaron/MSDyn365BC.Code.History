@@ -120,6 +120,8 @@ table 458 "Overdue Approval Entry"
 
         if not RecRef.Get("Record ID to Approve") then
             exit;
+
+        RecRef.SetRecFilter();
         PageManagement.PageRun(RecRef);
     end;
 

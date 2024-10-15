@@ -356,14 +356,20 @@ codeunit 481 "Check Dimensions"
         exit(true);
     end;
 
-    procedure ShowContextDimensions(RecID: RecordID): Boolean
+    procedure ShowContextDimensions(RecID: RecordID) Result: Boolean
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowContextDimensions(RecID, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case RecID.TableNo of
             DATABASE::"Sales Header":
                 begin
@@ -424,6 +430,11 @@ codeunit 481 "Check Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSalesDim(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowContextDimensions(RecID: RecordID; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

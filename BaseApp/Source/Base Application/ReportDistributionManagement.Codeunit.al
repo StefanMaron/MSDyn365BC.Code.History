@@ -41,9 +41,11 @@ codeunit 452 "Report Distribution Management"
         SpecificRecordRef: RecordRef;
         ClientFileName: Text[250];
     begin
+        OnBeforeVANDocumentReport(HeaderDoc, TempDocumentSendingProfile, ElectronicDocumentFormat);
         RecordRef.GetTable(HeaderDoc);
         if RecordRef.FindSet() then
             repeat
+                OnVANDocumentReportOnBeforeLoopIteration(RecordRef, HeaderDoc);
                 SpecificRecordRef.Get(RecordRef.RecordId);
                 SpecificRecordRef.SetRecFilter;
                 ElectronicDocumentFormat.SendElectronically(
@@ -56,6 +58,7 @@ codeunit 452 "Report Distribution Management"
                     RecordExportBuffer.SetFileContent(TempBlob);
                     RecordExportBuffer."Electronic Document Format" := TempDocumentSendingProfile."Electronic Format";
                     RecordExportBuffer."Document Sending Profile" := TempDocumentSendingProfile.Code;
+                    OnVANDocumentReportOnBeforeRunDeliveryCodeunit(RecordExportBuffer);
                     CODEUNIT.Run(ElectronicDocumentFormat."Delivery Codeunit ID", RecordExportBuffer);
                 end;
             until RecordRef.Next() = 0;
@@ -265,7 +268,13 @@ codeunit 452 "Report Distribution Management"
         ServiceHeader: Record "Service Header";
         Job: Record Job;
         DocumentRecordRef: RecordRef;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetBillToCustomer(Customer, DocumentVariant, IsHandled);
+        if IsHandled then
+            exit;
+
         DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
@@ -327,7 +336,7 @@ codeunit 452 "Report Distribution Management"
     var
         FileManagement: Codeunit "File Management";
     begin
-        FileManagement.BLOBExport(TempBlob, ClientFileName, false);
+        FileManagement.BLOBExport(TempBlob, ClientFileName, true);
     end;
 
 #if not CLEAN20
@@ -358,7 +367,7 @@ codeunit 452 "Report Distribution Management"
         DocumentType := GetFullDocumentTypeText(DocumentVariant);
 
         if SendTo = "Doc. Sending Profile Send To"::Disk then begin
-            FileManagement.BLOBExport(AttachmentTempBlob, AttachmentFileName, false);
+            FileManagement.BLOBExport(AttachmentTempBlob, AttachmentFileName, true);
             exit;
         end;
 
@@ -431,6 +440,8 @@ codeunit 452 "Report Distribution Management"
         ClientFileName: Text[250];
         ReportUsage: Enum "Report Selection Usage";
     begin
+        OnBeforeSendXmlEmailAttachment(ElectronicDocumentFormat, Customer, DocumentSendingProfile);
+
         GetBillToCustomer(Customer, DocumentVariant);
 
         if SendToEmailAddress = '' then
@@ -588,7 +599,22 @@ codeunit 452 "Report Distribution Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetBillToCustomer(var Customer: Record Customer; DocumentVariant: Variant; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetReportCaption(ReportID: Integer; LanguageCode: Code[10]; var ReportCaption: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendXmlEmailAttachment(var ElectronicDocumentFormat: Record "Electronic Document Format"; var Customer: Record Customer; var DocumentSendingProfile: Record "Document Sending Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVANDocumentReport(HeaderDoc: Variant; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; var ElectronicDocumentFormat: Record "Electronic Document Format");
     begin
     end;
 
@@ -604,6 +630,16 @@ codeunit 452 "Report Distribution Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentLanguageCodeCaseElse(DocumentRecordRef: RecordRef; var LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVANDocumentReportOnBeforeLoopIteration(var RecordRef: RecordRef; var HeaderDoc: Variant);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVANDocumentReportOnBeforeRunDeliveryCodeunit(var RecordExportBuffer: Record "Record Export Buffer")
     begin
     end;
 }

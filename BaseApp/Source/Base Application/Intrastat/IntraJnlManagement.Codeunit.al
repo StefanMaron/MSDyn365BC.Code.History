@@ -317,7 +317,7 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
-        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), 'Supplementary Units: False');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;
