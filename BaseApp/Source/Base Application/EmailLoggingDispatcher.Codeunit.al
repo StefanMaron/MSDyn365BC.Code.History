@@ -3,50 +3,8 @@ codeunit 5064 "Email Logging Dispatcher"
     TableNo = "Job Queue Entry";
 
     trigger OnRun()
-    var
-        MarketingSetup: Record "Marketing Setup";
-        StorageFolder: DotNet IEmailFolder;
-        QueueFolder: DotNet IEmailFolder;
-        WebCredentials: DotNet WebCredentials;
     begin
-        SendTraceTag('0000BVL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherStartedTxt, DataClassification::SystemMetadata);
-
-        if IsNullGuid(ID) then begin
-            SendTraceTag('0000BVM', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmptyJobQueueEntryIdTxt, DataClassification::SystemMetadata);
-            exit;
-        end;
-
-        SetErrorContext(Text101);
-        CheckSetup(MarketingSetup);
-
-        SetErrorContext(Text102);
-        if MarketingSetup."Exchange Account User Name" <> '' then begin
-            SendTraceTag('0000BVO', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmptyExchangeAccountUserNameTxt, DataClassification::SystemMetadata);
-            MarketingSetup.CreateExchangeAccountCredentials(WebCredentials);
-        end;
-
-        if not ExchangeWebServicesServer.Initialize2010(MarketingSetup."Autodiscovery E-Mail Address",
-             MarketingSetup."Exchange Service URL", WebCredentials, false)
-        then begin
-            SendTraceTag('0000BVP', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmptyExchangeServiceUrlTxt, DataClassification::SystemMetadata);
-            Error(Text001);
-        end;
-
-        SetErrorContext(Text103);
-        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetQueueFolderUID, QueueFolder) then begin
-            SendTraceTag('0000BVQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotFoundTxt, DataClassification::SystemMetadata);
-            Error(Text002, MarketingSetup."Queue Folder Path");
-        end;
-
-        SetErrorContext(Text104);
-        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetStorageFolderUID, StorageFolder) then begin
-            SendTraceTag('0000BVR', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotFoundTxt, DataClassification::SystemMetadata);
-            Error(Text002, MarketingSetup."Storage Folder Path");
-        end;
-
-        RunEMailBatch(MarketingSetup."Email Batch Size", QueueFolder, StorageFolder);
-
-        SendTraceTag('0000BVS', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherFinishedTxt, DataClassification::SystemMetadata);
+        RunJob(Rec);
     end;
 
     var
@@ -97,8 +55,7 @@ codeunit 5064 "Email Logging Dispatcher"
         QueueFolderNotFoundTxt: Label 'Queue folder is not found.', Locked = true;
         StorageFolderNotFoundTxt: Label 'Storage folder is not found.', Locked = true;
         EmptyJobQueueEntryIdTxt: Label 'Job queue entry ID is null.', Locked = true;
-        EmptyExchangeAccountUserNameTxt: Label 'Exchange account user name is empty.', Locked = true;
-        EmptyExchangeServiceUrlTxt: Label 'Exchange service URL is empty.', Locked = true;
+        ExchangeServiceNotInitializedTxt: Label 'Exchange service is not initialized.', Locked = true;
         EmptyEmailMessageUrlTxt: Label 'Email message URL is empty.', Locked = true;
         NotEmptyEmailMessageUrlTxt: Label 'Email message URL is not empty.', Locked = true;
         AttachmentRecordAlreadyExistsTxt: Label 'Attachment record already exists.', Locked = true;
@@ -114,6 +71,68 @@ codeunit 5064 "Email Logging Dispatcher"
         CopyMessageFromQueueToStorageFolderTxt: Label 'Copy message from queue to storage folder.', Locked = true;
         UpdateMessageTxt: Label 'Update message.', Locked = true;
         PublicFoldersNotInitializedTxt: Label 'Public folders are not initialized.', Locked = true;
+        EmailLoggingDisabledTxt: Label 'Email logging is disabled.', Locked = true;
+        EmailLoggingDisabledErr: Label 'Email logging is disabled.';
+
+    [NonDebuggable]
+    local procedure RunJob(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        MarketingSetup: Record "Marketing Setup";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
+        StorageFolder: DotNet IEmailFolder;
+        QueueFolder: DotNet IEmailFolder;
+        WebCredentials: DotNet WebCredentials;
+        OAuthCredentials: DotNet OAuthCredentials;
+        Token: Text;
+        TenantId: Text;
+        Initialized: Boolean;
+    begin
+        SendTraceTag('0000BVL', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherStartedTxt, DataClassification::SystemMetadata);
+
+        if IsNullGuid(JobQueueEntry.ID) then begin
+            SendTraceTag('0000BVM', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmptyJobQueueEntryIdTxt, DataClassification::SystemMetadata);
+            exit;
+        end;
+
+        SetErrorContext(Text101);
+        CheckSetup(MarketingSetup);
+
+        SetErrorContext(Text102);
+
+        if not IsNullGuid(MarketingSetup."Exchange Tenant Id Key") then begin
+            TenantId := MarketingSetup.GetExchangeTenantId();
+            SetupEmailLogging.GetClientCredentialsAccessToken(TenantId, Token);
+            OAuthCredentials := OAuthCredentials.OAuthCredentials(Token);
+            Initialized := ExchangeWebServicesServer.Initialize2010WithUserImpersonation(MarketingSetup."Autodiscovery E-Mail Address",
+                MarketingSetup."Exchange Service URL", OAuthCredentials, false);
+        end else
+            if MarketingSetup."Exchange Account User Name" <> '' then begin
+                MarketingSetup.CreateExchangeAccountCredentials(WebCredentials);
+                Initialized := ExchangeWebServicesServer.Initialize2010(MarketingSetup."Autodiscovery E-Mail Address",
+                    MarketingSetup."Exchange Service URL", WebCredentials, false);
+            end;
+
+        if not Initialized then begin
+            SendTraceTag('0000BVP', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeServiceNotInitializedTxt, DataClassification::SystemMetadata);
+            Error(Text001);
+        end;
+
+        SetErrorContext(Text103);
+        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetQueueFolderUID, QueueFolder) then begin
+            SendTraceTag('0000BVQ', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotFoundTxt, DataClassification::SystemMetadata);
+            Error(Text002, MarketingSetup."Queue Folder Path");
+        end;
+
+        SetErrorContext(Text104);
+        if not ExchangeWebServicesServer.GetEmailFolder(MarketingSetup.GetStorageFolderUID, StorageFolder) then begin
+            SendTraceTag('0000BVR', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotFoundTxt, DataClassification::SystemMetadata);
+            Error(Text002, MarketingSetup."Storage Folder Path");
+        end;
+
+        RunEMailBatch(MarketingSetup."Email Batch Size", QueueFolder, StorageFolder);
+
+        SendTraceTag('0000BVS', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, EmailLoggingDispatcherFinishedTxt, DataClassification::SystemMetadata);
+    end;
 
     [Scope('OnPrem')]
     procedure CheckSetup(var MarketingSetup: Record "Marketing Setup")
@@ -126,6 +145,12 @@ codeunit 5064 "Email Logging Dispatcher"
         end;
 
         MarketingSetup.Get();
+
+        if not MarketingSetup."Email Logging Enabled" then begin
+            SendTraceTag('0000CIE', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, EmailLoggingDisabledTxt, DataClassification::SystemMetadata);
+            Error(EmailLoggingDisabledErr);
+        end;
+
         if not (MarketingSetup."Queue Folder UID".HasValue and MarketingSetup."Storage Folder UID".HasValue) then begin
             SendTraceTag('0000BVU', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, PublicFoldersNotInitializedTxt, DataClassification::SystemMetadata);
             Error(Text003);

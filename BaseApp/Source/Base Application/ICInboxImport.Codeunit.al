@@ -23,17 +23,20 @@ codeunit 435 "IC Inbox Import"
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         FileMgt: Codeunit "File Management";
         FileName: Text;
+        InitialDirectory: Text;
         FromICPartnerCode: Code[20];
         NewTableID: Integer;
     begin
         CompanyInfo.Get();
         CompanyInfo.TestField("IC Partner Code");
-        if ClientFileName = '' then begin
+        if (ClientFileName = '') and FileMgt.IsLocalFileSystemAccessible() then begin
             if CompanyInfo."IC Inbox Type" = CompanyInfo."IC Inbox Type"::"File Location" then
-                ClientFileName := FileMgt.CombinePath(CompanyInfo."IC Inbox Details", '*.xml');
-            FileName := FileMgt.UploadFile(StrSubstNo(SelectFileMsg, TableCaption), ClientFileName);
-        end else
-            FileName := FileMgt.UploadFileToServer(ClientFileName);
+                InitialDirectory := DelChr(CompanyInfo."IC Inbox Details", '>', '\') + '\';
+            ClientFileName :=
+                FileMgt.OpenFileDialog(StrSubstNo(SelectFileMsg, TableCaption), InitialDirectory, FileMgt.GetToFilterText('', '.xml'));
+        end;
+
+        FileName := FileMgt.UploadFileToServer(ClientFileName);
 
         if FileName = '' then
             Error(EnterFileNameErr);

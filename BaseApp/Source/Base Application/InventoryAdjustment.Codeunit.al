@@ -1830,6 +1830,7 @@ codeunit 5895 "Inventory Adjustment"
                         Found := true;
                         "Valued Quantity" := ValueEntry."Valued Quantity";
                         "Invoiced Quantity" := ValueEntry."Invoiced Quantity";
+                        OnGetOrigValueEntryOnAfterOrigValueEntryFound(OrigValueEntry, ValueEntry);
                     end else
                         IsLastEntry := Next = 0;
                 until Found or IsLastEntry;
@@ -2528,6 +2529,7 @@ codeunit 5895 "Inventory Adjustment"
             "Invoiced Quantity" := CostElementBuffer."Invoiced Quantity";
             "Valued Quantity" := CostElementBuffer."Remaining Quantity";
             "Expected Cost" := CostElementBuffer."Inbound Completely Invoiced";
+            OnCopyCostElementBufToValueEntryBufOnBeforeValueEntryBufInsert(ValueEntryBuf, CostElementBuffer);
             Insert();
         end;
     end;
@@ -2547,6 +2549,7 @@ codeunit 5895 "Inventory Adjustment"
             "Invoiced Quantity" := ValueEntryBuf."Invoiced Quantity";
             "Remaining Quantity" := ValueEntryBuf."Valued Quantity";
             "Inbound Completely Invoiced" := ValueEntryBuf."Expected Cost";
+            OnCopyValueEntryBufToCostElementBufOnBeforeCostElementBufferInsert(CostElementBuffer, ValueEntryBuf);
             Insert();
         end;
     end;
@@ -2592,7 +2595,22 @@ codeunit 5895 "Inventory Adjustment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyCostElementBufToValueEntryBufOnBeforeValueEntryBufInsert(var ValueEntryBuf: Record "Value Entry"; CostElementBuffer: Record "Cost Element Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyValueEntryBufToCostElementBufOnBeforeCostElementBufferInsert(var CostElementBuffer: Record "Cost Element Buffer"; ValueEntryBuf: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnForwardAppliedCostOnAfterSetAppliedQty(ItemLedgerEntry: Record "Item Ledger Entry"; var AppliedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOrigValueEntryOnAfterOrigValueEntryFound(var OrigValueEntry: Record "Value Entry"; ValueEntry: Record "Value Entry")
     begin
     end;
 

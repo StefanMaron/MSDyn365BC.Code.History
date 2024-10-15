@@ -34,6 +34,26 @@ table 10670 "SAF-T Setup"
             DataClassification = CustomerContent;
             Caption = 'Dimension No.';
         }
+        field(20; "Check Company Information"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Check Company Information';
+        }
+        field(21; "Check Customer"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Check Customer';
+        }
+        field(22; "Check Vendor"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Check Vendor';
+        }
+        field(23; "Check Bank Account"; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Check Bank Account';
+        }
     }
 
     keys

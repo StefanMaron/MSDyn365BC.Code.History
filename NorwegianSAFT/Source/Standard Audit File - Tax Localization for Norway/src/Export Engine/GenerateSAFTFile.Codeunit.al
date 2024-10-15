@@ -56,6 +56,7 @@ codeunit 10673 "Generate SAF-T File"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         CompanyInformation: Record "Company Information";
+        CountryRegion: Record "Country/Region";
     begin
         SAFTXMLHelper.Initialize();
         if GuiAllowed() then
@@ -63,7 +64,13 @@ codeunit 10673 "Generate SAF-T File"
         CompanyInformation.get();
         SAFTXMLHelper.AddNewXMLNode('Header', '');
         SAFTXMLHelper.AppendXMLNode('AuditFileVersion', '1.0');
-        SAFTXMLHelper.AppendXMLNode('AuditFileCountry', CompanyInformation."Country/Region Code");
+        if CompanyInformation."Country/Region Code" <> '' then begin
+            CountryRegion.Get(CompanyInformation."Country/Region Code");
+            if CountryRegion."ISO Code" = '' then
+                SAFTXMLHelper.AppendXMLNode('AuditFileCountry', CompanyInformation."Country/Region Code")
+            else
+                SAFTXMLHelper.AppendXMLNode('AuditFileCountry', CountryRegion."ISO Code");
+        end;
         SAFTXMLHelper.AppendXMLNode('AuditFileDateCreated', FormatDate(today()));
         SAFTXMLHelper.AppendXMLNode('SoftwareCompanyName', 'Microsoft');
         SAFTXMLHelper.AppendXMLNode('SoftwareID', 'Microsoft Dynamics 365 Business Central');
@@ -81,7 +88,7 @@ codeunit 10673 "Generate SAF-T File"
 
         SAFTXMLHelper.AppendXMLNode('HeaderComment', SAFTExportHeader."Header Comment");
         SAFTXMLHelper.AppendXMLNode('TaxAccountingBasis', 'A');
-        SAFTXMLHelper.AppendXMLNode('UserID', UserId());
+        SAFTXMLHelper.AppendXMLNode('UserID', GetSAFTMiddle1Text(UserId()));
         SAFTXMLHelper.FinalizeXMLNode();
     end;
 
@@ -99,8 +106,9 @@ codeunit 10673 "Generate SAF-T File"
             CompanyInformation."Country/Region Code", 'StreetAddress');
         Employee.Get(CompanyInformation."SAF-T Contact No.");
         ExportContact(
-            Employee."First Name", Employee."Last Name", Employee."Phone No.", Employee."Fax No.", Employee."E-Mail",
-            '', Employee."Mobile Phone No.");
+            Employee."First Name", Employee."Last Name", GetSAFTShortText(Employee."Phone No."),
+            GetSAFTShortText(Employee."Fax No."), GetSAFTMiddle2Text(Employee."E-Mail"),
+            '', GetSAFTShortText(Employee."Mobile Phone No."));
         ExportTaxRegistration(CompanyInformation."VAT Registration No.");
         ExportBankAccount(
             CompanyInformation."Country/Region Code", CompanyInformation."Bank Name", CompanyInformation."Bank Account No.", CompanyInformation.IBAN,
@@ -182,13 +190,14 @@ codeunit 10673 "Generate SAF-T File"
                 Window.Update(2, ROUND(100 * (CountOfAccounts / TotalNumberOfAccounts * 100), 1));
             end;
             ExportGLAccount(
-                SAFTGLAccountMapping."G/L Account No.", SAFTGLAccountMapping."No.", '', '',
+                SAFTMappingRange."Mapping Type", SAFTGLAccountMapping."G/L Account No.", SAFTGLAccountMapping."No.",
+                SAFTGLAccountMapping."Category No.", SAFTGLAccountMapping."No.",
                 SAFTExportHeader."Starting Date", SAFTExportHeader."Ending Date");
         until SAFTGLAccountMapping.Next() = 0;
         SAFTXMLHelper.FinalizeXMLNode();
     end;
 
-    local procedure ExportGLAccount(GLAccNo: Code[20]; StandardAccNo: Text; GroupingCategory: Code[20]; GroupingNo: Code[20]; StartingDate: Date; EndingDate: Date)
+    local procedure ExportGLAccount(MappingType: Enum "SAF-T Mapping Type"; GLAccNo: Code[20]; StandardAccNo: Text; GroupingCategory: Code[20]; GroupingNo: Code[20]; StartingDate: Date; EndingDate: Date)
     var
         GLAccount: Record "G/L Account";
         OpeningDebitBalance: Decimal;
@@ -220,9 +229,12 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AddNewXMLNode('Account', '');
         SAFTXMLHelper.AppendXMLNode('AccountID', GLAccount."No.");
         SAFTXMLHelper.AppendXMLNode('AccountDescription', GLAccount.Name);
-        SAFTXMLHelper.AppendXMLNode('StandardAccountID', StandardAccNo);
-        SAFTXMLHelper.AppendXMLNode('GroupingCategory', GroupingCategory);
-        SAFTXMLHelper.AppendXMLNode('GroupingCode', GroupingNo);
+        if MappingType in [MappingType::"Two Digit Standard Account", MappingType::"Four Digit Standard Account"] then
+            SAFTXMLHelper.AppendXMLNode('StandardAccountID', StandardAccNo)
+        else begin
+            SAFTXMLHelper.AppendXMLNode('GroupingCategory', GroupingCategory);
+            SAFTXMLHelper.AppendXMLNode('GroupingCode', GroupingNo);
+        end;
         SAFTXMLHelper.AppendXMLNode('AccountType', 'GL');
         if GLAccount."Income/Balance" = GLAccount."Income/Balance"::"Income Statement" then begin
             // For income statement the opening balance is always zero but it's more preferred to have same type of balance (Debit or Credit) to match opening and closing XML nodes.
@@ -632,6 +644,8 @@ codeunit 10673 "Generate SAF-T File"
                     GLEntry."Source Type"::Vendor:
                         SAFTXMLHelper.AppendXMLNode('SupplierID', GLEntry."Source No.");
                 end;
+            if GLEntry.Description = '' then
+                GLEntry.Description := GLEntry."G/L Account No.";
             SAFTXMLHelper.AppendXMLNode('Description', GLEntry.Description);
             SAFTExportMgt.GetAmountInfoFromGLEntry(AmountXMLNode, Amount, GLEntry);
             ExportAmountInfo(AmountXMLNode, Amount);
@@ -656,7 +670,7 @@ codeunit 10673 "Generate SAF-T File"
         SAFTXMLHelper.AppendXMLNode('Period', format(Date2DMY(GLEntry."Posting Date", 2)));
         SAFTXMLHelper.AppendXMLNode('PeriodYear', format(Date2DMY(GLEntry."Posting Date", 3)));
         SAFTXMLHelper.AppendXMLNode('TransactionDate', FormatDate(GLEntry."Document Date"));
-        SAFTXMLHelper.AppendXMLNode('SourceID', GLEntry."User ID");
+        SAFTXMLHelper.AppendXMLNode('SourceID', GetSAFTMiddle1Text(GLEntry."User ID"));
         SAFTXMLHelper.AppendXMLNode('Description', GLEntry.Description);
         SAFTXMLHelper.AppendXMLNode('SystemEntryDate', FormatDate(DT2Date(GLEntry."Last Modified DateTime")));
         SAFTXMLHelper.AppendXMLNode('GLPostingDate', FormatDate(GLEntry."Posting Date"));
@@ -884,7 +898,7 @@ codeunit 10673 "Generate SAF-T File"
         Result := FirstString;
         If (Result <> '') and (SecondString <> '') then
             Result += ' ';
-        exit(Result + SecondString);
+        exit(GetSAFTMiddle2Text(Result + SecondString));
     end;
 
     local procedure FormatDate(DateToFormat: Date): Text
@@ -895,6 +909,24 @@ codeunit 10673 "Generate SAF-T File"
     local procedure FormatAmount(AmountToFormat: Decimal): Text
     begin
         exit(format(AmountToFormat, 0, 9))
+    end;
+
+    local procedure GetSAFTShortText(InputText: Text): Text
+    begin
+        // SAF-T definition. Simple type. Type SAFshorttextType
+        exit(CopyStr(InputText, 1, 18));
+    end;
+
+    local procedure GetSAFTMiddle1Text(InputText: Text): Text
+    begin
+        // SAF-T definition. Simple type. Type SAFmiddle1textType
+        exit(CopyStr(InputText, 1, 35));
+    end;
+
+    local procedure GetSAFTMiddle2Text(InputText: Text): Text
+    begin
+        // SAF-T definition. Simple type. Type SAFmiddle2textType
+        exit(CopyStr(InputText, 1, 70));
     end;
 
     [IntegrationEvent(false, false)]

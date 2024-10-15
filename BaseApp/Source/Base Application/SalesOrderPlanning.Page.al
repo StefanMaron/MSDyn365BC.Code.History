@@ -387,6 +387,7 @@ page 99000883 "Sales Order Planning"
                   ("Planned Quantity" <> SalesLine."Outstanding Qty. (Base)") or
                   ("Expected Delivery Date" > "Shipment Date");
                 CalculateDisposalPlan(SalesLine."Variant Code", SalesLine."Location Code");
+                OnMakeLinesOnBeforeInsertSalesOrderPlanningLine(Rec, SalesLine);
                 Insert();
             until SalesLine.Next() = 0;
     end;
@@ -533,6 +534,11 @@ page 99000883 "Sales Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished; var NewOrderType: Option ItemOrder,ProjectOrder; var ShowCreateOrderForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeLinesOnBeforeInsertSalesOrderPlanningLine(var SalesPlanningLine: Record "Sales Planning Line"; var SalesLine: Record "Sales Line")
     begin
     end;
 

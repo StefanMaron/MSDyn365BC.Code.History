@@ -65,6 +65,7 @@ codeunit 5932 "Service-Get Shipment"
                     if TransferLine then begin
                         ServiceShptLine := ServiceShptLine2;
                         ServiceShptLine.InsertInvLineFromShptLine(ServiceLine);
+                        OnCreateInvLinesOnAfterServiceShptLineInsertInvLineFromShptLine(ServiceShptLine, ServiceShptLine2, ServiceShptHeader, ServiceLine, ServiceHeader);
                     end;
                 until Next = 0;
                 OnAfterCreateInvLines(ServiceHeader);
@@ -85,6 +86,11 @@ codeunit 5932 "Service-Get Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetServiceShptLineFilters(var ServiceShipmentLine: Record "Service Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateInvLinesOnAfterServiceShptLineInsertInvLineFromShptLine(var ServiceShptLine: Record "Service Shipment Line"; var ServiceShptLine2: Record "Service Shipment Line"; var ServiceShptHeader: Record "Service Shipment Header"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header")
     begin
     end;
 }

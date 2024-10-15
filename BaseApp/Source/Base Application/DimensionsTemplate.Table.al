@@ -204,7 +204,8 @@ table 1302 "Dimensions Template"
         DefaultDimension."No." := MasterRecordNo;
         DefaultDimension."Table ID" := TableID;
         DefaultDimension."Dimension Code" := GetDefaultDimensionCode(ConfigTemplateHeader);
-        DefaultDimension.Insert();
+        if not DefaultDimension.Find() then
+            DefaultDimension.Insert();
 
         RecRef.GetTable(DefaultDimension);
         ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);

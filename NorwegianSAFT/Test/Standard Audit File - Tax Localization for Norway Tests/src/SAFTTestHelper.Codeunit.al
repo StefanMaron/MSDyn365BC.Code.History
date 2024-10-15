@@ -17,6 +17,18 @@ codeunit 148099 "SAF-T Test Helper"
         UnexpectedElementNameErr: Label 'Unexpected element name. Expected element name: %1. Actual element name: %2.', Comment = '%1=Expetced XML Element Name;%2=Actual XML Element Name';
         UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value';
 
+    procedure SetupSAFT(var SAFTMappingRange: Record "SAF-T Mapping Range"; MappingType: Enum "SAF-T Mapping Type"; NumberOfMasterDataRecords: Integer): Code[20]
+    var
+        SAFTMappingHelper: Codeunit "SAF-T Mapping Helper";
+    begin
+        SetupMasterData(NumberOfMasterDataRecords);
+        InsertSAFTMappingRangeFullySetup(
+            SAFTMappingRange, MappingType, GetWorkDateInYearWithNoGLEntries(),
+            CalcDate('<CY>', GetWorkDateInYearWithNoGLEntries()));
+        SAFTMappingHelper.MapRestSourceCodesToAssortedJournals();
+        exit(SAFTMappingRange.Code);
+    end;
+
     procedure SetupMasterData(NumberOfMasterDataRecords: Integer)
     var
         TempGLAccount: Record "G/L Account" temporary;
@@ -38,6 +50,34 @@ codeunit 148099 "SAF-T Test Helper"
         SetupGLAccounts(TempGLAccount, TempGLAccount."Income/Balance"::"Balance Sheet", 1);
         // Use same G/L accounts for customer and vendor posting to avoid creation of new accounts
         SetupMasterDataBasedOnGLAccounts(TempGLAccount, 1);
+    end;
+
+    procedure MatchGLAccountsFourDigit(MappingRangeCode: Code[20])
+    var
+        SAFTMappinRange: Record "SAF-T Mapping Range";
+        SAFTMapping: Record "SAF-T Mapping";
+        SAFTGLAccountMapping: Record "SAF-T G/L Account Mapping";
+    begin
+        SAFTGLAccountMapping.SetRange("Mapping Range Code", MappingRangeCode);
+        SAFTGLAccountMapping.FindSet();
+        SAFTMappinRange.Get(MappingRangeCode);
+        SAFTMapping.SetRange("Mapping Type", SAFTMappinRange."Mapping Type");
+        SAFTMapping.FindSet();
+        repeat
+            SAFTGLAccountMapping.Validate("Category No.", SAFTMapping."Category No.");
+            SAFTGLAccountMapping.Validate("No.", SAFTMapping."No.");
+            SAFTGLAccountMapping.Modify(true);
+            SAFTMapping.Next();
+        until SAFTGLAccountMapping.Next() = 0;
+    end;
+
+    procedure GetWorkDateInYearWithNoGLEntries(): Date
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetCurrentKey("Posting Date");
+        GLEntry.FindLast();
+        exit(CalcDate('<CY+1D>', GLEntry."Posting Date"));
     end;
 
     local procedure SetupMasterDataBasedOnGLAccounts(var TempGLAccount: Record "G/L Account" temporary; NumberOfMasterDataRecords: Integer)

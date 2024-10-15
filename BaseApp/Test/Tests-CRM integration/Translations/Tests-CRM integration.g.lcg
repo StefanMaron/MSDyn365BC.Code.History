@@ -511,7 +511,7 @@
   </Item>
   <Item ItemId=";Codeunit 2039337448 - NamedType 951521943" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A %1 URL, user name and password are required to enable a connection.]]></Val>
+      <Val><![CDATA[A %1 URL and user name are required to enable a connection.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -1015,7 +1015,7 @@
   </Item>
   <Item ItemId=";Codeunit 775477311 - NamedType 1525273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[A %1 URL, user name and password are required to enable a connection]]></Val>
+      <Val><![CDATA[A %1 URL and user name are required to enable a connection]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

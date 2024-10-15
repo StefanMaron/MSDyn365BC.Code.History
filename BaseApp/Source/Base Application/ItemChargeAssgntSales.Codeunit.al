@@ -205,7 +205,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
             exit;
 
         SelectionTxt := SelectStr(Selection, SuggestItemChargeMenuTxt);
-
+        OnSuggestAssignmentOnBeforeAssignItemCharges(SalesLine, ItemChargeAssgntSales);
         AssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, SelectionTxt);
     end;
 
@@ -679,6 +679,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
 
     [IntegrationEvent(false, false)]
     local procedure OnSuggestAssignmentOnBeforeSelectionItemChargeAssign(var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSuggestAssignmentOnBeforeAssignItemCharges(var SalesLine: Record "Sales Line"; ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
     end;
 }

@@ -5645,6 +5645,43 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         RemoveBankAccReconciliation(StatementNo);
     end;
 
+    [Test]
+    [HandlerFunctions('TextMapperBankAccModalPageHandler,ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure MapTextToAccountForBankAccountTypeOnPaymentReonciliationJournal()
+    var
+        BankAccount: Record "Bank Account";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 351885] Text-to-Account Mapping page is opened from Payment Reconciliation Journal for Bank Account Reconciliation Line with Account Type set to Bank Account.
+        Initialize();
+
+        // [GIVEN] Bank Account Reconciliation Line with Account No. = "AN", Account Type = "Bank Account", "Transaction Text" = "TT".
+        LibraryERM.CreateBankAccount(BankAccount);
+        LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
+          BankAccReconciliation."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
+        BankAccReconciliationLine.Validate("Account Type", BankAccReconciliationLine."Account Type"::"Bank Account");
+        BankAccReconciliationLine.Validate("Account No.", BankAccount."No.");
+        BankAccReconciliationLine.Validate("Transaction Text", BankAccount."No.");
+        BankAccReconciliationLine.Modify(true);
+
+        // [WHEN] Text-to-Account Mapping page is opened for Bank Account Reconciliation Line from Payment Reconciliation Journal using Map Text To Account action.
+        PaymentReconciliationJournal.Trap();
+        OpenPaymentRecJournal(BankAccReconciliation);
+        PaymentReconciliationJournal.AddMappingRule.Invoke();
+
+        // [THEN] On opened page "Mapping Text" = "TT", "Debit Acc. No." = '', "Credit Acc. No." = '', "Bal. Source Type" = "Bank Account", "Bal. Source No." = ''.
+        Assert.AreEqual(BankAccReconciliationLine."Transaction Text", LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual(Format(BankAccReconciliationLine."Account Type"::"Bank Account"), LibraryVariableStorage.DequeueText, '');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText, '');
+    end;
+
     local procedure Initialize()
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
@@ -6281,12 +6318,31 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
         Assert.IsTrue(StrPos(Message, ExpectedMsg) > 0, Message);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TextMapperModalPageHandler(var TexttoAccountMapping: TestPage "Text-to-Account Mapping")
     begin
         TexttoAccountMapping."Debit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo);
         TexttoAccountMapping."Credit Acc. No.".SetValue(LibraryERM.CreateGLAccountNo);
+        TexttoAccountMapping.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure TextMapperBankAccModalPageHandler(var TexttoAccountMapping: TestPage "Text-to-Account Mapping")
+    begin
+        LibraryVariableStorage.Enqueue(TexttoAccountMapping."Mapping Text".Value);
+        LibraryVariableStorage.Enqueue(TexttoAccountMapping."Debit Acc. No.".Value);
+        LibraryVariableStorage.Enqueue(TexttoAccountMapping."Credit Acc. No.".Value);
+        LibraryVariableStorage.Enqueue(TexttoAccountMapping."Bal. Source Type".Value);
+        LibraryVariableStorage.Enqueue(TexttoAccountMapping."Bal. Source No.".Value);
         TexttoAccountMapping.OK.Invoke;
     end;
 

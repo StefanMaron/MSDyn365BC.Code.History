@@ -1,4 +1,4 @@
-page 43 "Sales Invoice"
+﻿page 43 "Sales Invoice"
 {
     Caption = 'Sales Invoice';
     PageType = Document;
@@ -231,7 +231,8 @@ page 43 "Sales Invoice"
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
-                    Importance = Additional;
+                    Importance = Promoted;
+                    StyleExpr = StatusStyleTxt;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
@@ -1507,7 +1508,7 @@ page 43 "Sales Invoice"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
-
+        StatusStyleTxt := GetStatusStyleText();
         UpdatePaymentService;
         SetControlAppearance;
     end;
@@ -1600,6 +1601,8 @@ page 43 "Sales Invoice"
         ChangeExchangeRate: Page "Change Exchange Rate";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         WorkDescription: Text;
+        [InDataSet]
+        StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
         SellToCustomerUsesEInvoicing: Boolean;

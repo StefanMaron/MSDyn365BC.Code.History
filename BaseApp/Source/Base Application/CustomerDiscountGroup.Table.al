@@ -30,15 +30,5 @@ table 340 "Customer Discount Group"
         {
         }
     }
-
-    trigger OnDelete()
-    var
-        SalesLineDiscount: Record "Sales Line Discount";
-    begin
-        SalesLineDiscount.SetCurrentKey("Sales Type", "Sales Code");
-        SalesLineDiscount.SetRange("Sales Type", SalesLineDiscount."Sales Type"::"Customer Disc. Group");
-        SalesLineDiscount.SetRange("Sales Code", Code);
-        SalesLineDiscount.DeleteAll(true);
-    end;
 }
 

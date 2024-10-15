@@ -30,6 +30,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         OneLineShouldBeCopiedErr: Label 'One line should be copied.';
         InvoiceNoTxt: Label 'Invoice No. %1:';
         WrongCopyPurchaseResourceErr: Label 'Wrong data after copy purchase resource';
+        AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2668,6 +2669,86 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Assert.AreEqual(Resource."Default Deferral Template Code", ToPurchaseLine."Deferral Code", WrongCopyPurchaseResourceErr);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CanGetSalesLineToExistingPurchSpecialOrderOnBlankLocAddrNotChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Special Order] [Purchase] [Ship-to Address]
+        // [SCENARIO 358333] Stan can add purchase line with "Get Sales Orders" to existing purchase special order on blank location if the ship-to address has not been changed.
+        Initialize();
+
+        // [GIVEN] Sales order set up for special order.
+        PurchasingCode := CreatePurchasingCode(false, true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader, PurchasingCode);
+
+        // [GIVEN] Purchase order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Populate the purchase order from the sales order with "Get Sales Orders".
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+
+        // [GIVEN] Add one more line to the sales order.
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader, PurchasingCode);
+
+        // [WHEN] Update the purchase order with "Get Sales Orders".
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+
+        // [THEN] A new purchase line has been added.
+        FindLastLineOfPurchaseDocument(PurchaseHeader, PurchaseLine);
+        PurchaseLine.TestField("No.", SalesLine."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CannotGetSalesLineToExistingPurchSpecialOrderOnBlankLocAddrChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchasingCode: Code[10];
+    begin
+        // [FEATURE] [Special Order] [Purchase] [Ship-to Address]
+        // [SCENARIO 358333] Stan cannot add purchase line with "Get Sales Orders" to existing purchase special order on blank location if the ship-to address has been changed on Company Information.
+        Initialize();
+
+        // [GIVEN] Sales order set up for special order.
+        PurchasingCode := CreatePurchasingCode(false, true);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader, PurchasingCode);
+
+        // [GIVEN] Purchase order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Populate the purchase order from the sales order with "Get Sales Orders".
+        LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+
+        // [GIVEN] Add one more line to the sales order.
+        CreateSalesLineWithPurchasingCode(SalesLine, SalesHeader, PurchasingCode);
+
+        // [GIVEN] Update Ship-to address on Company Information.
+        UpdateShiptoAddrOfCompany();
+
+        // [WHEN] Update the purchase order with "Get Sales Orders".
+        asserterror LibraryPurchase.GetSpecialOrder(PurchaseHeader);
+
+        // [THEN] Error is thrown pointing that ship-to address is different between the purchase and the sales order.
+        Assert.ExpectedError(StrSubstNo(AddrChangedErr, PurchaseHeader."No.", SalesHeader."No."));
+        Assert.ExpectedErrorCode('Dialog');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2686,9 +2767,10 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SaveCompanyInformation();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Copy Purch/Sales Doc");
@@ -3157,6 +3239,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true);
+    end;
+
+    local procedure CreateSalesLineWithPurchasingCode(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; PurchasingCode: Code[10])
+    begin
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        SalesLine.Validate("Purchasing Code", PurchasingCode);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreatePurchHeaderForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorCode: Code[20])
@@ -3934,6 +4024,13 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     begin
         CopySalesDocument.DocumentNo.Value := '';
         CopySalesDocument.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesListModalPageHandler(var SalesList: TestPage "Sales List")
+    begin
+        SalesList.OK.Invoke();
     end;
 
     [ConfirmHandler]

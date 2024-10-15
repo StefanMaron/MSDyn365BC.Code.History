@@ -1782,15 +1782,15 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Integration Mapping");
 
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
 
         CRMConnectionSetup.DeleteAll();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, '');
         LibraryCRMIntegration.CreateCRMConnectionSetup('', '@@test@@', true);
-
+        ResetCRMConfiguration();
         CRMConnectionSetup.Get('');
-        CRMConnectionSetup.RegisterConnection;
+        CRMConnectionSetup.RegisterConnection();
 
         IntegrationTableMapping.DeleteAll(true);
     end;
@@ -2046,6 +2046,9 @@ codeunit 139183 "CRM Integration Mapping"
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Validate("Client Id", 'ClientId');
+        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

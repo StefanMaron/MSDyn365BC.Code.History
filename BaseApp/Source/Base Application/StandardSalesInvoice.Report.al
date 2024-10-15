@@ -1121,6 +1121,8 @@ report 1306 "Standard Sales - Invoice"
                 TotalAmountVAT := 0;
                 TotalAmountInclVAT := 0;
                 TotalPaymentDiscOnVAT := 0;
+                if ("Order No." = '') and "Prepayment Invoice" then
+                    "Order No." := "Prepayment Order No.";
 
                 DocumentTools.GetKundeID(KundeTxt, KundeID, 1, "No.", "Bill-to Customer No.");
             end;

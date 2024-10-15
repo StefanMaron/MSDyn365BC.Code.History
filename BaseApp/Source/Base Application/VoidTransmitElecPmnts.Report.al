@@ -34,14 +34,20 @@ report 9200 "Void/Transmit Elec. Pmnts"
                 CheckManagement.ProcessElectronicPayment("Gen. Journal Line", UsageType);
 
                 if UsageType = UsageType::Void then begin
-                    "Exported to Payment File" := false;
-                    "Check Exported" := false;
                     "Check Printed" := false;
                     "Document No." := '';
                 end else
                     "Check Transmitted" := true;
 
                 Modify;
+            end;
+
+            trigger OnPostDataItem()
+            var
+                ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
+            begin
+                if UsageType = UsageType::Void then
+                    ExpUserFeedbackGenJnl.SetGivenExportFlagOnGenJnlLine("Gen. Journal Line", false);
             end;
 
             trigger OnPreDataItem()

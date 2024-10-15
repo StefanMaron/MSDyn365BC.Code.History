@@ -149,7 +149,7 @@ table 167 Job
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = Exist ("Comment Line" WHERE("Table Name" = CONST(Job),
+            CalcFormula = Exist("Comment Line" WHERE("Table Name" = CONST(Job),
                                                       "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -172,7 +172,7 @@ table 167 Job
         }
         field(49; "Scheduled Res. Qty."; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE("Job No." = FIELD("No."),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "No." = FIELD("Resource Filter"),
@@ -201,7 +201,7 @@ table 167 Job
         }
         field(56; "Scheduled Res. Gr. Qty."; Decimal)
         {
-            CalcFormula = Sum ("Job Planning Line"."Quantity (Base)" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job Planning Line"."Quantity (Base)" WHERE("Job No." = FIELD("No."),
                                                                            "Schedule Line" = CONST(true),
                                                                            Type = CONST(Resource),
                                                                            "Resource Group No." = FIELD("Resource Gr. Filter"),
@@ -413,7 +413,7 @@ table 167 Job
         field(1005; "Total WIP Cost Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                          "Job Complete" = CONST(false),
                                                                          Type = FILTER("Accrued Costs" | "Applied Costs" | "Recognized Costs")));
             Caption = 'Total WIP Cost Amount';
@@ -423,7 +423,7 @@ table 167 Job
         field(1006; "Total WIP Cost G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                              Reversed = CONST(false),
                                                                              "Job Complete" = CONST(false),
                                                                              Type = FILTER("Accrued Costs" | "Applied Costs" | "Recognized Costs")));
@@ -433,7 +433,7 @@ table 167 Job
         }
         field(1007; "WIP Entries Exist"; Boolean)
         {
-            CalcFormula = Exist ("Job WIP Entry" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Exist("Job WIP Entry" WHERE("Job No." = FIELD("No.")));
             Caption = 'WIP Entries Exist';
             FieldClass = FlowField;
         }
@@ -444,7 +444,7 @@ table 167 Job
         }
         field(1009; "WIP G/L Posting Date"; Date)
         {
-            CalcFormula = Min ("Job WIP G/L Entry"."WIP Posting Date" WHERE(Reversed = CONST(false),
+            CalcFormula = Min("Job WIP G/L Entry"."WIP Posting Date" WHERE(Reversed = CONST(false),
                                                                             "Job No." = FIELD("No.")));
             Caption = 'WIP G/L Posting Date';
             Editable = false;
@@ -490,7 +490,7 @@ table 167 Job
         field(1017; "Recog. Sales Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                          Type = FILTER("Recognized Sales")));
             Caption = 'Recog. Sales Amount';
             Editable = false;
@@ -499,7 +499,7 @@ table 167 Job
         field(1018; "Recog. Sales G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                              Reversed = CONST(false),
                                                                              Type = FILTER("Recognized Sales")));
             Caption = 'Recog. Sales G/L Amount';
@@ -509,7 +509,7 @@ table 167 Job
         field(1019; "Recog. Costs Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                         Type = FILTER("Recognized Costs")));
             Caption = 'Recog. Costs Amount';
             Editable = false;
@@ -518,7 +518,7 @@ table 167 Job
         field(1020; "Recog. Costs G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                             Reversed = CONST(false),
                                                                             Type = FILTER("Recognized Costs")));
             Caption = 'Recog. Costs G/L Amount';
@@ -528,7 +528,7 @@ table 167 Job
         field(1021; "Total WIP Sales Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job WIP Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                         "Job Complete" = CONST(false),
                                                                         Type = FILTER("Accrued Sales" | "Applied Sales" | "Recognized Sales")));
             Caption = 'Total WIP Sales Amount';
@@ -538,7 +538,7 @@ table 167 Job
         field(1022; "Total WIP Sales G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                             Reversed = CONST(false),
                                                                             "Job Complete" = CONST(false),
                                                                             Type = FILTER("Accrued Sales" | "Applied Sales" | "Recognized Sales")));
@@ -548,14 +548,14 @@ table 167 Job
         }
         field(1023; "WIP Completion Calculated"; Boolean)
         {
-            CalcFormula = Exist ("Job WIP Entry" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Exist("Job WIP Entry" WHERE("Job No." = FIELD("No."),
                                                        "Job Complete" = CONST(true)));
             Caption = 'WIP Completion Calculated';
             FieldClass = FlowField;
         }
         field(1024; "Next Invoice Date"; Date)
         {
-            CalcFormula = Min ("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Min("Job Planning Line"."Planning Date" WHERE("Job No." = FIELD("No."),
                                                                          "Contract Line" = CONST(true),
                                                                          "Qty. to Invoice" = FILTER(<> 0)));
             Caption = 'Next Invoice Date';
@@ -596,7 +596,7 @@ table 167 Job
         }
         field(1026; "WIP Warnings"; Boolean)
         {
-            CalcFormula = Exist ("Job WIP Warning" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Exist("Job WIP Warning" WHERE("Job No." = FIELD("No.")));
             Caption = 'WIP Warnings';
             Editable = false;
             FieldClass = FlowField;
@@ -636,7 +636,7 @@ table 167 Job
         field(1028; "Applied Costs G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                              Reverse = CONST(false),
                                                                              "Job Complete" = CONST(false),
                                                                              Type = FILTER("Applied Costs")));
@@ -647,7 +647,7 @@ table 167 Job
         field(1029; "Applied Sales G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = - Sum ("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
+            CalcFormula = - Sum("Job WIP G/L Entry"."WIP Entry Amount" WHERE("Job No." = FIELD("No."),
                                                                              Reverse = CONST(false),
                                                                              "Job Complete" = CONST(false),
                                                                              Type = FILTER("Applied Sales")));
@@ -658,7 +658,7 @@ table 167 Job
         field(1030; "Calc. Recog. Sales Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job Task"."Recognized Sales Amount" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Sum("Job Task"."Recognized Sales Amount" WHERE("Job No." = FIELD("No.")));
             Caption = 'Calc. Recog. Sales Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -666,7 +666,7 @@ table 167 Job
         field(1031; "Calc. Recog. Costs Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job Task"."Recognized Costs Amount" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Sum("Job Task"."Recognized Costs Amount" WHERE("Job No." = FIELD("No.")));
             Caption = 'Calc. Recog. Costs Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -674,7 +674,7 @@ table 167 Job
         field(1032; "Calc. Recog. Sales G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job Task"."Recognized Sales G/L Amount" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Sum("Job Task"."Recognized Sales G/L Amount" WHERE("Job No." = FIELD("No.")));
             Caption = 'Calc. Recog. Sales G/L Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -682,14 +682,14 @@ table 167 Job
         field(1033; "Calc. Recog. Costs G/L Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Job Task"."Recognized Costs G/L Amount" WHERE("Job No." = FIELD("No.")));
+            CalcFormula = Sum("Job Task"."Recognized Costs G/L Amount" WHERE("Job No." = FIELD("No.")));
             Caption = 'Calc. Recog. Costs G/L Amount';
             Editable = false;
             FieldClass = FlowField;
         }
         field(1034; "WIP Completion Posted"; Boolean)
         {
-            CalcFormula = Exist ("Job WIP G/L Entry" WHERE("Job No." = FIELD("No."),
+            CalcFormula = Exist("Job WIP G/L Entry" WHERE("Job No." = FIELD("No."),
                                                            "Job Complete" = CONST(true)));
             Caption = 'WIP Completion Posted';
             FieldClass = FlowField;
@@ -773,24 +773,12 @@ table 167 Job
     var
         CommentLine: Record "Comment Line";
         JobTask: Record "Job Task";
-        JobResPrice: Record "Job Resource Price";
-        JobItemPrice: Record "Job Item Price";
-        JobGLAccPrice: Record "Job G/L Account Price";
     begin
         MoveEntries.MoveJobEntries(Rec);
 
         JobTask.SetCurrentKey("Job No.");
         JobTask.SetRange("Job No.", "No.");
         JobTask.DeleteAll(true);
-
-        JobResPrice.SetRange("Job No.", "No.");
-        JobResPrice.DeleteAll();
-
-        JobItemPrice.SetRange("Job No.", "No.");
-        JobItemPrice.DeleteAll();
-
-        JobGLAccPrice.SetRange("Job No.", "No.");
-        JobGLAccPrice.DeleteAll();
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Job);
         CommentLine.SetRange("No.", "No.");

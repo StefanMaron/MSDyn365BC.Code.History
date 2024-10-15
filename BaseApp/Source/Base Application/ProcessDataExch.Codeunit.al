@@ -46,7 +46,7 @@ codeunit 1201 "Process Data Exch."
         repeat
             if DataExchFieldGroupByLineNo."Line No." <> CurrLineNo then begin
                 CurrLineNo := DataExchFieldGroupByLineNo."Line No.";
-
+                OnProcessColumnMappingOnBeforeCreateBankAccReconciliationLine(RecRefTemplate, DataExchField, DataExch, CurrLineNo);
                 RecRef := RecRefTemplate.Duplicate;
                 if (DataExchMapping."Data Exch. No. Field ID" <> 0) and (DataExchMapping."Data Exch. Line Field ID" <> 0) then begin
                     SetFieldValue(RecRef, DataExchMapping."Data Exch. No. Field ID", DataExch."Entry No.");
@@ -78,7 +78,13 @@ codeunit 1201 "Process Data Exch."
     procedure ProcessAllLinesColumnMapping(DataExch: Record "Data Exch."; RecRef: RecordRef)
     var
         DataExchLineDef: Record "Data Exch. Line Def";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeProcessAllLinesColumnMapping(DataExch, DataExchLineDef, IsHandled);
+        if IsHandled then
+            exit;
+
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         if DataExchLineDef.FindSet then
             repeat
@@ -288,6 +294,16 @@ codeunit 1201 "Process Data Exch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDataExchFieldMappingSetFilters(var DataExchFieldMapping: Record "Data Exch. Field Mapping");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessAllLinesColumnMapping(DataExch: Record "Data Exch."; DataExchLineDef: Record "Data Exch. Line Def"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnBeforeCreateBankAccReconciliationLine(var RecRefTemplate: RecordRef; var DataExchangeField: Record "Data Exch. Field"; var DataExch: Record "Data Exch."; CurrLineNo: Integer)
     begin
     end;
 }

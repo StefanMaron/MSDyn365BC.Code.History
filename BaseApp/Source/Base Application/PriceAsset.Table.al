@@ -12,8 +12,6 @@ table 7003 "Price Asset"
             Caption = 'Asset Type';
             trigger OnValidate()
             begin
-                if "Asset Type" = xRec."Asset Type" then
-                    exit;
                 InitAsset();
             end;
         }
@@ -22,8 +20,6 @@ table 7003 "Price Asset"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Asset No." = xRec."Asset No." then
-                    exit;
                 if "Asset No." = '' then
                     InitAsset()
                 else
@@ -35,8 +31,6 @@ table 7003 "Price Asset"
             DataClassification = SystemMetadata;
             trigger OnValidate()
             begin
-                if "Asset ID" = xRec."Asset ID" then
-                    exit;
                 if IsNullGuid("Asset ID") then
                     InitAsset()
                 else begin

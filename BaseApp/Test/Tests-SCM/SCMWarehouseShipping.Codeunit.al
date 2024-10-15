@@ -3610,6 +3610,85 @@ codeunit 137151 "SCM Warehouse - Shipping"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler,ItemTrackingSummaryPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure PostingInvtPickForSalesWithAlternateUoM()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        Qty: Decimal;
+        QtyPer: Decimal;
+        LotNo: array[2] of Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Inventory Pick] [Unit of Measure]
+        // [SCENARIO 360085] Posting inventory pick from sales line with item tracking and alternate unit of measure.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+        QtyPer := LibraryRandom.RandIntInRange(2, 5);
+
+        // [GIVEN] Location set up for inventory pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+
+        // [GIVEN] Lot-tracked item with "Lot Warehouse Tracking" = TRUE.
+        // [GIVEN] Create alternate unit of measure "BOX" and set it as a "Sales Unit of Measure".
+        CreateItemTrackingCode(ItemTrackingCode, false, true, false);
+        LibraryInventory.CreateTrackedItem(Item, LibraryUtility.GetGlobalNoSeriesCode(), '', ItemTrackingCode.Code);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", QtyPer);
+        Item.Validate("Sales Unit of Measure", ItemUnitOfMeasure.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Post two lots to inventory.
+        for i := 1 to ArrayLen(LotNo) do begin
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot No.");
+            CreateAndPostItemJournalLine(Item."No.", Qty * QtyPer, Location.Code, '', true);
+            LotNo[i] := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(LotNo[i]));
+        end;
+
+        // [GIVEN] Create sales order, open item tracking and select the two lots.
+        CreateSalesDocument(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Location.Code, Item."No.", ArrayLen(LotNo) * Qty);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        SalesLine.OpenItemTrackingLines();
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create inventory pick from the sales order.
+        LibraryVariableStorage.Enqueue(InvPickMsg);
+        LibraryWarehouse.CreateInvtPutPickSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+
+        // [WHEN] Post the inventory pick.
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [THEN] The sales order is fully shipped.
+        SalesLine.Find();
+        SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
+
+        // [THEN] Two lots are shipped.
+        for i := 1 to ArrayLen(LotNo) do begin
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+            ItemLedgerEntry.SetRange("Lot No.", LotNo[i]);
+            ItemLedgerEntry.FindFirst();
+            ItemLedgerEntry.TestField(Quantity, -Qty * QtyPer);
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
