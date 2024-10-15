@@ -28,6 +28,10 @@ codeunit 137140 "SCM Inventory Documents"
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
+        ItemNoErr: Label 'Item No. are not equal';
+        UnitOfMeasureCodeErr: Label 'Unit of Measure Code are not equal';
+        UnitCostErr: Label 'Unit Code are not equal';
+        DimensionErr: Label 'Expected dimension should be %1.', Comment = '%1=Value';
 
     [Test]
     [Scope('OnPrem')]
@@ -938,6 +942,93 @@ codeunit 137140 "SCM Inventory Documents"
         ReservationEntry.TestField("Source ID", PurchaseLine."Document No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostInventoryReceiptWithUOM()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        Item: Record Item;
+        UnitOfMeasure: Record "Unit of Measure";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        // [SCENARIO 467540] Unit Cost is not updated as per Unit of Measure in Inventory Receipt line
+        Initialize();
+
+        // [GIVEN] Create Location with Inventory Posting Setup
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+
+        // [GIVEN] Create Item and one Item Unit of Measure Code
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, 2);
+
+        // [GIVEN] Create Inventory Receipt with Location Code and update Posting No. on Inventory Receipt Document.
+        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, Location.Code);
+        InvtDocumentHeader."Posting No." := LibraryUtility.GenerateGUID();
+        InvtDocumentHeader.Modify();
+
+        // [GIVEN] Create Inventory Receipt Line and update Unit of Measure Code other than Base Unit of Measure Code
+        LibraryInventory.CreateInvtDocumentLine(
+        InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+        InvtDocumentLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        InvtDocumentLine.Modify();
+
+        // [WHEN] Post the Inventory Receipt
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        // [VERIFY] Verify the Item Ledger Entry Created by last Inventory Receipt.
+        ItemLedgerEntry.FindLast();
+        Assert.AreEqual(Item."No.", ItemLedgerEntry."Item No.", ItemNoErr);
+        Assert.AreEqual(ItemUnitOfMeasure.Code, ItemLedgerEntry."Unit of Measure Code", UnitOfMeasureCodeErr);
+        Assert.AreEqual(Item."Unit Cost" * 2, ItemLedgerEntry."Cost Amount (Actual)", UnitCostErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure ValidateDimensionUpdatedInInventoryShipmentDocumentLine()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        Item: Record Item;
+        DimensionValue: Record "Dimension Value";
+        InvtShipment: TestPage "Invt. Shipment";
+    begin
+        // [SCENARIO 468226] Dimension is not update in the inventory shipment document
+        Initialize();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Setup item document, create an item, and dimension
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        LibraryInventory.CreateItem(Item);
+        LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Shortcut Dimension 1 Code");
+
+        // [GIVEN] Create Inventory Shipment Line for type item, with Location, and Salesperson/Purchaser
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Shipment, Location.Code, SalespersonPurchaser.Code);
+
+        // [WHEN] Open Inventory Shipment Page, and update Shortcut Dimension 1 Code field value
+        InvtShipment.OpenEdit();
+        InvtShipment.Filter.SetFilter("No.", InvtDocumentHeader."No.");
+        InvtShipment."Shortcut Dimension 1 Code".SetValue(DimensionValue.Code);
+
+        // [THEN] Find the first Inventory Shipment Line
+        InvtShipment.ShipmentLines.First();
+
+        // [VERIFY] Verify: The dimension on the Inventory Shipment line should be the same as its Inventory Shipment document dimension
+        Assert.AreEqual(
+            InvtShipment."Shortcut Dimension 1 Code".Value,
+            InvtShipment.ShipmentLines."Shortcut Dimension 1 Code".Value,
+            StrSubstNo(DimensionErr, InvtShipment."Shortcut Dimension 1 Code".Value));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1199,6 +1290,13 @@ codeunit 137140 "SCM Inventory Documents"
     procedure AvailableInvtDocLinesModalPageHandler(var AvailableInvtDocLines: TestPage "Available - Invt. Doc. Lines")
     begin
         AvailableInvtDocLines.Reserve.Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 }
 

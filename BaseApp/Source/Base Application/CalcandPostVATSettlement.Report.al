@@ -560,7 +560,7 @@
                 group(Options)
                 {
                     Caption = 'Options';
-                    
+
 #if not CLEAN22
                     field(VATDateTypeField; VATDateType)
                     {
@@ -593,10 +593,16 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date on which the transfer to the VAT account is posted. This field must be filled in.';
+
+                        trigger OnValidate()
+                        begin
+                            VATDate := PostingDate;
+                        end;
                     }
                     field(VATDt; VATDate)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = IsVATDateEnabled;
                         Caption = 'VAT Date';
                         ToolTip = 'Specifies the VAT date for the transfer to the VAT account. This field must be filled in.';
                     }
@@ -674,8 +680,13 @@
 
         if PostingDate = 0D then
             Error(Text000);
+
         if VATDate = 0D then
-            Error(EnterVATDateLbl);
+            if IsVATDateEnabled then
+                Error(EnterVATDateLbl)
+            else
+                VATDate := PostingDate;
+
         if DocNo = '' then
             Error(Text001);
         if GLAccSettle."No." = '' then
@@ -693,6 +704,13 @@
         Clear(GenJnlPostLine);
 
         OnAfterPreReport("VAT Entry");
+    end;
+
+    trigger OnInitReport()
+    var
+        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+    begin
+        IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
     end;
 
     var
@@ -729,7 +747,8 @@
         DateFilter: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
-
+        [InDataSet]
+        IsVATDateEnabled: Boolean;
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document no.';
         Text002: Label 'Enter the settlement account.';
@@ -760,12 +779,18 @@
         PostSettlement: Boolean;
 
 
+    /// <summary>
+    /// InitializeRequest with "VAT Date" default to "Posting Date"
+    /// </summary>
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         InitializeRequest(NewStartDate, NewEndDate, NewPostingDate, NewPostingDate, NewDocNo, NewSettlementAcc, ShowVATEntries, Post);
     end;
 
-    internal procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewVATDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
+    /// <summary>
+    /// InitializeRequest with specified "VAT Date"
+    /// </summary>
+    procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewVATDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         EntrdStartDate := NewStartDate;
         EnteredEndDate := NewEndDate;

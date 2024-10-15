@@ -12,6 +12,8 @@
         CRMProductName: Codeunit "CRM Product Name";
 
         CachedCoupledToCRMFieldNo: Dictionary of [Integer, Integer];
+        CachedDisableEventDrivenSynchJobReschedule: Dictionary of [Integer, Boolean];
+        CachedIsCRMIntegrationRecord: Dictionary of [Integer, Boolean];
         CRMEntityUrlTemplateTxt: Label '%1/main.aspx?pagetype=entityrecord&etn=%2&id=%3', Locked = true;
         NewestUIAppIdParameterTxt: Label '&appid=%1', Locked = true;
         UnableToResolveCRMEntityNameFrmTableIDErr: Label 'The application is not designed to integrate table %1 with %2.', Comment = '%1 = table ID (numeric), %2 = Dataverse service name';
@@ -3643,7 +3645,7 @@
         if isIntegrationRecord then
             exit(true);
 
-        exit(IntegrationTableMapping.FindMappingForTable(TableID));
+       exit(IntegrationTableMapping.FindMappingForTable(TableID));
     end;
 
     [Scope('OnPrem')]
@@ -3704,9 +3706,11 @@
         CDSConnectionSetup: Record "CDS Connection Setup";
         JobQueueEntry: Record "Job Queue Entry";
         ScheduledTask: Record "Scheduled Task";
+        IntegrationTableMapping: Record "Integration Table Mapping";
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
         NewEarliestStartDateTime: DateTime;
         Enabled: Boolean;
+        IsCRMIntRec: Boolean;
     begin
         if CDSConnectionSetup.Get() then
             Enabled := CDSConnectionSetup."Is Enabled";
@@ -3717,8 +3721,26 @@
         if not Enabled then
             exit;
 
-        if not IsCRMIntegrationRecord(TableNo) then
+        if not CachedIsCRMIntegrationRecord.ContainsKey(TableNo) then begin
+            IsCRMIntRec := IsCRMIntegrationRecord(TableNo);
+            CachedIsCRMIntegrationRecord.Add(TableNo, IsCRMIntRec);
+            if not IsCRMIntRec then
+                exit;
+        end;
+
+        if not CachedIsCRMIntegrationRecord.Get(TableNo) then
             exit;
+
+        if not CachedDisableEventDrivenSynchJobReschedule.ContainsKey(TableNo) then
+            if IntegrationTableMapping.FindMappingForTable(TableNo) then begin
+                CachedDisableEventDrivenSynchJobReschedule.Add(TableNo, IntegrationTableMapping."Disable Event Job Resch.");
+                if IntegrationTableMapping."Disable Event Job Resch." then
+                    exit;
+            end;
+
+        if CachedDisableEventDrivenSynchJobReschedule.ContainsKey(TableNo) then
+            if CachedDisableEventDrivenSynchJobReschedule.Get(TableNo) then
+                exit;
 
         if DataUpgradeMgt.IsUpgradeInProgress() then
             exit;

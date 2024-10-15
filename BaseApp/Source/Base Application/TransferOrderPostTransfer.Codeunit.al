@@ -1,4 +1,4 @@
-codeunit 5856 "TransferOrder-Post Transfer"
+﻿codeunit 5856 "TransferOrder-Post Transfer"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -18,7 +18,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
             Rec.Status := Rec.Status::Open;
             Rec.Modify();
-            Commit();
+            if not SuppressCommit then
+                Commit();
             Rec.Status := Rec.Status::Released;
         end;
         TransHeader := Rec;
@@ -44,6 +45,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
                 repeat
                     TransLine.TestField("Quantity Shipped", 0);
                     TransLine.TestField("Quantity Received", 0);
+                    TransLine.CheckDirectTransferQtyToShip()
                 until TransLine.Next() = 0
             else
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());

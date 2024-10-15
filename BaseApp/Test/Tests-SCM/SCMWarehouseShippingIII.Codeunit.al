@@ -1849,6 +1849,48 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
     end;
 
+    [Test]
+    procedure VerifyWhseRequestLineIsNotCreatedForNonInventoryItemOnReleasePurchaseOrder()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [SCENARIO 465042] Verify Whse Request Line is not created for Non Inventory Item on Release Purchase Order
+        Initialize();
+
+        // [GIVEN] Create Non Inventory Item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        // [WHEN] Create and Release Purchase Order
+        CreateAndReleasePurchaseOrderWithMultiplePurchaseLines(PurchaseHeader, '', Item."No.", '', 1, 0, LocationGreen.Code);
+
+        // [THEN] Verify Warehouse Request rec not exist
+        VerifyWarehouseRequestRec(Database::"Purchase Line", PurchaseHeader."Document Type".AsInteger(), PurchaseHeader."No.", 0);
+    end;
+
+    [Test]
+    procedure VerifyWhseRequestLineIsNotCreatedForNonInventoryItemOnReleaseSalesOrder()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 465042] Verify Whse Request Line is not created for Non Inventory Item on Release Sales Order
+        Initialize();
+
+        // [GIVEN] Create Non Inventory Item
+        LibraryInventory.CreateNonInventoryTypeItem(Item);
+
+        // [GIVEN] Create Locations with Require Put Away and Pick
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, true, false, false);
+
+        // [WHEN] Create and Release Sales Order
+        CreateAndReleaseSalesOrderWithMultipleSalesLines(SalesHeader, '', Item."No.", '', 1, 0, Location.Code);
+
+        // [THEN] Verify Warehouse Request rec not exist
+        VerifyWarehouseRequestRec(Database::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2523,7 +2565,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         SalesHeader.Validate("Location Code", LocationCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
+        if ItemNo2 <> '' then
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -2533,7 +2576,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
     begin
         LibraryPurchase.CreatePurchaseOrderWithLocation(PurchaseHeader, VendorNo, LocationCode);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
+        if ItemNo2 <> '' then
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo2, Quantity2);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 

@@ -883,10 +883,25 @@
                 SalesInvoiceLine.GetItemLedgEntries(TempItemLedgerEntry, false);
                 if SalesLine.Get(SalesLine."Document Type"::Order, SalesInvoiceLine."Order No.", SalesInvoiceLine."Order Line No.") then begin
                     UpdateSalesOrderLineInvoicedQuantity(SalesLine, SalesInvoiceLine.Quantity, SalesInvoiceLine."Quantity (Base)");
+                    if SalesLine."Qty. to Ship" = 0 then
+                        UpdateWhseRequest(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Location Code");
                     TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
                     UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, SalesInvoiceLine."Shipment Date", true);
                 end;
             until SalesInvoiceLine.Next() = 0;
+    end;
+
+    local procedure UpdateWhseRequest(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; LocationCode: Code[10])
+    var
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
+        WarehouseRequest.SetSourceFilter(SourceType, SourceSubType, SourceNo);
+        WarehouseRequest.SetRange("Location Code", LocationCode);
+        if WarehouseRequest.FindFirst() and WarehouseRequest."Completely Handled" then begin
+            WarehouseRequest."Completely Handled" := false;
+            WarehouseRequest.Modify();
+        end;
     end;
 
     local procedure UpdateSalesOrderLineInvoicedQuantity(var SalesLine: Record "Sales Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)
@@ -904,7 +919,7 @@
         SalesLine."Qty. Shipped (Base)" -= CancelledQtyBase;
         SalesLine.InitOutstanding();
         SalesLine.InitQtyToShip();
-        SalesLine.InitQtyToInvoice();
+        SalesLine.UpdateWithWarehouseShip();
         SalesLine.Modify();
 
         OnAfterUpdateSalesOrderLineInvoicedQuantity(SalesLine, CancelledQuantity, CancelledQtyBase);
