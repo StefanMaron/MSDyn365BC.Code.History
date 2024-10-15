@@ -172,7 +172,7 @@ codeunit 136149 "Chart Configuration Tool"
         // [WHEN] Save the Chart and retrieve fields using chart builder.
         // Save
         ExpectedDescription := PadStr(DefaultChartDescription, 1024, 'A');
-        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, ExpectedDescription);
+        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage(), ExpectedDescription);
         GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
           TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
         Chart.Modify();
@@ -189,7 +189,7 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartMemoBuf.DeleteAll();
         GenericChartMgt.RetrieveXML(
           Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
-        RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
+        RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage());
         VerifyChartSourceProperties(ChartBuilder, SourceType, SourceName, SourceID, ExpectedDescription);
         VerifyChartSourceProperties(
           ChartBuilder, TempGenericChartSetup."Source Type", SourceName, TempGenericChartSetup."Source ID", RetrievedDescription);
@@ -578,7 +578,7 @@ codeunit 136149 "Chart Configuration Tool"
         Chart.FindFirst();
         GenericChartMgt.RetrieveXML(
           Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
-        RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
+        RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage());
         VerifyChartSourceProperties(
           ChartBuilder, TempGenericChartSetup."Source Type", SourceName, TempGenericChartSetup."Source ID", RetrievedDescription);
 
@@ -1395,7 +1395,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         for index := 1 to ArrayLen(Description) do begin
             // [THEN] Save is allowed. Retrieve and verify the saved value
-            TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, Description[index]);
+            TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage(), Description[index]);
             GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
               TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
             Chart.Modify();
@@ -1410,7 +1410,7 @@ codeunit 136149 "Chart Configuration Tool"
             // [THEN] Retrieve fields using chart builder and verify.
             GenericChartMgt.RetrieveXML(Chart, TempGenericChartSetup, TempGenericChartYAxis,
               TempGenericChartCaptionsBuf, TempGenericChartMemoBuf, TempGenericChartFilter);
-            RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage);
+            RetrievedDescription := TempGenericChartMemoBuf.GetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage());
             Assert.AreEqual(
               Description[index],
               RetrievedDescription,
@@ -1810,7 +1810,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         Clear(TempGenericChartQueryColumn);
         with TempGenericChartQueryColumn do begin
-            Insert;
+            Insert();
             SetAggregationType('none');
             Assert.IsTrue("Aggregation Type" = "Aggregation Type"::None, 'Setting aggregation type for query column to None');
             SetAggregationType('count');
@@ -1844,10 +1844,10 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         //TAB9182
         with TempGenericChartYAxis do begin
-            Init;
+            Init();
             "Y-Axis Measure Field ID" := 1;
             Insert(true);
-            Delete;
+            Delete();
         end;
     end;
 
@@ -1928,7 +1928,7 @@ codeunit 136149 "Chart Configuration Tool"
             TempGenericChartFilter.TestField("Filter Field ID", i);
             TempGenericChartFilter.TestField("Filter Field Name", Format(i));
             TempGenericChartFilter.TestField("Filter Value", Format(i));
-        until TempGenericChartFilter.Next = 0;
+        until TempGenericChartFilter.Next() = 0;
     end;
 
     [Test]
@@ -1939,7 +1939,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         // Test of Onopen trigger
         GenericCharts.OpenView;
-        GenericCharts.Close;
+        GenericCharts.Close();
     end;
 
     [Test]
@@ -2027,7 +2027,7 @@ codeunit 136149 "Chart Configuration Tool"
 
         Assert.AreEqual(4, ChartBuilder.GetMultilanguageDescription.Count, TestNameDescriptionTxtLanguageCountTxt);
         Assert.AreEqual(Format(DescriptionTxt),
-          ChartBuilder.GetMultilanguageDescription.GetText(GenericChartMgt.GetUserLanguage), TestNameDescriptionTxt);
+          ChartBuilder.GetMultilanguageDescription.GetText(GenericChartMgt.GetUserLanguage()), TestNameDescriptionTxt);
         for Index := 1 to GetMaxLanguageCount do
             Assert.AreEqual(Format(DescriptionTxt + GetLanguage(Index)),
               ChartBuilder.GetMultilanguageDescription.GetText(GetLanguage(Index)), TestNameDescriptionTxt + ' - ' + Format(Index));
@@ -2071,7 +2071,7 @@ codeunit 136149 "Chart Configuration Tool"
         MultilanguageText := ChartBuilder.GetMultilanguageMeasureCaption(0);
         Assert.AreEqual(4, MultilanguageText.Count, TestNameRequiredMeasureLanguageCountTxt);
         Assert.AreEqual(Format(RequiredMeasureCaptionTxt),
-          MultilanguageText.GetText(GenericChartMgt.GetUserLanguage), TestNameRequiredMeasureCaptionTxt);
+          MultilanguageText.GetText(GenericChartMgt.GetUserLanguage()), TestNameRequiredMeasureCaptionTxt);
         for Index := 1 to GetMaxLanguageCount do
             Assert.AreEqual(Format(RequiredMeasureCaptionChangedTxt + GetLanguage(Index)),
               MultilanguageText.GetText(GetLanguage(Index)), TestNameRequiredMeasureCaptionTxt + ' - ' + Format(Index));
@@ -2235,7 +2235,7 @@ codeunit 136149 "Chart Configuration Tool"
     local procedure CommitCustomerBalanceByCity(var ChartSetup: TestPage "Generic Chart Setup"; ChartID: Code[20]; ChartName: Text[30])
     begin
         // It is necessary to move next/previous to get the ChartDefinition commited to blob in the DB.
-        ChartSetup.Next; // This line does the actual commit to the DB.
+        ChartSetup.Next(); // This line does the actual commit to the DB.
         ChartSetup.GotoKey(ChartID); // Getting back to the original record.
         // Ensure that we are actually on the expected record.
         Assert.AreEqual(ChartName, ChartSetup.Name.Value, ChartSetupNotShowingExpectedRecordTxt);
@@ -2262,7 +2262,7 @@ codeunit 136149 "Chart Configuration Tool"
     var
         InStream: InStream;
     begin
-        if not Chart.BLOB.HasValue then
+        if not Chart.BLOB.HasValue() then
             exit(false);
         Chart.CalcFields(BLOB);
         Chart.BLOB.CreateInStream(InStream);
@@ -2606,7 +2606,7 @@ codeunit 136149 "Chart Configuration Tool"
         TempGenericChartMemoBuf: Record "Generic Chart Memo Buffer" temporary;
         GenericChartMgt: Codeunit "Generic Chart Mgt";
     begin
-        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage, DefaultChartDescription);
+        TempGenericChartMemoBuf.SetMemo(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage(), DefaultChartDescription);
         GenericChartMgt.SaveChanges(Chart, TempGenericChartSetup, TempGenericChartYAxis, TempGenericChartFilter,
           TempGenericChartCaptionsBuf, TempGenericChartMemoBuf);
     end;
@@ -2823,7 +2823,7 @@ codeunit 136149 "Chart Configuration Tool"
             TempGenericChartYAxis."Y-Axis Measure Field ID" := Field."No.";
             TempGenericChartYAxis."Y-Axis Measure Field Name" := Field.FieldName;
             TempGenericChartYAxis.Insert();
-        until Field.Next = 0;
+        until Field.Next() = 0;
     end;
 
     local procedure ValidateEntryDoesNotExist(ChartID: Code[20])
@@ -2839,7 +2839,7 @@ codeunit 136149 "Chart Configuration Tool"
     begin
         Assert.AreEqual(Format(ChartName), Chart.Name, TextChartNameTestTxt);
         Assert.AreEqual(Format(ChartID), Chart.ID, TextChartNameTestTxt);
-        if not Chart.BLOB.HasValue then
+        if not Chart.BLOB.HasValue() then
             Assert.Fail(NoDataInBlobErr)
     end;
 
@@ -2911,7 +2911,7 @@ codeunit 136149 "Chart Configuration Tool"
         ActualFieldsListCount := 0;
         repeat
             ActualFieldsListCount += 1;
-        until not FieldsLookup.Next;
+        until not FieldsLookup.Next();
         FieldsLookup.First;
         FieldsLookup.FILTER.SetFilter(FieldName, DimensionNameToSet);
         Assert.AreEqual(DimensionNameToSet, Format(FieldsLookup.FieldName), 'Verify the correct Dimension Name has been selected');
@@ -2932,12 +2932,12 @@ codeunit 136149 "Chart Configuration Tool"
         GenericChartMgt: Codeunit "Generic Chart Mgt";
     begin
         Editor.First;
-        if not Editor.GotoKey(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage) then
+        if not Editor.GotoKey(GenericChartMgt.DescriptionCode, GenericChartMgt.GetUserLanguage()) then
             Editor.New;
-        Editor."Language Code".SetValue(GenericChartMgt.GetUserLanguage);
+        Editor."Language Code".SetValue(GenericChartMgt.GetUserLanguage());
         Editor.MemoText.SetValue(DescriptionTxt);
 
-        Assert.AreEqual(GenericChartMgt.GetUserLanguage, Editor."Language Code".Value, TestNameEditorLanguageFieldTxt);
+        Assert.AreEqual(GenericChartMgt.GetUserLanguage(), Editor."Language Code".Value, TestNameEditorLanguageFieldTxt);
         Assert.AreEqual(Format(DescriptionTxt), Editor.MemoText.Value, TestNameEditorTextFieldTxt);
 
         Editor.New;
@@ -2962,13 +2962,13 @@ codeunit 136149 "Chart Configuration Tool"
     var
         GenericChartMgt: Codeunit "Generic Chart Mgt";
     begin
-        if not Editor.GotoKey(GenericChartMgt.RequiredMeasureCode, GenericChartMgt.GetUserLanguage) then
+        if not Editor.GotoKey(GenericChartMgt.RequiredMeasureCode(), GenericChartMgt.GetUserLanguage()) then
             Editor.New;
 
-        Editor."Language Code".SetValue(GenericChartMgt.GetUserLanguage);
+        Editor."Language Code".SetValue(GenericChartMgt.GetUserLanguage());
         Editor.Text.Value := RequiredMeasureCaptionChangedTxt;
 
-        Assert.AreEqual(GenericChartMgt.GetUserLanguage, Editor."Language Code".Value, TestNameEditorLanguageFieldTxt);
+        Assert.AreEqual(GenericChartMgt.GetUserLanguage(), Editor."Language Code".Value, TestNameEditorLanguageFieldTxt);
         Assert.AreEqual(Format(RequiredMeasureCaptionChangedTxt), Format(Editor.Text.Value), TestNameEditorTextFieldTxt);
 
         Editor.New;

@@ -20,7 +20,7 @@ codeunit 5971 "Service Header Apply"
             ApplyCustEntries.SetRecord(CustLedgEntry);
             ApplyCustEntries.SetTableView(CustLedgEntry);
             ApplyCustEntries.LookupMode(true);
-            OK := ApplyCustEntries.RunModal = ACTION::LookupOK;
+            OK := ApplyCustEntries.RunModal() = ACTION::LookupOK;
             Clear(ApplyCustEntries);
             if not OK then
                 exit;
@@ -35,16 +35,17 @@ codeunit 5971 "Service Header Apply"
             end else
                 "Applies-to ID" := '';
 
-            Modify;
+            Modify();
         end;
     end;
 
     var
-        Text000: Label 'You must specify %1 or %2.';
         ServHeader: Record "Service Header";
         CustLedgEntry: Record "Cust. Ledger Entry";
         ApplyCustEntries: Page "Apply Customer Entries";
         BilToCustNo: Code[20];
         OK: Boolean;
+
+        Text000: Label 'You must specify %1 or %2.';
 }
 

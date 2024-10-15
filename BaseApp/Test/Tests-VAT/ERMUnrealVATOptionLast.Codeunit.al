@@ -493,7 +493,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // Memo. 2 is required for partial Refund.
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", CurrencyCode2,
-          -LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate) / 2);
+          -LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()) / 2);
         ApplyAndPostVendorEntry(VendorLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 3. Verify: Verify Dtld Vendor Ledger Entry after apply Refund on Credit Memo.
@@ -550,21 +550,21 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         // 2 is required for partial Refund.
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", CurrencyCode2,
-          -LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate) / 2);
+          -LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()) / 2);
         ApplyAndPostVendorEntry(VendorLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 2. Exercise: Again create and post General Journal Line with Document Type as Refund for Remaining Amount with different
         // Currency and apply it on Credit Memo.
         CreateAndPostGeneralJournal(
           GenJournalLine, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", CurrencyCode2,
-          GenJournalLine."Amount (LCY)" - LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate));
+          GenJournalLine."Amount (LCY)" - LibraryERM.ConvertCurrency(Amount, '', CurrencyCode, WorkDate()));
         ApplyAndPostVendorEntry(VendorLedgerEntry."Document Type"::Refund, DocumentNo, GenJournalLine."Document No.");
 
         // 3. Verify: Verify VAT Entry for Unrealized VAT.
         VerifyVATEntry(
           GenJournalLine,
           -Round(
-            LibraryERM.ConvertCurrency(Amount, CurrencyCode, CurrencyCode2, WorkDate) *
+            LibraryERM.ConvertCurrency(Amount, CurrencyCode, CurrencyCode2, WorkDate()) *
             VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %")));
     end;
 
@@ -1029,7 +1029,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
 
     local procedure FindAdditionalCurrencyAmount(Amount: Decimal): Decimal
     begin
-        exit(Round(LibraryERM.ConvertCurrency(Round(Amount), '', LibraryERM.GetAddReportingCurrency, WorkDate)));
+        exit(Round(LibraryERM.ConvertCurrency(Round(Amount), '', LibraryERM.GetAddReportingCurrency, WorkDate())));
     end;
 
     local procedure FindAmountSalesCrMemo(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]): Decimal
@@ -1216,7 +1216,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountError, VATEntry.FieldCaption(Amount),
-            VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
+            VATEntry.TableCaption(), VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
         VATEntry.TestField("G/L Acc. No.", '');
     end;
 
@@ -1261,7 +1261,7 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VATEntry.FindSet();
         repeat
             VATAmount += VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         Assert.AreNearlyEqual(
           Amount, VATAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(CumulativeVATAmount, VATAmount));
     end;

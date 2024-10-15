@@ -126,10 +126,9 @@ report 5065 "Segment - Labels"
                             ContBarCode[i] := '';
                         end;
                         ColumnNo := 0;
-                    end else begin
+                    end else
                         if ColumnNo = NoOfColumns then
                             ColumnNo := 0;
-                    end;
 
                     if ColumnNo = 0 then begin
                         if Counter = RecPerPageNum then begin

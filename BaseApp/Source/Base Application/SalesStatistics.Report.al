@@ -13,7 +13,7 @@ report 112 "Sales Statistics"
         dataitem(Customer; Customer)
         {
             RequestFilterFields = "No.", "Search Name", "Customer Posting Group", "Currency Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(RoundingText; RoundingText)
@@ -441,7 +441,7 @@ report 112 "Sales Statistics"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[2] = 0D then
-                PeriodStartDate[2] := WorkDate;
+                PeriodStartDate[2] := WorkDate();
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;

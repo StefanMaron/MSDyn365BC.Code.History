@@ -16,7 +16,7 @@ page 375 "Bank Account Statistics"
             group("Balance Group")
             {
                 Caption = 'Balance';
-                field("Balance (LCY)"; "Balance (LCY)")
+                field("Balance (LCY)"; Rec."Balance (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatType = 1;
@@ -30,14 +30,14 @@ page 375 "Bank Account Statistics"
                     AutoFormatType = 1;
                     ToolTip = 'Specifies the bank account''s current balance denominated in the applicable foreign currency.';
                 }
-                field("Min. Balance"; "Min. Balance")
+                field("Min. Balance"; Rec."Min. Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
                     ToolTip = 'Specifies a minimum balance for the bank account.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Currency';
@@ -159,8 +159,8 @@ page 375 "Bank Account Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        if CurrentDate <> WorkDate then begin
-            CurrentDate := WorkDate;
+        if CurrentDate <> WorkDate() then begin
+            CurrentDate := WorkDate();
             DateFilterCalc.CreateAccountingPeriodFilter(BankAccDateFilter[1], BankAccDateName[1], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[2], BankAccDateName[2], CurrentDate, 0);
             DateFilterCalc.CreateFiscalYearFilter(BankAccDateFilter[3], BankAccDateName[3], CurrentDate, -1);

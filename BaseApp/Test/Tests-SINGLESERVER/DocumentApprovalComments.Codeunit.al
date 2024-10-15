@@ -43,27 +43,27 @@ codeunit 134201 "Document Approval - Comments"
 
         RequeststoApprove.OpenView;
         RequeststoApprove.Comments.Invoke;
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
 
-        asserterror ApprovalComments.Close; // The Comments page was not opened
+        asserterror ApprovalComments.Close(); // The Comments page was not opened
         Assert.ExpectedError('The TestPage is not open.');
 
         ApprovalComments.Trap;
 
         ApprovalEntries.OpenView;
         ApprovalEntries.Comments.Invoke;
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
 
-        asserterror ApprovalComments.Close; // The Comments page was not opened
+        asserterror ApprovalComments.Close(); // The Comments page was not opened
         Assert.ExpectedError('The TestPage is not open.');
 
         ApprovalComments.Trap;
 
         ApprovalRequestEntries.OpenView;
         ApprovalRequestEntries.Comments.Invoke;
-        ApprovalRequestEntries.Close;
+        ApprovalRequestEntries.Close();
 
-        asserterror ApprovalComments.Close; // The Comments page was not opened
+        asserterror ApprovalComments.Close(); // The Comments page was not opened
         Assert.ExpectedError('The TestPage is not open.');
     end;
 
@@ -1050,7 +1050,7 @@ codeunit 134201 "Document Approval - Comments"
         // [WHEN] A new Approval Comment Line is added.
         ApprovalComments.New;
         ApprovalComments.Comment.SetValue := Comment;
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
         // [THEN] Approval Comment Line is added for "PI" and for "AE2".
         FilterApprovalCommentLinesForStepID(ApprovalCommentLine, ApprovalEntry[2]);
@@ -1094,7 +1094,7 @@ codeunit 134201 "Document Approval - Comments"
         // [WHEN] A new Approval Comment Line is added.
         ApprovalComments.New;
         ApprovalComments.Comment.SetValue := Comment;
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
         // [THEN] Approval Comment Line is added for "PI" and for "AE2".
         FilterApprovalCommentLinesForStepID(ApprovalCommentLine, ApprovalEntry[2]);
@@ -1285,11 +1285,11 @@ codeunit 134201 "Document Approval - Comments"
         PostedApprovalCommentLine: Record "Posted Approval Comment Line";
     begin
         with PostedApprovalCommentLine do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(PostedApprovalCommentLine, FieldNo("Entry No."));
             "Table ID" := PostedRecordID.TableNo;
             "Posted Record ID" := PostedRecordID;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1298,14 +1298,14 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntry: Record "Approval Entry";
     begin
         with ApprovalEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ApprovalEntry, FieldNo("Entry No."));
             "Sender ID" := LibraryUtility.GenerateGUID();
             "Approver ID" := UserId;
             "Table ID" := RecordIDToApprove.TableNo;
             "Record ID to Approve" := RecordIDToApprove;
             Status := Status::Open;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1322,7 +1322,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalCommentLine: Record "Approval Comment Line";
     begin
         with ApprovalCommentLine do begin
-            Init;
+            Init();
             SetRange("Table ID", RecordIDToApprove.TableNo);
             SetRange("Record ID to Approve", RecordIDToApprove);
             "Workflow Step Instance ID" := WorkflowStepInstanceID;
@@ -1585,7 +1585,7 @@ codeunit 134201 "Document Approval - Comments"
     local procedure VerifyRejectedApprovalEntries(var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
     begin
         ValidateApprovalEntry(ApprovalEntry, 1, UserSetup."Approver ID", UserSetup."Salespers./Purch. Code", UserSetup."User ID");
-        ApprovalEntry.Next;
+        ApprovalEntry.Next();
         ValidateApprovalEntry(ApprovalEntry, 2, UserSetup."Approver ID", UserSetup."Salespers./Purch. Code", UserSetup."User ID");
         Assert.AreEqual(0, ApprovalEntry.Next, WrongNumberOfApprovalEntriesMsg);
     end;
@@ -1629,7 +1629,7 @@ codeunit 134201 "Document Approval - Comments"
     var
         User: Record User;
     begin
-        Reply := not User.IsEmpty;
+        Reply := not User.IsEmpty();
     end;
 
     [MessageHandler]

@@ -26,7 +26,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if (SalesHeader."Document Type" <> SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         if CRMIntegrationRecord.FindIDFromRecordID(SalesHeader.RecordId, CRMSalesOrderId) then begin
@@ -38,6 +38,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
     local procedure PostCRMSalesDocumentOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -45,7 +46,10 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if IsHandled then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
             exit;
 
         Codeunit.Run(Codeunit::"CRM Integration Management");
@@ -53,7 +57,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         AddPostedSalesDocumentToCRMAccountWall(SalesHeader, SalesInvHdrNo);
 
         if not IsNullGuid(CRMSalesOrderId) then // Should be set by SetOrderOnSalesHeaderDeletion
-            SetCRMSalesOrderStateAsInvoiced;
+            SetCRMSalesOrderStateAsInvoiced();
     end;
 
     local procedure AddPostedSalesDocumentToCRMAccountWall(var SalesHeader: Record "Sales Header"; SalesInvHdrNo: Code[20])
@@ -67,7 +71,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not (SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]) then
             exit;
 
-        if not CRMSetupDefaults.GetAddPostedSalesDocumentToCRMAccountWallConfig then
+        if not CRMSetupDefaults.GetAddPostedSalesDocumentToCRMAccountWallConfig() then
             exit;
 
         Customer.Get(SalesHeader."Sell-to Customer No.");
@@ -103,7 +107,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not GetCRMEntityIdAndTypeName(TargetRecordID, EntityID, EntityTypeName) then
             exit;
 
-        if not CRMIntegrationManagement.IsWorkingConnection then
+        if not CRMIntegrationManagement.IsWorkingConnection() then
             exit;
 
         CRMIntegrationRecord.FindByRecordID(TargetRecordID);
@@ -150,8 +154,12 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
     procedure CheckShippedOrders(var SalesHeaderOrder: Record "Sales Header")
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
+            exit;
+
+        if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then
             exit;
 
         Codeunit.Run(Codeunit::"CRM Integration Management");
@@ -160,7 +168,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
             repeat
                 if IsSalesOrderFullyInvoiced(SalesHeaderOrder) then
                     if CRMIntegrationRecord.FindIDFromRecordID(SalesHeaderOrder.RecordId, CRMSalesOrderId) then
-                        SetCRMSalesOrderStateAsInvoiced;
+                        SetCRMSalesOrderStateAsInvoiced();
             until SalesHeaderOrder.Next() = 0;
     end;
 
@@ -192,7 +200,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesDocReleased);
@@ -209,7 +217,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesDocReleased);
@@ -223,7 +231,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesShptHeaderCreated);
@@ -237,7 +245,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not (SalesHeader."Document Type" = SalesHeader."Document Type"::Order) then
             exit;
 
-        if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
+        if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             exit;
 
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesInvHeaderCreated);
@@ -250,7 +258,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if not CRMPostBuffer.WritePermission() then
             exit;
 
-        CRMPostBuffer.ID := CreateGuid;
+        CRMPostBuffer.ID := CreateGuid();
         CRMPostBuffer."Table ID" := DATABASE::"Sales Header";
         CRMPostBuffer.RecId := RecId;
         CRMPostBuffer.ChangeType := ChangeType;

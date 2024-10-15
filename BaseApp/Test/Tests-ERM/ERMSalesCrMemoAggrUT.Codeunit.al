@@ -51,7 +51,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             LibraryERMCountryData.CreateVATData();
             LibraryERMCountryData.CreateGeneralPostingSetupData();
         end;
@@ -140,7 +140,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesLine."Recalculate Invoice Disc." := true;
         SalesLine.Modify();
         SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", SalesCreditMemo."No.".Value);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Execute
         SalesCreditMemo.OpenEdit;
@@ -185,7 +185,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Execute
         SalesCreditMemo.SalesLines.Quantity.SetValue(SalesCreditMemo.SalesLines.Quantity.AsDEcimal * 2);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
         // Verify
@@ -205,7 +205,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Execute
         SalesCreditMemo.SalesLines."Line Amount".SetValue(Round(SalesCreditMemo.SalesLines."Line Amount".AsDEcimal / 2, 1));
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
         // Verify
@@ -225,7 +225,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Execute
         SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDEcimal * 2);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
 
         // Verify
@@ -246,7 +246,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         // Execute
         SalesCreditMemo.SalesLines."Unit Price".SetValue(SalesCreditMemo.SalesLines."Unit Price".AsDEcimal * 2);
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.First;
 
         // Verify
@@ -603,7 +603,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         Initialize();
         CreateSalesHeaderWithID(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::"Credit Memo");
 
-        TempGUID := CreateGuid;
+        TempGUID := CreateGuid();
         SalesCrMemoHeader.TransferFields(SalesHeader, true);
         SalesCrMemoHeader."Pre-Assigned No." := SalesHeader."No.";
         SalesCrMemoHeader.Insert(true);
@@ -614,7 +614,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         // Verify
         Assert.IsFalse(SalesCrMemoEntityBuffer.Get(SalesHeader."No.", false), 'Draft Aggregated Credit Memo still exists');
 
-        SalesCrMemoHeader.Find;
+        SalesCrMemoHeader.Find();
         Assert.AreEqual(SalesHeader.SystemId, SalesCrMemoHeader."Draft Cr. Memo SystemId", 'Posted Credit Memo ID is incorrect');
         Assert.IsFalse(SalesHeader.Find, 'Draft Credit Memo still exists');
         SalesCrMemoEntityBuffer.Get(SalesCrMemoHeader."No.", true);
@@ -866,7 +866,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         SalesCrMemoEntityBuffer.Delete();
 
         // Execute
-        GraphMgtSalCrMemoBuf.UpdateBufferTableRecords;
+        GraphMgtSalCrMemoBuf.UpdateBufferTableRecords();
 
         // Verify
         VerifyBufferTableIsUpdatedForCrMemo(SalesHeader."No.");
@@ -1145,14 +1145,14 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         ItemQuantity: Decimal;
     begin
         SalesCreditMemo.SalesLines.Last;
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines."No.".SetValue(ItemNo);
 
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         SalesCreditMemo.SalesLines.Quantity.SetValue(ItemQuantity);
 
         // Trigger Save
-        SalesCreditMemo.SalesLines.Next;
+        SalesCreditMemo.SalesLines.Next();
         SalesCreditMemo.SalesLines.Previous();
     end;
 
@@ -1279,8 +1279,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
 
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
-        SalesHeader.Find;
-        SalesLine.Find;
+        SalesHeader.Find();
+        SalesLine.Find();
     end;
 
     local procedure CreateCrMemoWithLinesThroughCodeDiscountAmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -1379,7 +1379,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         CreateCustomer(Customer);
         CrMemoDiscountAmount := LibraryRandom.RandDecInRange(1, 100, 2);
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             Customer."Prices Including VAT" := true;
             Customer.Modify();
         end;
@@ -1457,7 +1457,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
             SourceTableFieldRef := RecRef.Field(TempField."No.");
             TargetTableFieldRef := TargetTableRecRef.Field(TempField."No.");
             ValidateFieldDefinitionsMatch(SourceTableFieldRef, TargetTableFieldRef);
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
     end;
 
     local procedure VerifyFieldDefinitionsDontExistInTargetTable(TableID: Integer; var TempField: Record "Field" temporary)
@@ -1475,7 +1475,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
               StrSubstNo(
                 'Field %1 is specific for Table %2 and should not be in the Table %3. TRANSFERFIELDS will break existing functionailty.',
                 TempField."No.", TempField.TableName, RecRef.Name));
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
     end;
 
     local procedure ValidateFieldDefinitionsMatch(FieldRef1: FieldRef; FieldRef2: FieldRef)
@@ -1570,8 +1570,8 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
         LinesRecordRef.FindFirst();
         repeat
             VerifyLineValuesMatch(LinesRecordRef, TempSalesInvoiceLineAggregate, SalesCrMemoEntityBuffer.Posted);
-            TempSalesInvoiceLineAggregate.Next;
-        until LinesRecordRef.Next = 0;
+            TempSalesInvoiceLineAggregate.Next();
+        until LinesRecordRef.Next() = 0;
     end;
 
     local procedure VerifyLineValuesMatch(var SourceRecordRef: RecordRef; var TempSalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate" temporary; Posted: Boolean)
@@ -1598,9 +1598,9 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
             Assert.AreEqual(
               Format(SourceFieldRef.Value), Format(AggregateLineFieldRef.Value),
               StrSubstNo('Value did not match for field no. %1', TempField."No."));
-        until TempField.Next = 0;
+        until TempField.Next() = 0;
 
-        if GeneralLedgerSetup.UseVat then begin
+        if GeneralLedgerSetup.UseVat() then begin
             DataTypeManagement.FindFieldByName(SourceRecordRef, SourceFieldRef, SalesLine.FieldName("VAT Prod. Posting Group"));
             if VATProductPostingGroup.Get(SourceFieldRef.Value) then
                 TaxId := VATProductPostingGroup.SystemId;
@@ -1669,7 +1669,7 @@ codeunit 134397 "ERM Sales Cr. Memo Aggr. UT"
                 end;
         end;
 
-        SalesCrMemoEntityBuffer.Find;
+        SalesCrMemoEntityBuffer.Find();
 
         if NumberOfLines > 0 then
             Assert.IsTrue(ExpectedTotalExclTaxAmount > 0, 'One amount must be greated than zero');

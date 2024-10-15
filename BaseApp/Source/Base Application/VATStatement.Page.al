@@ -28,13 +28,13 @@ page 317 "VAT Statement"
                 trigger OnValidate()
                 begin
                     VATStmtManagement.CheckName(CurrentStmtName, Rec);
-                    CurrentStmtNameOnAfterValidate;
+                    CurrentStmtNameOnAfterValidate();
                 end;
             }
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
@@ -44,7 +44,7 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement line.';
                 }
-                field("Box No."; "Box No.")
+                field("Box No."; Rec."Box No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number on the box that the VAT statement applies to.';
@@ -54,7 +54,7 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the VAT statement line will include.';
                 }
-                field("Account Totaling"; "Account Totaling")
+                field("Account Totaling"; Rec."Account Totaling")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an account interval or a series of account numbers.';
@@ -64,38 +64,38 @@ page 317 "VAT Statement"
                         GLAccountList: Page "G/L Account List";
                     begin
                         GLAccountList.LookupMode(true);
-                        if not (GLAccountList.RunModal = ACTION::LookupOK) then
+                        if not (GLAccountList.RunModal() = ACTION::LookupOK) then
                             exit(false);
-                        Text := GLAccountList.GetSelectionFilter;
+                        Text := GLAccountList.GetSelectionFilter();
                         exit(true);
                     end;
                 }
-                field("Gen. Posting Type"; "Gen. Posting Type")
+                field("Gen. Posting Type"; Rec."Gen. Posting Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Amount Type"; "Amount Type")
+                field("Amount Type"; Rec."Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts or the base amounts on which the VAT is calculated.';
                 }
-                field("Row Totaling"; "Row Totaling")
+                field("Row Totaling"; Rec."Row Totaling")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a row-number interval or a series of row numbers.';
                 }
-                field("Calculate with"; "Calculate with")
+                field("Calculate with"; Rec."Calculate with")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether amounts on the VAT statement will be calculated with their original sign or with the sign reversed.';
@@ -105,17 +105,17 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the VAT statement line will be printed on the report that contains the finished VAT statement.';
                 }
-                field("Print with"; "Print with")
+                field("Print with"; Rec."Print with")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether amounts on the VAT statement will be printed with their original sign or with the sign reversed.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether a new page should begin immediately after this line when the VAT statement is printed. To start a new page after this line, place a check mark in the field.';
                 }
-                field("BAS Adjustment"; "BAS Adjustment")
+                field("BAS Adjustment"; Rec."BAS Adjustment")
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if the VAT statement must only include transactions that are adjustments to a business activity statement (BAS).';
@@ -150,8 +150,6 @@ page 317 "VAT Statement"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&review';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "VAT Statement Preview";
                     RunPageLink = "Statement Template Name" = FIELD("Statement Template Name"),
                                   Name = FIELD("Statement Name");
@@ -171,8 +169,6 @@ page 317 "VAT Statement"
                     Caption = 'Print';
                     Ellipsis = true;
                     Image = Print;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Print the information in the window. A print request window opens where you can specify what to include on the print-out.';
 
                     trigger OnAction()
@@ -186,10 +182,25 @@ page 317 "VAT Statement"
                     Caption = 'Calculate and Post VAT Settlement';
                     Ellipsis = true;
                     Image = SettleOpenTransactions;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Report "Calc. and Post VAT Settlement";
                     ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+                actionref("Calc. and Post VAT Settlement_Promoted"; "Calc. and Post VAT Settlement")
+                {
+                }
+                actionref("P&review_Promoted"; "P&review")
+                {
                 }
             }
         }
@@ -219,7 +230,7 @@ page 317 "VAT Statement"
 
     local procedure CurrentStmtNameOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         VATStmtManagement.SetName(CurrentStmtName, Rec);
         CurrPage.Update(false);
     end;

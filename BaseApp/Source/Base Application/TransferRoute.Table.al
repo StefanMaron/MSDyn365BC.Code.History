@@ -52,12 +52,13 @@ table 5742 "Transfer Route"
     }
 
     var
-        Text003: Label 'The receipt date must be greater or equal to the shipment date.';
         CalChange: Record "Customized Calendar Change";
         ShippingAgentServices: Record "Shipping Agent Services";
         CalendarMgmt: Codeunit "Calendar Management";
         HasTransferRoute: Boolean;
         HasShippingAgentService: Boolean;
+
+        Text003: Label 'The receipt date must be greater or equal to the shipment date.';
 
     procedure GetTransferRoute(TransferFromCode: Code[10]; TransferToCode: Code[10]; var InTransitCode: Code[10]; var ShippingAgentCode: Code[10]; var ShippingAgentServiceCode: Code[10])
     var

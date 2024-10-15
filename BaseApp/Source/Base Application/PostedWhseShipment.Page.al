@@ -13,58 +13,58 @@ page 7337 "Posted Whse. Shipment"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Whse. Shipment No."; "Whse. Shipment No.")
+                field("Whse. Shipment No."; Rec."Whse. Shipment No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the warehouse shipment that the posted warehouse shipment originates from.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location from which the items were shipped.';
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the code of the zone on this posted shipment header.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the bin where the items are picked or put away.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the posting date of the posted warehouse shipment.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -80,34 +80,34 @@ page 7337 "Posted Whse. Shipment"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("External Document No."; "External Document No.")
+                field("External Document No."; Rec."External Document No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                 }
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -171,8 +171,6 @@ page 7337 "Posted Whse. Shipment"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -181,13 +179,24 @@ page 7337 "Posted Whse. Shipment"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     var
         WMSManagement: Codeunit "WMS Management";
     begin
-        ErrorIfUserIsNotWhseEmployee;
+        ErrorIfUserIsNotWhseEmployee();
         FilterGroup(2); // set group of filters user cannot change
         SetFilter("Location Code", WMSManagement.GetWarehouseEmployeeLocationFilter(UserId));
         FilterGroup(0); // set filter group back to standard

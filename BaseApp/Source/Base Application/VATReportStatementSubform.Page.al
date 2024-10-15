@@ -13,7 +13,7 @@ page 742 "VAT Report Statement Subform"
         {
             repeater(Group)
             {
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -24,7 +24,7 @@ page 742 "VAT Report Statement Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT report statement.';
                 }
-                field("Box No."; "Box No.")
+                field("Box No."; Rec."Box No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -52,7 +52,7 @@ page 742 "VAT Report Statement Subform"
                         BASManagement: Codeunit "BAS Management";
                     begin
                         if BASManagement.VATStatementRepLineChangesAllowed(Rec) then
-                            BASEntryDrillDown;
+                            BASEntryDrillDown();
                     end;
 
                     trigger OnValidate()

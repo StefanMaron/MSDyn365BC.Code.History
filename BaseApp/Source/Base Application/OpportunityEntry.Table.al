@@ -1,4 +1,4 @@
-﻿table 5093 "Opportunity Entry"
+table 5093 "Opportunity Entry"
 {
     Caption = 'Opportunity Entry';
     DrillDownPageID = "Opportunity Entries";
@@ -26,15 +26,15 @@
                     "Estimated Value (LCY)" := OppEntry."Estimated Value (LCY)";
                     "Chances of Success %" := OppEntry."Chances of Success %";
                     "Date of Change" := OppEntry."Date of Change";
-                    if OppEntry."Date of Change" > WorkDate then
+                    if OppEntry."Date of Change" > WorkDate() then
                         "Date of Change" := OppEntry."Date of Change"
                     else
-                        "Date of Change" := WorkDate;
+                        "Date of Change" := WorkDate();
                     "Estimated Close Date" := OppEntry."Estimated Close Date";
                     "Previous Sales Cycle Stage" := OppEntry."Sales Cycle Stage";
                     "Action Taken" := OppEntry."Action Taken";
                 end else
-                    "Date of Change" := WorkDate;
+                    "Date of Change" := WorkDate();
             end;
         }
         field(3; "Sales Cycle Code"; Code[10])
@@ -235,7 +235,7 @@
                 end;
             "Action Taken"::Won:
                 begin
-                    TestCust;
+                    TestCust();
                     if Opp.Status <> Opp.Status::Won then begin
                         Opp.Status := Opp.Status::Won;
                         Opp.Closed := true;
@@ -370,7 +370,7 @@
         end;
 
         OnUpdateEstimatesOnBeforeModifyOpportunityEntry(Rec, SalesHeader);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -472,7 +472,7 @@
 
         Opp.TestField(Closed, false);
         DeleteAll();
-        Init;
+        Init();
         Validate("Opportunity No.", Opp."No.");
         "Sales Cycle Code" := Opp."Sales Cycle Code";
         "Contact No." := Opp."Contact No.";
@@ -493,7 +493,7 @@
         if IsHandled then
             exit;
 
-        Insert;
+        Insert();
         if PAGE.RunModal(PageID, Rec) = ACTION::OK then;
     end;
 
@@ -522,11 +522,11 @@
     var
         OppEntry: Record "Opportunity Entry";
     begin
-        UpdateEstimates;
+        UpdateEstimates();
         OppEntry := Rec;
         InsertEntry(OppEntry, "Cancel Old To Do", false);
         OnFinishWizardOnAfterInsertEntry(OppEntry);
-        Delete;
+        Delete();
     end;
 
     local procedure ErrorMessage(FieldName: Text[1024])
@@ -545,7 +545,7 @@
 
         Opp.TestField(Closed, false);
         DeleteAll();
-        Init;
+        Init();
         Validate("Opportunity No.", Opp."No.");
         "Sales Cycle Code" := Opp."Sales Cycle Code";
         "Contact No." := Opp."Contact No.";
@@ -554,14 +554,14 @@
         "Campaign No." := Opp."Campaign No.";
 
         OnUpdateOppFromOppOnBeforeStartWizard2(Opp, Rec);
-        StartWizard2;
+        StartWizard2();
     end;
 
     local procedure StartWizard2()
     begin
         "Wizard Step" := "Wizard Step"::"1";
-        CreateStageList;
-        Insert;
+        CreateStageList();
+        Insert();
         if PAGE.RunModal(PAGE::"Update Opportunity", Rec) = ACTION::OK then;
     end;
 
@@ -583,7 +583,7 @@
         if "Date of Change" = 0D then
             ErrorMessage(FieldCaption("Date of Change"));
 
-        ValidateStage;
+        ValidateStage();
 
         if "Estimated Value (LCY)" <= 0 then
             Error(Text008, FieldCaption("Estimated Value (LCY)"));
@@ -605,13 +605,13 @@
         CreateNewTask := "Action Taken" <> "Action Taken"::Updated;
         "Wizard Step" := "Wizard Step"::" ";
         "Cancel Old To Do" := false;
-        UpdateEstimates;
+        UpdateEstimates();
         "Action Type" := "Action Type"::" ";
         "Sales Cycle Stage Description" := '';
         OppEntry := Rec;
         InsertEntry(OppEntry, CancelOldTask, CreateNewTask);
         OnFinishWizard2OnAfterInsertEntry(OppEntry);
-        Delete;
+        Delete();
     end;
 
     procedure WizardActionTypeValidate2()
@@ -669,7 +669,7 @@
         Task.SetRange("Opportunity No.", "Opportunity No.");
         if Task.FindFirst() then
             "Cancel Old To Do" := false;
-        Modify;
+        Modify();
     end;
 
     procedure WizardSalesCycleStageValidate2()
@@ -679,16 +679,16 @@
                 begin
                     if TempSalesCycleStageNext.Get("Sales Cycle Code", "Sales Cycle Stage") then
                         "Action Taken" := "Action Taken"::Next;
-                    Modify;
+                    Modify();
                 end;
             "Action Type"::Jump:
                 begin
                     if TempSalesCycleStagePrevious.Get("Sales Cycle Code", "Sales Cycle Stage") then
                         "Action Taken" := "Action Taken"::Previous;
-                    Modify;
+                    Modify();
                 end;
         end;
-        ValidateStage;
+        ValidateStage();
     end;
 
     procedure CreateStageList()
@@ -719,7 +719,7 @@
             PreviousDateOfChange := OppEntry."Date of Change";
             EntryExists := true;
         end else begin
-            PreviousDateOfChange := WorkDate;
+            PreviousDateOfChange := WorkDate();
             EntryExists := false;
         end;
 
@@ -791,24 +791,24 @@
                 repeat
                     TempSalesCycleStageJump := SalesCycleStage;
                     if TempSalesCycleStageJump.Stage <> OppEntry."Sales Cycle Stage" then
-                        TempSalesCycleStageJump.Insert
+                        TempSalesCycleStageJump.Insert()
                     else
                         Stop := true;
                 until (SalesCycleStage.Next() = 0) or Stop;
             end;
 
         case true of
-            NoOfSalesCyclesFirst > 0:
+            NoOfSalesCyclesFirst() > 0:
                 "Action Type" := "Action Type"::First;
-            NoOfSalesCyclesNext > 0:
+            NoOfSalesCyclesNext() > 0:
                 "Action Type" := "Action Type"::Next;
-            NoOfSalesCyclesUpdate > 0:
+            NoOfSalesCyclesUpdate() > 0:
                 "Action Type" := "Action Type"::Update;
-            NoOfSalesCyclesPrev > 0:
+            NoOfSalesCyclesPrev() > 0:
                 "Action Type" := "Action Type"::Previous;
-            NoOfSalesCyclesSkip > 1:
+            NoOfSalesCyclesSkip() > 1:
                 "Action Type" := "Action Type"::Skip;
-            NoOfSalesCyclesJump > 1:
+            NoOfSalesCyclesJump() > 1:
                 "Action Type" := "Action Type"::Jump;
         end;
     end;
@@ -833,7 +833,7 @@
                     ;
                     TempSalesCycleStageNext.Get("Sales Cycle Code", "Sales Cycle Stage");
                     if TempSalesCycleStageNext."Quote Required" then
-                        TestQuote;
+                        TestQuote();
                 end;
             "Action Type"::Previous:
                 TempSalesCycleStagePrevious.Get("Sales Cycle Code", "Sales Cycle Stage");
@@ -841,7 +841,7 @@
                 begin
                     TempSalesCycleStageSkip.Get("Sales Cycle Code", "Sales Cycle Stage");
                     if TempSalesCycleStageSkip."Quote Required" then
-                        TestQuote;
+                        TestQuote();
                 end;
             "Action Type"::Update:
                 TempSalesCycleStageUpdate.Get("Sales Cycle Code", "Sales Cycle Stage");
@@ -891,7 +891,7 @@
                     ;
                     TempSalesCycleStageNext.Get("Sales Cycle Code", "Sales Cycle Stage");
                     if TempSalesCycleStageNext."Quote Required" then
-                        TestQuote;
+                        TestQuote();
                 end;
             "Action Type"::Previous:
                 TempSalesCycleStagePrevious.Get("Sales Cycle Code", "Sales Cycle Stage");
@@ -899,7 +899,7 @@
                 begin
                     TempSalesCycleStageSkip.Get("Sales Cycle Code", "Sales Cycle Stage");
                     if TempSalesCycleStageSkip."Quote Required" then
-                        TestQuote;
+                        TestQuote();
                 end;
             "Action Type"::Update:
                 TempSalesCycleStageUpdate.Get("Sales Cycle Code", "Sales Cycle Stage");

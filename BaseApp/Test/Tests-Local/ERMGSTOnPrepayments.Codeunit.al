@@ -10,6 +10,7 @@ codeunit 141026 "ERM GST On Prepayments"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -20,7 +21,6 @@ codeunit 141026 "ERM GST On Prepayments"
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label '%1 must be %2 in %3.';
         NotEqualToZeroTxt: Label '<>%1.';
-        NothingToPostErr: Label 'There is nothing to post.';
         PurchaseLineAmountCap: Label 'Purchase_Line___Line_Amount_';
         PurchaseLinePrepmtAmountCap: Label 'Purchase_Line___Prepmt__Line_Amount_';
         TotalAUDIncVATCap: Label 'Prepayment_Inv__Line_Buffer__Amount___VATAmount';
@@ -424,7 +424,7 @@ codeunit 141026 "ERM GST On Prepayments"
         asserterror LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] Error
-        Assert.ExpectedError(NothingToPostErr);
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
     [Test]
@@ -445,7 +445,7 @@ codeunit 141026 "ERM GST On Prepayments"
         CreateGeneralPostingSetup(GeneralPostingSetup);
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGeneralJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", '', -LibraryRandom.RandDec(100, 2));  // Blank used for Applies to Doc No. and Random value used for Amount.
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", '', -LibraryRandom.RandDec(100, 2));  // Blank used for Applies to Doc No. and Random value used for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateSalesOrder(
           SalesLine, CreateCustomer('', GeneralPostingSetup."Gen. Bus. Posting Group", 0), SalesLine.Type::Item,
@@ -523,10 +523,10 @@ codeunit 141026 "ERM GST On Prepayments"
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount" * SalesLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
         Assert.AreNearlyEqual(
           -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision, StrSubstNo(
-            AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption));
+            AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption()));
 
         // Tear Down.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Full GST on Prepayment", GeneralLedgerSetup."Adjust for Payment Disc.");
@@ -553,7 +553,7 @@ codeunit 141026 "ERM GST On Prepayments"
           SalesLine, CreateCustomerInvoiceDiscount(GeneralPostingSetup."Gen. Bus. Posting Group"), SalesLine.Type::Item,
           CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group"), LibraryRandom.RandDec(20, 2));  // Random value used for Prepayment%.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
         PostPaymentAfterSalesPrepaymentInvoice(SalesHeader);
         PostSalesOrderAndCreatePayment(GenJournalLine, SalesLine, -CalculateNonPrepaymentSalesLineAmount(SalesLine));
 
@@ -850,7 +850,7 @@ codeunit 141026 "ERM GST On Prepayments"
             GeneralPostingSetup."Gen. Prod. Posting Group"), PrepaymentPct);
         FindPurchaseLine(PurchaseLine, PurchaseHeader."No.");
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
-        UpdatePurchaseHeader(PurchaseHeader, WorkDate);
+        UpdatePurchaseHeader(PurchaseHeader, WorkDate());
 
         // Exercise: Post Purchase Invoice after posting Payment journal.
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Receive and Invoice.
@@ -908,10 +908,10 @@ codeunit 141026 "ERM GST On Prepayments"
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount" * SalesLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
         Assert.AreNearlyEqual(
           -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision, StrSubstNo(
-            AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption));
+            AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption()));
 
         // Tear Down.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Full GST on Prepayment", GeneralLedgerSetup."Adjust for Payment Disc.");
@@ -938,10 +938,10 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
         // [WHEN] Calculate "Invoice Discount" for Sales Order
-        SalesHeader.CalcInvDiscForHeader;
+        SalesHeader.CalcInvDiscForHeader();
 
         // [THEN] "Prepayment Amount" in Sales Line = 10
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Prepmt. Line Amount", Round(SalesLine."Line Amount" * SalesLine."Prepayment %" / 100));
     end;
 
@@ -966,7 +966,7 @@ codeunit 141026 "ERM GST On Prepayments"
           LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Calculate "Invoice Discount" for Purchase Order
-        PurchHeader.CalcInvDiscForHeader;
+        PurchHeader.CalcInvDiscForHeader();
 
         // [THEN] "Prepayment Amount" in Sales Line = 10
         FindPurchaseLine(PurchLine, PurchHeader."No.");
@@ -1180,7 +1180,7 @@ codeunit 141026 "ERM GST On Prepayments"
     var
         PurchasePrepaymentPct: Record "Purchase Prepayment %";
     begin
-        LibraryPurchase.CreatePurchasePrepaymentPct(PurchasePrepaymentPct, CreateItem(GenProdPostingGroup), VendorNo, WorkDate);
+        LibraryPurchase.CreatePurchasePrepaymentPct(PurchasePrepaymentPct, CreateItem(GenProdPostingGroup), VendorNo, WorkDate());
         PurchasePrepaymentPct.Validate("Prepayment %", PrepaymentPct);
         PurchasePrepaymentPct.Modify(true);
         exit(PurchasePrepaymentPct."Item No.");
@@ -1207,7 +1207,7 @@ codeunit 141026 "ERM GST On Prepayments"
     var
         SalesPrepaymentPct: Record "Sales Prepayment %";
     begin
-        LibrarySales.CreateSalesPrepaymentPct(SalesPrepaymentPct, SalesType, SalesCode, ItemNo, WorkDate);
+        LibrarySales.CreateSalesPrepaymentPct(SalesPrepaymentPct, SalesType, SalesCode, ItemNo, WorkDate());
         SalesPrepaymentPct.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         SalesPrepaymentPct.Modify(true);
     end;
@@ -1290,7 +1290,7 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         CreateGeneralJournalLine(
-          GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), GenJournalLine."Account Type"::Customer
+          GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), GenJournalLine."Account Type"::Customer
           , SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.", -SalesInvoiceHeader."Amount Including VAT");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1320,11 +1320,11 @@ codeunit 141026 "ERM GST On Prepayments"
     begin
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         PaymentTerms.Get(SalesHeader."Payment Terms Code");
-        SalesHeader.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        SalesHeader.Validate("Posting Date", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
         SalesHeader.Modify(true);
         AppliesToDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
         CreateGeneralJournalLine(
-          GenJournalLine, CalcDate(PaymentTerms."Due Date Calculation", WorkDate), GenJournalLine."Account Type"::Customer,
+          GenJournalLine, CalcDate(PaymentTerms."Due Date Calculation", WorkDate()), GenJournalLine."Account Type"::Customer,
           SalesLine."Sell-to Customer No.", AppliesToDocNo, Amount);
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 141026 "ERM GST On Prepayments"
     local procedure PostPaymentJournalForPurchasePrepaymentAndInvoice(var GenJournalLine: Record "Gen. Journal Line"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line") PurchaseInvoiceNo: Code[20]
     begin
         CreateGeneralJournalLine(
-          GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), GenJournalLine."Account Type"::Vendor,
+          GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), GenJournalLine."Account Type"::Vendor,
           PurchaseHeader."Buy-from Vendor No.", GetPrepaymentPurchaseInvoiceNo(
             PurchaseHeader."Buy-from Vendor No."), PurchaseLine."Prepmt. Line Amount");
 
@@ -1401,7 +1401,7 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         AppliesToDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
         CreateGeneralJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.",
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::Customer, SalesLine."Sell-to Customer No.",
           AppliesToDocNo, -CalculateNonPrepaymentSalesLineAmount(SalesLine));
 
         // Exercise.
@@ -1488,7 +1488,7 @@ codeunit 141026 "ERM GST On Prepayments"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyCreditAmountOnGLEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1500,8 +1500,8 @@ codeunit 141026 "ERM GST On Prepayments"
         GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
-        Assert.AreEqual(CreditAmount, Amount, StrSubstNo(AmountErr, GLEntry.FieldCaption("Credit Amount"), Amount, GLEntry.TableCaption));
+        until GLEntry.Next() = 0;
+        Assert.AreEqual(CreditAmount, Amount, StrSubstNo(AmountErr, GLEntry.FieldCaption("Credit Amount"), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmountLine(PurchaseLine: Record "Purchase Line"; PurchInvHeader: Record "Purch. Inv. Header"; VATBase: Decimal; VATAmount: Decimal; AmountIncludingVAT: Decimal)

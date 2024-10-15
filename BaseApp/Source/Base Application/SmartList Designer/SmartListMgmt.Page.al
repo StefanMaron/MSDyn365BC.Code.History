@@ -22,12 +22,12 @@ page 9888 "SmartList Mgmt"
             {
                 Editable = false;
 
-                field("Object ID"; "Object ID")
+                field("Object ID"; Rec."Object ID")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the object ID.';
                 }
-                field("Object Name"; "Object Name")
+                field("Object Name"; Rec."Object Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Name';
@@ -50,7 +50,7 @@ page 9888 "SmartList Mgmt"
                     Caption = 'Assigned List Pages';
                     ToolTip = 'Specifies the list pages that the SmartList is assigned to.';
                 }
-                field("Primary Source Table"; "Primary Source Table")
+                field("Primary Source Table"; Rec."Primary Source Table")
                 {
                     ApplicationArea = All;
                     Caption = 'Primary Table';
@@ -96,10 +96,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Add;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Create a SmartList query.';
 
                     trigger OnAction()
@@ -113,10 +109,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Delete;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Delete selected SmartList queries.';
 
@@ -139,10 +131,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Edit;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Edit a SmartList query.';
                     Enabled = RecordsExist;
@@ -158,10 +146,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Preview a SmartList query.';
                     Enabled = RecordsExist;
@@ -175,10 +159,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Export SmartList queries.';
                     Enabled = RecordsExist;
@@ -218,10 +198,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Import SmartList queries.';
 
@@ -254,10 +230,6 @@ page 9888 "SmartList Mgmt"
                 {
                     ApplicationArea = All;
                     Image = Permission;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Assign one or more permission sets.';
                     Enabled = RecordsExist;
 
@@ -299,10 +271,6 @@ page 9888 "SmartList Mgmt"
                     ApplicationArea = All;
                     Image = Links;
                     Scope = Repeater;
-                    Promoted = true;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Manage Query Navigation action definitions.';
                     Enabled = RecordsExist;
 
@@ -312,6 +280,38 @@ page 9888 "SmartList Mgmt"
                     begin
                         QueryNavigationList.OpenForQuery(Rec."Object ID", rec."Object Name");
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(New_Promoted; New)
+                {
+                }
+                actionref(Delete_Promoted; Delete)
+                {
+                }
+                actionref(Edit_Promoted; Edit)
+                {
+                }
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref(Export_Promoted; Export)
+                {
+                }
+                actionref(Import_Promoted; Import)
+                {
+                }
+                actionref("Assign Permissions_Promoted"; "Assign Permissions")
+                {
+                }
+                actionref(Navigations_Promoted; Navigations)
+                {
                 }
             }
         }

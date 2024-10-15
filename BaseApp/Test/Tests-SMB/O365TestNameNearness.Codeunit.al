@@ -76,7 +76,7 @@ codeunit 138050 "O365 Test Name Nearness"
         // [THEN] The system returns the correct item no.
         Assert.AreEqual(Item."No.", SalesLine."No.", '');
     end;
-
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure TestSalesLinePage2310NewLine()
@@ -146,7 +146,7 @@ codeunit 138050 "O365 Test Name Nearness"
         // [THEN] The system returns the correct item no.
         ValidateSalesLine(SalesHeader, WrongName, Item."No.");
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchaseHeader()
@@ -215,7 +215,7 @@ codeunit 138050 "O365 Test Name Nearness"
 
     local procedure CreateNames(var CorrectName: Text[50]; var WrongName: Text[50])
     begin
-        CorrectName := Format(CreateGuid);
+        CorrectName := Format(CreateGuid());
         WrongName := CorrectName;
         WrongName[1] := 'X';
         WrongName[10] := ' ';

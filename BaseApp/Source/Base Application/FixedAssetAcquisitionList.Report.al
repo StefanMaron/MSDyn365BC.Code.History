@@ -11,7 +11,7 @@ report 5608 "Fixed Asset - Acquisition List"
         dataitem("Fixed Asset"; "Fixed Asset")
         {
             RequestFilterFields = "No.", "FA Class Code", "FA Subclass Code", "Budgeted Asset";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DeprBookText; DeprBookText)
@@ -60,14 +60,13 @@ report 5608 "Fixed Asset - Acquisition List"
                 if not FADeprBook.Get("No.", DeprBookCode) then begin
                     if FAWithoutAcqDate then
                         PrintFA := true;
-                end else begin
+                end else
                     if FADeprBook."Acquisition Date" = 0D then begin
                         if FAWithoutAcqDate then
                             PrintFA := true;
                     end else
                         PrintFA := (FADeprBook."Acquisition Date" >= StartingDate) and
                           (FADeprBook."Acquisition Date" <= EndingDate);
-                end;
                 if not PrintFA then
                     CurrReport.Skip();
             end;
@@ -138,8 +137,8 @@ report 5608 "Fixed Asset - Acquisition List"
     trigger OnPreReport()
     begin
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
-        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+        FAFilter := "Fixed Asset".GetFilters();
+        DeprBookText := StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         ValidateDates(StartingDate, EndingDate);
         FAGenReport.ValidateDates(StartingDate, EndingDate);
     end;

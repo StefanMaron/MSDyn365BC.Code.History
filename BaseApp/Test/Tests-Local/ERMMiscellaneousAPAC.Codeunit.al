@@ -450,7 +450,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Invoice "SI" with Item in the Sales Line.
         CreateItemWithUnitPrice(Item);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, Item."No.", WorkDate);
+          SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, Item."No.", WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
         UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -479,7 +479,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Invoice "SI" with GLAccount in the Sales Line.
         CreateSalesDocWithLine(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate);
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
         UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -510,7 +510,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CreateItemWithUnitPrice(Item);
         CreateSalesDocWithLine(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Credit Memo",
-          SalesLine.Type::Item, Item."No.", WorkDate);
+          SalesLine.Type::Item, Item."No.", WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
         UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -541,7 +541,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CreateItemWithUnitPrice(Item);
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::Item, Item."No.", WorkDate);
+          PurchaseLine.Type::Item, Item."No.", WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Purchase Line.
         UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -570,7 +570,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate);
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "PI" Purchase Line.
         UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -601,7 +601,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CreateItemWithUnitPrice(Item);
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Credit Memo",
-          PurchaseLine.Type::Item, Item."No.", WorkDate);
+          PurchaseLine.Type::Item, Item."No.", WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "PI" Purchase Line.
         UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -657,7 +657,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Invoice with G/L Account in the Sales Line.
         CreateSalesDocWithLine(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate);
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
 
         // [GIVEN] Set Sales Line Description
         SalesLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -690,7 +690,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Invoice with G/L Account in the Purchase Line.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate);
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate());
 
         // [GIVEN] Set Purchase Line Description
         PurchaseLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -723,7 +723,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Service Invoice with G/L Account in the Service Line.
         CreateServiceDocWithLine(
           ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice,
-          ServiceLine.Type::"G/L Account", CreateGLAccountNo, WorkDate);
+          ServiceLine.Type::"G/L Account", CreateGLAccountNo, WorkDate());
 
         // [GIVEN] Set Service Line Description
         ServiceLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -796,7 +796,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Order with "Vendor Exchange Rate (ACY)" = 10 and Purchase Line with "Quanitity" = 2, "Direct Unit Cost" = 15.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate);
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate());
         PurchaseHeader."Vendor Exchange Rate (ACY)" := LibraryRandom.RandInt(10);
         PurchaseHeader.Modify();
 
@@ -830,7 +830,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Order "SO" with two item lines
         CreateItemWithUnitPrice(Item);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Order, SalesLine.Type::Item, Item."No.", WorkDate);
+          SalesHeader."Document Type"::Order, SalesLine.Type::Item, Item."No.", WorkDate());
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -865,7 +865,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CreateItemWithUnitPrice(Item);
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          PurchaseLine.Type::Item, Item."No.", WorkDate);
+          PurchaseLine.Type::Item, Item."No.", WorkDate());
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -901,7 +901,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Order "SO" with two item lines
         CreateItemWithUnitPrice(Item);
         CreateSalesDocWithLine(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Order, SalesLine.Type::Item, Item."No.", WorkDate);
+          SalesHeader."Document Type"::Order, SalesLine.Type::Item, Item."No.", WorkDate());
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -947,7 +947,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CreateItemWithUnitPrice(Item);
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          PurchaseLine.Type::Item, Item."No.", WorkDate);
+          PurchaseLine.Type::Item, Item."No.", WorkDate());
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
@@ -1081,11 +1081,11 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           BankAccReconciliation, BankAccount."No.", BankAccReconciliation."Statement Type"::"Payment Application");
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         with BankAccReconciliationLine do begin
-            Validate("Transaction Date", WorkDate);
+            Validate("Transaction Date", WorkDate());
             Validate("Account Type", "Account Type"::"G/L Account");
             Validate("Account No.", GLAccountNo);
             Validate("Statement Amount", StmtAmount);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1094,7 +1094,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         AppliedPaymentEntry: Record "Applied Payment Entry";
     begin
         with AppliedPaymentEntry do begin
-            Init;
+            Init();
             "Statement Type" := BankAccReconLine."Statement Type";
             "Bank Account No." := BankAccReconLine."Bank Account No.";
             "Statement No." := BankAccReconLine."Statement No.";
@@ -1102,7 +1102,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             "Account Type" := BankAccReconLine."Account Type";
             "Account No." := BankAccReconLine."Account No.";
             "Applied Amount" := AmountToApply;
-            Insert;
+            Insert();
         end;
 
         BankAccReconLine.Validate("Applied Amount", AmountToApply);
@@ -1122,7 +1122,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
         CashReceiptJournal."Apply Entries".Invoke;  // Opens ApplyCustomerEntriesModalPageHandler.
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
@@ -1344,9 +1344,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Due Date" :=
-          LibraryRandom.RandDateFrom(CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 100)) + 'D>', WorkDate),
+          LibraryRandom.RandDateFrom(CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 100)) + 'D>', WorkDate()),
             LibraryRandom.RandIntInRange(10, 100));
         CustLedgerEntry.Insert();
         LibraryVariableStorage.Enqueue(CustomerNo);
@@ -1767,7 +1767,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         AUNZStatement.Customer.SetFilter("No.", CustomerNo);
         AUNZStatement.Customer.SetFilter(
           "Date Filter",
-          StrSubstNo('%1..%2', Format(WorkDate), LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(10, 100))));
+          StrSubstNo('%1..%2', Format(WorkDate()), LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(10, 100))));
         AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

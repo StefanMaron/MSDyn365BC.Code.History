@@ -172,10 +172,9 @@ report 5200 "Employee - Labels"
                         EmployeeBarCode[i] := '';
                     end;
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
             end;
 
             trigger OnPreDataItem()
@@ -245,12 +244,12 @@ report 5200 "Employee - Labels"
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)","48 x 105 mm (2 columns - Bar Code)";
         AddrFormat: Option "Home Address","Current Alternative Address";
         EmployeeAddr: array[3, 8] of Text[100];
+        EmployeeBarCode: array[3] of Text[100];
         NoOfRecords: Integer;
         RecordNo: Integer;
         NoOfColumns: Integer;
         ColumnNo: Integer;
         i: Integer;
-        EmployeeBarCode: array[3] of Text[100];
 
     procedure InitializeRequest(AddrFormatFrom: Option; LabelFormatFrom: Option)
     begin

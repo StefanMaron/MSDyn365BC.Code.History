@@ -817,7 +817,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         Assert.ExpectedError(
           StrSubstNo(
             PrepaymentVATPctError, PurchaseLine.FieldCaption("Prepayment VAT %"), PurchaseLine."VAT %",
-            PurchaseLine.FieldCaption("VAT %"), PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Document Type"),
+            PurchaseLine.FieldCaption("VAT %"), PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Document Type"),
             PurchaseLine."Document Type",
             PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.", PurchaseLine.FieldCaption("Line No."),
             PurchaseLine."Line No."));
@@ -852,7 +852,7 @@ codeunit 144002 "Unit GST Prepayment-Sales"
         Assert.ExpectedError(
           StrSubstNo(
             PrepaymentVATPctError, SalesLine.FieldCaption("Prepayment VAT %"), SalesLine."VAT %", SalesLine.FieldCaption("VAT %"),
-            SalesLine.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+            SalesLine.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesLine.FieldCaption("Document No."), SalesLine."Document No.", SalesLine.FieldCaption("Line No."), SalesLine."Line No."));
 
         // Tear Down: Restore the original prepayment account on General Ledger Setup and General Posting Setup.
@@ -947,27 +947,27 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     local procedure VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine: Record "Sales Line")
     begin
         Assert.AreNearlyEqual(PrepaymentAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption));
+          StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption()));
     end;
 
     local procedure VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine: Record "Sales Line")
     begin
         Assert.AreNearlyEqual(
           PrepaymentTotalAmount + PrepaymentVATAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption));
+          StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLinePrepaymentLineAmtInclVAT(PurchaseLine: Record "Purchase Line")
     begin
         Assert.AreNearlyEqual(
           PrepaymentTotalAmount + PrepaymentVATAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption));
+          StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLinePrepaymentLineAmtExclVAT(PurchaseLine: Record "Purchase Line")
     begin
         Assert.AreNearlyEqual(PrepaymentAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption));
+          StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption()));
     end;
 
     [ModalPageHandler]

@@ -1255,12 +1255,12 @@ codeunit 139157 "Invoice Premapping Tests"
         SetupValidNonItemIntermediateTable(DataExch, BuyFromVendor, PayToVendor, UnitOfMeasure, Qty, Description);
 
         with TextToAccountMapping do begin
-            Init;
+            Init();
             "Mapping Text" := LowerCase(BuyFromVendor.Name);
             "Bal. Source Type" := "Bal. Source Type"::Vendor;
             "Bal. Source No." := BuyFromVendor."No.";
             "Debit Acc. No." := GLAccount."No.";
-            Insert;
+            Insert();
         end;
 
         // delete all invoice lines from intermediate table
@@ -1314,7 +1314,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
 
         // Verify
-        AssertExpectedError(DataExch, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
+        AssertExpectedError(DataExch, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr());
     end;
 
     [Test]
@@ -1337,7 +1337,7 @@ codeunit 139157 "Invoice Premapping Tests"
         CODEUNIT.Run(CODEUNIT::"Pre-map Incoming Purch. Doc", DataExch);
 
         // Verify
-        AssertExpectedError(DataExch, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr);
+        AssertExpectedError(DataExch, PreMapIncomingPurchDoc.ConstructDocumenttypeUnknownErr());
     end;
 
     [Test]
@@ -2391,13 +2391,13 @@ codeunit 139157 "Invoice Premapping Tests"
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
         ErrorMessage.SetFilter(Description, ExpectedError);
-        Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo(ExpectedErrorMsgNotFoundErr, ExpectedError, ErrorMessage.TableCaption));
+        Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo(ExpectedErrorMsgNotFoundErr, ExpectedError, ErrorMessage.TableCaption()));
         ErrorMessages.Trap;
         ErrorMessage.SetContext(IncomingDocument);
         ErrorMessage.ShowErrorMessages(false);
         ErrorMessages.FindFirstField(Description, ExpectedError);
         ErrorMessages.Source.DrillDown;
-        ErrorMessages.Close;
+        ErrorMessages.Close();
     end;
 
     [PageHandler]
@@ -2461,7 +2461,7 @@ codeunit 139157 "Invoice Premapping Tests"
             if FindLast() then
                 LastLineNo := "Line No.";
 
-            Init;
+            Init();
             Validate("Line No.", LastLineNo + 1);
             Validate("Mapping Text", Keyword);
             LibraryERM.CreateGLAccount(GLAccount);

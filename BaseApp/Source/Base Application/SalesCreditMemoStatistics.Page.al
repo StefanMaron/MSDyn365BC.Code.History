@@ -147,7 +147,7 @@ page 398 "Sales Credit Memo Statistics"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupAdjmtValueEntries;
+                        LookupAdjmtValueEntries();
                     end;
                 }
             }
@@ -184,17 +184,17 @@ page 398 "Sales Credit Memo Statistics"
             group(WHT)
             {
                 Caption = 'WHT';
-                field("Rem. WHT Prepaid Amount (LCY)"; "Rem. WHT Prepaid Amount (LCY)")
+                field("Rem. WHT Prepaid Amount (LCY)"; Rec."Rem. WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining WHT Amount which is to be realized (deducted) for this Credit Memo.';
                 }
-                field("Paid WHT Prepaid Amount (LCY)"; "Paid WHT Prepaid Amount (LCY)")
+                field("Paid WHT Prepaid Amount (LCY)"; Rec."Paid WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the paid (realized) WHT amount for this credit memo.';
                 }
-                field("Total WHT Prepaid Amount (LCY)"; "Total WHT Prepaid Amount (LCY)")
+                field("Total WHT Prepaid Amount (LCY)"; Rec."Total WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total withholding tax for the credit memo.';
@@ -209,7 +209,7 @@ page 398 "Sales Credit Memo Statistics"
 
     trigger OnAfterGetRecord()
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -228,7 +228,7 @@ page 398 "Sales Credit Memo Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", CustAmount, "Currency Factor");
+                WorkDate(), "Currency Code", CustAmount, "Currency Factor");
 
         ProfitLCY := AmountLCY - CostLCY;
 
@@ -264,8 +264,6 @@ page 398 "Sales Credit Memo Statistics"
     end;
 
     var
-        Text000: Label 'VAT Amount';
-        Text001: Label '%1% VAT';
         CurrExchRate: Record "Currency Exchange Rate";
         Cust: Record Customer;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
@@ -285,6 +283,9 @@ page 398 "Sales Credit Memo Statistics"
         CreditLimitLCYExpendedPct: Decimal;
         VATpercentage: Decimal;
         VATAmountText: Text[30];
+
+        Text000: Label 'VAT Amount';
+        Text001: Label '%1% VAT';
 
     protected var
         Currency: Record Currency;

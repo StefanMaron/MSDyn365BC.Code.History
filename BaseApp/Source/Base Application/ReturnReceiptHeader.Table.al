@@ -33,26 +33,10 @@ table 6660 "Return Receipt Header"
         field(7; "Bill-to Address"; Text[100])
         {
             Caption = 'Bill-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(8; "Bill-to Address 2"; Text[50])
         {
             Caption = 'Bill-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(9; "Bill-to City"; Text[30])
         {
@@ -63,14 +47,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(10; "Bill-to Contact"; Text[100])
         {
@@ -96,26 +72,10 @@ table 6660 "Return Receipt Header"
         field(15; "Ship-to Address"; Text[100])
         {
             Caption = 'Ship-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(16; "Ship-to Address 2"; Text[50])
         {
             Caption = 'Ship-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(17; "Ship-to City"; Text[30])
         {
@@ -126,14 +86,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(18; "Ship-to Contact"; Text[100])
         {
@@ -331,26 +283,10 @@ table 6660 "Return Receipt Header"
         field(81; "Sell-to Address"; Text[100])
         {
             Caption = 'Sell-to Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(82; "Sell-to Address 2"; Text[50])
         {
             Caption = 'Sell-to Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(83; "Sell-to City"; Text[30])
         {
@@ -361,14 +297,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(84; "Sell-to Contact"; Text[100])
         {
@@ -383,14 +311,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
-                  "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
-            end;
         }
         field(86; "Bill-to County"; Text[30])
         {
@@ -411,14 +331,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
-                  "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
-            end;
         }
         field(89; "Sell-to County"; Text[30])
         {
@@ -439,14 +351,6 @@ table 6660 "Return Receipt Header"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Sales Header", GetPosition, 1,
-                  "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
-                  "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
-            end;
         }
         field(92; "Ship-to County"; Text[30])
         {
@@ -691,26 +595,16 @@ table 6660 "Return Receipt Header"
         SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeletePostedApprovalEntries(RecordId);
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Return Receipt Header", xRec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Return Receipt Header", xRec.GetPosition,
-          DATABASE::"Return Receipt Header", GetPosition);
     end;
 
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         SalesCommentLine: Record "Sales Comment Line";
-        PostCode: Record "Post Code";
         PostSalesLinesDelete: Codeunit "PostSales-Delete";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
         Text001: Label 'Posted Document Dimensions';
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure GetCustomerVATRegistrationNumber(): Text
     begin
@@ -789,7 +683,7 @@ table 6660 "Return Receipt Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption, "No.", Text001));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 - %3', TableCaption(), "No.", Text001));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -801,9 +695,9 @@ table 6660 "Return Receipt Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;

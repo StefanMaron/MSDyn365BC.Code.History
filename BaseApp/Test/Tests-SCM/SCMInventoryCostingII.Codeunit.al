@@ -1272,7 +1272,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PostPurchasePartialReceiptWithChargeAssignment(PurchaseLine, ExpdAssignableAmount, 2, true, false);
         PreparePartialReceiptInvoice(PurchaseLine, 1, 1);
         PostPurchasePartialReceiptWithChargeAssignment(PurchaseLine, ExpdAssignableAmount, 2, false, true);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
 
         PreparePartialReceiptInvoice(PurchaseLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
@@ -1386,7 +1386,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesLine.ShowItemChargeAssgnt();
 
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", true, false);
-        SalesLine.Find;
+        SalesLine.Find();
 
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
@@ -1394,7 +1394,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", false, true);
 
-        SalesLine.Find;
+        SalesLine.Find();
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
         SalesLine.ShowItemChargeAssgnt();
@@ -1655,7 +1655,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Initialize();
 
         // [GIVEN] Currency "FCY". The exchange rate is 1 "FCY" = 6.67 LCY.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1 / 6.67, 1 / 6.67);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
         VendorNo := LibraryPurchase.CreateVendorNo();
@@ -1681,7 +1681,7 @@ codeunit 137287 "SCM Inventory Costing II"
               ItemChargeAssignmentPurch, PurchaseLine, ItemCharge, ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt,
               PurchRcptLine."Document No.", PurchRcptLine."Line No.", Item."No.", 0.5, 1);
             ItemChargeAssignmentPurch.Insert(true);
-            PurchRcptLine.Next;
+            PurchRcptLine.Next();
         end;
 
         // [WHEN] Post the purchase invoice.
@@ -1713,7 +1713,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Initialize();
 
         // [GIVEN] Currency "FCY". The exchange rate is 1 "FCY" = 6.67 LCY.
-        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 1 / 6.67, 1 / 6.67);
+        CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1 / 6.67, 1 / 6.67);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItemCharge(ItemCharge);
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -1739,7 +1739,7 @@ codeunit 137287 "SCM Inventory Costing II"
               ItemChargeAssignmentSales, SalesLine, ItemCharge, ItemChargeAssignmentSales."Applies-to Doc. Type"::Shipment,
               SalesShipmentLine."Document No.", SalesShipmentLine."Line No.", Item."No.", 0.5, 1);
             ItemChargeAssignmentSales.Insert(true);
-            SalesShipmentLine.Next;
+            SalesShipmentLine.Next();
         end;
 
         // [WHEN] Post the sales invoice.
@@ -2183,7 +2183,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         LibraryERM.CreateReasonCode(ReasonCode);
         with PurchaseHeader do begin
-            Find;
+            Find();
             Validate("Reason Code", ReasonCode.Code);
             Modify(true);
         end;
@@ -2451,7 +2451,7 @@ codeunit 137287 "SCM Inventory Costing II"
             Modify(true);
         end;
         CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
-        GLAccount.Get(CustomerPostingGroup.GetInvRoundingAccount);
+        GLAccount.Get(CustomerPostingGroup.GetInvRoundingAccount());
         GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         GLAccount.Modify(true);
 
@@ -2473,7 +2473,7 @@ codeunit 137287 "SCM Inventory Costing II"
         StandardCostWorksheet."No.".SetValue(ItemNo);
         StandardCostWorksheet."Standard Cost".SetValue(StandardCost);
         StandardCostWorksheet."New Standard Cost".SetValue(NewStandardCost);
-        StandardCostWorksheet.Next;
+        StandardCostWorksheet.Next();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -2715,7 +2715,7 @@ codeunit 137287 "SCM Inventory Costing II"
         AssignItemChargeWithSuggest(ExpdAssignableAmount, MenuOption);
         PurchaseLine.ShowItemChargeAssgnt();
         PostPurchaseDocument(PurchaseLine."Document Type", PurchaseLine."Document No.", PostReceipt, PostInvoice);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
     end;
 
     local procedure PostSalesPartialShipmentWithChargeAssignment(var SalesLine: Record "Sales Line"; ExpdAssignableAmount: Decimal; MenuOption: Integer; PostShipment: Boolean; PostInvoice: Boolean)
@@ -2723,7 +2723,7 @@ codeunit 137287 "SCM Inventory Costing II"
         AssignItemChargeWithSuggest(ExpdAssignableAmount, MenuOption);
         SalesLine.ShowItemChargeAssgnt();
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", PostShipment, PostInvoice);
-        SalesLine.Find;
+        SalesLine.Find();
     end;
 
     local procedure PostSalesAndPurchaseDocumentForChargeItem(var PurchaseHeader: Record "Purchase Header"; PurchaseDocumentType: Enum "Purchase Document Type"; SalesDocumentType: Enum "Sales Document Type")
@@ -2811,9 +2811,9 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Exact Cost Reversing Mandatory", NewValue);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2822,9 +2822,9 @@ codeunit 137287 "SCM Inventory Costing II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Adjustment Mandatory", NewValue);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2863,14 +2863,14 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do
             with ItemLedgerEntry do begin
-                Init;
+                Init();
                 RecRef.GetTable(ItemLedgerEntry);
                 "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
                 "Source Type" := "Source Type"::Customer;
                 "Source No." := CustomerNo;
                 "Global Dimension 1 Code" := DimValue1;
                 "Global Dimension 2 Code" := DimValue2;
-                Insert;
+                Insert();
                 ExpectedResult := ExpectedResult + MockValueEntries("Entry No.", "Source Type", "Source No.", DimValue1, DimValue2);
             end;
     end;
@@ -2878,13 +2878,13 @@ codeunit 137287 "SCM Inventory Costing II"
     local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Enum "Res. Journal Line Entry Type"; CustomerNo: Code[20])
     begin
         with ResLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(ResLedgerEntry, FieldNo("Entry No."));
             "Entry Type" := EntryType;
             "Source Type" := "Source Type"::Customer;
             "Source No." := CustomerNo;
             "Total Cost" := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2896,7 +2896,7 @@ codeunit 137287 "SCM Inventory Costing II"
     begin
         with ValueEntry do
             for Cnt := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
-                Init;
+                Init();
                 RecRef.GetTable(ValueEntry);
                 "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
                 "Source Type" := SourceType;
@@ -2906,7 +2906,7 @@ codeunit 137287 "SCM Inventory Costing II"
                 "Cost Amount (Non-Invtbl.)" := LibraryRandom.RandInt(100);
                 ExpectedResult := ExpectedResult + "Cost Amount (Non-Invtbl.)";
                 "Item Ledger Entry No." := ItemLedgerEntryNo;
-                Insert;
+                Insert();
             end;
     end;
 
@@ -3050,18 +3050,16 @@ codeunit 137287 "SCM Inventory Costing II"
     [Scope('OnPrem')]
     procedure SuggstItemChargeAssgntSalesHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     var
-        Suggest: Variant;
-        ExpdAssignableAmount: Variant;
+        ExpdAssignableAmount: Decimal;
         RequireSuggest: Boolean;
-        ActualAssignableAmount: Text;
+        ActualAssignableAmount: Decimal;
     begin
-        LibraryVariableStorage.Dequeue(Suggest);
-        LibraryVariableStorage.Dequeue(ExpdAssignableAmount);
-        ActualAssignableAmount := ItemChargeAssignmentSales.AssignableAmount.Value;
-        RequireSuggest := Suggest;
+        RequireSuggest := LibraryVariableStorage.DequeueBoolean();
+        ExpdAssignableAmount := LibraryVariableStorage.DequeueDecimal();
+        ActualAssignableAmount := ItemChargeAssignmentSales.AssignableAmount.AsDecimal();
         if RequireSuggest then
             ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;
-        Assert.AreEqual(Format(ExpdAssignableAmount), ActualAssignableAmount, AssignableAmountErr);
+        Assert.AreEqual(ExpdAssignableAmount, ActualAssignableAmount, AssignableAmountErr);
         ItemChargeAssignmentSales.RemAmountToAssign.AssertEquals(0);
         ItemChargeAssignmentSales.OK.Invoke;
     end;

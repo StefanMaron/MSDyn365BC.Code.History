@@ -15,7 +15,7 @@ report 5207 "Employee - Addresses"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_TABLECAPTION__________EmployeeFilter; TableCaption + ': ' + EmployeeFilter)
@@ -27,7 +27,7 @@ report 5207 "Employee - Addresses"
             column(Employee__No__; "No.")
             {
             }
-            column(FullName; FullName)
+            column(FullName; FullName())
             {
             }
             column(Employee_Address; Address)
@@ -94,7 +94,7 @@ report 5207 "Employee - Addresses"
 
     trigger OnPreReport()
     begin
-        EmployeeFilter := Employee.GetFilters;
+        EmployeeFilter := Employee.GetFilters();
     end;
 
     var

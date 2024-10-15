@@ -473,7 +473,7 @@ codeunit 141012 "ERM WHT"
         // [THEN] 2 Bank Account Ledger entries created (FCY & LCY). WHT is not taken into account.
         VerifyAmountOnBankLedgerEntry(
           GenJournalLine."Document No.",
-          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate),
+          LibraryERM.ConvertCurrency(GenJournalLine.Amount, CurrencyCode, '', WorkDate()),
           GenJournalLine."Account No.");
         VerifyAmountOnBankLedgerEntry(GenJournalLine."Document No.", -GenJournalLine.Amount, GenJournalLine."Bal. Account No.");
     end;
@@ -2402,7 +2402,7 @@ codeunit 141012 "ERM WHT"
 
     local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"): Code[20]
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
@@ -2434,7 +2434,7 @@ codeunit 141012 "ERM WHT"
         repeat
             GenProductPostingGroup.Get(GeneralPostingSetup."Gen. Prod. Posting Group");
             GenProductPostingGroup.Delete();
-        until GeneralPostingSetup.Next = 0;
+        until GeneralPostingSetup.Next() = 0;
 
         GenBusinessPostingGroup.Get(GeneralPostingSetup."Gen. Bus. Posting Group");
         GenBusinessPostingGroup.Delete();
@@ -2570,7 +2570,7 @@ codeunit 141012 "ERM WHT"
             i += 1;
             Assert.AreNearlyEqual(
               Amounts.Get(i), GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amounts.Get(i)));
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyAmountOnGLEntries(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal; Amount2: Decimal)
@@ -2705,8 +2705,8 @@ codeunit 141012 "ERM WHT"
 
         repeat
             WHTEntry.TestField(Amount, -GLEntry.Amount);
-            WHTEntry.Next;
-        until GLEntry.Next = 0;
+            WHTEntry.Next();
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyPrepmtAndFinalInvoiceWithTwoItemsDiffSetup(PurchaseLine: array[2] of Record "Purchase Line"; PrepaymentNo: Code[20]; InvoiceNo: Code[20]; VendorNo: Code[20]; PurchPrepmtAccNo: array[2] of Code[20])

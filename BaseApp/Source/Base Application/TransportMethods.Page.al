@@ -1,6 +1,6 @@
 page 309 "Transport Methods"
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = BasicEU, BasicNO;
     Caption = 'Transport Methods';
     PageType = List;
     SourceTable = "Transport Method";
@@ -15,12 +15,12 @@ page 309 "Transport Methods"
                 ShowCaption = false;
                 field("Code"; Code)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a code for the transport method.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     ToolTip = 'Specifies a description of the transport method.';
                 }
             }
@@ -44,4 +44,3 @@ page 309 "Transport Methods"
     {
     }
 }
-

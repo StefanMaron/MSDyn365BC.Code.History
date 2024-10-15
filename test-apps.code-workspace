@@ -34,6 +34,9 @@
       "path": "./testframework/TestLibraries"
     },
     {
+      "path": "./testframework/teststabilitytools"
+    },
+    {
       "path": "./testframework/TestRunner/Test Runner"
     },
     {
@@ -41,6 +44,9 @@
     },
     {
       "path": "./testframework/performancetoolkit/Performance Toolkit Tests/src/Mock Tests"
+    },
+    {
+      "path": "./DataSearch/test/Data Search Tests"
     },
     {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
@@ -200,11 +206,11 @@
     }
   ],
   "settings": {
+    "allint.enabled": false,
+    "al.enableCodeActions": false,
     "search.exclude": {
       "**.xlf": true
     },
-    "allint.enabled": false,
-    "al.enableCodeActions": false,
     "al.enableCodeAnalysis": false
   }
 }

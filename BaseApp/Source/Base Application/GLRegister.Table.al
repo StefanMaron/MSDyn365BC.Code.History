@@ -117,7 +117,7 @@
 
     procedure Initialize(NextRegNo: Integer; FromEntryNo: Integer; FromVATEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10]; TemplateName: Code[10])
     begin
-        Init;
+        Init();
         OnInitializeOnAfterGLRegisterInit(Rec, TemplateName);
         "No." := NextRegNo;
         "Creation Date" := Today;

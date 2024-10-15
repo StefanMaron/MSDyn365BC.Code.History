@@ -91,7 +91,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := 'ChangeLocCheckDueDateNoLineUpd';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         AsmHeader.Validate("Due Date", GetDate('1M', AsmHeader."Due Date"));
         AsmHeader.Modify(true);
         OldDueDate := AsmHeader."Due Date";
@@ -133,7 +133,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := 'ChangeLocCheckDueDateLineUpd';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         AsmHeader.Validate("Due Date", GetDate('1M', AsmHeader."Due Date"));
         AsmHeader.Modify(true);
         OldDueDate := AsmHeader."Due Date";
@@ -176,7 +176,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := 'ValidateLocAfterSKUNewDueDate';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         AsmHeader.Validate("Due Date", GetDate('1M', AsmHeader."Due Date"));
         AsmHeader.Modify(true);
 
@@ -226,7 +226,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := 'ChangeVariantNoLocUpdConfirm';
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
 
         // set a variant and location SKU with no lead time.
         Step := 2;
@@ -260,7 +260,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := TestDataConsistencyCheck;
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
 
         // change location code on the header
         Step := 2;
@@ -287,7 +287,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockAsmItem(ParentItem, ChildItem, 1);
         AddItemToInventory(ChildItem, '', '', 1);
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
 
         // create parent of parent item
         MockItem(ParentParentItem);
@@ -321,7 +321,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockAsmItem(ParentItem, ChildItem, 2);
         Step := 1;
         // Create a new assembly order for the new item. Qty = 2
-        MockAsmOrder(AsmHeader, ParentItem, 2, WorkDate, ''); // avail warning should open
+        MockAsmOrder(AsmHeader, ParentItem, 2, WorkDate(), ''); // avail warning should open
         Step := 2;
         // Select Unit of measure field on the assembly order header and without changing something, press tab.
         AsmHeader.Validate("Unit of Measure Code"); // should not open avail warning
@@ -344,7 +344,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Add 2 PCS of component to inventory
         AddItemToInventory(ChildItem, '', '', 2);
         // Create assembly order. Qty = 1
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         // Change the Qty per on the line to 3.
         AsmLine.Validate("Quantity per", 3);
@@ -372,7 +372,7 @@ codeunit 137912 "SCM Assembly Availability II"
         MockAsmItem(ParentItem, ChildItem, 1);
         Step := 1;
         // Create assembly order. Qty = 1
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Step := 2;
         // Change the Qty per on the line to 3.
@@ -430,14 +430,14 @@ codeunit 137912 "SCM Assembly Availability II"
         MfgSetup.Validate("Default Safety Lead Time", DTFormula);
         MfgSetup.Modify(true);
         // Create asm order for KIT with due date = WorkDate, Location=Blank.
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
-        Assert.AreEqual(WorkDate, AsmHeader."Due Date", 'Due Date = WorkDate');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
+        Assert.AreEqual(WorkDate(), AsmHeader."Due Date", 'Due Date = WorkDate');
         Evaluate(DTFormula, '-2D');
-        Assert.AreEqual(CalcDate(DTFormula, WorkDate), AsmHeader."Ending Date", 'Ending Date = WorkDate - 2D');
+        Assert.AreEqual(CalcDate(DTFormula, WorkDate()), AsmHeader."Ending Date", 'Ending Date = WorkDate - 2D');
         Assert.AreEqual(AsmHeader."Ending Date", AsmHeader."Starting Date", 'Starting Date = Ending Date');
         // Change location code on header = BLUE
         AsmHeader.Validate("Location Code", Location.Code);
-        Assert.AreEqual(WorkDate, AsmHeader."Due Date", 'Due Date = WorkDate');
+        Assert.AreEqual(WorkDate(), AsmHeader."Due Date", 'Due Date = WorkDate');
         Evaluate(DTFormula, '-3D');
         Assert.AreEqual(
           CalcDate(DTFormula, AsmHeader."Due Date"), AsmHeader."Ending Date", 'Ending Date = Due date - 3D (SKU safety lead time)');
@@ -450,7 +450,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Change due date on header = WORKDATE + 1M
         Step := 1;
         Evaluate(DTFormula, '+1M');
-        AsmHeader.Validate("Due Date", CalcDate(DTFormula, WorkDate));
+        AsmHeader.Validate("Due Date", CalcDate(DTFormula, WorkDate()));
         Evaluate(DTFormula, '-3D');
         Assert.AreEqual(
           CalcDate(DTFormula, AsmHeader."Due Date"), AsmHeader."Ending Date", 'Ending Date = Due date - 3D (SKU safety lead time)');
@@ -461,7 +461,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Change starting date to WORKDATE - 2D
         Step := 2;
         Evaluate(DTFormula, '-2D');
-        NewStartDate2 := CalcDate(DTFormula, WorkDate);
+        NewStartDate2 := CalcDate(DTFormula, WorkDate());
         Evaluate(DTFormula, '+4D');
         NewEndDate2 := CalcDate(DTFormula, NewStartDate2);
         Evaluate(DTFormula, '+3D');
@@ -472,9 +472,9 @@ codeunit 137912 "SCM Assembly Availability II"
         Assert.AreEqual(NewDueDate, AsmHeader."Due Date", 'Due Date = Ending date + 3D (SKU safety lead time)');
         // Change Due date to WORKDATE and then Change Ending Date to WORKDATE.
         Step := 3;
-        AsmHeader.Validate("Due Date", WorkDate);
+        AsmHeader.Validate("Due Date", WorkDate());
         Step := 4;
-        NewEndDate2 := WorkDate;
+        NewEndDate2 := WorkDate();
         Evaluate(DTFormula, '-4D');
         NewStartDate2 := CalcDate(DTFormula, NewEndDate2);
         Evaluate(DTFormula, '+3D');
@@ -507,18 +507,18 @@ codeunit 137912 "SCM Assembly Availability II"
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
         // Make purchase order for 10 PCS with expected rcpt date = workdate + 1M
-        MockPurchOrder(ChildItem."No.", 10, '', CalcDate('<+1M>', WorkDate));
+        MockPurchOrder(ChildItem."No.", 10, '', CalcDate('<+1M>', WorkDate()));
         // Create assembly order. Qty = 1
         Step := 1;
         MfgSetup.Get();
-        MockAsmOrder(AsmHeader, ParentItem, 1, CalcDate(MfgSetup."Default Safety Lead Time", WorkDate), ''); // to avoid the message about due date being before work date
+        MockAsmOrder(AsmHeader, ParentItem, 1, CalcDate(MfgSetup."Default Safety Lead Time", WorkDate()), ''); // to avoid the message about due date being before work date
         Step := 2;
         // Set due date on the line to 1W before the expected rcpt date of the purchase
-        AsmHeader.Validate("Starting Date", CalcDate('<+1M-1W>', WorkDate));
+        AsmHeader.Validate("Starting Date", CalcDate('<+1M-1W>', WorkDate()));
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get the only line
         Assert.AreEqual(true, AsmLine."Avail. Warning", '');
         // Set due date on the line to 1W after the expected rcpt date of the purchase
-        AsmHeader.Validate("Starting Date", CalcDate('<+1M+1W>', WorkDate));
+        AsmHeader.Validate("Starting Date", CalcDate('<+1M+1W>', WorkDate()));
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get the only line
         Assert.AreEqual(false, AsmLine."Avail. Warning", '');
     end;
@@ -559,8 +559,8 @@ codeunit 137912 "SCM Assembly Availability II"
         Initialize();
         TestMethodName := TestVSTF257960A;
         Step := 0;
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate('<CY-1Y+7D>', WorkDate);
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<CY-1Y+7D>', WorkDate());
 
         // SETUP
         Evaluate(SafetyLeadTime, '<1D>');
@@ -582,7 +582,7 @@ codeunit 137912 "SCM Assembly Availability II"
         // Create asm order for KIT with due date = WORKDATE + 8D
         Step := 1;
         Evaluate(DTFormula, '<+8D>');
-        ExpDueDate := CalcDate(DTFormula, WorkDate);
+        ExpDueDate := CalcDate(DTFormula, WorkDate());
         MockAsmOrder(AsmHeader, ParentItem, 1, ExpDueDate, Location.Code);
         ExpEndDate := ShiftDateBackBy(SafetyLeadTime, ExpDueDate);
         ExpStartDate := ShiftDateBackBy(LeadTimeCalc, ExpEndDate);
@@ -689,7 +689,7 @@ codeunit 137912 "SCM Assembly Availability II"
 
         // Set start date = WorkDate and verify message coming up
         Step := 9;
-        ExpStartDate := WorkDate;
+        ExpStartDate := WorkDate();
         ExpEndDate := CalcDate(LeadTimeCalc, ExpStartDate);
         ExpDueDate := CalcDate(SafetyLeadTime, ExpEndDate);
         ExpLineDueDate := ShiftDateBackBy(LeadTimeOffset, ExpStartDate);
@@ -704,7 +704,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader.Get(AsmHeader."Document Type", AsmHeader."No.");
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         Evaluate(DTFormula, '<-1D>');
-        ExpLineDueDate := CalcDate(DTFormula, WorkDate);
+        ExpLineDueDate := CalcDate(DTFormula, WorkDate());
         AsmLine.Validate("Due Date", ExpLineDueDate);
         AsmLine.Modify(true);
         VSTF257960AVerifyDates(AsmHeader, SavedDueDate, SavedEndDate, SavedStartDate, ExpLineDueDate);
@@ -751,7 +751,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AddItemToInventory(ChildItem, Location.Code, '', 1);
         // Create asm order for 1 PCS of Parent on Location 1
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, ''); // expected message about Due Date before work date from header only
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), ''); // expected message about Due Date before work date from header only
         Step := 2;
         AsmHeader.Validate("Location Code", Location.Code); // expected message about Due Date before work date from header only
     end;
@@ -764,7 +764,7 @@ codeunit 137912 "SCM Assembly Availability II"
         DTFormula: DateFormula;
     begin
         Evaluate(DTFormula, '<-1D>');
-        MessageTextFromHeader := StrSubstNo(MsgDueDateBeforeWDFromHeader, CalcDate(DTFormula, WorkDate), WorkDate);
+        MessageTextFromHeader := StrSubstNo(MsgDueDateBeforeWDFromHeader, CalcDate(DTFormula, WorkDate()), WorkDate());
         case Step of
             1, 2:
                 begin
@@ -803,7 +803,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ParentItem.Modify(true);
         // Create asm order for 1 PCS of Parent
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, ''); // no availability check expected
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), ''); // no availability check expected
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // first line
         // Show availability from line
         Step := 2;
@@ -854,7 +854,7 @@ codeunit 137912 "SCM Assembly Availability II"
         Clear(AsmHeader);
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
         AsmHeader.Insert(true);
-        AsmHeader.Validate("Due Date", WorkDate);
+        AsmHeader.Validate("Due Date", WorkDate());
         AsmHeader.Validate("Location Code", Location.Code);
         AsmHeader.Validate("Item No.", ParentItem."No.");
         AsmHeader.Validate(Quantity, 1);
@@ -872,7 +872,7 @@ codeunit 137912 "SCM Assembly Availability II"
 
     local procedure ShiftDateBackBy(Offset: DateFormula; RefDate: Date): Date
     begin
-        exit(RefDate - (CalcDate(Offset, WorkDate) - WorkDate));
+        exit(RefDate - (CalcDate(Offset, WorkDate()) - WorkDate()));
     end;
 
     local procedure SetGlobalDates(AsmHeader: Record "Assembly Header"; NewDueDate2: Date; NewEndDate2: Date; NewStartDate2: Date; NewLineDueDate2: Date)
@@ -977,8 +977,8 @@ codeunit 137912 "SCM Assembly Availability II"
         MessageTextFromHeader: Text[1024];
         MessageTextFromLine: Text[1024];
     begin
-        MessageTextFromHeader := StrSubstNo(MsgDueDateBeforeWDFromHeader, NewLineDueDate, WorkDate);
-        MessageTextFromLine := StrSubstNo(MsgDueDateBeforeWDFromLine, NewLineDueDate, WorkDate);
+        MessageTextFromHeader := StrSubstNo(MsgDueDateBeforeWDFromHeader, NewLineDueDate, WorkDate());
+        MessageTextFromLine := StrSubstNo(MsgDueDateBeforeWDFromLine, NewLineDueDate, WorkDate());
         case TestMethodName of
             TestVSTF257960A:
                 case Step of
@@ -1183,11 +1183,11 @@ codeunit 137912 "SCM Assembly Availability II"
         AddItemToInventory(ChildItem, Location.Code, '', 2);
 
         // Create supply for next month for 10 PCS of child
-        MockPurchOrder(ChildItem."No.", 10, Location.Code, CalcDate('<+1M>', WorkDate));
+        MockPurchOrder(ChildItem."No.", 10, Location.Code, CalcDate('<+1M>', WorkDate()));
 
         // Create asm order
         Step := 1;
-        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate, '');
+        MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         Step := 2;
         AsmHeader.Validate("Location Code", Location.Code);
         AsmHeader.Modify(true);
@@ -1205,7 +1205,7 @@ codeunit 137912 "SCM Assembly Availability II"
         asserterror AsmHeader.Validate("Unit of Measure Code", UnitOfMeasure.Code); // avail warning should open - make check
         Assert.IsTrue(StrPos(GetLastErrorText, ErrUpdateInterrupted) > 0, 'Error expected: ' + ErrUpdateInterrupted +
           '; Actual: ' + GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // set data back to original
         MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
@@ -1219,7 +1219,7 @@ codeunit 137912 "SCM Assembly Availability II"
         ExpectedPageToAppear: Boolean;
     begin
         if Step = 3 then
-            CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, CalcDate('<+1M>', WorkDate),
+            CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, CalcDate('<+1M>', WorkDate()),
               2 / 5, 0, 0, 0); // (2 / 5) because 2 are in inventory & 5 is Qty per UOM
         if not ExpectedPageToAppear then
             Assert.Fail('Availability warning should not appear on Step = ' + Format(Step));
@@ -1245,9 +1245,9 @@ codeunit 137912 "SCM Assembly Availability II"
         MfgSetup.Modify(true);
 
         // Steps 1 to 3 are for case when no other demand exists
-        SupplyDate1 := GetDate('-1W', WorkDate);
+        SupplyDate1 := GetDate('-1W', WorkDate());
         SupplyQty1 := 2;
-        SupplyDate2 := GetDate('+3W', WorkDate);
+        SupplyDate2 := GetDate('+3W', WorkDate());
         SupplyQty2 := 4;
 
         Step := 1; // Asm order created before 1st supply
@@ -1363,7 +1363,7 @@ codeunit 137912 "SCM Assembly Availability II"
             end;
             Assert.AreEqual('', GetLastErrorText, 'Unexpected error: ' + GetLastErrorText);
         end;
-        ClearLastError;
+        ClearLastError();
     end;
 
     [ModalPageHandler]

@@ -168,10 +168,9 @@ report 1405 "Bank Account - Labels"
                         BankAccBarCode[i] := '';
                     end;
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
 
                 if Counter = RecPerPageNum * NoOfColumns then begin
                     GroupNo := GroupNo + 1;

@@ -1,7 +1,7 @@
 table 7014 "Purchase Line Discount"
 {
     Caption = 'Purchase Line Discount';
-#if not CLEAN19
+#if not CLEAN21
     LookupPageID = "Purchase Line Discounts";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';

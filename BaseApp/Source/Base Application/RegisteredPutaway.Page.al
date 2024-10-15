@@ -14,55 +14,55 @@ page 5795 "Registered Put-away"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Whse. Activity No."; "Whse. Activity No.")
+                field("Whse. Activity No."; Rec."Whse. Activity No.")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the warehouse activity number from which the activity was registered.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location in which the registered warehouse activity occurred.';
                 }
-                field("Registering Date"; "Registering Date")
+                field("Registering Date"; Rec."Registering Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date the line is registered.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
-                field("Assignment Date"; "Assignment Date")
+                field("Assignment Date"; Rec."Assignment Date")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the date when the user was assigned the activity.';
                 }
-                field("Assignment Time"; "Assignment Time")
+                field("Assignment Time"; Rec."Assignment Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the time when the user was assigned the activity.';
                 }
-                field("Sorting Method"; "Sorting Method")
+                field("Sorting Method"; Rec."Sorting Method")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
                     ToolTip = 'Specifies the method by which the lines were sorted on the warehouse header, such as by item, or bin code.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
@@ -129,7 +129,7 @@ page 5795 "Registered Put-away"
 
     trigger OnOpenPage()
     begin
-        SetWhseLocationFilter;
+        SetWhseLocationFilter();
     end;
 }
 

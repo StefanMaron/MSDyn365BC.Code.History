@@ -571,7 +571,7 @@ codeunit 137010 "SCM Revaluation"
         CreateItemJournalBatch(ItemJournalBatch);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
-        CalculateInventoryValue.InitializeRequest(WorkDate, ItemJournalLine."Document No.",
+        CalculateInventoryValue.InitializeRequest(WorkDate(), ItemJournalLine."Document No.",
           true, CalculatePer::Item, false, false, true, CalculationBase::" ", false);
         Commit();
         CalculateInventoryValue.UseRequestPage(false);
@@ -628,7 +628,7 @@ codeunit 137010 "SCM Revaluation"
         ValueEntry.FindSet();
         repeat
             CostPostedGL += ValueEntry."Cost Posted to G/L";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     [Normal]
@@ -643,7 +643,7 @@ codeunit 137010 "SCM Revaluation"
         ItemLedgerEntry.FindSet();
         repeat
             Inventory += ItemLedgerEntry.Quantity
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         ItemJournalLine.SetRange("Item No.", ItemNo);
         ItemJournalLine.FindFirst();

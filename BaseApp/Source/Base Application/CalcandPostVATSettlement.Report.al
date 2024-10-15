@@ -17,10 +17,10 @@
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(PeriodVATDateFilter; StrSubstNo(Text005, VATDateFilter))
+            column(PeriodVATDateFilter; StrSubstNo(Text005, DateFilter))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PostSettlement; PostSettlement)
@@ -52,12 +52,12 @@
             }
             column(VATAmount; VATAmount)
             {
-                AutoFormatExpression = GetCurrency;
+                AutoFormatExpression = GetCurrency();
                 AutoFormatType = 1;
             }
             column(VATAmountAddCurr; VATAmountAddCurrSales + VATAmountAddCurrPurchase)
             {
-                AutoFormatExpression = GetCurrency;
+                AutoFormatExpression = GetCurrency();
                 AutoFormatType = 1;
             }
             column(CalcandPostVATSettlementCaption; CalcandPostVATSettlementCaptionLbl)
@@ -111,7 +111,7 @@
             column(EntryNoCaption; "VAT Entry".FieldCaption("Entry No."))
             {
             }
-            column(PostingDateCaption; PostingDateCaptionLbl)
+            column(DateCaption; DateCaption)
             {
             }
             dataitem("Closing G/L and VAT Entry"; "Integer")
@@ -135,7 +135,7 @@
                 dataitem("VAT Entry"; "VAT Entry")
                 {
                     DataItemTableView = SORTING(Type, Closed) WHERE(Closed = CONST(false), Type = FILTER(Purchase | Sale));
-                    column(PostingDate_VATEntry; Format("Posting Date"))
+                    column(VATDate_VATEntry; Format(VATEntryDate))
                     {
                     }
                     column(DocumentNo_VATEntry; "Document No.")
@@ -151,12 +151,12 @@
                     }
                     column(Base_VATEntry; Base)
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(Amount_VATEntry; Amount)
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(VATCalcType_VATEntry; "VAT Calculation Type")
@@ -173,32 +173,32 @@
                     }
                     column(UnrealizedAmount_VATEntry; "Unrealized Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(UnrealizedBase_VATEntry; "Unrealized Base")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(AddCurrUnrlzdAmt_VATEntry; "Add.-Currency Unrealized Amt.")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(AddCurrUnrlzdBas_VATEntry; "Add.-Currency Unrealized Base")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(AdditionlCurrAmt_VATEntry; "Additional-Currency Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(AdditinlCurrBase_VATEntry; "Additional-Currency Base")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
 
@@ -207,6 +207,8 @@
                         OnBeforeCheckPrintVATEntries("VAT Entry");
                         if not PrintVATEntries then
                             CurrReport.Skip();
+
+                        SetVATEntryDateValue("VAT Entry", VATEntryDate);
                     end;
 
                     trigger OnPreDataItem()
@@ -226,12 +228,12 @@
                     }
                     column(GenJnlLineVATBaseAmount; GenJnlLine."VAT Base Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(GenJnlLineVATAmount; GenJnlLine."VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(GenJnlLnVATCalcType; Format(GenJnlLine."VAT Calculation Type"))
@@ -242,17 +244,17 @@
                     }
                     column(GenJnlLnSrcCurrVATAmount; GenJnlLine."Source Curr. VAT Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(GenJnlLnSrcCurrVATBaseAmt; GenJnlLine."Source Curr. VAT Base Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(GenJnlLine2Amount; GenJnlLine2.Amount)
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(GenJnlLine2DocumentNo; GenJnlLine2."Document No.")
@@ -263,7 +265,7 @@
                     }
                     column(GenJnlLn2SrcCurrencyAmt; GenJnlLine2."Source Currency Amount")
                     {
-                        AutoFormatExpression = GetCurrency;
+                        AutoFormatExpression = GetCurrency();
                         AutoFormatType = 1;
                     }
                     column(SettlementCaption; SettlementCaptionLbl)
@@ -422,7 +424,6 @@
                                 end;
                         end;
                         VATAmount := VATAmountPurch + VATAmountSale;
-
                         NextVATEntryNo := GetSettlementVATEntryNo(PostSettlement);
 
                         // Close current VAT entries
@@ -436,7 +437,8 @@
                     VATEntry.Reset();
                     VATEntry.SetRange(Type, VATType);
                     VATEntry.SetRange(Closed, false);
-                    VATEntry.SetFilter("Posting Date", VATDateFilter);
+
+                    SetVATEntryDateFilter();                    
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
 
@@ -447,7 +449,7 @@
                         "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
                         "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
                             begin
-                                VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+                                SetVATEntryVATKey();
                                 if FindFirstEntry then begin
                                     if not VATEntry.Find('-') then
                                         repeat
@@ -456,20 +458,19 @@
                                             OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                         until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     FindFirstEntry := false;
-                                end else begin
+                                end else
                                     if VATEntry.Next() = 0 then
                                         repeat
                                             VATType := IncrementGenPostingType(VATType);
                                             VATEntry.SetRange(Type, VATType);
                                             OnClosingGLAndVATEntryOnAfterGetRecordOnNormalVATOnAfterVATEntrySetFilter("VAT Posting Setup", VATType, VATEntry, FindFirstEntry);
                                         until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
-                                end;
                                 if IsNotSettlement(VATType) then
                                     VATEntry.Find('+');
                             end;
                         "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                             begin
-                                VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+                                SetVATEntryTAXKey();
                                 if FindFirstEntry then begin
                                     if not VATEntry.Find('-') then
                                         repeat
@@ -519,7 +520,7 @@
                 end else
                     PostSettlementGenJnlLine(VATAmountPurch + VATAmountSale, VATAmountAddCurrPurchase + VATAmountAddCurrSales);
                 if PostSettlement then
-                    SettleVATReport;
+                    SettleVATReport();
             end;
 
             trigger OnPreDataItem()
@@ -537,6 +538,7 @@
                 VATAmount := 0;
                 VATAmountAddCurrSales := 0;
                 VATAmountAddCurrPurchase := 0;
+                SetDateCaption();
 
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(AllAmountsAreInTxt, GLSetup."Additional Reporting Currency")
@@ -560,6 +562,17 @@
                 group(Options)
                 {
                     Caption = 'Options';
+                    field(VATDateTypeField; VATDateType)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'Period Date Type';
+                        ToolTip = 'Specifies the type of date used for the period from which VAT entries are processed in the batch job.';
+
+                        trigger OnValidate()
+                        begin
+                            SetDateCaption();
+                        end;
+                    }
                     field(StartingDate; EntrdStartDate)
                     {
                         ApplicationArea = Basic, Suite;
@@ -567,7 +580,7 @@
                         Editable = IsEditable;
                         ToolTip = 'Specifies the first date in the period from which VAT entries are processed in the batch job.';
                     }
-                    field(EndDateReq; EndDateReq)
+                    field(EndDateReq; EnteredEndDate)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
@@ -664,29 +677,16 @@
         GSTEnabled := GLSetup.GSTEnabled(PostingDate);
         if PostSettlement and not Initialized then
             if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
-                CurrReport.Quit;
+                CurrReport.Quit();
 
-        VATPostingSetupFilter := "VAT Posting Setup".GetFilters;
-        if EndDateReq = 0D then
-            VATEntry.SetFilter("Posting Date", '%1..', EntrdStartDate)
-        else
-            VATEntry.SetRange("Posting Date", EntrdStartDate, EndDateReq);
-        VATDateFilter := VATEntry.GetFilter("Posting Date");
+        VATPostingSetupFilter := "VAT Posting Setup".GetFilters();
+        CreateVATDateFilter();
         Clear(GenJnlPostLine);
 
         OnAfterPreReport("VAT Entry");
     end;
 
     var
-        Text000: Label 'Enter the posting date.';
-        Text001: Label 'Enter the document no.';
-        Text002: Label 'Enter the settlement account.';
-        Text003: Label 'Do you want to calculate and post the VAT Settlement?';
-        Text004: Label 'VAT Settlement';
-        Text005: Label 'Period: %1';
-        AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
-        Text007: Label 'Purchase VAT settlement: #1######## #2########';
-        Text008: Label 'Sales VAT settlement  : #1######## #2########';
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -698,10 +698,11 @@
         VATReportHeader: Record "VAT Report Header";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         EntrdStartDate: Date;
-        EndDateReq: Date;
+        EnteredEndDate: Date;
         PrintVATEntries: Boolean;
         NextVATEntryNo: Integer;
-        PostingDate: Date;
+        VATDateType: Enum "VAT Date Type";
+        PostingDate, VATEntryDate: Date;
         DocNo: Code[20];
         VATType: Enum "General Posting Type";
         VATAmount: Decimal;
@@ -709,15 +710,24 @@
         VATAmountSale: Decimal;
         VATAmountAddCurrSales: Decimal;
         VATAmountAddCurrPurchase: Decimal;
-        [InDataSet]
-        PostSettlement: Boolean;
         FindFirstEntry: Boolean;
         ReversingEntry: Boolean;
         Initialized: Boolean;
         VATPostingSetupFilter: Text;
-        VATDateFilter: Text;
+        DateFilter: Text;
         UseAmtsInAddCurr: Boolean;
         HeaderText: Text[30];
+        DateCaption: Text[30];
+
+        Text000: Label 'Enter the posting date.';
+        Text001: Label 'Enter the document no.';
+        Text002: Label 'Enter the settlement account.';
+        Text003: Label 'Do you want to calculate and post the VAT Settlement?';
+        Text004: Label 'VAT Settlement';
+        Text005: Label 'Period: %1';
+        AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
+        Text007: Label 'Purchase VAT settlement: #1######## #2########';
+        Text008: Label 'Sales VAT settlement  : #1######## #2########';
         CalcandPostVATSettlementCaptionLbl: Label 'Calc. and Post VAT Settlement';
         PageCaptionLbl: Label 'Page';
         TestReportnotpostedCaptionLbl: Label 'Test Report (Not Posted)';
@@ -726,30 +736,125 @@
         DocumentTypeCaptionLbl: Label 'Document Type';
         UserIDCaptionLbl: Label 'User ID';
         TotalCaptionLbl: Label 'Total';
-        PostingDateCaptionLbl: Label 'Posting Date';
         SettlementCaptionLbl: Label 'Settlement';
+        PostingDateLbl: Label 'Posting Date';
+        VATDateLbl: Label 'VAT Date';
+        DocumentDateLbl: Label 'Document Date';
         GSTEnabled: Boolean;
         [InDataSet]
         IsEditable: Boolean;
 
     protected var
         GLAccSettle: Record "G/L Account";
+        [InDataSet]
+        PostSettlement: Boolean;
 
+#if not CLEAN21
+    [Obsolete('Replaced By InitializeRequest(NewStartDate: Date; NewEndDate: Date; VATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)', '21.0')]
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
         EntrdStartDate := NewStartDate;
-        EndDateReq := NewEndDate;
+        EnteredEndDate := NewEndDate;
         PostingDate := NewPostingDate;
+        VATDateType := VATDateType::"Posting Date";
         DocNo := NewDocNo;
         GLAccSettle."No." := NewSettlementAcc;
         PrintVATEntries := ShowVATEntries;
         PostSettlement := Post;
         Initialized := true;
     end;
+#endif
+
+    procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; VATDateType: Enum "VAT Date Type"; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
+    begin
+        EntrdStartDate := NewStartDate;
+        EnteredEndDate := NewEndDate;
+        PostingDate := NewPostingDate;
+        VATDateType := VATDateType;
+        DocNo := NewDocNo;
+        GLAccSettle."No." := NewSettlementAcc;
+        PrintVATEntries := ShowVATEntries;
+        PostSettlement := Post;
+        Initialized := true;
+        SetDateCaption();
+    end;
 
     procedure InitializeRequest2(NewUseAmtsInAddCurr: Boolean)
     begin
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+    end;
+
+    local procedure SetDateCaption()
+    begin
+        case VATDateType of
+            VATDateType::"Document Date": DateCaption := DocumentDateLbl;
+            VATDateType::"Posting Date": DateCaption := PostingDateLbl;
+            VATDateType::"VAT Reporting Date": DateCaption := VATDateLbl;
+        end;
+    end;
+
+    local procedure SetVATEntryVATKey()
+    begin
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
+            VATDateType::"Posting Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+            VATDateType::"Document Date": VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Date");
+        end
+    end;
+    local procedure SetVATEntryTAXKey()
+    begin
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
+            VATDateType::"Posting Date": VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATDateType::"Document Date": VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Document Date");
+        end
+    end;
+    local procedure SetVATEntryDateFilter()
+    begin
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": VATEntry.SetFilter("VAT Reporting Date", DateFilter);
+            VATDateType::"Posting Date": VATEntry.SetFilter("Posting Date", DateFilter);
+            VATDateType::"Document Date": VATEntry.SetFilter("Document Date", DateFilter);
+        end
+    end;
+
+    local procedure SetVATEntryDateValue(var VATEntry: Record "VAT Entry"; var VATEntryDate: Date)
+    begin
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": VATEntryDate := VATEntry."VAT Reporting Date";
+            VATDateType::"Posting Date": VATEntryDate := VATEntry."Posting Date";
+            VATDateType::"Document Date": VATEntryDate := VATEntry."Document Date";
+        end
+    end;
+
+    local procedure CreateVATDateFilter()
+    begin
+        case VATDateType of 
+            VATDateType::"VAT Reporting Date": 
+            begin
+                if EnteredEndDate = 0D then
+                    VATEntry.SetFilter("VAT Reporting Date", '%1..', EntrdStartDate)
+                else
+                    VATEntry.SetRange("VAT Reporting Date", EntrdStartDate, EnteredEndDate);
+                DateFilter := VATEntry.GetFilter("VAT Reporting Date");
+            end;
+            VATDateType::"Posting Date":
+            begin
+                if EnteredEndDate = 0D then
+                    VATEntry.SetFilter("Posting Date", '%1..', EntrdStartDate)
+                else
+                    VATEntry.SetRange("Posting Date", EntrdStartDate, EnteredEndDate);
+                DateFilter := VATEntry.GetFilter("Posting Date");
+            end;
+            VATDateType::"Document Date":
+            begin
+                if EnteredEndDate = 0D then
+                    VATEntry.SetFilter("Document Date", '%1..', EntrdStartDate)
+                else
+                    VATEntry.SetRange("Document Date", EntrdStartDate, EnteredEndDate);
+                DateFilter := VATEntry.GetFilter("Document Date");
+            end;
+        end
     end;
 
     local procedure GetCurrency(): Code[10]
@@ -821,7 +926,6 @@
         GenJnlLine.Init();
         GenJnlLine."System-Created Entry" := true;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-
         GLAccSettle.TestField("Gen. Posting Type", GenJnlLine."Gen. Posting Type"::" ");
         GLAccSettle.TestField("VAT Bus. Posting Group", '');
         GLAccSettle.TestField("VAT Prod. Posting Group", '');
@@ -829,7 +933,6 @@
             VATPostingSetup.TestField("VAT %", 0);
         GLAccSettle.TestField("Gen. Bus. Posting Group", '');
         GLAccSettle.TestField("Gen. Prod. Posting Group", '');
-
         GenJnlLine.Validate("Account No.", GLAccSettle."No.");
         GenJnlLine."Posting Date" := PostingDate;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
@@ -978,4 +1081,3 @@
     begin
     end;
 }
-

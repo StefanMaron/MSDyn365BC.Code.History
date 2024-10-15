@@ -2,6 +2,14 @@ table 2117 "O365 Posted Coupon Claim"
 {
     Caption = 'O365 Posted Coupon Claim';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -85,7 +93,7 @@ table 2117 "O365 Posted Coupon Claim"
     fieldgroups
     {
     }
-
+#if not CLEAN21
     procedure GetAppliedClaimsForSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header") CouponCodes: Text
     begin
         SetRange("Sales Invoice No.", SalesInvoiceHeader."No.");
@@ -93,10 +101,11 @@ table 2117 "O365 Posted Coupon Claim"
             exit;
 
         CouponCodes := Code;
-        if Next <> 0 then
+        if Next() <> 0 then
             repeat
                 CouponCodes += StrSubstNo(', %1', Code);
             until Next() = 0;
     end;
+#endif
 }
 

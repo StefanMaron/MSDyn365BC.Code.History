@@ -357,7 +357,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GSTSalesEntry.Insert(true);
 
         GSTSalesEntries.OpenView;
-        GSTSalesEntries.Close;
+        GSTSalesEntries.Close();
     end;
 
     local procedure PrepInvFullInv(PrepaymentPercent: Decimal; PricesIncludeVAT: Boolean)
@@ -549,7 +549,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         // Exercise
         PostPrepInvoice(SalesHeader);
         ChangePrepaymentOnHeader(SalesHeader, SalesHeader."Prepayment %" * 3 / 2);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesHeader2 := SalesHeader;
         DocNo := PostPrepInvoice(SalesHeader);
         DocNo2 := PostDocument(SalesHeader);
@@ -583,7 +583,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         // Exercise
         PostPrepInvoice(SalesHeader);
         ChangePrepaymentOnHeader(SalesHeader, SalesHeader."Prepayment %" * 3 / 2);
-        SalesLine.Find;
+        SalesLine.Find();
         SalesHeader2 := SalesHeader;
         PostPrepInvoice(SalesHeader);
         DocNo := PostPrepCreditMemo(SalesHeader);
@@ -615,7 +615,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
         // Exercise
         PostPrepInvoice(SalesHeader);
-        SalesLine.Find;
+        SalesLine.Find();
         ChangeQtyToPostOnLine(SalesLine);
         SalesHeader2 := SalesHeader;
         DocNo := PostDocument(SalesHeader);
@@ -719,15 +719,15 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         // Exercise
         SalesHeader2 := SalesHeader;
         DocNo := PostPrepInvoice(SalesHeader);
-        NewDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate);
+        NewDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate());
         ChangePostingDate(SalesHeader, NewDate);
-        SalesLine.Find;
+        SalesLine.Find();
         DocNo2 := PostDocument(SalesHeader);
 
         // Verify
-        VerifyPrepaymentGLEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate);
-        VerifyPrepaymentVATEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate);
-        InvoicedAmount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate);
+        VerifyPrepaymentGLEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate());
+        VerifyPrepaymentVATEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate());
+        InvoicedAmount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate());
         VerifyInvoiceGLEntriesOnDate(DocNo2, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, NewDate, PrepaymentPercent);
         VerifyInvoiceGLEntriesAfterCurrencyRateChangeGain(
           DocNo2, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, InvoicedAmount, NewDate);
@@ -759,15 +759,15 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         // Exercise
         SalesHeader2 := SalesHeader;
         DocNo := PostPrepInvoice(SalesHeader);
-        NewDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate);
+        NewDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate());
         ChangePostingDate(SalesHeader, NewDate);
-        SalesLine.Find;
+        SalesLine.Find();
         DocNo2 := PostDocument(SalesHeader);
 
         // Verify
-        VerifyPrepaymentGLEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate);
-        VerifyPrepaymentVATEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate);
-        InvoicedAmount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate);
+        VerifyPrepaymentGLEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate());
+        VerifyPrepaymentVATEntriesOnDate(DocNo, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, true, WorkDate());
+        InvoicedAmount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate());
         VerifyInvoiceGLEntriesOnDate(DocNo2, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, NewDate, PrepaymentPercent);
         VerifyInvoiceGLEntriesAfterCurrencyRateChangeLoss(
           DocNo2, GLEntry."Document Type"::Invoice, SalesHeader2, SalesLine, InvoicedAmount, NewDate);
@@ -894,11 +894,11 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         Currency.Validate("Realized Losses Acc.", CreateAccount('', Currency.FieldCaption("Realized Losses Acc.")));
         Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
         Currency.Modify(true);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         Amount := 100;
         RelationalAmount := 100 + LibraryRandom.RandInt(100); // make sure that the relational amount will be positive after changes in exchange rate
         ModifyCurrencyExchangeRate(CurrencyExchangeRate, Amount, RelationalAmount);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate)); // make sure that exchange rate is different on any future date
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, CalcDate('<1D>', WorkDate())); // make sure that exchange rate is different on any future date
         ModifyCurrencyExchangeRate(CurrencyExchangeRate, Amount, RelationalAmount + ExchangeRateChangeSign * LibraryRandom.RandInt(10));
         exit(Currency.Code);
     end;
@@ -1022,7 +1022,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
     local procedure GetPrepaymentAmount(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line") Amount: Decimal
     begin
-        Amount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate);
+        Amount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate());
     end;
 
     local procedure GetPrepaymentAmountOnDate(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Date: Date) Amount: Decimal
@@ -1033,7 +1033,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
     local procedure GetPrepaymentInvoicedAmount(SalesLine: Record "Sales Line") Amount: Decimal
     begin
-        Amount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate);
+        Amount := GetPrepaymentInvoicedAmountOnDate(SalesLine, WorkDate());
     end;
 
     local procedure GetPrepaymentInvoicedAmountOnDate(SalesLine: Record "Sales Line"; Date: Date) Amount: Decimal
@@ -1136,7 +1136,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Prepmt. Cr. Memo No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Prepmt. Cr. Memo No. Series", WorkDate(), false);
         SalesPostPrepayments.CreditMemo(SalesHeader);
         exit(DocumentNo);
     end;
@@ -1146,7 +1146,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Prepayment No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Prepayment No. Series", WorkDate(), false);
         SalesPostPrepayments.Invoice(SalesHeader);
         exit(DocumentNo);
     end;
@@ -1235,13 +1235,13 @@ codeunit 144000 "GST Prepayment - Sales Docs"
             CreditAmount := -Amount;
 
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(ValidationError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(CreditAmount, GLEntry."Credit Amount", GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GLEntry.FieldCaption("Credit Amount"), CreditAmount, GLEntry.TableCaption));
+          StrSubstNo(ValidationError, GLEntry.FieldCaption("Credit Amount"), CreditAmount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GLEntry.FieldCaption("Debit Amount"), DebitAmount, GLEntry.TableCaption));
+          StrSubstNo(ValidationError, GLEntry.FieldCaption("Debit Amount"), DebitAmount, GLEntry.TableCaption()));
         Assert.AreNearlyEqual(VATAmount, GLEntry."VAT Amount", GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption));
+          StrSubstNo(ValidationError, GLEntry.FieldCaption("VAT Amount"), VATAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGSTSalesEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; Base: Decimal; Amount: Decimal; DoubleEntry: Boolean)
@@ -1261,14 +1261,14 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         GSTSalesEntry.FindFirst();
 
         Assert.AreNearlyEqual(Base, GSTSalesEntry."GST Base", GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GSTSalesEntry.FieldCaption("GST Base"), Base, GSTSalesEntry.TableCaption));
+          StrSubstNo(ValidationError, GSTSalesEntry.FieldCaption("GST Base"), Base, GSTSalesEntry.TableCaption()));
         Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, GSTSalesEntry.FieldCaption(Amount), Amount, GSTSalesEntry.TableCaption));
+          StrSubstNo(ValidationError, GSTSalesEntry.FieldCaption(Amount), Amount, GSTSalesEntry.TableCaption()));
     end;
 
     local procedure VerifyInvoiceGLEntries(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; PrepaymentPercent: Decimal)
     begin
-        VerifyInvoiceGLEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, WorkDate, PrepaymentPercent);
+        VerifyInvoiceGLEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, WorkDate(), PrepaymentPercent);
     end;
 
     local procedure VerifyInvoiceGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; PrepaymentPercent: Decimal)
@@ -1282,14 +1282,14 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         Amount2: Decimal;
         VATAmount2: Decimal;
     begin
-        PrepaymentAmount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentAmount2 := GetPrepaymentAmountOnDate(SalesHeader, SalesLine2, WorkDate);
-        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate);
-        Amount := GetAmountOnDate(SalesLine, WorkDate);
-        Amount2 := GetAmountOnDate(SalesLine2, WorkDate);
-        VATAmount := GetVATAmountOnDate(SalesLine, WorkDate);
-        VATAmount2 := GetVATAmountOnDate(SalesLine2, WorkDate);
+        PrepaymentAmount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentAmount2 := GetPrepaymentAmountOnDate(SalesHeader, SalesLine2, WorkDate());
+        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate());
+        Amount := GetAmountOnDate(SalesLine, WorkDate());
+        Amount2 := GetAmountOnDate(SalesLine2, WorkDate());
+        VATAmount := GetVATAmountOnDate(SalesLine, WorkDate());
+        VATAmount2 := GetVATAmountOnDate(SalesLine2, WorkDate());
 
         VerifyGLEntry(
           DocumentNo, DocumentType, GetSalesPrepAccountNo(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group"),
@@ -1376,7 +1376,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
     local procedure VerifyInvoiceVATEntries(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
     begin
-        VerifyInvoiceVATEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, WorkDate);
+        VerifyInvoiceVATEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, WorkDate());
     end;
 
     local procedure VerifyInvoiceVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line")
@@ -1390,14 +1390,14 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         Amount2: Decimal;
         VATAmount2: Decimal;
     begin
-        PrepaymentVATBase := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATBase2 := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine2, WorkDate);
-        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate);
-        Amount := GetAmountOnDate(SalesLine, WorkDate);
-        VATAmount := GetVATAmountOnDate(SalesLine, WorkDate);
-        Amount2 := GetAmountOnDate(SalesLine2, WorkDate);
-        VATAmount2 := GetVATAmountOnDate(SalesLine2, WorkDate);
+        PrepaymentVATBase := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATBase2 := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine2, WorkDate());
+        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate());
+        Amount := GetAmountOnDate(SalesLine, WorkDate());
+        VATAmount := GetVATAmountOnDate(SalesLine, WorkDate());
+        Amount2 := GetAmountOnDate(SalesLine2, WorkDate());
+        VATAmount2 := GetVATAmountOnDate(SalesLine2, WorkDate());
 
         VerifyVATEntry(
           DocumentNo, DocumentType, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group", PrepaymentVATBase,
@@ -1449,7 +1449,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
     local procedure VerifyPrepaymentGLEntries(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Invoice: Boolean)
     begin
-        VerifyPrepaymentGLEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, Invoice, WorkDate);
+        VerifyPrepaymentGLEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, Invoice, WorkDate());
     end;
 
     local procedure VerifyPrepaymentGLEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; Invoice: Boolean)
@@ -1466,10 +1466,10 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         else
             Sign := 1;
 
-        PrepaymentAmount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentAmount2 := GetPrepaymentAmountOnDate(SalesHeader, SalesLine2, WorkDate);
-        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate);
+        PrepaymentAmount := GetPrepaymentAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentAmount2 := GetPrepaymentAmountOnDate(SalesHeader, SalesLine2, WorkDate());
+        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate());
 
         VerifyGLEntry(
           DocumentNo, DocumentType, GetSalesPrepAccountNo(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group"),
@@ -1517,7 +1517,7 @@ codeunit 144000 "GST Prepayment - Sales Docs"
 
     local procedure VerifyPrepaymentVATEntries(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; Invoice: Boolean)
     begin
-        VerifyPrepaymentVATEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, Invoice, WorkDate);
+        VerifyPrepaymentVATEntriesOnDate(DocumentNo, DocumentType, SalesHeader, SalesLine, Invoice, WorkDate());
     end;
 
     local procedure VerifyPrepaymentVATEntriesMultipleLinesDifferentRates(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesLine2: Record "Sales Line"; Invoice: Boolean)
@@ -1534,10 +1534,10 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         else
             Sign := 1;
 
-        PrepaymentVATBase := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate);
-        PrepaymentVATBase2 := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine2, WorkDate);
-        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate);
+        PrepaymentVATBase := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATAmount := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine, WorkDate());
+        PrepaymentVATBase2 := GetPrepaymentVATBaseOnDate(SalesHeader, SalesLine2, WorkDate());
+        PrepaymentVATAmount2 := GetPrepaymentVATAmountOnDate(SalesHeader, SalesLine2, WorkDate());
 
         VerifyVATEntry(
           DocumentNo, DocumentType, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group", Sign * PrepaymentVATBase,
@@ -1612,9 +1612,9 @@ codeunit 144000 "GST Prepayment - Sales Docs"
         Evaluate(ActualAmount, Format(AmountRef.Value));
 
         Assert.AreNearlyEqual(Base, ActualBase, GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, BaseRef.Caption, Base, VATEntry.TableCaption));
+          StrSubstNo(ValidationError, BaseRef.Caption, Base, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(Amount, ActualAmount, GetAmountRoundingPrecision,
-          StrSubstNo(ValidationError, AmountRef.Caption, Amount, VATEntry.TableCaption));
+          StrSubstNo(ValidationError, AmountRef.Caption, Amount, VATEntry.TableCaption()));
     end;
 
     [ConfirmHandler]

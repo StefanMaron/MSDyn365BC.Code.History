@@ -80,7 +80,7 @@ codeunit 141045 "Report Vendor - Labels"
         AddressID."Table Key" := StrSubstNo(TableKey, VendorNo);
         AddressID."Address ID" := Format(LibraryRandom.RandIntInRange(10000000, 20000000));  // Address ID of lengh - 8 required.
         AddressID."Bar Code System" := AddressID."Bar Code System"::"4-State Bar Code";
-        AddressID."Address ID Check Date" := WorkDate;
+        AddressID."Address ID Check Date" := WorkDate();
         AddressID.Insert();
     end;
 

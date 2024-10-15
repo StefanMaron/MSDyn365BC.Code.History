@@ -10,20 +10,13 @@ table 1312 "Trial Balance Setup"
         }
         field(2; "Account Schedule Name"; Code[10])
         {
-            Caption = 'Account Schedule Name';
+            Caption = 'Row Definition';
             NotBlank = true;
             TableRelation = "Acc. Schedule Name".Name;
-
-            trigger OnValidate()
-            begin
-                if xRec."Account Schedule Name" <> "Account Schedule Name" then
-                    if AccScheduleName.Get("Account Schedule Name") then
-                        Validate("Column Layout Name", AccScheduleName."Default Column Layout");
-            end;
         }
         field(3; "Column Layout Name"; Code[10])
         {
-            Caption = 'Column Layout Name';
+            Caption = 'Column Definition';
             NotBlank = true;
             TableRelation = "Column Layout Name".Name;
         }
@@ -41,7 +34,5 @@ table 1312 "Trial Balance Setup"
     {
     }
 
-    var
-        AccScheduleName: Record "Acc. Schedule Name";
 }
 

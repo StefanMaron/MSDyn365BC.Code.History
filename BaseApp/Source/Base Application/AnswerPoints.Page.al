@@ -1,7 +1,7 @@
 page 5172 "Answer Points"
 {
     Caption = 'Answer Points';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
@@ -32,7 +32,7 @@ page 5172 "Answer Points"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of contacts that have given this answer.';
@@ -53,7 +53,7 @@ page 5172 "Answer Points"
 
                         if Rating.Get(TargetQuestnCode, TargetQuestLineNo, "Profile Questionnaire Code", "Line No.") then
                             if Points = 0 then
-                                Rating.Delete
+                                Rating.Delete()
                             else begin
                                 Rating.Points := Points;
                                 Rating.Modify();
@@ -93,8 +93,6 @@ page 5172 "Answer Points"
             {
                 ApplicationArea = RelationshipMgmt;
                 Image = Questionnaire;
-                Promoted = true;
-                PromotedCategory = Process;
 
                 trigger OnAction()
                 var
@@ -106,7 +104,7 @@ page 5172 "Answer Points"
                         then begin
                             SetRange("Profile Questionnaire Code", ProfileQuestnHeader.Code);
                             CurrQuestnCode := ProfileQuestnHeader.Code;
-                            SetRatingFilter;
+                            SetRatingFilter();
                             CurrPage.Update();
                         end;
                 end;
@@ -133,6 +131,17 @@ page 5172 "Answer Points"
                             Get(CurrQuestnCode, Rating."Rating Profile Quest. Line No.");
                         end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Questionnaire_Promoted; Questionnaire)
+                {
                 }
             }
         }
@@ -174,12 +183,12 @@ page 5172 "Answer Points"
         CurrQuestnCode := "Profile Questionnaire Code";
 
         if TempProfileQuestnLine.Get(TargetQuestnCode, "Line No.") then
-            while (TempProfileQuestnLine.Next <> 0) and
+            while (TempProfileQuestnLine.Next() <> 0) and
                   (TempProfileQuestnLine.Type = TempProfileQuestnLine.Type::Answer)
             do
                 TargetQuestnLineNoEnd := TempProfileQuestnLine."Line No.";
 
-        SetRatingFilter;
+        SetRatingFilter();
     end;
 
     var
@@ -206,7 +215,7 @@ page 5172 "Answer Points"
 
     local procedure GetCaption(): Text
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             exit(StrSubstNo('%1 %2', CurrPage.Caption, "Profile Questionnaire Code"));
 
         exit(Format("Profile Questionnaire Code"));

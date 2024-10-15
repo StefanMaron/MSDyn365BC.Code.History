@@ -6,7 +6,6 @@ page 932 "Assembly Quotes"
     DataCaptionFields = "No.";
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Quote,View,Release,Navigate';
     SourceTable = "Assembly Header";
     SourceTableView = WHERE("Document Type" = FILTER(Quote));
     UsageCategory = Lists;
@@ -18,7 +17,7 @@ page 932 "Assembly Quotes"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the type of assembly document the record represents in assemble-to-order scenarios.';
@@ -27,7 +26,7 @@ page 932 "Assembly Quotes"
                     ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
                     ObsoleteTag = '17.0';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -37,27 +36,27 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the description of the assembly item.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembled item is due to be available for use.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to start.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to finish.';
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the assembly order is linked to a sales order, which indicates that the item is assembled to order.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item that is being assembled with the assembly order.';
@@ -67,27 +66,27 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item that you expect to assemble with the assembly order.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location to which you want to post output of the assembly item.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin the assembly item is posted to as output and from where it is taken to storage or shipped if it is assembled to a sales order.';
                 }
-                field("Remaining Quantity"; "Remaining Quantity")
+                field("Remaining Quantity"; Rec."Remaining Quantity")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies how many units of the assembly item remain to be posted as assembled output.';
@@ -237,7 +236,7 @@ page 932 "Assembly Quotes"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByEvent());
                     end;
                 }
                 action(Period)
@@ -249,7 +248,7 @@ page 932 "Assembly Quotes"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByPeriod());
                     end;
                 }
                 action(Variant)
@@ -261,7 +260,7 @@ page 932 "Assembly Quotes"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByVariant());
                     end;
                 }
                 action(Location)
@@ -274,7 +273,7 @@ page 932 "Assembly Quotes"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByLocation());
                     end;
                 }
                 action(Lot)
@@ -297,7 +296,7 @@ page 932 "Assembly Quotes"
 
                     trigger OnAction()
                     begin
-                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM);
+                        ItemAvailFormsMgt.ShowItemAvailFromAsmHeader(Rec, ItemAvailFormsMgt.ByBOM());
                     end;
                 }
             }
@@ -310,8 +309,6 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Assembly;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Assembly Order Statistics";
                     RunPageOnRec = true;
                     ShortCutKey = 'F7';
@@ -323,8 +320,6 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -338,8 +333,6 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly BOM';
                     Image = AssemblyBOM;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Assembly BOM";
                     RunPageLink = "Parent Item No." = FIELD("Item No.");
                     ToolTip = 'View or edit the bill of material that specifies which items and resources are required to assemble the assembly item.';
@@ -349,8 +342,6 @@ page 932 "Assembly Quotes"
                     ApplicationArea = Comments;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Assembly Comment Sheet";
                     RunPageLink = "Document Type" = FIELD("Document Type"),
                                   "Document No." = FIELD("No."),
@@ -386,7 +377,7 @@ page 932 "Assembly Quotes"
                         AssemblyHeader: Record "Assembly Header";
                     begin
                         AssemblyHeader := Rec;
-                        AssemblyHeader.Find;
+                        AssemblyHeader.Find();
                         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
                     end;
                 }
@@ -403,7 +394,7 @@ page 932 "Assembly Quotes"
                         ReleaseAssemblyDoc: Codeunit "Release Assembly Document";
                     begin
                         AssemblyHeader := Rec;
-                        AssemblyHeader.Find;
+                        AssemblyHeader.Find();
                         ReleaseAssemblyDoc.Reopen(AssemblyHeader);
                     end;
                 }
@@ -422,9 +413,6 @@ page 932 "Assembly Quotes"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
                     Visible = false;
@@ -443,8 +431,6 @@ page 932 "Assembly Quotes"
                     Caption = 'Post &Batch';
                     Ellipsis = true;
                     Image = PostBatch;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Post several documents at once. A report request window opens where you can specify which documents to post.';
                     Visible = false;
                     ObsoleteState = Pending;
@@ -457,6 +443,59 @@ page 932 "Assembly Quotes"
                         CurrPage.Update(false);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
+                }
+                actionref("Post &Batch_Promoted"; "Post &Batch")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'It no longer adds value or it has been replaced by something new.';
+                    ObsoleteTag = '17.0';
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Quote', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Assembly BOM_Promoted"; "Assembly BOM")
+                {
+                }
+                actionref(Comments_Promoted; Comments)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'View', Comment = 'Generated from the PromotedActionCategories property index 4.';
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Release', Comment = 'Generated from the PromotedActionCategories property index 5.';
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Navigate', Comment = 'Generated from the PromotedActionCategories property index 6.';
             }
         }
     }

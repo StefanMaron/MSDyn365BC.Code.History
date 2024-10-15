@@ -42,20 +42,21 @@ page 5234 "HR Confidential Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var
-        Text000: Label 'untitled';
         Employee: Record Employee;
         ConfidentialInfo: Record "Confidential Information";
+
+        Text000: Label 'untitled';
 
     procedure Caption(HRCommentLine: Record "HR Confidential Comment Line"): Text
     begin
         if ConfidentialInfo.Get(HRCommentLine."No.", HRCommentLine.Code, HRCommentLine."Table Line No.") and
            Employee.Get(HRCommentLine."No.")
         then
-            exit(HRCommentLine."No." + ' ' + Employee.FullName + ' ' +
+            exit(HRCommentLine."No." + ' ' + Employee.FullName() + ' ' +
               ConfidentialInfo."Confidential Code");
         exit(Text000);
     end;

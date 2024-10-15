@@ -15,7 +15,7 @@ report 1105 "Resource Statistics"
             column(TodayFormatted; Format(Today))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TableCaptionResFilter; TableCaption + ': ' + ResFilter)
@@ -82,7 +82,7 @@ report 1105 "Resource Statistics"
 
     trigger OnPreReport()
     begin
-        ResFilter := Resource.GetFilters;
+        ResFilter := Resource.GetFilters();
     end;
 
     var

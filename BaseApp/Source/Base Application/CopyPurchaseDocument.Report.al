@@ -1,4 +1,4 @@
-report 492 "Copy Purchase Document"
+﻿report 492 "Copy Purchase Document"
 {
     Caption = 'Copy Purchase Document';
     ProcessingOnly = true;
@@ -27,7 +27,7 @@ report 492 "Copy Purchase Document"
                         trigger OnValidate()
                         begin
                             FromDocNo := '';
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(DocumentNo; FromDocNo)
@@ -38,12 +38,12 @@ report 492 "Copy Purchase Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(DocNoOccurrence; FromDocNoOccurrence)
@@ -84,7 +84,7 @@ report 492 "Copy Purchase Document"
 
                         trigger OnValidate()
                         begin
-                            ValidateIncludeHeader;
+                            ValidateIncludeHeader();
                         end;
                     }
                     field(RecalculateLines; RecalculateLines)
@@ -189,9 +189,9 @@ report 492 "Copy Purchase Document"
                 if FromPurchHeader."No." = '' then
                     FromDocNo := '';
             end;
-            ValidateDocNo;
+            ValidateDocNo();
 
-            OnAfterOpenPage;
+            OnAfterOpenPage();
         end;
     }
 
@@ -218,14 +218,14 @@ report 492 "Copy Purchase Document"
                     Validate("Posting Date", PostingDate);
                 if ReplaceDocDate then
                     Validate("Document Date", PostingDate);
-                Modify;
+                Modify();
             end;
             GLSetup.Get();
             if ("Document Type" = "Document Type"::"Credit Memo") and
                (GLSetup.GSTEnabled(FromPurchHeader."Document Date"))
             then begin
                 case FromDocType of
-                    FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order, 
+                    FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order,
                     FromDocType::Invoice, FromDocType::"Credit Memo", FromDocType::"Return Order":
                         begin
                             "Adjustment Applies-to" := FromPurchHeader."No.";
@@ -252,24 +252,14 @@ report 492 "Copy Purchase Document"
                             "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromReturnShptHeader."Document Date");
                         end;
                 end;
-                Modify;
+                Modify();
             end;
         end;
     end;
 
     var
-        FromPurchRcptHeader: Record "Purch. Rcpt. Header";
-        FromPurchInvHeader: Record "Purch. Inv. Header";
-        FromReturnShptHeader: Record "Return Shipment Header";
-        FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
-        FromPurchHeaderArchive: Record "Purchase Header Archive";
-        PurchSetup: Record "Purchases & Payables Setup";
         GLSetup: Record "General Ledger Setup";
-        PostCodeCheck: Codeunit "Post Code Check";
         BASManagement: Codeunit "BAS Management";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
-        IncludeHeader: Boolean;
-        RecalculateLines: Boolean;
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible, copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Receipt';
         Text002: Label 'Undo Return Shipment';
@@ -280,10 +270,19 @@ report 492 "Copy Purchase Document"
     protected var
         PurchHeader: Record "Purchase Header";
         FromPurchHeader: Record "Purchase Header";
+        FromPurchRcptHeader: Record "Purch. Rcpt. Header";
+        FromPurchInvHeader: Record "Purch. Inv. Header";
+        FromReturnShptHeader: Record "Return Shipment Header";
+        FromPurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        FromPurchHeaderArchive: Record "Purchase Header Archive";
+        PurchSetup: Record "Purchases & Payables Setup";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
         FromDocType: Enum "Purchase Document Type From";
         FromDocNo: Code[20];
         FromDocNoOccurrence: Integer;
         FromDocVersionNo: Integer;
+        IncludeHeader: Boolean;
+        RecalculateLines: Boolean;
 
     procedure SetPurchHeader(var NewPurchHeader: Record "Purchase Header")
     begin
@@ -312,41 +311,33 @@ report 492 "Copy Purchase Document"
                         begin
                             FromPurchRcptHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchRcptHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromPurchRcptHeader(FromPurchHeader, FromPurchRcptHeader);
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::"Return Order", PurchHeader."Document Type"::"Credit Memo"]
                             then
                                 Message(Text000, FromDocType, "Purchase Document Type From"::"Posted Invoice", Text001);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Purch. Rcpt. Header", FromPurchRcptHeader.GetPosition,
-                              DATABASE::"Purchase Header", FromPurchHeader.GetPosition);
                         end;
                     FromDocType::"Posted Invoice":
                         begin
                             FromPurchInvHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchInvHeader);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Purch. Inv. Header", FromPurchInvHeader.GetPosition,
-                              DATABASE::"Purchase Header", FromPurchHeader.GetPosition);
+                            OnValidateDocNoOnAfterTransferFieldsFromPurchInvHeader(FromPurchHeader, FromPurchInvHeader);
                         end;
                     FromDocType::"Posted Return Shipment":
                         begin
                             FromReturnShptHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromReturnShptHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromReturnShipmentHeader(FromPurchHeader, FromReturnShptHeader);
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice]
                             then
                                 Message(Text000, FromDocType, "Purchase Document Type From"::"Posted Credit Memo", Text002);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Return Shipment Header", FromReturnShptHeader.GetPosition,
-                              DATABASE::"Purchase Header", FromPurchHeader.GetPosition);
                         end;
                     FromDocType::"Posted Credit Memo":
                         begin
                             FromPurchCrMemoHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchCrMemoHeader);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Purch. Cr. Memo Hdr.", FromPurchCrMemoHeader.GetPosition,
-                              DATABASE::"Purchase Header", FromPurchHeader.GetPosition);
+                            OnValidateDocNoOnAfterTransferFieldsFromPurchCrMemoHeader(FromPurchHeader, FromPurchCrMemoHeader);
                         end;
                     FromDocType::"Arch. Quote",
                     FromDocType::"Arch. Order",
@@ -367,7 +358,7 @@ report 492 "Copy Purchase Document"
           (PurchHeader."Buy-from Vendor No." in [FromPurchHeader."Buy-from Vendor No.", '']);
 
         OnBeforeValidateIncludeHeader(IncludeHeader, FromDocType.AsInteger(), PurchHeader, FromPurchHeader);
-        ValidateIncludeHeader;
+        ValidateIncludeHeader();
     end;
 
     local procedure FindFromPurchHeaderArchive()
@@ -416,7 +407,7 @@ report 492 "Copy Purchase Document"
             FromDocType::"Arch. Return Order":
                 LookupPurchArchive();
         end;
-        ValidateDocNo;
+        ValidateDocNo();
     end;
 
     local procedure LookupPurchDoc()
@@ -525,7 +516,7 @@ report 492 "Copy Purchase Document"
             FromDocNo := FromReturnShptHeader."No.";
     end;
 
-    local procedure ValidateIncludeHeader()
+    protected procedure ValidateIncludeHeader()
     begin
         RecalculateLines :=
           (FromDocType in [FromDocType::"Posted Receipt", FromDocType::"Posted Return Shipment"]) or not IncludeHeader;
@@ -607,6 +598,26 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnBeforeCopyPurchaseDoc(var CopyDocumentMgt: Codeunit "Copy Document Mgt."; UseRequestPage: Boolean; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromPurchRcptHeader(FromPurchHeader: Record "Purchase Header"; FromPurchRcptHeader: Record "Purch. Rcpt. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromPurchInvHeader(FromPurchHeader: Record "Purchase Header"; FromPurchInvHeader: Record "Purch. Inv. Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromPurchCrMemoHeader(FromPurchHeader: Record "Purchase Header"; FromPurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromReturnShipmentHeader(FromPurchHeader: Record "Purchase Header"; FromReturnShipmentHeader: Record "Return Shipment Header")
     begin
     end;
 }

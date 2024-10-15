@@ -13,10 +13,10 @@ report 99000791 "Production Order Statistics"
         {
             DataItemTableView = SORTING(Status, "No.");
             RequestFilterFields = Status, "No.", "Date Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(ProdOrderTableCaptionFilt; StrSubstNo('%1: %2', TableCaption, ProdOrderFilter))
+            column(ProdOrderTableCaptionFilt; StrSubstNo('%1: %2', TableCaption(), ProdOrderFilter))
             {
             }
             column(ProdOrderFilter; ProdOrderFilter)
@@ -175,7 +175,7 @@ report 99000791 "Production Order Statistics"
                 CalcTotal(StdCost, StdCost[6]);
                 CalcTotal(ExpCost, ExpCost[6]);
                 CalcTotal(ActCost, ActCost[6]);
-                CalcVariance;
+                CalcVariance();
             end;
 
             trigger OnPreDataItem()
@@ -204,7 +204,7 @@ report 99000791 "Production Order Statistics"
 
     trigger OnPreReport()
     begin
-        ProdOrderFilter := "Production Order".GetFilters;
+        ProdOrderFilter := "Production Order".GetFilters();
     end;
 
     var

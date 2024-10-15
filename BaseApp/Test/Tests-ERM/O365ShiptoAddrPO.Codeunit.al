@@ -481,7 +481,7 @@ codeunit 138083 "O365 Ship-to Addr. P.O"
         // Verify - ShippingOptionWithLocation is visible and ShippignWithoutLocation is not visible
         Assert.IsTrue(PurchaseOrder.ShippingOptionWithLocation.Visible, FieldShouldBeVisibleTxt);
         VerifyShippingOptionWithoutLocationIsHiddenForLocation(PurchaseOrder, false); // TFS 255272, 305512
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // Setup - Enable Return Order app area(Location app area is disabled)
         LibraryApplicationArea.EnableReturnOrderSetup;

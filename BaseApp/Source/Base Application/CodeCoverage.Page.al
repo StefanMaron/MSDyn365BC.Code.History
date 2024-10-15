@@ -120,7 +120,7 @@ page 9990 "Code Coverage"
                     Caption = 'No. of Lines';
                     ToolTip = 'Specifies the number of lines, when tracking which part of the application code has been exercised during test activity.';
                 }
-                field("No. of Hits"; "No. of Hits")
+                field("No. of Hits"; Rec."No. of Hits")
                 {
                     ApplicationArea = All;
                     Caption = 'No. of Hits';
@@ -152,9 +152,6 @@ page 9990 "Code Coverage"
                 Caption = 'Start';
                 Enabled = NOT CodeCoverageRunning;
                 Image = Start;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
@@ -170,14 +167,11 @@ page 9990 "Code Coverage"
                 Caption = 'Refresh';
                 Enabled = CodeCoverageRunning;
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Refresh the page.';
 
                 trigger OnAction()
                 begin
-                    CodeCoverageMgt.Refresh;
+                    CodeCoverageMgt.Refresh();
                 end;
             }
             action(Stop)
@@ -186,13 +180,10 @@ page 9990 "Code Coverage"
                 Caption = 'Stop';
                 Enabled = CodeCoverageRunning;
                 Image = Stop;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
-                    CodeCoverageMgt.Stop;
+                    CodeCoverageMgt.Stop();
                     TotalCoveragePercent := CodeCoverageMgt.ObjectsCoverage(Rec, TotalNoofLines, TotalLinesHit) * 100;
                     CodeCoverageRunning := false;
                 end;
@@ -205,9 +196,6 @@ page 9990 "Code Coverage"
                 ApplicationArea = All;
                 Caption = 'Load objects';
                 Image = AddContacts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 begin
@@ -219,9 +207,6 @@ page 9990 "Code Coverage"
                 ApplicationArea = All;
                 Caption = 'Load country objects';
                 Image = AddContacts;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
@@ -241,9 +226,6 @@ page 9990 "Code Coverage"
                 ApplicationArea = All;
                 Caption = 'Export to XML';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
 
                 trigger OnAction()
                 var
@@ -260,9 +242,6 @@ page 9990 "Code Coverage"
                 ApplicationArea = All;
                 Caption = 'Backup/Restore';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 ToolTip = 'Back up or restore the database.';
 
                 trigger OnAction()
@@ -271,6 +250,40 @@ page 9990 "Code Coverage"
                 begin
                     CodeCoverageDetailed.Run();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Start_Promoted; Start)
+                {
+                }
+                actionref(Refresh_Promoted; Refresh)
+                {
+                }
+                actionref(Stop_Promoted; Stop)
+                {
+                }
+                actionref("Load objects_Promoted"; "Load objects")
+                {
+                }
+                actionref("Load country objects_Promoted"; "Load country objects")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref("Export to XML_Promoted"; "Export to XML")
+                {
+                }
+                actionref("Backup/Restore_Promoted"; "Backup/Restore")
+                {
+                }
             }
         }
     }
@@ -299,15 +312,14 @@ page 9990 "Code Coverage"
                     LinesNotHit := NoofLines - LinesHit;
                     Indent := 1
                 end
-            else begin
-                    if "No. of Hits" > 0 then
-                        CoveragePercent := 100
-                    else
-                        CoveragePercent := 0;
-                end;
+            else
+                if "No. of Hits" > 0 then
+                    CoveragePercent := 100
+                else
+                    CoveragePercent := 0;
         end;
 
-        SetStyles;
+        SetStyles();
     end;
 
     trigger OnInit()

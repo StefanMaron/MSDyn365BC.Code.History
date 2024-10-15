@@ -9,6 +9,7 @@ table 401 "XBRL Taxonomy Label"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

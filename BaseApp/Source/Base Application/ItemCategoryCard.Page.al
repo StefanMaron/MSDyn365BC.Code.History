@@ -30,7 +30,7 @@ page 5733 "Item Category Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item category.';
                 }
-                field("Parent Category"; "Parent Category")
+                field("Parent Category"; Rec."Parent Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item category that this item category belongs to. Item attributes that are assigned to a parent item category also apply to the child item category.';
@@ -38,7 +38,7 @@ page 5733 "Item Category Card"
                     trigger OnValidate()
                     begin
                         if (Code <> '') and ("Parent Category" <> xRec."Parent Category") then
-                            PersistCategoryAttributes;
+                            PersistCategoryAttributes();
                     end;
                 }
             }
@@ -61,10 +61,6 @@ page 5733 "Item Category Card"
                 Caption = 'Delete';
                 Enabled = CanDelete;
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Delete the record.';
 
                 trigger OnAction()
@@ -72,6 +68,17 @@ page 5733 "Item Category Card"
                     if Confirm(StrSubstNo(DeleteQst, Code)) then
                         Delete(true);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Delete_Promoted; Delete)
+                {
+                }
             }
         }
     }

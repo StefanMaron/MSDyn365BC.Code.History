@@ -28,11 +28,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OnBeforeTransferOrderPostReceipt(TransHeader, SuppressCommit, ItemJnlPostLine);
 
         with TransHeader do begin
-            CheckBeforePost;
+            CheckBeforePost();
 
             SaveAndClearPostingFromWhseRef();
 
-            CheckDim;
+            CheckDim();
             CheckLines(TransHeader, TransLine);
 
             WhseReceive := TempWhseRcptHeader.FindFirst();
@@ -77,10 +77,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 WhseRcptHeader.Get(TempWhseRcptHeader."No.");
                 WhsePostRcpt.CreatePostedRcptHeader(PostedWhseRcptHeader, WhseRcptHeader, TransRcptHeader."No.", "Posting Date");
             end;
-
-            PostCodeCheck.CopyAllAddressID(
-              DATABASE::"Transfer Header", GetPosition,
-              DATABASE::"Transfer Receipt Header", TransRcptHeader.GetPosition);
 
             // Insert receipt lines
             LineCount := 0;
@@ -129,7 +125,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 repeat
                     TransLine.Validate("Quantity Received", TransLine."Quantity Received" + TransLine."Qty. to Receive");
                     OnRunOnBeforeUpdateWithWarehouseShipReceive(TransLine);
-                    TransLine.UpdateWithWarehouseShipReceive;
+                    TransLine.UpdateWithWarehouseShipReceive();
                     ReservMgt.SetReservSource(ItemJnlLine);
                     ReservMgt.SetItemTrackingHandling(1); // Allow deletion
                     ReservMgt.DeleteReservEntries(true, 0);
@@ -148,7 +144,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             end;
 
             "Last Receipt No." := TransRcptHeader."No.";
-            Modify;
+            Modify();
 
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
@@ -168,8 +164,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
             Clear(WhsePostRcpt);
-            if GuiAllowed then
-                Window.Close;
+            if GuiAllowed() then
+                Window.Close();
         end;
 
         Rec := TransHeader;
@@ -178,7 +174,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     var
-        Text001: Label 'There is nothing to post.';
         Text002: Label 'Warehouse handling is required for Transfer order = %1, %2 = %3.', Comment = '1%=TransLine2."Document No."; 2%=TransLine2.FIELDCAPTION("Line No."); 3%=TransLine2."Line No.");';
         Text003: Label 'Posting transfer lines     #2######';
         Text004: Label 'Transfer Order %1';
@@ -208,6 +203,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostRcpt: Codeunit "Whse.-Post Receipt";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhsePosting: Boolean;
@@ -216,7 +212,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         OriginalQuantityBase: Decimal;
         WhseReceive: Boolean;
         InvtPickPutaway: Boolean;
-        PostCodeCheck: Codeunit "Post Code Check";
         SuppressCommit: Boolean;
         HideValidationDialog: Boolean;
 
@@ -308,12 +303,12 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if not DimMgt.CheckDimIDComb(TransferHeader."Dimension Set ID") then
                 Error(
                   Text005,
-                  TransHeader."No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", DimMgt.GetDimCombErr());
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimIDComb(TransferLine."Dimension Set ID") then
                 Error(
                   Text006,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr());
 
         OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
@@ -334,13 +329,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferHeader."Dimension Set ID") then
                 Error(
                   Text007,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
 
         if TransferLine."Line No." <> 0 then
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, TransferLine."Dimension Set ID") then
                 Error(
                   Text007,
-                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr);
+                  TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimValuePostingErr());
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -415,13 +410,13 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     QtyToReceive := 0;
                 end;
                 if TransLine4."Quantity (Base)" = 0 then
-                    TransLine4.Delete
+                    TransLine4.Delete()
                 else begin
                     TransLine4."Qty. to Ship" := TransLine4.Quantity;
                     TransLine4."Qty. to Ship (Base)" := TransLine4."Quantity (Base)";
                     TransLine4."Qty. to Receive" := TransLine4.Quantity;
                     TransLine4."Qty. to Receive (Base)" := TransLine4."Quantity (Base)";
-                    TransLine4.ResetPostedQty;
+                    TransLine4.ResetPostedQty();
                     TransLine4."Outstanding Quantity" := TransLine4.Quantity;
                     TransLine4."Outstanding Qty. (Base)" := TransLine4."Quantity (Base)";
 
@@ -551,7 +546,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             TransLine.SetFilter(Quantity, '<>0');
             TransLine.SetFilter("Qty. to Receive", '<>0');
             if not TransLine.Find('-') then
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
         end;
     end;
 

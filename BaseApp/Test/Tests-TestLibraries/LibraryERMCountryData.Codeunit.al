@@ -352,7 +352,7 @@ codeunit 131305 "Library - ERM Country Data"
         repeat
             VATPostingSetup.Validate("VAT %", 0);
             VATPostingSetup.Modify(true);
-        until VATPostingSetup.Next = 0;
+        until VATPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateSalesReceivableSetupData()
@@ -387,7 +387,7 @@ codeunit 131305 "Library - ERM Country Data"
                 WHTPostingSetup.Validate("WHT Minimum Invoice Amount", 0);
                 WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::" ");
                 WHTPostingSetup.Modify(true);
-            until WHTPostingSetup.Next = 0;
+            until WHTPostingSetup.Next() = 0;
     end;
 }
 

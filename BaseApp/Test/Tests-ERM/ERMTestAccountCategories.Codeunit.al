@@ -52,7 +52,7 @@ codeunit 134444 "ERM Test Account Categories"
     begin
         // Init
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt";
+        ExpectedAccSchedName := GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt";
 
         // Execution
         REPORT.Run(REPORT::"Statement of Cashflows");
@@ -70,7 +70,7 @@ codeunit 134444 "ERM Test Account Categories"
     begin
         // Init
         GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
-        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Retained Earn.";
+        ExpectedAccSchedName := GeneralLedgerSetup."Fin. Rep. for Retained Earn.";
 
         // Execution
         REPORT.Run(REPORT::"Retained Earnings Statement");
@@ -159,10 +159,10 @@ codeunit 134444 "ERM Test Account Categories"
 
         // [THEN] Standard account schedules are re-initialized 
         GLSetup.Get();
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Balance Sheet");
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Cash Flow Stmt");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Balance Sheet");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Cash Flow Stmt");
         // Income statement check skipped because it is empty by default for some countries
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Retained Earn.");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Retained Earn.");
     end;
 
     [Test]
@@ -193,17 +193,17 @@ codeunit 134444 "ERM Test Account Categories"
         GLAccountCategories.GenerateAccSched.Invoke();
 
         // [THEN] Existing Standard account schedules are not changed
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Balance Sheet");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Cash Flow Stmt");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Income Stmt.");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Retained Earn.");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Balance Sheet");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Cash Flow Stmt");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Income Stmt.");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Retained Earn.");
 
         // [THEN] New account schedules created
         GLSetup.Get();
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Balance Sheet");
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Cash Flow Stmt");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Balance Sheet");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Cash Flow Stmt");
         // Income statement check skipped because it is empty by default for some countries
-        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Acc. Sched. for Retained Earn.");
+        VerifyNumberOfAccScheduleLinesMoreThanOne(GLSetup."Fin. Rep. for Retained Earn.");
     end;
 
     [Test]
@@ -234,17 +234,17 @@ codeunit 134444 "ERM Test Account Categories"
         GLAccountCategories.GenerateAccSched.Invoke();
 
         // [THEN] Existing Standard account schedules are not changed
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Balance Sheet");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Cash Flow Stmt");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Income Stmt.");
-        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Acc. Sched. for Retained Earn.");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Balance Sheet");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Cash Flow Stmt");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Income Stmt.");
+        VerifyNumberOfAccScheduleLinesIsOne(SavedGLSetup."Fin. Rep. for Retained Earn.");
 
         // [THEN] General ledger setup fields not changed
         GLSetup.Get();
-        GLSetup.TestField("Acc. Sched. for Balance Sheet", SavedGLSetup."Acc. Sched. for Balance Sheet");
-        GLSetup.TestField("Acc. Sched. for Cash Flow Stmt", SavedGLSetup."Acc. Sched. for Cash Flow Stmt");
-        GLSetup.TestField("Acc. Sched. for Income Stmt.", SavedGLSetup."Acc. Sched. for Income Stmt.");
-        GLSetup.TestField("Acc. Sched. for Retained Earn.", SavedGLSetup."Acc. Sched. for Retained Earn.");
+        GLSetup.TestField("Fin. Rep. for Balance Sheet", SavedGLSetup."Fin. Rep. for Balance Sheet");
+        GLSetup.TestField("Fin. Rep. for Cash Flow Stmt", SavedGLSetup."Fin. Rep. for Cash Flow Stmt");
+        GLSetup.TestField("Fin. Rep. for Income Stmt.", SavedGLSetup."Fin. Rep. for Income Stmt.");
+        GLSetup.TestField("Fin. Rep. for Retained Earn.", SavedGLSetup."Fin. Rep. for Retained Earn.");
     end;
 
     [Test]
@@ -267,10 +267,10 @@ codeunit 134444 "ERM Test Account Categories"
 
         // [THEN] Account schedules created without confirmation
         GLSetup.Get();
-        GLSetup.TestField("Acc. Sched. for Balance Sheet");
-        GLSetup.TestField("Acc. Sched. for Cash Flow Stmt");
-        GLSetup.TestField("Acc. Sched. for Income Stmt.");
-        GLSetup.TestField("Acc. Sched. for Retained Earn.");
+        GLSetup.TestField("Fin. Rep. for Balance Sheet");
+        GLSetup.TestField("Fin. Rep. for Cash Flow Stmt");
+        GLSetup.TestField("Fin. Rep. for Income Stmt.");
+        GLSetup.TestField("Fin. Rep. for Retained Earn.");
     end;
 
     local procedure Initialize()
@@ -297,10 +297,10 @@ codeunit 134444 "ERM Test Account Categories"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        CreateDummyAccSchedLine(GLSetup."Acc. Sched. for Balance Sheet");
-        CreateDummyAccSchedLine(GLSetup."Acc. Sched. for Cash Flow Stmt");
-        CreateDummyAccSchedLine(GLSetup."Acc. Sched. for Income Stmt.");
-        CreateDummyAccSchedLine(GLSetup."Acc. Sched. for Retained Earn.");
+        CreateDummyAccSchedLine(GLSetup."Fin. Rep. for Balance Sheet");
+        CreateDummyAccSchedLine(GLSetup."Fin. Rep. for Cash Flow Stmt");
+        CreateDummyAccSchedLine(GLSetup."Fin. Rep. for Income Stmt.");
+        CreateDummyAccSchedLine(GLSetup."Fin. Rep. for Retained Earn.");
     end;
 
     local procedure CreateDummyAccSchedLine(AccountScheduleName: Code[10])
@@ -335,10 +335,10 @@ codeunit 134444 "ERM Test Account Categories"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        GLSetup."Acc. Sched. for Balance Sheet" := '';
-        GLSetup."Acc. Sched. for Cash Flow Stmt" := '';
-        GLSetup."Acc. Sched. for Income Stmt." := '';
-        GLSetup."Acc. Sched. for Retained Earn." := '';
+        GLSetup."Fin. Rep. for Balance Sheet" := '';
+        GLSetup."Fin. Rep. for Cash Flow Stmt" := '';
+        GLSetup."Fin. Rep. for Income Stmt." := '';
+        GLSetup."Fin. Rep. for Retained Earn." := '';
         GLSetup.Modify();
     end;
 
@@ -347,25 +347,28 @@ codeunit 134444 "ERM Test Account Categories"
         GLSetup: Record "General Ledger Setup";
     begin
         GLSetup.Get();
-        GLSetup.TestField("Acc. Sched. for Balance Sheet");
-        ClearStandardAccSchedule(GLSetup."Acc. Sched. for Balance Sheet");
+        GLSetup.TestField("Fin. Rep. for Balance Sheet");
+        ClearStandardAccSchedule(GLSetup."Fin. Rep. for Balance Sheet");
 
-        GLSetup.TestField("Acc. Sched. for Cash Flow Stmt");
-        ClearStandardAccSchedule(GLSetup."Acc. Sched. for Cash Flow Stmt");
+        GLSetup.TestField("Fin. Rep. for Cash Flow Stmt");
+        ClearStandardAccSchedule(GLSetup."Fin. Rep. for Cash Flow Stmt");
 
-        GLSetup.TestField("Acc. Sched. for Income Stmt.");
-        ClearStandardAccSchedule(GLSetup."Acc. Sched. for Income Stmt.");
+        GLSetup.TestField("Fin. Rep. for Income Stmt.");
+        ClearStandardAccSchedule(GLSetup."Fin. Rep. for Income Stmt.");
 
-        GLSetup.TestField("Acc. Sched. for Retained Earn.");
-        ClearStandardAccSchedule(GLSetup."Acc. Sched. for Retained Earn.");
+        GLSetup.TestField("Fin. Rep. for Retained Earn.");
+        ClearStandardAccSchedule(GLSetup."Fin. Rep. for Retained Earn.");
     end;
 
     local procedure ClearStandardAccSchedule(AccountScheduleName: Code[10])
     var
         AccScheduleName: Record "Acc. Schedule Name";
+        FinancialReport: Record "Financial Report";
     begin
-        AccScheduleName.Get(AccountScheduleName);
-        AccScheduleName.Delete(true);
+        if AccScheduleName.Get(AccountScheduleName) then
+            AccScheduleName.Delete(true);
+        if FinancialReport.Get(AccountScheduleName) then
+            FinancialReport.Delete(true);
     end;
 
     local procedure VerifyNumberOfAccScheduleLinesMoreThanOne(AccScheduleName: Code[10])

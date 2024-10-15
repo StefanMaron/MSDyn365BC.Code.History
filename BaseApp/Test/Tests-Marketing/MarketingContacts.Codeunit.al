@@ -98,7 +98,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.Modify(true);
 
         LibraryMarketing.CreateContactAltAddress(ContactAltAddress, Contact."No.");
-        LibraryMarketing.CreateContactAltAddrDateRange(ContactAltAddrDateRange, Contact."No.", WorkDate);
+        LibraryMarketing.CreateContactAltAddrDateRange(ContactAltAddrDateRange, Contact."No.", WorkDate());
         ContactAltAddrDateRange.Validate("Contact Alt. Address Code", ContactAltAddress.Code);
         ContactAltAddrDateRange.Modify(true);
 
@@ -198,7 +198,7 @@ codeunit 136201 "Marketing Contacts"
           LibraryUtility.GetFieldLength(DATABASE::"Business Relation", BusinessRelation.FieldNo(Description)),
           LibraryUtility.GetFieldLength(DATABASE::"Contact Business Relation",
             ContactBusinessRelation.FieldNo("Business Relation Description")),
-          StrSubstNo(WrongDescriptionFieldLengthErr, ContactBusinessRelation.TableCaption));
+          StrSubstNo(WrongDescriptionFieldLengthErr, ContactBusinessRelation.TableCaption()));
     end;
 
     [Test]
@@ -213,7 +213,7 @@ codeunit 136201 "Marketing Contacts"
           LibraryUtility.GetFieldLength(DATABASE::"Industry Group", IndustryGroup.FieldNo(Description)),
           LibraryUtility.GetFieldLength(DATABASE::"Contact Industry Group",
             ContactIndustryGroup.FieldNo("Industry Group Description")),
-          StrSubstNo(WrongDescriptionFieldLengthErr, ContactIndustryGroup.TableCaption));
+          StrSubstNo(WrongDescriptionFieldLengthErr, ContactIndustryGroup.TableCaption()));
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 136201 "Marketing Contacts"
           LibraryUtility.GetFieldLength(DATABASE::"Web Source", WebSource.FieldNo(Description)),
           LibraryUtility.GetFieldLength(DATABASE::"Contact Web Source",
             ContactWebSource.FieldNo("Web Source Description")),
-          StrSubstNo(WrongDescriptionFieldLengthErr, ContactWebSource.TableCaption));
+          StrSubstNo(WrongDescriptionFieldLengthErr, ContactWebSource.TableCaption()));
     end;
 
     [Test]
@@ -243,7 +243,7 @@ codeunit 136201 "Marketing Contacts"
           LibraryUtility.GetFieldLength(DATABASE::"Job Responsibility", JobResponsibility.FieldNo(Description)),
           LibraryUtility.GetFieldLength(DATABASE::"Contact Job Responsibility",
             ContactJobResponsibility.FieldNo("Job Responsibility Description")),
-          StrSubstNo(WrongDescriptionFieldLengthErr, ContactJobResponsibility.TableCaption));
+          StrSubstNo(WrongDescriptionFieldLengthErr, ContactJobResponsibility.TableCaption()));
     end;
 
     [Test]
@@ -381,7 +381,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on linking Contact with an existing Customer if Bus. Rel.
         // Code for Customers field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on linking Contact with an existing Vendor if Bus. Rel.
         // Code for Vendors field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -430,7 +430,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on linking Contact with an existing Bank Account if Bus. Rel.
         // Code for Bank Accs. field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption());
 
         // 4. Cleanup: Input the original value of the field Bus. Rel. Code for Bank Accs. in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccs);
@@ -499,7 +499,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Customer from Contact if Bus. Rel. Code for Customers
         // field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -572,7 +572,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Vendor from Contact if Bus. Rel. Code for Vendors
         // field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -597,7 +597,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Bank Account from Contact if Bus. Rel. Code for
         // Bank Accs. field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption());
 
         // 4. Cleanup: Input the original value of the field Bus. Rel. Code for Bank Accs. in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccs);
@@ -624,7 +624,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Contact from Customer if Bus. Rel. Code for Customers
         // field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Customers"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -648,7 +648,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Contact from Vendor if Bus. Rel. Code for Vendors
         // field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Vendors"), MarketingSetup.TableCaption());
     end;
 
     [Test]
@@ -674,7 +674,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Check that the application generates an error on creation of a Contact from Bank Account if Bus. Rel. Code
         // for Bank Accs. field in Marketing Setup is blank.
-        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption);
+        VerifyContactErrorMessage(MarketingSetup.FieldCaption("Bus. Rel. Code for Bank Accs."), MarketingSetup.TableCaption());
 
         // 4. Cleanup: Input the original value of the field Bus. Rel. Code for Bank Accs. in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccs);
@@ -980,7 +980,7 @@ codeunit 136201 "Marketing Contacts"
         // 2. Exercise: Cancel the Interaction.
         InteractionLogEntry.SetRange("Contact No.", Contact."No.");
         InteractionLogEntry.SetRange("Interaction Template Code", InteractionTemplate.Code);
-        InteractionLogEntry.ToggleCanceledCheckmark;
+        InteractionLogEntry.ToggleCanceledCheckmark();
 
         // 3. Verify: Check that the Statistics for Interaction has been updated on Contact.
         Contact.CalcFields("Cost (LCY)", "Duration (Min.)", "No. of Interactions");
@@ -1190,7 +1190,7 @@ codeunit 136201 "Marketing Contacts"
         Attachment.FindSet();
         repeat
             LibraryUtility.CheckFileNotEmpty(TemporaryPath + Format(Attachment."No."))
-        until Attachment.Next = 0;
+        until Attachment.Next() = 0;
     end;
 
     [Test]
@@ -1772,7 +1772,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Verify that Contact not exist after deletion.
         Contact.SetRange("No.", Contact."No.");
-        Assert.IsFalse(Contact.FindFirst, StrSubstNo(ErrorMessage, Contact.TableCaption, Contact."No."));
+        Assert.IsFalse(Contact.FindFirst, StrSubstNo(ErrorMessage, Contact.TableCaption(), Contact."No."));
     end;
 
     [Test]
@@ -1800,7 +1800,7 @@ codeunit 136201 "Marketing Contacts"
 
         // 3. Verify: Verify that Customer linked to Contact still exists.
         Customer.SetRange("No.", Customer."No.");
-        Assert.IsTrue(Customer.FindFirst, StrSubstNo(ValidationError, Customer.TableCaption, Customer."No."));
+        Assert.IsTrue(Customer.FindFirst, StrSubstNo(ValidationError, Customer.TableCaption(), Customer."No."));
     end;
 
     [Test]
@@ -1829,7 +1829,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.Delete(true);
 
         // 3. Verify: Verify that Vendor linked to Contact still exists.
-        Assert.IsTrue(Vendor.Get(Vendor."No."), StrSubstNo(ValidationError, Vendor.TableCaption, Vendor."No."));
+        Assert.IsTrue(Vendor.Get(Vendor."No."), StrSubstNo(ValidationError, Vendor.TableCaption(), Vendor."No."));
     end;
 
     [Test]
@@ -1861,7 +1861,7 @@ codeunit 136201 "Marketing Contacts"
         Contact.Delete(true);
 
         // 3. Verify: Verify that Bank Account linked to Contact still exists.
-        Assert.IsTrue(BankAccount.Get(BankAccount."No."), StrSubstNo(ValidationError, BankAccount.TableCaption, BankAccount."No."));
+        Assert.IsTrue(BankAccount.Get(BankAccount."No."), StrSubstNo(ValidationError, BankAccount.TableCaption(), BankAccount."No."));
 
         // 4. Tear Down: Input the original value of the field Bus. Rel. Code for Bank Account in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccount);
@@ -1905,7 +1905,7 @@ codeunit 136201 "Marketing Contacts"
         Customer.Delete(true);
 
         // 3. Verify: Verify that Contact still exists after deleting linked Customer.
-        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption, ContactNo));
+        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption(), ContactNo));
     end;
 
     [Test]
@@ -1947,7 +1947,7 @@ codeunit 136201 "Marketing Contacts"
         Vendor.Delete(true);
 
         // 3. Verify: Verify that Contact still exists after deleting linked Vendor.
-        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption, ContactNo));
+        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption(), ContactNo));
     end;
 
     [Test]
@@ -1981,11 +1981,11 @@ codeunit 136201 "Marketing Contacts"
         ContactNo := ContactList."No.".Value;
 
         // 2. Exercise.
-        BankAccount.Find;
+        BankAccount.Find();
         BankAccount.Delete(true);
 
         // 3. Verify: Verify that Contact still exists after deleting linked Bank Account.
-        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption, ContactNo));
+        Assert.IsTrue(Contact.Get(ContactNo), StrSubstNo(ValidationError, Contact.TableCaption(), ContactNo));
 
         // 4. Tear Down: Input the original value of the field Bus. Rel. Code for Bank Account in Marketing Setup.
         ChangeBusinessRelationCodeForBankAccount(BusRelCodeForBankAccount);
@@ -2064,7 +2064,7 @@ codeunit 136201 "Marketing Contacts"
         // 3. Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            BusinessRelationError, Contact.TableCaption, Contact."No.", ContactBusinessRelation."Link to Table",
+            BusinessRelationError, Contact.TableCaption(), Contact."No.", ContactBusinessRelation."Link to Table",
             ContactBusinessRelation."No."));
     end;
 
@@ -2092,7 +2092,7 @@ codeunit 136201 "Marketing Contacts"
         SegMgt.LogInteraction(SegmentLine, TempNewAttachment, TempInterLogEntryCommentLine, false, true);
 
         // verify that attachment is exist
-        Attachment.Find;
+        Attachment.Find();
         Assert.IsTrue(Attachment."Attachment File".HasValue, EmptyAttachmentErr);
 
         SegmentLine.Delete();
@@ -2135,7 +2135,7 @@ codeunit 136201 "Marketing Contacts"
         TaskList.Trap;
         ContactCard."T&asks".Invoke;
         // [THEN] Page Task List successfully opened
-        TaskList.Close;
+        TaskList.Close();
 
         // Tear Down
         Contact.Delete();
@@ -2250,7 +2250,7 @@ codeunit 136201 "Marketing Contacts"
             BusRelContactValidationErr,
             ContactBusinessRelation.FieldCaption("Business Relation Code"),
             BusinessRelation.Code,
-            Contact.TableCaption, Customer.TableCaption));
+            Contact.TableCaption(), Customer.TableCaption()));
     end;
 
     [Test]
@@ -2558,7 +2558,7 @@ codeunit 136201 "Marketing Contacts"
 
         ContactList.NewSalesQuote.Invoke;
 
-        SalesQuote.Close;
+        SalesQuote.Close();
         // [THEN] User is asked for Customer Template selection
         // [THEN] After user selected Customer Template "CT" - new Sales Quote with Customer opens
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
@@ -2592,52 +2592,9 @@ codeunit 136201 "Marketing Contacts"
 
         ContactList.NewSalesQuote.Invoke;
 
-        SalesQuote.Close;
+        SalesQuote.Close();
         // [THEN] SalesQuote Page opens (handled in ModalPageHandler)
     end;
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
-    procedure ContactListSalesQuoteForContactWithBusinessRelation()
-    var
-        ContactCompany: Record Contact;
-        SalesHeader: Record "Sales Header";
-        ContactList: TestPage "Contact List";
-        SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[20];
-        CustomerNo: Code[20];
-    begin
-        // [SCENARIO 198367] Create Sales Quote from Contact List page for Contact with Customer Business Relation
-        Initialize();
-
-        // [GIVEN] Contact "C" with type Company
-        LibraryMarketing.CreateCompanyContact(ContactCompany);
-        CustomerTemplateCode := CreateCustomerTemplateForContact('');
-
-        // [GIVEN] Customer "CU1" with relation to Contact "C"
-        CustomerNo := CreateCustomerForContact(ContactCompany, CustomerTemplateCode);
-
-        // [GIVEN] Contact List page is opened and focus is set on Contact "C"
-        ContactList.OpenView;
-        ContactList.GotoRecord(ContactCompany);
-
-        // [WHEN] "New Sales Quote" Action is pressed
-        SalesQuote.Trap;
-
-        ContactList.NewSalesQuote.Invoke;
-
-        SalesQuote.Close;
-
-        // [THEN] Sales Quote page opened, Customer Template selection is not asked
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-        SalesHeader.SetRange("Sell-to Contact No.", ContactCompany."No.");
-        SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.SetRange("Sell-to Customer Template Code", '');
-        Assert.RecordIsNotEmpty(SalesHeader);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,EmailEditorHandler,CloseEmailEditorHandler')]
@@ -2717,27 +2674,27 @@ codeunit 136201 "Marketing Contacts"
 
         // [WHEN] GetBillToNo run
         // [THEN] Return value = "C"
-        Assert.AreEqual(Contact."No.", SalesHeader.GetBillToNo, WrongValueErr);
+        Assert.AreEqual(Contact."No.", SalesHeader.GetBillToNo(), WrongValueErr);
 
         // [WHEN] Bill-to Customer Template Code = '' and GetBillToNo run
         // [THEN] Return value = ""
         SalesHeader.Validate("Bill-to Customer Templ. Code", '');
         SalesHeader.Modify();
-        Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
+        Assert.AreEqual('', SalesHeader.GetBillToNo(), WrongValueErr);
 
         // [WHEN] Bill-to Customer Template Code = "CT", "Bill-to Contact No." = '' and GetBillToNo run
         // [THEN] Return value = ""
         SalesHeader.Validate("Bill-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.Validate("Bill-to Contact No.", '');
         SalesHeader.Modify();
-        Assert.AreEqual('', SalesHeader.GetBillToNo, WrongValueErr);
+        Assert.AreEqual('', SalesHeader.GetBillToNo(), WrongValueErr);
 
         // [WHEN] Bill-to Customer No. = "CUST" and GetBillToNo run
         // [THEN] Return value = "CUST"
         SalesHeader.Validate("Bill-to Customer No.", CustomerNo);
         SalesHeader.Modify();
 
-        Assert.AreEqual(CustomerNo, SalesHeader.GetBillToNo, WrongValueErr);
+        Assert.AreEqual(CustomerNo, SalesHeader.GetBillToNo(), WrongValueErr);
     end;
 
     [Test]
@@ -3104,7 +3061,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Sales Quote is populated with "Sell-To Customer Template Code" = "X"
         SalesQuote."Sell-to Address".SetValue('');
         SalesQuote."Sell-to Customer Templ. Code".AssertEquals(LibraryVariableStorage.DequeueText);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -3139,40 +3096,6 @@ codeunit 136201 "Marketing Contacts"
         // Verification done by ConfirmHandlerFalseWithTextVerification
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure UT_NoCustTemplateConfirmationWhenContactPersonHasBusRelation()
-    var
-        ContactBusinessRelation: Record "Contact Business Relation";
-        ContactPerson: Record Contact;
-        ContactCompany: Record Contact;
-        SalesHeader: Record "Sales Header";
-    begin
-        // [SCENARIO 205513] Confirmation is not raised when Sales Quote validates with Contact (Type = Person) which have business relation with customer
-
-        Initialize();
-
-        // [GIVEN] New Sales Quote
-        CreateSalesQuote(SalesHeader);
-
-        // [GIVEN] Contact "X" with Type = Company with business relation to Customer
-        LibraryMarketing.CreateCompanyContact(ContactCompany);
-        LibraryMarketing.CreateBusinessRelationWithContact(ContactBusinessRelation, ContactCompany."No.");
-
-        // [GIVEN] Contact "Y" with Type = Person and "Company No." = "X"
-        LibraryMarketing.CreatePersonContact(ContactPerson);
-        ContactPerson.Validate("Company No.", ContactCompany."No.");
-        ContactPerson.Modify(true);
-        LibraryVariableStorage.Enqueue(SelectCustomerTemplateQst);
-
-        // [WHEN] Validate "Sell-to Contact No." with "Y"
-        SalesHeader.Validate("Sell-to Contact No.", ContactPerson."No.");
-
-        // [THEN] Confirmation is not thrown and "Sell-to Customer Template" is blank
-        SalesHeader.TestField("Sell-to Customer Template Code", '');
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure CreateContsFromCustomersPersonContact()
@@ -3193,7 +3116,7 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Run report Create Contact for Customers for Customer "CUST"
         Customer.SetRange("No.", Customer."No.");
         RunCreateContsFromCustomersReport(Customer);
-        Customer.Find;
+        Customer.Find();
 
         // [THEN] Contact "C" created with Type = Person, Name = "C", Phone No. = "PN"
         // [THEN] Contact "C" is Primary Contact for Customer "CUST"
@@ -3220,7 +3143,7 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Run report Create Contact for Vendors for Vendor "VEND"
         Vendor.SetRange("No.", Vendor."No.");
         RunCreateContsFromVendorsReport(Vendor);
-        Vendor.Find;
+        Vendor.Find();
 
         // [THEN] Contact "C" created with Type = Person, Name = "C", Phone No. = "PN"
         // [THEN] Contact "C" is Primary Contact for Vendor "VEND"
@@ -3417,7 +3340,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromCustTxt, LibraryVariableStorage.DequeueText);
         Customer.Delete();
-        SalesRelationshipMgrAct.Close;
+        SalesRelationshipMgrAct.Close();
     end;
 
     [Test]
@@ -3440,7 +3363,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Notification is shown
         Assert.ExpectedMessage(YouCanGetContactFromVendTxt, LibraryVariableStorage.DequeueText);
         Vendor.Delete();
-        SalesRelationshipMgrAct.Close;
+        SalesRelationshipMgrAct.Close();
     end;
 
     [Test]
@@ -3472,17 +3395,17 @@ codeunit 136201 "Marketing Contacts"
         // [WHEN] Sales & Relationship Manager role center is opened
         SalesRelationshipMgrAct.OpenView;
         // [THEN] No notifications suggesting to create Contacts appear
-        SalesRelationshipMgrAct.Close;
+        SalesRelationshipMgrAct.Close();
 
         // [WHEN] Customer List is opened
         CustomerList.OpenEdit;
         // [THEN] No notifications suggesting to create Contacts appear
-        CustomerList.Close;
+        CustomerList.Close();
 
         // [WHEN] Vendor List is opened
         VendorList.OpenEdit;
         // [THEN] No notifications suggesting to create Contacts appear
-        VendorList.Close;
+        VendorList.Close();
     end;
 
     [Test]
@@ -3558,7 +3481,7 @@ codeunit 136201 "Marketing Contacts"
         Vendor.Modify(true);
 
         // [THEN] Contact with Type::Company created for "C"
-        ContactPerson.Find;
+        ContactPerson.Find();
         ContactCompany.Get(ContactPerson."Company No.");
 
         // [THEN] ContactBusinessRelation record created for "V" and "C".CompanyNo.
@@ -3590,7 +3513,7 @@ codeunit 136201 "Marketing Contacts"
         Customer.Modify(true);
 
         // [THEN] Contact with Type::Company created for "C"
-        ContactPerson.Find;
+        ContactPerson.Find();
         ContactCompany.Get(ContactPerson."Company No.");
 
         // [THEN] ContactBusinessRelation record created for "Cus" and "C".CompanyNo.
@@ -3725,7 +3648,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Error is invoked: Contact "C" already has a Contact Business Relation with Vendor "V".
         Assert.ExpectedError(
-          StrSubstNo(RelationAlreadyExistWithVendorErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Vendor[1]."No."));
+          StrSubstNo(RelationAlreadyExistWithVendorErr, ContBusRel."Contact No.", ContBusRel.TableCaption(), Vendor[1]."No."));
     end;
 
     [Test]
@@ -3751,7 +3674,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Error is invoked: Contact "C" already has a Contact Business Relation with Customer "Cus1".
         Assert.ExpectedError(
-          StrSubstNo(RelationAlreadyExistWithCustomerErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Customer[1]."No."));
+          StrSubstNo(RelationAlreadyExistWithCustomerErr, ContBusRel."Contact No.", ContBusRel.TableCaption(), Customer[1]."No."));
     end;
 
     [Test]
@@ -3958,7 +3881,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Vendor, ContactBusinessRelation."Link to Table"::Vendor);
 
-        ContactPerson.Find;
+        ContactPerson.Find();
         VerifyContactBusinessRelationForLinkTableAndContact(
           ContactPerson."Company No.", Vendor."No.", ContactBusinessRelation."Link to Table"::Vendor);
     end;
@@ -3981,7 +3904,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Customer, ContactBusinessRelation."Link to Table"::Customer);
 
-        ContactPerson.Find;
+        ContactPerson.Find();
         VerifyContactBusinessRelationForLinkTableAndContact(
           ContactPerson."Company No.", Customer."No.", ContactBusinessRelation."Link to Table"::Customer);
     end;
@@ -4004,7 +3927,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Vendor, ContactBusinessRelation."Link to Table"::Vendor);
 
-        ContactPerson.Find;
+        ContactPerson.Find();
         VerifyContactBusinessRelationForLinkTableAndContact(
           ContactPerson."Company No.", Vendor."No.", ContactBusinessRelation."Link to Table"::Vendor);
     end;
@@ -4027,7 +3950,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactPerson, Customer, ContactBusinessRelation."Link to Table"::Customer);
 
-        ContactPerson.Find;
+        ContactPerson.Find();
         VerifyContactBusinessRelationForLinkTableAndContact(
           ContactPerson."Company No.", Customer."No.", ContactBusinessRelation."Link to Table"::Customer);
     end;
@@ -4050,7 +3973,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactCompany, Vendor, ContactBusinessRelation."Link to Table"::Vendor);
 
-        Vendor.Find;
+        Vendor.Find();
         Vendor.TestField(Contact, '');
         Assert.AreNotEqual(Vendor.Contact, ContactCompany.Name, 'Contact with Type::Company must not be validated for Vendor');
     end;
@@ -4073,7 +3996,7 @@ codeunit 136201 "Marketing Contacts"
         ContactBusinessRelation.FindOrRestoreContactBusinessRelation(
           ContactCompany, Customer, ContactBusinessRelation."Link to Table"::Customer);
 
-        Customer.Find;
+        Customer.Find();
         Customer.TestField(Contact, '');
         Assert.AreNotEqual(Customer.Contact, ContactCompany.Name, 'Contact with Type::Company must not be validated for Customer');
     end;
@@ -4100,7 +4023,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Company Contact is created for Customer
         // [THEN] Customer has Primary Contact No. = Company Contact No.
-        Customer.Find;
+        Customer.Find();
         VerifyContact(Customer."Primary Contact No.", ContactType::Company, '', '');
 
         // [THEN] Person Contact is not created for Company Contact
@@ -4129,7 +4052,7 @@ codeunit 136201 "Marketing Contacts"
 
         // [THEN] Company Contact is created for Vendor
         // [THEN] Vendor has Primary Contact No. = Company Contact No.
-        Vendor.Find;
+        Vendor.Find();
         VerifyContact(Vendor."Primary Contact No.", ContactType::Company, '', '');
 
         // [THEN] Person Contact is not created for Company Contact
@@ -4330,7 +4253,7 @@ codeunit 136201 "Marketing Contacts"
             Customer."No.", PersonContact."No.", ContactBusinessRelation."Link to Table"::Customer),
           WrongValueErr);
 
-        ContactBusinessRelation.Find;
+        ContactBusinessRelation.Find();
         ContactBusinessRelation.TestField("No.", Customer."No.");
     end;
 
@@ -4495,8 +4418,8 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, ContactCompany."No.", Customer."No.");
 
         // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
-        Customer."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
-        Customer."Last Date Modified" := WorkDate - 1;
+        Customer."Last Modified Date Time" := CreateDateTime(WorkDate() - 1, 0T);
+        Customer."Last Date Modified" := WorkDate() - 1;
         Customer.Modify();
 
         // [GIVEN] Memorize of the "Last Modified Date Time"
@@ -4533,8 +4456,8 @@ codeunit 136201 "Marketing Contacts"
         CreateBusinessRelationBetweenContactAndVendor(ContactCompany."No.", Vendor."No.");
 
         // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
-        Vendor."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
-        Vendor."Last Date Modified" := WorkDate - 1;
+        Vendor."Last Modified Date Time" := CreateDateTime(WorkDate() - 1, 0T);
+        Vendor."Last Date Modified" := WorkDate() - 1;
         Vendor.Modify();
 
         // [GIVEN] Memorize of the "Last Modified Date Time"
@@ -4571,7 +4494,7 @@ codeunit 136201 "Marketing Contacts"
         CreateBusinessRelationBetweenContactAndBankAccount(ContactCompany."No.", BankAccount."No.");
 
         // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
-        BankAccount."Last Date Modified" := WorkDate - 1;
+        BankAccount."Last Date Modified" := WorkDate() - 1;
         BankAccount.Modify();
 
         // [GIVEN] Memorize of the "Last Modified Date Time"
@@ -4607,8 +4530,8 @@ codeunit 136201 "Marketing Contacts"
         CreateBusinessRelationBetweenContactAndEmployee(ContactCompany."No.", Employee."No.");
 
         // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
-        Employee."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
-        Employee."Last Date Modified" := WorkDate - 1;
+        Employee."Last Modified Date Time" := CreateDateTime(WorkDate() - 1, 0T);
+        Employee."Last Date Modified" := WorkDate() - 1;
         Employee.Modify();
 
         // [GIVEN] Memorize of the "Last Modified Date Time"
@@ -4655,34 +4578,6 @@ codeunit 136201 "Marketing Contacts"
         ContactList.Close();
     end;
 
-#if not CLEAN18
-    [Test]
-    [Scope('OnPrem')]
-    procedure CreateCustomerForPersonContactWithCompanyContactWithCustomer()
-    var
-        Contact: Record Contact;
-        ContBusRel: Record "Contact Business Relation";
-        Customer: Record Customer;
-        CustomerTemplate: Record "Customer Templ.";
-    begin
-        // [SCENARIO 383926] Contact function CreateCusomer throws error when trying to create Customer for Person Contact with Company having Customer.
-        Initialize();
-
-        // [GIVEN] Company Contact with No. = "Company" linked to Customer.
-        // [GIVEN] Person Contact with Company No. = "Company".
-        CreateCustomerWithContactPerson(Customer, Contact, ContBusRel);
-
-        // [WHEN] CreateCustomer is called for Person Contact.
-        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
-        Contact.SetHideValidationDialog(true);
-        asserterror Contact.CreateCustomer(CustomerTemplate.Code);
-
-        // [THEN] Error about relation already existing between Company Contact and Customer.
-        Assert.ExpectedErrorCode('Dialog');
-        Assert.ExpectedError(
-            StrSubstNo(RelationAlreadyExistWithCustomerErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Customer."No."));
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure CreateCustomerForPersonContactWithCompanyContactWithoutCustomer()
@@ -4733,7 +4628,7 @@ codeunit 136201 "Marketing Contacts"
         // [THEN] Error about relation already existing between Company Contact and Vendor.
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-            StrSubstNo(RelationAlreadyExistWithVendorErr, ContBusRel."Contact No.", ContBusRel.TableCaption, Vendor."No."));
+            StrSubstNo(RelationAlreadyExistWithVendorErr, ContBusRel."Contact No.", ContBusRel.TableCaption(), Vendor."No."));
     end;
 
     [Test]
@@ -5810,10 +5705,10 @@ codeunit 136201 "Marketing Contacts"
         Contact: Record Contact;
     begin
         with Contact do begin
-            Init;
+            Init();
             "No." := CompanyNo;
             Type := Type::Company;
-            Insert;
+            Insert();
         end;
         exit(Contact."No.");
     end;
@@ -5848,10 +5743,10 @@ codeunit 136201 "Marketing Contacts"
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         with Customer do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Customer);
             Name := CopyStr(CreateGuid, 1, 50);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5942,10 +5837,10 @@ codeunit 136201 "Marketing Contacts"
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         with Vendor do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Vendor);
             Name := CopyStr(CreateGuid, 1, 50);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5993,11 +5888,11 @@ codeunit 136201 "Marketing Contacts"
     local procedure CreateSegmentLine(var SegmentLine: Record "Segment Line"; AttachmentNo: Integer)
     begin
         with SegmentLine do begin
-            Init;
+            Init();
             "Segment No." := LibraryUtility.GenerateRandomCode(FieldNo("Segment No."), DATABASE::"Segment Line");
             "Line No." := 10000;
             "Attachment No." := AttachmentNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -6006,9 +5901,9 @@ codeunit 136201 "Marketing Contacts"
         InteractLogEntry: Record "Interaction Log Entry";
     begin
         with InteractLogEntry do begin
-            Init;
+            Init();
             "Entry No." := SegmentLineNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -6082,7 +5977,7 @@ codeunit 136201 "Marketing Contacts"
     local procedure CreateAndUpdateTask(var Task: Record "To-do"; Contact: Record Contact)
     begin
         LibraryMarketing.CreateTask(Task);
-        Task.Validate(Date, WorkDate);
+        Task.Validate(Date, WorkDate());
         Task.Validate("Contact No.", Contact."No.");
         Task.Validate("Salesperson Code", Contact."Salesperson Code");
         Task.Modify(true);
@@ -6245,7 +6140,7 @@ codeunit 136201 "Marketing Contacts"
         SalesQuote.OpenEdit;
         SalesQuote.GotoRecord(SalesHeader);
         SalesQuote."Sell-to Contact No.".Lookup;
-        SalesQuote.Close;
+        SalesQuote.Close();
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesHeader."No.");
     end;
 
@@ -6429,7 +6324,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationVATRegNo', CompanyInformation."VAT Registration No.");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationBankName', CompanyInformation."Bank Name");
         LibraryReportDataset.AssertElementWithValueExists('CompanyInformationBankAccountNo', CompanyInformation."Bank Account No.");
-        LibraryReportDataset.AssertElementWithValueExists('Document_Date', Format(WorkDate, 0, 4));
+        LibraryReportDataset.AssertElementWithValueExists('Document_Date', Format(WorkDate(), 0, 4));
     end;
 
     local procedure VerifyContactCoverSheetContactInfoReport(Contact: Record Contact)

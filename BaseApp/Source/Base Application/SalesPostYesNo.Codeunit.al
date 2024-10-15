@@ -9,8 +9,8 @@ codeunit 81 "Sales-Post (Yes/No)"
     begin
         OnBeforeOnRun(Rec);
 
-        if not Find then
-            Error(NothingToPostErr);
+        if not Find() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         SalesHeader.Copy(Rec);
         Code(SalesHeader, false);
@@ -18,10 +18,10 @@ codeunit 81 "Sales-Post (Yes/No)"
     end;
 
     var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ShipInvoiceQst: Label '&Ship,&Invoice,Ship &and Invoice';
         PostConfirmQst: Label 'Do you want to post the %1?', Comment = '%1 = Document Type';
         ReceiveInvoiceQst: Label '&Receive,&Invoice,Receive &and Invoice';
-        NothingToPostErr: Label 'There is nothing to post.';
         TaxDocPostConfirmQst: Label 'Do you want to post the Tax Document?';
 
     procedure PostAndSend(var SalesHeader: Record "Sales Header")

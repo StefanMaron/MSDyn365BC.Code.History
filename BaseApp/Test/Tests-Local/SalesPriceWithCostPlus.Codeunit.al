@@ -45,7 +45,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         // [SCENARIO] Calculate Sales Price based on Cost-plus for all customers if Posting Date specified on the sales Order is within the date range specified on the Sales Price.
 
         // Setup.
-        CustomerSalesPriceWithCostPlusStartingdate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceWithCostPlusStartingdate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceWithCostPlusStartingdate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -103,7 +103,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         // Setup.
         CustomerSalesPriceWithCostPlusDateRange(
           SalesPrice."Sales Type"::"All Customers", '', CreateCustomer,
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
     end;
 
     local procedure CustomerSalesPriceWithCostPlusDateRange(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
@@ -142,7 +142,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         CustomerNo := FindCustomerFromContactBusinessRelation(ContactNo);
         CampaignNo := CreateAndActivateCampaign(ContactNo);
         CreateSalesPriceWithCostPlus(
-          SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate, LibraryRandom.RandDec(10, 2));  // Random Minimum Quantity.
+          SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate(), LibraryRandom.RandDec(10, 2));  // Random Minimum Quantity.
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -232,7 +232,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         // [SCENARIO] Calculate Sales Price based on discount allowed for all customers if Posting Date specified on the sales Invoice is within the date range specified on the Sales Price.
 
         // Setup.
-        CustomerSalesPriceDiscountAmtWithStartingDate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceDiscountAmtWithStartingDate(SalesPrice."Sales Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceDiscountAmtWithStartingDate(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -265,7 +265,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         // Setup.
         CreateSalesPriceWithDiscountAmount(
           SalesPrice, SalesPrice."Sales Type"::"All Customers", '',
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Customer Number - blank and Starting Date - less than Workdate.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Customer Number - blank and Starting Date - less than Workdate.
 
         // Exercise: Create Sales Invoice.
         CreateSalesDocument(
@@ -293,7 +293,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         ContactNo := CreateContactWithCustomer;
         CampaignNo := CreateAndActivateCampaign(ContactNo);
         CustomerNo := FindCustomerFromContactBusinessRelation(ContactNo);
-        CreateSalesPriceWithDiscountAmount(SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate);  // Starting Date - Workdate.
+        CreateSalesPriceWithDiscountAmount(SalesPrice, SalesPrice."Sales Type"::Campaign, CampaignNo, WorkDate());  // Starting Date - Workdate.
 
         // Exercise: Create Sales Order.
         CreateSalesDocument(
@@ -320,7 +320,7 @@ codeunit 141051 "Sales Price With Cost Plus"
         // Setup: Update Automatic Cost Adjustment on Inventory Setup, Create Sales Price with Cost Plus and create Sales Order.
         UpdateAutomaticCostAdjustmentOnInventorySetup(OldAutomaticCostAdjustment, InventorySetup."Automatic Cost Adjustment"::Day);
         CreateSalesPriceWithCostPlus(
-          SalesPrice, SalesPrice."Sales Type"::"All Customers", '', WorkDate, LibraryRandom.RandDec(10, 2));  // Customer Number - blank and Random Minimum Quantity.
+          SalesPrice, SalesPrice."Sales Type"::"All Customers", '', WorkDate(), LibraryRandom.RandDec(10, 2));  // Customer Number - blank and Random Minimum Quantity.
 
         CreateSalesDocument(
           SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, '', SalesPrice."Item No.", SalesPrice."Minimum Quantity");  // Campaign Number - blank.
@@ -529,8 +529,8 @@ codeunit 141051 "Sales Price With Cost Plus"
         CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
     begin
         LibraryMarketing.CreateCampaign(Campaign);
-        Campaign.Validate("Starting Date", WorkDate);
-        Campaign.Validate("Ending Date", WorkDate);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate());
         Campaign.Modify(true);
         CreateSegmentHeaderWithLine(Campaign."No.", ContactNo);
         CampaignTargetGroupMgt.ActivateCampaign(Campaign);
@@ -540,12 +540,12 @@ codeunit 141051 "Sales Price With Cost Plus"
     local procedure CreateContactWithCustomer(): Code[20]
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTempl: Record "Customer Templ.";
     begin
         LibraryMarketing.CreateCompanyContact(Contact);
-        CustomerTemplate.SetRange("Currency Code", '');
-        CustomerTemplate.FindFirst();
-        Contact.CreateCustomer(CustomerTemplate.Code);
+        CustomerTempl.SetRange("Currency Code", '');
+        CustomerTempl.FindFirst();
+        Contact.CreateCustomerFromTemplate(CustomerTempl.Code);
         exit(Contact."No.")
     end;
 

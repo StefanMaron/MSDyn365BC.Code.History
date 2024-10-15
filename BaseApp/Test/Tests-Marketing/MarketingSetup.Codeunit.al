@@ -770,7 +770,7 @@ codeunit 136205 "Marketing Setup"
         Assert.IsFalse(
           MarketingSetupPage."Attachment Storage Location".Visible,
           StrSubstNo(ControlVisibilityErr, false));
-        MarketingSetupPage.Close;
+        MarketingSetupPage.Close();
     end;
 
     [Test]
@@ -796,7 +796,7 @@ codeunit 136205 "Marketing Setup"
         Assert.IsTrue(
           MarketingSetupPage."Attachment Storage Location".Visible,
           StrSubstNo(ControlVisibilityErr, true));
-        MarketingSetupPage.Close;
+        MarketingSetupPage.Close();
     end;
 
     local procedure ClearDefaultValueSetup(var TempMarketingSetup: Record "Marketing Setup" temporary)
@@ -910,7 +910,7 @@ codeunit 136205 "Marketing Setup"
         MarketingSetup.Validate("Default Country/Region Code", CountryRegion.Code);
         MarketingSetup.Validate("Default Language Code", Language.Code);
         MarketingSetup.Validate("Default Person Salutation Code", Salutation.Code);
-        Salutation.Next;
+        Salutation.Next();
         MarketingSetup.Validate("Def. Company Salutation Code", Salutation.Code);
         MarketingSetup.Validate("Default Correspondence Type", MarketingSetup."Default Correspondence Type"::"Hard Copy");
         MarketingSetup.Modify(true);
@@ -960,7 +960,7 @@ codeunit 136205 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        Assert.AreEqual(StrSubstNo(FieldErrorServiceTier, FieldCaption, MarketingSetup.TableCaption), GetLastErrorText, UnknownError)
+        Assert.AreEqual(StrSubstNo(FieldErrorServiceTier, FieldCaption, MarketingSetup.TableCaption()), GetLastErrorText, UnknownError)
     end;
 
     [ConfirmHandler]
@@ -987,7 +987,7 @@ codeunit 136205 "Marketing Setup"
         TempTask.Insert();
         TempTask.Validate(Type, TempTask.Type::" ");
         TempTask.Validate(Description, TempTask."Salesperson Code");
-        TempTask.Validate(Date, WorkDate);
+        TempTask.Validate(Date, WorkDate());
 
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);

@@ -642,7 +642,7 @@ table 32 "Item Ledger Entry"
     begin
         if "Applied Entry to Adjust" <> AppliedEntryToAdjust then begin
             "Applied Entry to Adjust" := AppliedEntryToAdjust;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -667,7 +667,7 @@ table 32 "Item Ledger Entry"
             until ItemApplnEntry.Next() = 0;
 
             if CompletelyInvoiced then begin
-                SetCompletelyInvoiced;
+                SetCompletelyInvoiced();
                 exit(true);
             end;
         end;
@@ -678,13 +678,13 @@ table 32 "Item Ledger Entry"
     begin
         if not "Completely Invoiced" then begin
             "Completely Invoiced" := true;
-            Modify;
+            Modify();
         end;
     end;
 
     procedure AppliedEntryToAdjustExists(ItemNo: Code[20]): Boolean
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Applied Entry to Adjust");
         SetRange("Item No.", ItemNo);
         SetRange("Applied Entry to Adjust", true);
@@ -722,7 +722,7 @@ table 32 "Item Ledger Entry"
 
     procedure GetSourceCaption(): Text
     begin
-        exit(StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        exit(StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure GetUnitCostLCY(): Decimal
@@ -735,7 +735,7 @@ table 32 "Item Ledger Entry"
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; NetChange: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", Item."No.");
         SetRange(Open, true);
@@ -766,7 +766,7 @@ table 32 "Item Ledger Entry"
     var
         IsHandled: Boolean;
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code");
         SetRange("Item No.", ReservationEntry."Item No.");
         SetRange(Open, true);
@@ -800,7 +800,7 @@ table 32 "Item Ledger Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure CalculateRemQuantity(ItemLedgEntryNo: Integer; PostingDate: Date): Decimal
@@ -966,7 +966,7 @@ table 32 "Item Ledger Entry"
 
     procedure SetItemVariantLocationFilters(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; PostingDate: Date)
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", Open, "Variant Code", Positive, "Location Code", "Posting Date");
         SetRange("Item No.", ItemNo);
         SetRange("Variant Code", VariantCode);

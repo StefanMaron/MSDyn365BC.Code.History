@@ -92,18 +92,20 @@ table 1691 "Posted Bank Deposit Header"
         }
         field(21; Comment; Boolean)
         {
-            CalcFormula = Exist ("Bank Acc. Comment Line" WHERE("Table Name" = CONST("Posted Bank Deposit Header"),
+            CalcFormula = Exist("Bank Acc. Comment Line" WHERE("Table Name" = CONST("Posted Bank Deposit Header"),
                                                            "Bank Account No." = FIELD("Bank Account No."),
                                                            "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
             FieldClass = FlowField;
         }
+#pragma warning disable AA0232
         field(22; "Total Deposit Lines"; Decimal)
+#pragma warning restore
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Bank Deposit Line".Amount WHERE("Bank Deposit No." = FIELD("No.")));
+            CalcFormula = Sum("Posted Bank Deposit Line".Amount WHERE("Bank Deposit No." = FIELD("No.")));
             Caption = 'Total Deposit Lines';
             Editable = false;
             FieldClass = FlowField;

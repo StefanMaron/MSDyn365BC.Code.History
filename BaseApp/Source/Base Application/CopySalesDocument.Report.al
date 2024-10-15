@@ -1,4 +1,4 @@
-report 292 "Copy Sales Document"
+﻿report 292 "Copy Sales Document"
 {
     Caption = 'Copy Sales Document';
     ProcessingOnly = true;
@@ -27,7 +27,7 @@ report 292 "Copy Sales Document"
                         trigger OnValidate()
                         begin
                             FromDocNo := '';
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(DocumentNo; FromDocNo)
@@ -39,12 +39,12 @@ report 292 "Copy Sales Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo;
+                            LookupDocNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo;
+                            ValidateDocNo();
                         end;
                     }
                     field(FromDocNoOccurrence; FromDocNoOccurrence)
@@ -85,7 +85,7 @@ report 292 "Copy Sales Document"
 
                         trigger OnValidate()
                         begin
-                            ValidateIncludeHeader;
+                            ValidateIncludeHeader();
                         end;
                     }
                     field(RecalculateLines; RecalculateLines)
@@ -188,9 +188,9 @@ report 292 "Copy Sales Document"
                 if FromSalesHeader."No." = '' then
                     FromDocNo := '';
             end;
-            ValidateDocNo;
+            ValidateDocNo();
 
-            OnAfterOpenPage;
+            OnAfterOpenPage();
         end;
 
         trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -229,7 +229,7 @@ report 292 "Copy Sales Document"
                     Validate("Posting Date", PostingDate);
                 if ReplaceDocDate then
                     Validate("Document Date", PostingDate);
-                Modify;
+                Modify();
             end;
             GLSetup.Get();
             if ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"]) and
@@ -262,24 +262,13 @@ report 292 "Copy Sales Document"
                             "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromReturnRcptHeader."Document Date");
                         end;
                 end;
-                Modify;
+                Modify();
             end;
         end;
     end;
 
     var
-        FromSalesShptHeader: Record "Sales Shipment Header";
-        FromSalesInvHeader: Record "Sales Invoice Header";
-        FromReturnRcptHeader: Record "Return Receipt Header";
-        FromSalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        FromSalesHeaderArchive: Record "Sales Header Archive";
-        SalesSetup: Record "Sales & Receivables Setup";
-        GLSetup: Record "General Ledger Setup";
-        PostCodeCheck: Codeunit "Post Code Check";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
         BASManagement: Codeunit "BAS Management";
-        IncludeHeader: Boolean;
-        RecalculateLines: Boolean;
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Shipment';
         Text002: Label 'Undo Return Receipt';
@@ -291,10 +280,20 @@ report 292 "Copy Sales Document"
     protected var
         SalesHeader: Record "Sales Header";
         FromSalesHeader: Record "Sales Header";
+        FromSalesShptHeader: Record "Sales Shipment Header";
+        FromSalesInvHeader: Record "Sales Invoice Header";
+        FromReturnRcptHeader: Record "Return Receipt Header";
+        FromSalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        FromSalesHeaderArchive: Record "Sales Header Archive";
+        SalesSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
+        CopyDocMgt: Codeunit "Copy Document Mgt.";
         FromDocType: Enum "Sales Document Type From";
         FromDocNo: Code[20];
         FromDocNoOccurrence: Integer;
         FromDocVersionNo: Integer;
+        IncludeHeader: Boolean;
+        RecalculateLines: Boolean;
 
     procedure SetSalesHeader(var NewSalesHeader: Record "Sales Header")
     begin
@@ -336,31 +335,25 @@ report 292 "Copy Sales Document"
                         begin
                             FromSalesInvHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromSalesInvHeader);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Sales Invoice Header", FromSalesInvHeader.GetPosition,
-                              DATABASE::"Sales Header", FromSalesHeader.GetPosition);
+                            OnValidateDocNoOnAfterTransferFieldsFromSalesInvHeader(FromSalesHeader, FromSalesInvHeader);
                         end;
                     FromDocType::"Posted Return Receipt":
                         begin
                             FromReturnRcptHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromReturnRcptHeader);
+                            OnValidateDocNoOnAfterTransferFieldsFromReturnReceiptHeader(FromSalesHeader, FromReturnRcptHeader);
                             if SalesHeader."Document Type" in
                                [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice]
                             then begin
                                 FromDocType2 := FromDocType2::"Posted Credit Memo";
                                 Message(Text000, FromDocType, FromDocType2, Text002);
                             end;
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Return Receipt Header", FromReturnRcptHeader.GetPosition,
-                              DATABASE::"Sales Header", FromSalesHeader.GetPosition);
                         end;
                     FromDocType::"Posted Credit Memo":
                         begin
                             FromSalesCrMemoHeader.Get(FromDocNo);
                             FromSalesHeader.TransferFields(FromSalesCrMemoHeader);
-                            PostCodeCheck.CopyAllAddressID(
-                              DATABASE::"Sales Cr.Memo Header", FromSalesCrMemoHeader.GetPosition,
-                              DATABASE::"Sales Header", FromSalesHeader.GetPosition);
+                            OnValidateDocNoOnAfterTransferFieldsFromSalesCrMemoHeader(FromSalesHeader, FromSalesCrMemoHeader);
                         end;
                     FromDocType::"Arch. Quote",
                     FromDocType::"Arch. Order",
@@ -382,7 +375,7 @@ report 292 "Copy Sales Document"
           (SalesHeader."Bill-to Customer No." in [FromSalesHeader."Bill-to Customer No.", '']);
 
         OnBeforeValidateIncludeHeader(IncludeHeader, FromSalesHeader);
-        ValidateIncludeHeader;
+        ValidateIncludeHeader();
         OnAfterValidateIncludeHeader(IncludeHeader, RecalculateLines);
     end;
 
@@ -633,5 +626,21 @@ report 292 "Copy Sales Document"
     local procedure OnPreReportOnBeforeCopyDocMgtSetProperties(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; SalesHeader: Record "Sales Header"; var ExactCostReversingMandatory: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromSalesInvHeader(FromSalesHeader: Record "Sales Header"; FromSalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromSalesCrMemoHeader(FromSalesHeader: Record "Sales Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDocNoOnAfterTransferFieldsFromReturnReceiptHeader(FromSalesHeader: Record "Sales Header"; FromReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
 }
 

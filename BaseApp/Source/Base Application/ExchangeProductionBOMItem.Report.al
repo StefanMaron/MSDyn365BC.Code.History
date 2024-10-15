@@ -56,7 +56,7 @@ report 99001043 "Exchange Production BOM Item"
                                     ProdBOMHeader.Modify();
                                     ProdBOMHeader.Mark(true);
                                 end;
-                            end else begin
+                            end else
                                 if ProdBOMLine."Production BOM No." <> ProdBOMLine2."Production BOM No." then begin
                                     ProdBOMVersionList.SetRange("Production BOM No.", ProdBOMLine."Production BOM No.");
 
@@ -93,10 +93,10 @@ report 99001043 "Exchange Production BOM Item"
                                                 ProdBOMLine2."Version Code" := ProdBOMVersionList."Version Code";
                                                 ProdBOMLine2.Insert();
                                             end;
-                                        until ProdBOMLine3.Next() = 0;
-                                end else
-                                    FirstVersion := false;
-                            end;
+                                        until ProdBOMLine3.Next() = 0
+                                    else
+                                        FirstVersion := false;
+                                end;
 
                             if (ToBOMNo <> '') and FirstVersion then
                                 if CreateNewVersion then begin
@@ -308,7 +308,7 @@ report 99001043 "Exchange Production BOM Item"
 
                         trigger OnValidate()
                         begin
-                            CreateNewVersionOnAfterValidat;
+                            CreateNewVersionOnAfterValidat();
                         end;
                     }
                     field(MultiplyQtyWith; QtyMultiply)
@@ -345,7 +345,7 @@ report 99001043 "Exchange Production BOM Item"
 
                         trigger OnValidate()
                         begin
-                            DeleteExcCompOnAfterValidate;
+                            DeleteExcCompOnAfterValidate();
                         end;
                     }
                 }
@@ -390,13 +390,6 @@ report 99001043 "Exchange Production BOM Item"
     end;
 
     var
-        Text000: Label 'You must enter a Starting Date.';
-        Text001: Label 'You must enter the Type to exchange.';
-        Text002: Label 'You must enter the No. to exchange.';
-        ItemBOMExchangeErr: Label 'You cannot exchange %1 %2 with %3 %4.', Comment = '%1 and %3 are strings (''Item'' or ''Production BOM''), %2 and %4 are either an Item No. or a Production BOM Header No. (Code[20])';
-        Text004: Label 'Exchanging #1########## #2############\';
-        Text005: Label 'Production BOM No.      #3############';
-        Text006: Label 'Type must be entered.';
         Item: Record Item;
         ProdBOMHeader: Record "Production BOM Header";
         ProdBOMVersionList: Record "Production BOM Version";
@@ -418,6 +411,14 @@ report 99001043 "Exchange Production BOM Item"
         CreateNewVersionEditable: Boolean;
         [InDataSet]
         DeleteExchangedComponentEditab: Boolean;
+
+        Text000: Label 'You must enter a Starting Date.';
+        Text001: Label 'You must enter the Type to exchange.';
+        Text002: Label 'You must enter the No. to exchange.';
+        ItemBOMExchangeErr: Label 'You cannot exchange %1 %2 with %3 %4.', Comment = '%1 and %3 are strings (''Item'' or ''Production BOM''), %2 and %4 are either an Item No. or a Production BOM Header No. (Code[20])';
+        Text004: Label 'Exchanging #1########## #2############\';
+        Text005: Label 'Production BOM No.      #3############';
+        Text006: Label 'Type must be entered.';
 
     local procedure CheckParameters()
     var
@@ -471,7 +472,7 @@ report 99001043 "Exchange Production BOM Item"
         if ProductionBOMVersion.FindLast() then begin
             Result := IncStr(ProductionBOMVersion."Version Code");
             ProductionBOMVersion.SetRange("Version Code", Result);
-            while not ProductionBOMVersion.IsEmpty do begin
+            while not ProductionBOMVersion.IsEmpty() do begin
                 Result := IncStr(Result);
                 if Result = '' then
                     exit(Result);

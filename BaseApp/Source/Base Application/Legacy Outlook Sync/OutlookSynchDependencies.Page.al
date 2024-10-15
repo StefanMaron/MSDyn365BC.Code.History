@@ -2,7 +2,7 @@
 page 5311 "Outlook Synch. Dependencies"
 {
     Caption = 'Outlook Synch. Dependencies';
-    DataCaptionExpression = GetFormCaption;
+    DataCaptionExpression = GetFormCaption();
     DataCaptionFields = "Synch. Entity Code";
     DelayedInsert = true;
     PageType = List;
@@ -18,7 +18,7 @@ page 5311 "Outlook Synch. Dependencies"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Depend. Synch. Entity Code"; "Depend. Synch. Entity Code")
+                field("Depend. Synch. Entity Code"; Rec."Depend. Synch. Entity Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the synchronization entity. The program copies this code from the Code field of the Outlook Synch. Entity table.';
@@ -36,14 +36,14 @@ page 5311 "Outlook Synch. Dependencies"
                     trigger OnAssistEdit()
                     begin
                         if IsNullGuid("Record GUID") then
-                            "Record GUID" := CreateGuid;
+                            "Record GUID" := CreateGuid();
 
                         OSynchEntityElement.Get("Synch. Entity Code", "Element No.");
                         Condition :=
                           CopyStr(OSynchSetupMgt.ShowOSynchFiltersForm("Record GUID", OSynchEntityElement."Table No.", 0), 1, MaxStrLen(Condition));
                     end;
                 }
-                field("Table Relation"; "Table Relation")
+                field("Table Relation"; Rec."Table Relation")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a filter expression. It is used to select the record from the table on which Dependent Synch. Entity is based.';
@@ -51,7 +51,7 @@ page 5311 "Outlook Synch. Dependencies"
                     trigger OnAssistEdit()
                     begin
                         if IsNullGuid("Record GUID") then
-                            "Record GUID" := CreateGuid;
+                            "Record GUID" := CreateGuid();
 
                         OSynchEntity.Get("Depend. Synch. Entity Code");
                         OSynchEntityElement.Get("Synch. Entity Code", "Element No.");
@@ -89,7 +89,7 @@ page 5311 "Outlook Synch. Dependencies"
 
     procedure GetFormCaption(): Text[80]
     begin
-        exit(StrSubstNo('%1 %2 %3', OSynchEntityElement.TableCaption, "Synch. Entity Code", "Element No."));
+        exit(StrSubstNo('%1 %2 %3', OSynchEntityElement.TableCaption(), "Synch. Entity Code", "Element No."));
     end;
 }
 #endif

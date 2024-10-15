@@ -45,11 +45,11 @@ codeunit 145301 "BAS Managament"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             "Enable GST (Australia)" := true;
             "BAS to be Lodged as a Group" := true;
             "BAS Group Company" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -98,7 +98,7 @@ codeunit 145301 "BAS Managament"
 
         CompanyInformation.Get();
         with BASCalcSheet do begin
-            Init;
+            Init();
             A1 := DocumentNo;
             "BAS Version" := BASVersion;
             A2 := CompanyInformation.ABN;
@@ -111,7 +111,7 @@ codeunit 145301 "BAS Managament"
             GLSetup.Get();
             "BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
             "BAS Setup Name" := BASSetupName;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -120,11 +120,11 @@ codeunit 145301 "BAS Managament"
         BASBusinessUnit: Record "BAS Business Unit";
     begin
         with BASBusinessUnit do begin
-            Init;
+            Init();
             "Company Name" := CompanyName;
             "Document No." := BASCalcSheet.A1;
             "BAS Version" := BASCalcSheet."BAS Version";
-            Insert;
+            Insert();
         end;
     end;
 

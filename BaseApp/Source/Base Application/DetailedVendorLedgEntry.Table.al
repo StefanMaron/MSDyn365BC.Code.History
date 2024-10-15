@@ -272,7 +272,7 @@ table 380 "Detailed Vendor Ledg. Entry"
 
     trigger OnInsert()
     begin
-        SetLedgerEntryAmount;
+        SetLedgerEntryAmount();
     end;
 
     procedure GetLastEntryNo(): Integer;

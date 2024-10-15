@@ -41,7 +41,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
     procedure OnAfterGetRecBankAccLedgerEntryBankDetailCFCompare()
     begin
         // [SCENARIO] validate BankAccountLedgerEntry - OnAfterGetRecord Trigger of Report - 28020 Bank Detail Cashflow Compare.
-        BankDetailCashflowCompareWithDifferentDateFilters(0D, 0D, WorkDate);  // Using 0D as CompareStartDate, CompareEndDate and WORKDATE as Date Filter.
+        BankDetailCashflowCompareWithDifferentDateFilters(0D, 0D, WorkDate());  // Using 0D as CompareStartDate, CompareEndDate and WORKDATE as Date Filter.
     end;
 
     [Test]
@@ -51,7 +51,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
     procedure OnAfterGetRecBankAccLedgerEntryTwoBankDtlCFCompare()
     begin
         // [SCENARIO] validate BankAccountLedgerEntry2 - OnAfterGetRecord Trigger of Report - 28020 Bank Detail Cashflow Compare.
-        BankDetailCashflowCompareWithDifferentDateFilters(WorkDate, WorkDate, 0D);  // Using WORKDATE as CompareStartDate, CompareEndDate and 0D as Date Filter.
+        BankDetailCashflowCompareWithDifferentDateFilters(WorkDate(), WorkDate(), 0D);  // Using WORKDATE as CompareStartDate, CompareEndDate and 0D as Date Filter.
     end;
 
     local procedure BankDetailCashflowCompareWithDifferentDateFilters(CompareStartDate: Date; CompareEndDate: Date; DateFilter: Date)
@@ -76,7 +76,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
         BankAccount: Record "Bank Account";
     begin
         BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount."Date Filter" := WorkDate;
+        BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -84,7 +84,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
     local procedure CreateBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
         BankAccountLedgerEntry."Bank Account No." := CreateBankAccount;
-        BankAccountLedgerEntry."Posting Date" := WorkDate;
+        BankAccountLedgerEntry."Posting Date" := WorkDate();
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Amount (LCY)" := BankAccountLedgerEntry.Amount;
         BankAccountLedgerEntry.Insert();

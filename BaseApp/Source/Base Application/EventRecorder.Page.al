@@ -5,7 +5,6 @@ page 9845 "Event Recorder"
     Editable = false;
     PageType = Worksheet;
     PopulateAllFields = true;
-    PromotedActionCategories = 'New,Process,Report,Record Events';
     SourceTable = "Recorded Event Buffer";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Call Order")
@@ -129,10 +128,6 @@ page 9845 "Event Recorder"
                     Caption = 'Start';
                     Enabled = NOT EventLoggingRunning;
                     Image = Start;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Start recording UI activities to generate the list of events that are called. The new recording will erase any events that have previously been recorded.';
 
                     trigger OnAction()
@@ -148,7 +143,7 @@ page 9845 "Event Recorder"
                         Rec.DeleteAll();
                         Rec.CopyFilters(FiltersCopy);
 
-                        LogRecordedEvents.Start;
+                        LogRecordedEvents.Start();
                         EventLoggingRunning := true;
                     end;
                 }
@@ -158,10 +153,6 @@ page 9845 "Event Recorder"
                     Caption = 'Stop';
                     Enabled = EventLoggingRunning;
                     Image = Stop;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     ToolTip = 'Stop recording and generate the list of events that are recorded.';
 
                     trigger OnAction()
@@ -178,14 +169,31 @@ page 9845 "Event Recorder"
                             exit;
 
                         // Add elements to the source table of the page to display them in the repeater.
-                        if TempRecordedEventBuffer.FindSet then begin
+                        if TempRecordedEventBuffer.FindSet() then
                             repeat
                                 Rec.Init();
                                 Rec := TempRecordedEventBuffer;
                                 Rec.Insert();
                             until TempRecordedEventBuffer.Next() = 0;
-                        end;
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Record Events', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Start_Promoted; Start)
+                {
+                }
+                actionref(Stop_Promoted; Stop)
+                {
                 }
             }
         }

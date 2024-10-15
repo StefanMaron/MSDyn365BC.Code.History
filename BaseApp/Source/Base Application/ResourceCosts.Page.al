@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 203 "Resource Costs"
 {
     ApplicationArea = Basic, Suite;
@@ -28,22 +28,22 @@ page 203 "Resource Costs"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code.';
                 }
-                field("Work Type Code"; "Work Type Code")
+                field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code for the type of work. You can also assign a unit price to a work type.';
                 }
-                field("Cost Type"; "Cost Type")
+                field("Cost Type"; Rec."Cost Type")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the type of cost.';
                 }
-                field("Direct Unit Cost"; "Direct Unit Cost")
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';

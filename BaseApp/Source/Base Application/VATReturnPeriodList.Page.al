@@ -15,17 +15,17 @@ page 737 "VAT Return Period List"
             {
                 Editable = IsEditable;
                 ShowCaption = false;
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start date of the VAT return period.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date of the VAT return period.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = WarningStyleExpr;
@@ -37,19 +37,19 @@ page 737 "VAT Return Period List"
                     StyleExpr = WarningStyleExpr;
                     ToolTip = 'Specifies the status of the VAT return period.';
                 }
-                field("Received Date"; "Received Date")
+                field("Received Date"; Rec."Received Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT return period received date.';
                 }
-                field("VAT Return No."; "VAT Return No.")
+                field("VAT Return No."; Rec."VAT Return No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the associated VAT return.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownVATReturn;
+                        DrillDownVATReturn();
                     end;
                 }
                 field(VATReturnStatus; VATReturnStatus)
@@ -61,7 +61,7 @@ page 737 "VAT Return Period List"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownVATReturn;
+                        DrillDownVATReturn();
                     end;
                 }
             }
@@ -85,10 +85,6 @@ page 737 "VAT Return Period List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get VAT Return Periods';
                 Image = GetLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Load the VAT return periods that are set up in the system.';
                 Visible = NOT IsEditable;
 
@@ -96,7 +92,7 @@ page 737 "VAT Return Period List"
                 var
                     VATReportMgt: Codeunit "VAT Report Mgt.";
                 begin
-                    VATReportMgt.GetVATReturnPeriods;
+                    VATReportMgt.GetVATReturnPeriods();
                 end;
             }
             action("Create VAT Return")
@@ -105,10 +101,6 @@ page 737 "VAT Return Period List"
                 Caption = 'Create VAT Return';
                 Enabled = CreateVATReturnEnabled;
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Create a new VAT return from the selected VAT return period.';
 
                 trigger OnAction()
@@ -143,16 +135,30 @@ page 737 "VAT Return Period List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Get VAT Return Periods_Promoted"; "Get VAT Return Periods")
+                {
+                }
+                actionref("Create VAT Return_Promoted"; "Create VAT Return")
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        InitPageControllers;
+        InitPageControllers();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -184,7 +190,7 @@ page 737 "VAT Return Period List"
             VATReturnStatus := "VAT Return Status" + 1
         else
             VATReturnStatus := VATReturnStatus::" ";
-        CheckOpenOrOverdue;
+        CheckOpenOrOverdue();
     end;
 }
 

@@ -9,7 +9,7 @@ codeunit 99000770 "Where-Used Management"
     end;
 
     var
-        WhereUsedList: Record "Where-Used Line" temporary;
+        TempWhereUsedList: Record "Where-Used Line" temporary;
         UOMMgt: Codeunit "Unit of Measure Management";
         VersionMgt: Codeunit VersionManagement;
         CostCalcMgt: Codeunit "Cost Calculation Management";
@@ -18,10 +18,10 @@ codeunit 99000770 "Where-Used Management"
 
     procedure FindRecord(Which: Text[30]; var WhereUsedList2: Record "Where-Used Line"): Boolean
     begin
-        WhereUsedList.Copy(WhereUsedList2);
-        if not WhereUsedList.Find(Which) then
+        TempWhereUsedList.Copy(WhereUsedList2);
+        if not TempWhereUsedList.Find(Which) then
             exit(false);
-        WhereUsedList2 := WhereUsedList;
+        WhereUsedList2 := TempWhereUsedList;
 
         exit(true);
     end;
@@ -30,17 +30,17 @@ codeunit 99000770 "Where-Used Management"
     var
         CurrentSteps: Integer;
     begin
-        WhereUsedList.Copy(WhereUsedList2);
-        CurrentSteps := WhereUsedList.Next(Steps);
+        TempWhereUsedList.Copy(WhereUsedList2);
+        CurrentSteps := TempWhereUsedList.Next(Steps);
         if CurrentSteps <> 0 then
-            WhereUsedList2 := WhereUsedList;
+            WhereUsedList2 := TempWhereUsedList;
 
         exit(CurrentSteps);
     end;
 
     procedure WhereUsedFromItem(Item: Record Item; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        WhereUsedList.DeleteAll();
+        TempWhereUsedList.DeleteAll();
         NextWhereUsedEntryNo := 1;
         MultiLevel := NewMultiLevel;
 
@@ -49,7 +49,7 @@ codeunit 99000770 "Where-Used Management"
 
     procedure WhereUsedFromProdBOM(ProdBOM: Record "Production BOM Header"; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        WhereUsedList.DeleteAll();
+        TempWhereUsedList.DeleteAll();
         NextWhereUsedEntryNo := 1;
         MultiLevel := NewMultiLevel;
 
@@ -70,11 +70,12 @@ codeunit 99000770 "Where-Used Management"
             OnBuildWhereUsedListOnAfterItemAssemblySetFilters(ItemAssembly, No);
             if ItemAssembly.FindSet() then
                 repeat
-                    WhereUsedList."Entry No." := NextWhereUsedEntryNo;
-                    WhereUsedList."Item No." := ItemAssembly."No.";
-                    WhereUsedList.Description := ItemAssembly.Description;
-                    WhereUsedList."Level Code" := Level;
-                    WhereUsedList."Quantity Needed" :=
+                    TempWhereUsedList.Init();
+                    TempWhereUsedList."Entry No." := NextWhereUsedEntryNo;
+                    TempWhereUsedList."Item No." := ItemAssembly."No.";
+                    TempWhereUsedList.Description := ItemAssembly.Description;
+                    TempWhereUsedList."Level Code" := Level;
+                    TempWhereUsedList."Quantity Needed" :=
                       Quantity *
                       (1 + ItemAssembly."Scrap %" / 100) *
                       UOMMgt.GetQtyPerUnitOfMeasure(ItemAssembly, ItemAssembly."Base Unit of Measure") /
@@ -83,9 +84,9 @@ codeunit 99000770 "Where-Used Management"
                         VersionMgt.GetBOMUnitOfMeasure(
                           ItemAssembly."Production BOM No.",
                           VersionMgt.GetBOMVersion(ItemAssembly."Production BOM No.", CalcDate, false)));
-                    WhereUsedList."Version Code" := VersionMgt.GetBOMVersion(No, CalcDate, true);
-                    OnBeforeWhereUsedListInsert(WhereUsedList, ItemAssembly, CalcDate, Quantity);
-                    WhereUsedList.Insert();
+                    TempWhereUsedList."Version Code" := VersionMgt.GetBOMVersion(No, CalcDate, true);
+                    OnBeforeWhereUsedListInsert(TempWhereUsedList, ItemAssembly, CalcDate, Quantity);
+                    TempWhereUsedList.Insert();
                     NextWhereUsedEntryNo := NextWhereUsedEntryNo + 1;
                     if MultiLevel then
                         BuildWhereUsedList(
@@ -93,7 +94,7 @@ codeunit 99000770 "Where-Used Management"
                           ItemAssembly."No.",
                           CalcDate,
                           Level + 1,
-                          WhereUsedList."Quantity Needed");
+                          TempWhereUsedList."Quantity Needed");
                 until ItemAssembly.Next() = 0;
         end;
 
@@ -122,10 +123,10 @@ codeunit 99000770 "Where-Used Management"
                 end;
             until ProdBOMComponent.Next() = 0;
 
-        OnAfterBuildWhereUsedList(Type, No, CalcDate, WhereUsedList, NextWhereUsedEntryNo, Level, Quantity, MultiLevel);
+        OnAfterBuildWhereUsedList(Type, No, CalcDate, TempWhereUsedList, NextWhereUsedEntryNo, Level, Quantity, MultiLevel);
     end;
 
-    local procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean
+    procedure IsActiveProductionBOM(ProductionBOMLine: Record "Production BOM Line") Result: Boolean
     var
         IsHandled: Boolean;
     begin

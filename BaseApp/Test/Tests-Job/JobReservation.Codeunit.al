@@ -307,7 +307,7 @@ codeunit 136312 "Job Reservation"
         // Verify.
         Assert.ExpectedError(
           StrSubstNo(
-            PlanningLinesReservationErrorForReserve, JobPlanningLine.FieldCaption("Reserved Qty. (Base)"), JobPlanningLine.TableCaption,
+            PlanningLinesReservationErrorForReserve, JobPlanningLine.FieldCaption("Reserved Qty. (Base)"), JobPlanningLine.TableCaption(),
             JobPlanningLine.FieldCaption("Job No."), JobPlanningLine."Job No.",
             JobPlanningLine.FieldCaption("Job Task No."), JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."),
             JobPlanningLine."Line No.", JobPlanningLine."Reserved Qty. (Base)"));
@@ -596,7 +596,7 @@ codeunit 136312 "Job Reservation"
         // [WHEN] Set "Vendor No." in Requisition Line
         ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
 
-        RequisitionLine.Find;
+        RequisitionLine.Find();
 
         // [THEN] "Description" in Requisition Line should be same as in ItemReference
         Assert.AreEqual(ItemReference.Description, RequisitionLine.Description, ReqLineItemRefDescriptionErr);
@@ -708,7 +708,7 @@ codeunit 136312 "Job Reservation"
           ItemReference1."Reference No.", ReqWorksheet."Vendor Item No.".Value,
           StrSubstNo(VendorItemNoErr, ItemReference1."Reference No."));
 
-        ReqWorksheet.Next;
+        ReqWorksheet.Next();
         Assert.AreEqual(
           ItemReference2."Reference No.", ReqWorksheet."Vendor Item No.".Value,
           StrSubstNo(VendorItemNoErr, ItemReference2."Reference No."));
@@ -830,7 +830,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is TRUE in Job Planning Line
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField(Planned);
     end;
 
@@ -858,7 +858,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is TRUE in Job Planning Line
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField(Planned);
     end;
 
@@ -890,7 +890,7 @@ codeunit 136312 "Job Reservation"
         JobPlanningLine.ShowReservation();
 
         // [THEN] Planned is FALSE in Job Planning Line
-        JobPlanningLine.Find;
+        JobPlanningLine.Find();
         JobPlanningLine.TestField(Planned, false);
     end;
 
@@ -1261,7 +1261,7 @@ codeunit 136312 "Job Reservation"
             Validate("No.", ItemNo);
             Validate("Variant Code", ItemVariantCode);
             Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
-            Validate("Due Date", WorkDate);
+            Validate("Due Date", WorkDate());
             Modify(true);
         end;
     end;
@@ -1318,7 +1318,7 @@ codeunit 136312 "Job Reservation"
         // Use Random values for Quantity, Planning Date and Unit Cost because values are not important.
         LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
-        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandIntInRange(6, 10)) + 'M>', WorkDate)); // The Planning Date is later than Receipt Date on Transfer Line.
+        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandIntInRange(6, 10)) + 'M>', WorkDate())); // The Planning Date is later than Receipt Date on Transfer Line.
         JobPlanningLine.Validate("Usage Link", true);
         JobPlanningLine.Validate(Quantity, OriginalQuantity + LibraryRandom.RandDec(100, 2));
         JobPlanningLine.Validate(Reserve, JobPlanningLine.Reserve::Optional);
@@ -1359,7 +1359,7 @@ codeunit 136312 "Job Reservation"
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
         RequisitionLine.Validate("No.", LibraryInventory.CreateItem(Item));
         RequisitionLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Use Random for Quantity.
-        RequisitionLine.Validate("Due Date", WorkDate);
+        RequisitionLine.Validate("Due Date", WorkDate());
         RequisitionLine.Modify(true);
     end;
 
@@ -1375,7 +1375,7 @@ codeunit 136312 "Job Reservation"
           TransferHeader, PurchaseLine."Location Code", LibraryWarehouse.CreateLocation(Location2), Location.Code);
         LibraryWarehouse.CreateTransferLine(
           TransferHeader, TransferLine, PurchaseLine."No.", PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Use Random for Quantity.
-        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Use Random value to calculate the Receipt Date.
+        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Use Random value to calculate the Receipt Date.
         TransferLine.Modify(true);
     end;
 
@@ -1448,7 +1448,7 @@ codeunit 136312 "Job Reservation"
     begin
         Assert.ExpectedError(
           StrSubstNo(
-            ReservationError, ColumnCaption, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Document Type"),
+            ReservationError, ColumnCaption, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Document Type"),
             PurchaseLine."Document Type",
             PurchaseLine.FieldCaption("Document No."), PurchaseLine."Document No.", PurchaseLine.FieldCaption("Line No."),
             PurchaseLine."Line No."));
@@ -1458,7 +1458,7 @@ codeunit 136312 "Job Reservation"
     begin
         Assert.ExpectedError(
           StrSubstNo(
-            ReservationError, ColumnCaption, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Job No."),
+            ReservationError, ColumnCaption, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Job No."),
             JobPlanningLine."Job No.",
             JobPlanningLine.FieldCaption("Job Task No."), JobPlanningLine."Job Task No.", JobPlanningLine.FieldCaption("Line No."),
             JobPlanningLine."Line No."));

@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2191 "O365 Invoicing Settings"
 {
     Caption = 'Settings';
@@ -9,6 +10,9 @@ page 2191 "O365 Invoicing Settings"
     PageType = List;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,11 +23,11 @@ page 2191 "O365 Invoicing Settings"
                 ShowCaption = false;
                 field(Title; Title)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies a description of the invoice setting.';
                 }
             }
@@ -36,7 +40,7 @@ page 2191 "O365 Invoicing Settings"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -46,7 +50,7 @@ page 2191 "O365 Invoicing Settings"
 
                 trigger OnAction()
                 begin
-                    OpenPage;
+                    OpenPage();
                 end;
             }
         }
@@ -54,7 +58,7 @@ page 2191 "O365 Invoicing Settings"
 
     trigger OnOpenPage()
     begin
-        InsertMenuItems;
+        InsertMenuItems();
     end;
 
     var
@@ -99,4 +103,5 @@ page 2191 "O365 Invoicing Settings"
           HelpAndFeedbackDesriptionTxt);
     end;
 }
+#endif
 

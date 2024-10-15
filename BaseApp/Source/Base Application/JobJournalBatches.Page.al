@@ -1,7 +1,7 @@
 page 276 "Job Journal Batches"
 {
     Caption = 'Job Journal Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     Editable = true;
     PageType = List;
     RefreshOnActivate = true;
@@ -24,17 +24,17 @@ page 276 "Job Journal Batches"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of this journal.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Posting No. Series"; "Posting No. Series")
+                field("Posting No. Series"; Rec."Posting No. Series")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the code for the number series that will be used to assign document numbers to ledger entries that are posted from this journal batch. To see the number series that have been set up in the No. Series table, choose the field.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
@@ -66,9 +66,6 @@ page 276 "Job Journal Batches"
                 ApplicationArea = Jobs;
                 Caption = 'Edit Journal';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open a journal based on the journal batch.';
 
@@ -98,9 +95,6 @@ page 276 "Job Journal Batches"
                     ApplicationArea = Jobs;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Job Jnl.-B.Post";
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
@@ -110,12 +104,26 @@ page 276 "Job Journal Batches"
                     ApplicationArea = Jobs;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Job Jnl.-B.Post+Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Journal_Promoted"; "Edit Journal")
+                {
+                }
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
                 }
             }
         }
@@ -128,7 +136,7 @@ page 276 "Job Journal Batches"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewBatch;
+        SetupNewBatch();
     end;
 
     trigger OnOpenPage()

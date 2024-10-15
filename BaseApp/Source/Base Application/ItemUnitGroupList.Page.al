@@ -14,7 +14,7 @@ page 5400 "Item Unit Group List"
         {
             repeater(GroupName)
             {
-                field("Code"; Rec.Code)
+                field("Code"; CodeLbl)
                 {
                     ApplicationArea = All;
                     Caption = 'Code';
@@ -26,7 +26,7 @@ page 5400 "Item Unit Group List"
                     Caption = 'Item No.';
                     ToolTip = 'Specifies the item number that associated with the record.';
                 }
-                field("Item Description"; Rec."Source Name")
+                field("Item Description"; SourceNameLbl)
                 {
                     ApplicationArea = All;
                     Caption = 'Item Description';
@@ -141,7 +141,43 @@ page 5400 "Item Unit Group List"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Synchronize)
+            {
+                Caption = 'Synchronize';
+                Visible = CRMIntegrationEnabled;
+
+                group(Category_Coupling)
+                {
+                    Caption = 'Coupling';
+                    ShowAs = SplitButton;
+
+                    actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                    {
+                    }
+                    actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                    {
+                    }
+                }
+                actionref(CRMGotoUnitGroup_Promoted; CRMGotoUnitGroup)
+                {
+                }
+                actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                {
+                }
+                actionref(ShowLog_Promoted; ShowLog)
+                {
+                }
+            }
+        }
     }
+
+    trigger OnAfterGetRecord()
+    begin
+        CodeLbl := Rec.GetCode();
+        SourceNameLbl := Rec.GetSourceName();
+    end;
 
     trigger OnAfterGetCurrRecord()
     var
@@ -162,4 +198,6 @@ page 5400 "Item Unit Group List"
     var
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
+        CodeLbl: Code[50];
+        SourceNameLbl: Text[100];
 }

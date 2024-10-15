@@ -21,34 +21,34 @@ page 439 "Issued Reminder Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date of the customer ledger entry that this reminder line is for.';
                     Visible = false;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document type of the customer ledger entry this reminder line is for.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document number of the customer ledger entry this reminder line is for.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of the customer ledger entry this reminder line is for.';
@@ -60,13 +60,13 @@ page 439 "Issued Reminder Lines"
                     StyleExpr = DescriptionEmphasize;
                     ToolTip = 'Specifies an entry description, based on the contents of the Type field.';
                 }
-                field("Original Amount"; "Original Amount")
+                field("Original Amount"; Rec."Original Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the original amount of the customer ledger entry that this reminder line is for.';
                     Visible = false;
                 }
-                field("Remaining Amount"; "Remaining Amount")
+                field("Remaining Amount"; Rec."Remaining Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Style = Strong;
@@ -80,26 +80,26 @@ page 439 "Issued Reminder Lines"
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency of the reminder.';
                 }
-                field("No. of Reminders"; "No. of Reminders")
+                field("No. of Reminders"; Rec."No. of Reminders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reminder Level';
                     ToolTip = 'Specifies a number that indicates the reminder level.';
                     Visible = false;
                 }
-                field("Applies-To Document Type"; "Applies-To Document Type")
+                field("Applies-To Document Type"; Rec."Applies-To Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("Applies-To Document No."; "Applies-To Document No.")
+                field("Applies-To Document No."; Rec."Applies-To Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the posted document that this document or journal line will be applied to when you post, for example to register payment.';
                     Visible = false;
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT amount in the currency of the reminder.';
@@ -116,9 +116,9 @@ page 439 "Issued Reminder Lines"
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
-        DescriptionOnFormat;
-        RemainingAmountOnFormat;
-        AmountOnFormat;
+        DescriptionOnFormat();
+        RemainingAmountOnFormat();
+        AmountOnFormat();
     end;
 
     var

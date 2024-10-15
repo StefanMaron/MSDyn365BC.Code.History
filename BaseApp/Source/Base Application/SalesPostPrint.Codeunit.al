@@ -145,7 +145,7 @@
                     end
                 else
                     if not ConfirmManagement.GetResponseOrDefault(
-                         StrSubstNo(ConfirmationMessage, "Document Type"), true)
+                         StrSubstNo(ConfirmationMessage(), "Document Type"), true)
                     then
                         exit(false);
             end;
@@ -196,8 +196,8 @@
             exit;
 
         ReturnRcptHeader."No." := SalesHeader."Last Return Receipt No.";
-        if ReturnRcptHeader.Find then;
-        ReturnRcptHeader.SetRecFilter;
+        if ReturnRcptHeader.Find() then;
+        ReturnRcptHeader.SetRecFilter();
 
         if SendReportAsEmail then
             ReturnRcptHeader.EmailRecords(true)
@@ -219,8 +219,8 @@
             SalesInvHeader."No." := SalesHeader."No."
         else
             SalesInvHeader."No." := SalesHeader."Last Posting No.";
-        SalesInvHeader.Find;
-        SalesInvHeader.SetRecFilter;
+        SalesInvHeader.Find();
+        SalesInvHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesInvHeader.EmailRecords(true)
@@ -239,8 +239,8 @@
             exit;
 
         SalesShptHeader."No." := SalesHeader."Last Shipping No.";
-        if SalesShptHeader.Find then;
-        SalesShptHeader.SetRecFilter;
+        if SalesShptHeader.Find() then;
+        SalesShptHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesShptHeader.EmailRecords(true)
@@ -262,8 +262,8 @@
             SalesCrMemoHeader."No." := SalesHeader."No."
         else
             SalesCrMemoHeader."No." := SalesHeader."Last Posting No.";
-        SalesCrMemoHeader.Find;
-        SalesCrMemoHeader.SetRecFilter;
+        SalesCrMemoHeader.Find();
+        SalesCrMemoHeader.SetRecFilter();
 
         if SendReportAsEmail then
             SalesCrMemoHeader.EmailRecords(true)

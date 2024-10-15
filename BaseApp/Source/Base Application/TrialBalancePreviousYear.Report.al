@@ -1,4 +1,4 @@
-report 7 "Trial Balance/Previous Year"
+﻿report 7 "Trial Balance/Previous Year"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TrialBalancePreviousYear.rdlc';
@@ -18,7 +18,7 @@ report 7 "Trial Balance/Previous Year"
             column(LongTextLongText4; LongText[1] + LongText[2] + LongText[3] + LongText[4])
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(RoundingText; RoundingText)
@@ -249,7 +249,7 @@ report 7 "Trial Balance/Previous Year"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         FiscalYearStartDate := "G/L Account".GetRangeMin("Date Filter");
         FiscalYearEndDate := "G/L Account".GetRangeMax("Date Filter");
         LastYearStartDate := CalcDate('<-1Y>', NormalDate(FiscalYearStartDate) + 1) - 1;
@@ -263,7 +263,6 @@ report 7 "Trial Balance/Previous Year"
     var
         Text001: Label 'Period: %1..%2 versus %3..%4';
         ReportMgmnt: Codeunit "Report Management APAC";
-        GLFilter: Text;
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;
         LongText: array[4] of Text[132];
@@ -292,6 +291,7 @@ report 7 "Trial Balance/Previous Year"
         BlankLineNo: Integer;
 
     protected var
+        GLFilter: Text;
         LastYearNetChange: Decimal;
         LastYearBalance: Decimal;
         LastYearStartDate: Date;

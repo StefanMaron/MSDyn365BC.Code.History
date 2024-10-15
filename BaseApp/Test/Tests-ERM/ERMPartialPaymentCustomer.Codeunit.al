@@ -231,7 +231,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");  // Filter applying entry.
         CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
+          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition(), CustLedgerEntry.FieldNo("Remaining Amount"),
           CustLedgerEntry.Amount - (ApplAmount * AmountSign));
 
         // Exercise: Application Amount between 1 to 49 % to Apply equally on all lines.
@@ -542,7 +542,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Verify: Verify Error Message in Customer Ledger Entry.
         Assert.AreEqual(
           StrSubstNo(AmountToApplySignError, CustLedgerEntry.FieldCaption("Amount to Apply"),
-            CustLedgerEntry.FieldCaption("Remaining Amount"), CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."),
+            CustLedgerEntry.FieldCaption("Remaining Amount"), CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."),
             CustLedgerEntry."Entry No."), GetLastErrorText, ErrorMessage);
     end;
 
@@ -745,7 +745,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         repeat
             CustLedgerEntry2.Validate("Amount to Apply", -CustLedgerEntry.Amount / NumberOfLines);
             CustLedgerEntry2.Modify(true);
-        until CustLedgerEntry2.Next = 0;
+        until CustLedgerEntry2.Next() = 0;
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
     end;
 
@@ -774,7 +774,7 @@ codeunit 134002 "ERM Partial Payment Customer"
             then
                 CustLedgerEntry.Validate("Amount to Apply", AmountToApply);
             CustLedgerEntry.Modify(true);
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
 
         // Set Applies-to ID.
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
@@ -872,9 +872,9 @@ codeunit 134002 "ERM Partial Payment Customer"
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
-              DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
+              DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition(), CustLedgerEntry.FieldNo("Remaining Amount"),
               CustLedgerEntry.Amount + ApplAmount);
-        until TempGenJournalLine.Next = 0;
+        until TempGenJournalLine.Next() = 0;
     end;
 
     local procedure CalcRmngAmtForApplngEntry(var DeltaAssert: Codeunit "Delta Assert"; var TempGenJournalLine: Record "Gen. Journal Line" temporary; NoOfLines: Integer; ApplAmount: Decimal)
@@ -886,7 +886,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
         CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
-          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
+          DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition(), CustLedgerEntry.FieldNo("Remaining Amount"),
           CustLedgerEntry.Amount - ApplAmount * NoOfLines);
     end;
 
@@ -900,8 +900,8 @@ codeunit 134002 "ERM Partial Payment Customer"
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
-              DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"), 0);
-        until TempGenJournalLine.Next = 1;
+              DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition(), CustLedgerEntry.FieldNo("Remaining Amount"), 0);
+        until TempGenJournalLine.Next() = 1;
     end;
 
     local procedure ScenarioRefundAppliedToPayment(var Customer: Record Customer; PaymentAmount: Decimal; RefundAmount: Decimal)
@@ -955,7 +955,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry.SetFilter("Applies-to ID", '<>''''');
         Assert.AreEqual(
           CustLedgerEntryCount, CustLedgerEntry.Count, StrSubstNo(NumberOfLineErrorMessage, CustLedgerEntry.Count,
-            CustLedgerEntry.TableCaption));
+            CustLedgerEntry.TableCaption()));
     end;
 
     local procedure DeleteGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line")
@@ -990,7 +990,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         Assert.AreEqual(
           StrSubstNo(
             AmountToApplyError, CustLedgerEntry.FieldCaption("Amount to Apply"), CustLedgerEntry.FieldCaption("Remaining Amount"),
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."),
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."),
           GetLastErrorText, ErrorMessage);
     end;
 
@@ -1019,7 +1019,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         repeat
             TempGenJournalLine := GenJournalLine;
             TempGenJournalLine.Insert();
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyAllCustEntriesOpened(var TempGenJournalLine: Record "Gen. Journal Line" temporary; Open: Boolean)
@@ -1032,7 +1032,7 @@ codeunit 134002 "ERM Partial Payment Customer"
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
             CustLedgerEntry.FindFirst();
             CustLedgerEntry.TestField(Open, Open);
-        until TempGenJournalLine.Next = 0;
+        until TempGenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)

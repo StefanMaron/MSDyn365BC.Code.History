@@ -23,13 +23,13 @@ page 1316 "Accountant Portal User Tasks"
                     Caption = 'Subject', Locked = true;
                     ToolTip = 'Specifies the title of the task.';
                 }
-                field("Due DateTime"; "Due DateTime")
+                field("Due DateTime"; Rec."Due DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Due Date', Locked = true;
                     ToolTip = 'Specifies when the task must be completed.';
                 }
-                field("Percent Complete"; "Percent Complete")
+                field("Percent Complete"; Rec."Percent Complete")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = '% Complete', Locked = true;
@@ -53,19 +53,19 @@ page 1316 "Accountant Portal User Tasks"
                     Caption = 'Created_By_Name', Locked = true;
                     ToolTip = 'Specifies the string value name of the user who created the task.';
                 }
-                field("Created DateTime"; "Created DateTime")
+                field("Created DateTime"; Rec."Created DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Created Date', Locked = true;
                     ToolTip = 'Specifies when the task was created.';
                 }
-                field("Start DateTime"; "Start DateTime")
+                field("Start DateTime"; Rec."Start DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Start Date', Locked = true;
                     ToolTip = 'Specifies when the task must start.';
                 }
-                field("Assigned To"; "Assigned To")
+                field("Assigned To"; Rec."Assigned To")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assigned To', Locked = true;
@@ -77,7 +77,7 @@ page 1316 "Accountant Portal User Tasks"
                     Caption = 'Link', Locked = true;
                     ToolTip = 'Specifies the string value of web link to this user task.';
                 }
-                field("User Task Group Assigned To"; "User Task Group Assigned To")
+                field("User Task Group Assigned To"; Rec."User Task Group Assigned To")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Task Group Assigned To', Locked = true;
@@ -97,12 +97,12 @@ page 1316 "Accountant Portal User Tasks"
         CreatedByName := "Created By User Name";
         Link := GetUrl(CLIENTTYPE::Web, CompanyName, OBJECTTYPE::Page, 1171, Rec) + '&Mode=Edit';
         if IsNullGuid("Assigned To") then
-            "Assigned To" := UserSecurityId;
+            "Assigned To" := UserSecurityId();
     end;
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
         UserTaskManagement.SetFiltersToShowMyUserTasks(Rec, DueDateFilterOptions::NONE);
     end;
 

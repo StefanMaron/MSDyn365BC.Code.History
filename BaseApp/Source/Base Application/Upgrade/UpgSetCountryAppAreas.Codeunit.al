@@ -23,16 +23,16 @@ codeunit 104010 "UPG Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag()) THEN
             EXIT;
 
-        IF ApplicationAreaSetup.GET AND ApplicationAreaSetup.Basic THEN BEGIN
+        IF ApplicationAreaSetup.GET() AND ApplicationAreaSetup.Basic THEN BEGIN
             ApplicationAreaSetup.VAT := TRUE;
             ApplicationAreaSetup."Basic AU" := TRUE;
             ApplicationAreaSetup.Modify();
         END;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag());
     end;
 
     local procedure MoveGLBankAccountNoToGLAccountNo()
@@ -41,18 +41,17 @@ codeunit 104010 "UPG Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag()) THEN
             EXIT;
 
         BankAccountPostingGroup.SETFILTER("G/L Bank Account No.", '<>%1', '');
-        IF BankAccountPostingGroup.FINDSET(TRUE) THEN BEGIN
-            REPEAT
+        if BankAccountPostingGroup.FINDSET(TRUE) then
+            repeat
                 BankAccountPostingGroup."G/L Account No." := BankAccountPostingGroup."G/L Bank Account No.";
                 BankAccountPostingGroup.Modify();
-            UNTIL BankAccountPostingGroup.Next() = 0;
-        END;
+            until BankAccountPostingGroup.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag());
     end;
 }
 

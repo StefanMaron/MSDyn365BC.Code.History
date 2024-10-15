@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2130 "O365 Excel Import Management"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -182,10 +186,10 @@ codeunit 2130 "O365 Excel Import Management"
     local procedure AddFieldToMapping(var O365FieldExcelMapping: Record "O365 Field Excel Mapping"; TableID: Integer; FieldID: Integer)
     begin
         with O365FieldExcelMapping do begin
-            Init;
+            Init();
             "Table ID" := TableID;
             "Field ID" := FieldID;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -240,4 +244,5 @@ codeunit 2130 "O365 Excel Import Management"
         ConfigTemplateMgt.UpdateRecord(ConfigTemplateHeader, RecRef);
     end;
 }
+#endif
 

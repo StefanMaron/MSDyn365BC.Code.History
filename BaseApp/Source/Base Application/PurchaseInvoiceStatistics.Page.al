@@ -116,19 +116,19 @@ page 400 "Purchase Invoice Statistics"
             group(WHT)
             {
                 Caption = 'WHT';
-                field("Rem. WHT Prepaid Amount (LCY)"; "Rem. WHT Prepaid Amount (LCY)")
+                field("Rem. WHT Prepaid Amount (LCY)"; Rec."Rem. WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rem. WHT Amount (LCY)';
                     ToolTip = 'Specifies the remaining WHT Amount, which is to be realized (deducted) for this invoice.';
                 }
-                field("Paid WHT Prepaid Amount (LCY)"; "Paid WHT Prepaid Amount (LCY)")
+                field("Paid WHT Prepaid Amount (LCY)"; Rec."Paid WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Paid WHT Amount (LCY)';
                     ToolTip = 'Specifies the paid (realized) WHT amount for this invoice.';
                 }
-                field("Total WHT Prepaid Amount (LCY)"; "Total WHT Prepaid Amount (LCY)")
+                field("Total WHT Prepaid Amount (LCY)"; Rec."Total WHT Prepaid Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Total WHT Amount (LCY)';
@@ -146,7 +146,7 @@ page 400 "Purchase Invoice Statistics"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -165,7 +165,7 @@ page 400 "Purchase Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", VendAmount, "Currency Factor");
+                WorkDate(), "Currency Code", VendAmount, "Currency Factor");
 
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", "No.");
@@ -192,11 +192,8 @@ page 400 "Purchase Invoice Statistics"
         PurchInvLine: Record "Purch. Inv. Line";
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
         VendAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
-        AmountLCY: Decimal;
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
@@ -205,6 +202,11 @@ page 400 "Purchase Invoice Statistics"
         VATAmount: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
+
+    protected var
+        Currency: Record Currency;
+        AmountInclVAT: Decimal;
+        AmountLCY: Decimal;
 
     local procedure CalculateTotals()
     var

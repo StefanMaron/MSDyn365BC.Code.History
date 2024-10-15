@@ -20,7 +20,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
     procedure PostSalesInvAndPmtVATTolerancePctMoreThanDiscPct()
     begin
         // [SCENARIO] Payment Discount when 'VAT Tolerance%' is greater than the Discount% of the Payment terms On the General Ledger Setup for Sales Invoice.
-        PostSalesInvAndPmtWithVATTolerancePct(WorkDate, true);  // Using WORKDATE for PostingDate and True For Open Entries.
+        PostSalesInvAndPmtWithVATTolerancePct(WorkDate(), true);  // Using WORKDATE for PostingDate and True For Open Entries.
     end;
 
     [Test]
@@ -28,7 +28,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
     procedure PostSalesInvAndPmtWithPmtPostedAfterDiscountDate()
     begin
         // [SCENARIO] Payment Discount when 'VAT Tolerance%' is greater than the Discount% of the Payment terms On the General Ledger Setup and payment is made after the due date for Sales Invoice.
-        PostSalesInvAndPmtWithVATTolerancePct(CalcDate('<CM + 1M>', WorkDate), false);  // Using the PostingDate of next month and False For Open Entries.
+        PostSalesInvAndPmtWithVATTolerancePct(CalcDate('<CM + 1M>', WorkDate()), false);  // Using the PostingDate of next month and False For Open Entries.
     end;
 
     local procedure PostSalesInvAndPmtWithVATTolerancePct(PostingDate: Date; Open: Boolean)
@@ -107,7 +107,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
 
         // Exercise.
         CreateAndPostGenJournalLine(
-          GenJournalLine, DocumentNo, WorkDate, GenJournalLine."Account Type"::Customer,
+          GenJournalLine, DocumentNo, WorkDate(), GenJournalLine."Account Type"::Customer,
           SalesHeader."Sell-to Customer No.", -SalesLine."Amount Including VAT");
 
         // Verify: Verify Payment is fully applied to Invoice.
@@ -147,7 +147,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
 
         // Exercise.
         CreateAndPostGenJournalLine(
-          GenJournalLine, DocumentNo, WorkDate, GenJournalLine."Account Type"::Customer,
+          GenJournalLine, DocumentNo, WorkDate(), GenJournalLine."Account Type"::Customer,
           SalesHeader."Sell-to Customer No.", -SalesLine."Amount Including VAT");
 
         // Verify: Verify Payment is fully applied to Invoice.
@@ -163,7 +163,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
     procedure PostPurchInvAndPmtVATTolerancePctMoreThanDiscPct()
     begin
         // [SCENARIO] Payment Discount when 'VAT Tolerance%' is greater than the Discount% of the Payment terms On the General Ledger Setup for Purchase Invoice.
-        PostPurchInvAndPmtWithVATTolerancePct(WorkDate, true);  // Using WORKDATE for PostingDate and True For Open Entries.
+        PostPurchInvAndPmtWithVATTolerancePct(WorkDate(), true);  // Using WORKDATE for PostingDate and True For Open Entries.
     end;
 
     [Test]
@@ -171,7 +171,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
     procedure PostPurchInvAndPmtWithPmtPostedAfterDiscountDate()
     begin
         // [SCENARIO] Payment Discount when 'VAT Tolerance%' is greater than the Discount% of the Payment terms On the General Ledger Setup and payment is made after the due date for Purchase Invoice.
-        PostPurchInvAndPmtWithVATTolerancePct(CalcDate('<CM + 1M>', WorkDate), false);  // Using the PostingDate of next month and False For Open Entries.
+        PostPurchInvAndPmtWithVATTolerancePct(CalcDate('<CM + 1M>', WorkDate()), false);  // Using the PostingDate of next month and False For Open Entries.
     end;
 
     local procedure PostPurchInvAndPmtWithVATTolerancePct(PostingDate: Date; Open: Boolean)
@@ -251,7 +251,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
 
         // Exercise.
         CreateAndPostGenJournalLine(
-          GenJournalLine, DocumentNo, WorkDate, GenJournalLine."Account Type"::Vendor,
+          GenJournalLine, DocumentNo, WorkDate(), GenJournalLine."Account Type"::Vendor,
           PurchaseHeader."Buy-from Vendor No.", PurchaseLine."Amount Including VAT");
 
         // Verify.
@@ -291,7 +291,7 @@ codeunit 141064 "ERM VAT Calc With Pmt Disc"
 
         // Exercise.
         CreateAndPostGenJournalLine(
-          GenJournalLine, DocumentNo, WorkDate, GenJournalLine."Account Type"::Vendor,
+          GenJournalLine, DocumentNo, WorkDate(), GenJournalLine."Account Type"::Vendor,
           PurchaseHeader."Buy-from Vendor No.", PurchaseLine."Amount Including VAT");
 
         // Verify.

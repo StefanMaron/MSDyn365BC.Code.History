@@ -115,7 +115,7 @@ codeunit 141070 "UT REP Stock Card"
         CreateItemLedgerEntries(ItemLedgerEntry, CostingMethod);
         CreateValueEntry(ItemLedgerEntry."Entry No.");
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
-        EnqueueValuesForStockCardRequestPageHandler(ItemLedgerEntry."Item No.", GroupTotals, WorkDate);  // Enqueue WORKDATE as Posting Date for StockCardRequestPageHandler.
+        EnqueueValuesForStockCardRequestPageHandler(ItemLedgerEntry."Item No.", GroupTotals, WorkDate());  // Enqueue WORKDATE as Posting Date for StockCardRequestPageHandler.
 
         // Exercise & Verify.
         RunAndVerifyStockCardReport(
@@ -169,7 +169,7 @@ codeunit 141070 "UT REP Stock Card"
     begin
         ItemApplicationEntry."Item Ledger Entry No." := ItemLedgerEntryNo;
         ItemApplicationEntry."Inbound Item Entry No." := ItemLedgerEntryNo;
-        ItemApplicationEntry."Posting Date" := WorkDate;
+        ItemApplicationEntry."Posting Date" := WorkDate();
         ItemApplicationEntry.Quantity := LibraryRandom.RandDec(10, 2);
         ItemApplicationEntry.Insert();
         exit(ItemApplicationEntry.Quantity);
@@ -185,7 +185,7 @@ codeunit 141070 "UT REP Stock Card"
           WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
         CreateItemLedgerEntry(
           ItemLedgerEntry2, ItemLedgerEntry."Item No.", ItemLedgerEntry."Location Code", ItemLedgerEntry."Entry No." + 1,
-          -ItemLedgerEntry.Quantity, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // As required by the test case using earlier date than WORKDATE as Posting Date.
+          -ItemLedgerEntry.Quantity, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // As required by the test case using earlier date than WORKDATE as Posting Date.
     end;
 
     local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; LocationCode: Code[10]; EntryNo: Integer; Quantity: Decimal; PostingDate: Date)

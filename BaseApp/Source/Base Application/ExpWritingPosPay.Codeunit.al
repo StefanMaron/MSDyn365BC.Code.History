@@ -34,7 +34,7 @@ codeunit 1708 "Exp. Writing Pos. Pay"
             CopyStream(OutStream, InStream);
             DataExchDetail.Modify();
         end;
-        ExportFile.Close;
+        ExportFile.Close();
 
         // Need to clear out the File Name and blob (File Content) for the footer record(s)
         DataExchFooter.SetRange("Entry No.", DataExchEntryCodeFooter);

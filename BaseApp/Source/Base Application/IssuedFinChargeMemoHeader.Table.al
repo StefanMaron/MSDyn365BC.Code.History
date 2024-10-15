@@ -28,24 +28,10 @@ table 304 "Issued Fin. Charge Memo Header"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Finance Charge Memo Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Finance Charge Memo Header", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; "Post Code"; Code[20])
         {
@@ -246,6 +232,11 @@ table 304 "Issued Fin. Charge Memo Header"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(44; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(50; Canceled; Boolean)
         {
             Caption = 'Canceled';
@@ -315,22 +306,12 @@ table 304 "Issued Fin. Charge Memo Header"
         FinChrgCommentLine.SetRange(Type, FinChrgCommentLine.Type::"Issued Finance Charge Memo");
         FinChrgCommentLine.SetRange("No.", "No.");
         FinChrgCommentLine.DeleteAll();
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Issued Fin. Charge Memo Header", Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Issued Fin. Charge Memo Header", Rec.GetPosition,
-          DATABASE::"Issued Fin. Charge Memo Header", xRec.GetPosition);
     end;
 
     var
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
         DimMgt: Codeunit DimensionManagement;
-        PostCodeCheck: Codeunit "Post Code Check";
 
     procedure PrintRecords(ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
     var
@@ -369,7 +350,7 @@ table 304 "Issued Fin. Charge Memo Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure GetCustomerVATRegistrationNumber(): Text

@@ -512,7 +512,7 @@
                                     if BankAcc2."Currency Code" <> '' then
                                         Currency.Get(BankAcc2."Currency Code")
                                     else
-                                        Currency.InitRoundingPrecision;
+                                        Currency.InitRoundingPrecision();
                                     CheckLedgEntryAmount := CheckLedgEntry.Amount;
                                     Decimals := CheckLedgEntry.Amount - Round(CheckLedgEntry.Amount, 1, '<');
                                     if StrLen(Format(Decimals)) < StrLen(Format(Currency."Amount Rounding Precision")) then
@@ -679,6 +679,8 @@
             }
 
             trigger OnAfterGetRecord()
+            var
+                RemitAddress: Record "Remit Address";
             begin
                 if OneCheckPrVendor and ("Currency Code" <> '') and
                    ("Currency Code" <> Currency.Code)
@@ -749,7 +751,7 @@
                                     Error(Cust.GetPrivacyBlockedGenericErrorText(Cust));
 
                                 if Cust.Blocked = Cust.Blocked::All then
-                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption, Cust."No.");
+                                    Error(Text064, Cust.FieldCaption(Blocked), Cust.Blocked, Cust.TableCaption(), Cust."No.");
                                 Cust.Contact := '';
                                 FormatAddr.Customer(CheckToAddr, Cust);
                                 if BankAcc2."Currency Code" <> "Currency Code" then
@@ -764,9 +766,16 @@
                                     Error(Vend.GetPrivacyBlockedGenericErrorText(Vend));
 
                                 if Vend.Blocked in [Vend.Blocked::All, Vend.Blocked::Payment] then
-                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption, Vend."No.");
+                                    Error(Text064, Vend.FieldCaption(Blocked), Vend.Blocked, Vend.TableCaption(), Vend."No.");
                                 Vend.Contact := '';
-                                FormatAddr.Vendor(CheckToAddr, Vend);
+
+                                if GenJnlLine."Remit-to Code" = '' then
+                                    FormatAddr.Vendor(CheckToAddr, Vend)
+                                else begin
+                                    RemitAddress.Get(GenJnlLine."Remit-to Code", GenJnlLine."Account No.");
+                                    FormatAddr.VendorRemitToAddress(CheckToAddr, RemitAddress);
+                                end;
+
                                 if BankAcc2."Currency Code" <> "Currency Code" then
                                     Error(Text005);
                                 if Vend."Purchaser Code" <> '' then
@@ -858,7 +867,7 @@
 
                         trigger OnValidate()
                         begin
-                            InputBankAccount;
+                            InputBankAccount();
                         end;
                     }
                     field(LastCheckNo; UseCheckNo)
@@ -918,66 +927,10 @@
 
     trigger OnPreReport()
     begin
-        InitTextVariable;
+        InitTextVariable();
     end;
 
     var
-        Text000: Label 'Preview is not allowed.';
-        Text001: Label 'Last Check No. must be filled in.';
-        Text002: Label 'Filters on %1 and %2 are not allowed.';
-        Text003: Label 'XXXXXXXXXXXXXXXX';
-        Text004: Label 'must be entered.';
-        Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
-        Text008: Label 'Both Bank Accounts must have the same currency.';
-        Text010: Label 'XXXXXXXXXX';
-        Text011: Label 'XXXX';
-        Text012: Label 'XX.XXXXXXXXXX.XXXX';
-        Text013: Label '%1 already exists.';
-        Text014: Label 'Check for %1 %2';
-        Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
-        Text019: Label 'Total';
-        Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
-        Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
-        Text022: Label 'NON-NEGOTIABLE';
-        Text023: Label 'Test print';
-        Text024: Label 'XXXX.XX';
-        Text025: Label 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-        Text026: Label 'ZERO';
-        Text027: Label 'HUNDRED';
-        Text028: Label 'AND';
-        Text029: Label '%1 results in a written number that is too long.';
-        Text030: Label ' is already applied to %1 %2 for customer %3.';
-        Text031: Label ' is already applied to %1 %2 for vendor %3.';
-        Text032: Label 'ONE';
-        Text033: Label 'TWO';
-        Text034: Label 'THREE';
-        Text035: Label 'FOUR';
-        Text036: Label 'FIVE';
-        Text037: Label 'SIX';
-        Text038: Label 'SEVEN';
-        Text039: Label 'EIGHT';
-        Text040: Label 'NINE';
-        Text041: Label 'TEN';
-        Text042: Label 'ELEVEN';
-        Text043: Label 'TWELVE';
-        Text044: Label 'THIRTEEN';
-        Text045: Label 'FOURTEEN';
-        Text046: Label 'FIFTEEN';
-        Text047: Label 'SIXTEEN';
-        Text048: Label 'SEVENTEEN';
-        Text049: Label 'EIGHTEEN';
-        Text050: Label 'NINETEEN';
-        Text051: Label 'TWENTY';
-        Text052: Label 'THIRTY';
-        Text053: Label 'FORTY';
-        Text054: Label 'FIFTY';
-        Text055: Label 'SIXTY';
-        Text056: Label 'SEVENTY';
-        Text057: Label 'EIGHTY';
-        Text058: Label 'NINETY';
-        Text059: Label 'THOUSAND';
-        Text060: Label 'MILLION';
-        Text061: Label 'BILLION';
         CompanyInfo: Record "Company Information";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         SalesPurchPerson: Record "Salesperson/Purchaser";
@@ -1036,6 +989,63 @@
         CurrencyCode2: Code[10];
         NetAmount: Text[30];
         LineAmount2: Decimal;
+
+        Text000: Label 'Preview is not allowed.';
+        Text001: Label 'Last Check No. must be filled in.';
+        Text002: Label 'Filters on %1 and %2 are not allowed.';
+        Text003: Label 'XXXXXXXXXXXXXXXX';
+        Text004: Label 'must be entered.';
+        Text005: Label 'The Bank Account and the General Journal Line must have the same currency.';
+        Text008: Label 'Both Bank Accounts must have the same currency.';
+        Text010: Label 'XXXXXXXXXX';
+        Text011: Label 'XXXX';
+        Text012: Label 'XX.XXXXXXXXXX.XXXX';
+        Text013: Label '%1 already exists.';
+        Text014: Label 'Check for %1 %2';
+        Text016: Label 'In the Check report, One Check per Vendor and Document No.\must not be activated when Applies-to ID is specified in the journal lines.';
+        Text019: Label 'Total';
+        Text020: Label 'The total amount of check %1 is %2. The amount must be positive.';
+        Text021: Label 'VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID VOID';
+        Text022: Label 'NON-NEGOTIABLE';
+        Text023: Label 'Test print';
+        Text024: Label 'XXXX.XX';
+        Text025: Label 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+        Text026: Label 'ZERO';
+        Text027: Label 'HUNDRED';
+        Text028: Label 'AND';
+        Text029: Label '%1 results in a written number that is too long.';
+        Text030: Label ' is already applied to %1 %2 for customer %3.';
+        Text031: Label ' is already applied to %1 %2 for vendor %3.';
+        Text032: Label 'ONE';
+        Text033: Label 'TWO';
+        Text034: Label 'THREE';
+        Text035: Label 'FOUR';
+        Text036: Label 'FIVE';
+        Text037: Label 'SIX';
+        Text038: Label 'SEVEN';
+        Text039: Label 'EIGHT';
+        Text040: Label 'NINE';
+        Text041: Label 'TEN';
+        Text042: Label 'ELEVEN';
+        Text043: Label 'TWELVE';
+        Text044: Label 'THIRTEEN';
+        Text045: Label 'FOURTEEN';
+        Text046: Label 'FIFTEEN';
+        Text047: Label 'SIXTEEN';
+        Text048: Label 'SEVENTEEN';
+        Text049: Label 'EIGHTEEN';
+        Text050: Label 'NINETEEN';
+        Text051: Label 'TWENTY';
+        Text052: Label 'THIRTY';
+        Text053: Label 'FORTY';
+        Text054: Label 'FIFTY';
+        Text055: Label 'SIXTY';
+        Text056: Label 'SEVENTY';
+        Text057: Label 'EIGHTY';
+        Text058: Label 'NINETY';
+        Text059: Label 'THOUSAND';
+        Text060: Label 'MILLION';
+        Text061: Label 'BILLION';
         Text063: Label 'Net Amount %1';
         Text064: Label '%1 must not be %2 for %3 %4.';
         Text065: Label 'Subtotal';
@@ -1101,7 +1111,7 @@
             end;
 
         AddToNoText(NoText, NoTextIndex, PrintExponent, Text028);
-        DecimalPosition := GetAmtDecimalPosition;
+        DecimalPosition := GetAmtDecimalPosition();
         AddToNoText(NoText, NoTextIndex, PrintExponent, (Format(No * DecimalPosition) + '/' + Format(DecimalPosition)));
 
         if CurrencyCode <> '' then
@@ -1352,7 +1362,7 @@
         Currency: Record Currency;
     begin
         if GenJnlLine."Currency Code" = '' then
-            Currency.InitRoundingPrecision
+            Currency.InitRoundingPrecision()
         else begin
             Currency.Get(GenJnlLine."Currency Code");
             Currency.TestField("Amount Rounding Precision");
@@ -1500,6 +1510,5 @@
     local procedure OnAfterAssignGenJnlLineDocNoAndAccountType(var GenJnlLine: Record "Gen. Journal Line"; PreviousDocumentNo: Code[20]; ApplyMethod: Option)
     begin
     end;
-
 }
 

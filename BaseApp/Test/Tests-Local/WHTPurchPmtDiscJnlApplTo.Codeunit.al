@@ -32,9 +32,9 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Enable GST (Australia)", true);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -309,7 +309,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
 
             LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
 
-            Find;
+            Find();
             TestField(Open, true);
         end;
     end;
@@ -712,7 +712,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
     local procedure FindPaymentBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     begin
         with GenJournalBatch do begin
-            Reset;
+            Reset();
             SetRange("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             SetFilter("Bal. Account No.", '<>%1', '');
             FindFirst();

@@ -27,12 +27,11 @@ report 7306 "Get Inbound Source Documents"
                     begin
                         OnBeforeWhsePutAwayRequestOnAfterGetRecord("Posted Whse. Receipt Line");
                         CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
-                        if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then begin
+                        if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then
                             if WhseWkshCreate.FromWhseRcptLine(
                                  WhseWkshTemplateName, WhseWkshName, LocationCode, "Posted Whse. Receipt Line")
                             then
                                 LineCreated := true;
-                        end;
                     end;
                 }
 
@@ -56,12 +55,11 @@ report 7306 "Get Inbound Source Documents"
                     trigger OnAfterGetRecord()
                     begin
                         CalcFields("Put-away Qty.", "Put-away Qty. (Base)");
-                        if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then begin
+                        if "Qty. (Base)" > "Qty. Put Away (Base)" + "Put-away Qty. (Base)" then
                             if WhseWkshCreate.FromWhseInternalPutawayLine(
                                  WhseWkshTemplateName, WhseWkshName, LocationCode, "Whse. Internal Put-away Line")
                             then
                                 LineCreated := true;
-                        end;
                     end;
                 }
 
@@ -105,13 +103,14 @@ report 7306 "Get Inbound Source Documents"
     end;
 
     var
-        Text000: Label 'There are no Warehouse Worksheet Lines created.';
         WhseWkshCreate: Codeunit "Whse. Worksheet-Create";
         WhseWkshTemplateName: Code[10];
         WhseWkshName: Code[10];
         LocationCode: Code[10];
         LineCreated: Boolean;
         HideDialog: Boolean;
+
+        Text000: Label 'There are no Warehouse Worksheet Lines created.';
 
     procedure SetHideDialog(NewHideDialog: Boolean)
     begin

@@ -12,7 +12,7 @@ page 1391 "Chart List"
         {
             repeater(Group)
             {
-                field("Chart Name"; "Chart Name")
+                field("Chart Name"; Rec."Chart Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Chart Name';
@@ -39,9 +39,6 @@ page 1391 "Chart List"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 Enabled = SetupActive;
                 ToolTip = 'Specifies setup for this Chart';
                 trigger OnAction()
@@ -67,6 +64,17 @@ page 1391 "Chart List"
 
 
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Setup_Promoted; Setup)
+                {
+                }
             }
         }
     }

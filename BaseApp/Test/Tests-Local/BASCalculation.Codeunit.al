@@ -239,7 +239,7 @@ codeunit 144003 "BAS Calculation"
 
         // [THEN] Error raised 'You cannot preview a Consolidated BAS Calculation Sheet'
         Assert.ExpectedError(
-          StrSubstNo(YouCannotPreviewErr, BASCalculationSheet.FieldCaption(Consolidated), BASCalculationSheet.TableCaption));
+          StrSubstNo(YouCannotPreviewErr, BASCalculationSheet.FieldCaption(Consolidated), BASCalculationSheet.TableCaption()));
     end;
 
     [Test]
@@ -468,10 +468,10 @@ codeunit 144003 "BAS Calculation"
         GLEntry: Record "G/L Entry";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             Validate("Entry No.", FindNextGLEntryNo);
             Validate("G/L Account No.", AccountNo);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate(Amount, Amt);
 
             Insert(true);
@@ -489,7 +489,7 @@ codeunit 144003 "BAS Calculation"
             Validate(Type, Type::Sale);
             Validate(Base, LibraryRandom.RandInt(10000));
             Validate(Amount, LibraryRandom.RandInt(10000));
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
 
             Insert(true);
         end;
@@ -510,7 +510,7 @@ codeunit 144003 "BAS Calculation"
             repeat
                 InsertBASCalcSheetEntry(
                   BASCalcSheetEntry, BASCalculationSheet, FieldRef, GLEntry."Entry No.", GLEntry.Amount, BASCalcSheetEntry.Type::"G/L Entry");
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
 
         GLEntry.CalcSums(Amount);
         FieldRef.Value := GLEntry.Amount;
@@ -536,7 +536,7 @@ codeunit 144003 "BAS Calculation"
             repeat
                 InsertBASCalcSheetEntry(
                   BASCalcSheetEntry, BASCalculationSheet, FieldRef, VATEntry."Entry No.", VATEntry.Amount, BASCalcSheetEntry.Type::"GST Entry");
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         VATEntry.CalcSums(Amount);
         FieldRef.Value := VATEntry.Amount;
@@ -682,8 +682,8 @@ codeunit 144003 "BAS Calculation"
         with BASCalculationSheet do begin
             Validate("BAS Version", 1);
             A1 := LibraryUtility.GenerateRandomCode(FieldNo(A1), DATABASE::"BAS Calculation Sheet");
-            Validate(A3, WorkDate);
-            Validate(A4, WorkDate);
+            Validate(A3, WorkDate());
+            Validate(A4, WorkDate());
             Validate("BAS Setup Name", BasSetupName);
 
             Validate(Updated, CreateAsExported);
@@ -791,7 +791,7 @@ codeunit 144003 "BAS Calculation"
         BasXmlFieldId: Record "BAS XML Field ID";
     begin
         with BasXmlFieldId do begin
-            Init;
+            Init();
             Validate("Line No.", LineNo);
             Validate("XML Field ID", XmlFieldId);
             Validate("Field No.", BasFieldNo);
@@ -814,7 +814,7 @@ codeunit 144003 "BAS Calculation"
         BASXMLFieldIDSetup: Record "BAS XML Field ID Setup";
     begin
         with BASXMLFieldIDSetup do begin
-            Init;
+            Init();
             Validate("Setup Name", SetupName);
             Validate("Line No.", LineNo);
             Validate("XML Field ID", XmlFieldId);
@@ -902,7 +902,7 @@ codeunit 144003 "BAS Calculation"
                 SetRange("XML Field ID", XmlFieldId);
                 SetRange("Field No.", BasFieldNo);
                 Assert.IsFalse(IsEmpty, StrSubstNo(BasXmlFieldIdSetupMustExistErr, XmlFieldId, Format(BasFieldNo)));
-            until BASXMLFieldSetupName.Next = 0;
+            until BASXMLFieldSetupName.Next() = 0;
         end;
     end;
 
@@ -930,8 +930,8 @@ codeunit 144003 "BAS Calculation"
 
         BASUpdate."BASCalcSheet.A1".SetValue(A1);
         BASUpdate."BASCalcSheet.""BAS Version""".SetValue(BASVersion);
-        BASUpdate."BASCalcSheet.A3".SetValue(WorkDate);
-        BASUpdate."BASCalcSheet.A4".SetValue(WorkDate);
+        BASUpdate."BASCalcSheet.A3".SetValue(WorkDate());
+        BASUpdate."BASCalcSheet.A4".SetValue(WorkDate());
         BASUpdate.UpdateBASCalcSheet.SetValue(true);
 
         BASUpdate."BAS Setup".SetFilter("Setup Name", BASCalculationSheet."BAS Setup Name");
@@ -961,7 +961,7 @@ codeunit 144003 "BAS Calculation"
             LibraryVariableStorage.Dequeue(DocumentNo);
             LibraryVariableStorage.Dequeue(BasSetupName);
 
-            PostDate.SetValue(WorkDate);
+            PostDate.SetValue(WorkDate());
             DocNo.SetValue(DocumentNo);
 
             Post.SetValue(LibraryVariableStorage.DequeueBoolean);

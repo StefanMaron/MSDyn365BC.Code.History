@@ -35,28 +35,10 @@ table 5201 "Alternative Address"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Alternative Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::"Alternative Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(7; City; Text[30])
         {
@@ -75,11 +57,12 @@ table 5201 "Alternative Address"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::"Alternative Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; "Post Code"; Code[20])
@@ -99,11 +82,12 @@ table 5201 "Alternative Address"
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::"Alternative Address", Rec.GetPosition, 0,
-                  Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -134,7 +118,7 @@ table 5201 "Alternative Address"
         }
         field(13; Comment; Boolean)
         {
-            CalcFormula = Exist ("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
+            CalcFormula = Exist("Human Resource Comment Line" WHERE("Table Name" = CONST("Alternative Address"),
                                                                      "No." = FIELD("Employee No."),
                                                                      "Alternative Address Code" = FIELD(Code)));
             Caption = 'Comment';
@@ -165,21 +149,18 @@ table 5201 "Alternative Address"
     {
     }
 
-    trigger OnDelete()
-    begin
-        PostCodeCheck.DeleteAllAddressID(DATABASE::"Alternative Address", Rec.GetPosition);
-    end;
-
-    trigger OnRename()
-    begin
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::"Alternative Address", xRec.GetPosition,
-          DATABASE::"Alternative Address", Rec.GetPosition);
-    end;
-
     var
         PostCode: Record "Post Code";
         Employee: Record Employee;
-        PostCodeCheck: Codeunit "Post Code Check";
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var AlternativeAddress: Record "Alternative Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var AlternativeAddress: Record "Alternative Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
 }
 

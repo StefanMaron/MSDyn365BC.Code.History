@@ -72,10 +72,10 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         ApprovalWorkflowSetupMgt.ApplyInitialWizardUserInput(TempApprovalWorkflowWizard);
 
         // [THEN] Sales Invoice Approval workflow is set according to the user's options
-        VerifyApprovalDocumentWorkflow(WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode));
+        VerifyApprovalDocumentWorkflow(WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode()));
         // [THEN] Purchase Invoice Approval workflow is set according to the user's options
         VerifyApprovalDocumentWorkflow(
-          WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode));
+          WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode()));
         // [THEN] All users in NAV have approval user setup
         VerifyApprovalUserSetup(TempApprovalWorkflowWizard);
     end;
@@ -134,7 +134,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         Initialize();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created and enabled
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // [WHEN] A Sales Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -166,7 +166,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         Initialize();
 
         // [GIVEN] A Purchase Invoice Approval Workflow is created and enabled
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         // [WHEN] A Purchase Invoice Approval Workflow is created from wizard with a given due date and other default values
         WorkflowCode :=
@@ -269,7 +269,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         Workflow.Modify();
 
         // [GIVEN] A Sales Invoice Approval Workflow is created and enabled
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceApprovalWorkflowCode());
 
         // [WHEN] The wizard is used to update the workflow with a new due date
         Evaluate(DateFormula, '<1W>');
@@ -312,7 +312,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         Workflow.Validate(Enabled, false);
         Workflow.Modify();
 
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode());
 
         Evaluate(DateFormula, '<1W>');
         // [WHEN] A request to update the Sales invoice approval workflow is made
@@ -368,10 +368,10 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         ApprovalWorkflowSetupMgt.ApplyInitialWizardUserInput(TempApprovalWorkflowWizard2);
 
         // [THEN] Sales Invoice Approval workflow is set according to the user's options
-        VerifyApprovalDocumentWorkflow(WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode));
+        VerifyApprovalDocumentWorkflow(WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.SalesInvoiceApprovalWorkflowCode()));
         // [THEN] Purchase Invoice Approval workflow is set according to the user's options
         VerifyApprovalDocumentWorkflow(
-          WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode));
+          WorkflowSetup.GetWorkflowWizardCode(WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode()));
         // [THEN] The approval amount and sales amount approval limits reflect admin's decission
         if UseExistingApprovalUserSetup then
             VerifyApprovalUserSetup(TempApprovalWorkflowWizard)
@@ -389,20 +389,20 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
         WorkflowEvent.DeleteAll();
         WorkflowResponse.DeleteAll();
 
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
     end;
 
     local procedure InsertWizardData(var TempApprovalWorkflowWizard: Record "Approval Workflow Wizard" temporary; PurchInvAppWF: Boolean; SalesInvAppWF: Boolean; UseExistApprovalUserSetup: Boolean; ApproverID: Code[50]; PurchAmounApprovaltLimit: Decimal; SalesAmountApprovalLimit: Decimal)
     begin
         with TempApprovalWorkflowWizard do begin
-            Init;
+            Init();
             "Purch Invoice App. Workflow" := PurchInvAppWF;
             "Sales Invoice App. Workflow" := SalesInvAppWF;
             "Use Exist. Approval User Setup" := UseExistApprovalUserSetup;
             "Approver ID" := ApproverID;
             "Purch Amount Approval Limit" := PurchAmounApprovaltLimit;
             "Sales Amount Approval Limit" := SalesAmountApprovalLimit;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -461,7 +461,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
                       TempApprovalWorkflowWizard."Purch Amount Approval Limit", ApprovalUserSetup."Purchase Amount Approval Limit",
                       ApprovalAmountLimitErr);
                 Assert.AreEqual(TempApprovalWorkflowWizard."Approver ID", ApprovalUserSetup."Approver ID", ApproverIDErr);
-            until User.Next = 0;
+            until User.Next() = 0;
     end;
 
     local procedure CreateNonWindowsUsers(NoOfUsers: Integer)
@@ -486,7 +486,7 @@ codeunit 139306 "Doc. App. Setup Wizard Tests"
               CopyStr(LibraryUtility.GenerateRandomCode(User.FieldNo("User Name"), DATABASE::User),
                 1, LibraryUtility.GetFieldLength(DATABASE::User, User.FieldNo("User Name")));
             User.SetRange("User Name", UserName);
-        until User.IsEmpty;
+        until User.IsEmpty();
     end;
 }
 

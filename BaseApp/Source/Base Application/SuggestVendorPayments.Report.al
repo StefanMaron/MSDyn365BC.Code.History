@@ -23,14 +23,14 @@
                     GetVendLedgEntries(true, false);
                     GetVendLedgEntries(false, false);
                     CheckAmounts(false);
-                    ClearNegative;
+                    ClearNegative();
                 end;
             end;
 
             trigger OnPostDataItem()
             begin
                 if UsePriority and not StopPayments then begin
-                    Reset;
+                    Reset();
                     CopyFilters(Vend2);
                     SetCurrentKey(Priority);
                     SetRange(Priority, 0);
@@ -44,13 +44,13 @@
                                 GetVendLedgEntries(true, false);
                                 GetVendLedgEntries(false, false);
                                 CheckAmounts(false);
-                                ClearNegative;
+                                ClearNegative();
                             end;
                         until (Next() = 0) or StopPayments;
                 end;
 
                 if UsePaymentDisc and not StopPayments then begin
-                    Reset;
+                    Reset();
                     CopyFilters(Vend2);
                     Window2.Open(Text007);
                     if FindSet() then
@@ -59,19 +59,19 @@
                             CalcFields("Balance (LCY)");
                             VendorBalance := "Balance (LCY)";
                             Window2.Update(1, "No.");
-                            PayableVendLedgEntry.SetRange("Vendor No.", "No.");
+                            TempPayableVendorLedgerEntry.SetRange("Vendor No.", "No.");
                             if IncludeVendor(Vendor, VendorBalance) then begin
                                 GetVendLedgEntries(true, true);
                                 GetVendLedgEntries(false, true);
                                 CheckAmounts(true);
-                                ClearNegative;
+                                ClearNegative();
                             end;
                         until (Next() = 0) or StopPayments;
-                    Window2.Close;
+                    Window2.Close();
                 end else
                     if FindSet() then
                         repeat
-                            ClearNegative;
+                            ClearNegative();
                         until Next() = 0;
 
                 DimSetEntry.LockTable();
@@ -87,19 +87,19 @@
 
                 Window2.Open(Text008);
 
-                PayableVendLedgEntry.Reset();
-                PayableVendLedgEntry.SetRange(Priority, 1, 2147483647);
-                MakeGenJnlLines;
-                PayableVendLedgEntry.Reset();
-                PayableVendLedgEntry.SetRange(Priority, 0);
-                MakeGenJnlLines;
-                PayableVendLedgEntry.Reset();
-                PayableVendLedgEntry.DeleteAll();
+                TempPayableVendorLedgerEntry.Reset();
+                TempPayableVendorLedgerEntry.SetRange(Priority, 1, 2147483647);
+                MakeGenJnlLines();
+                TempPayableVendorLedgerEntry.Reset();
+                TempPayableVendorLedgerEntry.SetRange(Priority, 0);
+                MakeGenJnlLines();
+                TempPayableVendorLedgerEntry.Reset();
+                TempPayableVendorLedgerEntry.DeleteAll();
 
                 OnAfterPostDataItem(GenJnlBatch, GenJnlLine2);
 
-                Window2.Close;
-                Window.Close;
+                Window2.Close();
+                Window.Close();
                 ShowMessage(MessageText);
             end;
 
@@ -131,8 +131,8 @@
                 then
                     Error(Text017, GenJnlLine2.FieldCaption("Bank Payment Type"), Format(GenJnlLine2."Bank Payment Type"::"Manual Check"));
 
-                if UsePaymentDisc and (LastDueDateToPayReq < WorkDate) then
-                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, WorkDate), true) then
+                if UsePaymentDisc and (LastDueDateToPayReq < WorkDate()) then
+                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, WorkDate()), true) then
                         Error(Text005);
 
                 Vend2.CopyFilters(Vendor);
@@ -276,7 +276,7 @@
 
                             trigger OnValidate()
                             begin
-                                ValidatePostingDate;
+                                ValidatePostingDate();
                             end;
                         }
                         field(UseDueDateAsPostingDate; UseDueDateAsPostingDate)
@@ -454,11 +454,11 @@
         trigger OnOpenPage()
         begin
             if LastDueDateToPayReq = 0D then
-                LastDueDateToPayReq := WorkDate;
+                LastDueDateToPayReq := WorkDate();
             if PostingDate = 0D then
-                PostingDate := WorkDate;
-            ValidatePostingDate;
-            SetDefaults;
+                PostingDate := WorkDate();
+            ValidatePostingDate();
+            SetDefaults();
         end;
     }
 
@@ -470,7 +470,7 @@
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             CheckOtherJournalBatches := true;
     end;
 
@@ -479,9 +479,9 @@
         ConfirmManagement: Codeunit "Confirm Management";
     begin
         Commit();
-        if not VendorLedgEntryTemp.IsEmpty() then
+        if not TempVendorLedgerEntry.IsEmpty() then
             if ConfirmManagement.GetResponse(Text024, true) then
-                PAGE.RunModal(0, VendorLedgEntryTemp);
+                PAGE.RunModal(0, TempVendorLedgerEntry);
 
         if CheckOtherJournalBatches then
             if not TempErrorMessage.IsEmpty() then
@@ -492,11 +492,63 @@
     trigger OnPreReport()
     begin
         CompanyInformation.Get();
-        VendorLedgEntryTemp.DeleteAll();
+        TempVendorLedgerEntry.DeleteAll();
         ShowPostingDateWarning := false;
     end;
 
     var
+        Vend2: Record Vendor;
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        DimSetEntry: Record "Dimension Set Entry";
+        GenJnlLine2: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
+        GLAcc: Record "G/L Account";
+        BankAcc: Record "Bank Account";
+        TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry" temporary;
+        CompanyInformation: Record "Company Information";
+        TempPaymentBuffer: Record "Payment Buffer" temporary;
+        TempOldPaymentBuffer: Record "Payment Buffer" temporary;
+        SelectedDim: Record "Selected Dimension";
+        TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        TempErrorMessage: Record "Error Message" temporary;
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        DimMgt: Codeunit DimensionManagement;
+        DimBufMgt: Codeunit "Dimension Buffer Management";
+        DueDateOffset: DateFormula;
+        Window: Dialog;
+        Window2: Dialog;
+        UsePaymentDisc: Boolean;
+        PostingDate: Date;
+        LastDueDateToPayReq: Date;
+        NextDocNo: Code[20];
+        AmountAvailable: Decimal;
+        OriginalAmtAvailable: Decimal;
+        UsePriority: Boolean;
+        SummarizePerVend: Boolean;
+        SummarizePerDim: Boolean;
+        SummarizePerDimText: Text[250];
+        LastLineNo: Integer;
+        NextEntryNo: Integer;
+        [InDataSet]
+        UseDueDateAsPostingDate: Boolean;
+        StopPayments: Boolean;
+        DocNoPerLine: Boolean;
+        BankPmtType: Enum "Bank Payment Type";
+        BalAccType: Enum "Gen. Journal Account Type";
+        BalAccNo: Code[20];
+        MessageText: Text;
+        GenJnlLineInserted: Boolean;
+        SeveralCurrencies: Boolean;
+        [InDataSet]
+        SummarizePerDimTextEnable: Boolean;
+        ShowPostingDateWarning: Boolean;
+        VendorBalance: Decimal;
+        [InDataSet]
+        ServiceFieldsVisibiity: Boolean;
+        EFTPayment: Boolean;
+
         Text000: Label 'In the Last Payment Date field, specify the last possible date that payments must be made.';
         Text001: Label 'In the Posting Date field, specify the date that will be used as the posting date for the journal entries.';
         Text002: Label 'In the Starting Document No. field, specify the first document number to be used.';
@@ -513,58 +565,9 @@
         Text020: Label 'You have only created suggested vendor payment lines for the %1 %2.\ However, there are other open vendor ledger entries in currencies other than %2.\\', Comment = 'You have only created suggested vendor payment lines for the Currency Code EUR.\ However, there are other open vendor ledger entries in currencies other than EUR.';
         Text021: Label 'You have only created suggested vendor payment lines for the %1 %2.\ There are no other open vendor ledger entries in other currencies.\\', Comment = 'You have only created suggested vendor payment lines for the Currency Code EUR\ There are no other open vendor ledger entries in other currencies.\\';
         Text022: Label 'You have created suggested vendor payment lines for all currencies.\\';
-        BalAccountTypeErr: label 'Balancing account must be %1 or %2.';
-        Vend2: Record Vendor;
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        GenJnlLine: Record "Gen. Journal Line";
-        DimSetEntry: Record "Dimension Set Entry";
-        GenJnlLine2: Record "Gen. Journal Line";
-        VendLedgEntry: Record "Vendor Ledger Entry";
-        GLAcc: Record "G/L Account";
-        BankAcc: Record "Bank Account";
-        PayableVendLedgEntry: Record "Payable Vendor Ledger Entry" temporary;
-        CompanyInformation: Record "Company Information";
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
-        OldTempPaymentBuffer: Record "Payment Buffer" temporary;
-        SelectedDim: Record "Selected Dimension";
-        VendorLedgEntryTemp: Record "Vendor Ledger Entry" temporary;
-        TempErrorMessage: Record "Error Message" temporary;
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        DimMgt: Codeunit DimensionManagement;
-        DimBufMgt: Codeunit "Dimension Buffer Management";
-        Window: Dialog;
-        Window2: Dialog;
-        UsePaymentDisc: Boolean;
-        PostingDate: Date;
-        LastDueDateToPayReq: Date;
-        NextDocNo: Code[20];
-        AmountAvailable: Decimal;
-        OriginalAmtAvailable: Decimal;
-        UsePriority: Boolean;
-        SummarizePerVend: Boolean;
-        SummarizePerDim: Boolean;
-        SummarizePerDimText: Text[250];
-        LastLineNo: Integer;
-        NextEntryNo: Integer;
-        DueDateOffset: DateFormula;
-        [InDataSet]
-        UseDueDateAsPostingDate: Boolean;
-        StopPayments: Boolean;
-        DocNoPerLine: Boolean;
-        BankPmtType: Enum "Bank Payment Type";
-        BalAccType: Enum "Gen. Journal Account Type";
-        BalAccNo: Code[20];
-        MessageText: Text;
-        GenJnlLineInserted: Boolean;
-        SeveralCurrencies: Boolean;
         Text024: Label 'There are one or more entries for which no payment suggestions have been made because the posting dates of the entries are later than the requested posting date. Do you want to see the entries?';
-        EFTPayment: Boolean;
-        [InDataSet]
-        SummarizePerDimTextEnable: Boolean;
         Text025: Label 'The %1 with the number %2 has a %3 with the number %4.';
-        ShowPostingDateWarning: Boolean;
-        VendorBalance: Decimal;
+        BalAccountTypeErr: label 'Balancing account must be %1 or %2.';
         ReplacePostingDateMsg: Label 'For one or more entries, the requested posting date is before the work date.\\These posting dates will use the work date.';
         PmtDiscUnavailableErr: Label 'You cannot use Find Payment Discounts or Summarize per Vendor together with Calculate Posting Date from Applies-to-Doc. Due Date, because the resulting posting date might not match the payment discount date.';
         SkipExportedPayments: Boolean;
@@ -573,8 +576,6 @@
         CheckOtherJournalBatches: Boolean;
         ReviewNotSuggestedLinesQst: Label 'There are payments in other journal batches that are not suggested here. This helps avoid duplicate payments. To add them to this batch, remove the payment from the other batch, and then suggest payments again.\\Do you want to review the payments from the other journal batches now?';
         NotSuggestedPaymentInfoTxt: Label 'There are payments in %1 %2, %3 %4, %5 %6', Comment = 'There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321';
-        [InDataSet]
-        ServiceFieldsVisibiity: Boolean;
 
     procedure SetGenJnlLine(NewGenJnlLine: Record "Gen. Journal Line")
     begin
@@ -636,7 +637,7 @@
                 IsHandled := false;
                 OnGetVendLedgEntriesOnBeforeLoop(VendLedgEntry, PostingDate, LastDueDateToPayReq, Future, IsHandled);
                 if not IsHandled then begin
-                    SaveAmount;
+                    SaveAmount();
                     if VendLedgEntry."Accepted Pmt. Disc. Tolerance" or (VendLedgEntry."Accepted Payment Tolerance" <> 0) then begin
                         VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                         VendLedgEntry."Accepted Payment Tolerance" := 0;
@@ -644,7 +645,7 @@
                     end;
                 end;
             until VendLedgEntry.Next() = 0;
-        OnAfterGetVendLedgEntries(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, UsePriority, UseDueDateAsPostingDate, DueDateOffset, Positive, Future, PayableVendLedgEntry, NextEntryNo, SkipExportedPayments);
+        OnAfterGetVendLedgEntries(VendLedgEntry, Vendor, PostingDate, LastDueDateToPayReq, UsePriority, UseDueDateAsPostingDate, DueDateOffset, Positive, Future, TempPayableVendorLedgerEntry, NextEntryNo, SkipExportedPayments);
     end;
 
     local procedure IncludeVendor(Vendor: Record Vendor; VendorBalance: Decimal) Result: Boolean
@@ -659,14 +660,14 @@
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             SetPostingDate(GenJnlLine, VendLedgEntry."Due Date", PostingDate);
             "Document Type" := "Document Type"::Payment;
             "Account Type" := "Account Type"::Vendor;
             Vend2.Get(VendLedgEntry."Vendor No.");
             Vend2.CheckBlockedVendOnJnls(Vend2, "Document Type", false);
             Description := Vend2.Name;
-            "Posting Group" := Vend2."Vendor Posting Group";
+            "Posting Group" := VendLedgEntry."Vendor Posting Group";
             "Salespers./Purch. Code" := Vend2."Purchaser Code";
             "Payment Terms Code" := Vend2."Payment Terms Code";
             Validate("Bill-to/Pay-to No.", "Account No.");
@@ -687,18 +688,18 @@
         end;
 
         if UsePriority then
-            PayableVendLedgEntry.Priority := Vendor.Priority
+            TempPayableVendorLedgerEntry.Priority := Vendor.Priority
         else
-            PayableVendLedgEntry.Priority := 0;
-        PayableVendLedgEntry."Vendor No." := VendLedgEntry."Vendor No.";
-        PayableVendLedgEntry."Entry No." := NextEntryNo;
-        PayableVendLedgEntry."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
-        PayableVendLedgEntry.Amount := GenJnlLine.Amount;
-        PayableVendLedgEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)";
-        PayableVendLedgEntry.Positive := (PayableVendLedgEntry.Amount > 0);
-        PayableVendLedgEntry.Future := (VendLedgEntry."Due Date" > LastDueDateToPayReq);
-        PayableVendLedgEntry."Currency Code" := VendLedgEntry."Currency Code";
-        PayableVendLedgEntry.Insert();
+            TempPayableVendorLedgerEntry.Priority := 0;
+        TempPayableVendorLedgerEntry."Vendor No." := VendLedgEntry."Vendor No.";
+        TempPayableVendorLedgerEntry."Entry No." := NextEntryNo;
+        TempPayableVendorLedgerEntry."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
+        TempPayableVendorLedgerEntry.Amount := GenJnlLine.Amount;
+        TempPayableVendorLedgerEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)";
+        TempPayableVendorLedgerEntry.Positive := (TempPayableVendorLedgerEntry.Amount > 0);
+        TempPayableVendorLedgerEntry.Future := (VendLedgEntry."Due Date" > LastDueDateToPayReq);
+        TempPayableVendorLedgerEntry."Currency Code" := VendLedgEntry."Currency Code";
+        TempPayableVendorLedgerEntry.Insert();
         NextEntryNo := NextEntryNo + 1;
     end;
 
@@ -709,34 +710,36 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckAmounts(PayableVendLedgEntry, OriginalAmtAvailable, AmountAvailable, StopPayments, Future, Vendor, IsHandled);
+        OnBeforeCheckAmounts(TempPayableVendorLedgerEntry, OriginalAmtAvailable, AmountAvailable, StopPayments, Future, Vendor, IsHandled);
         if IsHandled then
             exit;
 
-        PayableVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
-        PayableVendLedgEntry.SetRange(Future, Future);
+        TempPayableVendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
+        TempPayableVendorLedgerEntry.SetRange(Future, Future);
 
-        if PayableVendLedgEntry.FindSet() then begin
+        PrevCurrency := '';
+        CurrencyBalance := 0;
+        if TempPayableVendorLedgerEntry.FindSet() then begin
             repeat
-                if PayableVendLedgEntry."Currency Code" <> PrevCurrency then begin
+                if TempPayableVendorLedgerEntry."Currency Code" <> PrevCurrency then begin
                     if CurrencyBalance > 0 then
                         AmountAvailable := AmountAvailable - CurrencyBalance;
                     CurrencyBalance := 0;
-                    PrevCurrency := PayableVendLedgEntry."Currency Code";
+                    PrevCurrency := TempPayableVendorLedgerEntry."Currency Code";
                 end;
                 if (OriginalAmtAvailable = 0) or
-                   (AmountAvailable >= CurrencyBalance + PayableVendLedgEntry."Amount (LCY)")
+                   (AmountAvailable >= CurrencyBalance + TempPayableVendorLedgerEntry."Amount (LCY)")
                 then
-                    CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
+                    CurrencyBalance := CurrencyBalance + TempPayableVendorLedgerEntry."Amount (LCY)"
                 else
-                    PayableVendLedgEntry.Delete();
-            until PayableVendLedgEntry.Next() = 0;
+                    TempPayableVendorLedgerEntry.Delete();
+            until TempPayableVendorLedgerEntry.Next() = 0;
             if OriginalAmtAvailable > 0 then
                 AmountAvailable := AmountAvailable - CurrencyBalance;
             if (OriginalAmtAvailable > 0) and (AmountAvailable <= 0) then
                 StopPayments := true;
         end;
-        PayableVendLedgEntry.Reset();
+        TempPayableVendorLedgerEntry.Reset();
     end;
 
     local procedure MakeGenJnlLines()
@@ -750,20 +753,20 @@
         TempPaymentBuffer.DeleteAll();
 
         if BalAccType = BalAccType::"Bank Account" then begin
-            CheckCurrencies(BalAccType, BalAccNo, PayableVendLedgEntry);
-            SetBankAccCurrencyFilter(BalAccType, BalAccNo, PayableVendLedgEntry);
+            CheckCurrencies(BalAccType, BalAccNo, TempPayableVendorLedgerEntry);
+            SetBankAccCurrencyFilter(BalAccType, BalAccNo, TempPayableVendorLedgerEntry);
         end;
 
         if OriginalAmtAvailable <> 0 then begin
             RemainingAmtAvailable := OriginalAmtAvailable;
-            RemovePaymentsAboveLimit(PayableVendLedgEntry, RemainingAmtAvailable);
+            RemovePaymentsAboveLimit(TempPayableVendorLedgerEntry, RemainingAmtAvailable);
         end;
-        if PayableVendLedgEntry.Find('-') then
+        if TempPayableVendorLedgerEntry.Find('-') then
             repeat
-                PayableVendLedgEntry.SetRange("Vendor No.", PayableVendLedgEntry."Vendor No.");
-                PayableVendLedgEntry.Find('-');
+                TempPayableVendorLedgerEntry.SetRange("Vendor No.", TempPayableVendorLedgerEntry."Vendor No.");
+                TempPayableVendorLedgerEntry.Find('-');
                 repeat
-                    VendLedgEntry.Get(PayableVendLedgEntry."Vendor Ledg. Entry No.");
+                    VendLedgEntry.Get(TempPayableVendorLedgerEntry."Vendor Ledg. Entry No.");
                     SetPostingDate(GenJnlLine1, VendLedgEntry."Due Date", PostingDate);
                     HandledEntry := VendLedgEntry."Posting Date" <= GenJnlLine1."Posting Date";
                     OnBeforeHandledVendLedgEntry(VendLedgEntry, GenJnlLine1, HandledEntry);
@@ -785,14 +788,14 @@
                             if SummarizePerVend then begin
                                 TempPaymentBuffer."Vendor Ledg. Entry No." := 0;
                                 TempPaymentBuffer."Applies-to Ext. Doc. No." := '';
-                                if TempPaymentBuffer.Find then begin
-                                    TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + PayableVendLedgEntry.Amount;
+                                if TempPaymentBuffer.Find() then begin
+                                    TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + TempPayableVendorLedgerEntry.Amount;
                                     OnMakeGenJnlLinesOnBeforeTempPaymentBufferModify(TempPaymentBuffer, VendLedgEntry);
                                     TempPaymentBuffer.Modify();
                                 end else begin
                                     TempPaymentBuffer."Document No." := NextDocNo;
                                     RunIncrementDocumentNo(true);
-                                    TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
+                                    TempPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
                                     Window2.Update(1, VendLedgEntry."Vendor No.");
                                     OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsert(TempPaymentBuffer, VendLedgEntry);
                                     TempPaymentBuffer.Insert();
@@ -805,7 +808,7 @@
                                 TempPaymentBuffer."Global Dimension 2 Code" := VendLedgEntry."Global Dimension 2 Code";
                                 TempPaymentBuffer."Dimension Set ID" := VendLedgEntry."Dimension Set ID";
                                 TempPaymentBuffer."Vendor Ledg. Entry No." := VendLedgEntry."Entry No.";
-                                TempPaymentBuffer.Amount := PayableVendLedgEntry.Amount;
+                                TempPaymentBuffer.Amount := TempPayableVendorLedgerEntry.Amount;
                                 Window2.Update(1, VendLedgEntry."Vendor No.");
                                 OnMakeGenJnlLinesOnBeforeTempPaymentBufferInsertNonSummarize(TempPaymentBuffer, VendLedgEntry, SummarizePerVend, NextDocNo);
                                 TempPaymentBuffer.Insert();
@@ -814,22 +817,22 @@
                         VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
                         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
                     end else begin
-                        VendorLedgEntryTemp := VendLedgEntry;
-                        VendorLedgEntryTemp.Insert();
+                        TempVendorLedgerEntry := VendLedgEntry;
+                        TempVendorLedgerEntry.Insert();
                     end;
 
-                    PayableVendLedgEntry.Delete();
+                    TempPayableVendorLedgerEntry.Delete();
                     if OriginalAmtAvailable <> 0 then begin
-                        RemainingAmtAvailable := RemainingAmtAvailable - PayableVendLedgEntry."Amount (LCY)";
-                        RemovePaymentsAboveLimit(PayableVendLedgEntry, RemainingAmtAvailable);
+                        RemainingAmtAvailable := RemainingAmtAvailable - TempPayableVendorLedgerEntry."Amount (LCY)";
+                        RemovePaymentsAboveLimit(TempPayableVendorLedgerEntry, RemainingAmtAvailable);
                     end;
 
-                until not PayableVendLedgEntry.FindSet();
-                PayableVendLedgEntry.DeleteAll();
-                PayableVendLedgEntry.SetRange("Vendor No.");
-            until not PayableVendLedgEntry.Find('-');
+                until not TempPayableVendorLedgerEntry.FindSet();
+                TempPayableVendorLedgerEntry.DeleteAll();
+                TempPayableVendorLedgerEntry.SetRange("Vendor No.");
+            until not TempPayableVendorLedgerEntry.Find('-');
 
-        Clear(OldTempPaymentBuffer);
+        Clear(TempOldPaymentBuffer);
         TempPaymentBuffer.SetCurrentKey("Document No.");
         TempPaymentBuffer.SetFilter(
           "Vendor Ledg. Entry Doc. Type", '<>%1&<>%2', TempPaymentBuffer."Vendor Ledg. Entry Doc. Type"::Refund,
@@ -837,7 +840,7 @@
 
         if TempPaymentBuffer.Find('-') then
             repeat
-                InsertGenJournalLine;
+                InsertGenJournalLine();
             until TempPaymentBuffer.Next() = 0;
     end;
 
@@ -846,7 +849,7 @@
         Vendor: Record Vendor;
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             Window2.Update(1, TempPaymentBuffer."Vendor No.");
             LastLineNo := LastLineNo + 10000;
             "Line No." := LastLineNo;
@@ -862,15 +865,15 @@
                     "Document No." := NextDocNo;
                     RunIncrementDocumentNo(false);
                 end else
-                    if (TempPaymentBuffer."Vendor No." = OldTempPaymentBuffer."Vendor No.") and
-                       (TempPaymentBuffer."Currency Code" = OldTempPaymentBuffer."Currency Code")
+                    if (TempPaymentBuffer."Vendor No." = TempOldPaymentBuffer."Vendor No.") and
+                       (TempPaymentBuffer."Currency Code" = TempOldPaymentBuffer."Currency Code")
                     then
-                        "Document No." := OldTempPaymentBuffer."Document No."
+                        "Document No." := TempOldPaymentBuffer."Document No."
                     else begin
                         "Document No." := NextDocNo;
                         RunIncrementDocumentNo(false);
-                        OldTempPaymentBuffer := TempPaymentBuffer;
-                        OldTempPaymentBuffer."Document No." := "Document No.";
+                        TempOldPaymentBuffer := TempPaymentBuffer;
+                        TempOldPaymentBuffer."Document No." := "Document No.";
                     end;
             "Account Type" := "Account Type"::Vendor;
             SetHideValidation(true);
@@ -879,7 +882,7 @@
             Validate("Account No.", TempPaymentBuffer."Vendor No.");
             Vendor.Get(TempPaymentBuffer."Vendor No.");
             if (Vendor."Pay-to Vendor No." <> '') and (Vendor."Pay-to Vendor No." <> "Account No.") then
-                Message(Text025, Vendor.TableCaption, Vendor."No.", Vendor.FieldCaption("Pay-to Vendor No."),
+                Message(Text025, Vendor.TableCaption(), Vendor."No.", Vendor.FieldCaption("Pay-to Vendor No."),
                   Vendor."Pay-to Vendor No.");
             "Bal. Account Type" := BalAccType;
             Validate("Bal. Account No.", BalAccNo);
@@ -912,7 +915,7 @@
 
             OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer, SummarizePerVend);
             UpdateDimensions(GenJnlLine);
-            Insert;
+            Insert();
             GenJnlLineInserted := true;
         end;
     end;
@@ -975,7 +978,7 @@
         OnAfterUpdateDimensions(GenJnlLine, SummarizePerVend);
     end;
 
-    local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure SetBankAccCurrencyFilter(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
     begin
@@ -983,7 +986,7 @@
             if BalAccNo <> '' then begin
                 BankAcc.Get(BalAccNo);
                 if BankAcc."Currency Code" <> '' then
-                    TmpPayableVendLedgEntry.SetRange("Currency Code", BankAcc."Currency Code");
+                    TempPayableVendorLedgerEntry.SetRange("Currency Code", BankAcc."Currency Code");
             end;
     end;
 
@@ -997,25 +1000,25 @@
         end;
     end;
 
-    local procedure CheckCurrencies(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpPayableVendLedgEntry: Record "Payable Vendor Ledger Entry")
+    local procedure CheckCurrencies(BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; var TmpTempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry")
     var
         BankAcc: Record "Bank Account";
-        TmpPayableVendLedgEntry2: Record "Payable Vendor Ledger Entry" temporary;
+        TempPayableVendorLedgerEntry2: Record "Payable Vendor Ledger Entry" temporary;
     begin
         if BalAccType = BalAccType::"Bank Account" then
             if BalAccNo <> '' then begin
                 BankAcc.Get(BalAccNo);
                 if BankAcc."Currency Code" <> '' then begin
-                    TmpPayableVendLedgEntry2.Reset();
-                    TmpPayableVendLedgEntry2.DeleteAll();
-                    if TmpPayableVendLedgEntry.FindSet() then
+                    TempPayableVendorLedgerEntry2.Reset();
+                    TempPayableVendorLedgerEntry2.DeleteAll();
+                    if TmpTempPayableVendorLedgerEntry.FindSet() then
                         repeat
-                            TmpPayableVendLedgEntry2 := TmpPayableVendLedgEntry;
-                            TmpPayableVendLedgEntry2.Insert();
-                        until TmpPayableVendLedgEntry.Next() = 0;
+                            TempPayableVendorLedgerEntry2 := TmpTempPayableVendorLedgerEntry;
+                            TempPayableVendorLedgerEntry2.Insert();
+                        until TmpTempPayableVendorLedgerEntry.Next() = 0;
 
-                    TmpPayableVendLedgEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
-                    SeveralCurrencies := SeveralCurrencies or TmpPayableVendLedgEntry2.FindFirst();
+                    TempPayableVendorLedgerEntry2.SetFilter("Currency Code", '<>%1', BankAcc."Currency Code");
+                    SeveralCurrencies := SeveralCurrencies or TempPayableVendorLedgerEntry2.FindFirst();
 
                     if SeveralCurrencies then
                         MessageText :=
@@ -1031,30 +1034,30 @@
     local procedure ClearNegative()
     var
         TempCurrency: Record Currency temporary;
-        PayableVendLedgEntry2: Record "Payable Vendor Ledger Entry" temporary;
+        TempPayableVendorLedgerEntry2: Record "Payable Vendor Ledger Entry" temporary;
         CurrencyBalance: Decimal;
     begin
-        Clear(PayableVendLedgEntry);
-        PayableVendLedgEntry.SetRange("Vendor No.", Vendor."No.");
+        Clear(TempPayableVendorLedgerEntry);
+        TempPayableVendorLedgerEntry.SetRange("Vendor No.", Vendor."No.");
 
-        while PayableVendLedgEntry.Next <> 0 do begin
-            TempCurrency.Code := PayableVendLedgEntry."Currency Code";
+        while TempPayableVendorLedgerEntry.Next() <> 0 do begin
+            TempCurrency.Code := TempPayableVendorLedgerEntry."Currency Code";
             CurrencyBalance := 0;
             if TempCurrency.Insert() then begin
-                PayableVendLedgEntry2 := PayableVendLedgEntry;
-                PayableVendLedgEntry.SetRange("Currency Code", PayableVendLedgEntry."Currency Code");
+                TempPayableVendorLedgerEntry2 := TempPayableVendorLedgerEntry;
+                TempPayableVendorLedgerEntry.SetRange("Currency Code", TempPayableVendorLedgerEntry."Currency Code");
                 repeat
-                    CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
-                until PayableVendLedgEntry.Next() = 0;
+                    CurrencyBalance := CurrencyBalance + TempPayableVendorLedgerEntry."Amount (LCY)"
+                until TempPayableVendorLedgerEntry.Next() = 0;
                 if CurrencyBalance < 0 then begin
-                    PayableVendLedgEntry.DeleteAll();
+                    TempPayableVendorLedgerEntry.DeleteAll();
                     AmountAvailable += CurrencyBalance;
                 end;
-                PayableVendLedgEntry.SetRange("Currency Code");
-                PayableVendLedgEntry := PayableVendLedgEntry2;
+                TempPayableVendorLedgerEntry.SetRange("Currency Code");
+                TempPayableVendorLedgerEntry := TempPayableVendorLedgerEntry2;
             end;
         end;
-        PayableVendLedgEntry.Reset();
+        TempPayableVendorLedgerEntry.Reset();
     end;
 
     local procedure DimCodeIsInDimBuf(DimCode: Code[20]; DimBuf: Record "Dimension Buffer"): Boolean
@@ -1064,11 +1067,11 @@
         exit(not DimBuf.IsEmpty);
     end;
 
-    local procedure RemovePaymentsAboveLimit(var PayableVendLedgEntry: Record "Payable Vendor Ledger Entry"; RemainingAmtAvailable: Decimal)
+    local procedure RemovePaymentsAboveLimit(var TempPayableVendorLedgerEntry: Record "Payable Vendor Ledger Entry"; RemainingAmtAvailable: Decimal)
     begin
-        PayableVendLedgEntry.SetFilter("Amount (LCY)", '>%1', RemainingAmtAvailable);
-        PayableVendLedgEntry.DeleteAll();
-        PayableVendLedgEntry.SetRange("Amount (LCY)");
+        TempPayableVendorLedgerEntry.SetFilter("Amount (LCY)", '>%1', RemainingAmtAvailable);
+        TempPayableVendorLedgerEntry.DeleteAll();
+        TempPayableVendorLedgerEntry.SetRange("Amount (LCY)");
     end;
 
     local procedure InsertDimBuf(var DimBuf: Record "Dimension Buffer"; TableID: Integer; EntryNo: Integer; DimCode: Code[20]; DimValue: Code[20])
@@ -1107,7 +1110,7 @@
         end;
 
         if DueDate = 0D then
-            DueDate := GenJnlLine.GetAppliesToDocDueDate;
+            DueDate := GenJnlLine.GetAppliesToDocDueDate();
         exit(GenJnlLine.SetPostingDateAsDueDate(DueDate, DueDateOffset));
     end;
 

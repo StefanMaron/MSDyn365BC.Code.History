@@ -751,7 +751,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         // [SCENARIO] COD 1251 "Record Match Mgt.".CalculateStringNearness() in case of different strings
         // Setup.
-        FullString := CreateGuid;
+        FullString := LibraryUtility.GenerateRandomText(20);
 
         // Exercise.
         Nearness := RecordMatchMgt.CalculateStringNearness(CopyStr(FullString, 1, 10),
@@ -771,7 +771,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         // [SCENARIO] COD 1251 "Record Match Mgt.".CalculateStringNearness() in case of partially equals strings
         // Setup.
-        FullString := CreateGuid;
+        FullString := LibraryUtility.GenerateRandomText(20);
 
         // Exercise.
         Nearness := RecordMatchMgt.CalculateStringNearness(CopyStr(FullString, 1, 10),
@@ -791,7 +791,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         // [SCENARIO] COD 1251 "Record Match Mgt.".CalculateStringNearness() in case of same strings
         // Setup.
-        FullString := CreateGuid;
+        FullString := CreateGuid();
 
         // Exercise.
         Nearness := RecordMatchMgt.CalculateStringNearness(FullString, FullString, 5, 10);
@@ -810,7 +810,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         // [SCENARIO] COD 1251 "Record Match Mgt.".CalculateStringNearness() in case of one empty string
         // Setup.
-        FullString := CreateGuid;
+        FullString := CreateGuid();
 
         // Exercise.
         Nearness := RecordMatchMgt.CalculateStringNearness(FullString, '', 5, 10);
@@ -840,7 +840,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Result: Text;
     begin
         // Setup.
-        FullString := CreateGuid;
+        FullString := CreateGuid();
 
         // Exercise.
         Result := RecordMatchMgt.GetLongestCommonSubstring(CopyStr(FullString, 1, 10), CopyStr(FullString, 5, 15));
@@ -858,7 +858,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Result: Text;
     begin
         // Setup.
-        FullString := CreateGuid;
+        FullString := CreateGuid();
 
         // Exercise.
         Result := RecordMatchMgt.GetLongestCommonSubstring(FullString, FullString);
@@ -876,7 +876,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         Result: Text;
     begin
         // Setup.
-        FullString := CreateGuid;
+        FullString := CreateGuid();
 
         // Exercise.
         Result := RecordMatchMgt.GetLongestCommonSubstring('', FullString);
@@ -983,7 +983,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amount);
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LastEntryNo + 1;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
         CustLedgerEntry.Open := true;
@@ -1000,7 +1000,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         InsertDetailedVendorLedgerEntry(LastEntryNo + 1, Amount);
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LastEntryNo + 1;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
         VendorLedgerEntry.Open := true;
@@ -1056,7 +1056,7 @@ codeunit 134250 "Match General Jnl Lines UT"
           CopyStr(Description, 1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJnlLine.FieldNo(Description)));
         GenJnlLine."Payer Information" :=
           CopyStr(PayerInfo, 1, LibraryUtility.GetFieldLength(DATABASE::"Gen. Journal Line", GenJnlLine.FieldNo("Payer Information")));
-        GenJnlLine."Posting Date" := WorkDate;
+        GenJnlLine."Posting Date" := WorkDate();
         GenJnlLine.Amount := Amount;
         GenJnlLine."Amount (LCY)" := Amount;
         GenJnlLine.Insert();
@@ -1130,14 +1130,14 @@ codeunit 134250 "Match General Jnl Lines UT"
             if FindLast() then
                 LastLineNo := "Line No.";
 
-            Init;
+            Init();
             "Line No." := LastLineNo + 1;
             "Mapping Text" := CopyStr(CreateGuid, 1, 50);
             "Debit Acc. No." := DebitAccNo;
             "Credit Acc. No." := CreditAccNo;
             "Bal. Source Type" := SourceType;
             "Bal. Source No." := SourceNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1216,7 +1216,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
     local procedure VerifyGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Applied: Boolean)
     begin
-        GenJnlLine.Find;
+        GenJnlLine.Find();
         GenJnlLine.TestField("Applies-to ID", DocNo);
         GenJnlLine.TestField("Account Type", AccountType);
         GenJnlLine.TestField("Account No.", AccountNo);
@@ -1225,7 +1225,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
     local procedure VerifyAppliedInvGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Account Type"; AppliesToDocNo: Code[50]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20])
     begin
-        GenJnlLine.Find;
+        GenJnlLine.Find();
         GenJnlLine.TestField("Account Type", AccountType);
         GenJnlLine.TestField("Account No.", AccountNo);
         GenJnlLine.TestField("Applies-to Doc. Type", AppliesToDocType);

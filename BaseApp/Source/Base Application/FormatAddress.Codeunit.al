@@ -307,7 +307,7 @@
               AddrArray, Name, "Name 2", '', Address, "Address 2",
               City, "Post Code", County, '');
             CreateBarCode(
-              DATABASE::"Company Information", GetPosition, 0, '', '', '');
+              DATABASE::"Company Information", GetPosition(), 0, '', '', '');
         end;
     end;
 
@@ -324,7 +324,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::Customer, GetPosition, 0,
+              DATABASE::Customer, GetPosition(), 0,
               "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
         end;
     end;
@@ -342,7 +342,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::Vendor, GetPosition, 0,
+              DATABASE::Vendor, GetPosition(), 0,
               "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
         end;
     end;
@@ -361,7 +361,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Bank Account", GetPosition, 0,
+              DATABASE::"Bank Account", GetPosition(), 0,
               "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
         end;
     end;
@@ -379,7 +379,7 @@
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
               "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Header", GetPosition, 3,
+              DATABASE::"Sales Header", GetPosition(), 3,
               "Sell-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -397,7 +397,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Header", GetPosition, 1,
+              DATABASE::"Sales Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -419,7 +419,7 @@
             if CountryRegion.Get("Sell-to Country/Region Code") then
                 SellToCountry := CountryRegion.Name;
             CreateBarCode(
-              DATABASE::"Sales Header", GetPosition, 2,
+              DATABASE::"Sales Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Sell-to Customer No." <> "Bill-to Customer No." then
                 exit(true);
@@ -444,7 +444,7 @@
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
               "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purchase Header", GetPosition, 5,
+              DATABASE::"Purchase Header", GetPosition(), 5,
               "Buy-from Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -463,7 +463,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purchase Header", GetPosition, 4,
+              DATABASE::"Purchase Header", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -482,9 +482,32 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purchase Header", GetPosition, 2,
+              DATABASE::"Purchase Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
+    end;
+
+    procedure PurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchHeaderRemitTo(AddrArray, PurchHeader, IsHandled);
+        if IsHandled then
+            exit(false);
+
+        if PurchHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(AddrArray, RemitAddress);
+        end;
+        exit(true);
     end;
 
     procedure SalesShptSellTo(var AddrArray: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header")
@@ -501,7 +524,7 @@
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
               "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Shipment Header", GetPosition, 3,
+              DATABASE::"Sales Shipment Header", GetPosition(), 3,
               "Sell-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -520,7 +543,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Shipment Header", GetPosition, 1,
+              DATABASE::"Sales Shipment Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Bill-to Customer No." <> "Sell-to Customer No." then
                 exit(true);
@@ -544,7 +567,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Shipment Header", GetPosition, 2,
+              DATABASE::"Sales Shipment Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -563,7 +586,7 @@
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
               "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Invoice Header", GetPosition, 3,
+              DATABASE::"Sales Invoice Header", GetPosition(), 3,
               "Sell-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -581,7 +604,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Invoice Header", GetPosition, 1,
+              DATABASE::"Sales Invoice Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -599,7 +622,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Invoice Header", GetPosition, 2,
+              DATABASE::"Sales Invoice Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Sell-to Customer No." <> "Bill-to Customer No." then
                 exit(true);
@@ -624,7 +647,7 @@
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
               "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Cr.Memo Header", GetPosition, 3,
+              DATABASE::"Sales Cr.Memo Header", GetPosition(), 3,
               "Sell-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -643,7 +666,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Cr.Memo Header", GetPosition, 1,
+              DATABASE::"Sales Cr.Memo Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -662,7 +685,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Cr.Memo Header", GetPosition, 2,
+              DATABASE::"Sales Cr.Memo Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Sell-to Customer No." <> "Bill-to Customer No." then
                 exit(true);
@@ -687,7 +710,7 @@
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
               "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Receipt Header", GetPosition, 3,
+              DATABASE::"Return Receipt Header", GetPosition(), 3,
               "Sell-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -706,7 +729,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Receipt Header", GetPosition, 1,
+              DATABASE::"Return Receipt Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Bill-to Customer No." <> "Sell-to Customer No." then
                 exit(true);
@@ -731,7 +754,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Receipt Header", GetPosition, 2,
+              DATABASE::"Return Receipt Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -750,7 +773,7 @@
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
               "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Rcpt. Header", GetPosition, 5,
+              DATABASE::"Purch. Rcpt. Header", GetPosition(), 5,
               "Buy-from Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -769,7 +792,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Rcpt. Header", GetPosition, 4,
+              DATABASE::"Purch. Rcpt. Header", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -788,7 +811,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Rcpt. Header", GetPosition, 2,
+              DATABASE::"Purch. Rcpt. Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -807,7 +830,7 @@
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
               "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Inv. Header", GetPosition, 5,
+              DATABASE::"Purch. Inv. Header", GetPosition(), 5,
               "Buy-from Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -826,7 +849,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Inv. Header", GetPosition, 4,
+              DATABASE::"Purch. Inv. Header", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -845,9 +868,32 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Inv. Header", GetPosition, 2,
+              DATABASE::"Purch. Inv. Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
+    end;
+
+    procedure PurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"): Boolean
+    var
+        RemitAddress: Record "Remit Address";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePurchInvRemitTo(AddrArray, PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit(false);
+
+        if PurchInvHeader."Remit-to Code" <> '' then begin
+            RemitAddress.Reset();
+            RemitAddress.SetRange("Vendor No.", PurchInvHeader."Pay-to Vendor No.");
+            RemitAddress.SetRange(Code, PurchInvHeader."Remit-to Code");
+            if RemitAddress.IsEmpty() then
+                exit(false);
+
+            RemitAddress.FindFirst();
+            VendorRemitToAddress(AddrArray, RemitAddress);
+        end;
+        exit(true);
     end;
 
     procedure PurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
@@ -864,7 +910,7 @@
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
               "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition, 5,
+              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition(), 5,
               "Buy-from Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -883,7 +929,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition, 4,
+              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -902,7 +948,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition, 2,
+              DATABASE::"Purch. Cr. Memo Hdr.", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -921,7 +967,7 @@
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
               "Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Shipment Header", GetPosition, 5,
+              DATABASE::"Return Shipment Header", GetPosition(), 5,
               "Buy-from Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -940,7 +986,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Shipment Header", GetPosition, 4,
+              DATABASE::"Return Shipment Header", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -959,7 +1005,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Return Shipment Header", GetPosition, 2,
+              DATABASE::"Return Shipment Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -975,10 +1021,10 @@
 
         with AlternativeAddr do begin
             FormatAddr(
-              AddrArray, CopyStr(Employee.FullName, 1, 50), '', '', Address,
+              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
               "Address 2", City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Alternative Address", GetPosition, 0, '', '', '');
+              DATABASE::"Alternative Address", GetPosition(), 0, '', '', '');
         end;
     end;
 
@@ -993,10 +1039,10 @@
 
         with Employee do begin
             FormatAddr(
-              AddrArray, CopyStr(FullName, 1, 50), '', '', Address, "Address 2",
+              AddrArray, CopyStr(FullName(), 1, 50), '', '', Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::Employee, GetPosition, 0,
+              DATABASE::Employee, GetPosition(), 0,
               "No.", "Global Dimension 1 Code", "Global Dimension 2 Code");
         end;
     end;
@@ -1008,10 +1054,10 @@
         AlternativeAddr.Get(Employee."No.", Employee."Alt. Address Code");
         with AlternativeAddr do begin
             FormatAddr(
-              AddrArray, CopyStr(Employee.FullName, 1, 50), '', '', Address,
+              AddrArray, CopyStr(Employee.FullName(), 1, 50), '', '', Address,
               "Address 2", City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Alternative Address", GetPosition, 0, '', '', '');
+              DATABASE::"Alternative Address", GetPosition(), 0, '', '', '');
         end;
     end;
 
@@ -1029,7 +1075,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Vendor Bank Account", GetPosition, 0, "Vendor No.", '', '');
+              DATABASE::"Vendor Bank Account", GetPosition(), 0, "Vendor No.", '', '');
         end;
     end;
 
@@ -1047,7 +1093,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Customer Bank Account", GetPosition, 0, "Customer No.", '', '');
+              DATABASE::"Customer Bank Account", GetPosition(), 0, "Customer No.", '', '');
         end;
     end;
 
@@ -1065,7 +1111,7 @@
               AddrArray, Name, "Name 2", Contact, Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Responsibility Center", GetPosition, 0,
+              DATABASE::"Responsibility Center", GetPosition(), 0,
               Code, "Global Dimension 1 Code", "Global Dimension 2 Code");
         end;
     end;
@@ -1085,7 +1131,7 @@
               "Transfer-from Name", "Transfer-from Name 2", '', "Transfer-from Address", "Transfer-from Address 2",
               "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Shipment Header", GetPosition, 6,
+              DATABASE::"Transfer Shipment Header", GetPosition(), 6,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1104,7 +1150,7 @@
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
               "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Shipment Header", GetPosition, 7,
+              DATABASE::"Transfer Shipment Header", GetPosition(), 7,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1124,7 +1170,7 @@
               "Transfer-from Name", "Transfer-from Name 2", '', "Transfer-from Address", "Transfer-from Address 2",
               "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Receipt Header", GetPosition, 6,
+              DATABASE::"Transfer Receipt Header", GetPosition(), 6,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1143,7 +1189,7 @@
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
               "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Receipt Header", GetPosition, 7,
+              DATABASE::"Transfer Receipt Header", GetPosition(), 7,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1163,7 +1209,7 @@
               "Transfer-from Name", "Transfer-from Name 2", '', "Transfer-from Address", "Transfer-from Address 2",
               "Transfer-from City", "Transfer-from Post Code", "Transfer-from County", "Trsf.-from Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Header", GetPosition, 6,
+              DATABASE::"Transfer Header", GetPosition(), 6,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1182,14 +1228,14 @@
               AddrArray, "Transfer-to Name", "Transfer-to Name 2", '', "Transfer-to Address", "Transfer-to Address 2",
               "Transfer-to City", "Transfer-to Post Code", "Transfer-to County", "Trsf.-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Transfer Header", GetPosition, 7,
+              DATABASE::"Transfer Header", GetPosition(), 7,
               "No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
 
     procedure ContactAddr(var AddrArray: array[8] of Text[100]; var Cont: Record Contact)
     begin
-        ContactAddrAlt(AddrArray, Cont, Cont.ActiveAltAddress(WorkDate), WorkDate)
+        ContactAddrAlt(AddrArray, Cont, Cont.ActiveAltAddress(WorkDate()), WorkDate())
     end;
 
     procedure ContactAddrAlt(var AddrArray: array[8] of Text[100]; var Cont: Record Contact; AltAddressCode: Code[10]; ActiveDate: Date)
@@ -1221,7 +1267,7 @@
                       AddrArray, "Company Name", "Company Name 2", Cont.Name, Address, "Address 2",
                       City, "Post Code", County, "Country/Region Code");
                     CreateBarCode(
-                      DATABASE::"Contact Alt. Address", GetPosition, 0,
+                      DATABASE::"Contact Alt. Address", GetPosition(), 0,
                       "Contact No.", '', '');
                 end;
             (Cont.Type = Cont.Type::Person) and
@@ -1235,19 +1281,19 @@
                       AddrArray, "Company Name", "Company Name 2", Cont.Name, Address, "Address 2",
                       City, "Post Code", County, "Country/Region Code");
                     CreateBarCode(
-                      DATABASE::"Contact Alt. Address", GetPosition, 0,
+                      DATABASE::"Contact Alt. Address", GetPosition(), 0,
                       "Contact No.", '', '');
                 end;
             (Cont.Type = Cont.Type::Person) and
           (Cont."Company No." <> ''):
                 with Cont do begin
                     FormatCompanyContactAddr(AddrArray, Cont, ContCompany);
-                    CreateBarCode(DATABASE::Contact, GetPosition, 0, "No.", '', '');
+                    CreateBarCode(DATABASE::Contact, GetPosition(), 0, "No.", '', '');
                 end;
             else
                 with Cont do begin
                     FormatPersonContactAddr(AddrArray, Cont);
-                    CreateBarCode(DATABASE::Contact, GetPosition, 0, "No.", '', '');
+                    CreateBarCode(DATABASE::Contact, GetPosition(), 0, "No.", '', '');
                 end;
         end;
     end;
@@ -1294,7 +1340,7 @@
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Header", GetPosition, 3,
+              DATABASE::"Service Header", GetPosition(), 3,
               "Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1313,7 +1359,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Header", GetPosition, 2,
+              DATABASE::"Service Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1333,7 +1379,7 @@
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Contract Header", GetPosition, 3,
+              DATABASE::"Service Contract Header", GetPosition(), 3,
               "Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1356,7 +1402,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Contact Name", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Contract Header", GetPosition, 2,
+              DATABASE::"Service Contract Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end;
     end;
@@ -1375,7 +1421,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Invoice Header", GetPosition, 1,
+              DATABASE::"Service Invoice Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1394,7 +1440,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Invoice Header", GetPosition, 2,
+              DATABASE::"Service Invoice Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Customer No." <> "Bill-to Customer No." then
                 exit(true);
@@ -1419,7 +1465,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Shipment Header", GetPosition, 2,
+              DATABASE::"Service Shipment Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1438,7 +1484,7 @@
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Shipment Header", GetPosition, 3,
+              DATABASE::"Service Shipment Header", GetPosition(), 3,
               "Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1457,7 +1503,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Shipment Header", GetPosition, 1,
+              DATABASE::"Service Shipment Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Bill-to Customer No." <> "Customer No." then
                 exit(true);
@@ -1482,7 +1528,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Cr.Memo Header", GetPosition, 1,
+              DATABASE::"Service Cr.Memo Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1501,7 +1547,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Cr.Memo Header", GetPosition, 2,
+              DATABASE::"Service Cr.Memo Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             if "Customer No." <> "Bill-to Customer No." then
                 exit(true);
@@ -1526,7 +1572,7 @@
               AddrArray, Name, "Name 2", "Contact Name", Address, "Address 2",
               City, "Post Code", County, "Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Header", GetPosition, 3,
+              DATABASE::"Service Header", GetPosition(), 3,
               "Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1545,7 +1591,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Header", GetPosition, 1,
+              DATABASE::"Service Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1564,7 +1610,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Service Header", GetPosition, 2,
+              DATABASE::"Service Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1612,7 +1658,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Tax Invoice Header", GetPosition, 1,
+              DATABASE::"Sales Tax Invoice Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1625,7 +1671,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Tax Invoice Header", GetPosition, 2,
+              DATABASE::"Sales Tax Invoice Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1638,7 +1684,7 @@
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
               "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Tax Cr.Memo Header", GetPosition, 1,
+              DATABASE::"Sales Tax Cr.Memo Header", GetPosition(), 1,
               "Bill-to Customer No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1651,7 +1697,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Sales Tax Cr.Memo Header", GetPosition, 2,
+              DATABASE::"Sales Tax Cr.Memo Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1664,7 +1710,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Tax Inv. Header", GetPosition, 4,
+              DATABASE::"Purch. Tax Inv. Header", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1677,7 +1723,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Tax Inv. Header", GetPosition, 2,
+              DATABASE::"Purch. Tax Inv. Header", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1690,7 +1736,7 @@
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
               "Pay-to City", "Pay-to Post Code", "Pay-to County", "Pay-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Tax Cr. Memo Hdr.", GetPosition, 4,
+              DATABASE::"Purch. Tax Cr. Memo Hdr.", GetPosition(), 4,
               "Pay-to Vendor No.", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1703,7 +1749,7 @@
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
               "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             CreateBarCode(
-              DATABASE::"Purch. Tax Cr. Memo Hdr.", GetPosition, 2,
+              DATABASE::"Purch. Tax Cr. Memo Hdr.", GetPosition(), 2,
               "Ship-to Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         end
     end;
@@ -1853,6 +1899,13 @@
         with IssuedFinChargeMemoHeader do
             FormatAddr(
               AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+    end;
+
+    procedure VendorRemitToAddress(var AddrArray: array[8] of Text[100]; var RemitAddress: Record "Remit Address")
+    begin
+        if RemitAddress.Code <> '' then
+            with RemitAddress do
+                FormatAddr(AddrArray, Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
     end;
 
     procedure UseCounty(CountryCode: Code[10]): Boolean
@@ -2091,6 +2144,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvRemitTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
     begin
     end;
@@ -2217,6 +2275,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderRemitTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

@@ -70,7 +70,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMSystemuser.SetRange(SystemUserId, CRMSystemuser.SystemUserId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"CRM Systemuser", CRMSystemuser.GetView, IntegrationTableMapping);
+            DATABASE::"CRM Systemuser", CRMSystemuser.GetView(), IntegrationTableMapping);
 
         // [THEN] The Salesperson and CRM Systemuser are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(SalespersonPurchaser.RecordId),
@@ -80,8 +80,8 @@ codeunit 139182 "CRM Coupling Test"
           'The Salesperson must be coupled to the correct CRM Systemuser');
 
         // [THEN] The Salesperson data was overwritten with the CRM Systemuser data
-        SalespersonPurchaser.Find;
-        CRMSystemuser.Find;
+        SalespersonPurchaser.Find();
+        CRMSystemuser.Find();
         Assert.AreEqual(ExpectedCRMName, CRMSystemuser.FullName,
           'The CRM Systemuser must have the same name as it had before syncing after syncing');
         Assert.AreEqual(CRMSystemuser.FullName, SalespersonPurchaser.Name,
@@ -124,7 +124,7 @@ codeunit 139182 "CRM Coupling Test"
         Customer.SetRange(SystemId, Customer.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+            DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
 
         // [THEN] The Customer and CRM Account are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(Customer.RecordId),
@@ -134,8 +134,8 @@ codeunit 139182 "CRM Coupling Test"
           'The Customer must be coupled to the correct CRM Account');
 
         // [THEN] The CRM Account data was overwritten with the Customer data
-        CRMAccount.Find;
-        Customer.Find;
+        CRMAccount.Find();
+        Customer.Find();
         Assert.AreEqual(OriginalCustomerName, Customer.Name,
           'The Customer must have the same name as it had before syncing');
         Assert.AreEqual(Customer.Name, CRMAccount.Name,
@@ -191,8 +191,8 @@ codeunit 139182 "CRM Coupling Test"
           'The Contact must be coupled to the correct CRM Contact');
 
         // [THEN] The Contact and CRM Contact still contain their original data
-        Contact.Find;
-        CRMContact.Find;
+        Contact.Find();
+        CRMContact.Find();
         Assert.AreEqual(OriginalCRMContactName, CRMContact.FullName,
           'The CRM Contact name should still be the original name');
         Assert.AreEqual(OriginalContactName, Contact.Name,
@@ -227,7 +227,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
+            DATABASE::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
 
         // [THEN] CRM Account is coupled to a Customer
         Assert.IsTrue(
@@ -273,7 +273,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMContact.SetRange(ContactId, CRMContact.ContactId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"CRM Contact", CRMContact.GetView, IntegrationTableMapping);
+            DATABASE::"CRM Contact", CRMContact.GetView(), IntegrationTableMapping);
 
         // [THEN] CRM Contact is coupled to a Contact
         Assert.IsTrue(
@@ -338,7 +338,7 @@ codeunit 139182 "CRM Coupling Test"
         Currency.SetRange(SystemId, Currency.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::Currency, Currency.GetView, IntegrationTableMapping);
+            DATABASE::Currency, Currency.GetView(), IntegrationTableMapping);
 
         // [THEN] The Currency is coupled to a new CRM Transactioncurrency
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(Currency.RecordId),
@@ -411,7 +411,7 @@ codeunit 139182 "CRM Coupling Test"
         // This is done in CreateNewCouplingRecordPageHandler
         Currency.SetRange(SystemId, Currency.SystemId);
         JobQueueEntryID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Currency, Currency.GetView, IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Currency, Currency.GetView(), IntegrationTableMapping);
 
         // [THEN] The Currency is NOT coupled to a new CRM Transactioncurrency
         Assert.IsFalse(CRMIntegrationRecord.IsRecordCoupled(Currency.RecordId),
@@ -475,7 +475,7 @@ codeunit 139182 "CRM Coupling Test"
         Assert.AreEqual(CRMProduct.ProductId, CRMID,
           'The Item must be coupled to the correct CRM Product');
 
-        CRMProduct.Find;
+        CRMProduct.Find();
         Assert.AreEqual(Item."No.", CRMProduct.ProductNumber,
           'The CRM Product must have the same number as the Item after syncing');
         CRMProduct.CalcFields(Description);
@@ -516,7 +516,7 @@ codeunit 139182 "CRM Coupling Test"
         // JobQueueEntry is inserted and executed
         Item.SetRange(SystemId, Item.SystemId);
         JobQueueEntryID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView, IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView(), IntegrationTableMapping);
 
         // [THEN] The Item and CRM Product are coupled
         Assert.IsTrue(CRMIntegrationRecord.FindIDFromRecordID(Item.RecordId, CRMId), 'The Item should be coupled');
@@ -564,7 +564,7 @@ codeunit 139182 "CRM Coupling Test"
         // JobQueueEntry is inserted and executed
         Item.SetRange(SystemId, Item.SystemId);
         JobQueueEntryID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView, IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView(), IntegrationTableMapping);
 
         // [THEN] The Item and CRM Product are not coupled
         Assert.IsFalse(CRMIntegrationRecord.IsRecordCoupled(Item.RecordId), 'The Item should not be coupled');
@@ -699,7 +699,7 @@ codeunit 139182 "CRM Coupling Test"
         UnitOfMeasure.SetRange(SystemId, UnitOfMeasure.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Unit of Measure", UnitOfMeasure.GetView, IntegrationTableMapping);
+            DATABASE::"Unit of Measure", UnitOfMeasure.GetView(), IntegrationTableMapping);
 
         // [THEN] The Unit of Measure and the previously uncoupled CRM Uomschedule are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(UnitOfMeasure.RecordId),
@@ -715,7 +715,7 @@ codeunit 139182 "CRM Coupling Test"
           'The first CRM Uomschedule should no longer be coupled');
 
         // [THEN] The previously uncoupled CRM Uomschedule data was overwritten with the Unit of Measure data
-        CRMUomschedule2.Find;
+        CRMUomschedule2.Find();
         Assert.IsTrue(UnitOfMeasure.Find, 'The Unit of Measure was renamed');
         Assert.AreEqual(OriginalUoMCode, CRMUomschedule2.BaseUoMName,
           'The second CRM Uomschedule should have the same Base UoM Name as the Code of the Unit of Measure');
@@ -730,7 +730,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMCouplingRecord.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [HandlerFunctions('SetCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -771,7 +771,7 @@ codeunit 139182 "CRM Coupling Test"
         CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping);
+            DATABASE::"Customer Price Group", CustomerPriceGroup.GetView(), IntegrationTableMapping);
 
         // [THEN] The Customer and CRM Account are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(CustomerPriceGroup.RecordId),
@@ -781,8 +781,8 @@ codeunit 139182 "CRM Coupling Test"
           'The Customer Price Group must be coupled to the correct CRM Pricelevel');
 
         // [THEN] The CRM Pricelevel data was overwritten with the Customer Price Group data
-        CRMPricelevel.Find;
-        CustomerPriceGroup.Find;
+        CRMPricelevel.Find();
+        CustomerPriceGroup.Find();
         Assert.AreEqual(OriginalPriceGroupCode, CustomerPriceGroup.Code,
           'The Customer Price Group must have the same name as it had before syncing');
         Assert.AreEqual(CustomerPriceGroup.Code, CRMPricelevel.Name,
@@ -827,7 +827,7 @@ codeunit 139182 "CRM Coupling Test"
         CustomerPriceGroup.SetRange(SystemId, CustomerPriceGroup.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Customer Price Group", CustomerPriceGroup.GetView, IntegrationTableMapping);
+            DATABASE::"Customer Price Group", CustomerPriceGroup.GetView(), IntegrationTableMapping);
 
         // [THEN] The Customer Price Group and CRM Pricelist are coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(CustomerPriceGroup.RecordId),
@@ -961,7 +961,7 @@ codeunit 139182 "CRM Coupling Test"
         PriceListHeader.SetRange(SystemId, PriceListHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Price List Header", PriceListHeader.GetView, IntegrationTableMapping);
+            DATABASE::"Price List Header", PriceListHeader.GetView(), IntegrationTableMapping);
 
         // NAVName is 'PLH001' on the Coupling page (from CreateNewCouplingRecordNavNamePageHandler)
         Assert.AreEqual(PriceListHeader.Code, LibraryVariableStorage.DequeueText(), 'NAVName');
@@ -1007,7 +1007,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] The "Item Unit Group List" page
         ItemUnitGroupList.OpenView();
-        ItemUnitGroupList.Filter.SetFilter(Code, UnitGroup.Code);
+        ItemUnitGroupList.Filter.SetFilter("Source No.", UnitGroup."Source No.");
         Assert.IsTrue(ItemUnitGroupList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
 
         // [WHEN] Invoking the Set Up Coupling action, Create New
@@ -1062,7 +1062,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] The "Item Unit Group List" page
         ResourceUnitGroupList.OpenView();
-        ResourceUnitGroupList.Filter.SetFilter(Code, UnitGroup.Code);
+        ResourceUnitGroupList.Filter.SetFilter("Source No.", UnitGroup."Source No.");
         Assert.IsTrue(ResourceUnitGroupList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
 
         // [WHEN] Invoking the Set Up Coupling action, Create New
@@ -1304,7 +1304,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.CreateNewRecordsInCRM(Resource.RecordId);
         Resource.SetRange(SystemId, Resource.SystemId);
         JobQueueEntryID :=
-          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Resource, Resource.GetView, IntegrationTableMapping);
+          LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Resource, Resource.GetView(), IntegrationTableMapping);
 
         // [THEN] The Resource and CRM Product are not coupled
         Assert.IsFalse(CRMIntegrationRecord.IsRecordCoupled(Resource.RecordId), 'The Resource should not be coupled');
@@ -1344,7 +1344,7 @@ codeunit 139182 "CRM Coupling Test"
         // execute the job
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
-            DATABASE::"Unit of Measure", UnitOfMeasure.GetView, IntegrationTableMapping);
+            DATABASE::"Unit of Measure", UnitOfMeasure.GetView(), IntegrationTableMapping);
 
         // [THEN] The Unit of Measure is coupled
         Assert.IsTrue(CRMIntegrationRecord.IsRecordCoupled(UnitOfMeasure.RecordId),
@@ -1448,7 +1448,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.CreateNewRecordsInCRM(Opportunity);
         // execute the job
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Opportunity, Opportunity.GetView, IntegrationTableMapping);
+          DATABASE::Opportunity, Opportunity.GetView(), IntegrationTableMapping);
 
         // [THEN] Opportunity is coupled
         Assert.IsTrue(
@@ -1496,13 +1496,13 @@ codeunit 139182 "CRM Coupling Test"
         // execute the job
         Opportunity.SetRange(SystemId, Opportunity.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Opportunity, Opportunity.GetView, IntegrationTableMapping);
+          DATABASE::Opportunity, Opportunity.GetView(), IntegrationTableMapping);
 
         // [THEN] Opportunity is coupled
         Assert.IsTrue(
           CRMIntegrationRecord.IsRecordCoupled(Opportunity.RecordId),
           'The Opportunity must be coupled');
-        CRMOpportunity.Find;
+        CRMOpportunity.Find();
         // [THEN] "CRM Opportunity"."Name" = "Opportunity"."Description"
         Assert.AreEqual(
           Opportunity.Description, CRMOpportunity.Name,
@@ -1549,7 +1549,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.CreateNewRecordsInCRM(Opportunity);
         // execute the job
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Opportunity, Opportunity.GetView, IntegrationTableMapping);
+          DATABASE::Opportunity, Opportunity.GetView(), IntegrationTableMapping);
 
         // [THEN] Opportunity is coupled
         Assert.IsTrue(
@@ -1739,7 +1739,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMProduct.SetRange(ProductId, CRMProduct.ProductId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView, IntegrationTableMapping);
+        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView(), IntegrationTableMapping);
 
         // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
         Item.FindFirst();
@@ -1786,7 +1786,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMProduct.SetRange(ProductId, CRMProduct.ProductId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView, IntegrationTableMapping);
+        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView(), IntegrationTableMapping);
 
         // [THEN] "Item"."Base Unit of Measure" = "CRMUOM"
         Assert.AreEqual(1, Item.Count(), 'Only one Item should have been created. The CRM Product of type Services should not have been picked up.');
@@ -1874,7 +1874,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         Customer.SetRange(SystemId, Customer.SystemId);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Customer);
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
 
         // [THEN] new CRM Account is created, coupled to Customer
         Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(Customer.RecordId), 'Customer should be coupled.');
@@ -2025,7 +2025,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
         Customer.SetRange(SystemId, Customer.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+          DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
 
         // [THEN] "CRMACC"."PrimaryContactId" = "CRMACC"
         CRMAccount.Get(CRMAccount.AccountId);
@@ -2069,7 +2069,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
+          DATABASE::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
 
         // [THEN] "CUST"."Primary Contact No." = "CONT"
         Customer.Get(Customer."No.");
@@ -2101,7 +2101,7 @@ codeunit 139182 "CRM Coupling Test"
         CreateCoupledCustomerAndNotCoupledPrimaryContact(Customer, CRMAccount, Contact);
 
         // [GIVEN] Mock some value PrimaryContactId in 'CRMACC'
-        CRMAccount.PrimaryContactId := CreateGuid;
+        CRMAccount.PrimaryContactId := CreateGuid();
         CRMAccount.Modify();
 
         // [WHEN] Customer is being synched
@@ -2110,7 +2110,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [THEN] 'CRMACC' PrimaryContactId became empty
         Clear(NullGuid);
-        CRMAccount.Find;
+        CRMAccount.Find();
         CRMAccount.TestField(PrimaryContactId, NullGuid);
     end;
 
@@ -2139,7 +2139,7 @@ codeunit 139182 "CRM Coupling Test"
         CreateCoupledCustomerAndNotCoupledPrimaryContact(Customer, CRMAccount, Contact);
 
         // [GIVEN] Mock some PrimaryContactId value in 'CRMACC'
-        CRMAccount.PrimaryContactId := CreateGuid;
+        CRMAccount.PrimaryContactId := CreateGuid();
         CRMAccount.Modify();
         SavedPrimaryContactId := CRMAccount.PrimaryContactId;
 
@@ -2159,7 +2159,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationRecord.TestField("Last Synch. CRM Job ID", JobQueueEntryID);
         CRMIntegrationRecord.TestField("Last Synch. Result", 0);
         // [THEN] 'CRMACC' PrimaryContactId is not changed
-        CRMAccount.Find;
+        CRMAccount.Find();
         CRMAccount.TestField(PrimaryContactId, SavedPrimaryContactId);
     end;
 
@@ -2197,7 +2197,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMAccount.AccountId, false, false);
 
         // [THEN] 'CUST' "Primary Contact No." became empty
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Primary Contact No.", '');
     end;
 
@@ -2246,13 +2246,13 @@ codeunit 139182 "CRM Coupling Test"
           JobQueueEntryID,
           StrSubstNo('%1 %2 must be coupled', CRMAccount.FieldCaption(PrimaryContactId), CRMAccount.PrimaryContactId));
         // [THEN] CRM Integration Record, where "Last Synch. Result" is 'Failure', "Last Synch. CRM Result" is 'Success'
-        CRMIntegrationRecord.Find;
+        CRMIntegrationRecord.Find();
         CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::Failure);
         CRMIntegrationRecord.TestField("Last Synch. Job ID", JobQueueEntryID);
         CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::Success);
 
         // [THEN] 'CUST' "Primary Contact No." is not changed
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("Primary Contact No.", Contact."No.");
     end;
 
@@ -2289,120 +2289,6 @@ codeunit 139182 "CRM Coupling Test"
         CRMAccount.TestField(PrimaryContactId, CRMContact.ContactId);
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('CreateNewCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
-    [Scope('OnPrem')]
-    procedure CoupleCustomerWithPrimaryContactAndContactBothAsCreateNew()
-    var
-        Customer: Record Customer;
-        Contact: Record Contact;
-        CRMAccount: Record "CRM Account";
-        CRMContact: Record "CRM Contact";
-        JobQueueEntry: Record "Job Queue Entry";
-        IntegrationSynchJob: Record "Integration Synch. Job";
-        NullGuid: Guid;
-    begin
-        // [FEATURE] [Customer-Contact Link] [UI] [Clear Value on Failed Sync]
-        // [SCENARIO 230754] PrimaryContactId defined after run codeunit CRM Customer-Contact Link for coupled customer and its primary contact in sequence: first customer, second contact
-        TestInit;
-        EnableConnection;
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.DeleteAll();
-        IntegrationSynchJob.DeleteAll();
-
-        // [GIVEN] Contact 'CONT'
-        LibraryCRMIntegration.CreateContact(Contact);
-
-        // [GIVEN] Customer 'CUST' with Primary Contact No = 'CONT'
-        LibrarySales.CreateCustomer(Customer);
-        SetCustomerPrimaryContact(Customer, Contact);
-
-        // [WHEN] 'CUST' is being coupled with "Create New" to CRM Account 'CRMACC'
-        CoupleCustomerWithNewCRMAccount(Customer, CRMAccount);
-
-        // [THEN] PrimaryContactId left empty
-        CRMAccount.TestField(PrimaryContactId, NullGuid);
-
-        // [GIVEN] Couple 'CONT' with "Create New" to CRM Contact 'CRMCONT'
-        CoupleContactWithNewCRMContact(Contact, CRMContact);
-
-        // [THEN] 'CRMACC' has PrimaryContactId = ContactId of 'CRMCONT'
-        CRMAccount.Find;
-        CRMAccount.TestField(PrimaryContactId, CRMContact.ContactId);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact()
-    begin
-        TestInit;
-        EnableConnection;
-        TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContactUsePerfOptimization()
-    var
-        CRMSynchStatus: Record "CRM Synch Status";
-    begin
-        TestInit;
-        EnableConnection;
-        TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact();
-        // repeat the test in order to test the optimization in Customer-Contact link codeunit
-        TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact();
-    end;
-
-    local procedure TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact()
-    var
-        CRMAccount: Record "CRM Account";
-        CRMContact: Record "CRM Contact";
-        IntegrationTableMapping: Record "Integration Table Mapping";
-        JobQueueEntry: Record "Job Queue Entry";
-        IntegrationSynchJob: Record "Integration Synch. Job";
-    begin
-        // [FEATURE] [Customer-Contact Link] [Clear Value on Failed Sync]
-        // [SCENARIO 230754] Syncing new CRM Account with PrimaryContactId linked with new CRM Contact makes Customer with Primary Contact No filled in
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.DeleteAll();
-        IntegrationSynchJob.DeleteAll();
-
-        // [GIVEN] Not coupled CRM Account "CRMACC"
-        LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
-        // [GIVEN] Not coupled CRM Contact "CRMCONT"
-        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
-        // [GIVEN] "CRMCONT" defined as primary contact for "CRMACC"
-        SetCRMAccountPrimaryContact(CRMAccount, CRMContact.ContactId);
-
-        // [GIVEN] CRM Account is being synched which makes customer "CUST"
-        GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
-        IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify();
-        LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
-
-        // [GIVEN] CRM Contact is being synched wich makes contact "CONT"
-        GetIntegrationTableMapping(DATABASE::Contact, IntegrationTableMapping);
-        IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify();
-        LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
-
-        // [WHEN] Codeunit CRM Customer-Contact Link is being run
-        //        FindCRMCustomerContactLinkJobQueueEntry(JobQueueEntry);
-        //        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        //        JobQueueEntry.Modify();
-        //       CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
-
-        // [THEN] Integration synch job log entry created with Modified = 1
-        //        FindIntegrationSynchJobEntry(IntegrationSynchJob);
-        //        IntegrationSynchJob.TestField(Modified, 1);
-
-        // [THEN] Customer "CUST" has "Primary Contact No." = "CONT"
-        VerifyCustomerPrimaryContact(CRMAccount);
-    end;
-#endif
     local procedure TestInit()
     begin
         TestInit(false, false);
@@ -2410,6 +2296,7 @@ codeunit 139182 "CRM Coupling Test"
 
     local procedure TestInit(EnableExtendedPrice: Boolean; EnableUnitGroupMapping: Boolean)
     var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         RecordLink: Record "Record Link";
         MyNotifications: Record "My Notifications";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -2418,10 +2305,6 @@ codeunit 139182 "CRM Coupling Test"
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
-
-        LibraryCRMIntegration.DisableUnitGroupMapping();
-        if EnableUnitGroupMapping then
-            LibraryCRMIntegration.EnableUnitGroupMapping();
 
         LibraryApplicationArea.EnableFoundationSetup();
         LibraryVariableStorage.Clear();
@@ -2433,6 +2316,9 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         LibraryCRMIntegration.CreateCRMOrganization;
+        CRMConnectionSetup.Get();
+        CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
+        CRMConnectionSetup.Modify();
         ResetDefaultCRMSetupConfiguration;
 
         RecordLink.DeleteAll();
@@ -2459,7 +2345,7 @@ codeunit 139182 "CRM Coupling Test"
 
         Contact.SetRange(SystemId, Contact.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Contact, Contact.GetView, IntegrationTableMapping);
+          DATABASE::Contact, Contact.GetView(), IntegrationTableMapping);
 
         CRMIntegrationRecord.FindIDFromRecordID(Contact.RecordId, CRMID);
         CRMContact.Get(CRMID);
@@ -2474,7 +2360,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement.CreateNewRecordsInCRM(Customer.RecordId);
         Customer.SetRange(SystemId, Customer.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
-          DATABASE::Customer, Customer.GetView, IntegrationTableMapping);
+          DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
 
         CRMIntegrationRecord.FindIDFromRecordID(Customer.RecordId, CRMID);
         CRMAccount.Get(CRMID);
@@ -2532,7 +2418,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMAccount);
-        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView, IntegrationTableMapping);
+        LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()
@@ -2563,7 +2449,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         ItemList.CRMGoToProduct.Invoke;
         Item.SetRange(SystemId, Item.SystemId);
-        exit(LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView, IntegrationTableMapping));
+        exit(LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView(), IntegrationTableMapping));
     end;
 
     local procedure GetIntegrationTableMapping(TableNo: Integer; var IntegrationTableMapping: Record "Integration Table Mapping")
@@ -2609,16 +2495,9 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", GetCustomerTableMappingName);
         IntegrationFieldMapping.SetRange("Field No.", Customer.FieldNo("Primary Contact No."));
         IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMAccount.FieldNo(PrimaryContactId));
-        exit(IntegrationFieldMapping.FindFirst);
+        exit(IntegrationFieldMapping.FindFirst())
     end;
 
-#if not CLEAN18
-    local procedure FindCRMCustomerContactLinkJobQueueEntry(var JobQueueEntry: Record "Job Queue Entry")
-    begin
-        JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.FindFirst();
-    end;
-#endif
     local procedure FindIntegrationSynchJobEntry(var IntegrationSynchJob: Record "Integration Synch. Job")
     begin
         IntegrationSynchJob.SetRange(Message, CustomerContactLinkTxt);

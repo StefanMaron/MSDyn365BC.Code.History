@@ -19,8 +19,8 @@ codeunit 132566 "Read Master Data from Cache 2"
     var
         MasterDataSetupSample: Record "Master Data Setup Sample";
     begin
-        if not MasterDataSetupSample.Get then
-            Error(SetupTableMissingErr, MasterDataSetupSample.TableCaption);
+        if not MasterDataSetupSample.Get() then
+            Error(SetupTableMissingErr, MasterDataSetupSample.TableCaption());
 
         exit(MasterDataSetupSample.Path + '\' + MasterDataSetupSample.Name);
     end;
@@ -34,13 +34,13 @@ codeunit 132566 "Read Master Data from Cache 2"
         ReadFileInBase64Encoding.SetFileName(FileName);
 
         if not ReadFileInBase64Encoding.Run then begin
-            DotNetExceptionHandler.Collect;
+            DotNetExceptionHandler.Collect();
             ReadFileInBase64Encoding.GetTempBlob(TempBlob2);
             case true of
                 DotNetExceptionHandler.TryCastToType(GetDotNetType(FileNotFoundException)):
                     ImportFile(TempBlob2);
                 else
-                    DotNetExceptionHandler.Rethrow;
+                    DotNetExceptionHandler.Rethrow();
             end;
         end else
             ReadFileInBase64Encoding.GetTempBlob(TempBlob2);

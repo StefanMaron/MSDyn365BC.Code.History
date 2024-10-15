@@ -35,6 +35,7 @@ permissionset 162 "SECURITY (System)"
                   tabledata "Designed Query Order By" = R,
                   tabledata "Designed Query Permission" = R,
                   tabledata "Document Service" = imd,
+                  tabledata "Document Service Scenario" = imd,
                   tabledata Entitlement = imd,
                   tabledata "Entitlement Set" = imd,
                   tabledata "Feature Key" = RIMD,

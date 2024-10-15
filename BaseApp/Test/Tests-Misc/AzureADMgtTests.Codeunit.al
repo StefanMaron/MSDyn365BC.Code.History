@@ -300,7 +300,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, false, true);
 
         // [WHEN] The user invokes IsSaaS.
-        Result := AzureAdMgt.IsSaaS;
+        Result := AzureAdMgt.IsSaaS();
 
         // [THEN] The user recieves true.
         Assert.IsTrue(Result, 'IsSaaS should return true, indicating that the user is in a SaaS environment.');
@@ -319,7 +319,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
         Initialize(false, false, false, false, false);
 
         // [WHEN] The user invokes IsSaaS.
-        Result := AzureAdMgt.IsSaaS;
+        Result := AzureAdMgt.IsSaaS();
 
         // [THEN] The user recieves false.
         Assert.IsFalse(Result, 'IsSaaS should return false, indicating that the user is in a On-Prem/PaaS environment.');
@@ -478,7 +478,7 @@ codeunit 139086 "Azure AD Mgt. Tests"
             UriBuilder.Path := UriBuilder.Path + '/';
         UriBuilder.Path := UriBuilder.Path + Page;
         UriBuilder.Query := '';
-        exit(UriBuilder.Uri.ToString);
+        exit(UriBuilder.Uri.ToString());
     end;
 }
 

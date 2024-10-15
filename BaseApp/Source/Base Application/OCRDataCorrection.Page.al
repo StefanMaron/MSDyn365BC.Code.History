@@ -19,75 +19,75 @@ page 1272 "OCR Data Correction"
                     group(Control16)
                     {
                         ShowCaption = false;
-                        field("Vendor Name"; "Vendor Name")
+                        field("Vendor Name"; Rec."Vendor Name")
                         {
                             ApplicationArea = Basic, Suite;
                             ShowMandatory = true;
                             ToolTip = 'Specifies the name of the vendor on the incoming document. The field may be filled automatically.';
                         }
-                        field("Vendor VAT Registration No."; "Vendor VAT Registration No.")
+                        field("Vendor VAT Registration No."; Rec."Vendor VAT Registration No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'ABN';
                             ToolTip = 'Specifies the VAT registration number of the vendor, if the document contains that number. The field may be filled automatically.';
                         }
-                        field("Vendor IBAN"; "Vendor IBAN")
+                        field("Vendor IBAN"; Rec."Vendor IBAN")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the new value that you want the OCR service to produce for this field going forward.';
                         }
-                        field("Vendor Bank Branch No."; "Vendor Bank Branch No.")
+                        field("Vendor Bank Branch No."; Rec."Vendor Bank Branch No.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the new value that you want the OCR service to produce for this field going forward.';
                         }
-                        field("Vendor Bank Account No."; "Vendor Bank Account No.")
+                        field("Vendor Bank Account No."; Rec."Vendor Bank Account No.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the new value that you want the OCR service to produce for this field going forward.';
                         }
-                        field("Vendor Phone No."; "Vendor Phone No.")
+                        field("Vendor Phone No."; Rec."Vendor Phone No.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the new value that you want the OCR service to produce for this field going forward.';
                         }
-                        field("Vendor Invoice No."; "Vendor Invoice No.")
+                        field("Vendor Invoice No."; Rec."Vendor Invoice No.")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the document number of the original document you received from the vendor. You can require the document number for posting, or let it be optional. By default, it''s required, so that this document references the original. Making document numbers optional removes a step from the posting process. For example, if you attach the original invoice as a PDF, you might not need to enter the document number. To specify whether document numbers are required, in the Purchases & Payables Setup window, select or clear the Ext. Doc. No. Mandatory field.';
                         }
-                        field("Order No."; "Order No.")
+                        field("Order No."; Rec."Order No.")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Vendor Order No.';
                             ToolTip = 'Specifies the order number, if the document contains that number. The field may be filled automatically.';
                         }
-                        field("Document Date"; "Document Date")
+                        field("Document Date"; Rec."Document Date")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the date that is printed on the incoming document. This is the date when the vendor created the invoice, for example. The field may be filled automatically.';
                         }
-                        field("Due Date"; "Due Date")
+                        field("Due Date"; Rec."Due Date")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the date when the vendor document must be paid. The field may be filled automatically.';
                         }
-                        field("Currency Code"; "Currency Code")
+                        field("Currency Code"; Rec."Currency Code")
                         {
                             ApplicationArea = Suite;
                             ToolTip = 'Specifies the currency code, if the document contains that code. The field may be filled automatically.';
                         }
-                        field("Amount Incl. VAT"; "Amount Incl. VAT")
+                        field("Amount Incl. VAT"; Rec."Amount Incl. VAT")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the amount including VAT for the whole document. The field may be filled automatically.';
                         }
-                        field("Amount Excl. VAT"; "Amount Excl. VAT")
+                        field("Amount Excl. VAT"; Rec."Amount Excl. VAT")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the amount excluding VAT for the whole document. The field may be filled automatically.';
                         }
-                        field("VAT Amount"; "VAT Amount")
+                        field("VAT Amount"; Rec."VAT Amount")
                         {
                             ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
@@ -214,14 +214,11 @@ page 1272 "OCR Data Correction"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Reset OCR Data';
                 Image = Reuse;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Undo corrections that you have made since you opened the OCR Data Correction window.';
 
                 trigger OnAction()
                 begin
-                    ResetOriginalOCRData
+                    ResetOriginalOCRData();
                 end;
             }
             action("Send OCR Feedback")
@@ -229,15 +226,12 @@ page 1272 "OCR Data Correction"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Send OCR Feedback';
                 Image = Undo;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Send the corrections to the OCR service. The corrections will be included PDF or image files that contain the data the next time the service processes.';
 
                 trigger OnAction()
                 begin
-                    if UploadCorrectedOCRData then
-                        CurrPage.Close;
+                    if UploadCorrectedOCRData() then
+                        CurrPage.Close();
                 end;
             }
             action(ShowFile)
@@ -245,15 +239,29 @@ page 1272 "OCR Data Correction"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show File';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Open the PDF or image file to see the corrections that you have made.';
 
                 trigger OnAction()
                 begin
-                    ShowMainAttachment
+                    ShowMainAttachment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Reset OCR Data_Promoted"; "Reset OCR Data")
+                {
+                }
+                actionref("Send OCR Feedback_Promoted"; "Send OCR Feedback")
+                {
+                }
+                actionref(ShowFile_Promoted; ShowFile)
+                {
+                }
             }
         }
     }
@@ -266,7 +274,7 @@ page 1272 "OCR Data Correction"
     trigger OnModifyRecord(): Boolean
     begin
         "OCR Data Corrected" := true;
-        Modify;
+        Modify();
         exit(false)
     end;
 

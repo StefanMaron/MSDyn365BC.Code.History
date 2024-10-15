@@ -343,7 +343,7 @@ codeunit 134102 "ERM Prepayment III"
         SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
           LineAmount, SalesInvoiceLine."Line Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, SalesInvoiceLine.FieldCaption("Line Amount"), LineAmount, SalesInvoiceLine.TableCaption));
+          StrSubstNo(AmountError, SalesInvoiceLine.FieldCaption("Line Amount"), LineAmount, SalesInvoiceLine.TableCaption()));
 
         // Tear Down.
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -1354,7 +1354,7 @@ codeunit 134102 "ERM Prepayment III"
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
 
         // [THEN] "G/L Account No." on the second VAT Entry for "PAY01" is not empty
-        VATEntry.Next;
+        VATEntry.Next();
         VerifyGLEntryVATEntryLink(VATEntry."Entry No.");
 
         // Tear Down.
@@ -1651,7 +1651,7 @@ codeunit 134102 "ERM Prepayment III"
         GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure CreateAndModifyExchangeRate(CurrencyCode: Code[10])
@@ -1715,7 +1715,7 @@ codeunit 134102 "ERM Prepayment III"
         // Take Random value for Exchange Rate Amount.
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         ModifyCurrencyExchangeRate(CurrencyExchangeRate, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         exit(Currency.Code);
     end;
@@ -1888,7 +1888,7 @@ codeunit 134102 "ERM Prepayment III"
         // Take Random Prepayment %.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibrarySales.CreateSalesPrepaymentPct(
-          SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, CustomerNo, LibraryInventory.CreateItemNo, WorkDate);
+          SalesPrepaymentPct, SalesPrepaymentPct."Sales Type"::Customer, CustomerNo, LibraryInventory.CreateItemNo, WorkDate());
         SalesPrepaymentPct.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         SalesPrepaymentPct.Modify(true);
     end;
@@ -1900,7 +1900,7 @@ codeunit 134102 "ERM Prepayment III"
         // Take Random Prepayment %.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryPurchase.CreatePurchasePrepaymentPct(
-          PurchasePrepaymentPct, LibraryInventory.CreateItemNo, VendorNo, WorkDate);
+          PurchasePrepaymentPct, LibraryInventory.CreateItemNo, VendorNo, WorkDate());
         PurchasePrepaymentPct.Validate("Prepayment %", LibraryRandom.RandDec(10, 2));
         PurchasePrepaymentPct.Modify(true);
     end;
@@ -1968,7 +1968,7 @@ codeunit 134102 "ERM Prepayment III"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Enable GST (Australia)", DisableGST);
             Validate("Full GST on Prepayment", DisableGST);
             Validate("GST Report", DisableGST);
@@ -2021,7 +2021,7 @@ codeunit 134102 "ERM Prepayment III"
         FindSalesLine(SalesLine, DocumentType, DocumentNo);
         repeat
             TotalPrepaymentPct += Round(SalesLine."Line Amount" * SalesLine."Prepayment %" / 100);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure FindVATEntriesForDocument(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2036,7 +2036,7 @@ codeunit 134102 "ERM Prepayment III"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));
     end;
 
     local procedure ModifyCrMemoNoOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2184,7 +2184,7 @@ codeunit 134102 "ERM Prepayment III"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryWithAmount(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
@@ -2216,8 +2216,8 @@ codeunit 134102 "ERM Prepayment III"
         repeat
             Assert.AreNearlyEqual(
               Round(PrepaymentAmount / 2), SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(AmountError, SalesLine.FieldCaption("Prepmt. Line Amount"), Round(PrepaymentAmount / 2), SalesLine.TableCaption));
-        until SalesLine.Next = 0;
+              StrSubstNo(AmountError, SalesLine.FieldCaption("Prepmt. Line Amount"), Round(PrepaymentAmount / 2), SalesLine.TableCaption()));
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifySalesLineForPrepaymentValues(SalesHeader: Record "Sales Header")
@@ -2228,7 +2228,7 @@ codeunit 134102 "ERM Prepayment III"
         repeat
             SalesLine.TestField("Prepmt. Line Amount", Round(SalesLine."Line Amount" * SalesHeader."Prepayment %" / 100));
             SalesLine.TestField("Prepayment %", SalesHeader."Prepayment %");
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; UnrealizedBase: Decimal; UnrealizedAmount: Decimal)
@@ -2239,10 +2239,10 @@ codeunit 134102 "ERM Prepayment III"
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           UnrealizedAmount, VATEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VATEntry.FieldCaption("Unrealized Amount"), UnrealizedAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption("Unrealized Amount"), UnrealizedAmount, VATEntry.TableCaption()));
         Assert.AreNearlyEqual(
           UnrealizedBase, VATEntry."Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, VATEntry.FieldCaption("Unrealized Base"), UnrealizedBase, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption("Unrealized Base"), UnrealizedBase, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyGLEntryVATEntryLink(VATEntryNo: Integer)

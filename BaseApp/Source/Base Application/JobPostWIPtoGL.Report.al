@@ -115,7 +115,7 @@ report 1085 "Job Post WIP to G/L"
             end;
 
             if PostingDate = 0D then
-                PostingDate := WorkDate;
+                PostingDate := WorkDate();
             DocNo := '';
 
             JobsSetup.Get();
@@ -150,7 +150,7 @@ report 1085 "Job Post WIP to G/L"
         end;
 
         if PostingDate = 0D then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
 
         GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
@@ -179,7 +179,7 @@ report 1085 "Job Post WIP to G/L"
     procedure InitializeRequest(NewDocNo: Code[20])
     begin
         DocNo := NewDocNo;
-        PostingDate := WorkDate
+        PostingDate := WorkDate();
     end;
 }
 

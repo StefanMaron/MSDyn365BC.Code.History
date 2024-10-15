@@ -172,7 +172,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry.Amount := Amount;
         GLEntry."Additional-Currency Amount" := AdditionalCurrencyAmount;
@@ -201,7 +201,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         LibraryVariableStorage.Dequeue(ShowAmountsInAddReportingCurrency);
         LibraryVariableStorage.Dequeue(ReportType);
         FinancialAnalysisReport."G/L Account".SetFilter("No.", No);
-        FinancialAnalysisReport."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', WorkDate, CalcDate('<CY>', WorkDate)));
+        FinancialAnalysisReport."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', WorkDate(), CalcDate('<CY>', WorkDate())));
         FinancialAnalysisReport.ReportType.SetValue(FinancialAnalysisReport.ReportType.GetOption(ReportType));
         FinancialAnalysisReport.IndentAccountName.SetValue(true);
         FinancialAnalysisReport.AddCurr.SetValue(ShowAmountsInAddReportingCurrency);

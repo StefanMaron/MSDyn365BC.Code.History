@@ -20,7 +20,7 @@ table 5075 "Logged Segment"
         }
         field(4; "No. of Interactions"; Integer)
         {
-            CalcFormula = Count ("Interaction Log Entry" WHERE("Logged Segment Entry No." = FIELD("Entry No."),
+            CalcFormula = Count("Interaction Log Entry" WHERE("Logged Segment Entry No." = FIELD("Entry No."),
                                                                Canceled = FIELD(Canceled)));
             Caption = 'No. of Interactions';
             Editable = false;
@@ -28,7 +28,7 @@ table 5075 "Logged Segment"
         }
         field(5; "No. of Campaign Entries"; Integer)
         {
-            CalcFormula = Count ("Campaign Entry" WHERE("Register No." = FIELD("Entry No."),
+            CalcFormula = Count("Campaign Entry" WHERE("Register No." = FIELD("Entry No."),
                                                         Canceled = FIELD(Canceled)));
             Caption = 'No. of Campaign Entries';
             Editable = false;
@@ -85,14 +85,13 @@ table 5075 "Logged Segment"
         if IsHandled then
             exit;
 
-        if Find('-') then begin
+        if Find('-') then
             if ConfirmToggleCanceledCheckmark(Count) then begin
                 MasterCanceledCheckmark := not Canceled;
                 repeat
                     SetCanceledCheckmark(MasterCanceledCheckmark);
                 until Next() = 0
             end;
-        end
     end;
 
     procedure SetCanceledCheckmark(CanceledCheckmark: Boolean)
@@ -101,7 +100,7 @@ table 5075 "Logged Segment"
         CampaignEntry: Record "Campaign Entry";
     begin
         Canceled := CanceledCheckmark;
-        Modify;
+        Modify();
 
         CampaignEntry.SetCurrentKey("Register No.");
         CampaignEntry.SetRange("Register No.", "Entry No.");
@@ -116,15 +115,15 @@ table 5075 "Logged Segment"
     begin
         if NumberOfSelectedLines = 1 then begin
             if Canceled then
-                exit(Confirm(Text000, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+                exit(Confirm(Text000, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
 
-            exit(Confirm(Text002, true, TableCaption, "Entry No.", FieldCaption(Canceled)));
+            exit(Confirm(Text002, true, TableCaption(), "Entry No.", FieldCaption(Canceled)));
         end;
 
         if Canceled then
             exit(Confirm(Text005, true, TableCaption));
 
-        exit(Confirm(Text006, true, TableCaption, FieldCaption(Canceled)));
+        exit(Confirm(Text006, true, TableCaption(), FieldCaption(Canceled)));
     end;
 
     [IntegrationEvent(false, false)]

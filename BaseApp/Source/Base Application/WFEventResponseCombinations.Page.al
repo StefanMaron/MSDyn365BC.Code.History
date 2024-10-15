@@ -26,9 +26,6 @@ page 1507 "WF Event/Response Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -41,15 +38,26 @@ page 1507 "WF Event/Response Combinations"
                 ApplicationArea = Suite;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
             }
         }
     }

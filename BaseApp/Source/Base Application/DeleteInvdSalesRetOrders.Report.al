@@ -18,7 +18,6 @@ report 6651 "Delete Invd Sales Ret. Orders"
             var
                 ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 PostSalesDelete: Codeunit "PostSales-Delete";
-                PostCodeCheck: Codeunit "Post Code Check";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -61,7 +60,7 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                             end;
                                             OnBeforeDeleteSalesOrderLine(SalesOrderLine);
                                             if SalesOrderLine.HasLinks then
-                                                SalesOrderLine.DeleteLinks;
+                                                SalesOrderLine.DeleteLinks();
                                             SalesOrderLine.Delete();
                                         end else
                                             AllLinesDeleted := false;
@@ -84,12 +83,10 @@ report 6651 "Delete Invd Sales Ret. Orders"
                                     if not WhseRequest.IsEmpty() then
                                         WhseRequest.DeleteAll(true);
 
-                                    PostCodeCheck.DeleteAllAddressID(DATABASE::"Sales Header", GetPosition);
-
                                     ApprovalsMgmt.DeleteApprovalEntries(RecordId);
 
                                     OnBeforeDeleteSalesOrderHeader("Sales Header");
-                                    Delete;
+                                    Delete();
                                 end;
                                 Commit();
                             end;
@@ -122,7 +119,6 @@ report 6651 "Delete Invd Sales Ret. Orders"
     }
 
     var
-        Text000: Label 'Processing sales return orders #1##########';
         SalesOrderLine: Record "Sales Line";
         SalesShptHeader: Record "Sales Shipment Header";
         SalesInvHeader: Record "Sales Invoice Header";
@@ -137,6 +133,8 @@ report 6651 "Delete Invd Sales Ret. Orders"
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
         AllLinesDeleted: Boolean;
+
+        Text000: Label 'Processing sales return orders #1##########';
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line")

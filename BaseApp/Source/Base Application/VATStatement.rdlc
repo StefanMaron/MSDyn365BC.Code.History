@@ -1104,6 +1104,9 @@ End Function
         <Field Name="Heading2">
           <DataField>Heading2</DataField>
         </Field>
+        <Field Name="HeaderText">
+          <DataField>HeaderText</DataField>
+        </Field>
         <Field Name="GLSetupLCYCode">
           <DataField>GLSetupLCYCode</DataField>
         </Field>

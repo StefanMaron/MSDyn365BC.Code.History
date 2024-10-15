@@ -243,7 +243,7 @@ codeunit 141027 "ERM GST On Prepayments II"
           SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
           LibraryRandom.RandDec(10, 2));  // Taking random for Quantity.
         SalesHeader.CalcFields("Amount Including VAT");
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);  // FALSE for modify series.
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);  // FALSE for modify series.
 
         // Exercise.
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -573,7 +573,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         FindPrepaymentPurchaseInvoiceHeader(PurchInvHeader, PurchaseHeader."Buy-from Vendor No.");
         CreateAndPostGeneralJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.",
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::Vendor, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.",
           PurchInvHeader."Amount Including VAT");
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
 
@@ -612,7 +612,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         FindPrepaymentSalesInvoiceHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
         CreateAndPostGeneralJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.",
+          GenJournalLine, WorkDate(), GenJournalLine."Account Type"::Customer, SalesHeader."Sell-to Customer No.", SalesInvoiceHeader."No.",
           -SalesInvoiceHeader."Amount Including VAT");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
         SalesInvoiceHeader.Get(DocumentNo);
@@ -690,7 +690,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         OldInvoiceRounding := UpdateInvoiceRoundingOnPurchasesPayablesSetup(false);  // Using FALSE for Invoice Rounding.
-        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         CreatePurchaseOrderAndPostPrepaymentInvoice(PurchaseLine, CreateCurrencyWithExchangeRate(StartingDate));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         FindPrepaymentPurchaseInvoiceHeader(PurchInvHeader, PurchaseHeader."Buy-from Vendor No.");
@@ -737,7 +737,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true, GeneralLedgerSetup."Unrealized VAT");  // TRUE for Enable GST, Full GST On Prepayment, GST Reports and Unrealized VAT.
         OldInvoiceRounding := UpdateInvoiceRoundingOnSalesReceivablesSetup(false);
-        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        StartingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         CreateSalesOrderAndPostPrepaymentInvoice(SalesLine, CreateCurrencyWithExchangeRate(StartingDate));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         FindPrepaymentSalesInvoiceHeader(SalesInvoiceHeader, SalesHeader."Sell-to Customer No.");
@@ -963,7 +963,7 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // Post Purchase Prepayment Credit Memo and Prepayment Invoice.
         PurchasePostPrepayments.CreditMemo(PurchaseHeader);
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         PurchaseLine.Validate("Prepayment %");
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -1253,7 +1253,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         Currency.Validate("Realized Gains Acc.", GLAccount."No.");
         Currency.Validate("Realized Losses Acc.", GLAccount."No.");
         Currency.Modify(true);
-        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, StartingDate);
         exit(Currency.Code);
     end;
@@ -1486,7 +1486,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.Statistics.Invoke;  // Invokes PurchaseOrderStatisticsModalPageHandler.
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure OpenSalesOrderStatisticsPage(No: Code[20])
@@ -1496,7 +1496,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         SalesOrder.OpenEdit;
         SalesOrder.FILTER.SetFilter("No.", No);
         SalesOrder.Statistics.Invoke;  // Invokes SalesOrderStatisticsModalPageHandler.
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure PostPaymentForPurchPrepaymentInvoice(var PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
@@ -1505,7 +1505,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         DocumentNo: Code[20];
     begin
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);  // FALSE for modify series.
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate(), false);  // FALSE for modify series.
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
         UpdateVendorInvoiceNoOnPurchaseHeader(PurchaseHeader);
         CreateGeneralJournalLine(
@@ -1520,7 +1520,7 @@ codeunit 141027 "ERM GST On Prepayments II"
         DocumentNo: Code[20];
     begin
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate, false);  // FALSE for modify series.
+        DocumentNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);  // FALSE for modify series.
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer,
@@ -1695,7 +1695,7 @@ codeunit 141027 "ERM GST On Prepayments II"
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.Next;
+        ApplyCustomerEntries.Next();
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.OK.Invoke;
     end;
@@ -1705,7 +1705,7 @@ codeunit 141027 "ERM GST On Prepayments II"
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.Next;
+        ApplyVendorEntries.Next();
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.OK.Invoke;
     end;

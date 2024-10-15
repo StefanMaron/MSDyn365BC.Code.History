@@ -260,9 +260,9 @@ table 550 "VAT Rate Change Setup"
     begin
         ItemList.LookupMode(true);
         ItemList.SetTableView(Item);
-        if ItemList.RunModal = ACTION::LookupOK then begin
+        if ItemList.RunModal() = ACTION::LookupOK then begin
             ItemList.GetRecord(Item);
-            Text := ItemList.GetSelectionFilter;
+            Text := ItemList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -275,7 +275,7 @@ table 550 "VAT Rate Change Setup"
     begin
         ResourceList.LookupMode(true);
         ResourceList.SetTableView(Resource);
-        if ResourceList.RunModal = ACTION::LookupOK then begin
+        if ResourceList.RunModal() = ACTION::LookupOK then begin
             ResourceList.GetRecord(Resource);
             Text := Resource."No.";
             exit(true);
@@ -290,9 +290,9 @@ table 550 "VAT Rate Change Setup"
     begin
         GLAccountList.LookupMode(true);
         GLAccountList.SetTableView(GLAccount);
-        if GLAccountList.RunModal = ACTION::LookupOK then begin
+        if GLAccountList.RunModal() = ACTION::LookupOK then begin
             GLAccountList.GetRecord(GLAccount);
-            Text := GLAccountList.GetSelectionFilter;
+            Text := GLAccountList.GetSelectionFilter();
             exit(true);
         end;
         exit(false)

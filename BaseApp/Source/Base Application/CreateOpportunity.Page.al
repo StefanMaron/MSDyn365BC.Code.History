@@ -1,7 +1,7 @@
 page 5126 "Create Opportunity"
 {
     Caption = 'Create Opportunity';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -20,7 +20,7 @@ page 5126 "Create Opportunity"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the description of the opportunity.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the date that the opportunity was created.';
@@ -30,7 +30,7 @@ page 5126 "Create Opportunity"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the priority of the opportunity. There are three options:';
                 }
-                field("Wizard Contact Name"; "Wizard Contact Name")
+                field("Wizard Contact Name"; Rec."Wizard Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact';
@@ -53,20 +53,20 @@ page 5126 "Create Opportunity"
                             end;
                     end;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite, RelationshipMgmt;
                     Caption = 'Salesperson';
                     Editable = SalespersonCodeEditable;
                     ToolTip = 'Specifies the salesperson who is responsible for the opportunity.';
                 }
-                field("Sales Cycle Code"; "Sales Cycle Code")
+                field("Sales Cycle Code"; Rec."Sales Cycle Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Sales Cycle';
                     ToolTip = 'Specifies which sales cycle will be used to process this opportunity';
                 }
-                field("Wizard Campaign Description"; "Wizard Campaign Description")
+                field("Wizard Campaign Description"; Rec."Wizard Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Campaign';
@@ -87,7 +87,7 @@ page 5126 "Create Opportunity"
                             end;
                     end;
                 }
-                field("Segment Description"; "Segment Description")
+                field("Segment Description"; Rec."Segment Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Segment';
@@ -112,7 +112,7 @@ page 5126 "Create Opportunity"
             group(Estimates)
             {
                 Caption = 'Estimates';
-                field("Activate First Stage"; "Activate First Stage")
+                field("Activate First Stage"; Rec."Activate First Stage")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Activate the First Stage.';
@@ -127,14 +127,14 @@ page 5126 "Create Opportunity"
                         end;
                     end;
                 }
-                field("Wizard Estimated Value (LCY)"; "Wizard Estimated Value (LCY)")
+                field("Wizard Estimated Value (LCY)"; Rec."Wizard Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Estimated Sales Value (LCY)';
                     Enabled = "Activate First Stage";
                     ToolTip = 'Specifies the value in the wizard for the opportunity. You can specify an estimated value of the opportunity in local currency in this field.';
                 }
-                field("Wizard Chances of Success %"; "Wizard Chances of Success %")
+                field("Wizard Chances of Success %"; Rec."Wizard Chances of Success %")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Chances of Success (%)';
@@ -143,7 +143,7 @@ page 5126 "Create Opportunity"
                     MaxValue = 100;
                     ToolTip = 'Specifies the value in the wizard for the opportunity. You can specify a percentage completion estimate in this field.';
                 }
-                field("Wizard Estimated Closing Date"; "Wizard Estimated Closing Date")
+                field("Wizard Estimated Closing Date"; Rec."Wizard Estimated Closing Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Estimated Closing Date';
@@ -164,15 +164,25 @@ page 5126 "Create Opportunity"
                 Caption = '&Finish';
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
                 ToolTip = 'Finish creating the opportunity.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    FinishPage;
-                    CurrPage.Close;
+                    FinishPage();
+                    CurrPage.Close();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_New)
+            {
+                Caption = 'New';
+
+                actionref(FinishWizard_Promoted; FinishWizard)
+                {
+                }
             }
         }
     }
@@ -191,18 +201,16 @@ page 5126 "Create Opportunity"
 
     trigger OnOpenPage()
     begin
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [ACTION::OK, ACTION::LookupOK] then
-            FinishPage;
+            FinishPage();
     end;
 
     var
-        Text000: Label '(Multiple)';
-        Text001: Label 'untitled';
         Cont: Record Contact;
         SalesPurchPerson: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
@@ -215,6 +223,9 @@ page 5126 "Create Opportunity"
         [InDataSet]
         WizardCampaignDescriptionEdita: Boolean;
         IsOnMobile: Boolean;
+
+        Text000: Label '(Multiple)';
+        Text001: Label 'untitled';
 
     procedure Caption(): Text
     var
@@ -244,8 +255,8 @@ page 5126 "Create Opportunity"
 
     local procedure FinishPage()
     begin
-        CheckStatus;
-        FinishWizard;
+        CheckStatus();
+        FinishWizard();
     end;
 }
 

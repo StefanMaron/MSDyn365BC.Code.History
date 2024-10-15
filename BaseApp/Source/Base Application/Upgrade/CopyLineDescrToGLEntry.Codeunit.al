@@ -12,8 +12,8 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        SetCopyLineDescrToGLEntries;
+
+        SetCopyLineDescrToGLEntries();
     end;
 
     local procedure SetCopyLineDescrToGLEntries()
@@ -23,17 +23,17 @@ codeunit 104152 "Copy Line Descr. To G/L Entry"
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
         // Bug ugprade tag or remove
-        IF SalesSetup.GET THEN BEGIN
+        IF SalesSetup.Get() then BEGIN
             SalesSetup."Copy Line Descr. to G/L Entry" := TRUE;
             SalesSetup.Modify();
         END;
 
-        IF ServiceMgtSetup.GET THEN BEGIN
+        IF ServiceMgtSetup.Get() then BEGIN
             ServiceMgtSetup."Copy Line Descr. to G/L Entry" := TRUE;
             ServiceMgtSetup.Modify();
         END;
 
-        IF PurchSetup.GET THEN BEGIN
+        IF PurchSetup.Get() then BEGIN
             PurchSetup."Copy Line Descr. to G/L Entry" := TRUE;
             PurchSetup.Modify();
         END;

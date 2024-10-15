@@ -19,13 +19,16 @@
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader);
         SetTrackInfoForCancellation(Rec);
         if RedoApplications then
-            ItemJnlPostLine.RedoApplications;
+            ItemJnlPostLine.RedoApplications();
         UpdatePurchaseOrderLinesFromCancelledInvoice("No.");
         OnRunOnAfterUpdatePurchaseOrderLinesFromCancelledInvoice(Rec, PurchaseHeader);
         Commit();
     end;
 
     var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        CancellingOnly: Boolean;
+
         PostedInvoiceIsPaidCorrectErr: Label 'You cannot correct this posted purchase invoice because it is fully or partially paid.\\To reverse a paid purchase invoice, you must manually create a purchase credit memo.';
         PostedInvoiceIsPaidCCancelErr: Label 'You cannot cancel this posted purchase invoice because it is fully or partially paid.\\To reverse a paid purchase invoice, you must manually create a purchase credit memo.';
         AlreadyCorrectedErr: Label 'You cannot correct this posted purchase invoice because it has been canceled.';
@@ -56,8 +59,6 @@
         InvoiceIsBasedOnOrderCancelErr: Label 'You cannot cancel this posted purchase invoice because the invoice is based on a purchase order.';
         LineTypeNotAllowedCorrectErr: Label 'You cannot correct this posted purchase invoice because the purchase invoice line for %1 %2 is of type %3, which is not allowed on a simplified purchase invoice.', Comment = '%1 = Item no. %2 = Item description %3 = Item type.';
         LineTypeNotAllowedCancelErr: Label 'You cannot cancel this posted purchase invoice because the purchase invoice line for %1 %2 is of type %3, which is not allowed on a simplified purchase invoice.', Comment = '%1 = Item no. %2 = Item description %3 = Item type.';
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        CancellingOnly: Boolean;
         InvalidDimCodeCorrectErr: Label 'You cannot correct this posted purchase invoice because the dimension rule setup for account ''%1'' %2 prevents %3 %4 from being canceled.', Comment = '%1 = Table caption %2 = Account number %3 = Item no. %4 = Item description.';
         InvalidDimCodeCancelErr: Label 'You cannot cancel this posted purchase invoice because the dimension rule setup for account ''%1'' %2 prevents %3 %4 from being canceled.', Comment = '%1 = Table caption %2 = Account number %3 = Item no. %4 = Item description.';
         InvalidDimCombinationCorrectErr: Label 'You cannot correct this posted purchase invoice because the dimension combination for item %1 %2 is not allowed.', Comment = '%1 = Item no. %2 = Item description.';
@@ -116,13 +117,13 @@
         Clear(PurchaseHeader);
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := '';
-        PurchaseHeader.SetAllowSelectNoSeries;
+        PurchaseHeader.SetAllowSelectNoSeries();
         OnBeforePurchaseHeaderInsert(PurchaseHeader, PurchInvHeader);
         PurchaseHeader.Insert(true);
 
         case DocumentType of
             PurchaseHeader."Document Type"::"Credit Memo":
-                CopyDocMgt.SetPropertiesForCreditMemoCorrection;
+                CopyDocMgt.SetPropertiesForCreditMemoCorrection();
             PurchaseHeader."Document Type"::Invoice:
                 CopyDocMgt.SetPropertiesForInvoiceCorrection(SkipCopyFromDescription);
             else
@@ -137,7 +138,7 @@
 
     procedure CreateCreditMemoCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"): Boolean
     begin
-        if not PurchInvHeader.IsFullyOpen then begin
+        if not PurchInvHeader.IsFullyOpen() then begin
             ShowInvoiceAppliedNotification(PurchInvHeader);
             exit(false);
         end;
@@ -151,7 +152,7 @@
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.Get(InvoiceNotification.GetData(PurchInvHeader.FieldName("No.")));
-        InvoiceNotification.Recall;
+        InvoiceNotification.Recall();
 
         CreateCopyDocument(PurchInvHeader, PurchHeader, PurchHeader."Document Type"::"Credit Memo", false);
         PAGE.Run(PAGE::"Purchase Credit Memo", PurchHeader);
@@ -169,7 +170,7 @@
 
     procedure SkipCorrectiveCreditMemo(var InvoiceNotification: Notification)
     begin
-        InvoiceNotification.Recall;
+        InvoiceNotification.Recall();
     end;
 
     procedure CancelPostedInvoiceStartNewInvoice(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header")
@@ -210,7 +211,7 @@
         InvoiceNotification: Notification;
         NotificationText: Text;
     begin
-        InvoiceNotification.Id := CreateGuid;
+        InvoiceNotification.Id := CreateGuid();
         InvoiceNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
         InvoiceNotification.SetData(PurchInvHeader.FieldName("No."), PurchInvHeader."No.");
         PurchInvHeader.CalcFields(Closed);
@@ -263,7 +264,7 @@
         TableID[1] := DATABASE::Vendor;
         No[1] := Vendor."No.";
         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvHeader."Dimension Set ID") then
-            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, Vendor.TableCaption, Vendor."No.", Vendor."No.", Vendor.Name);
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, Vendor."No.", Vendor.TableCaption(), Vendor."No.", Vendor.Name);
     end;
 
     local procedure TestPurchaseLines(PurchInvHeader: Record "Purch. Inv. Header")
@@ -281,13 +282,13 @@
         if PurchInvLine.Find('-') then
             repeat
                 if not IsCommentLine(PurchInvLine) then begin
-                    if (not PurchInvLine.IsCancellationSupported) and NotInvRndAccount(PurchInvHeader."Vendor Posting Group", PurchInvLine) then
+                    if (not PurchInvLine.IsCancellationSupported()) and NotInvRndAccount(PurchInvHeader."Vendor Posting Group", PurchInvLine) then
                         ErrorHelperLine("Correct Purch. Inv. Error Type"::WrongItemType, PurchInvLine);
 
                     if PurchInvLine.Type = PurchInvLine.Type::Item then begin
                         Item.Get(PurchInvLine."No.");
 
-                        if Item.IsInventoriableType then
+                        if Item.IsInventoriableType() then
                             if (PurchInvLine.Quantity > 0) and (PurchInvLine."Job No." = '') and WasNotCancelled(PurchInvHeader."No.") then begin
                                 PurchInvLine.CalcReceivedPurchNotReturned(ReceivedQtyNoReturned, RevUnitCostLCY, false);
                                 ThrowItemReturnedError := PurchInvLine.Quantity <> ReceivedQtyNoReturned;
@@ -302,9 +303,9 @@
                         TableID[1] := DATABASE::Item;
                         No[1] := PurchInvLine."No.";
                         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
-                            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, Item.TableCaption, No[1], Item."No.", Item.Description);
+                            ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, No[1], Item.TableCaption(), Item."No.", Item.Description);
 
-                        if Item.IsInventoriableType then
+                        if Item.IsInventoriableType() then
                             TestInventoryPostingSetup(PurchInvLine);
                     end;
 
@@ -328,14 +329,14 @@
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, GLAccount.TableCaption, AccountNo, '', '');
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if PurchInvLine.Type = PurchInvLine.Type::Item then begin
             Item.Get(PurchInvLine."No.");
             if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvLine."Dimension Set ID") then
-                ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, GLAccount.TableCaption, AccountNo, Item."No.", Item.Description);
+                ErrorHelperAccount("Correct Purch. Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption(), Item."No.", Item.Description);
         end;
     end;
 
@@ -349,14 +350,14 @@
     begin
         GLAccount.Get(AccountNo);
         if GLAccount.Blocked then
-            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption, '', '');
+            ErrorHelperAccount("Correct Purch. Inv. Error Type"::AccountBlocked, AccountNo, GLAccount.TableCaption(), '', '');
         TableID[1] := DATABASE::"G/L Account";
         No[1] := AccountNo;
 
         if not DimensionManagement.CheckDimValuePosting(TableID, No, PurchInvHeader."Dimension Set ID") then
             ErrorHelperAccount(
-                "Correct Purch. Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption,
-                PurchInvHeader."Vendor Posting Group", VendorPostingGroup.TableCaption);
+                "Correct Purch. Inv. Error Type"::DimErr, AccountNo, GLAccount.TableCaption(),
+                PurchInvHeader."Vendor Posting Group", VendorPostingGroup.TableCaption());
     end;
 
     local procedure TestIfInvoiceIsPaid(PurchInvHeader: Record "Purch. Inv. Header")
@@ -407,7 +408,7 @@
         PostingDate: Date;
         PostingNoSeries: Code[20];
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         PurchasesPayablesSetup.Get();
 
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PostingDate) = '' then
@@ -444,7 +445,7 @@
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
         PurchInvLine.SetFilter(Quantity, '<>%1', 0);
         PurchInvLine.SetFilter(Type, '%1|%2', PurchInvLine.Type::Item, PurchInvLine.Type::"Charge (Item)");
-        DocumentHasLineWithRestrictedType := not PurchInvLine.IsEmpty;
+        DocumentHasLineWithRestrictedType := not PurchInvLine.IsEmpty();
 
         if DocumentHasLineWithRestrictedType then begin
             InventoryPeriod.SetRange(Closed, true);
@@ -590,14 +591,14 @@
                 if ItemApplicationEntry.AppliedOutbndEntryExists(ItemLedgEntry."Entry No.", true, false) then
                     repeat
                         TempItemApplicationEntry := ItemApplicationEntry;
-                        if not TempItemApplicationEntry.Find then
+                        if not TempItemApplicationEntry.Find() then
                             TempItemApplicationEntry.Insert();
                     until ItemApplicationEntry.Next() = 0;
             until ItemLedgEntry.Next() = 0;
-        exit(TempItemApplicationEntry.FindSet);
+        exit(TempItemApplicationEntry.FindSet());
     end;
 
-    local procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Purch. Inv. Error Type"; PurchInvHeader: Record "Purch. Inv. Header")
+    procedure ErrorHelperHeader(HeaderErrorType: Enum "Correct Purch. Inv. Error Type"; PurchInvHeader: Record "Purch. Inv. Header")
     var
         Vendor: Record Vendor;
     begin

@@ -434,7 +434,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         for Index := 1 to ArrayLen(QtyToShip) do begin
             SalesLine.Validate("Qty. to Ship", QtyToShip[Index]);
             SalesLine.Modify(true);
-            SalesLine.Next;
+            SalesLine.Next();
         end;
     end;
 
@@ -447,7 +447,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         for Index := 1 to ArrayLen(QtyToReceive) do begin
             PurchaseLine.Validate("Qty. to Receive", QtyToReceive[Index]);
             PurchaseLine.Modify(true);
-            PurchaseLine.Next;
+            PurchaseLine.Next();
         end;
     end;
 

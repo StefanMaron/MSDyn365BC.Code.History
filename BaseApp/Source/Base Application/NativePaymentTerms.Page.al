@@ -137,7 +137,7 @@ page 2861 "Native - Payment Terms"
     begin
         PaymentTerms.SetRange(Code, Code);
         if not PaymentTerms.IsEmpty() then
-            Insert;
+            Insert();
 
         Insert(true);
 
@@ -155,8 +155,8 @@ page 2861 "Native - Payment Terms"
         O365PaymentTerms: Record "O365 Payment Terms";
     begin
         BindSubscription(NativeAPILanguageHandler);
-        SetFilter(Code, '<>%1&<>%2', O365PaymentTerms.ExcludedOneMonthPaymentTermCode,
-          O365PaymentTerms.ExcludedCurrentMonthPaymentTermCode);
+        SetFilter(Code, '<>%1&<>%2', O365PaymentTerms.ExcludedOneMonthPaymentTermCode(),
+          O365PaymentTerms.ExcludedCurrentMonthPaymentTermCode());
     end;
 
     var

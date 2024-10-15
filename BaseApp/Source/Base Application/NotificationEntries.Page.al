@@ -26,7 +26,7 @@ page 1511 "Notification Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of notification.';
                 }
-                field("Recipient User ID"; "Recipient User ID")
+                field("Recipient User ID"; Rec."Recipient User ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who received the notification.';
@@ -37,17 +37,17 @@ page 1511 "Notification Entries"
                     Caption = 'Triggered By Record';
                     ToolTip = 'Specifies the record that triggered the notification.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date and time that the notification was created.';
                 }
-                field("Created By"; "Created By")
+                field("Created By"; Rec."Created By")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the user who created the notification.';
                 }
-                field("Error Message"; "Error Message")
+                field("Error Message"; Rec."Error Message")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies an error that relates to the notification entry.';

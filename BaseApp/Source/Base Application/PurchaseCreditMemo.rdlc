@@ -94,7 +94,7 @@ Cstr(Fields!AppliedToText.Value) + Chr(177) +
 Cstr(Fields!ReasonCode_PurchCrMemoHeader.Value) + Chr(177) + 
 Cstr(Fields!OriginalInvDate.Value) + Chr(177) + 
 Cstr(IIF(Fields!PricesInclVAT_PurchCrMemoHeader.Value,"Yes","No")) + Chr(177) + 
-Cstr(Fields!BuyfromVendNo_PurchCrMemoHeader.Value.ToString) + Chr(177) + 
+Cstr(Fields!BuyfromVendNo_PurchCrMemoHeader.Value.ToString()) + Chr(177) + 
 Cstr(Fields!DocumentCaption.Value) + Chr(177) + 
 Cstr(Fields!BankAccNoCaption.Value) + Chr(177) + 
 Cstr(Fields!BankNameCaption.Value) + Chr(177) + 

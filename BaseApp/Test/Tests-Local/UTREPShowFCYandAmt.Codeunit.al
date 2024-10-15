@@ -131,7 +131,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     begin
         PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
         PurchCrMemoHdr."Currency Code" := CreateCurrencyExchangeRate;
-        PurchCrMemoHdr."Posting Date" := WorkDate;
+        PurchCrMemoHdr."Posting Date" := WorkDate();
         PurchCrMemoHdr."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchCrMemoHdr.Insert();
         PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
@@ -146,7 +146,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     begin
         PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
         PurchInvHeader."Currency Code" := CreateCurrencyExchangeRate;
-        PurchInvHeader."Posting Date" := WorkDate;
+        PurchInvHeader."Posting Date" := WorkDate();
         PurchInvHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchInvHeader.Insert();
         PurchInvLine."Document No." := PurchInvHeader."No.";
@@ -161,7 +161,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     begin
         SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
         SalesCrMemoHeader."Currency Code" := CreateCurrencyExchangeRate;
-        SalesCrMemoHeader."Posting Date" := WorkDate;
+        SalesCrMemoHeader."Posting Date" := WorkDate();
         SalesCrMemoHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesCrMemoHeader.Insert();
         SalesCrMemoLine."Document No." := SalesCrMemoHeader."No.";
@@ -176,7 +176,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     begin
         SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
         SalesInvoiceHeader."Currency Code" := CreateCurrencyExchangeRate;
-        SalesInvoiceHeader."Posting Date" := WorkDate;
+        SalesInvoiceHeader."Posting Date" := WorkDate();
         SalesInvoiceHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesInvoiceHeader.Insert();
         SalesInvoiceLine."Document No." := SalesInvoiceHeader."No.";

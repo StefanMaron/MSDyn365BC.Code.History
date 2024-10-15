@@ -26,7 +26,7 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account")
                 else
                     LookupGLAccount(
-                      "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 
                 Validate("Inventory Account");
             end;
@@ -37,7 +37,7 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account", false, false)
                 else
                     CheckGLAccount(
-                      FieldNo("Inventory Account"), "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      FieldNo("Inventory Account"), "Inventory Account", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
         field(20; Description; Text[100])
@@ -59,7 +59,7 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.LookupGLAccountWithoutCategory("Inventory Account (Interim)")
                 else
                     LookupGLAccount(
-                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      "Inventory Account (Interim)", GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
 
                 Validate("Inventory Account (Interim)");
             end;
@@ -70,7 +70,7 @@ table 5813 "Inventory Posting Setup"
                     GLAccountCategoryMgt.CheckGLAccountWithoutCategory("Inventory Account (Interim)", false, false)
                 else
                     CheckGLAccount(
-                      FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory);
+                      FieldNo("Inventory Account (Interim)"), "Inventory Account (Interim)", false, false, GLAccountCategory."Account Category"::Assets, GLAccountCategoryMgt.GetInventory());
             end;
         }
         field(99000750; "WIP Account"; Code[20])
@@ -121,14 +121,15 @@ table 5813 "Inventory Posting Setup"
 
     trigger OnDelete()
     begin
-        CheckSetupUsage;
+        CheckSetupUsage();
     end;
 
     var
         GLAccountCategory: Record "G/L Account Category";
         GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
-        YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
         PostingSetupMgt: Codeunit PostingSetupManagement;
+
+        YouCannotDeleteErr: Label 'You cannot delete %1 %2.', Comment = '%1 = Location Code; %2 = Posting Group';
 
     local procedure CheckSetupUsage()
     var
@@ -245,7 +246,7 @@ table 5813 "Inventory Posting Setup"
         InvtPostingSetupFieldRef.SetFilter('<>%1', "Location Code");
         TempAccountUseBuffer.UpdateBuffer(InvtPostingSetupRecRef, AccountFieldNo);
 
-        InvtPostingSetupRecRef.Close;
+        InvtPostingSetupRecRef.Close();
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");

@@ -459,7 +459,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
@@ -474,7 +474,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         Assert.IsFalse(SalesCreditMemo.Approve.Visible, 'Approve should NOT be visible');
         Assert.IsFalse(SalesCreditMemo.Reject.Visible, 'Reject should NOT be visible');
         Assert.IsFalse(SalesCreditMemo.Delegate.Visible, 'Delegate should NOT be visible');
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -491,7 +491,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         Assert.IsTrue(SalesCreditMemo.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Clenup
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // Setup the approval so it can be approve by current user
         LibraryDocumentApprovals.UpdateApprovalEntryWithCurrUser(SalesHeader.RecordId);
@@ -538,7 +538,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         Assert.ExpectedError(NoWorkflowEnabledErr);
 
         // Cleanup
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
 
         // [GIVEN] SalesHeader approval enabled.
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesCreditMemoApprovalWorkflowCode);
@@ -550,7 +550,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         // [THEN] Only Send is enabled.
         Assert.IsTrue(SalesCreditMemos.SendApprovalRequest.Enabled, 'SendApprovalRequest should be enabled');
         Assert.IsFalse(SalesCreditMemos.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be disabled');
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
 
         // [GIVEN] Approval exist on SalesHeader.
         LibraryDocumentApprovals.SetupUsersForApprovals(ApproverUserSetup);
@@ -764,12 +764,12 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.SendApprovalRequest.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         SalesHeader.FindFirst();
     end;
 
@@ -828,7 +828,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.Approve.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure RejectSalesCreditMemo(var SalesHeader: Record "Sales Header")
@@ -838,7 +838,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.Reject.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure DelegateSalesCreditMemo(var SalesHeader: Record "Sales Header")
@@ -848,7 +848,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.Delegate.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure CancelSalesCreditMemo(var SalesHeader: Record "Sales Header")
@@ -858,7 +858,7 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         SalesCreditMemo.CancelApprovalRequest.Invoke;
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure SetSalesDocSalespersonCode(SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
@@ -885,15 +885,15 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
             if ApprovalComments.First then
                 repeat
                     NumberOfComments += 1;
-                until ApprovalComments.Next;
+                until ApprovalComments.Next();
             Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
             ApprovalComments.Comment.SetValue('Test Comment' + Format(NumberOfExpectedComments));
-            ApprovalComments.Next;
-            ApprovalComments.Close;
+            ApprovalComments.Next();
+            ApprovalComments.Close();
         end;
 
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -911,12 +911,12 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        ApprovalEntries.Close;
+        ApprovalEntries.Close();
     end;
 
     local procedure CheckCommentsForDocumentOnRequestsToApprovePage(ApprovalEntry: Record "Approval Entry"; NumberOfExpectedComments: Integer)
@@ -934,12 +934,12 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         if ApprovalComments.First then
             repeat
                 NumberOfComments += 1;
-            until ApprovalComments.Next;
+            until ApprovalComments.Next();
         Assert.AreEqual(NumberOfExpectedComments, NumberOfComments, 'The page contains the wrong number of comments');
 
-        ApprovalComments.Close;
+        ApprovalComments.Close();
 
-        RequeststoApprove.Close;
+        RequeststoApprove.Close();
     end;
 
     local procedure CheckUserCanCancelTheApprovalRequest(SalesHeader: Record "Sales Header"; CancelActionExpectedEnabled: Boolean)
@@ -950,12 +950,12 @@ codeunit 134171 "WF Demo Sales CrMemo Approvals"
         SalesCreditMemo.OpenView;
         SalesCreditMemo.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemo.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         SalesCreditMemos.OpenView;
         SalesCreditMemos.GotoRecord(SalesHeader);
         Assert.AreEqual(CancelActionExpectedEnabled, SalesCreditMemos.CancelApprovalRequest.Enabled, 'Wrong state for the Cancel action');
-        SalesCreditMemos.Close;
+        SalesCreditMemos.Close();
     end;
 }
 

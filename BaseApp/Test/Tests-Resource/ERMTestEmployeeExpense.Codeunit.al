@@ -99,7 +99,7 @@ codeunit 134113 "ERM Test Employee Expense"
         CreateGeneralJournalLine(GenJournalLine, 1, '', Employee."No.", LibraryRandom.RandDecInRange(1, 100, 2));
 
         // [THEN] The description on the line should be updated to the employee Full name
-        Assert.AreEqual(Employee.FullName, GenJournalLine.Description, 'Error Employee Name should be in the description');
+        Assert.AreEqual(Employee.FullName(), GenJournalLine.Description, 'Error Employee Name should be in the description');
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 134113 "ERM Test Employee Expense"
         CreateGeneralJournalLine(GenJournalLine, 1, '', Employee."No.", LibraryRandom.RandDecInRange(1, 100, 2));
 
         // [THEN] The description on the line should be updated to the employee initials
-        Assert.AreEqual(Employee.FullName, GenJournalLine.Description, 'Error Employee Name should be in the description');
+        Assert.AreEqual(Employee.FullName(), GenJournalLine.Description, 'Error Employee Name should be in the description');
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 134113 "ERM Test Employee Expense"
           LibraryRandom.RandDecInDecimalRange(1, 100, 2));
 
         // [THEN] The description on the line should be updated to the employee Full name
-        Assert.AreEqual(Employee.FullName, GenJournalLine.Description, 'Error Employee Name should be in the description');
+        Assert.AreEqual(Employee.FullName(), GenJournalLine.Description, 'Error Employee Name should be in the description');
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 134113 "ERM Test Employee Expense"
         ExpenseAccGLEntry.FindSet();
         Assert.AreEqual(2, ExpenseAccGLEntry.Count, 'Error Multiple G/L entries were created when posting Gen. Journal Line');
         Assert.AreEqual(FirstAmount, ExpenseAccGLEntry.Amount, 'Error amount incorrect on first Expense Account GL Entry');
-        ExpenseAccGLEntry.Next;
+        ExpenseAccGLEntry.Next();
         Assert.AreEqual(SecondAmount, ExpenseAccGLEntry.Amount, 'Error amount incorrect on second Expense Account GL Entry');
 
         EmployeePostingGroup.Get(Employee."Employee Posting Group");

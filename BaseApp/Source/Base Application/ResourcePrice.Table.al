@@ -1,7 +1,7 @@
 table 201 "Resource Price"
 {
     Caption = 'Resource Price';
-#if not CLEAN19
+#if not CLEAN21
     DrillDownPageID = "Resource Prices";
     LookupPageID = "Resource Prices";
     ObsoleteState = Pending;

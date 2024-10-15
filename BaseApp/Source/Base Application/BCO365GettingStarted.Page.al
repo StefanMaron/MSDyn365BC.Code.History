@@ -1,8 +1,12 @@
+#if not CLEAN21
 page 2300 "BC O365 Getting Started"
 {
     Caption = 'Getting started';
     PageType = NavigatePage;
     SourceTable = "O365 Getting Started";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,15 +21,15 @@ page 2300 "BC O365 Getting Started"
                     ShowCaption = false;
                     usercontrol(WelcomeWizard; "Microsoft.Dynamics.Nav.Client.WelcomeWizard")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
 
                         trigger ControlAddInReady()
                         var
                             WelcomeToTitle: Text;
                             IntroductionDescription: Text;
                         begin
-                            WelcomeToTitle := StrSubstNo(TitleTxt, PRODUCTNAME.Marketing);
-                            IntroductionDescription := StrSubstNo(IntroDescTxt, PRODUCTNAME.Marketing);
+                            WelcomeToTitle := StrSubstNo(TitleTxt, PRODUCTNAME.Marketing());
+                            IntroductionDescription := StrSubstNo(IntroDescTxt, PRODUCTNAME.Marketing());
                             CurrPage.WelcomeWizard.Initialize(
                               WelcomeToTitle, SubTitleTxt, '', IntroTxt, IntroductionDescription, SendInvoicesTxt, SendInvoicesDescTxt
                               , PaymentsTxt, PaymentsDescTxt, SettingsTxt, SettingsDescTxt, '',
@@ -79,7 +83,7 @@ page 2300 "BC O365 Getting Started"
         {
             action(CreateTestInvoice)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Try it out and send yourself a test invoice';
                 InFooterBar = true;
                 Promoted = true;
@@ -91,19 +95,19 @@ page 2300 "BC O365 Getting Started"
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action("Get Started")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Got it';
                 InFooterBar = true;
                 Promoted = true;
 
                 trigger OnAction()
                 begin
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -113,19 +117,19 @@ page 2300 "BC O365 Getting Started"
     begin
         "Tour in Progress" := false;
         "Tour Completed" := true;
-        Modify;
+        Modify();
     end;
 
     trigger OnInit()
     begin
         SetRange("User ID", UserId);
-        CreateTestInvoiceVisible := O365SetupMgmt.ShowCreateTestInvoice;
+        CreateTestInvoiceVisible := O365SetupMgmt.ShowCreateTestInvoice();
     end;
 
     trigger OnOpenPage()
     begin
-        if not AlreadyShown then
-            MarkAsShown;
+        if not AlreadyShown() then
+            MarkAsShown();
 
         CurrentPage := true;
     end;
@@ -150,4 +154,4 @@ page 2300 "BC O365 Getting Started"
         PaymentsTelemetryTxt: Label 'Payments video was played.', Locked = true;
         SetupTelemetryTxt: Label 'Setup was clicked from Getting Started.', Locked = true;
 }
-
+#endif

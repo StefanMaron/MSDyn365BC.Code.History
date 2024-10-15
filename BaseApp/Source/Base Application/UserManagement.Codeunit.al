@@ -170,7 +170,7 @@ codeunit 418 "User Management"
     var
         EnvironmentInformation: Codeunit "Environment Information";
     begin
-        if not EnvironmentInformation.IsSaaS then
+        if not EnvironmentInformation.IsSaaS() then
             exit;
 
         if (xRec.State <> Rec.State) and (Rec.State = Rec.State::Disabled) then
@@ -255,9 +255,7 @@ codeunit 418 "User Management"
                           AnalysisSelectedDimension."Dimension Code");
                     end;
                 9701: // Cue Setup
-                    begin
-                        CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
-                    end;
+                    CuesAndKpis.ChangeUserForSetupEntry(RecRef, Company, UserName);
                 DATABASE::"Warehouse Employee":
                     begin
                         WarehouseEmployee.ChangeCompany(Company);
@@ -333,7 +331,7 @@ codeunit 418 "User Management"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         MyNotifications.InsertDefault(
-                 BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
+          BasicAuthDepricationNotificationId(), BasicAuthDescriptionNameTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]
@@ -370,6 +368,7 @@ codeunit 418 "User Management"
         BasicAuthUsedNotification.Send();
     end;
 
+
     [Scope('OnPrem')]
     procedure DisableNotifications(Notification: Notification)
     var
@@ -381,7 +380,7 @@ codeunit 418 "User Management"
     [Scope('OnPrem')]
     procedure BasicAuthDepricationNotificationShowMore(Notification: Notification)
     begin
-        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2144416');
+        Hyperlink('https://go.microsoft.com/fwlink/?linkid=2207805');
     end;
 
     procedure RenameUser(OldUserName: Code[50]; NewUserName: Code[50])
@@ -435,7 +434,7 @@ codeunit 418 "User Management"
                                 if TableInformation."No. of Records" > 0 then
                                     Error(Text003Err, Field.TableName);
                         end;
-                        RecRef.Close;
+                        RecRef.Close();
                     end;
                 until Company.Next() = 0;
             until Field.Next() = 0;
@@ -463,7 +462,7 @@ codeunit 418 "User Management"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             if IsNullGuid(Rec."Application ID") then
                 Rec."License Type" := Rec."License Type"::"Full User"
             else
@@ -489,10 +488,9 @@ codeunit 418 "User Management"
         if User.IsTemporary() then
             exit;
 
-        if EnvironmentInfo.IsSaaS then begin
+        if EnvironmentInfo.IsSaaS() then
             if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application]) then
                 Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application);
-        end;
     end;
 
     [IntegrationEvent(false, false)]

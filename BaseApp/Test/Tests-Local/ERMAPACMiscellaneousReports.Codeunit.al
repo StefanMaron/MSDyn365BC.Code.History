@@ -170,7 +170,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [GIVEN] Bank Account "B"
         LibraryERM.CreateBankAccount(BankAccount);
-        BankAccount.SetRecFilter;
+        BankAccount.SetRecFilter();
 
         // [GIVEN] Bank Account Ledger Entry for Payment "P1"
         MockBankAccountLedgerEntry(ExpectedDocumentNo[1], BankAccount."No.", false, -LibraryRandom.RandDecInRange(1000, 2000, 2));
@@ -258,7 +258,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
         GLAccount.SetRecFilter();
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -293,8 +293,8 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         Commit();
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
-        GLAccount.SetRecFilter;
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -329,8 +329,8 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         Commit();
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
-        GLAccount.SetRecFilter;
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -366,7 +366,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
         GLAccount.SetRecFilter();
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -402,7 +402,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
         GLAccount.SetRecFilter();
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -437,8 +437,8 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         Commit();
 
         // [WHEN] Run report 28025 "Income Statement" for created G/L Account.
-        GLAccount.SetRecFilter;
-        GLAccount.SetRange("Date Filter", WorkDate);
+        GLAccount.SetRecFilter();
+        GLAccount.SetRange("Date Filter", WorkDate());
         REPORT.Run(REPORT::"Income Statement", true, false, GLAccount);
 
         // [THEN] The report is run with correct rounding factor.
@@ -675,7 +675,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         GLEntry.Init();
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := GLAccNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Amount := DebitAmount - CreditAmount;
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
@@ -713,7 +713,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(ItemNo);
         StockCard.GroupTotals.SetValue(GroupTotals::Location);
         StockCard."Item Ledger Entry".SetFilter("Item No.", ItemNo);
-        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate));
+        StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate()));
         StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

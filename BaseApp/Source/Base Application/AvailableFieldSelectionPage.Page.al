@@ -12,7 +12,7 @@ page 9629 "Available Field Selection Page"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("Field Caption"; "Field Caption")
+                field("Field Caption"; Rec."Field Caption")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Name';

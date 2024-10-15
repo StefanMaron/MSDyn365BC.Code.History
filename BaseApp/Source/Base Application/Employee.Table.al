@@ -53,34 +53,16 @@ table 5200 Employee
             trigger OnValidate()
             begin
                 if "Search Name" = '' then
-                    "Search Name" := SetSearchNameToFullnameAndInitials;
+                    "Search Name" := SetSearchNameToFullnameAndInitials();
             end;
         }
         field(8; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Employee, GetPosition, 0,
-                  "First Name", "Last Name", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(9; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
-
-            trigger OnValidate()
-            var
-                Contact: Text[90];
-            begin
-                PostCodeCheck.ValidateAddress(
-                  CurrFieldNo, DATABASE::Employee, GetPosition, 0,
-                  "First Name", "Last Name", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
-            end;
         }
         field(10; City; Text[30])
         {
@@ -99,11 +81,12 @@ table 5200 Employee
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidateCity(
-                  CurrFieldNo, DATABASE::Employee, GetPosition, 0,
-                  "First Name", "Last Name", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(11; "Post Code"; Code[20])
@@ -123,11 +106,12 @@ table 5200 Employee
 
             trigger OnValidate()
             var
-                Contact: Text[90];
+                IsHandled: Boolean;
             begin
-                PostCodeCheck.ValidatePostCode(
-                  CurrFieldNo, DATABASE::Employee, GetPosition, 0,
-                  "First Name", "Last Name", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(12; County; Text[30])
@@ -236,7 +220,7 @@ table 5200 Employee
             begin
                 EmployeeQualification.SetRange("Employee No.", "No.");
                 EmployeeQualification.ModifyAll("Employee Status", Status);
-                Modify;
+                Modify();
             end;
         }
         field(32; "Inactive Date"; Date)
@@ -519,8 +503,6 @@ table 5200 Employee
         HumanResComment.DeleteAll();
 
         DimMgt.DeleteDefaultDim(DATABASE::Employee, "No.");
-
-        PostCodeCheck.DeleteAllAddressID(DATABASE::Employee, GetPosition);
     end;
 
     trigger OnInsert()
@@ -554,7 +536,7 @@ table 5200 Employee
         DimMgt.UpdateDefaultDim(
           DATABASE::Employee, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     trigger OnModify()
@@ -579,10 +561,7 @@ table 5200 Employee
         DimMgt.RenameDefaultDim(DATABASE::Employee, xRec."No.", "No.");
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
-        UpdateSearchName;
-
-        PostCodeCheck.MoveAllAddressID(
-          DATABASE::Employee, xRec.GetPosition, DATABASE::Employee, GetPosition);
+        UpdateSearchName();
     end;
 
     var
@@ -602,7 +581,6 @@ table 5200 Employee
         EmployeeSalespersonUpdate: Codeunit "Employee/Salesperson Update";
         DimMgt: Codeunit DimensionManagement;
         Text000: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        PostCodeCheck: Codeunit "Post Code Check";
         BlockedEmplForJnrlErr: Label 'You cannot create this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         BlockedEmplForJnrlPostingErr: Label 'You cannot post this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
@@ -646,7 +624,7 @@ table 5200 Employee
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Employee, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -659,7 +637,7 @@ table 5200 Employee
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition())
         else
             Message(Text000);
     end;
@@ -668,16 +646,16 @@ table 5200 Employee
     var
         PrevSearchName: Code[250];
     begin
-        PrevSearchName := xRec.FullName + ' ' + xRec.Initials;
+        PrevSearchName := xRec.FullName() + ' ' + xRec.Initials;
         if ((("First Name" <> xRec."First Name") or ("Middle Name" <> xRec."Middle Name") or ("Last Name" <> xRec."Last Name") or
              (Initials <> xRec.Initials)) and ("Search Name" = PrevSearchName))
         then
-            "Search Name" := SetSearchNameToFullnameAndInitials;
+            "Search Name" := SetSearchNameToFullnameAndInitials();
     end;
 
     local procedure SetSearchNameToFullnameAndInitials(): Code[250]
     begin
-        exit(FullName + ' ' + Initials);
+        exit(FullName() + ' ' + Initials);
     end;
 
     procedure GetBankAccountNo(): Text
@@ -742,6 +720,16 @@ table 5200 Employee
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedEmployee(Employee: Record Employee; IsPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

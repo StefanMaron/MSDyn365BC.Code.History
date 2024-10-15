@@ -48,7 +48,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup.
-        CustomerSalesPriceCostPlusStartingdate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceCostPlusStartingdate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceCostPlusStartingdate(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -108,7 +108,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // Setup.
         CustomerSalesPriceCostPlusDateRange(
           PriceListLine."Source Type"::"All Customers", '', CreateCustomer,
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
     end;
 
     local procedure CustomerSalesPriceCostPlusDateRange(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CustomerNo: Code[20]; StartingDate: Date; Quantity: Decimal)
@@ -129,39 +129,6 @@ codeunit 141052 "Price List Line Cost Plus"
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CampaignSalesPriceCostPlus()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PriceListLine: Record "Price List Line";
-        CustomerNo: Code[20];
-        ContactNo: Code[20];
-        CampaignNo: Code[20];
-    begin
-        // [SCENARIO] Calculate Sales Price based on Cost-plus for Campaign.
-        Initialize();
-
-        // Setup: Create Contact and Customer, create and activate Campaign, create Sales Price with Cost Plus using Campaign.
-        ContactNo := CreateContactWithCustomer();
-        CustomerNo := FindCustomerFromContactBusinessRelation(ContactNo);
-        CampaignNo := CreateAndActivateCampaign(ContactNo);
-        CreateSalesPriceWithCostPlus(
-          PriceListLine, PriceListLine."Source Type"::Campaign, CampaignNo, WorkDate, LibraryRandom.RandDec(10, 2));  // Random Minimum Quantity.
-
-
-        // Exercise: Create Sales Order.
-        CreateSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Order, CustomerNo, CampaignNo, PriceListLine."Asset No.", PriceListLine."Minimum Quantity");
-
-        // Verify: Verify Unit Price on Sales line with Unit Price of Sales Price.
-        Assert.AreNearlyEqual(
-          PriceListLine."Unit Price", SalesLine."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure SingleCustomerSalesPriceCostPlusMultipleLine()
@@ -245,7 +212,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup.
-        CustomerSalesPriceDiscountAmtWithStartingDate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate);  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceDiscountAmtWithStartingDate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceDiscountAmtWithStartingDate(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -280,7 +247,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // Setup.
         CreateSalesPriceWithDiscountAmount(
           PriceListLine, PriceListLine."Source Type"::"All Customers", '',
-          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Customer Number - blank and Starting Date - less than Workdate.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Customer Number - blank and Starting Date - less than Workdate.
 
 
         // Exercise: Create Sales Invoice.
@@ -290,38 +257,6 @@ codeunit 141052 "Price List Line Cost Plus"
         // Verify: Verify Unit Price on Sales line with Unit Price of Item.
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
     end;
-
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
-    [Scope('OnPrem')]
-    procedure CampaignSalesPriceDiscountAmt()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        PriceListLine: Record "Price List Line";
-        CustomerNo: Code[20];
-        ContactNo: Code[20];
-        CampaignNo: Code[20];
-    begin
-        // [SCENARIO] Calculate Sales Price based on Discount allowed for Campaign.
-        Initialize();
-
-        // Setup: Create Contact and Customer, create and activate Campaign, create Sales Price with Discount Amount using Campaign.
-        ContactNo := CreateContactWithCustomer;
-        CampaignNo := CreateAndActivateCampaign(ContactNo);
-        CustomerNo := FindCustomerFromContactBusinessRelation(ContactNo);
-        CreateSalesPriceWithDiscountAmount(PriceListLine, PriceListLine."Source Type"::Campaign, CampaignNo, WorkDate);  // Starting Date - Workdate.
-
-
-        // Exercise: Create Sales Order.
-        CreateSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Order, CustomerNo, CampaignNo, PriceListLine."Asset No.", PriceListLine."Minimum Quantity");
-
-        // Verify: Verify Unit Price on Sales line with Unit Price of Item and deduct Discount Amount.
-        VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", PriceListLine."Discount Amount");
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -341,7 +276,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // Setup: Update Automatic Cost Adjustment on Inventory Setup, Create Sales Price with Cost Plus and create Sales Order.
         UpdateAutomaticCostAdjustmentOnInventorySetup(OldAutomaticCostAdjustment, InventorySetup."Automatic Cost Adjustment"::Day);
         CreateSalesPriceWithCostPlus(
-          PriceListLine, PriceListLine."Source Type"::"All Customers", '', WorkDate, LibraryRandom.RandDec(10, 2));  // Customer Number - blank and Random Minimum Quantity.
+          PriceListLine, PriceListLine."Source Type"::"All Customers", '', WorkDate(), LibraryRandom.RandDec(10, 2));  // Customer Number - blank and Random Minimum Quantity.
 
 
         CreateSalesDocument(
@@ -665,27 +600,13 @@ codeunit 141052 "Price List Line Cost Plus"
         CampaignTargetGroupMgt: Codeunit "Campaign Target Group Mgt";
     begin
         LibraryMarketing.CreateCampaign(Campaign);
-        Campaign.Validate("Starting Date", WorkDate);
-        Campaign.Validate("Ending Date", WorkDate);
+        Campaign.Validate("Starting Date", WorkDate());
+        Campaign.Validate("Ending Date", WorkDate());
         Campaign.Modify(true);
         CreateSegmentHeaderWithLine(Campaign."No.", ContactNo);
         CampaignTargetGroupMgt.ActivateCampaign(Campaign);
         exit(Campaign."No.");
     end;
-
-#if not CLEAN18
-    local procedure CreateContactWithCustomer(): Code[20]
-    var
-        Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
-    begin
-        LibraryMarketing.CreateCompanyContact(Contact);
-        CustomerTemplate.SetRange("Currency Code", '');
-        CustomerTemplate.FindFirst();
-        Contact.CreateCustomer(CustomerTemplate.Code);
-        exit(Contact."No.")
-    end;
-#endif
 
     local procedure CreateCustomer(): Code[20]
     var

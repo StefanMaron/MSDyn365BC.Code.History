@@ -3,7 +3,7 @@ Codeunit 7009 CopyFromToPriceListLine
     var
         GenerateHeader: Boolean;
         UseDefaultPriceLists: Boolean;
-#if not CLEAN19
+#if not CLEAN21
         NotMatchSalesLineDiscTypeErr: Label 'does not match sales line discount type.';
 #endif
         PlaceHolderBracketTok: Label ' (%1)', Locked = true;
@@ -21,7 +21,7 @@ Codeunit 7009 CopyFromToPriceListLine
         UseDefaultPriceLists := UseDefault;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]
     procedure CopyFrom(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
@@ -958,7 +958,7 @@ Codeunit 7009 CopyFromToPriceListLine
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [IntegrationEvent(false, false)]
 #pragma warning disable AS0072
     [Obsolete('Will be removed along with the obsolete price tables.', '19.0')]

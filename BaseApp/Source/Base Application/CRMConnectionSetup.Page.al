@@ -6,7 +6,6 @@ page 5330 "CRM Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Mapping,Synchronization,Encryption,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CRM Connection Setup";
     UsageCategory = Administration;
@@ -18,7 +17,7 @@ page 5330 "CRM Connection Setup"
             group(NAVToCRM)
             {
                 Caption = 'Connection from Dynamics 365 Business Central to Dynamics 365 Sales';
-                field("Server Address"; "Server Address")
+                field("Server Address"; Rec."Server Address")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
@@ -26,10 +25,10 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        ConnectionString := GetConnectionString;
+                        ConnectionString := GetConnectionString();
                     end;
                 }
-                field("User Name"; "User Name")
+                field("User Name"; Rec."User Name")
                 {
                     ApplicationArea = Suite;
                     Editable = IsEditable;
@@ -38,7 +37,7 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        ConnectionString := GetConnectionString;
+                        ConnectionString := GetConnectionString();
                     end;
                 }
                 field(Password; CRMPassword)
@@ -51,13 +50,13 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        if (CRMPassword <> '') and (not EncryptionEnabled) then
+                        if (CRMPassword <> '') and (not EncryptionEnabled()) then
                             if Confirm(EncryptionIsNotActivatedQst) then
                                 PAGE.RunModal(PAGE::"Data Encryption Management");
                         SetPassword(CRMPassword);
                     end;
                 }
-                field("Is Enabled"; "Is Enabled")
+                field("Is Enabled"; Rec."Is Enabled")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Enabled', Comment = 'Name of tickbox which shows whether the connection is enabled or disabled';
@@ -111,7 +110,7 @@ page 5330 "CRM Connection Setup"
                     begin
                         if PAGE.RunModal(PAGE::"SDK Version List", TempStack) = ACTION::LookupOK then begin
                             Validate("Proxy Version", TempStack.StackOrder);
-                            ConnectionString := GetConnectionString;
+                            ConnectionString := GetConnectionString();
                             CurrPage.Update(true);
                         end;
                     end;
@@ -202,7 +201,7 @@ page 5330 "CRM Connection Setup"
             {
                 Caption = 'Dynamics 365 Sales Settings';
                 Visible = "Is Enabled";
-                field("CRM Version"; "CRM Version")
+                field("CRM Version"; Rec."CRM Version")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Version';
@@ -212,13 +211,13 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnDrillDown()
                     begin
-                        if IsVersionValid then
-                            Message(FavorableCRMVersionMsg, CRMProductName.SHORT)
+                        if IsVersionValid() then
+                            Message(FavorableCRMVersionMsg, CRMProductName.SHORT())
                         else
-                            Message(UnfavorableCRMVersionMsg, PRODUCTNAME.Short, CRMProductName.SHORT);
+                            Message(UnfavorableCRMVersionMsg, PRODUCTNAME.Short(), CRMProductName.SHORT());
                     end;
                 }
-                field("Is CRM Solution Installed"; "Is CRM Solution Installed")
+                field("Is CRM Solution Installed"; Rec."Is CRM Solution Installed")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Dynamics 365 Business Central Integration Solution Imported';
@@ -229,34 +228,56 @@ page 5330 "CRM Connection Setup"
                     trigger OnDrillDown()
                     begin
                         if "Is CRM Solution Installed" then
-                            Message(FavorableCRMSolutionInstalledMsg, PRODUCTNAME.Short, CRMProductName.SHORT)
+                            Message(FavorableCRMSolutionInstalledMsg, PRODUCTNAME.Short(), CRMProductName.SHORT())
                         else
-                            Message(UnfavorableCRMSolutionInstalledMsg, PRODUCTNAME.Short);
+                            Message(UnfavorableCRMSolutionInstalledMsg, PRODUCTNAME.Short());
                     end;
                 }
-                field("Is S.Order Integration Enabled"; "Is S.Order Integration Enabled")
+                field("Is S.Order Integration Enabled"; Rec."Is S.Order Integration Enabled")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Sales Order Integration Enabled';
+                    Caption = 'Legacy Sales Order Integration Enabled';
+                    Enabled = not IsBidirectionalSalesOrderIntegrationEnabled;
                     ToolTip = 'Specifies that it is possible for Dynamics 365 Sales users to submit sales orders that can then be viewed and imported in Dynamics 365.';
 
                     trigger OnValidate()
                     begin
-                        SetAutoCreateSalesOrdersEditable;
+                        SetAutoCreateSalesOrdersEditable();
                     end;
                 }
-                field("Auto Create Sales Orders"; "Auto Create Sales Orders")
+                field("Auto Create Sales Orders"; Rec."Auto Create Sales Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Automatically Create Sales Orders';
                     Editable = IsAutoCreateSalesOrdersEditable;
                     ToolTip = 'Specifies that sales orders will be created automatically from sales orders that are submitted in Dynamics 365 Sales.';
                 }
-                field("Auto Process Sales Quotes"; "Auto Process Sales Quotes")
+                field("Auto Process Sales Quotes"; Rec."Auto Process Sales Quotes")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Automatically Process Sales Quotes';
                     ToolTip = 'Specifies that sales quotes will be automatically processed on sales quotes creation/revision/winning submitted in Dynamics 365 Sales quotes entities.';
+                }
+                field("Bidirectional Sales Order Int."; "Bidirectional Sales Order Int.")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Bidirectional Sales Order Int.';
+                    Editable = not IsAutoCreateSalesOrdersEditable;
+                    ToolTip = 'Specifies that it is possible to synchronize Sales Order bidirectionally. This feature will also enable Archiving Orders.';
+
+                    trigger OnValidate()
+                    var
+                        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                    begin
+                        if "Bidirectional Sales Order Int." then
+                            if CRMIntegrationManagement.CheckSolutionVersionOutdated() then
+                                if Confirm(InstallLatestSolutionConfirmLbl) then
+                                    DeployCRMSolution(true)
+                                else
+                                    Error('');
+
+                        CurrPage.Update();
+                    end;
                 }
             }
             group(AdvancedSettings)
@@ -264,7 +285,7 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Advanced Settings';
                 Visible = "Is Enabled";
 #if not CLEAN20
-                field("Is User Mapping Required"; "Is User Mapping Required")
+                field("Is User Mapping Required"; Rec."Is User Mapping Required")
                 {
                     ObsoleteTag = '20.0';
                     ObsoleteState = Pending;
@@ -275,11 +296,11 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        UpdateIsEnabledState;
-                        SetStyleExpr;
+                        UpdateIsEnabledState();
+                        SetStyleExpr();
                     end;
                 }
-                field("Is User Mapped To CRM User"; "Is User Mapped To CRM User")
+                field("Is User Mapped To CRM User"; Rec."Is User Mapped To CRM User")
                 {
                     ObsoleteTag = '20.0';
                     ObsoleteState = Pending;
@@ -293,19 +314,19 @@ page 5330 "CRM Connection Setup"
                     trigger OnDrillDown()
                     begin
                         if "Is User Mapped To CRM User" then
-                            Message(CurrentuserIsMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.CDSServiceName())
+                            Message(CurrentuserIsMappedToCRMUserMsg, UserId, PRODUCTNAME.Short(), CRMProductName.CDSServiceName())
                         else
-                            Message(CurrentuserIsNotMappedToCRMUserMsg, UserId, PRODUCTNAME.Short, CRMProductName.SHORT, CRMProductName.CDSServiceName());
+                            Message(CurrentuserIsNotMappedToCRMUserMsg, UserId, PRODUCTNAME.Short(), CRMProductName.SHORT(), CRMProductName.CDSServiceName());
                     end;
                 }
 #endif
-                field("Use Newest UI"; "Use Newest UI")
+                field("Use Newest UI"; Rec."Use Newest UI")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Open Coupled Entities in Dynamics 365 Sales Hub';
                     ToolTip = 'Specifies that coupled Dynamics 365 Sales entities should open in Sales Hub.';
                 }
-                field("Item Availability Enabled"; "Item Availability Enabled")
+                field("Item Availability Enabled"; Rec."Item Availability Enabled")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Automatically Synchronize Item Availability';
@@ -317,12 +338,19 @@ page 5330 "CRM Connection Setup"
                     ShowCaption = false;
                     Caption = '';
                 }
+                field("Unit Group Mapping Enabled"; "Unit Group Mapping Enabled")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Unit Group Mapping';
+                    ToolTip = 'Specifies that unit group mapping is enabled.';
+                    Editable = not "Unit Group Mapping Enabled";
+                }
             }
             group(AuthTypeDetails)
             {
                 Caption = 'Authentication Type Details';
                 Visible = NOT SoftwareAsAService;
-                field("Authentication Type"; "Authentication Type")
+                field("Authentication Type"; Rec."Authentication Type")
                 {
                     ApplicationArea = Advanced;
                     Editable = IsEditable;
@@ -330,7 +358,7 @@ page 5330 "CRM Connection Setup"
 
                     trigger OnValidate()
                     begin
-                        ConnectionString := GetConnectionString;
+                        ConnectionString := GetConnectionString();
                     end;
                 }
                 field(Domain; Domain)
@@ -363,8 +391,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Assisted Setup';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Runs Dynamics 365 Connection Setup Wizard.';
 
                 trigger OnAction()
@@ -384,13 +410,11 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Test Connection', Comment = 'Test is a verb.';
                 Image = ValidateEmailLoggingSetup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Tests the connection to Dynamics 365 Sales using the specified settings.';
 
                 trigger OnAction()
                 begin
-                    PerformTestConnection;
+                    PerformTestConnection();
                 end;
             }
             action("Use Certificate Authentication")
@@ -399,9 +423,7 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Use Certificate Authentication';
                 Image = Certificate;
                 Visible = SoftwareAsAService;
-                Promoted = true;
                 Enabled = Rec."Is Enabled";
-                PromotedCategory = Process;
                 ToolTip = 'Upgrades the connection to Dynamics 365 Sales to use certificate-based OAuth 2.0 service-to-service authentication.';
 
                 trigger OnAction()
@@ -444,8 +466,6 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Integration Table Mappings';
                 Enabled = "Is Enabled";
                 Image = MapAccounts;
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'Opens the integration table mapping list.';
 
                 trigger OnAction()
@@ -458,8 +478,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Redeploy Integration Solution';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Report;
                 Enabled = IsCdsIntegrationEnabled and (not "Is Enabled");
                 ToolTip = 'Redeploy and reconfigure the Microsoft Dynamics 365 Sales integration solution.';
 
@@ -482,11 +500,11 @@ page 5330 "CRM Connection Setup"
                     CRMSetupDefaults: Codeunit "CRM Setup Defaults";
                 begin
                     EnsureCDSConnectionIsEnabled();
-                    if Confirm(ResetIntegrationTableMappingConfirmQst, false, CRMProductName.SHORT) then begin
+                    if Confirm(ResetIntegrationTableMappingConfirmQst, false, CRMProductName.SHORT()) then begin
                         CRMSetupDefaults.ResetConfiguration(Rec);
-                        Message(SetupSuccessfulMsg, CRMProductName.SHORT);
+                        Message(SetupSuccessfulMsg, CRMProductName.SHORT());
                     end;
-                    RefreshDataFromCRM;
+                    RefreshDataFromCRM();
                 end;
             }
             action(CoupleUsers)
@@ -494,8 +512,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Couple Salespersons';
                 Image = CoupledUsers;
-                Promoted = true;
-                PromotedCategory = "Report";
                 ToolTip = 'Open the list of users in Dynamics 365 Sales for manual coupling to salespersons in Business Central.';
 
                 trigger OnAction()
@@ -512,9 +528,6 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Run Full Synchronization';
                 Enabled = "Is Enabled";
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dynamics 365 Sales entities, as defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
@@ -532,8 +545,8 @@ page 5330 "CRM Connection Setup"
 
                 trigger OnAction()
                 begin
-                    PerformWebClientUrlReset;
-                    Message(WebClientUrlResetMsg, PRODUCTNAME.Short);
+                    PerformWebClientUrlReset();
+                    Message(WebClientUrlResetMsg, PRODUCTNAME.Short());
                 end;
             }
             action(SynchronizeNow)
@@ -542,9 +555,6 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Synchronize Modified Records';
                 Enabled = "Is Enabled";
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
                 trigger OnAction()
@@ -571,7 +581,7 @@ page 5330 "CRM Connection Setup"
                     IntegrationManagement: Codeunit "Integration Management";
                 begin
                     if Confirm(ConfirmGenerateIntegrationIdsQst, true) then begin
-                        IntegrationManagement.SetupIntegrationTables;
+                        IntegrationManagement.SetupIntegrationTables();
                         Message(GenerateIntegrationIdsSuccessMsg);
                     end;
                 end;
@@ -584,8 +594,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Integration Table Mappings';
                 Image = Relationship;
-                Promoted = true;
-                PromotedCategory = "Report";
                 RunObject = Page "Integration Table Mapping List";
                 RunPageMode = Edit;
                 ToolTip = 'View entries that map integration tables to business data tables in Business Central. Integration tables are set up to act as interfaces for synchronizing data between an external database table, such as Dynamics 365 Sales, and a corresponding business data table in Business Central.';
@@ -599,8 +607,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Suite;
                 Caption = 'Synch. Job Queue Entries';
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'View the job queue entries that manage the scheduled synchronization between Dynamics 365 Sales and Business Central.';
 
                 trigger OnAction()
@@ -609,7 +615,7 @@ page 5330 "CRM Connection Setup"
                 begin
                     JobQueueEntry.FilterGroup := 2;
                     JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
-                    JobQueueEntry.SetFilter("Object ID to Run", GetJobQueueEntriesObjectIDToRunFilter);
+                    JobQueueEntry.SetFilter("Object ID to Run", GetJobQueueEntriesObjectIDToRunFilter());
                     JobQueueEntry.FilterGroup := 0;
 
                     PAGE.Run(PAGE::"Job Queue Entries", JobQueueEntry);
@@ -621,8 +627,6 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Skipped Synch. Records';
                 Enabled = "Is Enabled";
                 Image = NegativeLines;
-                Promoted = true;
-                PromotedCategory = Category4;
                 RunObject = Page "CRM Skipped Records";
                 RunPageMode = View;
                 ToolTip = 'View the list of records that will be skipped for synchronization.';
@@ -632,9 +636,6 @@ page 5330 "CRM Connection Setup"
                 ApplicationArea = Advanced;
                 Caption = 'Encryption Management';
                 Image = EncryptionKeys;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
                 RunObject = Page "Data Encryption Management";
                 RunPageMode = View;
                 ToolTip = 'Enable or disable data encryption. Data encryption helps make sure that unauthorized users cannot read business data.';
@@ -645,9 +646,6 @@ page 5330 "CRM Connection Setup"
                 Caption = 'Rebuild Coupling Table';
                 Enabled = true;
                 Image = Restore;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = false;
                 ToolTip = 'Rebuilds the coupling table after Cloud Migration from Business Central 2019 Wave 1 (Business Central 14).';
 
                 trigger OnAction()
@@ -656,6 +654,76 @@ page 5330 "CRM Connection Setup"
                 begin
                     CDSIntegrationImpl.ScheduleRebuildingOfCouplingTable();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Connection', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Assisted Setup_Promoted"; "Assisted Setup")
+                {
+                }
+                actionref("Test Connection_Promoted"; "Test Connection")
+                {
+                }
+                actionref("Use Certificate Authentication_Promoted"; "Use Certificate Authentication")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Mapping', Comment = 'Generated from the PromotedActionCategories property index 2.';
+
+                actionref(IntegrationTableMappings_Promoted; IntegrationTableMappings)
+                {
+                }
+                actionref("Redeploy Solution_Promoted"; "Redeploy Solution")
+                {
+                }
+                actionref(CoupleUsers_Promoted; CoupleUsers)
+                {
+                }
+                actionref("Integration Table Mappings_Promoted"; "Integration Table Mappings")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Same action already exists in the page.';
+                    ObsoleteTag = '17.0';
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Synchronization', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(StartInitialSynchAction_Promoted; StartInitialSynchAction)
+                {
+                }
+                actionref(SynchronizeNow_Promoted; SynchronizeNow)
+                {
+                }
+                actionref("Synch. Job Queue Entries_Promoted"; "Synch. Job Queue Entries")
+                {
+                }
+                actionref(SkippedSynchRecords_Promoted; SkippedSynchRecords)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Encryption', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(EncryptionManagement_Promoted; EncryptionManagement)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Cloud Migration', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref(RebuildCouplingTable_Promoted; RebuildCouplingTable)
+                {
+                }
             }
         }
     }
@@ -671,7 +739,7 @@ page 5330 "CRM Connection Setup"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic;
+        ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
         CRMIntegrationManagement.RegisterAssistedSetup();
         SetVisibilityFlags();
@@ -686,24 +754,24 @@ page 5330 "CRM Connection Setup"
         FeatureTelemetry.LogUptake('0000H7C', 'Dynamics 365 Sales', Enum::"Feature Uptake Status"::Discovered);
         EnsureCDSConnectionIsEnabled();
 
-        if not Get then begin
-            Init;
-            InitializeDefaultProxyVersion;
-            Insert;
+        if not Get() then begin
+            Init();
+            InitializeDefaultProxyVersion();
+            Insert();
             LoadConnectionStringElementsFromCDSConnectionSetup();
         end else begin
             CRMPassword := GetPassword();
             if not "Is Enabled" then
                 LoadConnectionStringElementsFromCDSConnectionSetup();
-            ConnectionString := GetConnectionString;
-            UnregisterConnection;
+            ConnectionString := GetConnectionString();
+            UnregisterConnection();
             if (not IsValidProxyVersion()) then begin
                 if not IsValidProxyVersion() then
                     InitializeDefaultProxyVersion();
-                Modify;
+                Modify();
             end;
             if "Is Enabled" then
-                RegisterConnection
+                RegisterConnection()
             else
                 if "Disable Reason" <> '' then
                     CRMIntegrationManagement.SendConnectionDisabledNotification("Disable Reason");
@@ -748,6 +816,7 @@ page 5330 "CRM Connection Setup"
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnEnabledOnPageTxt: Label 'CRM Connection has been enabled from CRMConnectionSetupPage', Locked = true;
+        InstallLatestSolutionConfirmLbl: Label 'Bidirectional Sales Order Integration requires the latest integration solution. Do you want to redeploy latest integration solution?';
         ScheduledSynchJobsRunningStyleExpr: Text;
         CRMSolutionInstalledStyleExpr: Text;
         CRMVersionStyleExpr: Text;
@@ -762,31 +831,33 @@ page 5330 "CRM Connection Setup"
         IsWebCliResetEnabled: Boolean;
         SoftwareAsAService: Boolean;
         IsAutoCreateSalesOrdersEditable: Boolean;
+        IsBidirectionalSalesOrderIntegrationEnabled: Boolean;
         WebServiceEnabled: Boolean;
 
     local procedure RefreshData()
     begin
 #if not CLEAN20
-        UpdateIsEnabledState;
+        UpdateIsEnabledState();
 #endif
         RefreshDataFromCRM(false);
-        SetAutoCreateSalesOrdersEditable;
-        RefreshSynchJobsData;
-        UpdateEnableFlags;
-        SetStyleExpr;
+        SetAutoCreateSalesOrdersEditable();
+        RefreshSynchJobsData();
+        UpdateEnableFlags();
+        SetStyleExpr();
+        IsBidirectionalSalesOrderIntegrationEnabled := "Bidirectional Sales Order Int.";
     end;
 
     local procedure RefreshSynchJobsData()
     begin
         CountCRMJobQueueEntries(ActiveJobs, TotalJobs);
         ScheduledSynchJobsRunning := StrSubstNo(ReadyScheduledSynchJobsTok, ActiveJobs, TotalJobs);
-        ScheduledSynchJobsRunningStyleExpr := GetRunningJobsStyleExpr;
+        ScheduledSynchJobsRunningStyleExpr := GetRunningJobsStyleExpr();
     end;
 
     local procedure SetStyleExpr()
     begin
         CRMSolutionInstalledStyleExpr := GetStyleExpr("Is CRM Solution Installed");
-        CRMVersionStyleExpr := GetStyleExpr(IsVersionValid);
+        CRMVersionStyleExpr := GetStyleExpr(IsVersionValid());
     end;
 
     local procedure SetAutoCreateSalesOrdersEditable()
@@ -847,7 +918,7 @@ page 5330 "CRM Connection Setup"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem);
+        Validate("Proxy Version", CRMIntegrationManagement.GetLastProxyVersionItem());
     end;
 }
 

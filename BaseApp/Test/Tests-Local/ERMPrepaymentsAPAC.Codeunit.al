@@ -316,10 +316,10 @@ codeunit 141015 "ERM Prepayments APAC"
         GLEntry.FindSet();
         repeat
             CreditAmount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErr, GLEntry.FieldCaption("Credit Amount"), Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountErr, GLEntry.FieldCaption("Credit Amount"), Amount, GLEntry.TableCaption()));
     end;
 
     [RequestPageHandler]

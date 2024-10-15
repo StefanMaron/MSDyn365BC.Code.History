@@ -53,7 +53,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseHeader."No.");
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise.
@@ -84,7 +84,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         CreateItemWithDimension(DefaultDimension);
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', DefaultDimension."No.", '');
         ExpectedDimensionValue := StrSubstNo('%1 - %2', DefaultDimension."Dimension Code", DefaultDimension."Dimension Value Code");
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise.
@@ -110,7 +110,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Setup: Create and Post Purchase Order.
         Initialize();
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order, '', CreateItem, '');
-        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate, false);
+        DocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Receiving No. Series", WorkDate(), false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise.
@@ -457,7 +457,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Vendor Detail Trial Balance Report with default option.
-        SaveVendorDetailTrialBalReport(PurchaseHeader."Buy-from Vendor No.", false, false, WorkDate);
+        SaveVendorDetailTrialBalReport(PurchaseHeader."Buy-from Vendor No.", false, false, WorkDate());
 
         // Verify: Verify Report all different values.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
@@ -488,7 +488,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         PostedInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Save Vendor Detail Trial Balance Report with option Show Amount in LCY = TRUE.
-        SaveVendorDetailTrialBalReport(PurchaseHeader."Buy-from Vendor No.", true, false, WorkDate);
+        SaveVendorDetailTrialBalReport(PurchaseHeader."Buy-from Vendor No.", true, false, WorkDate());
 
         // Verify: Verify LCY fields.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, PostedInvoiceNo);
@@ -520,7 +520,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         // Exercise: Save Vendor Detail Trial Balance Report with option Exclude Vendor Balance Only = TRUE.
         // Using Random for Random Date.
         SaveVendorDetailTrialBalReport(
-          PurchaseHeader."Buy-from Vendor No.", false, true, CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', WorkDate));
+          PurchaseHeader."Buy-from Vendor No.", false, true, CalcDate('<' + Format(LibraryRandom.RandInt(2)) + 'M>', WorkDate()));
 
         // Verify: Verify Error in Detail Trial Balance Report when Exclude G/L Account that have Balance Only.
         LibraryReportDataset.LoadDataSetFile;
@@ -776,7 +776,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         end;
 
         // Exercise: Take Starting Date less than WORKDATE and Save Purchase Statistics Report.
-        SavePurchaseStatistics(GenJournalLine."Account No.", CalcDate('<-' + Format(Counter) + 'M>', WorkDate));
+        SavePurchaseStatistics(GenJournalLine."Account No.", CalcDate('<-' + Format(Counter) + 'M>', WorkDate()));
 
         // Verify: Verify Amounts in the Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -806,7 +806,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // Exercise: Take Starting Date as WORKDATE and Save Purchase Statistics Report.
-        SavePurchaseStatistics(PurchaseHeader."Buy-from Vendor No.", WorkDate);
+        SavePurchaseStatistics(PurchaseHeader."Buy-from Vendor No.", WorkDate());
 
         // Verify: Verify Invoice Discount Amount.
         Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
@@ -838,7 +838,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Exercise: Take Starting Date as WORKDATE and Save Purchase Statistics Report.
-        SavePurchaseStatistics(PurchaseHeader."Buy-from Vendor No.", WorkDate);
+        SavePurchaseStatistics(PurchaseHeader."Buy-from Vendor No.", WorkDate());
 
         // Verify: Verify Payment Discount Amount.
         Vendor.Get(GenJournalLine."Account No.");
@@ -863,7 +863,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         SetupAndPostVendorPmtTolerance(GenJournalLine, '');
 
         // Exercise.
-        SavePurchaseStatistics(GenJournalLine."Account No.", WorkDate);
+        SavePurchaseStatistics(GenJournalLine."Account No.", WorkDate());
 
         // Verify: Verify Payment Tolerance Amount.
         Vendor.Get(GenJournalLine."Account No.");
@@ -1137,9 +1137,9 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Amount := LibraryRandom.RandIntInRange(10, 50);
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalBatch(GenJournalBatch, GenJournalTemplate.Type::General);
-        CreateGeneralJurnlLine(GenJournalLine, GenJournalBatch, WorkDate, Vendor."No.",
+        CreateGeneralJurnlLine(GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.",
           GenJournalLine."Document Type"::Invoice, -(Amount + LibraryRandom.RandIntInRange(10, 50)));
-        CreateGeneralJurnlLine(GenJournalLine, GenJournalBatch, WorkDate, Vendor."No.",
+        CreateGeneralJurnlLine(GenJournalLine, GenJournalBatch, WorkDate(), Vendor."No.",
           GenJournalLine."Document Type"::"Credit Memo", Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         LibraryVariableStorage.Enqueue(Vendor."No.");
@@ -1191,7 +1191,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         CreatePurchaseOrderWithTwoLines(VendorNo, ExpectedAmount);
 
         // Exercise: Generate the Vendor Order Summary report.
-        SaveVendorOrderSummary(VendorNo, WorkDate, false);
+        SaveVendorOrderSummary(VendorNo, WorkDate(), false);
 
         // Verify: verify Total showed corretly on Vendor Order Summary report.
         VerifyAmountOnVendorOrderSummaryReport(VendorNo, ExpectedAmount);
@@ -1214,7 +1214,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         ReleasePurchaseOrder(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
 
         // Exercise: Generate the Vendor Order Summary report.
-        SaveVendorOrderSummary(VendorNo, WorkDate, false);
+        SaveVendorOrderSummary(VendorNo, WorkDate(), false);
 
         // Verify: verify Total showed corretly on Vendor Order Summary report.
         VerifyAmountOnVendorOrderSummaryReport(VendorNo, ExpectedAmount);
@@ -1257,15 +1257,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
-        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
+        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Vendor Ledger Entry on 31.12.15 with Amount = -100
         // [GIVEN] Application dtld. vend. ledger entries of Amount = 100 applied on 31.12.15 and unapplied on 01.01.16
         // [GIVEN] Application dtld. vend. ledger entry with Amount = 100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate, WorkDate + 1, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate(), WorkDate + 1, WorkDate + 1);
 
         // [WHEN] Save Vendor Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate);
+        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate());
 
         // [THEN] Payment Entry of 150 is printed, -100 is not printed, Total Amount = 150
         // [THEN] Applied Entry (01.01.16) of 100 is not printed. Initial TFSID 232772
@@ -1284,15 +1284,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
-        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
+        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Vendor Ledger Entry on 31.12.15 with Amount = -100
         // [GIVEN] Application dtld. vend. ledger entries of Amount = 100 applied on 31.12.15 and unapplied on 01.01.16
         // [GIVEN] Application dtld. vend. ledger entry with Amount = 100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate, WorkDate + 1, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate(), WorkDate + 1, WorkDate + 1);
 
         // [WHEN] Save Vendor Balance To Data report on 31.12.15 with Include Unapplied Entries = Yes
-        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", true, WorkDate);
+        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", true, WorkDate());
 
         // [THEN] Payment Entry of 150 is printed, -100 is printed with 0 balance, Total Amount = 150
         // [THEN] Applied Entry (01.01.16) is not printed
@@ -1314,15 +1314,15 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Initialize();
 
         // [GIVEN] Vendor with payment of Amount = 150
-        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate);
+        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2), WorkDate());
 
         // [GIVEN] Closed Vendor Ledger Entry on 31.12.15 with Amount = -100
         // [GIVEN] Application dtld. vend. ledger entries of Amount = 100 applied on 31.12.15 and unapplied on 31.12.15
         // [GIVEN] Application dtld. vend. ledger entry with Amount = 100 on 01.01.16
-        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate, WorkDate, WorkDate + 1);
+        Amount := MockApplyUnapplyScenario(VendorLedgerEntry."Vendor No.", WorkDate(), WorkDate, WorkDate + 1);
 
         // [WHEN] Save Vendor Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate);
+        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate());
 
         // [THEN] Payment Entry of 150 is printed, -100 is printed, Total Amount = 50
         // [THEN] Applied Entry (01.01.16) of 100 is not printed. Initial TFSID 232772
@@ -1343,18 +1343,18 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // [GIVEN] Vendor with payment of Amount = 150
         PmtAmount := -LibraryRandom.RandDec(100, 2);
-        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, PmtAmount, WorkDate);
+        MockVendorLedgerEntry(VendorLedgerEntry, LibraryPurchase.CreateVendorNo, PmtAmount, WorkDate());
 
         // [GIVEN] Closed Vendor Ledger Entry on 30.12.15 with Amount = -100
 
-        MockVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Vendor No.", LibraryRandom.RandDec(100, 2), WorkDate - 1);
+        MockVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Vendor No.", LibraryRandom.RandDec(100, 2), WorkDate() - 1);
 
         // [GIVEN] Application dtld. vend. ledger entry with Amount = 100 on 31.12.15
-        MockDtldVendLedgEntry(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Entry No.", -VendorLedgerEntry.Amount, false, WorkDate);
+        MockDtldVendLedgEntry(VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Entry No.", -VendorLedgerEntry.Amount, false, WorkDate());
         UpdateOpenOnVendLedgerEntry(VendorLedgerEntry."Entry No.");
 
         // [WHEN] Save Vendor Balance To Data report on 31.12.15 with Include Unapplied Entries = No
-        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate);
+        RunVendorBalanceToDateWithVendor(VendorLedgerEntry."Vendor No.", false, WorkDate());
 
         // [THEN] Payment Entry of 150 is printed, -100 is not printed, Total Amount = 150
         VerifyVendorBalanceToDateDoesNotExist(VendorLedgerEntry."Vendor No.", PmtAmount, VendorLedgerEntry.Amount);
@@ -1370,7 +1370,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Initialize();
 
         // [WHEN] Run REP 304 "Vendor - Detail Trial Balance"
-        SaveVendorDetailTrialBalReport(LibraryPurchase.CreateVendorNo, false, false, WorkDate);
+        SaveVendorDetailTrialBalReport(LibraryPurchase.CreateVendorNo, false, false, WorkDate());
 
         // [THEN] "Entry No." column caption is shown
         LibraryReportDataset.LoadParametersFile;
@@ -1429,7 +1429,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         RunArchivedPurchaseOrderReport(PurchaseHeader);
 
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total Excl. VAT = 800, VAT Amount = 200, Total Incl. VAT = 1000
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyArchiveOrderExcelTotalsWithDiscount(
           'AJ', 49, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount",
           PurchaseLine."Amount Including VAT" - PurchaseLine.Amount, PurchaseLine."Amount Including VAT");
@@ -1458,7 +1458,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         RunArchivedPurchaseReturnOrderReport(PurchaseHeader);
 
         // [THEN] Subtotal Amount = 1000, Invoice Discount Amount = -200, Total = 800
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyArchiveRetOrderExcelTotalsWithDiscount(
           'AC', 49, PurchaseLine."Line Amount", InvDiscountAmount, PurchaseLine."VAT Base Amount");
     end;
@@ -1482,7 +1482,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Save Vendor Detail Trial Balance Report.
-        SaveVendorDetailTrialBalReport(GenJournalLine."Account No.", false, false, WorkDate);
+        SaveVendorDetailTrialBalReport(GenJournalLine."Account No.", false, false, WorkDate());
 
         // [THEN] Verify External Document No. on Detail Trial Balance Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -1567,7 +1567,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
 
         // [WHEN] Run Report "Vendor Order Summary" for Vendor
         LibraryReportValidation.SetFileName(Vendor."No.");
-        SaveVendorOrderSummary(Vendor."No.", WorkDate, false);
+        SaveVendorOrderSummary(Vendor."No.", WorkDate(), false);
 
         // [THEN] Amount = 100 for Currency "CUR01"
         // [THEN] Amount = 200 for Currency "CUR02"
@@ -2213,7 +2213,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryCosting: Codeunit "Library - Costing";
     begin
         Item.Get(CreateItem);
-        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate, '', '', Item."Base Unit of Measure", 0);
+        LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate(), '', '', Item."Base Unit of Measure", 0);
         PurchasePrice.Validate("Direct Unit Cost", Item."Last Direct Cost");
         PurchasePrice.Modify(true);
     end;
@@ -2281,7 +2281,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
 
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelExchRateAmount);
@@ -2376,7 +2376,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         Amount := -LibraryRandom.RandDec(100, 2);
-        MockVendorLedgerEntry(VendorLedgerEntry, VendorNo, Amount, WorkDate);
+        MockVendorLedgerEntry(VendorLedgerEntry, VendorNo, Amount, WorkDate());
         MockDtldVendLedgEntry(VendorNo, VendorLedgerEntry."Entry No.", -Amount, true, ApplnDate1);
         MockDtldVendLedgEntry(VendorNo, VendorLedgerEntry."Entry No.", Amount, true, UnapplDate);
         MockDtldVendLedgEntry(VendorNo, VendorLedgerEntry."Entry No.", -Amount, false, ApplnDate2);
@@ -2386,13 +2386,13 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; EntryAmount: Decimal; PostingDate: Date)
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Posting Date" := PostingDate;
             Amount := EntryAmount;
             Open := true;
-            Insert;
+            Insert();
             MockInitialDtldVendLedgEntry(VendorNo, "Entry No.", EntryAmount, PostingDate);
         end;
     end;
@@ -2418,7 +2418,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     local procedure MockDtldVLE(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; VendLedgEntryNo: Integer; EntryType: Enum "Detailed CV Ledger Entry Type"; EntryAmount: Decimal; UnappliedEntry: Boolean; PostingDate: Date)
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Entry Type" := EntryType;
@@ -2426,7 +2426,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             Amount := EntryAmount;
             Unapplied := UnappliedEntry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2446,7 +2446,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         Vendor.SetRange("No.", No);
         AgedAccountsPayable.SetTableView(Vendor);
         Evaluate(DatePeriod, '<1M>');
-        AgedAccountsPayable.InitializeRequest(WorkDate, AgingBy, DatePeriod, PrintAmountLCY, PrintDetails, HeadingType, false);
+        AgedAccountsPayable.InitializeRequest(WorkDate(), AgingBy, DatePeriod, PrintAmountLCY, PrintDetails, HeadingType, false);
         AgedAccountsPayable.Run();
     end;
 
@@ -2692,8 +2692,8 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         LibraryVariableStorage.Enqueue(VendNo);
         Commit();
         Vendor.Get(VendNo);
-        Vendor.SetRecFilter;
-        Vendor.SetFilter("Date Filter", '%1..', WorkDate);
+        Vendor.SetRecFilter();
+        Vendor.SetFilter("Date Filter", '%1..', WorkDate());
         REPORT.Run(REPORT::"Vendor - Detail Trial Balance", true, false, Vendor);
     end;
 
@@ -2763,7 +2763,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             Get(EntryNo);
             CalcFields(Amount);
             Open := Amount <> 0;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2857,7 +2857,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
             LibraryReportDataset.AssertElementWithValueExists('DocType_VendLedgEntry3', Format("Document Type"));
             LibraryReportDataset.AssertElementWithValueExists('DocNo_VendLedgEntry3', "Document No.");
         end;
-        LibraryReportDataset.AssertElementWithValueExists('StrNoVenGetMaxDtFilter', StrSubstNo(BalanceOnCaptionTxt, WorkDate));
+        LibraryReportDataset.AssertElementWithValueExists('StrNoVenGetMaxDtFilter', StrSubstNo(BalanceOnCaptionTxt, WorkDate()));
     end;
 
     local procedure VerifyGenJnlLineWithCreditMemo(GenJournalLine: Record "Gen. Journal Line"; Amount: Decimal)
@@ -2902,7 +2902,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
                 Error(StrSubstNo(NoDatasetRowErr, 'No_Vendor', VendorNo));
             AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
             GetNextRow;
-            PurchaseLine.Next;
+            PurchaseLine.Next();
             AssertCurrentRowValueEquals('PurchOrderAmount', PurchaseLine.Amount);
             AssertElementWithValueExists('TotalAmtCurrTotalBuffer', ExpectedTotal);
         end;
@@ -3160,7 +3160,7 @@ codeunit 134335 "ERM Purch. Doc. Reports"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         SuggestVendorPayments.Vendor.SetFilter("No.", VendorNo);
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.OK.Invoke;
     end;
 
@@ -3201,4 +3201,3 @@ codeunit 134335 "ERM Purch. Doc. Reports"
         VendorDetailTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 }
-

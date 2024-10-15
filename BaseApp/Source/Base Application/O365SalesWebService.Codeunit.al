@@ -1,10 +1,14 @@
+#if not CLEAN21
 codeunit 2190 "O365 Sales Web Service"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
     Permissions = TableData "O365 Sales Graph" = rimd;
 
     trigger OnRun()
     begin
-        SendKPI;
+        SendKPI();
     end;
 
     var
@@ -51,10 +55,10 @@ codeunit 2190 "O365 Sales Web Service"
         if not O365SalesEvent.IsEventTypeEnabled(O365SalesEvent.Type::"Invoicing Inactivity") then
             exit;
 
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -87,10 +91,10 @@ codeunit 2190 "O365 Sales Web Service"
         if SalesInvoiceHeader."Due Date" > Today then
             exit;
 
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -116,10 +120,10 @@ codeunit 2190 "O365 Sales Web Service"
         if not O365SalesEvent.IsEventTypeEnabled(O365SalesEvent.Type::"Draft Reminder") then
             exit;
 
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -153,7 +157,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -186,7 +190,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -220,7 +224,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -253,7 +257,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -286,7 +290,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -313,10 +317,10 @@ codeunit 2190 "O365 Sales Web Service"
         if not O365SalesEvent.IsEventTypeEnabled(O365SalesEvent.Type::"Estimate Expiring") then
             exit;
 
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -350,7 +354,7 @@ codeunit 2190 "O365 Sales Web Service"
 
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -376,10 +380,10 @@ codeunit 2190 "O365 Sales Web Service"
         if not O365SalesEvent.IsEventTypeEnabled(O365SalesEvent.Type::"KPI Update") then
             exit;
 
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         if not HasTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId) then
             RegisterTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId,
-              GetConnectionString);
+              GetConnectionString());
 
         SetDefaultTableConnection(TABLECONNECTIONTYPE::MicrosoftGraph, ConnectionId, true);
 
@@ -400,22 +404,22 @@ codeunit 2190 "O365 Sales Web Service"
         ResultJsonObject: DotNet JObject;
         SummaryJsonObject: DotNet JObject;
     begin
-        if GLSetup.Get then;
+        if GLSetup.Get() then;
 
-        ResultJsonObject := ResultJsonObject.JObject;
-        SummaryJsonObject := SummaryJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
+        SummaryJsonObject := SummaryJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(
           SummaryJsonObject, '@odata.type', '#Microsoft.Griffin.SmallBusiness.SbGraph.Core.InvoiceOverviewKpiV1');
-        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'monthlySalesTotalAmount', InvoicedThisMonth);
-        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'yearlySalesTotalAmount', InvoicedYearToDate);
-        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'outstandingSalesTotalAmount', OutstandingAmount);
-        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'overdueSalesTotalAmount', OverdueAmount);
+        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'monthlySalesTotalAmount', InvoicedThisMonth());
+        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'yearlySalesTotalAmount', InvoicedYearToDate());
+        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'outstandingSalesTotalAmount', OutstandingAmount());
+        JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'overdueSalesTotalAmount', OverdueAmount());
         JSONManagement.AddJPropertyToJObject(SummaryJsonObject, 'currencyCode', GLSetup."Local Currency Symbol");
 
         JSONManagement.AddJObjectToJObject(ResultJsonObject, 'summary', SummaryJsonObject);
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
     end;
 
     local procedure GetInactivityDetails(var Details: OutStream)
@@ -424,13 +428,13 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement: Codeunit "JSON Management";
         ResultJsonObject: DotNet JObject;
     begin
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'duration', O365C2GraphEventSettings."Inv. Inactivity Duration (Day)");
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
     end;
 
     local procedure GetOverdueDetails(DocNo: Code[20]; var Details: OutStream): Boolean
@@ -453,14 +457,14 @@ codeunit 2190 "O365 Sales Web Service"
         if Customer.Get(SalesInvoiceHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
 
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         if (Contact."First Name" = '') and (Contact.Surname = '') then
             ContactFirstName := Customer.Name
         else
             ContactFirstName := Contact."First Name";
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerFirstName', ContactFirstName);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
@@ -478,7 +482,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'employeeName', User."Full Name");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'state', 'Overdue');
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
 
         exit(true);
     end;
@@ -493,11 +497,11 @@ codeunit 2190 "O365 Sales Web Service"
         if SalesHeader.IsEmpty() then
             exit(false);
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'totalDrafts', SalesHeader.Count);
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
 
         exit(true);
     end;
@@ -519,14 +523,14 @@ codeunit 2190 "O365 Sales Web Service"
         if Customer.Get(SalesInvoiceHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
 
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         if (Contact."First Name" = '') and (Contact.Surname = '') then
             ContactFirstName := Customer.Name
         else
             ContactFirstName := Contact."First Name";
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerFirstName', ContactFirstName);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
@@ -544,7 +548,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'employeeName', User."Full Name");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'state', InvoiceState);
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
     end;
 
     local procedure GetPaidInvoiceDetails(DocNo: Code[20]; Details: OutStream): Boolean
@@ -567,14 +571,14 @@ codeunit 2190 "O365 Sales Web Service"
         if Customer.Get(SalesInvoiceHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
 
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         if (Contact."First Name" = '') and (Contact.Surname = '') then
             ContactFirstName := Customer.Name
         else
             ContactFirstName := Contact."First Name";
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerFirstName', ContactFirstName);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
@@ -592,7 +596,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'employeeName', User."Full Name");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'state', 'Paid');
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
 
         exit(true);
     end;
@@ -620,7 +624,7 @@ codeunit 2190 "O365 Sales Web Service"
         else
             ContactFirstName := Contact."First Name";
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerFirstName', ContactFirstName);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
@@ -637,7 +641,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'employeeName', User."Full Name");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'state', EstimateState);
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
     end;
 
     local procedure GetAcceptedEstimateDetails(DocNo: Code[20]; Details: OutStream): Boolean
@@ -656,14 +660,14 @@ codeunit 2190 "O365 Sales Web Service"
         if Customer.Get(SalesHeader."Sell-to Customer No.") then
             if Contact.Get(Customer."Primary Contact No.") then;
 
-        if User.Get(UserSecurityId) then;
+        if User.Get(UserSecurityId()) then;
 
         if (Contact."First Name" = '') and (Contact.Surname = '') then
             ContactFirstName := Customer.Name
         else
             ContactFirstName := Contact."First Name";
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerFirstName', ContactFirstName);
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'customerLastName', Contact.Surname);
@@ -680,7 +684,7 @@ codeunit 2190 "O365 Sales Web Service"
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'employeeName', User."Full Name");
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'state', 'Accepted');
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
 
         exit(true);
     end;
@@ -704,11 +708,11 @@ codeunit 2190 "O365 Sales Web Service"
         if SalesHeader.IsEmpty() then
             exit(false);
 
-        ResultJsonObject := ResultJsonObject.JObject;
+        ResultJsonObject := ResultJsonObject.JObject();
 
         JSONManagement.AddJPropertyToJObject(ResultJsonObject, 'totalExpiringEstimates', SalesHeader.Count);
 
-        Details.Write(ResultJsonObject.ToString);
+        Details.Write(ResultJsonObject.ToString());
 
         exit(true);
     end;
@@ -757,17 +761,17 @@ codeunit 2190 "O365 Sales Web Service"
     var
         GraphConnectionSetup: Codeunit "Graph Connection Setup";
     begin
-        if GraphConnectionSetup.IsS2SAuthenticationEnabled then
-            exit(StrSubstNo(S2SConnectionStrTemplateTxt, GetGraphUrl, ActivityRolesTxt));
+        if GraphConnectionSetup.IsS2SAuthenticationEnabled() then
+            exit(StrSubstNo(S2SConnectionStrTemplateTxt, GetGraphUrl(), ActivityRolesTxt));
 
-        exit(StrSubstNo(UserConnectionStrTemplateTxt, GetGraphUrl));
+        exit(StrSubstNo(UserConnectionStrTemplateTxt, GetGraphUrl()));
     end;
 
     local procedure GetGraphUrl(): Text
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        if O365SalesInitialSetup.Get then
+        if O365SalesInitialSetup.Get() then
             exit(O365SalesInitialSetup."C2Graph Endpoint");
 
         Error(MissingEndpointErr);
@@ -782,7 +786,7 @@ codeunit 2190 "O365 Sales Web Service"
             exit(false);
 
         Clear(ContactGraphId);
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         SalesInvoiceHeaderId := SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader);
 
         exit(true);
@@ -799,7 +803,7 @@ codeunit 2190 "O365 Sales Web Service"
             exit(false);
 
         Clear(ContactGraphId);
-        ConnectionId := Format(CreateGuid);
+        ConnectionId := Format(CreateGuid());
         SalesHeaderId := Format(SalesHeader.SystemId);
 
         exit(true);
@@ -824,7 +828,7 @@ codeunit 2190 "O365 Sales Web Service"
         O365SalesGraph.Initialize();
         O365SalesGraph.Type := Type;
         O365SalesGraph.Kind := ActivityKindTxt;
-        O365SalesGraph.SetEmployeeIdToCurrentUser;
+        O365SalesGraph.SetEmployeeIdToCurrentUser();
     end;
 
     [IntegrationEvent(false, false)]
@@ -832,4 +836,5 @@ codeunit 2190 "O365 Sales Web Service"
     begin
     end;
 }
+#endif
 

@@ -126,7 +126,7 @@ codeunit 136313 "Job Creation Wizard Tests"
             CopyJobTasks.Trap;
             ActionNext.Invoke;
             Assert.AreEqual(Format(CopyJobTasks.TargetJobNo), Format(Job."No."), 'Default job number does not match created job.');
-            CopyJobTasks.Close;
+            CopyJobTasks.Close();
 
             // [WHEN] The user closes the wizard
             JobCard.Trap;

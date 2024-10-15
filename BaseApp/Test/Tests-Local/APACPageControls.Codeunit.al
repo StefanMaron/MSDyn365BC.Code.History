@@ -33,8 +33,8 @@ codeunit 141044 "APAC - Page & Controls"
 
         PostedSalesTaxInvoice."No.".AssertEquals(SalesTaxInvoiceHeader."No.");
 
-        PostedSalesTaxInvoice.Close;
-        PostedSalesTaxInvoices.Close;
+        PostedSalesTaxInvoice.Close();
+        PostedSalesTaxInvoices.Close();
     end;
 
     [Test]
@@ -59,8 +59,8 @@ codeunit 141044 "APAC - Page & Controls"
 
         PostedSalesTaxCreditMemo."No.".AssertEquals(SalesTaxCrMemoHeader."No.");
 
-        PostedSalesTaxCreditMemo.Close;
-        PostedSalesTaxCrMemos.Close;
+        PostedSalesTaxCreditMemo.Close();
+        PostedSalesTaxCrMemos.Close();
     end;
 
     [Test]
@@ -85,8 +85,8 @@ codeunit 141044 "APAC - Page & Controls"
 
         PostedPurchaseTaxInvoice."No.".AssertEquals(PurchTaxInvHeader."No.");
 
-        PostedPurchaseTaxInvoice.Close;
-        PostedPurchTaxInvoices.Close;
+        PostedPurchaseTaxInvoice.Close();
+        PostedPurchTaxInvoices.Close();
     end;
 
     [Test]
@@ -111,8 +111,8 @@ codeunit 141044 "APAC - Page & Controls"
 
         PostedPurchTaxCreditMemo."No.".AssertEquals(PurchTaxCrMemoHdr."No.");
 
-        PostedPurchTaxCreditMemo.Close;
-        PostedPurchTaxCrMemos.Close;
+        PostedPurchTaxCreditMemo.Close();
+        PostedPurchTaxCrMemos.Close();
     end;
 }
 

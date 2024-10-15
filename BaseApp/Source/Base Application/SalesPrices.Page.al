@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 page 7002 "Sales Prices"
 {
     Caption = 'Sales Prices';
@@ -29,7 +29,7 @@ page 7002 "Sales Prices"
 
                     trigger OnValidate()
                     begin
-                        SalesTypeFilterOnAfterValidate;
+                        SalesTypeFilterOnAfterValidate();
                     end;
                 }
                 field(SalesCodeFilterCtrl; SalesCodeFilter)
@@ -52,24 +52,24 @@ page 7002 "Sales Prices"
                             SalesTypeFilter::Customer:
                                 begin
                                     CustList.LookupMode := true;
-                                    if CustList.RunModal = ACTION::LookupOK then
-                                        Text := CustList.GetSelectionFilter
+                                    if CustList.RunModal() = ACTION::LookupOK then
+                                        Text := CustList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
                             SalesTypeFilter::"Customer Price Group":
                                 begin
                                     CustPriceGrList.LookupMode := true;
-                                    if CustPriceGrList.RunModal = ACTION::LookupOK then
-                                        Text := CustPriceGrList.GetSelectionFilter
+                                    if CustPriceGrList.RunModal() = ACTION::LookupOK then
+                                        Text := CustPriceGrList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
                             SalesTypeFilter::Campaign:
                                 begin
                                     CampaignList.LookupMode := true;
-                                    if CampaignList.RunModal = ACTION::LookupOK then
-                                        Text := CampaignList.GetSelectionFilter
+                                    if CampaignList.RunModal() = ACTION::LookupOK then
+                                        Text := CampaignList.GetSelectionFilter()
                                     else
                                         exit(false);
                                 end;
@@ -80,7 +80,7 @@ page 7002 "Sales Prices"
 
                     trigger OnValidate()
                     begin
-                        SalesCodeFilterOnAfterValidate;
+                        SalesCodeFilterOnAfterValidate();
                     end;
                 }
                 field(ItemNoFilterCtrl; ItemNoFilter)
@@ -94,8 +94,8 @@ page 7002 "Sales Prices"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode := true;
-                        if ItemList.RunModal = ACTION::LookupOK then
-                            Text := ItemList.GetSelectionFilter
+                        if ItemList.RunModal() = ACTION::LookupOK then
+                            Text := ItemList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -104,7 +104,7 @@ page 7002 "Sales Prices"
 
                     trigger OnValidate()
                     begin
-                        ItemNoFilterOnAfterValidate;
+                        ItemNoFilterOnAfterValidate();
                     end;
                 }
                 field(StartingDateFilter; StartingDateFilter)
@@ -118,7 +118,7 @@ page 7002 "Sales Prices"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(StartingDateFilter);
-                        StartingDateFilterOnAfterValid;
+                        StartingDateFilterOnAfterValid();
                     end;
                 }
                 field(CurrencyCodeFilterCtrl; CurrencyCodeFilter)
@@ -132,8 +132,8 @@ page 7002 "Sales Prices"
                         CurrencyList: Page Currencies;
                     begin
                         CurrencyList.LookupMode := true;
-                        if CurrencyList.RunModal = ACTION::LookupOK then
-                            Text := CurrencyList.GetSelectionFilter
+                        if CurrencyList.RunModal() = ACTION::LookupOK then
+                            Text := CurrencyList.GetSelectionFilter()
                         else
                             exit(false);
 
@@ -142,7 +142,7 @@ page 7002 "Sales Prices"
 
                     trigger OnValidate()
                     begin
-                        CurrencyCodeFilterOnAfterValid;
+                        CurrencyCodeFilterOnAfterValid();
                     end;
                 }
                 field(SystemId; SystemId)
@@ -156,7 +156,7 @@ page 7002 "Sales Prices"
             {
                 Caption = 'Filters';
                 Visible = IsOnMobile;
-                field(FilterDescription; GetFilterDescription)
+                field(FilterDescription; GetFilterDescription())
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -165,7 +165,7 @@ page 7002 "Sales Prices"
 
                     trigger OnAssistEdit()
                     begin
-                        FilterLines;
+                        FilterLines();
                         CurrPage.Update(false);
                     end;
                 }
@@ -173,7 +173,7 @@ page 7002 "Sales Prices"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Sales Type"; "Sales Type")
+                field("Sales Type"; Rec."Sales Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesTypeControlEditable;
@@ -184,40 +184,40 @@ page 7002 "Sales Prices"
                         SalesCodeControlEditable := SetSalesCodeEditable("Sales Type");
                     end;
                 }
-                field("Sales Code"; "Sales Code")
+                field("Sales Code"; Rec."Sales Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = SalesCodeControlEditable;
                     ToolTip = 'Specifies the code that belongs to the Sales Type.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item for which the sales price is valid.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the currency of the sales price.';
                     Visible = false;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Minimum Quantity"; "Minimum Quantity")
+                field("Minimum Quantity"; Rec."Minimum Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the minimum sales quantity required to warrant the sales price.';
                 }
-                field("Published Price"; "Published Price")
+                field("Published Price"; Rec."Published Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the unit price of the item is assigned here from the item table.';
@@ -227,50 +227,50 @@ page 7002 "Sales Prices"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the Unit cost of the item is assigned here from the item table.';
                 }
-                field("Cost-plus %"; "Cost-plus %")
+                field("Cost-plus %"; Rec."Cost-plus %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage that is applied to the unit cost to calculate the unit price for the customer.';
                 }
-                field("Discount Amount"; "Discount Amount")
+                field("Discount Amount"; Rec."Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount to deduct from the unit price to calculate the price for the customer.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price of one unit of the item or resource. You can enter a price manually or have it entered according to the Price/Profit Calculation field on the related card.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the sales price is valid.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the calendar date when the sales price agreement ends.';
                 }
-                field("Price Includes VAT"; "Price Includes VAT")
+                field("Price Includes VAT"; Rec."Price Includes VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the sales price includes VAT.';
                     Visible = false;
                 }
-                field("Allow Line Disc."; "Allow Line Disc.")
+                field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if a line discount will be calculated when the sales price is offered.';
                     Visible = false;
                 }
-                field("Allow Invoice Disc."; "Allow Invoice Disc.")
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the sales price is offered.';
                     Visible = false;
                 }
-                field("VAT Bus. Posting Gr. (Price)"; "VAT Bus. Posting Gr. (Price)")
+                field("VAT Bus. Posting Gr. (Price)"; Rec."VAT Bus. Posting Gr. (Price)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business posting group for customers for whom you want the sales price (which includes VAT) to apply.';
@@ -302,14 +302,12 @@ page 7002 "Sales Prices"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Filter';
                 Image = "Filter";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Apply the filter.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    FilterLines;
+                    FilterLines();
                 end;
             }
             action(ClearFilter)
@@ -317,17 +315,15 @@ page 7002 "Sales Prices"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Clear Filter';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Clear filter.';
                 Visible = IsOnMobile;
 
                 trigger OnAction()
                 begin
-                    Reset;
-                    UpdateBasicRecFilters;
+                    Reset();
+                    UpdateBasicRecFilters();
                     Evaluate(StartingDateFilter, GetFilter("Starting Date"));
-                    SetEditableFields;
+                    SetEditableFields();
                 end;
             }
             action(CopyPrices)
@@ -340,9 +336,23 @@ page 7002 "Sales Prices"
 
                 trigger OnAction()
                 begin
-                    CopyPricesToCustomer;
+                    CopyPricesToCustomer();
                     CurrPage.Update();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(SalesPricesFilter_Promoted; SalesPricesFilter)
+                {
+                }
+                actionref(ClearFilter_Promoted; ClearFilter)
+                {
+                }
             }
         }
     }
@@ -367,14 +377,14 @@ page 7002 "Sales Prices"
     var
         IsHandled: Boolean;
     begin
-        IsOnMobile := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
+        IsOnMobile := ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone;
 
         IsHandled := false;
         OnOpenPageOnBeforeGetRecFilters(Rec, IsHandled);
         if IsHandled then
             exit;
-        GetRecFilters;
-        SetRecFilters;
+        GetRecFilters();
+        SetRecFilters();
         SetCaption();
     end;
 
@@ -405,7 +415,7 @@ page 7002 "Sales Prices"
     local procedure GetRecFilters()
     begin
         if GetFilters <> '' then
-            UpdateBasicRecFilters;
+            UpdateBasicRecFilters();
 
         Evaluate(StartingDateFilter, GetFilter("Starting Date"));
     end;
@@ -413,7 +423,7 @@ page 7002 "Sales Prices"
     local procedure UpdateBasicRecFilters()
     begin
         if GetFilter("Sales Type") <> '' then
-            SalesTypeFilter := GetSalesTypeFilter
+            SalesTypeFilter := GetSalesTypeFilter()
         else
             SalesTypeFilter := SalesTypeFilter::None;
 
@@ -446,14 +456,14 @@ page 7002 "Sales Prices"
         else
             SetRange("Starting Date");
 
-        if ItemNoFilter <> '' then begin
-            SetFilter("Item No.", ItemNoFilter);
-        end else
+        if ItemNoFilter <> '' then
+            SetFilter("Item No.", ItemNoFilter)
+        else
             SetRange("Item No.");
 
-        if CurrencyCodeFilter <> '' then begin
-            SetFilter("Currency Code", CurrencyCodeFilter);
-        end else
+        if CurrencyCodeFilter <> '' then
+            SetFilter("Currency Code", CurrencyCodeFilter)
+        else
             SetRange("Currency Code");
 
         case SalesTypeFilter of
@@ -467,7 +477,7 @@ page 7002 "Sales Prices"
         CheckFilters(DATABASE::Item, ItemNoFilter);
         CheckFilters(DATABASE::Currency, CurrencyCodeFilter);
 
-        SetEditableFields;
+        SetEditableFields();
         CurrPage.Update(false);
     end;
 
@@ -486,7 +496,7 @@ page 7002 "Sales Prices"
         SalesSrcTableName: Text;
         Description: Text;
     begin
-        GetRecFilters;
+        GetRecFilters();
 
         SourceTableName := '';
         if ItemNoFilter <> '' then
@@ -499,21 +509,21 @@ page 7002 "Sales Prices"
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 18);
                     Cust."No." := CopyStr(SalesCodeFilter, 1, MaxStrLen(Cust."No."));
-                    if Cust.Find then
+                    if Cust.Find() then
                         Description := Cust.Name;
                 end;
             SalesTypeFilter::"Customer Price Group":
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 6);
                     CustPriceGr.Code := CopyStr(SalesCodeFilter, 1, MaxStrLen(CustPriceGr.Code));
-                    if CustPriceGr.Find then
+                    if CustPriceGr.Find() then
                         Description := CustPriceGr.Description;
                 end;
             SalesTypeFilter::Campaign:
                 begin
                     SalesSrcTableName := ObjTranslation.TranslateObject(ObjTranslation."Object Type"::Table, 5071);
                     Campaign."No." := CopyStr(SalesCodeFilter, 1, MaxStrLen(Campaign."No."));
-                    if Campaign.Find then
+                    if Campaign.Find() then
                         Description := Campaign.Description;
                 end;
             SalesTypeFilter::"All Customers":
@@ -543,36 +553,36 @@ page 7002 "Sales Prices"
 
     local procedure SalesCodeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure SalesTypeFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         SalesCodeFilter := '';
-        SetRecFilters;
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure StartingDateFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure ItemNoFilterOnAfterValidate()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
         SetCaption();
     end;
 
     local procedure CurrencyCodeFilterOnAfterValid()
     begin
-        CurrPage.SaveRecord;
-        SetRecFilters;
+        CurrPage.SaveRecord();
+        SetRecFilters();
     end;
 
     local procedure GetSalesTypeFilter(): Integer
@@ -607,7 +617,7 @@ page 7002 "Sales Prices"
     begin
         FilterPageBuilder.AddTable(TableCaption, DATABASE::"Sales Price");
 
-        FilterPageBuilder.SetView(TableCaption, GetView);
+        FilterPageBuilder.SetView(TableCaption, GetView());
         if GetFilter("Sales Type") = '' then
             FilterPageBuilder.AddFieldNo(TableCaption, FieldNo("Sales Type"));
         if GetFilter("Sales Code") = '' then
@@ -619,12 +629,12 @@ page 7002 "Sales Prices"
         if GetFilter("Currency Code") = '' then
             FilterPageBuilder.AddFieldNo(TableCaption, FieldNo("Currency Code"));
 
-        if FilterPageBuilder.RunModal then
+        if FilterPageBuilder.RunModal() then
             SetView(FilterPageBuilder.GetView(TableCaption));
 
-        UpdateBasicRecFilters;
+        UpdateBasicRecFilters();
         Evaluate(StartingDateFilter, GetFilter("Starting Date"));
-        SetEditableFields;
+        SetEditableFields();
     end;
 
     local procedure CopyPricesToCustomer()
@@ -645,7 +655,7 @@ page 7002 "Sales Prices"
         SalesPrice.SetFilter("Sales Code", '<>%1', SalesCodeFilter);
         SalesPrices.LookupMode(true);
         SalesPrices.SetTableView(SalesPrice);
-        if SalesPrices.RunModal = ACTION::LookupOK then begin
+        if SalesPrices.RunModal() = ACTION::LookupOK then begin
             SalesPrices.GetSelectionFilter(SelectedSalesPrice);
             CopySalesPriceToCustomersSalesPrice(SelectedSalesPrice, CopyToCustomerNo);
         end;

@@ -1,4 +1,4 @@
-report 6 "Trial Balance"
+﻿report 6 "Trial Balance"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './TrialBalance.rdlc';
@@ -18,7 +18,7 @@ report 6 "Trial Balance"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PeriodText; PeriodText)
@@ -260,7 +260,7 @@ report 6 "Trial Balance"
     trigger OnPreReport()
     begin
         "G/L Account".SecurityFiltering(SecurityFilter::Filtered);
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
         PeriodText := "G/L Account".GetFilter("Date Filter");
     end;
 
@@ -268,7 +268,6 @@ report 6 "Trial Balance"
         Text000: Label 'Period: %1';
         GLSetup: Record "General Ledger Setup";
         ReportMgmnt: Codeunit "Report Management APAC";
-        GLFilter: Text;
         PeriodText: Text[30];
         Trial_BalanceCaptionLbl: Label 'Trial Balance';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
@@ -294,5 +293,8 @@ report 6 "Trial Balance"
         SimulationEntriesLbl: Label 'This report includes simulation entries.';
         TotalofPostedTransCaptionLbl: Label 'Total of Posted Transactions';
         AllAmountsAreInLbl: Label 'All amounts are in';
+
+    protected var
+        GLFilter: Text;
 }
 

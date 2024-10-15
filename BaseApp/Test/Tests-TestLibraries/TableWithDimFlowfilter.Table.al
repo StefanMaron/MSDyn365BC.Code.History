@@ -4,6 +4,7 @@ table 134484 "Table With Dim Flowfilter"
 #if not CLEAN20
     LookupPageID = "XBRL Taxonomy Lines";
 #endif
+    ReplicateData = false;
 
     fields
     {

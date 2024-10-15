@@ -169,10 +169,9 @@ report 310 "Vendor - Labels"
                         VendBarCode[i] := '';
                     end;
                     ColumnNo := 0;
-                end else begin
+                end else
                     if ColumnNo = NoOfColumns then
                         ColumnNo := 0;
-                end;
 
                 if ColumnNo = 0 then begin
                     if Counter = RecPerPageNum then begin
@@ -248,7 +247,6 @@ report 310 "Vendor - Labels"
     var
         FormatAddr: Codeunit "Format Address";
         LabelFormat: Option "36 x 70 mm (3 columns)","37 x 70 mm (3 columns)","36 x 105 mm (2 columns)","37 x 105 mm (2 columns)","48 x 105 mm (2 columns - Bar Code)";
-        VendAddr: array[3, 8] of Text[100];
         NoOfRecords: Integer;
         RecordNo: Integer;
         NoOfColumns: Integer;
@@ -258,6 +256,9 @@ report 310 "Vendor - Labels"
         Counter: Integer;
         RecPerPageNum: Integer;
         VendBarCode: array[3] of Text[100];
+
+    protected var
+        VendAddr: array[3, 8] of Text[100];
 
     procedure InitializeRequest(SetLabelFormat: Option)
     begin

@@ -44,7 +44,7 @@ codeunit 144004 "ERM Feature Bug AU"
         CreateWHTPostingSetup(WHTPostingSetup);
         CreatePurchaseOrder(PurchaseLine, CurrencyCode);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        Amount := LibraryERM.ConvertCurrency(PurchaseLine.Amount, PurchaseLine."Currency Code", '', WorkDate);  // Using blank for To Currency Code.
+        Amount := LibraryERM.ConvertCurrency(PurchaseLine.Amount, PurchaseLine."Currency Code", '', WorkDate());  // Using blank for To Currency Code.
 
         // Exercise.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // True for receive and invoice.
@@ -159,7 +159,7 @@ codeunit 144004 "ERM Feature Bug AU"
         LibraryERMUnapply.UnapplyVendorLedgerEntry(VendorLedgerEntry);
 
         // [THEN] Payment Entry is unapplied from Purchase Invoice.
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField(Open, true);
     end;
 
@@ -444,9 +444,9 @@ codeunit 144004 "ERM Feature Bug AU"
     [Scope('OnPrem')]
     procedure CalcandPostVATSettlementRequestPageHandler(var CalcandPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
-        CalcandPostVATSettlement.StartingDate.SetValue(WorkDate);
-        CalcandPostVATSettlement.EndDateReq.SetValue(WorkDate);
-        CalcandPostVATSettlement.PostingDt.SetValue(WorkDate);
+        CalcandPostVATSettlement.StartingDate.SetValue(WorkDate());
+        CalcandPostVATSettlement.EndDateReq.SetValue(WorkDate());
+        CalcandPostVATSettlement.PostingDt.SetValue(WorkDate());
         CalcandPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
         CalcandPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
         CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText);

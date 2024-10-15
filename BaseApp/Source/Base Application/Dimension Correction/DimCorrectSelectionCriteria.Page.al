@@ -42,9 +42,6 @@ page 2585 "Dim Correct Selection Criteria"
                 Visible = not ReadOnlyMode;
                 Caption = 'Delete';
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Remove selection criteria. This removes all entries added by the rule.';
 
                 trigger OnAction()
@@ -60,9 +57,6 @@ page 2585 "Dim Correct Selection Criteria"
                 Visible = not ReadOnlyMode;
                 Caption = 'Undo';
                 Image = Undo;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Undo the last step.';
 
                 trigger OnAction()
@@ -76,6 +70,20 @@ page 2585 "Dim Correct Selection Criteria"
                     EntriesToDelete.RemoveAt(EntriesToDelete.Count());
                     UpdateFilter();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Delete_Promoted; Delete)
+                {
+                }
+                actionref(Undo_Promoted; Undo)
+                {
+                }
             }
         }
     }

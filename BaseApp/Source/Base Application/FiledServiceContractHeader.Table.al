@@ -656,7 +656,7 @@ table 5970 "Filed Service Contract Header"
 
     local procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Contract No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Contract No."));
     end;
 
     [IntegrationEvent(false, false)]

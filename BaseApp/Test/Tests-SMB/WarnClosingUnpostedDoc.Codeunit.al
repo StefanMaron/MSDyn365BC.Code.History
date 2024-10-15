@@ -44,7 +44,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
         EnableWarningOnCloseUnpostedDoc;
         // [WHEN] Page closed
-        SalesInvoice.Close;
+        SalesInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
           DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
@@ -68,7 +68,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesInvoice.OpenEdit;
         SalesInvoice.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesInvoice.Close;
+        SalesInvoice.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -90,7 +90,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -112,7 +112,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -136,7 +136,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesOrder.Close;
+        SalesOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -159,7 +159,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesOrder.Close;
+        SalesOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -181,7 +181,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -203,7 +203,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -226,7 +226,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
           DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
@@ -250,7 +250,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseInvoice.OpenEdit;
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -272,7 +272,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -294,7 +294,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -319,7 +319,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -343,7 +343,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -365,7 +365,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -387,7 +387,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -410,7 +410,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
           DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
@@ -433,7 +433,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceInvoice.OpenEdit;
         ServiceInvoice.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -454,7 +454,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -475,7 +475,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -497,7 +497,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceOrder.Close;
+        ServiceOrder.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -519,7 +519,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceOrder.Close;
+        ServiceOrder.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -543,7 +543,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesCreditMemo.OpenEdit;
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -570,7 +570,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesOrder.OpenEdit;
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesOrder.Close;
+        SalesOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -595,7 +595,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         SalesReturnOrder.OpenEdit;
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         SalesHeader.Delete(true);
     end;
@@ -620,7 +620,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseCreditMemo.OpenEdit;
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -648,7 +648,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -673,7 +673,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         PurchaseReturnOrder.OpenEdit;
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
         // [THEN] Page closes without UI Confirm
         PurchaseHeader.Delete(true);
     end;
@@ -698,7 +698,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -723,7 +723,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ServiceOrder.OpenEdit;
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
-        ServiceOrder.Close;
+        ServiceOrder.Close();
         // [THEN] Page closes without UI Confirm
     end;
 
@@ -756,11 +756,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Shipment, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
         Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
@@ -795,11 +795,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
           SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Pick, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
         Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
@@ -835,15 +835,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
           SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Pick, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5001 must return no lines on this input');
         MyQuery.SetRange(Require_Pick);
         MyQuery.SetRange(Require_Shipment, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5001 must return no lines on this input');
 
         // [WHEN] User presses "close page"
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Page closes with no warning
     end;
@@ -877,11 +877,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Receive, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5002 must return one line on this input');
 
         // [WHEN] User presses "close page"
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
         Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
@@ -916,11 +916,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Put_away, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5002 must return one line on this input');
 
         // [WHEN] User presses "close page"
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
         Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
@@ -954,15 +954,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Put_away, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5002 must return no lines on this input');
         MyQuery.SetRange(Require_Put_away);
         MyQuery.SetRange(Require_Receive, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5002 must return no lines on this input');
 
         // [WHEN] User presses "close page"
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // [THEN] Page closes with no warning
     end;
@@ -995,11 +995,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Shipment, true);
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Page closes without notification
     end;
@@ -1028,7 +1028,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
 
         // [WHEN] User presses "close page"
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // [THEN] Page closes without notification
     end;
@@ -1050,7 +1050,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
           Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         // Not an order (invoice), but with valid line
         MyQuery.SetRange(Document_No, SalesHeader."No.");
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
@@ -1066,7 +1066,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         // Empty order
         MyQuery.SetRange(Document_No, SalesHeader."No.");
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
@@ -1089,7 +1089,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
           SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
@@ -1109,7 +1109,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // A correct line
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
           SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5001 returned no lines, but it must return one line on this input');
         Assert.AreEqual(SalesHeader."No.", MyQuery.Document_No, 'Document No from query must match actual document No');
         Assert.AreEqual(Location.Code, MyQuery.Location_Code, 'Location code from query must match actual Location.Code');
@@ -1137,7 +1137,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
           PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
         // Not an order (invoice), but with valid line
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
@@ -1153,7 +1153,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         // Empty order
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
@@ -1177,7 +1177,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
           PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 0);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
           PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
@@ -1196,7 +1196,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
           PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
-        MyQuery.Open;
+        MyQuery.Open();
         Assert.IsTrue(MyQuery.Read, 'Query 5002 returned no lines, but it must return one line on this input');
         Assert.AreEqual(PurchaseHeader."No.", MyQuery.Document_No, 'Document No from query must match actual document No');
         Assert.AreEqual(Location.Code, MyQuery.Location_Code, 'Location code from query must match actual Location.Code');
@@ -1251,7 +1251,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibraryERMCountryData.CreateVATData();
         CreateUserPersonalization;
 
-        MyNotificationsPage.InitializeNotificationsWithDefaultState;
+        MyNotificationsPage.InitializeNotificationsWithDefaultState();
 
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Warn Closing Unposted Doc");
@@ -1367,14 +1367,14 @@ codeunit 138046 "Warn Closing Unposted Doc"
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     local procedure DisableWarningOnCloseUnpostedDoc()
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.QueryPostOnCloseCode());
     end;
 
     local procedure EnableWarningOnCloseUnreleasedOrders()

@@ -5,7 +5,7 @@ codeunit 9023 "Pmt. Rec. Jnl. Import Trans."
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
-        BankAccReconciliation.ImportAndProcessToNewStatement
+        BankAccReconciliation.ImportAndProcessToNewStatement();
     end;
 }
 

@@ -54,11 +54,11 @@ codeunit 141072 "UT REP Stock Movement"
 
         // Setup.
         Initialize();
-        CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate), ItemLedgerEntry."Entry Type"::Output, 0, WorkDate);  // Using 0 for Quantity and WORKDATE for Posting Date.
-        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
+        CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate()), ItemLedgerEntry."Entry Type"::Output, 0, WorkDate());  // Using 0 for Quantity and WORKDATE for Posting Date.
+        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate());  // Using WORKDATE for Date Filter.
         CreateItemLedgerEntry(
           ItemLedgerEntry2, ItemLedgerEntry."Item No.", ItemLedgerEntry."Entry Type"::Sale, LibraryRandom.RandDec(10, 2),
-          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate));  // Using random for Quantity and as required by the test case using a date earlier than WORKDATE as Posting Date.
+          CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Using random for Quantity and as required by the test case using a date earlier than WORKDATE as Posting Date.
         NetChange := GetNetChangeFromItem(ItemLedgerEntry."Item No.");
 
         // Exercise & Verify.
@@ -78,8 +78,8 @@ codeunit 141072 "UT REP Stock Movement"
         // Setup.
         Initialize();
         CreateItemLedgerEntry(
-          ItemLedgerEntry, CreateItem(WorkDate), ItemLedgerEntry."Entry Type"::Consumption, -LibraryRandom.RandDec(10, 2), WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
-        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
+          ItemLedgerEntry, CreateItem(WorkDate()), ItemLedgerEntry."Entry Type"::Consumption, -LibraryRandom.RandDec(10, 2), WorkDate());  // Using random for Quantity and WORKDATE for Posting Date.
+        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate());  // Using WORKDATE for Date Filter.
         NetChange := GetNetChangeFromItem(ItemLedgerEntry."Item No.");
 
         // Exercise & Verify.
@@ -115,8 +115,8 @@ codeunit 141072 "UT REP Stock Movement"
     begin
         // Setup.
         Initialize();
-        CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate), EntryType, LibraryRandom.RandDec(10, 2), WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
-        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate);  // Using WORKDATE for Date Filter.
+        CreateItemLedgerEntry(ItemLedgerEntry, CreateItem(WorkDate()), EntryType, LibraryRandom.RandDec(10, 2), WorkDate());  // Using random for Quantity and WORKDATE for Posting Date.
+        EnqueueValuesForStockMovementRequestPageHandler(ItemLedgerEntry."Item No.", WorkDate());  // Using WORKDATE for Date Filter.
         NetChange := GetNetChangeFromItem(ItemLedgerEntry."Item No.");
 
         // Exercise & Verify.

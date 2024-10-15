@@ -25,7 +25,7 @@ report 7380 "Calculate Phys. Invt. Counting"
 
                         trigger OnValidate()
                         begin
-                            ValidatePostingDate;
+                            ValidatePostingDate();
                         end;
                     }
                     field(NextDocNo; NextDocNo)
@@ -102,8 +102,8 @@ report 7380 "Calculate Phys. Invt. Counting"
         trigger OnOpenPage()
         begin
             if PostingDate = 0D then
-                PostingDate := WorkDate;
-            ValidatePostingDate;
+                PostingDate := WorkDate();
+            ValidatePostingDate();
 
             ShowQtyCalcEnable := PrintDoc;
             PrintPerItemEnable := PrintDoc;

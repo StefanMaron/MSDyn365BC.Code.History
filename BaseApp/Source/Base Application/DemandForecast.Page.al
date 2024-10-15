@@ -43,10 +43,10 @@ page 99000919 "Demand Forecast"
                         LocList.LookupMode(true);
                         Loc.SetRange("Use As In-Transit", false);
                         LocList.SetTableView(Loc);
-                        if not (LocList.RunModal = ACTION::LookupOK) then
+                        if not (LocList.RunModal() = ACTION::LookupOK) then
                             exit(false);
 
-                        Text := LocList.GetSelectionFilter;
+                        Text := LocList.GetSelectionFilter();
 
                         exit(true);
                     end;
@@ -79,7 +79,7 @@ page 99000919 "Demand Forecast"
 
                     trigger OnValidate()
                     begin
-                        QtyTypeOnAfterValidate;
+                        QtyTypeOnAfterValidate();
                     end;
                 }
                 field(ForecastType; ForecastType)
@@ -90,7 +90,7 @@ page 99000919 "Demand Forecast"
 
                     trigger OnValidate()
                     begin
-                        ForecastTypeOnAfterValidate;
+                        ForecastTypeOnAfterValidate();
                     end;
                 }
                 field(DateFilter; DateFilter)
@@ -138,9 +138,6 @@ page 99000919 "Demand Forecast"
                 ApplicationArea = Planning;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -153,9 +150,6 @@ page 99000919 "Demand Forecast"
                 ApplicationArea = Planning;
                 Caption = 'Previous Column';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous column.';
 
                 trigger OnAction()
@@ -168,9 +162,6 @@ page 99000919 "Demand Forecast"
                 ApplicationArea = Planning;
                 Caption = 'Next Column';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next column.';
 
                 trigger OnAction()
@@ -183,15 +174,32 @@ page 99000919 "Demand Forecast"
                 ApplicationArea = Planning;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     SetMatrixColumns("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Previous Set_Promoted"; "Previous Set")
+                {
+                }
+                actionref("Previous Column_Promoted"; "Previous Column")
+                {
+                }
+                actionref("Next Column_Promoted"; "Next Column")
+                {
+                }
+                actionref("Next Set_Promoted"; "Next Set")
+                {
+                }
             }
         }
     }

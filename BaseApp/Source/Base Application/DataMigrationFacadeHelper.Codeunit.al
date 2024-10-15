@@ -1,4 +1,4 @@
-codeunit 1797 "Data Migration Facade Helper"
+﻿codeunit 1797 "Data Migration Facade Helper"
 {
     SingleInstance = true;
 
@@ -231,7 +231,7 @@ codeunit 1797 "Data Migration Facade Helper"
         if not GenJournalBatch.FindFirst() then begin
             GenJournalBatch.Init();
             GenJournalBatch.Validate("Journal Template Name", TemplateName);
-            GenJournalBatch.SetupNewBatch;
+            GenJournalBatch.SetupNewBatch();
             GenJournalBatch.Validate(Name, GeneralJournalBatchCode);
             GenJournalBatch.Validate(Description, GeneralJournalBatchCode);
             GenJournalBatch."No. Series" := NoSeriesCode;
@@ -387,7 +387,7 @@ codeunit 1797 "Data Migration Facade Helper"
         ContactBusinessRelation: Record "Contact Business Relation";
         MarketingSetup: Record "Marketing Setup";
     begin
-        if not MarketingSetup.Get then
+        if not MarketingSetup.Get() then
             exit;
 
         if LinkToTable = DATABASE::Vendor then begin

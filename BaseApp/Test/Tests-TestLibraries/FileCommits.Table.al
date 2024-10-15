@@ -1,5 +1,6 @@
 table 130027 "File Commits"
 {
+    ReplicateData = false;
 
     fields
     {

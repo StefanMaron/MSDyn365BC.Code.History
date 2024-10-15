@@ -7,7 +7,6 @@ page 6520 "Item Tracing"
     InsertAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Item';
     SourceTable = "Item Tracing Buffer";
     SourceTableTemporary = true;
     UsageCategory = Tasks;
@@ -169,13 +168,13 @@ page 6520 "Item Tracing"
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a description of the traced item.';
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the type of the traced entry.';
                     Visible = false;
                 }
-                field("Serial No."; "Serial No.")
+                field("Serial No."; Rec."Serial No.")
                 {
                     ApplicationArea = ItemTracking;
                     Editable = false;
@@ -327,8 +326,6 @@ page 6520 "Item Tracing"
                     ApplicationArea = ItemTracking;
                     Caption = 'Show Document';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -347,8 +344,6 @@ page 6520 "Item Tracing"
                     ApplicationArea = ItemTracking;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -359,8 +354,6 @@ page 6520 "Item Tracing"
                     ApplicationArea = ItemTracking;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
@@ -381,8 +374,6 @@ page 6520 "Item Tracing"
                     Caption = '&Trace Opposite - from Line';
                     Enabled = FunctionsEnable;
                     Image = TraceOppositeLine;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Repeat the previous trace, but going the opposite direction.';
 
                     trigger OnAction()
@@ -452,8 +443,6 @@ page 6520 "Item Tracing"
                 Ellipsis = true;
                 Enabled = PrintEnable;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -474,8 +463,6 @@ page 6520 "Item Tracing"
                 Caption = 'Find entries...';
                 Enabled = NavigateEnable;
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -494,15 +481,67 @@ page 6520 "Item Tracing"
                 ApplicationArea = ItemTracking;
                 Caption = '&Trace';
                 Image = Trace;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
 
                 trigger OnAction()
                 begin
                     FindRecords();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Trace_Promoted; Trace)
+                {
+                }
+                actionref(ShowDocument_Promoted; ShowDocument)
+                {
+                }
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+                actionref(TraceOppositeFromLine_Promoted; TraceOppositeFromLine)
+                {
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+#if not CLEAN21
+                actionref(Card_Promoted; Card)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref(LedgerEntries_Promoted; LedgerEntries)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

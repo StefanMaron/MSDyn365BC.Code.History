@@ -38,7 +38,7 @@ table 272 "Check Ledger Entry"
         }
         field(8; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCodeFromBank;
+            AutoFormatExpression = GetCurrencyCodeFromBank();
             AutoFormatType = 1;
             Caption = 'Amount';
         }
@@ -234,8 +234,8 @@ table 272 "Check Ledger Entry"
         if not BankAcc.Get("Bank Account No.") then
             Error(NothingToExportErr);
 
-        if BankAcc.GetPosPayExportCodeunitID > 0 then
-            CODEUNIT.Run(BankAcc.GetPosPayExportCodeunitID, Rec)
+        if BankAcc.GetPosPayExportCodeunitID() > 0 then
+            CODEUNIT.Run(BankAcc.GetPosPayExportCodeunitID(), Rec)
         else
             CODEUNIT.Run(CODEUNIT::"Exp. Launcher Pos. Pay", Rec);
     end;
@@ -274,7 +274,7 @@ table 272 "Check Ledger Entry"
             "Bal. Account Type"::Employee:
                 if "Bal. Account No." <> '' then begin
                     Employee.Get("Bal. Account No.");
-                    Payee := Employee.FullName;
+                    Payee := Employee.FullName();
                 end;
         end;
 
@@ -283,7 +283,7 @@ table 272 "Check Ledger Entry"
 
     procedure SetFilterBankAccNoOpen(BankAccNo: Code[20])
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Bank Account No.", Open);
         SetRange("Bank Account No.", BankAccNo);
         SetRange(Open, true);

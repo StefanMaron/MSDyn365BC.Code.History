@@ -356,13 +356,13 @@ codeunit 139200 "XML Buffer Tests"
           'root element should have children.');
 
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'First child name is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Second child name is incorrect.');
         Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Second child value is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Third child name is incorrect.');
         Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Third child value is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
     end;
 
     [Test]
@@ -392,13 +392,13 @@ codeunit 139200 "XML Buffer Tests"
           'root element should have children.');
 
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'First child name is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Second child name is incorrect.');
         Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Second child value is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
         Assert.AreEqual(ElementName, TempChildXMLBuffer.Name, 'Third child name is incorrect.');
         Assert.AreEqual(ElementValue, TempChildXMLBuffer.GetValue, 'Third child value is incorrect.');
-        TempChildXMLBuffer.Next;
+        TempChildXMLBuffer.Next();
     end;
 
     [Test]
@@ -680,9 +680,9 @@ codeunit 139200 "XML Buffer Tests"
         Assert.IsTrue(TempXMLBuffer.FindProcessingInstructions(TempChildElementsPiXMLBuffer),
           'No child elements processing instructions were found.');
         Assert.AreEqual('PIName1', TempChildElementsPiXMLBuffer.Name, '');
-        TempChildElementsXMLBuffer.Next;
+        TempChildElementsXMLBuffer.Next();
         Assert.AreEqual('newGroupBetweenElement1and2', TempChildElementsXMLBuffer.Name, '');
-        TempChildElementsXMLBuffer.Next;
+        TempChildElementsXMLBuffer.Next();
         Assert.AreEqual('Element2', TempChildElementsXMLBuffer.Name, '');
     end;
 
@@ -874,7 +874,7 @@ codeunit 139200 "XML Buffer Tests"
             Assert.AreEqual(TempChildrenXMLBuffer.Value, NamespacePath[1], '');
 
             if NumNamespaces = 2 then begin
-                TempChildrenXMLBuffer.Next;
+                TempChildrenXMLBuffer.Next();
                 Assert.AreEqual('xmlns:' + NamespacePrefix[2], TempChildrenXMLBuffer.Name, '');
                 Assert.AreEqual(NamespacePath[2], TempChildrenXMLBuffer.Value, '');
                 Assert.AreEqual(NamespacePath[2], TempXMLBuffer.GetAttributeValue('xmlns:' + NamespacePrefix[2]), '');
@@ -1002,7 +1002,7 @@ codeunit 139200 "XML Buffer Tests"
         WriteLineToOutstream(OutStream, '    <Element21 Currency="EUR">092,5310</Element21>');
         WriteLineToOutstream(OutStream, '  </Element2>');
         WriteLineToOutstream(OutStream, '</RootElement>');
-        File.Close;
+        File.Close();
     end;
 
     local procedure SaveLoadAndVerifyTempXmlBuffer(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -1068,7 +1068,7 @@ codeunit 139200 "XML Buffer Tests"
             Assert.AreEqual(
               ExpectedTempXMLBuffer."Node Number", ActualTempXMLBuffer."Node Number", 'Node Number ' + ActualTempXMLBuffer.Name);
             Assert.AreEqual(ExpectedTempXMLBuffer.Namespace, ActualTempXMLBuffer.Namespace, 'Namespace');
-        until (ExpectedTempXMLBuffer.Next = 0) or (ActualTempXMLBuffer.Next = 0);
+        until (ExpectedTempXMLBuffer.Next() = 0) or (ActualTempXMLBuffer.Next() = 0);
     end;
 
     local procedure WriteLineToOutstream(var OutStream: OutStream; Line: Text)

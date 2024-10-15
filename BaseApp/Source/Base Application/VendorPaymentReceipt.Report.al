@@ -298,7 +298,7 @@ report 411 "Vendor - Payment Receipt"
                 Vend.Get("Vendor No.");
                 FormatAddr.Vendor(VendAddr, Vend);
                 if not Currency.Get("Currency Code") then
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
 
                 if "Document Type" = "Document Type"::Payment then begin
                     ReportTitle := Text004;

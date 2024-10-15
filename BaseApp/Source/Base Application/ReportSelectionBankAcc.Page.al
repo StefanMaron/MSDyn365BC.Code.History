@@ -70,6 +70,7 @@ page 385 "Report Selection - Bank Acc."
 
     trigger OnOpenPage()
     begin
+        InitUsageFilter();
         SetUsageFilter(false);
     end;
 
@@ -89,15 +90,42 @@ page 385 "Report Selection - Bank Acc."
             "Report Selection Usage Bank"::Check:
                 Rec.SetRange(Usage, "Report Selection Usage"::"B.Check");
             "Report Selection Usage Bank"::"Posted Payment Reconciliation":
-                SetRange(Usage, Usage::"Posted Payment Reconciliation");
+                Rec.SetRange(Usage, "Report Selection Usage"::"Posted Payment Reconciliation");
         end;
         OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
         Rec.FilterGroup(0);
         CurrPage.Update();
     end;
 
+    local procedure InitUsageFilter()
+    var
+        NewReportUsage: Enum "Report Selection Usage";
+    begin
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(NewReportUsage, Rec.GetFilter(Usage)) then
+                case NewReportUsage of
+                    "Report Selection Usage"::"B.Stmt":
+                        ReportUsage2 := "Report Selection Usage Bank"::Statement;
+                    "Report Selection Usage"::"B.Recon.Test":
+                        ReportUsage2 := "Report Selection Usage Bank"::"Reconciliation - Test";
+                    "Report Selection Usage"::"B.Check":
+                        ReportUsage2 := "Report Selection Usage Bank"::Check;
+                    "Report Selection Usage"::"Posted Payment Reconciliation":
+                        ReportUsage2 := "Report Selection Usage Bank"::"Posted Payment Reconciliation";
+                    else
+                        OnInitUsageFilterOnElseCase(NewReportUsage, ReportUsage2);
+                end;
+            Rec.SetRange(Usage);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Bank")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Bank")
     begin
     end;
 }

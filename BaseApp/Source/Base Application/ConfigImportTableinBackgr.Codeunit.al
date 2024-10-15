@@ -19,9 +19,9 @@ codeunit 8626 "Config. Import Table in Backgr"
         if not MemoryMappedFile.OpenMemoryMappedFile(Format(ID)) then
             exit;
         MemoryMappedFile.ReadTextWithSeparatorsFromMemoryMappedFile(nodetext);
-        MemoryMappedFile.Dispose;
+        MemoryMappedFile.Dispose();
 
-        PackageXML := PackageXML.XmlDocument;
+        PackageXML := PackageXML.XmlDocument();
         PackageXML.LoadXml(nodetext);
         if IsNull(PackageXML) then
             exit;

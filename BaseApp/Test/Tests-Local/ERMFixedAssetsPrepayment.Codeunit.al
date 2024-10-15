@@ -107,7 +107,7 @@ codeunit 145400 "ERM Fixed Assets Prepayment"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision", StrSubstNo(
-            AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption))
+            AmountError, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()))
     end;
 }
 
