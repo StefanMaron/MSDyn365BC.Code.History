@@ -29,7 +29,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GLAccountBlockError: Label '%1 must be equal to ''No''  in %2: %3=%4. Current value is ''Yes''.';
         NoSeriesError: Label 'Only the %1 field can be filled in on recurring journals.';
         FAPostingDateError: Label '%1 is not within your range of allowed posting dates in %2 %3=''%4'',%5=''%6'',%7=''%8''.';
-        FADisposalError: Label 'Disposal must not be negative on %1 for Fixed Asset No. = %2 in %3 = %4.';
+        FADisposalError: Label 'Disposal must not be positive on %1 for Fixed Asset No. = %2 in %3 = %4.';
         FAAcquisitionError: Label '%1 Acquisition Cost must be posted in the FA journal in %2 %3=''%4'',%5=''%6'',Line No.=''%7''.';
         ReversalError: Label 'Maintenance Ledger Entry was not reversed properly.';
         DepreciationMethodError: Label '%1 must not be %2 in %3 %4=''%5'',%6=''%7''.';
@@ -1562,7 +1562,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify the Disposal Amount in FA Ledger Entry.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.SetRange(Amount, -GenJournalLine.Amount);
+        FALedgerEntry.SetRange(Amount, GenJournalLine.Amount);
         FALedgerEntry.FindFirst;
     end;
 
@@ -1729,7 +1729,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 3.Verify: Verify Amount in FA Ledger Entry.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.SetRange(Amount, -GenJournalLine.Amount);
+        FALedgerEntry.SetRange(Amount, GenJournalLine.Amount);
         FALedgerEntry.FindFirst;
     end;
 
@@ -2539,6 +2539,76 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // [THEN] Result = ''
         Assert.AreEqual('', InsuranceNoSeries, 'Wrong Insurance No Series');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FAJournalLineAmountCanNotHaveMoreDecimalPlacesThanInRoundingPrescision()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalLine: Record "FA Journal Line";
+        FAJournalLineAmount: Decimal;
+    begin
+        // [SCENARIO] Amount is rounded in FA Journal Line during the validation
+        Initialize();
+
+        // [GIVEN] Created FA Journal Line
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+        CreateFAJournalLine(
+          FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+          FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [GIVEN] Generated Amount with 1 decimal place more than in Amount Rounding Precision
+        FAJournalLineAmount := LibraryERM.GetAmountRoundingPrecision() * 0.01 + LibraryRandom.RandIntInRange(3, 5);
+
+        // [WHEN] Validate Amount for FAJournalLine
+        FAJournalLine.Validate(Amount, FAJournalLineAmount);
+        FAJournalLine.Modify(true);
+
+        // [THEN] Generated amount is rounded
+        Assert.AreNotEqual(FAJournalLine.Amount, FAJournalLineAmount, '');
+        FAJournalLine.TestField(Amount, Round(FAJournalLineAmount, LibraryERM.GetAmountRoundingPrecision()));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FAJournalLineAmountCanNotHaveMoreDecimalPlacesThanInRoundingPrescisionForFAwithFCYVendor()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FAJournalLine: Record "FA Journal Line";
+        Vendor: Record Vendor;
+        FAJournalLineAmount: Decimal;
+    begin
+        // [SCENARIO] Amount is rounded in FA Journal Line during the validation
+        Initialize();
+
+        // [GIVEN] Created FA Journal Line For FA with Vendor with FCY
+        LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
+        CreateVendorWithCurrencyExchangeRate(Vendor);
+        FixedAsset.Validate("Vendor No.", Vendor."No.");
+        FixedAsset.Modify(true);
+        CreateJournalSetupDepreciation(DepreciationBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
+        CreateFAJournalLine(
+          FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
+          FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::"Acquisition Cost");
+
+        // [GIVEN] Generated Amount with 1 decimal place more than in Amount Rounding Precision
+        FAJournalLineAmount := LibraryERM.GetAmountRoundingPrecision() * 0.01 + LibraryRandom.RandIntInRange(3, 5);
+
+        // [WHEN] Validate Amount for FAJournalLine
+        FAJournalLine.Validate(Amount, FAJournalLineAmount);
+        FAJournalLine.Modify(true);
+
+        // [THEN] Generated amount is rounded
+        Assert.AreNotEqual(FAJournalLine.Amount, FAJournalLineAmount, '');
+        FAJournalLine.TestField(Amount, Round(FAJournalLineAmount, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     local procedure Initialize()
@@ -3533,7 +3603,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesLine."Document No.");
         SalesInvoiceHeader.FindFirst;
         FALedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-        FALedgerEntry.SetRange(Amount, SalesLine."Line Amount");
+        FALedgerEntry.SetRange(Amount, -SalesLine."Line Amount");
         FALedgerEntry.FindFirst;
     end;
 
@@ -3866,6 +3936,38 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAAllocation.Validate("Allocation %", AllocPerCent);
         FAAllocation.Validate("Account No.", FAAccount);
         FAAllocation.Modify(true);
+    end;
+
+    local procedure CreateVendorWithCurrencyExchangeRate(var Vendor: Record Vendor): Decimal
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
+        Vendor.Modify(true);
+        exit(CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount"); // Value required for calculating Currency factor.
+    end;
+
+    local procedure CreateCurrencyWithExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    var
+        Currency: Record Currency;
+    begin
+        LibraryERM.CreateCurrency(Currency);
+        Currency."Invoice Rounding Precision" := LibraryERM.GetAmountRoundingPrecision;
+        Currency.Modify();
+
+        CreateCurrencyExchangeRate(
+          CurrencyExchangeRate, Currency.Code, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        CreateCurrencyExchangeRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+    end;
+
+    local procedure CreateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
+    begin
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(100, 2));
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", LibraryRandom.RandDec(50, 2));
+        CurrencyExchangeRate.Modify(true);
     end;
 
     [ConfirmHandler]
