@@ -92,6 +92,7 @@ report 6655 "Batch Post Sales Return Orders"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Basic, Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the return order after posting. In the Report Output Type field on the Sales & Receivables page, you define if the report will be printed or output as a PDF.';
 
@@ -123,6 +124,7 @@ report 6655 "Batch Post Sales Return Orders"
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
             PrintDoc := false;
+            PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
         end;
     }
 
@@ -139,6 +141,8 @@ report 6655 "Batch Post Sales Return Orders"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 }
 

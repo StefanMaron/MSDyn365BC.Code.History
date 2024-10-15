@@ -738,8 +738,7 @@ table 5994 "Service Cr.Memo Header"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {

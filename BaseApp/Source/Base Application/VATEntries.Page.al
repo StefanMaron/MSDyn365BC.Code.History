@@ -161,6 +161,12 @@ page 315 "VAT Entries"
                     ToolTip = 'Specifies the VAT registration number of the customer or vendor that the entry is linked to.';
                     Visible = false;
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field("Service Tariff No."; "Service Tariff No.")
                 {
                     ApplicationArea = Basic, Suite;

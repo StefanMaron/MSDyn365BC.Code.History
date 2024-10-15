@@ -576,7 +576,7 @@ table 111 "Sales Shipment Line"
         PostedPaymentLines.SetRange(PostedPaymentLines.Code, "No.");
         PostedPaymentLines.DeleteAll;
 
-        ServItem.Reset;
+        ServItem.Reset();
         ServItem.SetCurrentKey("Sales/Serv. Shpt. Document No.", "Sales/Serv. Shpt. Line No.");
         ServItem.SetRange("Sales/Serv. Shpt. Document No.", "Document No.");
         ServItem.SetRange("Sales/Serv. Shpt. Line No.", "Line No.");
@@ -592,7 +592,7 @@ table 111 "Sales Shipment Line"
         SalesDocLineComments.SetRange("No.", "Document No.");
         SalesDocLineComments.SetRange("Document Line No.", "Line No.");
         if not SalesDocLineComments.IsEmpty then
-            SalesDocLineComments.DeleteAll;
+            SalesDocLineComments.DeleteAll();
 
         PostedATOLink.DeleteAsmFromSalesShptLine(Rec);
     end;
@@ -659,7 +659,7 @@ table 111 "Sales Shipment Line"
             SalesInvHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
 
         if SalesLine."Shipment No." <> "Document No." then begin
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine."Line No." := NextLineNo;
             SalesLine."Document Type" := TempSalesLine."Document Type";
             SalesLine."Document No." := TempSalesLine."Document No.";
@@ -669,7 +669,7 @@ table 111 "Sales Shipment Line"
             IsHandled := false;
             OnBeforeInsertInvLineFromShptLineBeforeInsertTextLine(Rec, SalesLine, NextLineNo, IsHandled);
             if not IsHandled then begin
-                SalesLine.Insert;
+                SalesLine.Insert();
                 OnAfterDescriptionSalesLineInsert(SalesLine, Rec, NextLineNo);
                 NextLineNo := NextLineNo + 10000;
             end;
@@ -703,9 +703,9 @@ table 111 "Sales Shipment Line"
                             Currency."Unit-Amount Rounding Precision");
                 end;
             end else begin
-                SalesOrderHeader.Init;
+                SalesOrderHeader.Init();
                 if ExtTextLine or (Type = Type::" ") then begin
-                    SalesOrderLine.Init;
+                    SalesOrderLine.Init();
                     SalesOrderLine."Line No." := "Order Line No.";
                     SalesOrderLine.Description := Description;
                     SalesOrderLine."Description 2" := "Description 2";
@@ -778,7 +778,7 @@ table 111 "Sales Shipment Line"
             SalesLine."Dimension Set ID" := "Dimension Set ID";
             SalesLine."Include in VAT Transac. Rep." := "Include in VAT Transac. Rep.";
             OnBeforeInsertInvLineFromShptLine(Rec, SalesLine, SalesOrderLine);
-            SalesLine.Insert;
+            SalesLine.Insert();
             OnAfterInsertInvLineFromShptLine(SalesLine, SalesOrderLine, NextLineNo, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(SalesOrderLine, SalesLine);
@@ -790,18 +790,18 @@ table 111 "Sales Shipment Line"
 
         if SalesOrderHeader.Get(SalesOrderHeader."Document Type"::Order, "Order No.") then begin
             SalesOrderHeader."Get Shipment Used" := true;
-            SalesOrderHeader.Modify;
+            SalesOrderHeader.Modify();
         end;
     end;
 
-    local procedure GetSalesInvLines(var TempSalesInvLine: Record "Sales Invoice Line" temporary)
+    procedure GetSalesInvLines(var TempSalesInvLine: Record "Sales Invoice Line" temporary)
     var
         SalesInvLine: Record "Sales Invoice Line";
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempSalesInvLine.Reset;
-        TempSalesInvLine.DeleteAll;
+        TempSalesInvLine.Reset();
+        TempSalesInvLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -818,9 +818,9 @@ table 111 "Sales Shipment Line"
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Sales Invoice" then
                             if SalesInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempSalesInvLine.Init;
+                                TempSalesInvLine.Init();
                                 TempSalesInvLine := SalesInvLine;
-                                if TempSalesInvLine.Insert then;
+                                if TempSalesInvLine.Insert() then;
                             end;
                     until ValueEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
@@ -869,7 +869,7 @@ table 111 "Sales Shipment Line"
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Document No.");
         ItemLedgEntry.SetRange("Document No.", "Document No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Sales Shipment");
@@ -928,7 +928,7 @@ table 111 "Sales Shipment Line"
     begin
         Init;
         TransferFields(SalesLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := SalesShptHeader."Posting Date";
         "Document No." := SalesShptHeader."No.";
@@ -1023,6 +1023,11 @@ table 111 "Sales Shipment Line"
             FieldNo("No."):
                 exit(StrSubstNo('3,%1', GetFieldCaption(FieldNumber)));
         end;
+    end;
+
+    procedure HasTypeToFillMandatoryFields(): Boolean
+    begin
+        exit(Type <> Type::" ");
     end;
 
     [IntegrationEvent(false, false)]

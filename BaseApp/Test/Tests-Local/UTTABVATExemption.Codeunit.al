@@ -21,6 +21,9 @@ codeunit 144070 "UT TAB VAT Exemption"
         VATExemptNumeringErr: Label 'The VAT Exemption Intl. Register No. must be different';
         VATExemptNumeringNoSeriesErr: Label 'The VAT Exemption Intl. Register No. must be set from No. Series Lines setup';
         LibraryERM: Codeunit "Library - ERM";
+        TestFieldErr: Label 'TestField';
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('CheckVATExemptionConfirmHandler')]
@@ -301,7 +304,9 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // Purpose of the test is to validate VAT Exempt. Starting Date - OnValidate Trigger of Table ID - 12186 VAT Exemption.
         // Setup.
+        Initialize;
         CreateVATExemption(VATExemption);
+        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
 
         // Exercise: Validate VAT Exemption -  VAT Exemption Starting Date with Date after Workdate.
         asserterror
@@ -322,8 +327,10 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Purpose of the test is to validate VAT Exempt. Starting Date - OnValidate Trigger of Table ID - 12186 VAT Exemption.
 
         // Setup: Create VAT Exemption, assign VAT Exemption - Number to second VAT Exemption.
+        Initialize;
         CreateVATExemption(VATExemption);
         VATExemption2."No." := VATExemption."No.";
+        UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
 
         // Exercise: Validate VAT Exemption - VAT Exemption Starting Date with created VAT Exemption - VAT Exemption Ending Date.
         asserterror VATExemption2.Validate("VAT Exempt. Starting Date", VATExemption."VAT Exempt. Ending Date");
@@ -522,6 +529,71 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Verify that the "VAT Exemption Intl. Register No." values are different
         Assert.AreNotEqual(
           VATExemption[1]."VAT Exempt. Int. Registry No.", VATExemption[2]."VAT Exempt. Int. Registry No.", VATExemptNumeringErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OnValidateVATExemptStartDateForVendor()
+    var
+        VATExemption: Record "VAT Exemption";
+    begin
+        // [SCENARIO 337552] Create "VAT Exempt." without Pre-setup in Purchases & Payables Setup
+        // [GIVEN] Removed data from PurchasesPayablesSetup."VAT Exemption Nos."
+        Initialize;
+
+        UpdatePurchasesPayablesSetupVATExemptionNos('');
+
+        // [WHEN] Create new line "VAT Exempt." for type Vendor in VAT Exempt.
+        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.Validate(Type, VATExemption.Type::Vendor);
+        asserterror VATExemption.Insert(true);
+
+        // [THEN] The error was shown.
+        Assert.ExpectedErrorCode(TestFieldErr);
+        VATExemption.SetRange("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.SetRange(Type, VATExemption.Type::Vendor);
+        Assert.RecordIsEmpty(VATExemption);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OnValidateVATExemptStartDateForCustomer()
+    var
+        VATExemption: Record "VAT Exemption";
+        VATExemptionNo: Code[20];
+    begin
+        // [SCENARIO 337552] Create "VAT Exempt." without Pre-setup in Sales & Receivables Setup
+        // [GIVEN] Removed data from SalesReceivablesSetup."VAT Exemption Nos."
+        Initialize;
+
+        UpdateSalesReceivablesSetupVATExemptionNos('');
+
+        // [GIVEN] VATExemption No "N"
+        VATExemptionNo := CopyStr(LibraryRandom.RandText(MaxStrLen(VATExemptionNo)), 1, MaxStrLen(VATExemptionNo));
+
+        // [WHEN] Create new line "VAT Exempt." for type Customer in VAT Exempt.
+        VATExemption.Validate("VAT Exempt. Starting Date", WorkDate);
+        VATExemption.Validate(Type, VATExemption.Type::Customer);
+        VATExemption.Validate("VAT Exempt. Ending Date", WorkDate);
+        VATExemption.Validate("VAT Exempt. No.", VATExemptionNo);
+        VATExemption.Insert(true);
+
+        // [THEN] The line with VATExemption No. "N" was created
+        VATExemption.SetRange("VAT Exempt. No.", VATExemptionNo);
+        VATExemption.SetRange(Type, VATExemption.Type::Customer);
+        Assert.RecordIsNotEmpty(VATExemption);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore;
+
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.SavePurchasesSetup;
+        LibrarySetupStorage.SaveSalesSetup;
+        IsInitialized := true;
     end;
 
     local procedure CreateCustomer(CheckVATExemption: Boolean): Code[20]

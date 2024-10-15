@@ -575,8 +575,12 @@ table 5965 "Service Contract Header"
                         "Next Invoice Period End" := 0D;
                     end;
                 end else begin
-                    if "Next Invoice Date" <> CalcDate('<CM>', "Next Invoice Date") then
-                        Error(Text028, FieldCaption("Next Invoice Date"));
+                    if "Next Invoice Date" <> CalcDate('<CM>', "Next Invoice Date") then begin
+                        IsHandled := false;
+                        OnValidateNextInvoiceDateOnBeforeCheck(Rec, IsHandled);
+                        if not IsHandled then
+                            Error(Text028, FieldCaption("Next Invoice Date"));
+                    end;
                     TempDate := CalculateEndPeriodDate(false, "Next Invoice Date");
                     if TempDate < "Starting Date" then
                         TempDate := "Starting Date";
@@ -1475,8 +1479,7 @@ table 5965 "Service Contract Header"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
     }
 

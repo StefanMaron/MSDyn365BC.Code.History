@@ -270,8 +270,7 @@ table 304 "Issued Fin. Charge Memo Header"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
     }
 

@@ -156,9 +156,9 @@ table 12186 "VAT Exemption"
                 Type::Vendor:
                     begin
                         PurchSetup.Get;
-                        if PurchSetup."VAT Exemption Nos." <> '' then
-                            NoSeriesMgt.InitSeries(
-                              PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");
+                        PurchSetup.TestField("VAT Exemption Nos.");
+                        NoSeriesMgt.InitSeries(
+                          PurchSetup."VAT Exemption Nos.", xRec."No. Series", 0D, "VAT Exempt. Int. Registry No.", "No. Series");
                     end;
             end;
     end;

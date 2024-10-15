@@ -90,6 +90,9 @@ page 475 "VAT Statement Preview Line"
                                     VATEntry.SetRange("VAT Period");
                                     VATEntry.SetRange("Use Tax", "Use Tax");
                                     VATEntry.SetRange("Operation Occurred Date");
+                                    GeneralLedgerSetup.GetRecordOnce();
+                                    if GeneralLedgerSetup."Use Activity Code" then
+                                        VATEntry.SetFilter("Activity Code", GetFilter("Activity Code Filter"));
                                     if Selection = Selection::Closed then
                                         if VATPeriod <> '' then
                                             VATEntry.SetRange("VAT Period", VATPeriod);
@@ -138,6 +141,7 @@ page 475 "VAT Statement Preview Line"
         Text000: Label 'Drilldown is not possible when %1 is %2.';
         GLEntry: Record "G/L Entry";
         VATEntry: Record "VAT Entry";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         VATStatement: Report "VAT Statement";
         ColumnValue: Decimal;
         Selection: Option Open,Closed,"Open and Closed";
@@ -150,6 +154,9 @@ page 475 "VAT Statement Preview Line"
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
         SetRange("Statement Name", VATStmtName.Name);
         VATStmtName.CopyFilter("Date Filter", "Date Filter");
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Use Activity Code" then
+            VATStmtName.CopyFilter("Activity Code Filter", "Activity Code Filter");
         Selection := NewSelection;
         PeriodSelection := NewPeriodSelection;
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
@@ -158,7 +165,7 @@ page 475 "VAT Statement Preview Line"
         CurrPage.Update;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
     begin
     end;

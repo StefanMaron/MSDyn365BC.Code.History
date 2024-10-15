@@ -1,4 +1,4 @@
-﻿page 283 "Recurring General Journal"
+page 283 "Recurring General Journal"
 {
     ApplicationArea = Suite, FixedAssets;
     AutoSplitKey = true;
@@ -202,6 +202,12 @@
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the difference between the calculated VAT amount and a VAT amount that you have entered manually.';
+                    Visible = false;
+                }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
                     Visible = false;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")

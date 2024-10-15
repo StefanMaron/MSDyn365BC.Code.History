@@ -466,8 +466,7 @@ table 254 "VAT Entry"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12124; "Reverse Sales VAT"; Boolean)
         {

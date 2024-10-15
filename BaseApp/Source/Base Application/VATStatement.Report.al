@@ -287,6 +287,8 @@ report 12 "VAT Statement"
                         VATEntry.SetRange("Use Tax", VATStmtLine2."Use Tax");
                     end;
                     VATEntry.SetRange(Type, VATStmtLine2."Gen. Posting Type");
+                    if GLSetup."Use Activity Code" then
+                        VATEntry.SetFilter("Activity Code", "VAT Statement Line".GetFilter("Activity Code Filter"));
                     if (EndDateReq = 0D) and (StartDate = 0D) then
                         VATEntry.SetRange("Operation Occurred Date")
                     else

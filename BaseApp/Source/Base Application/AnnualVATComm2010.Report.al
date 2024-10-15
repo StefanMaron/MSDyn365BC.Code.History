@@ -67,6 +67,9 @@ report 12126 "Annual VAT Comm. - 2010"
                 column(CompanyInfo__VAT_Registration_No__; CompanyInfo."VAT Registration No.")
                 {
                 }
+                column(ActivityCode_Code; ActivityCode2.Code)
+                {
+                }
                 column(SeparateLedgerTxt; SeparateLedgerTxt)
                 {
                 }
@@ -371,6 +374,13 @@ report 12126 "Annual VAT Comm. - 2010"
                             if ACTION::LookupOK = PAGE.RunModal(0, "VAT Statement Name", "VAT Statement Name".Name) then;
                         end;
                     }
+                    field(ActivityCode; ActivityCode2.Code)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Activity Code';
+                        TableRelation = "Activity Code".Code;
+                        ToolTip = 'Specifies a code that describes a primary activity for the company.';
+                    }
                     field(SeparateLedger; SeparateLedger)
                     {
                         ApplicationArea = Basic, Suite;
@@ -437,6 +447,7 @@ report 12126 "Annual VAT Comm. - 2010"
     trigger OnInitReport()
     begin
         CompanyInfo.Get;
+        GeneralLedgerSetup.GetRecordOnce();
     end;
 
     trigger OnPreReport()
@@ -450,6 +461,8 @@ report 12126 "Annual VAT Comm. - 2010"
             Clear(AppointmentCode);
 
         "VAT Statement Name".SetRange("Statement Template Name", "VAT Statement Name"."Statement Template Name");
+        if GeneralLedgerSetup."Use Activity Code" then
+            "VAT Statement Line".SetFilter("Activity Code Filter", '%1', ActivityCode2.Code);
         "VAT Statement Line".SetRange("Date Filter", StartDate, EndDate);
 
         Selection := Selection::"Open and Closed";
@@ -463,6 +476,8 @@ report 12126 "Annual VAT Comm. - 2010"
     var
         Vendor: Record Vendor;
         AppointmentCode: Record "Appointment Code";
+        ActivityCode2: Record "Activity Code";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
         VATStatement: Report "VAT Statement";
         SeparateLedger: Boolean;
@@ -555,8 +570,15 @@ report 12126 "Annual VAT Comm. - 2010"
     [Scope('OnPrem')]
     procedure InitializeRequest(NewStatementTemplateName: Code[20]; NewStatementName: Code[20]; NewAppointmentCode: Code[2]; NewStartDate: Date; NewEndDate: Date)
     begin
+        InitializeRequestWithActivityCode(NewStatementTemplateName, NewStatementName, '', NewAppointmentCode, NewStartDate, NewEndDate);
+    end;
+
+    [Scope('OnPrem')]
+    procedure InitializeRequestWithActivityCode(NewStatementTemplateName: Code[20]; NewStatementName: Code[20]; NewActivityCode: Code[6]; NewAppointmentCode: Code[2]; NewStartDate: Date; NewEndDate: Date)
+    begin
         "VAT Statement Name"."Statement Template Name" := NewStatementTemplateName;
         "VAT Statement Name".Name := NewStatementName;
+        ActivityCode2.Code := NewActivityCode;
         AppointmentCode.Code := NewAppointmentCode;
         StartDate := NewStartDate;
         EndDate := NewEndDate;

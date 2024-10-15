@@ -1,4 +1,4 @@
-codeunit 414 "Release Sales Document"
+﻿codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
 
@@ -25,6 +25,7 @@ codeunit 414 "Release Sales Document"
     local procedure "Code"() LinesWereModified: Boolean
     var
         SalesLine: Record "Sales Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -105,6 +106,9 @@ codeunit 414 "Release Sales Document"
 
             ReleaseATOs(SalesHeader);
             OnAfterReleaseATOs(SalesHeader, SalesLine, PreviewMode);
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Use Activity Code" then
+                TestField("Activity Code");
 
             Modify(true);
 
@@ -237,8 +241,9 @@ codeunit 414 "Release Sales Document"
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
     begin
         SalesLine.SetSalesHeader(SalesHeader);
-        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0);
-        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1);
+        // 0 = General, 1 = Invoicing, 2 = Shipping
+        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0, false);
+        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1, false);
         LinesWereModified :=
           SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, TempVATAmountLine0) or
           SalesLine.UpdateVATOnLines(1, SalesHeader, SalesLine, TempVATAmountLine1);

@@ -984,6 +984,134 @@ codeunit 134462 "ERM Copy Item"
         PurchaseLine.TestField(Description, Description);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringSalesLinesUseSetStandardItemDescription()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+        // [FEATURE] [Recurring Sales Lines]
+        // [SCENARIO 337249] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Set Standard Item Description
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Description' = "D2"
+        CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
+        StandardSalesLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(StandardSalesLine.Description)));
+        StandardSalesLine.Modify(true);
+
+        // [WHEN] Run ApplyStdCodesToSalesLines with Sales Order for "C1"
+        Customer.Get(StandardCustomerSalesCode."Customer No.");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        StandardCustomerSalesCode.ApplyStdCodesToSalesLines(SalesHeader, StandardCustomerSalesCode);
+
+        // [THEN] Created Sales Line has Description = "D2"
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        SalesLine.TestField(Description, StandardSalesLine.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringPurchaseLinesUseSetStandardItemDescription()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Recurring Purchase Lines]
+        // [SCENARIO 337249] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses SetStandard Item Description
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Description' = "D2"
+        CreateStandardPurchaseLinesWithItemForVendor(StandardPurchaseLine, StandardVendorPurchaseCode);
+        StandardPurchaseLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(MaxStrLen(StandardPurchaseLine.Description)));
+        StandardPurchaseLine.Modify(true);
+
+        // [WHEN] Run ApplyStdCodesToPurchaseLines with Purchase Order for "V1"
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        StandardVendorPurchaseCode.ApplyStdCodesToPurchaseLines(PurchaseHeader, StandardVendorPurchaseCode);
+
+        // [THEN] Created Purchase Line has Description = "D2"
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        PurchaseLine.TestField(Description, StandardPurchaseLine.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringSalesLinesUseDefaultItemDescription()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        StandardSalesLine: Record "Standard Sales Line";
+    begin
+        // [FEATURE] [Recurring Sales Lines]
+        // [SCENARIO 337249] ApplyStdCodesToSalesLines function in table 'Standard Customer Sales Code' uses Default Item Description when Standard Description = ''
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Customer "C1" with Standard Sales Line defned for "I1" and 'Description' = ''
+        CreateStandardSalesLinesWithItemForCustomer(StandardSalesLine, StandardCustomerSalesCode);
+
+        // [WHEN] Run ApplyStdCodesToSalesLines with Sales Order for "C1"
+        Customer.Get(StandardCustomerSalesCode."Customer No.");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        StandardCustomerSalesCode.ApplyStdCodesToSalesLines(SalesHeader, StandardCustomerSalesCode);
+
+        // [THEN] Created Sales Line has Description = "D1"
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst;
+        Item.Get(SalesLine."No.");
+        SalesLine.TestField(Description, Item.Description);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringPurchaseLinesUseDefaultItemDescription()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        StandardPurchaseLine: Record "Standard Purchase Line";
+        StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code";
+        Vendor: Record Vendor;
+    begin
+        // [FEATURE] [Recurring Purchase Lines]
+        // [SCENARIO 337249] ApplyStdCodesToPurchaseLines function in table 'Standard Vendor Purchase Code' uses Default Item Description when Standard Description = ''
+        Initialize;
+
+        // [GIVEN] Item "I1" with Description = "D1"
+        // [GIVEN] Vendor "V1" with Standard Purchase Line defned for "I1" and 'Description' = ''
+        CreateStandardPurchaseLinesWithItemForVendor(StandardPurchaseLine, StandardVendorPurchaseCode);
+
+        // [WHEN] Run ApplyStdCodesToPurchaseLines with Purchase Order for "V1"
+        Vendor.Get(StandardVendorPurchaseCode."Vendor No.");
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        StandardVendorPurchaseCode.ApplyStdCodesToPurchaseLines(PurchaseHeader, StandardVendorPurchaseCode);
+
+        // [THEN] Created Purchase Line has Description = "D1"
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst;
+        Item.Get(PurchaseLine."No.");
+        PurchaseLine.TestField(Description, Item.Description);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -628,6 +628,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     local procedure PostAllocations(var AllocateGenJnlLine: Record "Gen. Journal Line"; Reversing: Boolean)
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -665,6 +666,9 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                         GenJnlLine2."Dimension Set ID" := GenJnlAlloc."Dimension Set ID";
                         GenJnlLine2."Deductible %" := GenJnlAlloc."Deductible %";
                         GenJnlLine2."Operation Occurred Date" := "Operation Occurred Date";
+                        GeneralLedgerSetup.GetRecordOnce();
+                        if GeneralLedgerSetup."Use Activity Code" then
+                            GenJnlLine2."Activity Code" := "Activity Code";
                         GenJnlLine2."Allow Zero-Amount Posting" := true;
                         OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(GenJnlLine2, AllocateGenJnlLine);
                         PrepareGenJnlLineAddCurr(GenJnlLine2);
@@ -889,6 +893,8 @@ codeunit 13 "Gen. Jnl.-Post Batch"
         GenJnlLineTo."Ship-to/Order Address Code" := GenJnlLineFrom."Ship-to/Order Address Code";
         GenJnlLineTo."VAT Registration No." := GenJnlLineFrom."VAT Registration No.";
         GenJnlLineTo."Country/Region Code" := GenJnlLineFrom."Country/Region Code";
+
+        OnAfterCopyGenJnlLineBalancingData(GenJnlLineTo, GenJnlLineFrom);
     end;
 
     local procedure CheckGenPostingType(GenJnlLine6: Record "Gen. Journal Line"; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner")
@@ -1328,6 +1334,11 @@ codeunit 13 "Gen. Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCode(var GenJournalLine: Record "Gen. Journal Line"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyGenJnlLineBalancingData(var GenJnlLineTo: Record "Gen. Journal Line"; GenJnlLineFrom: Record "Gen. Journal Line")
     begin
     end;
 

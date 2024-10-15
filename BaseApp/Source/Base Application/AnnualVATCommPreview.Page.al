@@ -23,6 +23,20 @@ page 12127 "Annual VAT Comm. Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name.';
                 }
+                field("Activity Code"; ActivityCode)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Activity Code';
+                    TableRelation = "Activity Code".Code;
+                    ToolTip = 'Specifies a code that describes a primary activity for the company.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        SetFilter("Activity Code Filter", ActivityCode);
+                        CurrPage.Update();
+                    end;
+                }
                 field("Date Filter"; DateFilter)
                 {
                     ApplicationArea = Basic, Suite;
@@ -35,7 +49,7 @@ page 12127 "Annual VAT Comm. Preview"
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
                         SetFilter("Date Filter", DateFilter);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
             }
@@ -95,6 +109,7 @@ page 12127 "Annual VAT Comm. Preview"
     var
         Selection: Option Open,Closed,"Open and Closed";
         PeriodSelection: Option "Before and Within Period","Within Period";
+        ActivityCode: Code[6];
         DateFilter: Text;
 
     [Obsolete('Function scope will be changed to OnPrem')]

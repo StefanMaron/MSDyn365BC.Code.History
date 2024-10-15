@@ -262,6 +262,8 @@ table 36 "Sales Header"
             var
                 Customer: Record Customer;
             begin
+                OnBeforeValidateBillToCustomerName(Rec, Customer);
+
                 if ShouldLookForCustomerByName("Bill-to Customer No.") then
                     Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
@@ -862,7 +864,13 @@ table 36 "Sales Header"
                 GenJnlLine: Record "Gen. Journal Line";
                 GenJnlApply: Codeunit "Gen. Jnl.-Apply";
                 ApplyCustEntries: Page "Apply Customer Entries";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupAppliesToDocNo(Rec, CustLedgEntry, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Bal. Account No.", '');
                 CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.", Amount);
                 OnAfterSetApplyToFilters(CustLedgEntry, Rec);
@@ -885,6 +893,8 @@ table 36 "Sales Header"
 
             trigger OnValidate()
             begin
+                OnBeforeValidateAppliesToDocNo(Rec, CustLedgEntry);
+
                 if "Applies-to Doc. No." <> '' then
                     TestField("Bal. Account No.", '');
 
@@ -1138,8 +1148,11 @@ table 36 "Sales Header"
                 Customer: Record Customer;
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
             begin
+                OnBeforeValidateSellToCustomerName(Rec, Customer);
+
                 if not EnvInfoProxy.IsInvoicing and ShouldLookForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
+
                 GetShippingTime(FieldNo("Sell-to Customer Name"));
             end;
         }
@@ -1222,11 +1235,15 @@ table 36 "Sales Header"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupBillToPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode("Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateBillToPostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(
                   "Bill-to City", "Bill-to Post Code", "Bill-to County", "Bill-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 ModifyBillToCustomerAddress;
@@ -1264,11 +1281,15 @@ table 36 "Sales Header"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupSellToPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode("Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateSellToPostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(
                   "Sell-to City", "Sell-to Post Code", "Sell-to County", "Sell-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
                 UpdateShipToAddressFromSellToAddress(FieldNo("Ship-to Post Code"));
@@ -1310,11 +1331,15 @@ table 36 "Sales Header"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupShipToPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode("Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateShipToPostCode(Rec, PostCode);
+
                 PostCode.ValidatePostCode(
                   "Ship-to City", "Ship-to Post Code", "Ship-to County", "Ship-to Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
@@ -1504,7 +1529,14 @@ table 36 "Sales Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupShippingNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 with SalesHeader do begin
                     SalesHeader := Rec;
                     GetSalesSetup;
@@ -2515,7 +2547,14 @@ table 36 "Sales Header"
             TableRelation = "No. Series";
 
             trigger OnLookup()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeLookupReturnReceiptNoSeries(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 with SalesHeader do begin
                     SalesHeader := Rec;
                     GetSalesSetup;
@@ -2632,8 +2671,7 @@ table 36 "Sales Header"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {
@@ -2889,6 +2927,9 @@ table 36 "Sales Header"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", "Sell-to Customer Name", Amount, "Sell-to Contact", "Amount Including VAT")
+        {
+        }
         fieldgroup(Brick; "No.", "Sell-to Customer Name", Amount, "Sell-to Contact", "Amount Including VAT")
         {
         }
@@ -3052,7 +3093,7 @@ table 36 "Sales Header"
         Text035: Label 'You cannot Release Quote or Make Order unless you specify a customer on the quote.\\Do you want to create customer(s) now?';
         Text037: Label 'Contact %1 %2 is not related to customer %3.';
         Text038: Label 'Contact %1 %2 is related to a different company than customer %3.';
-        Text039: Label 'Contact %1 %2 is not related to a customer.';
+        ContactIsNotRelatedToAnyCostomerErr: Label 'Contact %1 %2 is not related to a customer.';
         Text040: Label 'A won opportunity is linked to this order.\It has to be changed to status Lost before the Order can be deleted.\Do you want to change the status for this opportunity now?';
         Text044: Label 'The status of the opportunity has not been changed. The program has aborted deleting the order.';
         SkipSellToContact: Boolean;
@@ -3149,7 +3190,7 @@ table 36 "Sales Header"
     begin
         GetSalesSetup;
         IsHandled := false;
-        OnBeforeInitRecord(Rec, IsHandled);
+        OnBeforeInitRecord(Rec, IsHandled, xRec);
         if not IsHandled then
             case "Document Type" of
                 "Document Type"::Quote, "Document Type"::Order:
@@ -3249,7 +3290,7 @@ table 36 "Sales Header"
             "Prepmt. Cr. Memo No." := xRec."Prepmt. Cr. Memo No.";
         end;
 
-        OnAfterInitNoSeries(Rec);
+        OnAfterInitNoSeries(Rec, xRec);
     end;
 
     [Scope('OnPrem')]
@@ -3979,7 +4020,14 @@ table 36 "Sales Header"
     end;
 
     local procedure CheckShipmentInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckShipmentInfo(Rec, xRec, SalesLine, BillTo, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Document Type" = "Document Type"::Order then
             SalesLine.SetFilter("Quantity Shipped", '<>0')
         else
@@ -4138,7 +4186,10 @@ table 36 "Sales Header"
         CustTemplate: Record "Customer Template";
         SearchContact: Record Contact;
         ContactBusinessRelationFound: Boolean;
+        IsHandled: Boolean;
     begin
+        OnBeforeUpdateSellToCust(Rec, Cont, Customer, ContactNo);
+
         if not Cont.Get(ContactNo) then begin
             "Sell-to Contact" := '';
             exit;
@@ -4182,8 +4233,14 @@ table 36 "Sales Header"
                   SearchContact.City, SearchContact."Post Code", SearchContact.County, SearchContact."Country/Region Code");
                 if ("Sell-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
                     Validate("Sell-to Customer Template Code", Cont.FindCustomerTemplate);
-            end else
-                Error(Text039, Cont."No.", Cont.Name);
+                OnUpdateSellToCustOnAfterSetFromSearchContact(Rec, SearchContact);
+            end else begin
+                IsHandled := false;
+                OnUpdateSellToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(Rec, Cont, ContBusinessRelation, IsHandled);
+                if not IsHandled then
+                    Error(ContactIsNotRelatedToAnyCostomerErr, Cont."No.", Cont.Name);
+            end;
+
             "Sell-to Contact" := Cont.Name;
         end;
 
@@ -4228,6 +4285,7 @@ table 36 "Sales Header"
         CustTemplate: Record "Customer Template";
         SearchContact: Record Contact;
         ContactBusinessRelationFound: Boolean;
+        IsHandled: Boolean;
     begin
         if not Cont.Get(ContactNo) then begin
             "Bill-to Contact" := '';
@@ -4281,8 +4339,12 @@ table 36 "Sales Header"
 
                 if ("Bill-to Customer Template Code" = '') and (not CustTemplate.IsEmpty) then
                     Validate("Bill-to Customer Template Code", Cont.FindCustomerTemplate);
-            end else
-                Error(Text039, Cont."No.", Cont.Name);
+            end else begin
+                IsHandled := false;
+                OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(Rec, Cont, ContBusinessRelation, IsHandled);
+                if not IsHandled then
+                    Error(ContactIsNotRelatedToAnyCostomerErr, Cont."No.", Cont.Name);
+            end;
         end;
 
         OnAfterUpdateBillToCust(SalesHeader, Cont);
@@ -4442,6 +4504,8 @@ table 36 "Sales Header"
                 if VATBusPostingGroup."Default Sales Operation Type" <> '' then
                     Validate("Operation Type", VATBusPostingGroup."Default Sales Operation Type");
             end;
+
+        OnAfterSetOperationType(Rec);
     end;
 
     procedure ShowDocDim()
@@ -5202,6 +5266,7 @@ table 36 "Sales Header"
             GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
             DefaultDimension.SetRange("Table ID", DATABASE::"G/L Account");
             DefaultDimension.SetRange("No.", GenPostingSetup.GetSalesPrepmtAccount);
+            OnCollectParamsInBufferForCreateDimSetOnBeforeInsertTempSalesLineInBuffer(GenPostingSetup, DefaultDimension);
             InsertTempSalesLineInBuffer(TempSalesLine, SalesLine, GenPostingSetup."Sales Prepayments Account", DefaultDimension.IsEmpty);
         end else
             if not TempSalesLine.Mark then begin
@@ -5559,7 +5624,7 @@ table 36 "Sales Header"
             end;
             SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;
-        OnBeforeSalesLineInsert(SalesLine, TempSalesLine);
+        OnBeforeSalesLineInsert(SalesLine, TempSalesLine, Rec);
         SalesLine.Insert;
         OnAfterCreateSalesLine(SalesLine, TempSalesLine);
     end;
@@ -6649,7 +6714,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitNoSeries(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterInitNoSeries(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -6844,6 +6909,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetOperationType(var SalesHeader: Record "Sales Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var SalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6860,6 +6930,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCreditLimitIfLineNotInsertedYet(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckShipmentInfo(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; BillTo: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6909,7 +6984,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInitRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeInitRecord(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -6919,7 +6994,52 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupAppliesToDocNo(var SalesHeader: Record "Sales Header"; CustLedgEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShipToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShippingNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupReturnReceiptNoSeries(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateCurrencyFactor(var SalesHeader: Record "Sales Header"; var Updated: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSellToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToPostCode(var SalesHeader: Record "Sales Header"; var PostCodeRec: Record "Post Code")
     begin
     end;
 
@@ -6944,7 +7064,7 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary)
+    local procedure OnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -6955,6 +7075,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSellToCust(var SalesHeader: Record "Sales Header"; var Contact: Record Contact; var Customer: Record Customer; ContactNo: Code[20])
     begin
     end;
 
@@ -7089,6 +7214,21 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateAppliesToDocNo(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToCustomerName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSellToCustomerName(var SalesHeader: Record "Sales Header"; var Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -7110,6 +7250,21 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLinesByFieldNoOnBeforeSalesLineModify(var SalesLine: Record "Sales Line"; ChangedFieldNo: Integer; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateBillToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnAfterSetFromSearchContact(var SalesHeader: Record "Sales Header"; SearchContact: Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSellToCustOnBeforeContactIsNotRelatedToAnyCostomerErr(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7144,6 +7299,11 @@ table 36 "Sales Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeCalculatePrepaymentDueDate(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidatePricesIncludingVATOnBeforeSalesLineModify(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Currency: Record Currency; RecalculatePrice: Boolean)
     begin
     end;
@@ -7155,6 +7315,11 @@ table 36 "Sales Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var SalesHeader: Record "Sales Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCollectParamsInBufferForCreateDimSetOnBeforeInsertTempSalesLineInBuffer(var GenPostingSetup: Record "General Posting Setup"; var DefaultDimension: Record "Default Dimension")
     begin
     end;
 }

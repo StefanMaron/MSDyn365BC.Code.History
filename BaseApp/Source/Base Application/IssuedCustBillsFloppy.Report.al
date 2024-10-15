@@ -345,10 +345,17 @@ report 12173 "Issued Cust Bills Floppy"
     end;
 
     [Scope('OnPrem')]
-    procedure RECORD50(Lines: Record "Issued Customer Bill Line")
+    procedure RECORD50(IssuedCustomerBillLine: Record "Issued Customer Bill Line")
+    var
+        IsHandled: Boolean;
     begin
-        with Lines do begin
+        with IssuedCustomerBillLine do begin
             OutText := ' 50' + ConvertStr(Format(BRProgr, 7), ' ', '0');
+            IsHandled := false;
+            OnRECORD50OnAfterAssignOutText(IssuedCustomerBillLine, OutText, IsHandled);
+            if IsHandled then
+                exit;
+
             if "Cumulative Bank Receipts" then
                 OutText := OutText + Format(Text002, 80)
             else
@@ -421,6 +428,11 @@ report 12173 "Issued Cust Bills Floppy"
     procedure InitializeRequest(SrvFileName: Text)
     begin
         ServerFileName := SrvFileName;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRECORD50OnAfterAssignOutText(IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var OutText: Text[120]; var IsHandled: Boolean)
+    begin
     end;
 }
 

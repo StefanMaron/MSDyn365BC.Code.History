@@ -197,11 +197,12 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
         if GenJnlLine."Applies-to Doc. No." <> '' then
             NewCustLedgEntry."Applies-to Doc. No." := GenJnlLine."Applies-to Doc. No.";
-        if not GenJnlPostPreview.IsActive then
+        if not GenJnlPostPreview.IsActive() then
             DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
         NewCustLedgEntry.Amount := GenJnlLine.Amount;
         NewCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
         NewCustLedgEntry."Document Type" := GenJnlLine."Document Type";
+        NewCustLedgEntry."Applies-to Occurrence No." := GenJnlLine."Applies-to Occurrence No.";
         exit(
           PmtTolCustLedgEntry(NewCustLedgEntry, GenJnlLine."Account No.", GenJnlLine."Posting Date",
             GenJnlLine."Document No.", GenJnlLineApplID, GenJnlLine."Applies-to Doc. No.",
@@ -230,6 +231,7 @@ codeunit 426 "Payment Tolerance Management"
         NewVendLedgEntry.Amount += GenJnlLine.Amount;
         NewVendLedgEntry."Remaining Amount" += GenJnlLine.Amount;
         NewVendLedgEntry."Document Type" := GenJnlLine."Document Type";
+        NewVendLedgEntry."Applies-to Occurrence No." := GenJnlLine."Applies-to Occurrence No.";
         exit(
           PmtTolVendLedgEntry(
             NewVendLedgEntry, GenJnlLine."Account No.", GenJnlLine."Posting Date",
@@ -574,6 +576,7 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedCustLedgEntry.SetRange("Customer No.", CustledgEntry."Customer No.");
                 AppliedCustLedgEntry.SetRange(Open, true);
                 AppliedCustLedgEntry.SetRange("Document No.", CustledgEntry."Applies-to Doc. No.");
+                AppliedCustLedgEntry.SetRange("Document Occurrence", CustledgEntry."Applies-to Occurrence No.");
                 if AppliedCustLedgEntry.Find('-') then begin
                     GetApplicationRoundingPrecisionForAppliesToDoc(
                       AppliedCustLedgEntry."Currency Code", ApplnRoundingPrecision, AmountRoundingPrecision, ApplnCurrencyCode);
@@ -764,6 +767,7 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry.SetRange("Vendor No.", VendledgEntry."Vendor No.");
                 AppliedVendLedgEntry.SetRange(Open, true);
                 AppliedVendLedgEntry.SetRange("Document No.", VendledgEntry."Applies-to Doc. No.");
+                AppliedVendLedgEntry.SetRange("Document Occurrence", VendledgEntry."Applies-to Occurrence No.");
                 if AppliedVendLedgEntry.Find('-') then begin
                     GetApplicationRoundingPrecisionForAppliesToDoc(
                       AppliedVendLedgEntry."Currency Code", ApplnRoundingPrecision, AmountRoundingPrecision, ApplnCurrencyCode);
@@ -787,11 +791,13 @@ codeunit 426 "Payment Tolerance Management"
             ((OldCustLedgEntry."Document Type" in [OldCustLedgEntry."Document Type"::Invoice,
                                                    OldCustLedgEntry."Document Type"::"Credit Memo"]) and
              (NewPostingdate > OldCustLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date"))) or
+             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldCustLedgEntry."Remaining Pmt. Disc. Possible" <> 0))) or
            ((NewDocType = NewDocType::Refund) and
             ((OldCustLedgEntry."Document Type" = OldCustLedgEntry."Document Type"::"Credit Memo") and
              (NewPostingdate > OldCustLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date")))
+             (NewPostingdate <= OldCustLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldCustLedgEntry."Remaining Pmt. Disc. Possible" <> 0)))
         then begin
             ToleranceAmount := (Abs(NewAmount) + ApplnRoundingPrecision) -
               Abs(OldCustLedgEntry."Remaining Amount" - OldCustLedgEntry."Remaining Pmt. Disc. Possible");
@@ -820,11 +826,13 @@ codeunit 426 "Payment Tolerance Management"
             ((OldVendLedgEntry."Document Type" in [OldVendLedgEntry."Document Type"::Invoice,
                                                    OldVendLedgEntry."Document Type"::"Credit Memo"]) and
              (NewPostingdate > OldVendLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date"))) or
+             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldVendLedgEntry."Remaining Pmt. Disc. Possible" <> 0))) or
            ((NewDocType = NewDocType::Refund) and
             ((OldVendLedgEntry."Document Type" = OldVendLedgEntry."Document Type"::"Credit Memo") and
              (NewPostingdate > OldVendLedgEntry."Pmt. Discount Date") and
-             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date")))
+             (NewPostingdate <= OldVendLedgEntry."Pmt. Disc. Tolerance Date") and
+             (OldVendLedgEntry."Remaining Pmt. Disc. Possible" <> 0)))
         then begin
             ToleranceAmount := (Abs(NewAmount) + ApplnRoundingPrecision) -
               Abs(OldVendLedgEntry."Remaining Amount" - OldVendLedgEntry."Remaining Pmt. Disc. Possible");
@@ -847,6 +855,7 @@ codeunit 426 "Payment Tolerance Management"
 
     local procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor): Boolean
     var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtDiscTolWarning: Page "Payment Disc Tolerance Warning";
         ActionType: Integer;
     begin
@@ -854,6 +863,10 @@ codeunit 426 "Payment Tolerance Management"
             RemainingAmountTest := false;
             exit(true);
         end;
+
+        if GenJnlPostPreview.IsActive() then
+            exit(true);
+
         if SuppressCommit then
             exit(true);
 
@@ -873,9 +886,13 @@ codeunit 426 "Payment Tolerance Management"
 
     local procedure CallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Option Customer,Vendor): Boolean
     var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtTolWarning: Page "Payment Tolerance Warning";
         ActionType: Integer;
     begin
+        if GenJnlPostPreview.IsActive() then
+            exit(true);
+
         if SuppressCommit then
             exit(true);
 

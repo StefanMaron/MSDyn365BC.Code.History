@@ -251,6 +251,7 @@ codeunit 12132 "Withholding Tax Export"
     local procedure CreateRecordD(var TempWithholdingTax: Record "Withholding Tax" temporary; EntryNumber: Integer)
     var
         VendorWithholdingTax: Record Vendor;
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CompanyTaxCode: Code[20];
         VendorTaxCode: Code[20];
     begin
@@ -307,6 +308,12 @@ codeunit 12132 "Withholding Tax Export"
         FlatFileManagement.WriteBlockValue(
           'DA001008', ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInformation."Phone No."));
         FlatFileManagement.WriteBlockValue('DA001009', ConstFormat::AN, CompanyInformation."E-Mail");
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Use Activity Code" then begin
+            TempErrorMessage.LogIfEmpty(
+              CompanyInformation, CompanyInformation.FieldNo("Activity Code"), TempErrorMessage."Message Type"::Error);
+            FlatFileManagement.WriteBlockValue('DA001010', ConstFormat::AN, CompanyInformation."Activity Code");
+        end;
         TempErrorMessage.LogIfEmpty(CompanyInformation, CompanyInformation.FieldNo("Office Code"), TempErrorMessage."Message Type"::Error);
         FlatFileManagement.WriteBlockValue('DA001011', ConstFormat::AN, CompanyInformation."Office Code");
 

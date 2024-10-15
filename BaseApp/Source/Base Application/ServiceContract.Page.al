@@ -1,4 +1,4 @@
-﻿page 6050 "Service Contract"
+page 6050 "Service Contract"
 {
     Caption = 'Service Contract';
     PageType = Document;
@@ -165,6 +165,12 @@
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies if a service contract or contract quote is locked or open for changes.';
+                }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
                 }
             }
             part(ServContractLines; "Service Contract Subform")

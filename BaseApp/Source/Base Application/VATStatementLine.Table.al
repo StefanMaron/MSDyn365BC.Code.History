@@ -162,6 +162,11 @@ table 256 "VAT Statement Line"
                     Print := true;
             end;
         }
+        field(12125; "Activity Code Filter"; Code[6])
+        {
+            FieldClass = FlowFilter;
+            TableRelation = "Activity Code".Code;
+        }
         field(12126; "Document Type"; Option)
         {
             Caption = 'Document Type';

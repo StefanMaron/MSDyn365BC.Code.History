@@ -167,6 +167,10 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CorrectedIntrastatReportNoMsg: Label 'Corrected Intrastat Report No. must have a value in Intrastat Jnl. Line';
         StatisticsPeriodErr: Label 'Statistics Period must have a value in Intrastat Jnl. Batch';
         LibraryJournals: Codeunit "Library - Journals";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
+        IsInitialized: Boolean;
+        ChangePmtToleranceQst: Label 'Do you want to change all open entries for every customer and vendor that are not blocked?';
 
     [Test]
     [Scope('OnPrem')]
@@ -1445,12 +1449,136 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Assert.RecordIsNotEmpty(DummyGLEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification,PmtToleranceWarningZeroBalanceModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesPmtToleranceToDocWithSameOccurence()
+    var
+        SalesLine: Record "Sales Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        DocNo: Code[20];
+        "Part": array[3] of Decimal;
+        MaxPmtTolerance: Decimal;
+        AmtWithTolerance: Decimal;
+    begin
+        // [FEATURE] [Sales] [Payment Tolerance]
+        // [SCENARIO 338278] Payment Tolerance applies to correct sales document with the same occurence
+
+        Initialize;
+
+        // [GIVEN] Payment Discount Tolerance Warning enabled, "Max Payment Tolerance is 0.1"
+        MaxPmtTolerance := 0.1;
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        LibraryVariableStorage.Enqueue(ChangePmtToleranceQst);
+        UpdatePmtTolerance(MaxPmtTolerance);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(
+          StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Customer with Payment Terms with three Payment Lines: "Payment %" = 10%, 60%, 30%
+        Part[1] := 0.1;
+        Part[2] := 0.6;
+        Part[3] := 0.3;
+
+        // [GIVEN] Three posted sales invoices with same "Document No." = "X" and amount equals 100, 600 and 300 accordingly
+        DocNo :=
+          CreateAndPostSalesInvoiceWithPaymentMethod(SalesLine, CreateCustomerWithPaymentTerms(CreatePaymentTermsWithThreeLines(Part)));
+
+        // [GIVEN] Create payment line applies to the third invoice with amount 300
+        CustLedgerEntry.SetRange("Document Occurrence", ArrayLen(Part));
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocNo);
+        CustLedgerEntry.CalcFields(Amount);
+
+        CreateGenJnlLineWithAppliesToOccurence(
+          GenJournalLine, GenJournalLine."Account Type"::Customer,
+          SalesLine."Bill-to Customer No.", DocNo, ArrayLen(Part), -CustLedgerEntry.Amount);
+        LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry.Amount);
+        AmtWithTolerance := GenJournalLine.Amount + MaxPmtTolerance;
+
+        // [WHEN] Change amount to 299,9
+        GenJournalLine.Validate(Amount, AmtWithTolerance);
+
+        // [THEN] Applying amount is 299,99, applied amount is -299,99, balance is 0.1
+        // Values takes from PmtToleranceWarningZeroBalanceModalPageHandler
+        Assert.AreEqual(AmtWithTolerance, LibraryVariableStorage.DequeueDecimal, 'Applying amount is not correct');
+        Assert.AreEqual(-AmtWithTolerance, LibraryVariableStorage.DequeueDecimal, 'Applied amount is not correct');
+        Assert.AreEqual(MaxPmtTolerance, LibraryVariableStorage.DequeueDecimal, 'Balance is not correct');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerWithVerification,PmtToleranceWarningZeroBalanceModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchPmtToleranceToDocWithSameOccurence()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DocNo: Code[20];
+        "Part": array[3] of Decimal;
+        MaxPmtTolerance: Decimal;
+        AmtWithTolerance: Decimal;
+    begin
+        // [FEATURE] [Purchase] [Payment Tolerance]
+        // [SCENARIO 338278] Payment Tolerance applies to correct purchase document with the same occurence
+
+        Initialize;
+
+        // [GIVEN] Payment Discount Tolerance Warning enabled, "Max Payment Tolerance is 0.1"
+        MaxPmtTolerance := 0.1;
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(true);
+        LibraryVariableStorage.Enqueue(ChangePmtToleranceQst);
+        UpdatePmtTolerance(MaxPmtTolerance);
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(
+          StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(3, 10)));
+
+        // [GIVEN] Vendor with Payment Terms with three Payment Lines: "Payment %" = 10%, 60%, 30%
+        Part[1] := 0.1;
+        Part[2] := 0.6;
+        Part[3] := 0.3;
+
+        // [GIVEN] Three posted purchase invoices with same "Document No." = "X" and amount equals 100, 600 and 300 accordingly
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(
+          PurchaseHeader, CreateVendorWithPaymentTerms(CreatePaymentTermsWithThreeLines(Part)));
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create payment line applies to the third invoice with amount 300
+        VendorLedgerEntry.SetRange("Document Occurrence", ArrayLen(Part));
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocNo);
+        VendorLedgerEntry.CalcFields(Amount);
+
+        CreateGenJnlLineWithAppliesToOccurence(
+          GenJournalLine, GenJournalLine."Account Type"::Vendor,
+          PurchaseHeader."Pay-to Vendor No.", DocNo, ArrayLen(Part), -VendorLedgerEntry.Amount);
+        LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, VendorLedgerEntry.Amount);
+        AmtWithTolerance := GenJournalLine.Amount - MaxPmtTolerance;
+
+        // [WHEN] Change amount to 299,9
+        GenJournalLine.Validate(Amount, AmtWithTolerance);
+
+        // [THEN] Applying amount is 299,99, applied amount is -299,99, balance is 0.1
+        // Values takes from PmtToleranceWarningZeroBalanceModalPageHandler
+        Assert.AreEqual(AmtWithTolerance, LibraryVariableStorage.DequeueDecimal, 'Applying amount is not correct');
+        Assert.AreEqual(-AmtWithTolerance, LibraryVariableStorage.DequeueDecimal, 'Applied amount is not correct');
+        Assert.AreEqual(MaxPmtTolerance, -LibraryVariableStorage.DequeueDecimal, 'Balance is not correct');
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
         LibraryVariableStorage.Clear;
         IntrastatJnlTemplate.DeleteAll;
+        LibrarySetupStorage.Restore;
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup;
+        Commit;
+        IsInitialized := true;
     end;
 
     local procedure TearDown()
@@ -1714,6 +1842,26 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Customer.Modify(true);
     end;
 
+    local procedure CreateCustomerWithPaymentTerms(PaymentTermsCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Payment Terms Code", PaymentTermsCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateVendorWithPaymentTerms(PaymentTermsCode: Code[10]): Code[20]
+    var
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
+    end;
+
     local procedure CreateChargeItemWithVATProdPostingGroup(VATProdPostingGroup: Code[20]): Code[20]
     var
         ItemCharge: Record "Item Charge";
@@ -1753,6 +1901,13 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         UpdateIncludeInVATTransacRepOnVATPostingSetup(VATPostingSetup, true, Vendor."VAT Bus. Posting Group");
 
         exit(Vendor."No.");
+    end;
+
+    local procedure CreateGenJnlLineWithAppliesToOccurence(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccNo: Code[20]; DocNo: Code[20]; OccurenceNo: Integer; Amount: Decimal)
+    begin
+        CreateGeneralJournalLine(GenJournalLine, AccountType, AccNo, DocNo, Amount);
+        GenJournalLine.Validate("Applies-to Occurrence No.", OccurenceNo);
+        GenJournalLine.Modify(true);
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
@@ -2082,6 +2237,22 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         ReprintInfoFiscalReports."First Page Number" := LibraryRandom.RandInt(100);
         ReprintInfoFiscalReports.Insert(true);
         exit(ReprintInfoFiscalReports."First Page Number");
+    end;
+
+    local procedure CreatePaymentTermsWithThreeLines("Part": array[3] of Decimal): Code[10]
+    var
+        PaymentTerms: Record "Payment Terms";
+        PaymentLines: Record "Payment Lines";
+        i: Integer;
+    begin
+        LibraryERM.CreatePaymentTermsIT(PaymentTerms);
+        for i := 1 to ArrayLen(Part) do begin
+            LibraryERM.CreatePaymentLines(
+              PaymentLines, PaymentLines."Sales/Purchase"::" ", PaymentLines.Type::"Payment Terms", PaymentTerms.Code, '', 0);
+            PaymentLines.Validate("Payment %", Part[i] * 100);
+            PaymentLines.Modify(true);
+        end;
+        exit(PaymentTerms.Code);
     end;
 
     local procedure RunVATRegisterReport(BeginDate: Date; VATRegisterCode: Code[10]; PrintingType: Option; PrintCompInfo: Boolean)
@@ -2513,6 +2684,15 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(GenJournalBatch."Posting No. Series");
     end;
 
+    local procedure UpdatePmtTolerance(MaxPaymentToleranceAmount: Decimal)
+    var
+        ChangePaymentTolerance: Report "Change Payment Tolerance";
+    begin
+        ChangePaymentTolerance.InitializeRequest(true, '', 0, MaxPaymentToleranceAmount);
+        ChangePaymentTolerance.UseRequestPage(false);
+        ChangePaymentTolerance.Run;
+    end;
+
     local procedure VerifyAmountInclVATAndBaseAmountOnVATReportSubformPage(DocumentNo: Code[20]; Amount: Decimal; AmountIncludingVAT: Decimal)
     var
         VATReportSubform: TestPage "VAT Report Subform";
@@ -2851,6 +3031,22 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVerification(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.AreEqual(LibraryVariableStorage.DequeueText, Question, '');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PmtToleranceWarningZeroBalanceModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
+    begin
+        LibraryVariableStorage.Enqueue(PaymentToleranceWarning.ApplyingAmount.Value);
+        LibraryVariableStorage.Enqueue(PaymentToleranceWarning.AppliedAmount.Value);
+        LibraryVariableStorage.Enqueue(PaymentToleranceWarning.BalanceAmount.Value);
     end;
 }
 

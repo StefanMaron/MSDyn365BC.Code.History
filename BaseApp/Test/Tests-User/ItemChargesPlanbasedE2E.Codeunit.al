@@ -18,7 +18,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         IsInitialized: Boolean;
-        MissingPermissionsErr: Label 'You do not have the following permissions';
+        TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
     [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
@@ -114,7 +114,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ErrorMessagesPage.Trap;
         PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, true);
         // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
         Commit;
@@ -202,7 +202,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ErrorMessagesPage.Trap;
         PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, true);
         // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
@@ -356,7 +356,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ErrorMessagesPage.Trap;
         PostSalesInvoiceWithItemCharges(SalesInvoiceNo, true);
         // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
         LibraryE2EPlanPermissions.SetBusinessManagerPlan;
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
         Commit;
@@ -450,7 +450,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ErrorMessagesPage.Trap;
         PostSalesInvoiceWithItemCharges(SalesInvoiceNo, true);
         // [THEN] A permission error is thrown
-        Assert.ExpectedMessage(MissingPermissionsErr, ErrorMessagesPage.Description.Value);
+        Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
         LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);

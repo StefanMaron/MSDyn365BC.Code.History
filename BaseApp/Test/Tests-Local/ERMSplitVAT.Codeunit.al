@@ -27,6 +27,8 @@ codeunit 144561 "ERM Split VAT"
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryDimension: Codeunit "Library - Dimension";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryInventory: Codeunit "Library - Inventory";
         ChangeTriggeredCalled: Boolean;
         ReGenerateQuestionAsked: Boolean;
         IsInitialized: Boolean;
@@ -814,6 +816,830 @@ codeunit 144561 "ERM Split VAT"
         TestCleanup;
     end;
 
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Type" is changed in Sales Line
+        SalesInvoiceSubform.Type.SetValue(SalesLine.Type::"G/L Account");
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "No" is changed in Sales Line
+        SalesInvoiceSubform."No.".SetValue(
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Quantity" is changed in Sales Line
+        SalesInvoiceSubform.Quantity.SetValue(SalesLine.Quantity * 2);
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingUnitMeasureCode()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemUOM: Record "Item Unit of Measure";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit of Measure Code" is changed in Sales Line
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, SalesLine."No.", 2);
+        SalesInvoiceSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingUnitPrice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit Price" is changed in Sales Line
+        SalesInvoiceSubform."Unit Price".SetValue(SalesLine."Unit Price" * 2);
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingLineDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Discount %" is changed in Sales Line
+        SalesInvoiceSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesInvoiceForChangingLineAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesInvoiceSubform: TestPage "Sales Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Amount" is changed in Sales Line
+        SalesInvoiceSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        SalesInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingType()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Type" is changed in Sales Line
+        SalesCrMemoSubform.Type.SetValue(SalesLine.Type::"G/L Account");
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "No" is changed in Sales Line
+        SalesCrMemoSubform."No.".SetValue(
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Quantity" is changed in Sales Line
+        SalesCrMemoSubform.Quantity.SetValue(SalesLine.Quantity * 2);
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingUnitMeasureCode()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemUOM: Record "Item Unit of Measure";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit of Measure Code" is changed in Sales Line
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, SalesLine."No.", 2);
+        SalesCrMemoSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingUnitPrice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit Price" is changed in Sales Line
+        SalesCrMemoSubform."Unit Price".SetValue(SalesLine."Unit Price" * 2);
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingLineDiscount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Discount %" is changed in Sales Line
+        SalesCrMemoSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInSalesCrMemoForChangingLineAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Amount" is changed in Sales Line
+        SalesCrMemoSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        SalesCrMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        Assert.AreNotEqual(SalesLine."Unit Price", OldUnitPrice, SalesLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingType()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Type" is changed in Service Line
+        ServiceInvoiceSubform.Type.SetValue(ServiceLine.Type::"G/L Account");
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingNo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "No" is changed in Service Line
+        ServiceInvoiceSubform."No.".SetValue(
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingQuantity()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Quantity" is changed in Service Line
+        ServiceInvoiceSubform.Quantity.SetValue(ServiceLine.Quantity * 2);
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingUnitMeasureCode()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemUOM: Record "Item Unit of Measure";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit of Measure Code" is changed in Service Line
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, ServiceLine."No.", 2);
+        ServiceInvoiceSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingUnitPrice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit Price" is changed in Service Line
+        ServiceInvoiceSubform."Unit Price".SetValue(ServiceLine."Unit Price" * 2);
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingLineDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Discount %" is changed in Service Line
+        ServiceInvoiceSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceInvoiceForChangingLineAmount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceInvoiceSubform: TestPage "Service Invoice Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Amount" is changed in Service Line
+        ServiceInvoiceSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        ServiceInvoiceSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingType()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Type" is changed in Service Line
+        ServiceCreditMemoSubform.Type.SetValue(ServiceLine.Type::"G/L Account");
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingNo()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "No" is changed in Service Line
+        ServiceCreditMemoSubform."No.".SetValue(
+          LibraryInventory.CreateItemNoWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingQuantity()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Quantity" is changed in Service Line
+        ServiceCreditMemoSubform.Quantity.SetValue(ServiceLine.Quantity * 2);
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingUnitMeasureCode()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ItemUOM: Record "Item Unit of Measure";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit of Measure Code" is changed in Service Line
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUOM, ServiceLine."No.", 2);
+        ServiceCreditMemoSubform."Unit of Measure Code".SetValue(ItemUOM.Code);
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingUnitPrice()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Unit Price" is changed in Service Line
+        ServiceCreditMemoSubform."Unit Price".SetValue(ServiceLine."Unit Price" * 2);
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingLineDiscount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Discount %" is changed in Service Line
+        ServiceCreditMemoSubform."Line Discount %".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('ChangeTriggeredConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RecalculateSplitVATLineInServiceCrMemoForChangingLineAmount()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform";
+        OldUnitPrice: Decimal;
+    begin
+        // [FEATURE] [Split VAT]
+        // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
+        Initialize;
+
+        // [GIVEN] SplitVAT Service line was automatically created with Unit Price
+        OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
+
+        // [WHEN] Field "Line Amount" is changed in Service Line
+        ServiceCreditMemoSubform."Line Amount".SetValue(LibraryRandom.RandIntInRange(10, 20));
+        ServiceCreditMemoSubform.Close;
+        LibraryNotificationMgt.RecallNotificationsForRecord(ServiceLine);
+
+        // [THEN] Value Amount in Split VAT Line was changed.
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        Assert.AreNotEqual(ServiceLine."Unit Price", OldUnitPrice, ServiceLine.FieldCaption("Unit Price"));
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     begin
         Clear(LibraryReportDataset);
@@ -1267,6 +2093,103 @@ codeunit 144561 "ERM Split VAT"
         SplitVATTest.DeleteAll(true);
         ChangeTriggeredCalled := false;
         ReGenerateQuestionAsked := false;
+    end;
+
+    local procedure SetUpForRecalculateSplitVATInServiceInvoice(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceInvoiceSubform: TestPage "Service Invoice Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
+    begin
+        // [GIVEN] Created split VAT Posting Setup with Service VAT Acctount
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Created Service Invoice
+        LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::Invoice);
+        LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(ServiceLine."Line No.");
+
+        // [GIVEN] Function "Generate Split VAT Lines" was being run
+        ServiceHeader.AddSplitVATLines;
+
+        // [GIVEN] Service Invoice Subform was opened
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        OldUnitPrice := ServiceLine."Unit Price";
+        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger);
+        ServiceInvoiceSubform.OpenEdit;
+        ServiceInvoiceSubform.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
+        ServiceInvoiceSubform.FILTER.SetFilter("Document No.", Format(ServiceLine."Document No."));
+        ServiceInvoiceSubform.FILTER.SetFilter("Line No.", Format(ServiceLine."Line No."));
+        ServiceInvoiceSubform.First;
+    end;
+
+    local procedure SetUpForRecalculateSplitVATInServiceCrMemo(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var ServiceCreditMemoSubform: TestPage "Service Credit Memo Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
+    begin
+        // [GIVEN] Created split VAT Posting Setup with Service VAT Acctount
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Created Service Credit Memo
+        LibrarySplitVAT.CreateServiceDoc(ServiceHeader, VATPostingSetup, ServiceHeader."Document Type"::"Credit Memo");
+        LibrarySplitVAT.CreateServiceLine(ServiceLine, ServiceHeader, VATPostingSetup."VAT Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(ServiceLine."Line No.");
+
+        // [GIVEN] Function "Generate Split VAT Lines" was being run
+        ServiceHeader.AddSplitVATLines;
+
+        // [GIVEN] Service Credit Memo Subform was opened
+        LibrarySplitVAT.FindServiceLine(ServiceLine, ServiceHeader, true);
+        OldUnitPrice := ServiceLine."Unit Price";
+        ServiceLine.Get(ServiceHeader."Document Type", ServiceHeader."No.", LibraryVariableStorage.DequeueInteger);
+        ServiceCreditMemoSubform.OpenEdit;
+        ServiceCreditMemoSubform.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
+        ServiceCreditMemoSubform.FILTER.SetFilter("Document No.", Format(ServiceLine."Document No."));
+        ServiceCreditMemoSubform.FILTER.SetFilter("Line No.", Format(ServiceLine."Line No."));
+        ServiceCreditMemoSubform.First;
+    end;
+
+    local procedure SetUpForRecalculateSplitVATInSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesInvoiceSubform: TestPage "Sales Invoice Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
+    begin
+        // [GIVEN] Created split VAT Posting Setup with Sales VAT Acctount
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Created Sales Invoice
+        LibrarySplitVAT.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, VATPostingSetup."VAT Bus. Posting Group");
+        LibrarySplitVAT.CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(SalesLine."Line No.");
+
+        // [GIVEN] Function "Generate Split VAT Lines" was being run
+        SalesHeader.AddSplitVATLines;
+
+        // [GIVEN] Sales Invoice Subform was opened
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        OldUnitPrice := SalesLine."Unit Price";
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger);
+        SalesInvoiceSubform.OpenEdit;
+        SalesInvoiceSubform.FILTER.SetFilter("Document Type", Format(SalesLine."Document Type"));
+        SalesInvoiceSubform.FILTER.SetFilter("Document No.", Format(SalesLine."Document No."));
+        SalesInvoiceSubform.FILTER.SetFilter("Line No.", Format(SalesLine."Line No."));
+        SalesInvoiceSubform.First;
+    end;
+
+    local procedure SetUpForRecalculateSplitVATInSalesCrMemo(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var SalesCrMemoSubform: TestPage "Sales Cr. Memo Subform"; var VATPostingSetup: Record "VAT Posting Setup") OldUnitPrice: Decimal
+    begin
+        // [GIVEN] Created split VAT Posting Setup with Sales VAT Acctount
+        CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
+
+        // [GIVEN] Created Sales Credit Memo
+        LibrarySplitVAT.CreateSalesHeader(
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", VATPostingSetup."VAT Bus. Posting Group");
+        LibrarySplitVAT.CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group");
+        LibraryVariableStorage.Enqueue(SalesLine."Line No.");
+
+        // [GIVEN] Function "Generate Split VAT Lines" was being run
+        SalesHeader.AddSplitVATLines;
+
+        // [GIVEN] Sales Credit Memo Subform was opened
+        LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, true);
+        OldUnitPrice := SalesLine."Unit Price";
+        SalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", LibraryVariableStorage.DequeueInteger);
+        SalesCrMemoSubform.OpenEdit;
+        SalesCrMemoSubform.FILTER.SetFilter("Document Type", Format(SalesLine."Document Type"));
+        SalesCrMemoSubform.FILTER.SetFilter("Document No.", Format(SalesLine."Document No."));
+        SalesCrMemoSubform.FILTER.SetFilter("Line No.", Format(SalesLine."Line No."));
+        SalesCrMemoSubform.First;
     end;
 
     [ConfirmHandler]

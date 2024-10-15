@@ -47,7 +47,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchAmount := LibraryRandom.RandIntInRange(1000, 10000);
         CreateAndPostPurchInvoice(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          PostingDate, CreateGLAccountWithPostingGroups(VATPostingSetup), PurchAmount);
+          PostingDate, CreateGLAccountWithPostingGroups(VATPostingSetup), PurchAmount, '');
 
         RunAndVerifyCalcAndPostVATSettlement(
           PostingDate,
@@ -79,7 +79,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         SalesAmt := LibraryRandom.RandIntInRange(1000, 10000);
         GLAccount.Get(
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-        CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmt, GLAccount."No.");
+        CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmt, GLAccount."No.", '');
 
         RunAndVerifyCalcAndPostVATSettlement(PostingDate, 0, 0, VATPostingSetup);
     end;
@@ -112,8 +112,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         GlAccountCode := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
 
         CreateAndPostPurchInvoice(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          PostingDate, GlAccountCode, PurchAmount);
-        CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmount, GlAccountCode);
+          PostingDate, GlAccountCode, PurchAmount, '');
+        CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmount, GlAccountCode, '');
 
         RunAndVerifyCalcAndPostVATSettlement(PostingDate, 0, 0, VATPostingSetup);
     end;
@@ -146,8 +146,8 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchAmount := SalesAmount * LibraryRandom.RandIntInRange(1, 10);
         GlAccountCode := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
         CreateAndPostPurchInvoice(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          PostingDate, GlAccountCode, PurchAmount);
-        SalesInvoiceVATAmount := CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmount, GlAccountCode);
+          PostingDate, GlAccountCode, PurchAmount, '');
+        SalesInvoiceVATAmount := CreateAndPostSalesInvoice(Customer, PostingDate, SalesAmount, GlAccountCode, '');
 
         RunAndVerifyCalcAndPostVATSettlement(
           PostingDate,
@@ -182,13 +182,57 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         UnitPrice := LibraryRandom.RandInt(100);
         UnitCost := UnitPrice + LibraryRandom.RandIntInRange(5, 10); // Make sure Input VAT is greater than Output VAT to trigger this bug.
         CreateAndPostPurchInvoice(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          PostingDate, GLAccountNo, UnitCost);
-        CreateAndPostSalesInvoice(Customer, PostingDate, UnitPrice, GLAccountNo);
+          PostingDate, GLAccountNo, UnitCost, '');
+        CreateAndPostSalesInvoice(Customer, PostingDate, UnitPrice, GLAccountNo, '');
 
         // Exercise: Run Report Calc. and Post VAT Settlement.
         // Verify: Verify the "Next Period Input VAT" equals "Input VAT" - "Output VAT".
         RunAndVerifyCalcAndPostVATSettlement(
           PostingDate, 0, (UnitCost - UnitPrice) * VATPostingSetup."VAT %" / 100, VATPostingSetup);
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure RunReportCalcAndPostVATSettlementWithActivityCode()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        Customer: Record Customer;
+        DummyGLAccount: Record "G/L Account";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountNo: Code[20];
+        ActivityCode: Code[6];
+        UnitPrice: Decimal;
+        UnitCost: Decimal;
+        PostingDate: Date;
+    begin
+        // [SCENARIO 333516] When Use Activity Code is enabled in General Setup, calc and post vat settlement works
+        Initialize;
+        // [GIVEN] Use Activity Code enabled
+        SetUseActivityCode(true);
+        ActivityCode := CreateActivityCode();
+        // [GIVEN] Prepare setup for posting of a sales and purchase invoices
+        PostingDate := GetPostingDate;
+        FindAndUpdateVATPostingSetup(VATPostingSetup);
+        GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
+        Vendor.Get(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+        Customer.Get(LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Create and Post Purchase and Sales Invoices.
+        UnitPrice := LibraryRandom.RandInt(100);
+        UnitCost := UnitPrice + LibraryRandom.RandIntInRange(5, 10); // Make sure Input VAT is greater than Output VAT to trigger this bug.
+        CreateAndPostPurchInvoice(LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
+          PostingDate, GLAccountNo, UnitCost, ActivityCode);
+        CreateAndPostSalesInvoice(Customer, PostingDate, UnitPrice, GLAccountNo, ActivityCode);
+
+        // [WHEN] Run Report Calc. and Post VAT Settlement.
+        // [THEN] Verify the "Next Period Input VAT" equals "Input VAT" - "Output VAT".
+        RunAndVerifyCalcAndPostVATSettlement(
+          PostingDate, 0, (UnitCost - UnitPrice) * VATPostingSetup."VAT %" / 100, VATPostingSetup);
+
+        // Clean up.
+        SetUseActivityCode(false);
     end;
 
     [Test]
@@ -219,7 +263,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         CreateAndPostPurchInvoice(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"), PostingDate,
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale),
-          Price);
+          Price, '');
 
         // [WHEN] Run "Calc. and Post VAT Settlement"
         LibraryVariableStorage.Enqueue(PostingDate);
@@ -272,7 +316,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchAmount := LibraryRandom.RandDecInRange(100, 1000, 2);
         CreateAndPostPurchInvoice(
           LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"),
-          CalcDate('<+1M+1D>', CalcDate('<-CY-1Y>', WorkDate)), GLAccountCode, PurchAmount);
+          CalcDate('<+1M+1D>', CalcDate('<-CY-1Y>', WorkDate)), GLAccountCode, PurchAmount, '');
 
         // [GIVEN] Initialized Calc. and Post VAT Settlement report
         VATPostingSetup.SetRecFilter;
@@ -307,6 +351,15 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
             "Last Settlement Date" := CalcDate('<1M>', InitialDate);
             Modify;
         end;
+    end;
+
+    local procedure SetUseActivityCode(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Use Activity Code", NewValue);
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure InitVATPlafondPeriod(InitialDate: Date; CalculatedAmount: Decimal)
@@ -379,7 +432,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         NoSeriesLinePurchase.ModifyAll("Last Date Used", 0D);
     end;
 
-    local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; GLAccountNo: Code[20]; UnitCost: Decimal)
+    local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; GLAccountNo: Code[20]; UnitCost: Decimal; ActivityCode: Code[6])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -388,6 +441,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Validate("Document Date", PostingDate);
         PurchaseHeader.Validate("Operation Occurred Date", PostingDate);
+        PurchaseHeader.Validate("Activity Code", ActivityCode);
         PurchaseHeader."Posting No. Series" := LibraryERM.CreateNoSeriesPurchaseCode;
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, 1);
@@ -398,7 +452,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; UnitPrice: Decimal; GLAccountNo: Code[20]): Decimal
+    local procedure CreateAndPostSalesInvoice(Customer: Record Customer; PostingDate: Date; UnitPrice: Decimal; GLAccountNo: Code[20]; ActivityCode: Code[6]): Decimal
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -408,6 +462,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         SalesHeader.Validate("Document Date", PostingDate);
         SalesHeader.Validate("Operation Occurred Date", PostingDate);
         SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Activity Code", ActivityCode);
         NoSeries.Init;
         SalesHeader.Validate("Operation Type", LibraryERM.FindOperationType(NoSeries."No. Series Type"::Sales));
         SalesHeader."Posting No. Series" := LibraryERM.CreateNoSeriesSalesCode;
@@ -456,6 +511,21 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         LibraryReportDataset.GetLastRow;
         LibraryReportDataset.AssertCurrentRowValueEquals('DebitNextPeriod', DebitNextPeriodAmount);
         LibraryReportDataset.AssertCurrentRowValueEquals('CreditNextPeriod', CreditNextPeriodAmount);
+    end;
+
+    local procedure CreateActivityCode(): Code[10]
+    var
+        ActivityCode: Record "Activity Code";
+    begin
+        ActivityCode.Init();
+        ActivityCode.Validate(
+          Code,
+          CopyStr(LibraryUtility.GenerateRandomCode(ActivityCode.FieldNo(Code), DATABASE::"Activity Code"),
+            1, LibraryUtility.GetFieldLength(DATABASE::"Activity Code", ActivityCode.FieldNo(Code))));
+        ActivityCode.Insert(true);
+        ActivityCode.Validate(Description, ActivityCode.Code); // Validating description with code as value is not important.
+        ActivityCode.Modify(true);
+        exit(ActivityCode.Code);
     end;
 
     local procedure GetPostingDate(): Date

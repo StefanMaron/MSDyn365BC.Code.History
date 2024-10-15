@@ -137,7 +137,7 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
                   PadStr('', 20) +
                   Format(TaxYear, 4) +
                   PadStr(CompanyInfo."VAT Registration No.", 11) +
-                  PadStr('', 6) +
+                  PadStr(ActivityCode.Code, 6) +
                   ConvertBoolean(SeparateLedger) +
                   ConvertBoolean(GroupSettlement) +
                   ConvertBoolean(ExceptionalEvent) +
@@ -299,6 +299,8 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Fiscal Code");
 
+        GeneralLedgerSetup.GetRecordOnce();
+
         if CompanyInfo."Tax Representative No." <> '' then begin
             Vendor.Get(CompanyInfo."Tax Representative No.");
             Vendor.TestField("Fiscal Code");
@@ -322,6 +324,20 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
         if (CompanyInfo."Tax Representative No." <> '') and (AppointmentCode = '') then
             Error(Text008, CompanyInfo.FieldCaption("Tax Representative No."), CompanyInfo.TableCaption);
 
+        if GeneralLedgerSetup."Use Activity Code" then begin
+            if VATStatementFilters.GetFilter("Activity Code Filter") = '' then
+                Error(EmptyActivityCodeFilterErr, VATStatementFilters.FieldCaption("Activity Code Filter"));
+
+            ActivityCode.SetFilter(Code, VATStatementFilters.GetFilter("Activity Code Filter"));
+            if ActivityCode.Count() <> 1 then
+                Error(TooManyActivityCodesErr, VATStatementFilters.FieldCaption("Activity Code Filter"), ActivityCode.TableCaption(),
+                  VATStatementFilters.GetFilter("Activity Code Filter"));
+            ActivityCode.FindFirst();
+
+            VATStatementLine.SetFilter("Activity Code Filter", VATStatementFilters.GetFilter("Activity Code Filter"));
+        end;
+
+
         VATStatementLine.SetFilter("Date Filter", VATStatementFilters.GetFilter("Date Filter"));
         VATStatementLine.SetFilter("Statement Template Name", VATStatementFilters.GetFilter("Statement Template Name"));
         VATStatementLine.SetFilter("Statement Name", VATStatementFilters.GetFilter(Name));
@@ -337,7 +353,9 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
     var
         Vendor: Record Vendor;
         CompanyInfo: Record "Company Information";
+        ActivityCode: Record "Activity Code";
         VATStatementLine: Record "VAT Statement Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         FileManagement: Codeunit "File Management";
         ExportFile: File;
         ServerTempFileName: Text;
@@ -348,10 +366,12 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
         SeparateLedger: Boolean;
         GroupSettlement: Boolean;
         ExceptionalEvent: Boolean;
+        TooManyActivityCodesErr: Label 'The %1 should contain exactly 1 %2.\\%1: %3.', Comment = '%1 = Field name, %2 = Table name, %3 = Filter applied to the field';
         Text003: Label 'IVC Files (*.ivc)|*.ivc|Text Files (*.txt)|*.txt|All Files (*.*)|*.*', Comment = 'Only translate ''IVC Files'', ''Text Files'' and ''All Files'' {Split=r"[\|\(]\*\.[^ |)]*[|) ]?"}';
         [InDataSet]
         AppointmentCodeEnable: Boolean;
         TestRun: Boolean;
+        EmptyActivityCodeFilterErr: Label 'You must specify a value for the %1 field for the VAT statement.''', Comment = '%1 = Field name';
         Text008: Label 'You must specify an appointment code when the %1 field in the %2 window is not blank.';
         AppointmentCode: Code[2];
         DefaultFileNameTxt: Label 'Annual VAT.ivc', Locked = true;

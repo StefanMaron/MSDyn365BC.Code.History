@@ -620,8 +620,7 @@ table 114 "Sales Cr.Memo Header"
         {
             Caption = 'Activity Code';
             Editable = false;
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {

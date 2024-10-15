@@ -331,6 +331,7 @@ codeunit 144081 "SCM Subcontracting"
         RoutingLink: Record "Routing Link";
         Vendor: Record Vendor;
         WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
         VendorNo: Code[20];
         WorkCenterNo: Code[20];
     begin
@@ -353,6 +354,8 @@ codeunit 144081 "SCM Subcontracting"
 
         // Tear down: Delete the Work Center created as the vendor doesn't exist
         // and it will check all Subcontractor No. in function LibraryManufacturing.CalculateSubcontractOrder(WorkCenter), failed other cases.
+        RoutingHeader.Get(Item."Routing No.");
+        RoutingHeader.Delete;
         WorkCenter.Get(WorkCenterNo);
         WorkCenter.Delete(true);
     end;

@@ -168,6 +168,12 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the operation type that is assigned to the sales order.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field("Assigned User ID"; "Assigned User ID")
                 {
                     ApplicationArea = Suite;

@@ -217,6 +217,12 @@
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the operation type that is assigned to the sales order.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field("Job Queue Status"; "Job Queue Status")
                 {
                     ApplicationArea = All;

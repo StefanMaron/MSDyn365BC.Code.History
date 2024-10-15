@@ -223,6 +223,8 @@ codeunit 12173 "Vendor Bill List - Post"
     procedure PostExpense(VendorBillHeader: Record "Vendor Bill Header"; VendLedgEntry: Record "Vendor Ledger Entry"; Bill: Record Bill; ExpenseAccNo: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GenJnlLine do begin
             Init;
@@ -239,6 +241,12 @@ codeunit 12173 "Vendor Bill List - Post"
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             Validate("Bal. Account No.", VendorBillHeader."Bank Account No.");
             Validate(Amount, VendorBillHeader."Bank Expense");
+            if PurchInvHeader.GET(VendLedgEntry."Document No.") then begin
+                GeneralLedgerSetup.GetRecordOnce();
+                if GeneralLedgerSetup."Use Activity Code" then
+                    Validate("Activity Code", PurchInvHeader."Activity Code");
+            end;
+
             OnBeforePostExpense(GenJnlLine, VendorBillHeader, VendLedgEntry);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
         end;

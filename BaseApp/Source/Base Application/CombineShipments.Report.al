@@ -24,7 +24,14 @@ report 295 "Combine Shipments"
                     DataItemTableView = SORTING("Document No.", "Line No.");
 
                     trigger OnAfterGetRecord()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeSalesShipmentLineOnAfterGetRecord("Sales Shipment Line", IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
+
                         if Type = 0 then begin
                             if (not CopyTextLines) or ("Attached to Line No." <> 0) then
                                 CurrReport.Skip;
@@ -39,7 +46,7 @@ report 295 "Combine Shipments"
                             then
                                 Cust.Get("Bill-to Customer No.");
                             if not (Cust.Blocked in [Cust.Blocked::All, Cust.Blocked::Invoice]) then begin
-                                if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader) then begin
+                                if ShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, "Sales Shipment Line") then begin
                                     if SalesHeader."No." <> '' then
                                         FinalizeSalesInvHeader;
                                     InsertSalesInvHeader;
@@ -434,7 +441,7 @@ report 295 "Combine Shipments"
         HideDialog := NewHideDialog;
     end;
 
-    local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header") Finalize: Boolean
+    local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; SalesShipmentLine: Record "Sales Shipment Line") Finalize: Boolean
     begin
         Finalize :=
           (SalesOrderHeader."Sell-to Customer No." <> SalesHeader."Sell-to Customer No.") or
@@ -448,7 +455,7 @@ report 295 "Combine Shipments"
           (SalesOrderHeader."Activity Code" <> SalesHeader."Activity Code") or
           (SalesOrderHeader."Bank Account" <> SalesHeader."Bank Account");
 
-        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize);
+        OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, SalesShipmentLine);
         exit(Finalize);
     end;
 
@@ -488,6 +495,11 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesShipmentLineOnAfterGetRecord(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -508,7 +520,7 @@ report 295 "Combine Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean)
+    local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean; SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 }

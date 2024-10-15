@@ -858,6 +858,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date updates deferral schedule
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -904,6 +905,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Sales Orders with updated Posting Date updates deferral schedule
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -950,6 +952,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Credit Memos with updated Posting Date updates deferral schedule
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 

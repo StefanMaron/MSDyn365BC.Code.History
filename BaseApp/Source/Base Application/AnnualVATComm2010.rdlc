@@ -2047,6 +2047,61 @@
                                                   <PaddingBottom>2pt</PaddingBottom>
                                                 </Style>
                                               </Textbox>
+                                              <Textbox Name="textbox167">
+                                                <KeepTogether>true</KeepTogether>
+                                                <Paragraphs>
+                                                  <Paragraph>
+                                                    <TextRuns>
+                                                      <TextRun>
+                                                        <Value>=Fields!ActivityCode_Code.Value</Value>
+                                                        <Style>
+                                                          <FontSize>7pt</FontSize>
+                                                        </Style>
+                                                      </TextRun>
+                                                    </TextRuns>
+                                                  </Paragraph>
+                                                </Paragraphs>
+                                                <Top>2.16523in</Top>
+                                                <Left>11.98799cm</Left>
+                                                <Height>0.423cm</Height>
+                                                <Width>1.5cm</Width>
+                                                <ZIndex>12</ZIndex>
+                                                <Style>
+                                                  <VerticalAlign>Bottom</VerticalAlign>
+                                                  <PaddingLeft>2pt</PaddingLeft>
+                                                  <PaddingRight>2pt</PaddingRight>
+                                                  <PaddingTop>2pt</PaddingTop>
+                                                  <PaddingBottom>2pt</PaddingBottom>
+                                                </Style>
+                                              </Textbox>
+                                              <Textbox Name="textbox1">
+                                                <KeepTogether>true</KeepTogether>
+                                                <Paragraphs>
+                                                  <Paragraph>
+                                                    <TextRuns>
+                                                      <TextRun>
+                                                        <Value>=Fields!ActivityCode_CodeCaption.Value</Value>
+                                                        <Style>
+                                                          <FontSize>7pt</FontSize>
+                                                          <FontWeight>Bold</FontWeight>
+                                                        </Style>
+                                                      </TextRun>
+                                                    </TextRuns>
+                                                  </Paragraph>
+                                                </Paragraphs>
+                                                <Top>2.16523in</Top>
+                                                <Left>9.13799cm</Left>
+                                                <Height>0.423cm</Height>
+                                                <Width>2.7cm</Width>
+                                                <ZIndex>11</ZIndex>
+                                                <Style>
+                                                  <VerticalAlign>Bottom</VerticalAlign>
+                                                  <PaddingLeft>2pt</PaddingLeft>
+                                                  <PaddingRight>2pt</PaddingRight>
+                                                  <PaddingTop>2pt</PaddingTop>
+                                                  <PaddingBottom>2pt</PaddingBottom>
+                                                </Style>
+                                              </Textbox>
                                               <Textbox Name="textbox3">
                                                 <KeepTogether>true</KeepTogether>
                                                 <Paragraphs>
@@ -2844,6 +2899,9 @@ End Function
         </Field>
         <Field Name="CompanyInfo__VAT_Registration_No__">
           <DataField>CompanyInfo__VAT_Registration_No__</DataField>
+        </Field>
+        <Field Name="ActivityCode_Code">
+          <DataField>ActivityCode_Code</DataField>
         </Field>
         <Field Name="SeparateLedgerTxt">
           <DataField>SeparateLedgerTxt</DataField>

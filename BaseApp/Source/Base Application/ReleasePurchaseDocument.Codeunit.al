@@ -25,6 +25,7 @@ codeunit 415 "Release Purchase Document"
     local procedure "Code"() LinesWereModified: Boolean
     var
         PurchLine: Record "Purchase Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NotOnlyDropShipment: Boolean;
         PostingDate: Date;
@@ -40,6 +41,9 @@ codeunit 415 "Release Purchase Document"
                 CheckPurchaseReleaseRestrictions;
 
             TestField("Buy-from Vendor No.");
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Use Activity Code" then
+                TestField("Activity Code");
 
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");

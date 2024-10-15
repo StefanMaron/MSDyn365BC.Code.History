@@ -113,7 +113,7 @@ codeunit 90 "Purch.-Post"
             PostGLAndVendor(PurchHeader, TempInvoicePostBuffer);
 
         if ICGenJnlLineNo > 0 then
-            PostICGenJnl;
+            PostICGenJnl(PurchHeader."Activity Code");
 
         MakeInventoryAdjustment;
         UpdateLastPostingNos(PurchHeader);
@@ -554,6 +554,8 @@ codeunit 90 "Purch.-Post"
             SourceCodeSetup.Get;
             SrcCode := SourceCodeSetup.Purchases;
 
+            OnCheckAndUpdateOnAfterSetSourceCode(PurchHeader, SourceCodeSetup, SrcCode);
+
             InsertPostedHeaders(PurchHeader);
 
             if Invoice then begin
@@ -970,6 +972,7 @@ codeunit 90 "Purch.-Post"
             if ItemChargeNo <> '' then begin
                 "Item Charge No." := ItemChargeNo;
                 PurchLine."Qty. to Invoice" := QtyToBeInvoiced;
+                OnPostItemJnlLineOnAfterCopyItemCharge(ItemJnlLine, TempItemChargeAssgntPurch);
             end;
 
             if QtyToBeInvoiced <> 0 then begin
@@ -1387,7 +1390,7 @@ codeunit 90 "Purch.-Post"
         then
             Error(ReceiptLinesDeletedErr);
 
-        Sign := GetSign(PurchRcptLine."Quantity (Base)");
+        Sign := 1;
 
         if PurchRcptLine."Item Rcpt. Entry No." <> 0 then
             DistributeCharge :=
@@ -4711,7 +4714,7 @@ codeunit 90 "Purch.-Post"
         end;
     end;
 
-    local procedure PostICGenJnl()
+    local procedure PostICGenJnl(ActivityCode: Code[6])
     var
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICOutboxExport: Codeunit "IC Outbox Export";
@@ -4723,8 +4726,11 @@ codeunit 90 "Purch.-Post"
                 ICTransactionNo := ICInboxOutboxMgt.CreateOutboxJnlTransaction(TempICGenJnlLine, false);
                 ICInboxOutboxMgt.CreateOutboxJnlLine(ICTransactionNo, 1, TempICGenJnlLine);
                 ICOutboxExport.ProcessAutoSendOutboxTransactionNo(ICTransactionNo);
-                if TempICGenJnlLine.Amount <> 0 then
+                if TempICGenJnlLine.Amount <> 0 then begin
+                    if GLSetup."Use Activity Code" then
+                        TempICGenJnlLine."Activity Code" := ActivityCode;
                     GenJnlPostLine.RunWithCheck(TempICGenJnlLine);
+                end;
             until TempICGenJnlLine.Next = 0;
     end;
 
@@ -6160,7 +6166,7 @@ codeunit 90 "Purch.-Post"
                             PurchLine."Qty. to Invoice (Base)" := PurchLine."Qty. Received (Base)" - PurchLine."Qty. Invoiced (Base)";
                         end;
                         IsHandled := false;
-                        OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchHeader, PurchLine, IsHandled);
+                        OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchHeader, PurchLine, IsHandled, SalesOrderLine);
                         if not IsHandled then
                             if Abs(PurchLine.Quantity - (PurchLine."Qty. to Invoice" + PurchLine."Quantity Invoiced")) <
                                Abs(SalesOrderLine.Quantity - SalesOrderLine."Quantity Invoiced")
@@ -6218,6 +6224,7 @@ codeunit 90 "Purch.-Post"
                         SalesOrderLine."Qty. to Ship" := SalesShptLine.Quantity;
                         SalesOrderLine."Qty. to Ship (Base)" := SalesShptLine."Quantity (Base)";
                         ServItemMgt.CreateServItemOnSalesLineShpt(SalesOrderHeader, SalesOrderLine, SalesShptLine);
+                        OnPostCombineSalesOrderShipmentOnBeforeUpdateBlanketOrderLine(SalesOrderLine, SalesShptLine);
                         SalesPost.UpdateBlanketOrderLine(SalesOrderLine, true, false, false);
                         OnPostCombineSalesOrderShipmentOnAfterUpdateBlanketOrderLine(PurchHeader, TempDropShptPostBuffer, SalesOrderLine);
 
@@ -6236,6 +6243,7 @@ codeunit 90 "Purch.-Post"
                                 SalesShptLine.Insert;
                                 OnAfterSalesShptLineInsert(SalesShptLine, SalesShptHeader, SalesOrderLine, SuppressCommit, TempDropShptPostBuffer);
                             until SalesOrderLine.Next = 0;
+                        OnPostCombineSalesOrderShipmentOnAfterProcessDropShptPostBuffer(TempDropShptPostBuffer, PurchRcptHeader, SalesShptLine, TempTrackingSpecification);
                     until TempDropShptPostBuffer.Next = 0;
                     TempDropShptPostBuffer.SetRange("Order No.");
                     OnAfterInsertCombinedSalesShipment(SalesShptHeader);
@@ -6255,6 +6263,9 @@ codeunit 90 "Purch.-Post"
 
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, '');
             CopyFromPurchHeader(PurchHeader);
+
+            if GLSetup."Use Activity Code" then
+                "Activity Code" := PurchHeader."Activity Code";
             "Reverse Sales VAT No. Series" := PurchHeader."Reverse Sales VAT No. Series";
             "Reverse Sales VAT No." := PurchHeader."Reverse Sales VAT No.";
             "Fiscal Code" := PurchHeader."Fiscal Code";
@@ -7775,7 +7786,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostUpdateOrderLine(PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary; CommitIsSuppressed: Boolean; PurchSetup: Record "Purchases & Payables Setup")
+    local procedure OnBeforePostUpdateOrderLine(PurchHeader: Record "Purchase Header"; var TempPurchLineGlobal: Record "Purchase Line" temporary; CommitIsSuppressed: Boolean; var PurchSetup: Record "Purchases & Payables Setup")
     begin
     end;
 
@@ -7910,6 +7921,11 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCheckAndUpdateOnAfterSetSourceCode(PurchHeader: Record "Purchase Header"; SourceCodeSetup: Record "Source Code Setup"; var SrcCode: Code[10]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCheckAndUpdateOnBeforeCalcInvDiscount(var PurchaseHeader: Record "Purchase Header"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; WhseReceive: Boolean; WhseShip: Boolean; var RefreshNeeded: Boolean)
     begin
     end;
@@ -7920,7 +7936,7 @@ codeunit 90 "Purch.-Post"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnCheckAssocOrderLinesOnBeforeCheckOrderLine(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; SalesOrderLine: Record "Sales Line")
     begin
     end;
 
@@ -7961,6 +7977,16 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostCombineSalesOrderShipmentOnAfterUpdateBlanketOrderLine(var PurchaseHeader: Record "Purchase Header"; var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCombineSalesOrderShipmentOnBeforeUpdateBlanketOrderLine(var SalesOrderLine: Record "Sales Line"; SalesShptLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostCombineSalesOrderShipmentOnAfterProcessDropShptPostBuffer(var TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary; PurchRcptHeader: Record "Purch. Rcpt. Header"; SalesShptLine: Record "Sales Shipment Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary);
     begin
     end;
 
@@ -8006,6 +8032,11 @@ codeunit 90 "Purch.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostItemJnlLineOnAfterCopyDocumentFields(var ItemJournalLine: Record "Item Journal Line"; PurchaseLine: Record "Purchase Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseShipmentHeader: Record "Warehouse Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnAfterCopyItemCharge(var ItemJournalLine: Record "Item Journal Line"; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
     end;
 

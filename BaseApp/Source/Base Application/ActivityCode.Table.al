@@ -1,8 +1,7 @@
 table 12124 "Activity Code"
 {
     Caption = 'Activity Code';
-    ObsoleteReason = 'Obsolete feature';
-    ObsoleteState = Pending;
+    LookupPageID = 12124;
 
     fields
     {

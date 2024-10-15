@@ -171,6 +171,7 @@ codeunit 431 "IC Outbox Export"
         Company: Record Company;
         ICPartner: Record "IC Partner";
         MoveICTransToPartnerCompany: Report "Move IC Trans. to Partner Comp";
+        IsHandled: Boolean;
     begin
         if ICOutboxTrans.Find('-') then
             repeat
@@ -180,9 +181,13 @@ codeunit 431 "IC Outbox Export"
                     ICPartner.TestField("Inbox Details");
                     Company.Get(ICPartner."Inbox Details");
                     ICOutboxTrans.SetRange("Transaction No.", ICOutboxTrans."Transaction No.");
-                    MoveICTransToPartnerCompany.SetTableView(ICOutboxTrans);
-                    MoveICTransToPartnerCompany.UseRequestPage := false;
-                    MoveICTransToPartnerCompany.Run;
+                    IsHandled := false;
+                    OnSendToInternalPartnerOnBeforeMoveICTransToPartnerCompany(ICOutboxTrans, IsHandled);
+                    if not IsHandled then begin
+                        MoveICTransToPartnerCompany.SetTableView(ICOutboxTrans);
+                        MoveICTransToPartnerCompany.UseRequestPage := false;
+                        MoveICTransToPartnerCompany.Run;
+                    end;
                     ICOutboxTrans.SetRange("Transaction No.");
                     if ICOutboxTrans."Line Action" = ICOutboxTrans."Line Action"::"Send to IC Partner" then
                         ICInboxOutboxMgt.MoveOutboxTransToHandledOutbox(ICOutboxTrans);
@@ -300,6 +305,11 @@ codeunit 431 "IC Outbox Export"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOutboxTransactionsOnBeforeSend(var ICOutboxTransaction: Record "IC Outbox Transaction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendToInternalPartnerOnBeforeMoveICTransToPartnerCompany(var ICOutboxTransaction: Record "IC Outbox Transaction"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -965,6 +965,9 @@ codeunit 144202 "FatturaPA II"
 
         Initialize;
 
+        // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
+        UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
+
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
         CustomerNo := CreateCustomer;
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
@@ -1517,8 +1520,9 @@ codeunit 144202 "FatturaPA II"
             exit;
 
         LibraryITLocalization.SetupFatturaPA;
-        LibrarySetupStorage.Save(DATABASE::"Company Information");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveCompanyInformation;
+        LibrarySetupStorage.SaveSalesSetup;
+        LibrarySetupStorage.SavePurchasesSetup;
         IsInitialized := true;
     end;
 
@@ -2672,6 +2676,15 @@ codeunit 144202 "FatturaPA II"
         FindNextElement(TempXMLBuffer);
         AssertCurrentElementValue(TempXMLBuffer, FormatAmount(VATAmount[2]));
         DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure UpdatePurchasesPayablesSetupVATExemptionNos(VATExemptionNos: Code[20])
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup."VAT Exemption Nos." := VATExemptionNos;
+        PurchasesPayablesSetup.Modify;
     end;
 }
 

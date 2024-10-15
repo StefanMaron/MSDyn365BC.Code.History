@@ -211,6 +211,12 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the operation type that is assigned to the purchase invoice.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;
@@ -840,7 +846,7 @@
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
                     trigger OnAction()

@@ -102,6 +102,12 @@
                     Editable = false;
                     ToolTip = 'Specifies the name of the person to contact when you communicate with the customer who you shipped the items to.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -189,6 +195,13 @@
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies how many times the document has been printed.';
+                }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
                 }
                 field(Cancelled; Cancelled)
                 {

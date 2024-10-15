@@ -126,7 +126,7 @@ report 12125 "Exp. Annual VAT Communication"
                   PadStr('', 20) +
                   Format(TaxYear, 4) +
                   PadStr(CompanyInfo."VAT Registration No.", 11) +
-                  PadStr('', 5) +
+                  PADSTR(ActivityCode.Code, 5) +
                   ConvertBoolean(SeparateLedger) +
                   ConvertBoolean(GroupSettlement) +
                   ConvertBoolean(ExceptionalEvent) +
@@ -253,6 +253,13 @@ report 12125 "Exp. Annual VAT Communication"
                             if ACTION::LookupOK = PAGE.RunModal(0, VATStatementName, VATStatementName.Name) then;
                         end;
                     }
+                    field("ActivityCode.Code"; ActivityCode.Code)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Activity Code';
+                        TableRelation = "Activity Code".Code;
+                        ToolTip = 'Specifies a code that describes a primary activity for the company.';
+                    }
                     field(SeparateLedger; SeparateLedger)
                     {
                         ApplicationArea = Basic, Suite;
@@ -333,6 +340,8 @@ report 12125 "Exp. Annual VAT Communication"
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Fiscal Code");
 
+        GeneralLedgerSetup.GetRecordOnce();
+
         if Vendor.Get(Vendor."No.") then begin
             Vendor.TestField("Fiscal Code");
             Vendor.TestField("VAT Registration No.");
@@ -359,7 +368,8 @@ report 12125 "Exp. Annual VAT Communication"
         VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
         VATStatementLine.SetFilter("Annual VAT Comm. Field", '<>%1', VATStatementLine."Annual VAT Comm. Field"::" ");
         VATStatementLine.FilterGroup := 0;
-
+        if GeneralLedgerSetup."Use Activity Code" then
+            VATStatementLine.SetRange("Activity Code Filter", ActivityCode.Code);
         VATStatementLine.SetRange("Date Filter", StartDate, EndDate);
 
         ExportFileName := RBMgt.ServerTempFileName('');
@@ -372,9 +382,11 @@ report 12125 "Exp. Annual VAT Communication"
     var
         Vendor: Record Vendor;
         CompanyInfo: Record "Company Information";
+        ActivityCode: Record "Activity Code";
         AppointmentCode: Record "Appointment Code";
         VATStatementLine: Record "VAT Statement Line";
         VATStatementName: Record "VAT Statement Name";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         ExportFile: File;
         ExportFileName: Text[260];
         StartDate: Date;
@@ -385,6 +397,7 @@ report 12125 "Exp. Annual VAT Communication"
         SeparateLedger: Boolean;
         GroupSettlement: Boolean;
         ExceptionalEvent: Boolean;
+        InvalidActivityCodeFilterErr: Label 'The Activity Code Filter should contain exactly one Activity Code.';
         Text003: Label 'IVC Files (*.ivc)|*.ivc|Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
         Text004: Label 'default.ivc';
         Text005: Label 'Export';
@@ -431,6 +444,19 @@ report 12125 "Exp. Annual VAT Communication"
         if VATStatementName.GetFilter("Date Filter") <> '' then begin
             StartDate := VATStatementName.GetRangeMin("Date Filter");
             EndDate := VATStatementName.GetRangeMax("Date Filter");
+        end;
+
+        if GeneralLedgerSetup."Use Activity Code" then begin
+            if VATStatementName.GetFilter("Activity Code Filter") <> '' then begin
+                ActivityCode.SetFilter(Code, VATStatementName.GetFilter("Activity Code Filter"));
+                if ActivityCode.Count() <> 1 then
+                    Error(InvalidActivityCodeFilterErr);
+
+                ActivityCode.FindFirst();
+            end else
+                Error(InvalidActivityCodeFilterErr);
+
+            VATStatementLine.SetFilter("Activity Code Filter", VATStatementName.GetFilter("Activity Code Filter"));
         end;
 
         VATStatementLine.SetFilter("Date Filter", VATStatementName.GetFilter("Date Filter"));

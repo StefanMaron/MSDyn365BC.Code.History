@@ -326,7 +326,10 @@ codeunit 12179 "Export FatturaPA Document"
             // 1.4.2. Sede
             AddGroupElement('Sede');
             AddNonEmptyElement('Indirizzo', Customer.Address);
-            AddNonEmptyElement('CAP', Customer."Post Code");
+            if Customer."Country/Region Code" <> CompanyInformation."Country/Region Code" then
+                AddNonEmptyElement('CAP', '00000')
+            else
+                AddNonEmptyElement('CAP', Customer."Post Code");
             AddNonEmptyElement('Comune', Customer.City);
             AddNonEmptyElement('Provincia', Customer.County);
             AddNonEmptyLastElement('Nazione', Customer."Country/Region Code");

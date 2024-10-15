@@ -561,8 +561,7 @@ table 124 "Purch. Cr. Memo Hdr."
         {
             Caption = 'Activity Code';
             Editable = false;
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {

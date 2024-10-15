@@ -1006,6 +1006,82 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryReportDataset.AssertElementWithValueExists('TotalDecreasesAmntForRTC', Abs(DtldVendorLedgEntry[2]."Amount (LCY)"));
     end;
 
+    [Test]
+    [HandlerFunctions('BankSheetPrintRPH')]
+    [Scope('OnPrem')]
+    procedure SingleBankAccountSheetPrintForMultipleEntries()
+    var
+        BankAccLedgEntry: array[3] of Record "Bank Account Ledger Entry";
+        BankAccount: Record "Bank Account";
+    begin
+        // [FEATURE] [Bank Sheet - Print]
+        // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print".
+        Initialize;
+
+        // [GIVEN] Created Bank Account and three Bank Account Ledger entries:
+        // [GIVEN] first and third with positive amounts, second one with negative
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBankEntry(BankAccLedgEntry[1], BankAccount."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[2], BankAccount."No.", WorkDate, -LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[3], BankAccount."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+
+        // [WHEN] Run report "Bank Sheet - Print" for Bank Account
+        Commit;
+        BankAccount.SetFilter("No.", BankAccount."No.");
+        BankAccount.SetFilter("Date Filter", Format(WorkDate));
+        REPORT.Run(REPORT::"Bank Sheet - Print", true, false, BankAccount);
+
+        // [THEN] 'IncreasesAmt' and 'DecreasesAmt' are not transferred from previous entries
+        // [THEN] Total 'Amt' is calculated correctly
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyReportCreditDebitAmounts(
+          BankAccount."No.", BankAccLedgEntry[1].Amount, BankAccLedgEntry[2].Amount, BankAccLedgEntry[3].Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('BankSheetPrintRPH')]
+    [Scope('OnPrem')]
+    procedure MultipleBankAccountsSheetPrintForMultipleEntries()
+    var
+        BankAccLedgEntry: array[6] of Record "Bank Account Ledger Entry";
+        BankAccount: array[3] of Record "Bank Account";
+    begin
+        // [FEATURE] [Bank Sheet - Print]
+        // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print" when run for multiple Bank Accounts
+        Initialize;
+
+        // [GIVEN] Created Bank Account 1 and three Bank Account Ledger entries:
+        // [GIVEN] first and third with positive amounts, second one with negative
+        LibraryERM.CreateBankAccount(BankAccount[1]);
+        CreateBankEntry(BankAccLedgEntry[1], BankAccount[1]."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[2], BankAccount[1]."No.", WorkDate, -LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[3], BankAccount[1]."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+
+        // [GIVEN] Created Bank Account 2 and three Bank Account Ledger entries:
+        // [GIVEN] first and third with positive amounts, second one with negative
+        LibraryERM.CreateBankAccount(BankAccount[2]);
+        CreateBankEntry(BankAccLedgEntry[4], BankAccount[2]."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[5], BankAccount[2]."No.", WorkDate, -LibraryRandom.RandDec(1000, 2));
+        CreateBankEntry(BankAccLedgEntry[6], BankAccount[2]."No.", WorkDate, LibraryRandom.RandDec(1000, 2));
+
+        // [WHEN] Run report "Bank Sheet - Print" for both Bank Accounts
+        Commit;
+        BankAccount[3].SetFilter("No.", StrSubstNo('%1..%2', BankAccount[1]."No.", BankAccount[2]."No."));
+        BankAccount[3].SetFilter("Date Filter", Format(WorkDate));
+        REPORT.Run(REPORT::"Bank Sheet - Print", true, false, BankAccount[3]);
+
+        // [THEN] 'IncreasesAmt' and 'DecreasesAmt' are not transferred from previous entries
+        // [THEN] Total 'Amt' is calculated correctly
+        // [THEN] Each Bank Account is calculated separrately and correctly
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyReportCreditDebitAmounts(
+          BankAccount[1]."No.", BankAccLedgEntry[1].Amount, BankAccLedgEntry[2].Amount, BankAccLedgEntry[3].Amount);
+
+        LibraryReportDataset.Reset;
+        VerifyReportCreditDebitAmounts(
+          BankAccount[2]."No.", BankAccLedgEntry[4].Amount, BankAccLedgEntry[5].Amount, BankAccLedgEntry[6].Amount);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1025,6 +1101,15 @@ codeunit 144068 "UT REP Posting Routine"
         BankAccount.Name := BankAccount."No.";
         BankAccount.Insert;
         exit(BankAccount."No.");
+    end;
+
+    local procedure CreateBankEntry(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; BankAccountNo: Code[20]; Date: Date; Amount: Decimal)
+    begin
+        BankAccLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(BankAccLedgEntry, BankAccLedgEntry.FieldNo("Entry No."));
+        BankAccLedgEntry."Bank Account No." := BankAccountNo;
+        BankAccLedgEntry."Posting Date" := Date;
+        BankAccLedgEntry.Amount := Amount;
+        BankAccLedgEntry.Insert;
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -1413,6 +1498,24 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryReportDataset.AssertCurrentRowValueEquals(AssertElementName, AssertElementValue);
     end;
 
+    local procedure VerifyReportCreditDebitAmounts(BankNo: Code[20]; FirstAmount: Decimal; SecondAmount: Decimal; ThirdAmount: Decimal)
+    begin
+        LibraryReportDataset.SetRange('No_BankAccount', BankNo);
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find first Bank Account entry');
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find second Bank Account entries');
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'IncreasesAmt', 0);
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'DecreasesAmt', -SecondAmount);
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'find third Bank Account entry');
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'IncreasesAmt', ThirdAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'DecreasesAmt', 0);
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'Amt', FirstAmount + SecondAmount + ThirdAmount);
+    end;
+
     local procedure AssertElementsWithValuesExists(NumberCaption: Text; EntryNumberCaption: Text; AmountCaption: Text; ExpectedNumber: Variant; ExpectedEntryNumber: Variant; ExpectedAmount: Variant)
     begin
         LibraryReportDataset.AssertElementWithValueExists(NumberCaption, ExpectedNumber);
@@ -1536,6 +1639,13 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryVariableStorage.Dequeue(No);
         BankSheetPrint."Bank Account".SetFilter("No.", No);
         BankSheetPrint."Bank Account".SetFilter("Date Filter", Format(WorkDate));
+        BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BankSheetPrintRPH(var BankSheetPrint: TestRequestPage "Bank Sheet - Print")
+    begin
         BankSheetPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

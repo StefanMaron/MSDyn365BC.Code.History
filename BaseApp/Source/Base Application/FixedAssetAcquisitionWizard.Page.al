@@ -87,6 +87,18 @@ page 5551 "Fixed Asset Acquisition Wizard"
                             ValidateCurrentStep(Step);
                         end;
                     }
+                    field(ActivityCode; "Activity Code")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Activity Code';
+                        ToolTip = 'Specifies a code that describes the company+s primary activities.';
+
+                        trigger OnValidate()
+                        begin
+                            if GeneralLedgerSetup."Use Activity Code" then
+                                ValidateCurrentStep(Step);
+                        end;
+                    }
                 }
             }
             group(Step3)
@@ -285,6 +297,8 @@ page 5551 "Fixed Asset Acquisition Wizard"
     end;
 
     trigger OnOpenPage()
+    var
+        CompanyInformation: Record "Company Information";
     begin
         // We could check if values like FA Posting code, descirption are in the temp
         if not Get then begin
@@ -296,6 +310,15 @@ page 5551 "Fixed Asset Acquisition Wizard"
             "FA Posting Type" := "FA Posting Type"::"Acquisition Cost";
             "Posting Date" := WorkDate;
             SetAccountNoFromFilter;
+
+            // Initialize Activity Code
+
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Use Activity Code" then begin
+                CompanyInformation.Get();
+                "Activity Code" := CompanyInformation."Activity Code";
+            end;
+
             Insert;
         end;
 
@@ -311,6 +334,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
         MediaResourcesStandard: Record "Media Resources";
         MediaResourcesDone: Record "Media Resources";
         TempBalancingGenJournalLine: Record "Gen. Journal Line" temporary;
+        GeneralLedgerSetup: Record "General Ledger Setup";
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         ClientTypeManagement: Codeunit "Client Type Management";
         Step: Option Intro,"FA Details","Register Details",Done,"Already In Journal";
@@ -356,7 +380,7 @@ page 5551 "Fixed Asset Acquisition Wizard"
             Step::Intro:
                 CurrStepIsValid := true;
             Step::"FA Details":
-                CurrStepIsValid := (Amount >= 0.0) and ("Posting Date" <> 0D);
+                CurrStepIsValid := (Amount >= 0.0) and ("Posting Date" <> 0D) and (("Activity Code" <> '') or not GeneralLedgerSetup."Use Activity Code");
             Step::"Register Details":
                 begin
                     CurrStepIsValid := "Bal. Account No." <> '';

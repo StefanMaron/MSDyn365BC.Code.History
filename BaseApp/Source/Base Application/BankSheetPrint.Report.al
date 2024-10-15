@@ -179,18 +179,12 @@ report 12112 "Bank Sheet - Print"
                     trigger OnAfterGetRecord()
                     begin
                         Amnt := Amnt + Amount;
-
+                        IcreasesAmnt := 0;
+                        DecreasesAmnt := 0;
                         if Amount > 0 then
                             IcreasesAmnt := Amount
                         else
                             DecreasesAmnt := Abs(Amount);
-                    end;
-
-                    trigger OnPreDataItem()
-                    begin
-                        Clear(Amount);
-                        Clear(IcreasesAmnt);
-                        Clear(DecreasesAmnt);
                     end;
                 }
 

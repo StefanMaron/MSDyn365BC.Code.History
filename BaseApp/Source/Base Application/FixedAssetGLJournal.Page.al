@@ -386,6 +386,12 @@
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the number of a posted FA ledger entry to mark as an error entry.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -510,7 +516,7 @@
                     group("Number of Lines")
                     {
                         Caption = 'Number of Lines';
-                        field(NumberOfJournalRecords; Count)
+                        field(NumberOfJournalRecords; NumberOfRecords)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -865,6 +871,7 @@
         BalAccountName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
+        NumberOfRecords: Integer;
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
         AddCurrCodeIsFound: Boolean;
@@ -889,6 +896,8 @@
         GenJnlManagement.CalcBalance(Rec, xRec, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         BalanceVisible := ShowBalance;
         TotalBalanceVisible := ShowTotalBalance;
+        if ShowTotalBalance then
+            NumberOfRecords := Count();
     end;
 
     local procedure EnableApplyEntriesAction()

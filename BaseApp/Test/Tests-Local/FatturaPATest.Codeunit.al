@@ -1298,6 +1298,72 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBufferPart.TestField(Value, FormatAmount(-UnitPrice));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceForLocalCustomer()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempXMLBufferPart: Record "XML Buffer" temporary;
+        DocumentRecRef: RecordRef;
+        ClientFileName: Text[250];
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 334296] Exporting a document with local customer, populates 'CAP' element with its Post Code
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice for a local customer
+        CustomerNo := CreateCustomer;
+        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo));
+
+        // [WHEN] A Fattura PA document is created for this Sales Invoice
+        ElectronicDocumentFormat.SendElectronically(
+          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        FileManagement.GetFileNameWithoutExtension(ServerFileName);
+        TempXMLBuffer.Load(ServerFileName);
+
+        // [THEN] 'CAP' element is populated with local Customer's Post Code
+        TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
+        TempXMLBufferPart.FindFirst;
+        TempXMLBufferPart.TestField(Value, GetCustomerPostCode(CustomerNo));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportSalesInvoiceForForeignCustomer()
+    var
+        CountryRegion: Record "Country/Region";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempXMLBufferPart: Record "XML Buffer" temporary;
+        DocumentRecRef: RecordRef;
+        ClientFileName: Text[250];
+        CustomerNo: Code[20];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 334296] Exporting a document with foreign customer, populates 'CAP' element with '00000'
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice for a foreign customer
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CustomerNo := CreateForeignCustomer(CountryRegion.Code);
+        SalesInvoiceHeader.SetRange("No.", CreateAndPostSalesInvoice(DocumentRecRef, CreatePaymentMethod, CreatePaymentTerms, CustomerNo));
+
+        // [WHEN] A Fattura PA document is created for this Sales Invoice
+        ElectronicDocumentFormat.SendElectronically(
+          ServerFileName, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+        FileManagement.GetFileNameWithoutExtension(ServerFileName);
+        TempXMLBuffer.Load(ServerFileName);
+
+        // [THEN] 'CAP' element is populated with '00000' for a foreign Customer
+        TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
+        TempXMLBufferPart.FindFirst;
+        TempXMLBufferPart.TestField(Value, '00000');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1509,6 +1575,18 @@ codeunit 144200 "FatturaPA Test"
             CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6)));
     end;
 
+    local procedure CreateForeignCustomer(CountryRegionCode: Code[10]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CreateCustomer);
+        Customer.Validate("Country/Region Code", CountryRegionCode);
+        Customer.Validate(City, LibraryUtility.GenerateGUID);
+        Customer.Validate("Post Code", LibraryUtility.GenerateGUID);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
     local procedure CreatePrivateCompanyCustomer(): Code[20]
     var
         Customer: Record Customer;
@@ -1662,6 +1740,14 @@ codeunit 144200 "FatturaPA Test"
             if VATEntry."Unrealized Amount" <> 0 then
                 exit('D');
         exit('I');
+    end;
+
+    local procedure GetCustomerPostCode(CustomerNo: Code[20]): Code[10]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        exit(Customer."Post Code");
     end;
 
     local procedure VerifyFatturaPAFileHeaderPublicCompany(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef; CustomerNo: Code[20])

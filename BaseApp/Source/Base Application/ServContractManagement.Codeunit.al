@@ -27,6 +27,7 @@ codeunit 5940 ServContractManagement
         ServHeader: Record "Service Header";
         ServiceRegister: Record "Service Register";
         Salesperson: Record "Salesperson/Purchaser";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -436,6 +437,9 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract2."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract2."Responsibility Center"));
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Use Activity Code" then
+            ServHeader2."Activity Code" := ServContract2."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract2);
         ServHeader2.Modify;
         RecordLinkManagement.CopyLinks(ServContract2, ServHeader2);
@@ -745,6 +749,9 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract."Responsibility Center"));
+        GeneralLedgerSetup.GetRecordOnce();
+        if GeneralLedgerSetup."Use Activity Code" then
+            ServHeader2."Activity Code" := ServContract."Activity Code";
         OnBeforeServHeaderModify(ServHeader2, ServContract);
         ServHeader2.Modify;
 
@@ -823,7 +830,7 @@ codeunit 5940 ServContractManagement
         ServLine2.Insert;
     end;
 
-    procedure CreateContractLineCreditMemo(var FromContractLine: Record "Service Contract Line"; Deleting: Boolean) CreditMemoNo: Code[20]
+    procedure CreateContractLineCreditMemo(var FromServiceContractLine: Record "Service Contract Line"; Deleting: Boolean) CreditMemoNo: Code[20]
     var
         ServItem: Record "Service Item";
         ServContractHeader: Record "Service Contract Header";
@@ -838,9 +845,9 @@ codeunit 5940 ServContractManagement
         WDate: Date;
         LineDescription: Text[100];
     begin
-        OnBeforeCreateContractLineCreditMemo(FromContractLine, Deleting);
+        OnBeforeCreateContractLineCreditMemo(FromServiceContractLine, Deleting);
         CreditMemoNo := '';
-        with FromContractLine do begin
+        with FromServiceContractLine do begin
             ServContractHeader.Get("Contract Type", "Contract No.");
             TestField("Contract Expiration Date");
             TestField("Credit Memo Date");
@@ -882,7 +889,7 @@ codeunit 5940 ServContractManagement
                     if FirstPrepaidPostingDate <> 0D then
                         LastIncomePostingDate := FirstPrepaidPostingDate - 1;
                     WDate := "Contract Expiration Date";
-                    OnCreateContractLineCreditMemoOnBeforeCalcCreditAmount(WDate, ServContractHeader, FromContractLine);
+                    OnCreateContractLineCreditMemoOnBeforeCalcCreditAmount(WDate, ServContractHeader, FromServiceContractLine);
                     CreditAmount :=
                       Round(
                         CalcContractLineAmount("Line Amount",
@@ -891,18 +898,9 @@ codeunit 5940 ServContractManagement
                     if CreditAmount > 0 then begin
                         CreditMemoNo := CreateOrGetCreditHeader(ServContractHeader, "Credit Memo Date");
                         CreateAllCreditLines(
-                          CreditMemoNo,
-                          "Line Amount",
-                          WDate,
-                          "Invoiced to Date",
-                          LineDescription,
-                          "Service Item No.",
-                          "Item No.",
-                          ServContractHeader,
-                          "Line Cost",
-                          "Line Value",
-                          LastIncomePostingDate,
-                          "Starting Date")
+                            CreditMemoNo, "Line Amount", WDate, "Invoiced to Date", LineDescription, "Service Item No.", "Item No.",
+                            ServContractHeader, "Line Cost", "Line Value", LastIncomePostingDate, "Starting Date");
+                        OnCreateContractLineCreditMemoOnAfterCreateAllCreditLines(ServContractHeader, FromServiceContractLine, CreditMemoNo);
                     end;
                 end;
             end;
@@ -912,7 +910,7 @@ codeunit 5940 ServContractManagement
             end;
         end;
 
-        OnAfterCreateContractLineCreditMemo(FromContractLine, CreditMemoNo);
+        OnAfterCreateContractLineCreditMemo(FromServiceContractLine, CreditMemoNo);
     end;
 
     [Scope('OnPrem')]
@@ -1638,6 +1636,7 @@ codeunit 5940 ServContractManagement
         ServContractHeader: Record "Service Contract Header";
         ServItem: Record "Service Item";
         ServItemList: Page "Service Item List";
+        IsHandled: Boolean;
     begin
         Clear(ServItemList);
         if ServItem.Get(ServiceContractLine."Service Item No.") then
@@ -1645,8 +1644,12 @@ codeunit 5940 ServContractManagement
         ServItem.Reset;
         ServItem.SetCurrentKey("Customer No.", "Ship-to Code");
         ServItem.FilterGroup(2);
-        if ServiceContractLine."Customer No." <> '' then
-            ServItem.SetRange("Customer No.", ServiceContractLine."Customer No.");
+        IsHandled := false;
+        OnLookupServItemNoOnBeforeFilterByCustomerNo(ServItem, ServiceContractLine, IsHandled);
+        if not IsHandled then
+            if ServiceContractLine."Customer No." <> '' then
+                ServItem.SetRange("Customer No.", ServiceContractLine."Customer No.");
+
         ServItem.FilterGroup(0);
         if ServContractHeader.Get(ServiceContractLine."Contract Type", ServiceContractLine."Contract No.") and
            (ServiceContractLine."Ship-to Code" = ServContractHeader."Ship-to Code")
@@ -2023,7 +2026,7 @@ codeunit 5940 ServContractManagement
     local procedure InsertDescriptionServiceLine(Description: Text[100])
     begin
         ServLine.Init;
-        ServLine."Line No." := ServLine.GetNextLineNo(ServLine, true);
+        ServLine."Line No." := ServLine.GetLineNo();
         ServLine.Description := Description;
         ServLine.Insert;
     end;
@@ -2285,6 +2288,11 @@ codeunit 5940 ServContractManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateContractLineCreditMemoOnAfterCreateAllCreditLines(ServContractHeader: Record "Service Contract Header"; ServiceContractLine: Record "Service Contract Line"; CreditMemoNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateOrGetCreditHeader(var ServiceHeader: Record "Service Header"; ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
@@ -2296,6 +2304,16 @@ codeunit 5940 ServContractManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateAllServLinesOnAfterServContractLineSetFilters(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAllCreditLinesCaseElse(ServiceContractHeader: Record "Service Contract Header"; var InvPeriod: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupServItemNoOnBeforeFilterByCustomerNo(var ServItem: Record "Service Item"; var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -27,6 +27,8 @@ codeunit 12171 "Vend. Bill List-Change Status"
     [Scope('OnPrem')]
     procedure FromOpenToSent(var VendorBillHeader: Record "Vendor Bill Header")
     begin
+        OnBeforeFromOpenToSent(VendorBillHeader);
+
         with VendorBillHeader do begin
             TestField("Posting Date");
 
@@ -71,11 +73,15 @@ codeunit 12171 "Vend. Bill List-Change Status"
                 VendorBillLine.Modify;
             until VendorBillLine.Next = 0;
         end;
+
+        OnAfterFromOpenToSent(VendorBillHeader);
     end;
 
     [Scope('OnPrem')]
     procedure FromSentToOpen(var VendorBillHeader: Record "Vendor Bill Header")
     begin
+        OnBeforeFromSentToOpen(VendorBillHeader);
+
         with VendorBillHeader do begin
             if not Confirm(Text004, false, FieldCaption("Vendor Bill List No.")) then
                 exit;
@@ -100,6 +106,28 @@ codeunit 12171 "Vend. Bill List-Change Status"
                     VendorBillLine.Modify;
                 until VendorBillLine.Next = 0;
         end;
+
+        OnAfterFromSentToOpen(VendorBillHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFromOpenToSent(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFromSentToOpen(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromOpenToSent(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromSentToOpen(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
     end;
 }
 

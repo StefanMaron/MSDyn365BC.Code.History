@@ -82,6 +82,13 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ShowMandatory = true;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
             }
             part(FinChrgMemoLines; "Finance Charge Memo Lines")
             {

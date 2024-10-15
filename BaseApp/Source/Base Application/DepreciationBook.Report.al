@@ -561,6 +561,7 @@ report 12119 "Depreciation Book"
             var
                 i: Integer;
             begin
+                Clear(ReclassDeprAmount);
                 if "Fixed Asset"."Source FA No." = '' then
                     FASource := ''
                 else
@@ -1088,7 +1089,7 @@ report 12119 "Depreciation Book"
             Period2, StartingDate, EndingDate,
             DeprBookCode, BeforeAmount, EndingAmount, true, true);
 
-        if GetPeriodDisposal then
+        if GetPeriodDisposal and IsReclassifiedFA(FANo, DeprBookCode, true) then
             ReclassAmount[3] := -(ReclassAmount[1] + ReclassAmount[2])
         else
             ReclassAmount[3] := 0;

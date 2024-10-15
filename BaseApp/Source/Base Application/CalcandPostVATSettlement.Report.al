@@ -168,402 +168,422 @@ report 20 "Calc. and Post VAT Settlement"
             column(VATEntryRemainingUnrealizedAmountCaption; "VAT Entry".FieldCaption("Remaining Unrealized Amount"))
             {
             }
-            dataitem("Closing G/L and VAT Entry"; "Integer")
+            dataitem("Activity Code Loop"; "Integer")
             {
-                DataItemTableView = SORTING(Number);
-                column(VATBusPostGr1_VATPostingSetup; "VAT Posting Setup"."VAT Bus. Posting Group")
+                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
+
+
+                dataitem("Closing G/L and VAT Entry"; "Integer")
                 {
-                }
-                column(VATProdPostGr1_VATPostingSetup; "VAT Posting Setup"."VAT Prod. Posting Group")
-                {
-                }
-                column(VATEntryGetFilterType; VATEntry.GetFilter(Type))
-                {
-                }
-                column(VATEntryGetFilterTaxJurisdictionCode; VATEntry.GetFilter("Tax Jurisdiction Code"))
-                {
-                }
-                column(VATEntryGetFilterUseTax; VATEntry.GetFilter("Use Tax"))
-                {
-                }
-                column(Number_IntegerLine; Number)
-                {
-                }
-                dataitem("VAT Entry"; "VAT Entry")
-                {
-                    DataItemTableView = SORTING(Type, Closed) WHERE(Closed = CONST(false), Type = FILTER(Purchase | Sale));
-                    column(PostingDate_VATEntry; Format("Posting Date"))
+                    DataItemTableView = SORTING(Number);
+                    column(VATBusPostGr1_VATPostingSetup; "VAT Posting Setup"."VAT Bus. Posting Group")
                     {
                     }
-                    column(DocumentNo_VATEntry; "Document No.")
-                    {
-                        IncludeCaption = false;
-                    }
-                    column(DocumentType_VATEntry; "Document Type")
+                    column(VATProdPostGr1_VATPostingSetup; "VAT Posting Setup"."VAT Prod. Posting Group")
                     {
                     }
-                    column(Type_VATEntry; Type)
+                    column(VATEntryGetFilterType; VATEntry.GetFilter(Type))
                     {
-                        IncludeCaption = false;
                     }
-                    column(Base_VATEntry; Base)
+                    column(VATEntryGetFilterTaxJurisdictionCode; VATEntry.GetFilter("Tax Jurisdiction Code"))
                     {
-                        AutoFormatExpression = GetCurrency;
-                        AutoFormatType = 1;
-                        IncludeCaption = false;
                     }
-                    column(Amount_VATEntry; Amount)
+                    column(VATEntryGetFilterUseTax; VATEntry.GetFilter("Use Tax"))
                     {
-                        AutoFormatExpression = GetCurrency;
-                        AutoFormatType = 1;
-                        IncludeCaption = false;
                     }
-                    column(EntryNo_VATEntry; "Entry No.")
+                    column(Number_IntegerLine; Number)
                     {
-                        IncludeCaption = false;
                     }
-                    column(NondeductibleAmount_VATEntry; "Nondeductible Amount")
+                    dataitem("VAT Entry"; "VAT Entry")
                     {
-                        IncludeCaption = false;
+                        DataItemTableView = SORTING(Type, Closed) WHERE(Closed = CONST(false), Type = FILTER(Purchase | Sale));
+                        column(PostingDate_VATEntry; Format("Posting Date"))
+                        {
+                        }
+                        column(DocumentNo_VATEntry; "Document No.")
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(DocumentType_VATEntry; "Document Type")
+                        {
+                        }
+                        column(Type_VATEntry; Type)
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(Base_VATEntry; Base)
+                        {
+                            AutoFormatExpression = GetCurrency;
+                            AutoFormatType = 1;
+                            IncludeCaption = false;
+                        }
+                        column(Amount_VATEntry; Amount)
+                        {
+                            AutoFormatExpression = GetCurrency;
+                            AutoFormatType = 1;
+                            IncludeCaption = false;
+                        }
+                        column(EntryNo_VATEntry; "Entry No.")
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(NondeductibleAmount_VATEntry; "Nondeductible Amount")
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(NondeductibleBase_VATEntry; "Nondeductible Base")
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(RemUnrealizedAmt_VATEntry; "Remaining Unrealized Amount")
+                        {
+                            IncludeCaption = false;
+                        }
+                        column(RemUnrealizedBase_VATEntry; "Remaining Unrealized Base")
+                        {
+                            IncludeCaption = false;
+                        }
+
+                        trigger OnAfterGetRecord()
+                        begin
+                            TotalVATNondeducAmnt += "Nondeductible Amount";
+                            TotalVATNondeducBase += "Nondeductible Base";
+                            TotalVATNondeducBaseAmt += "Nondeductible Base";
+                            TotalRemainUnrealBaseAmt += "Remaining Unrealized Base";
+                            TotalRemainUnrealAmt += "Remaining Unrealized Amount";
+
+                            if not PrintVATEntries then
+                            CurrReport.Skip;
+                        end;
+
+                        trigger OnPreDataItem()
+                        begin
+                            "VAT Entry".CopyFilters(VATEntry);
+                            TotalVATNondeducAmnt := 0;
+                            TotalVATNondeducBase := 0;
+                            TotalVATNondeducBaseAmt := 0;
+                            TotalRemainUnrealBaseAmt := 0;
+                            TotalRemainUnrealAmt := 0;
+                        end;
                     }
-                    column(NondeductibleBase_VATEntry; "Nondeductible Base")
+                    dataitem("Close VAT Entries"; "Integer")
                     {
-                        IncludeCaption = false;
-                    }
-                    column(RemUnrealizedAmt_VATEntry; "Remaining Unrealized Amount")
-                    {
-                        IncludeCaption = false;
-                    }
-                    column(RemUnrealizedBase_VATEntry; "Remaining Unrealized Base")
-                    {
-                        IncludeCaption = false;
+                        DataItemTableView = SORTING(Number);
+                        MaxIteration = 1;
+                        column(PostingDate1; Format(PostingDate))
+                        {
+                        }
+                        column(GenJnlLineDocumentNo; GenJnlLine."Document No.")
+                        {
+                        }
+                        column(GenJnlLineVATBaseAmount; GenJnlLine."VAT Base Amount")
+                        {
+                            AutoFormatExpression = GetCurrency;
+                            AutoFormatType = 1;
+                        }
+                        column(GenJnlLineVATAmount; GenJnlLine."VAT Amount")
+                        {
+                            AutoFormatExpression = GetCurrency;
+                            AutoFormatType = 1;
+                        }
+                        column(NextVATEntryNo; NextVATEntryNo)
+                        {
+                        }
+                        column(TotalVATNondeducBase; TotalVATNondeducBase)
+                        {
+                        }
+                        column(TotalVATNondeducAmnt; TotalVATNondeducAmnt)
+                        {
+                        }
+                        column(TotalVATNondeducBaseAmt; TotalVATNondeducBaseAmt)
+                        {
+                        }
+                        column(TotalRemainUnrealBaseAmt; TotalRemainUnrealBaseAmt)
+                        {
+                        }
+                        column(TotalRemainUnrealAmt; TotalRemainUnrealAmt)
+                        {
+                        }
+                        column(GenJnlLine2Amount; GenJnlLine2.Amount)
+                        {
+                            AutoFormatExpression = GetCurrency;
+                            AutoFormatType = 1;
+                        }
+                        column(GenJnlLine2DocumentNo; GenJnlLine2."Document No.")
+                        {
+                        }
+                        column(ReversingEntry; ReversingEntry)
+                        {
+                        }
+                        column(GenJnlLineVATBaseAmountCaption; GenJnlLineVATBaseAmountCaptionLbl)
+                        {
+                        }
+
+                        trigger OnAfterGetRecord()
+                        begin
+                            // Calculate amount and base
+                            VATEntry.CalcSums(
+                            Base, Amount,
+                            "Additional-Currency Base", "Additional-Currency Amount");
+
+                            ReversingEntry := false;
+                            // Balancing entries to VAT accounts
+                            GenJnlLine."System-Created Entry" := true;
+                            GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+                            case VATType of
+                                VATEntry.Type::Purchase:
+                                    GenJnlLine.Description :=
+                                    DelChr(
+                                        StrSubstNo(
+                                        Text007,
+                                        "VAT Posting Setup"."VAT Bus. Posting Group",
+                                        "VAT Posting Setup"."VAT Prod. Posting Group"),
+                                        '>');
+                                VATEntry.Type::Sale:
+                                    GenJnlLine.Description :=
+                                    DelChr(
+                                        StrSubstNo(
+                                        Text008,
+                                        "VAT Posting Setup"."VAT Bus. Posting Group",
+                                        "VAT Posting Setup"."VAT Prod. Posting Group"),
+                                        '>');
+                            end;
+                            GenJnlLine."VAT Bus. Posting Group" := "VAT Posting Setup"."VAT Bus. Posting Group";
+                            GenJnlLine."VAT Prod. Posting Group" := "VAT Posting Setup"."VAT Prod. Posting Group";
+                            GenJnlLine."VAT Calculation Type" := "VAT Posting Setup"."VAT Calculation Type";
+                            GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+                            GenJnlLine."Deductible %" := 100;
+                            GenJnlLine."Posting Date" := PostingDate;
+                            GenJnlLine."Operation Occurred Date" := PostingDate;
+                            if GLSetup."Use Activity Code" then
+                                GenJnlLine."Activity Code" := ActivityCode.Code;
+                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine."Document No." := DocNo;
+                            GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
+                            GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+                            case "VAT Posting Setup"."VAT Calculation Type" of
+                                "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
+                                "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
+                                    begin
+                                        case VATType of
+                                            VATEntry.Type::Purchase:
+                                                begin
+                                                    GenJnlLine."Account No." := "VAT Posting Setup".GetPurchAccount(false);
+                                                    TotalPurchaseAmount := -VATEntry.Amount + TotalPurchaseAmount;
+                                                end;
+                                            VATEntry.Type::Sale:
+                                                begin
+                                                    GenJnlLine."Account No." := "VAT Posting Setup".GetSalesAccount(false);
+                                                    TotalSaleAmount := -VATEntry.Amount + TotalSaleAmount;
+                                                end;
+                                        end;
+                                        GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                        CopyAmounts(GenJnlLine, VATEntry);
+                                        if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
+                                            GenJnlPostLine.Run(GenJnlLine);
+                                        VATAmount := VATAmount + VATEntry.Amount;
+                                        VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
+                                    end;
+                                "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT":
+                                    begin
+                                        case VATType of
+                                            VATEntry.Type::Purchase:
+                                                begin
+                                                    TotalPurchaseAmount := -VATEntry.Amount + TotalPurchaseAmount;
+                                                    GenJnlLine."Account No." := "VAT Posting Setup".GetPurchAccount(false);
+                                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                                    CopyAmounts(GenJnlLine, VATEntry);
+                                                    if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
+                                                        GenJnlPostLine.Run(GenJnlLine);
+                                                    VATAmount := VATAmount + VATEntry.Amount;
+                                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
+                                                end;
+                                            VATEntry.Type::Sale:
+                                                begin
+                                                    TotalSaleAmount := -VATEntry.Amount + TotalSaleAmount;
+                                                    GenJnlLine."Account No." := "VAT Posting Setup".GetRevChargeAccount(false);
+                                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                                    GenJnlLine."Deductible %" := 100;
+                                                    CopyAmounts(GenJnlLine, VATEntry);
+                                                    GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
+                                                    if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
+                                                        GenJnlPostLine.Run(GenJnlLine);
+                                                    VATAmount := VATAmount + VATEntry.Amount;
+                                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
+                                                end;
+                                        end;
+                                    end;
+                                "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
+                                    begin
+                                        TaxJurisdiction.Get(VATEntry."Tax Jurisdiction Code");
+                                        GenJnlLine."Tax Area Code" := TaxJurisdiction.Code;
+                                        GenJnlLine."Use Tax" := VATEntry."Use Tax";
+                                        case VATType of
+                                            VATEntry.Type::Purchase:
+                                                if VATEntry."Use Tax" then begin
+                                                    TaxJurisdiction.TestField("Tax Account (Purchases)");
+                                                    GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Purchases)";
+                                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                                    CopyAmounts(GenJnlLine, VATEntry);
+                                                    if PostSettlement then
+                                                        GenJnlPostLine.Run(GenJnlLine);
+
+                                                    TaxJurisdiction.TestField("Reverse Charge (Purchases)");
+                                                    CreateGenJnlLine(GenJnlLine2, TaxJurisdiction."Reverse Charge (Purchases)");
+                                                    GenJnlLine2."Tax Area Code" := TaxJurisdiction.Code;
+                                                    GenJnlLine2."Use Tax" := VATEntry."Use Tax";
+                                                    if PostSettlement then
+                                                        GenJnlPostLine.Run(GenJnlLine2);
+                                                    ReversingEntry := true;
+                                                end else begin
+                                                    TaxJurisdiction.TestField("Tax Account (Purchases)");
+                                                    GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Purchases)";
+                                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                                    CopyAmounts(GenJnlLine, VATEntry);
+                                                    if PostSettlement then
+                                                        GenJnlPostLine.Run(GenJnlLine);
+                                                    VATAmount := VATAmount + VATEntry.Amount;
+                                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
+                                                end;
+                                            VATEntry.Type::Sale:
+                                                begin
+                                                    TaxJurisdiction.TestField("Tax Account (Sales)");
+                                                    GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Sales)";
+                                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
+                                                    CopyAmounts(GenJnlLine, VATEntry);
+                                                    if PostSettlement then
+                                                        GenJnlPostLine.Run(GenJnlLine);
+                                                    VATAmount := VATAmount + VATEntry.Amount;
+                                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
+                                                end;
+                                        end;
+                                    end;
+                            end;
+                            NextVATEntryNo := NextVATEntryNo + 1;
+
+                            // Close current VAT entries
+                            if PostSettlement then begin
+                                VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
+                                VATEntry.ModifyAll(Closed, true);
+                                VATEntry.SetRange(Closed, true);
+                                VATEntry.ModifyAll("VAT Period", VATPeriod);
+                                VATEntry.SetRange(Closed, false);
+                            end;
+
+                            FinalUndVATAmnt += TotalVATNondeducAmnt;
+
+                            TotalSaleRounded := FiscalRoundAmount(PeriodOutputVATYearOutputVATAdvAmt + TotalSaleAmount);
+                            TotalPurchRounded := FiscalRoundAmount(PeriodInputVATYearInputVAT - TotalPurchaseAmount);
+
+                            VATToPay := 0;
+                            if (TotalSaleRounded - TotalPurchRounded) > 0 then
+                                VATToPay := TotalSaleRounded - TotalPurchRounded;
+                        end;
                     }
 
                     trigger OnAfterGetRecord()
                     begin
-                        TotalVATNondeducAmnt += "Nondeductible Amount";
-                        TotalVATNondeducBase += "Nondeductible Base";
-                        TotalVATNondeducBaseAmt += "Nondeductible Base";
-                        TotalRemainUnrealBaseAmt += "Remaining Unrealized Base";
-                        TotalRemainUnrealAmt += "Remaining Unrealized Amount";
+                    VATEntry.Reset;
+                        if GLSetup."Use Activity Code" then
+                            VATEntry.SetFilter("Activity Code", '%1', ActivityCode.Code);
+                        VATEntry.SetRange(Type, VATType);
+                        VATEntry.SetRange(Closed, false);
+                        VATEntry.SetFilter("Operation Occurred Date", VATDateFilter);
+                        VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
+                        VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
+                        VATEntry.SetRange("Tax Liable", false);
+                        VATEntry.SetRange("VAT Period", '');
 
-                        if not PrintVATEntries then
-                            CurrReport.Skip;
+                        case "VAT Posting Setup"."VAT Calculation Type" of
+                            "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
+                            "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
+                            "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
+                                begin
+                                    VATEntry.SetCurrentKey(
+                                        Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+                                        "Tax Jurisdiction Code", "Use Tax", "Tax Liable", "VAT Period", "Operation Occurred Date");
+                                    if FindFirstEntry then begin
+                                        if not VATEntry.Find('-') then
+                                            repeat
+                                                VATType := VATType + 1;
+                                                VATEntry.SetRange(Type, VATType);
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
+                                        FindFirstEntry := false;
+                                    end else begin
+                                        if VATEntry.Next = 0 then
+                                            repeat
+                                                VATType := VATType + 1;
+                                                VATEntry.SetRange(Type, VATType);
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
+                                    end;
+                                    if VATType < VATEntry.Type::Settlement then
+                                        VATEntry.Find('+');
+                                end;
+                            "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
+                                begin
+                                    VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+                                    if FindFirstEntry then begin
+                                        if not VATEntry.Find('-') then
+                                            repeat
+                                                VATType := VATType + 1;
+                                                VATEntry.SetRange(Type, VATType);
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
+                                        FindFirstEntry := false;
+                                    end else begin
+                                        VATEntry.SetRange("Tax Jurisdiction Code");
+                                        VATEntry.SetRange("Use Tax");
+                                        if VATEntry.Next = 0 then
+                                            repeat
+                                                VATType := VATType + 1;
+                                                VATEntry.SetRange(Type, VATType);
+                                            until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
+                                    end;
+                                    if VATType < VATEntry.Type::Settlement then begin
+                                        VATEntry.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
+                                        VATEntry.SetRange("Use Tax", VATEntry."Use Tax");
+                                        VATEntry.Find('+');
+                                    end;
+                                end;
+                        end;
+
+                        if VATType = VATEntry.Type::Settlement then
+                        CurrReport.Break;
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        "VAT Entry".CopyFilters(VATEntry);
-                        TotalVATNondeducAmnt := 0;
-                        TotalVATNondeducBase := 0;
-                        TotalVATNondeducBaseAmt := 0;
-                        TotalRemainUnrealBaseAmt := 0;
-                        TotalRemainUnrealAmt := 0;
+                        VATType := VATEntry.Type::Purchase;
+                        FindFirstEntry := true;
                     end;
                 }
-                dataitem("Close VAT Entries"; "Integer")
+                dataitem("Integer"; "Integer")
                 {
                     DataItemTableView = SORTING(Number);
                     MaxIteration = 1;
-                    column(PostingDate1; Format(PostingDate))
-                    {
-                    }
-                    column(GenJnlLineDocumentNo; GenJnlLine."Document No.")
-                    {
-                    }
-                    column(GenJnlLineVATBaseAmount; GenJnlLine."VAT Base Amount")
-                    {
-                        AutoFormatExpression = GetCurrency;
-                        AutoFormatType = 1;
-                    }
-                    column(GenJnlLineVATAmount; GenJnlLine."VAT Amount")
-                    {
-                        AutoFormatExpression = GetCurrency;
-                        AutoFormatType = 1;
-                    }
-                    column(NextVATEntryNo; NextVATEntryNo)
-                    {
-                    }
-                    column(TotalVATNondeducBase; TotalVATNondeducBase)
-                    {
-                    }
-                    column(TotalVATNondeducAmnt; TotalVATNondeducAmnt)
-                    {
-                    }
-                    column(TotalVATNondeducBaseAmt; TotalVATNondeducBaseAmt)
-                    {
-                    }
-                    column(TotalRemainUnrealBaseAmt; TotalRemainUnrealBaseAmt)
-                    {
-                    }
-                    column(TotalRemainUnrealAmt; TotalRemainUnrealAmt)
-                    {
-                    }
-                    column(GenJnlLine2Amount; GenJnlLine2.Amount)
-                    {
-                        AutoFormatExpression = GetCurrency;
-                        AutoFormatType = 1;
-                    }
-                    column(GenJnlLine2DocumentNo; GenJnlLine2."Document No.")
-                    {
-                    }
-                    column(ReversingEntry; ReversingEntry)
-                    {
-                    }
-                    column(GenJnlLineVATBaseAmountCaption; GenJnlLineVATBaseAmountCaptionLbl)
-                    {
-                    }
 
                     trigger OnAfterGetRecord()
                     begin
-                        // Calculate amount and base
-                        VATEntry.CalcSums(
-                          Base, Amount,
-                          "Additional-Currency Base", "Additional-Currency Amount");
-
-                        ReversingEntry := false;
-                        // Balancing entries to VAT accounts
-                        GenJnlLine."System-Created Entry" := true;
-                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-                        case VATType of
-                            VATEntry.Type::Purchase:
-                                GenJnlLine.Description :=
-                                  DelChr(
-                                    StrSubstNo(
-                                      Text007,
-                                      "VAT Posting Setup"."VAT Bus. Posting Group",
-                                      "VAT Posting Setup"."VAT Prod. Posting Group"),
-                                    '>');
-                            VATEntry.Type::Sale:
-                                GenJnlLine.Description :=
-                                  DelChr(
-                                    StrSubstNo(
-                                      Text008,
-                                      "VAT Posting Setup"."VAT Bus. Posting Group",
-                                      "VAT Posting Setup"."VAT Prod. Posting Group"),
-                                    '>');
+                        if (VATBusPostingGroup = "VAT Posting Setup"."VAT Bus. Posting Group") and
+                        (VATProdPostingGroup = "VAT Posting Setup"."VAT Prod. Posting Group")
+                        then begin
+                            if (TotalSaleRounded - TotalPurchRounded) < 0 then
+                                CreditNextPeriod := -(TotalSaleRounded - TotalPurchRounded);
+                            if (TotalSaleRounded - TotalPurchRounded) > 0 then begin
+                                if (TotalSaleRounded - TotalPurchRounded) <= GLSetup."Minimum VAT Payable" then
+                                    DebitNextPeriod := TotalSaleRounded - TotalPurchRounded;
+                            end;
                         end;
-                        GenJnlLine."VAT Bus. Posting Group" := "VAT Posting Setup"."VAT Bus. Posting Group";
-                        GenJnlLine."VAT Prod. Posting Group" := "VAT Posting Setup"."VAT Prod. Posting Group";
-                        GenJnlLine."VAT Calculation Type" := "VAT Posting Setup"."VAT Calculation Type";
-                        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
-                        GenJnlLine."Deductible %" := 100;
-                        GenJnlLine."Posting Date" := PostingDate;
-                        GenJnlLine."Operation Occurred Date" := PostingDate;
-                        GenJnlLine."Document Type" := 0;
-                        GenJnlLine."Document No." := DocNo;
-                        GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
-                        GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
-                        case "VAT Posting Setup"."VAT Calculation Type" of
-                            "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
-                            "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
-                                begin
-                                    case VATType of
-                                        VATEntry.Type::Purchase:
-                                            begin
-                                                GenJnlLine."Account No." := "VAT Posting Setup".GetPurchAccount(false);
-                                                TotalPurchaseAmount := -VATEntry.Amount + TotalPurchaseAmount;
-                                            end;
-                                        VATEntry.Type::Sale:
-                                            begin
-                                                GenJnlLine."Account No." := "VAT Posting Setup".GetSalesAccount(false);
-                                                TotalSaleAmount := -VATEntry.Amount + TotalSaleAmount;
-                                            end;
-                                    end;
-                                    GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                    CopyAmounts(GenJnlLine, VATEntry);
-                                    if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
-                                        GenJnlPostLine.Run(GenJnlLine);
-                                    VATAmount := VATAmount + VATEntry.Amount;
-                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
-                                end;
-                            "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT":
-                                begin
-                                    case VATType of
-                                        VATEntry.Type::Purchase:
-                                            begin
-                                                TotalPurchaseAmount := -VATEntry.Amount + TotalPurchaseAmount;
-                                                GenJnlLine."Account No." := "VAT Posting Setup".GetPurchAccount(false);
-                                                GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                                CopyAmounts(GenJnlLine, VATEntry);
-                                                if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
-                                                    GenJnlPostLine.Run(GenJnlLine);
-                                                VATAmount := VATAmount + VATEntry.Amount;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
-                                            end;
-                                        VATEntry.Type::Sale:
-                                            begin
-                                                TotalSaleAmount := -VATEntry.Amount + TotalSaleAmount;
-                                                GenJnlLine."Account No." := "VAT Posting Setup".GetRevChargeAccount(false);
-                                                GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                                GenJnlLine."Deductible %" := 100;
-                                                CopyAmounts(GenJnlLine, VATEntry);
-                                                GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
-                                                if (PostSettlement) and (GenJnlLine."VAT Amount" <> 0) then
-                                                    GenJnlPostLine.Run(GenJnlLine);
-                                                VATAmount := VATAmount + VATEntry.Amount;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
-                                            end;
-                                    end;
-                                end;
-                            "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    TaxJurisdiction.Get(VATEntry."Tax Jurisdiction Code");
-                                    GenJnlLine."Tax Area Code" := TaxJurisdiction.Code;
-                                    GenJnlLine."Use Tax" := VATEntry."Use Tax";
-                                    case VATType of
-                                        VATEntry.Type::Purchase:
-                                            if VATEntry."Use Tax" then begin
-                                                TaxJurisdiction.TestField("Tax Account (Purchases)");
-                                                GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Purchases)";
-                                                GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                                CopyAmounts(GenJnlLine, VATEntry);
-                                                if PostSettlement then
-                                                    GenJnlPostLine.Run(GenJnlLine);
-
-                                                TaxJurisdiction.TestField("Reverse Charge (Purchases)");
-                                                CreateGenJnlLine(GenJnlLine2, TaxJurisdiction."Reverse Charge (Purchases)");
-                                                GenJnlLine2."Tax Area Code" := TaxJurisdiction.Code;
-                                                GenJnlLine2."Use Tax" := VATEntry."Use Tax";
-                                                if PostSettlement then
-                                                    GenJnlPostLine.Run(GenJnlLine2);
-                                                ReversingEntry := true;
-                                            end else begin
-                                                TaxJurisdiction.TestField("Tax Account (Purchases)");
-                                                GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Purchases)";
-                                                GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                                CopyAmounts(GenJnlLine, VATEntry);
-                                                if PostSettlement then
-                                                    GenJnlPostLine.Run(GenJnlLine);
-                                                VATAmount := VATAmount + VATEntry.Amount;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
-                                            end;
-                                        VATEntry.Type::Sale:
-                                            begin
-                                                TaxJurisdiction.TestField("Tax Account (Sales)");
-                                                GenJnlLine."Account No." := TaxJurisdiction."Tax Account (Sales)";
-                                                GenJnlLine.Validate(Amount, -VATEntry.Amount);
-                                                CopyAmounts(GenJnlLine, VATEntry);
-                                                if PostSettlement then
-                                                    GenJnlPostLine.Run(GenJnlLine);
-                                                VATAmount := VATAmount + VATEntry.Amount;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
-                                            end;
-                                    end;
-                                end;
-                        end;
-                        NextVATEntryNo := NextVATEntryNo + 1;
-
-                        // Close current VAT entries
-                        if PostSettlement then begin
-                            VATEntry.ModifyAll("Closed by Entry No.", NextVATEntryNo);
-                            VATEntry.ModifyAll(Closed, true);
-                            VATEntry.SetRange(Closed, true);
-                            VATEntry.ModifyAll("VAT Period", VATPeriod);
-                            VATEntry.SetRange(Closed, false);
-                        end;
-
-                        FinalUndVATAmnt += TotalVATNondeducAmnt;
-
-                        TotalSaleRounded := FiscalRoundAmount(PeriodOutputVATYearOutputVATAdvAmt + TotalSaleAmount);
-                        TotalPurchRounded := FiscalRoundAmount(PeriodInputVATYearInputVAT - TotalPurchaseAmount);
-
-                        VATToPay := 0;
-                        if (TotalSaleRounded - TotalPurchRounded) > 0 then
-                            VATToPay := TotalSaleRounded - TotalPurchRounded;
                     end;
                 }
-
                 trigger OnAfterGetRecord()
                 begin
-                    VATEntry.Reset;
-                    VATEntry.SetRange(Type, VATType);
-                    VATEntry.SetRange(Closed, false);
-                    VATEntry.SetFilter("Operation Occurred Date", VATDateFilter);
-                    VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
-                    VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
-                    VATEntry.SetRange("Tax Liable", false);
-                    VATEntry.SetRange("VAT Period", '');
-
-                    case "VAT Posting Setup"."VAT Calculation Type" of
-                        "VAT Posting Setup"."VAT Calculation Type"::"Normal VAT",
-                        "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT",
-                        "VAT Posting Setup"."VAT Calculation Type"::"Full VAT":
-                            begin
-                                VATEntry.SetCurrentKey(
-                                    Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-                                    "Tax Jurisdiction Code", "Use Tax", "Tax Liable", "VAT Period", "Operation Occurred Date");
-                                if FindFirstEntry then begin
-                                    if not VATEntry.Find('-') then
-                                        repeat
-                                            VATType := VATType + 1;
-                                            VATEntry.SetRange(Type, VATType);
-                                        until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
-                                    FindFirstEntry := false;
-                                end else begin
-                                    if VATEntry.Next = 0 then
-                                        repeat
-                                            VATType := VATType + 1;
-                                            VATEntry.SetRange(Type, VATType);
-                                        until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
-                                end;
-                                if VATType < VATEntry.Type::Settlement then
-                                    VATEntry.Find('+');
-                            end;
-                        "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
-                            begin
-                                VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
-                                if FindFirstEntry then begin
-                                    if not VATEntry.Find('-') then
-                                        repeat
-                                            VATType := VATType + 1;
-                                            VATEntry.SetRange(Type, VATType);
-                                        until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
-                                    FindFirstEntry := false;
-                                end else begin
-                                    VATEntry.SetRange("Tax Jurisdiction Code");
-                                    VATEntry.SetRange("Use Tax");
-                                    if VATEntry.Next = 0 then
-                                        repeat
-                                            VATType := VATType + 1;
-                                            VATEntry.SetRange(Type, VATType);
-                                        until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
-                                end;
-                                if VATType < VATEntry.Type::Settlement then begin
-                                    VATEntry.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
-                                    VATEntry.SetRange("Use Tax", VATEntry."Use Tax");
-                                    VATEntry.Find('+');
-                                end;
-                            end;
-                    end;
-
-                    if VATType = VATEntry.Type::Settlement then
-                        CurrReport.Break;
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    VATType := VATEntry.Type::Purchase;
-                    FindFirstEntry := true;
-                end;
-            }
-            dataitem("Integer"; "Integer")
-            {
-                DataItemTableView = SORTING(Number);
-                MaxIteration = 1;
-
-                trigger OnAfterGetRecord()
-                begin
-                    if (VATBusPostingGroup = "VAT Posting Setup"."VAT Bus. Posting Group") and
-                       (VATProdPostingGroup = "VAT Posting Setup"."VAT Prod. Posting Group")
-                    then begin
-                        if (TotalSaleRounded - TotalPurchRounded) < 0 then
-                            CreditNextPeriod := -(TotalSaleRounded - TotalPurchRounded);
-                        if (TotalSaleRounded - TotalPurchRounded) > 0 then begin
-                            if (TotalSaleRounded - TotalPurchRounded) <= GLSetup."Minimum VAT Payable" then
-                                DebitNextPeriod := TotalSaleRounded - TotalPurchRounded;
-                        end;
-                    end;
+                    if (Number = 1) and GLSetup."Use Activity Code" then
+                        ActivityCode.FindSet();
+                    if (Number = 2) and not GLSetup."Use Activity Code" then
+                        CurrReport.Break();
+                    if (Number >= 2) and GLSetup."Use Activity Code" then
+                        if ActivityCode.Next() = 0 then
+                            CurrReport.Break();
                 end;
             }
 
@@ -938,6 +958,7 @@ report 20 "Calc. and Post VAT Settlement"
         AllAmountsAreInTxt: Label 'All amounts are in %1.', Comment = '%1 = Currency Code';
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
+        ActivityCode: Record "Activity Code";
         GLAccSettle: Record "G/L Account";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";

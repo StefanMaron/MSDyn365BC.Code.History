@@ -1,4 +1,4 @@
-﻿page 450 "Issued Finance Charge Memo"
+page 450 "Issued Finance Charge Memo"
 {
     Caption = 'Issued Finance Charge Memo';
     Editable = false;
@@ -83,6 +83,12 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the issued finance charge memo has been canceled.';
+                }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
                 }
             }
             part(FinChrgMemoLines; "Issued Fin. Charge Memo Lines")

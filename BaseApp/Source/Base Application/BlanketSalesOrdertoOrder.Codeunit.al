@@ -96,7 +96,7 @@ codeunit 87 "Blanket Sales Order to Order"
                         if SalesOrderLine.Quantity <> 0 then
                             SalesOrderLine.Validate("Inv. Discount Amount", BlanketOrderSalesLine."Inv. Discount Amount");
                         SalesLineReserve.TransferSaleLineToSalesLine(
-                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Outstanding Qty. (Base)");
+                          BlanketOrderSalesLine, SalesOrderLine, BlanketOrderSalesLine."Qty. to Ship (Base)");
                     end;
 
                     if Cust."Prepayment %" <> 0 then

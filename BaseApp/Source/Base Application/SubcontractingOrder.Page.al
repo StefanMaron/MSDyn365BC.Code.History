@@ -132,6 +132,12 @@ page 12152 "Subcontracting Order"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the operation type that is assigned to the purchase invoice.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Manufacturing;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field("Check Total"; "Check Total")
                 {
                     ApplicationArea = Manufacturing;

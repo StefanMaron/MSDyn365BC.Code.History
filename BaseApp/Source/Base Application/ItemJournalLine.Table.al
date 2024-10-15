@@ -2253,6 +2253,7 @@ table 83 "Item Journal Line"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
+        PositiveFilterValue: Boolean;
     begin
         OnBeforeSelectItemEntry(Rec, xRec, CurrentFieldNo);
 
@@ -2276,7 +2277,11 @@ table 83 "Item Journal Line"
             ItemLedgEntry.SetRange("Location Code", "Location Code");
 
         if CurrentFieldNo = FieldNo("Applies-to Entry") then begin
-            ItemLedgEntry.SetRange(Positive, (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation));
+            if Quantity <> 0 then begin
+                PositiveFilterValue := (Signed(Quantity) < 0) or ("Value Entry Type" = "Value Entry Type"::Revaluation);
+                ItemLedgEntry.SetRange(Positive, PositiveFilterValue);
+            end;
+            
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
                 ItemLedgEntry.SetCurrentKey("Item No.", Open);
                 ItemLedgEntry.SetRange(Open, true);
@@ -3060,6 +3065,8 @@ table 83 "Item Journal Line"
             else
                 UnitCost := Item."Unit Cost";
 
+        OnRetrieveCostsOnAfterSetUnitCost(Rec, UnitCost);
+
         if "Entry Type" = "Entry Type"::Transfer then
             UnitCost := 0
         else
@@ -3806,6 +3813,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateScrapCode(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveCostsOnAfterSetUnitCost(var ItemJournalLine: Record "Item Journal Line"; var UnitCost: Decimal)
     begin
     end;
 }

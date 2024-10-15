@@ -606,8 +606,7 @@ table 79 "Company Information"
         field(12124; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Office Code"; Code[3])
         {
@@ -699,6 +698,8 @@ table 79 "Company Information"
             IBANError(OriginalIBANCode);
             exit;
         end;
+        if IsDigit(IBANCode[1]) or IsDigit(IBANCode[2]) then
+            IBANError(OriginalIBANCode);
         ConvertIBAN(IBANCode);
         while StrLen(IBANCode) > 6 do
             IBANCode := CalcModulus(CopyStr(IBANCode, 1, 6), Modulus97) + CopyStr(IBANCode, 7);
@@ -752,10 +753,18 @@ table 79 "Company Information"
             end;
             exit(true);
         end;
-        if (Letter >= '0') and (Letter <= '9') then
+        if IsDigit(Letter[1]) then
             exit(false);
 
         IBANError(IBANCode);
+    end;
+
+    local procedure IsDigit(LetterChar: Char): Boolean
+    var
+        Letter: Code[1];
+    begin
+        Letter[1] := LetterChar;
+        exit((Letter >= '0') and (Letter <= '9'))
     end;
 
     local procedure IBANError(WrongIBAN: Text)

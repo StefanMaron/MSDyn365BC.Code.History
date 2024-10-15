@@ -315,6 +315,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
               InvoicePostBuffer."Dimension Set ID", ServiceHeader."Reason Code");
             Validate("Document Date", ServiceHeader."Document Date");
             "Operation Occurred Date" := ServiceHeader."Operation Occurred Date";
+            "Activity Code" := ServiceHeader."Activity Code";
 
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, '');
 
@@ -386,7 +387,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Cumulative Bank Receipts" := ServiceHeader."Cumulative Bank Receipts";
             "Payment Method Code" := ServiceHeader."Payment Method Code";
 
-            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader);
+            OnBeforePostCustomerEntry(GenJnlLine, ServiceHeader, TotalServiceLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
@@ -514,6 +515,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Unit Price" := UnitPrice;
             "Total Price" := TotalPrice;
 
+            OnBeforeResJnlPostLine(ResJnlLine, ServiceHeader, ServiceLine);
             ResJnlPostLine.RunWithCheck(ResJnlLine);
         end;
     end;
@@ -732,7 +734,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header")
+    local procedure OnBeforePostCustomerEntry(var GenJournalLine: Record "Gen. Journal Line"; ServiceHeader: Record "Service Header"; var TotalServiceLine: Record "Service Line")
     begin
     end;
 
@@ -753,6 +755,11 @@ codeunit 5987 "Serv-Posting Journals Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostJobJnlLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; QtyToBeConsumed: Decimal; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResJnlPostLine(var ResJnlLine: Record "Res. Journal Line"; ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line")
     begin
     end;
 

@@ -2779,8 +2779,7 @@
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {
@@ -3103,6 +3102,7 @@
         Text012: Label '%1 must be positive.';
         Text013: Label 'The %1 must not be more than %2.';
         WrongJobQueueStatus: Label 'Journal line cannot be modified because it has been scheduled for posting.';
+        RenumberDocNoQst: Label 'If you have many documents it can take time to sort them, and %1 might perform slowly during the process. In those cases we suggest that you sort them during non-working hours. Do you want to continue?', Comment = '%1= Business Central';
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
@@ -3341,6 +3341,8 @@
         FirstTempDocNo: Code[20];
         LastTempDocNo: Code[20];
     begin
+        if GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true) then
+            exit;
         TestField("Check Printed", false);
 
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
@@ -4416,7 +4418,6 @@
         IsHandled: Boolean;
     begin
         if (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer) or
-           (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor) or
            (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor)
         then
             CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", TempGenJnlLine);
@@ -4505,6 +4506,8 @@
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
+        OnBeforeUpdateCountryCodeAndVATRegNo(Rec, xRec);
+
         if No = '' then begin
             "Country/Region Code" := '';
             "VAT Registration No." := '';
@@ -4526,6 +4529,8 @@
                     "VAT Registration No." := Vend."VAT Registration No.";
                 end;
         end;
+
+        OnAfterUpdateCountryCodeAndVATRegNo(Rec, xRec);
     end;
 
     procedure JobTaskIsSet(): Boolean
@@ -5171,6 +5176,7 @@
             AccType::Customer:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstCustLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(Rec, CustLedgEntry);
                         CustLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := CustLedgEntry.FindFirst;
                     end
@@ -5183,6 +5189,7 @@
             AccType::Vendor:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstVendLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := VendLedgEntry.FindFirst;
                     end
@@ -5195,6 +5202,7 @@
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
                     if FindFirstEmplLedgEntryWithAppliesToID(AccNo, "Applies-to ID") then begin
+                        OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(Rec, EmplLedgEntry);
                         EmplLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := EmplLedgEntry.FindFirst;
                     end
@@ -7162,6 +7170,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplyRequirements(TempGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
     end;
@@ -7238,6 +7251,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLookUpAppliesToDocCustOnAfterSetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCountryCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; xGenJournalLine: Record "Gen. Journal Line");
     begin
     end;
 
@@ -7331,6 +7349,21 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Employee Ledger Entry");
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnUpdateLineBalanceOnAfterAssignBalanceLCY(var BalanceLCY: Decimal)
     begin
@@ -7343,6 +7376,16 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnValidateBalVATPctOnAfterAssignBalVATAmountLCY(var BalVATAmountLCY: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeCalculateDueDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeCalculatePmtDiscountDate(var GenJournalLine: Record "Gen. Journal Line"; PaymentTerms: Record "Payment Terms"; var IsHandled: Boolean)
     begin
     end;
 

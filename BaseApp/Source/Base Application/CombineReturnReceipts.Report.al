@@ -243,6 +243,8 @@ report 6653 "Combine Return Receipts"
 
     local procedure FinalizeSalesInvHeader()
     begin
+        OnBeforeFinalizeSalesInvHeader(SalesHeader);
+
         with SalesHeader do begin
             if CalcInvDisc then
                 SalesCalcDisc.Run(SalesLine);
@@ -286,6 +288,7 @@ report 6653 "Combine Return Receipts"
             "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
             "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
             OnBeforeSalesCrMemoHeaderModify(SalesHeader, SalesOrderHeader);
+
             Modify;
             Commit;
         end;
@@ -324,6 +327,11 @@ report 6653 "Combine Return Receipts"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShouldFinalizeSalesInvHeader(var SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; var Finalize: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header")
     begin
     end;
 

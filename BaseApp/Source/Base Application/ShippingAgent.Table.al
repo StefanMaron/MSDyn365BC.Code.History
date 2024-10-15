@@ -60,6 +60,9 @@ table 291 "Shipping Agent"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
     }
 
     trigger OnDelete()

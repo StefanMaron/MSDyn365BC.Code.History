@@ -27,7 +27,7 @@
                         UpdateEditableOnRow;
 
                         if xRec."No." <> '' then
-                            UpdateSplitVATLines(FieldCaption(Type));
+                            UpdateSplitVATLinesPage(CopyStr(FieldCaption(Type), 1, 100));
                         UpdateTypeText;
                         DeltaUpdateTotals;
                     end;
@@ -65,7 +65,7 @@
                         UpdateEditableOnRow;
                         ShowShortcutDimCode(ShortcutDimCode);
                         if xRec."No." <> '' then
-                            UpdateSplitVATLines(FieldCaption("No."));
+                            UpdateSplitVATLinesPage(CopyStr(FieldCaption("No."), 1, 100));
                         UpdateTypeText;
                         DeltaUpdateTotals;
                     end;
@@ -139,7 +139,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLines(FieldCaption("VAT Prod. Posting Group"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("VAT Prod. Posting Group"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -199,7 +199,7 @@
                     trigger OnValidate()
                     begin
                         ValidateAutoReserve;
-                        UpdateSplitVATLines(FieldCaption(Quantity));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption(Quantity), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -213,7 +213,7 @@
                     trigger OnValidate()
                     begin
                         ValidateAutoReserve;
-                        UpdateSplitVATLines(FieldCaption("Unit of Measure Code"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit of Measure Code"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -248,7 +248,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLines(FieldCaption("Unit Price"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Unit Price"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -297,7 +297,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLines(FieldCaption("Line Discount %"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount %"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -312,7 +312,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLines(FieldCaption("Line Amount"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Amount"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -332,7 +332,7 @@
 
                     trigger OnValidate()
                     begin
-                        UpdateSplitVATLines(FieldCaption("Line Discount Amount"));
+                        UpdateSplitVATLinesPage(CopyStr(FieldCaption("Line Discount Amount"), 1, 100));
                         DeltaUpdateTotals;
                     end;
                 }
@@ -1199,6 +1199,8 @@
 
         if (Type = Type::"Charge (Item)") and ("No." <> xRec."No.") and (xRec."No." <> '') then
             CurrPage.SaveRecord;
+
+        OnAfterNoOnAfterValidate(Rec, xRec);
     end;
 
     procedure UpdateEditableOnRow()
@@ -1219,6 +1221,8 @@
             CurrPage.SaveRecord;
             AutoReserve;
         end;
+
+        OnAfterValidateAutoReserve(Rec);
     end;
 
     local procedure GetTotalSalesHeader()
@@ -1236,11 +1240,8 @@
     procedure DeltaUpdateTotals()
     begin
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
-        if "Line Amount" <> xRec."Line Amount" then begin
-            CurrPage.SaveRecord;
+        if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
-            CurrPage.Update(false);
-        end;
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1302,8 +1303,24 @@
                     Type := Type::Item;
     end;
 
+    local procedure UpdateSplitVATLinesPage(ChangedFieldName: Text[100])
+    begin
+        CurrPage.SaveRecord();
+        UpdateSplitVATLines(ChangedFieldName);
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateEditableOnRow(SalesLine: Record "Sales Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnAfterValidateAutoReserve(var SalesLine: Record "Sales Line")
     begin
     end;
 

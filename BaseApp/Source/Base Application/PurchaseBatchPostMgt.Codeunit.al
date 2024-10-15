@@ -195,17 +195,24 @@ codeunit 1372 "Purchase Batch Post Mgt."
     local procedure HandleOnCustomProcessing(var RecRef: RecordRef; var Handled: Boolean; var KeepParameters: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         PurchasePostViaJobQueue: Codeunit "Purchase Post via Job Queue";
     begin
         RecRef.SetTable(PurchaseHeader);
 
-        PurchasePostViaJobQueue.EnqueuePurchDocWithUI(PurchaseHeader, false);
-        if not IsNullGuid(PurchaseHeader."Job Queue Entry ID") then begin
-            Commit;
-            KeepParameters := true;
+        PurchasesPayablesSetup.Get();
+        if PurchasesPayablesSetup."Post with Job Queue" then begin
+            PurchaseHeader."Print Posted Documents" :=
+                PurchaseHeader."Print Posted Documents" and PurchasesPayablesSetup."Post & Print with Job Queue";
+            PurchasePostViaJobQueue.EnqueuePurchDocWithUI(PurchaseHeader, false);
+            if not IsNullGuid(PurchaseHeader."Job Queue Entry ID") then begin
+                Commit();
+                KeepParameters := true;
+            end;
+            PurchaseHeader."Print Posted Documents" := false;
+            RecRef.GetTable(PurchaseHeader);
+            Handled := true;
         end;
-        RecRef.GetTable(PurchaseHeader);
-        Handled := true;
     end;
 
     [IntegrationEvent(false, false)]

@@ -169,6 +169,12 @@
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the operation type that is assigned to the purchase invoice.';
                 }
+                field("Activity Code"; "Activity Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the code for the company''s primary activity.';
+                    Visible = false;
+                }
                 field(Status; Status)
                 {
                     ApplicationArea = Suite;

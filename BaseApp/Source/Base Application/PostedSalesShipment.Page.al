@@ -600,6 +600,7 @@
                 trigger OnAction()
                 begin
                     SalesShptHeader := Rec;
+                    OnBeforePrintRecords(Rec, SalesShptHeader);
                     CurrPage.SetSelectionFilter(SalesShptHeader);
                     SalesShptHeader.PrintRecords(true);
                 end;
@@ -655,5 +656,10 @@
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(SalesShptHeaderRec: Record "Sales Shipment Header"; var SalesShptHeaderToPrint: Record "Sales Shipment Header")
+    begin
+    end;
 }
 

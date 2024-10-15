@@ -94,6 +94,7 @@ report 496 "Batch Post Purchase Orders"
                     field(PrintDoc; PrintDoc)
                     {
                         ApplicationArea = Suite;
+                        Visible = PrintDocVisible;
                         Caption = 'Print';
                         ToolTip = 'Specifies if you want to print the order after posting. In the Report Output Type field on the Purchases and Payables page, you define if the report will be printed or output as a PDF.';
 
@@ -123,6 +124,7 @@ report 496 "Batch Post Purchase Orders"
             PurchasesPayablesSetup.Get;
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
+            PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
         end;
     }
 
@@ -139,6 +141,8 @@ report 496 "Batch Post Purchase Orders"
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
         PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
         Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
     procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewCalcInvDisc: Boolean)

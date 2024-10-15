@@ -2411,8 +2411,7 @@ table 5900 "Service Header"
         field(12123; "Activity Code"; Code[6])
         {
             Caption = 'Activity Code';
-            ObsoleteReason = 'Obsolete feature';
-            ObsoleteState = Pending;
+            TableRelation = "Activity Code".Code;
         }
         field(12125; "Service Tariff No."; Code[10])
         {
@@ -4101,6 +4100,8 @@ table 5900 "Service Header"
                 if VATBusPostingGroup."Default Sales Operation Type" <> '' then
                     Validate("Operation Type", VATBusPostingGroup."Default Sales Operation Type");
             end;
+
+        OnAfterSetOperationType(Rec);
     end;
 
     local procedure UpdateTDDPreparedBy()
@@ -4777,6 +4778,11 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCust(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetOperationType(var ServiceHeader: Record "Service Header")
     begin
     end;
 

@@ -658,6 +658,14 @@ table 98 "General Ledger Setup"
             OptionCaption = 'Amount Only,Debit/Credit Only,All Amounts';
             OptionMembers = "Amount Only","Debit/Credit Only","All Amounts";
         }
+        field(170; "SEPA Non-Euro Export"; Boolean)
+        {
+            Caption = 'SEPA Non-Euro Export';
+        }
+        field(171; "SEPA Export w/o Bank Acc. Data"; Boolean)
+        {
+            Caption = 'SEPA Export w/o Bank Acc. Data';
+        }
         field(12100; "Use Document Date in Currency"; Boolean)
         {
             Caption = 'Use Document Date in Currency';
@@ -724,6 +732,10 @@ table 98 "General Ledger Setup"
         field(12130; "Validate loc.VAT Reg. No."; Boolean)
         {
             Caption = 'Validate loc.VAT Reg. No.';
+        }
+        field(12131; "Use Activity Code"; Boolean)
+        {
+            Caption = 'Use Activity Code';
         }
     }
 

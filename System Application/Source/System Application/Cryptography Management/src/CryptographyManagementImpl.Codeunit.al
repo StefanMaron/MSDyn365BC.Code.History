@@ -142,7 +142,7 @@ codeunit 1279 "Cryptography Management Impl."
     var
         PasswordDialogManagement: Codeunit "Password Dialog Management";
         TempBlob: Codeunit "Temp Blob";
-        ExportKey: Boolean;
+        ShouldExportKey: Boolean;
         Password: Text;
     begin
         if Silent then begin
@@ -154,11 +154,11 @@ codeunit 1279 "Cryptography Management Impl."
             if Confirm(ExportEncryptionKeyConfirmQst, true) then begin
                 Password := PasswordDialogManagement.OpenPasswordDialog();
                 if Password <> '' then
-                    ExportKey := true;
+                    ShouldExportKey := true;
             end;
 
             CreateEncryptionKeys();
-            if ExportKey then begin
+            if ShouldExportKey then begin
                 GetEncryptionKeyAsStream(TempBlob, Password);
                 DownloadEncryptionFileFromStream(TempBlob);
             end;

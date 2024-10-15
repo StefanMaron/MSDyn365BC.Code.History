@@ -216,6 +216,8 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 
     local procedure InitGenJnlLine(AccType: Integer; AccNo: Code[20]; SystemCreatedEntry: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with FinChrgMemoHeader do begin
             GenJnlLine.Init;
@@ -246,6 +248,9 @@ codeunit 395 "FinChrgMemo-Issue"
             GenJnlLine."System-Created Entry" := SystemCreatedEntry;
             GenJnlLine."Posting No. Series" := "Issuing No. Series";
             GenJnlLine."Salespers./Purch. Code" := '';
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Use Activity Code" then
+                GenJnlLine."Activity Code" := "Activity Code";
             OnAfterInitGenJnlLine(GenJnlLine, FinChrgMemoHeader);
         end;
     end;

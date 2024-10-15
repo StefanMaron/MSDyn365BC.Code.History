@@ -250,6 +250,7 @@ codeunit 5980 "Service-Post"
 
     local procedure TestMandatoryFields(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         with PassedServiceHeader do begin
@@ -274,6 +275,9 @@ codeunit 5980 "Service-Post"
             TestField("Operation Type");
             if ("Document Type" = "Document Type"::Invoice) or ("Document Type" = "Document Type"::"Credit Memo") or Invoice then
                 ValidateIncludeInVATReport(PassedServiceHeader);
+            GeneralLedgerSetup.GetRecordOnce();
+            if GeneralLedgerSetup."Use Activity Code" then
+                TestField("Activity Code");
 
             if "Applies-to Doc. No." <> '' then
                 if "Applies-to Occurrence No." = 0 then
