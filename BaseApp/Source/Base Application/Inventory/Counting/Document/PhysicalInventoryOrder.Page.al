@@ -387,15 +387,6 @@ page 5875 "Physical Inventory Order"
             {
                 Caption = 'New', Comment = 'Generated from the PromotedActionCategories property index 0.';
 
-#if not CLEAN21
-                actionref("New Phys. Inventory Recording_Promoted"; "New Phys. Inventory Recording")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Process)
             {

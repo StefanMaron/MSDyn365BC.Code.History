@@ -55,6 +55,7 @@ table 83 "Item Journal Line"
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
     LookupPageID = "Item Journal Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -1159,19 +1160,19 @@ table 83 "Item Journal Line"
         }
         field(1000; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
         }
         field(1002; "Job Purchase"; Boolean)
         {
-            Caption = 'Job Purchase';
+            Caption = 'Project Purchase';
         }
         field(1030; "Job Contract Entry No."; Integer)
         {
-            Caption = 'Job Contract Entry No.';
+            Caption = 'Project Contract Entry No.';
             Editable = false;
         }
         field(5402; "Variant Code"; Code[10])
@@ -1258,7 +1259,7 @@ table 83 "Item Journal Line"
                         if CurrFieldNo <> 0 then
                             WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("Bin Code"));
                         TestField("Location Code", Bin."Location Code");
-                        WhseIntegrationMgt.CheckBinTypeCode(
+                        WhseIntegrationMgt.CheckBinTypeAndCode(
                             Database::"Item Journal Line", FieldCaption("Bin Code"), "Location Code", "Bin Code", "Entry Type".AsInteger());
                     end;
                     SetNewBinCodeForSameLocationTransfer();
@@ -1308,8 +1309,8 @@ table 83 "Item Journal Line"
                         if CurrFieldNo <> 0 then
                             WMSManagement.CheckItemJnlLineFieldChange(Rec, xRec, FieldCaption("New Bin Code"));
                         TestField("New Location Code", Bin."Location Code");
-                        WhseIntegrationMgt.CheckBinTypeCode(
-                            Database::"Item Journal Line", FieldCaption("New Bin Code"), "New Location Code", "New Bin Code", "Entry Type");
+                        WhseIntegrationMgt.CheckBinTypeAndCode(
+                            Database::"Item Journal Line", FieldCaption("New Bin Code"), "New Location Code", "New Bin Code", "Entry Type".AsInteger());
                     end;
                 end;
 
@@ -2345,6 +2346,8 @@ table 83 "Item Journal Line"
 
     fieldgroups
     {
+        fieldgroup(Brick; "Item No.", Description, Quantity, "Document No.", "Document Date")
+        { }
     }
 
     trigger OnDelete()
@@ -2397,7 +2400,6 @@ table 83 "Item Journal Line"
         Bin: Record Bin;
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         DimMgt: Codeunit DimensionManagement;
         UserMgt: Codeunit "User Setup Management";
@@ -2419,9 +2421,11 @@ table 83 "Item Journal Line"
         RevaluationPerEntryNotAllowedErr: Label 'This item has already been revalued with the Calculate Inventory Value function, so you cannot use the Applies-to Entry field as that may change the valuation.';
         SubcontractedErr: Label '%1 must be zero in line number %2 because it is linked to the subcontracted work center.', Comment = '%1 - Field Caption, %2 - Line No.';
         FinishedOutputQst: Label 'The operation has been finished. Do you want to post output for the finished operation?';
-        SalesBlockedErr: Label 'You cannot sell this %1 because the %2 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Field Caption';
-        PurchasingBlockedErr: Label 'You cannot purchase this %1 because the %2 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Field Caption';
-        BlockedErr: Label 'You cannot choose %2 %1 because the %3 check box is selected on its %2 card.', Comment = '%1 - Item No., %2 - Table Caption (item/variant), %3 - Field Caption';
+        BlockedErr: Label 'You cannot choose %1 %2 because the %3 check box is selected on its %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        SalesBlockedErr: Label 'You cannot sell %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        PurchasingBlockedErr: Label 'You cannot purchase %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        ServiceSalesBlockedErr: Label 'You cannot sell %1 %2 via service because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        ItemVariantPrimaryKeyLbl: Label '%1, %2', Comment = '%1 - Item No., %2 - Variant Code', Locked = true;
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
         DocNoFilterErr: Label 'The document numbers cannot be renumbered while there is an active filter on the Document No. field.';
@@ -2616,6 +2620,8 @@ table 83 "Item Journal Line"
     end;
 
     procedure SetUpNewLine(LastItemJnlLine: Record "Item Journal Line")
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         MfgSetup.Get();
         ItemJnlTemplate.Get("Journal Template Name");
@@ -2636,18 +2642,14 @@ table 83 "Item Journal Line"
         end else begin
             "Posting Date" := WorkDate();
             "Document Date" := WorkDate();
-            if ItemJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
-            end;
+            if ItemJnlBatch."No. Series" <> '' then
+                "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
             if (ItemJnlTemplate.Type in
                 [ItemJnlTemplate.Type::Consumption, ItemJnlTemplate.Type::Output]) and
                not MfgSetup."Doc. No. Is Prod. Order No."
             then
-                if ItemJnlBatch."No. Series" <> '' then begin
-                    Clear(NoSeriesMgt);
-                    "Document No." := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", "Posting Date", false);
-                end;
+                if ItemJnlBatch."No. Series" <> '' then
+                    "Document No." := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
         end;
         "Recurring Method" := LastItemJnlLine."Recurring Method";
         "Entry Type" := LastItemJnlLine."Entry Type";
@@ -3085,10 +3087,7 @@ table 83 "Item Journal Line"
         OnAfterInitRevalJnlLine(Rec, ItemLedgEntry2);
     end;
 
-    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20];
-                                              ExtDocNo: Text[35];
-                                              SourceCode: Code[10];
-                                              NoSeriesCode: Code[20])
+    procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
     begin
         "Document Type" := DocType;
         "Document No." := DocNo;
@@ -3549,14 +3548,12 @@ table 83 "Item Journal Line"
         ValueEntry: Record "Value Entry";
         UnitCost: Decimal;
     begin
-        with ValueEntry do begin
-            Reset();
-            SetCurrentKey("Item Ledger Entry No.");
-            SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-            CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
-            UnitCost :=
-              ("Cost Amount (Expected)" + "Cost Amount (Actual)") / ItemLedgEntry.Quantity;
-        end;
+        ValueEntry.Reset();
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry.CalcSums("Cost Amount (Expected)", "Cost Amount (Actual)");
+        UnitCost :=
+          (ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Amount (Actual)") / ItemLedgEntry.Quantity;
         exit(Abs(UnitCost * "Qty. per Unit of Measure"));
     end;
 
@@ -3737,27 +3734,25 @@ table 83 "Item Journal Line"
         if IsHandled then
             exit(Result);
 
-        with ItemJnlLine do begin
-            if "Operation No." <> '' then begin
-                IsHandled := false;
-                OnLastOutputOperationOnBeforeTestRoutingNo(ItemJnlLine, IsHandled);
-                if not IsHandled then
-                    TestField("Routing No.");
-                if not ProdOrderRtngLine.Get(
-                     ProdOrderRtngLine.Status::Released, "Order No.",
-                     "Routing Reference No.", "Routing No.", "Operation No.")
-                then
-                    ProdOrderRtngLine.Get(
-                      ProdOrderRtngLine.Status::Finished, "Order No.",
-                      "Routing Reference No.", "Routing No.", "Operation No.");
-                if Finished then
-                    ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
-                else
-                    ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
-                Operation := not ItemJnlPostLine.NextOperationExist(ProdOrderRtngLine);
-            end else
-                Operation := true;
-        end;
+        if ItemJnlLine."Operation No." <> '' then begin
+            IsHandled := false;
+            OnLastOutputOperationOnBeforeTestRoutingNo(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                ItemJnlLine.TestField("Routing No.");
+            if not ProdOrderRtngLine.Get(
+                 ProdOrderRtngLine.Status::Released, ItemJnlLine."Order No.",
+                 ItemJnlLine."Routing Reference No.", ItemJnlLine."Routing No.", ItemJnlLine."Operation No.")
+            then
+                ProdOrderRtngLine.Get(
+                  ProdOrderRtngLine.Status::Finished, ItemJnlLine."Order No.",
+                  ItemJnlLine."Routing Reference No.", ItemJnlLine."Routing No.", ItemJnlLine."Operation No.");
+            if ItemJnlLine.Finished then
+                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::Finished
+            else
+                ProdOrderRtngLine."Routing Status" := ProdOrderRtngLine."Routing Status"::"In Progress";
+            Operation := not ItemJnlPostLine.NextOperationExist(ProdOrderRtngLine);
+        end else
+            Operation := true;
         exit(Operation);
     end;
 
@@ -4151,7 +4146,7 @@ table 83 "Item Journal Line"
             exit;
 
         if Item.Blocked then
-            Error(BlockedErr, Item."No.", Item.TableCaption(), Item.FieldCaption(Blocked));
+            Error(BlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption(Blocked));
 
         if "Item Charge No." <> '' then
             exit;
@@ -4162,12 +4157,20 @@ table 83 "Item Journal Line"
                    not ("Document Type" in ["Document Type"::"Purchase Return Shipment", "Document Type"::"Purchase Credit Memo"])
                    and ("Value Entry Type" <> "Value Entry Type"::Revaluation)
                 then
-                    Error(PurchasingBlockedErr, Item.TableCaption(), Item.FieldCaption("Purchasing Blocked"));
+                    Error(PurchasingBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
-                if Item."Sales Blocked" and
-                   not ("Document Type" in ["Document Type"::"Sales Return Receipt", "Document Type"::"Sales Credit Memo"])
-                then
-                    Error(SalesBlockedErr, Item.TableCaption(), Item.FieldCaption("Sales Blocked"));
+                case "Order Type" of
+                    "Order Type"::Service:
+                        if Item."Service Blocked" and
+                           not ("Document Type" in ["Document Type"::"Service Credit Memo"])
+                        then
+                            Error(ServiceSalesBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Service Blocked"));
+                    else
+                        if Item."Sales Blocked" and
+                           not ("Document Type" in ["Document Type"::"Sales Return Receipt", "Document Type"::"Sales Credit Memo"])
+                        then
+                            Error(SalesBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Sales Blocked"));
+                end;
         end;
 
         OnAfterDisplayErrorIfItemIsBlocked(Item, Rec);
@@ -4183,15 +4186,21 @@ table 83 "Item Journal Line"
             exit;
 
         if ItemVariant.Blocked then
-            Error(BlockedErr, ItemVariant.Code, ItemVariant.TableCaption(), ItemVariant.FieldCaption(Blocked));
+            Error(BlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption(Blocked));
 
         case Rec."Entry Type" of
             Rec."Entry Type"::Purchase:
                 if ItemVariant."Purchasing Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Purchase Return Shipment", Rec."Document Type"::"Purchase Credit Memo"]) then
-                    Error(PurchasingBlockedErr, ItemVariant.TableCaption(), ItemVariant.FieldCaption("Purchasing Blocked"));
+                    Error(PurchasingBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Purchasing Blocked"));
             "Entry Type"::Sale:
-                if ItemVariant."Sales Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Sales Return Receipt", Rec."Document Type"::"Sales Credit Memo"]) then
-                    Error(SalesBlockedErr, ItemVariant.TableCaption(), ItemVariant.FieldCaption("Sales Blocked"));
+                case "Order Type" of
+                    "Order Type"::Service:
+                        if ItemVariant."Service Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Service Credit Memo"]) then
+                            Error(ServiceSalesBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Service Blocked"));
+                    else
+                        if ItemVariant."Sales Blocked" and not (Rec."Document Type" in [Rec."Document Type"::"Sales Return Receipt", Rec."Document Type"::"Sales Credit Memo"]) then
+                            Error(SalesBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Sales Blocked"));
+                end;
         end;
 
         OnAfterDisplayErrorIfItemVariantIsBlocked(ItemVariant, Rec);
@@ -4461,6 +4470,7 @@ table 83 "Item Journal Line"
     procedure RenumberDocumentNo()
     var
         ItemJnlLine2: Record "Item Journal Line";
+        NoSeries: Codeunit "No. Series";
         DocNo: Code[20];
         FirstDocNo: Code[20];
         FirstTempDocNo: Code[20];
@@ -4474,8 +4484,7 @@ table 83 "Item Journal Line"
             exit;
         if GetFilter("Document No.") <> '' then
             Error(DocNoFilterErr);
-        Clear(NoSeriesMgt);
-        FirstDocNo := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
+        FirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", "Posting Date");
         FirstTempDocNo := GetTempRenumberDocumentNo();
         // step1 - renumber to non-existing document number
         DocNo := FirstTempDocNo;
@@ -4520,6 +4529,7 @@ table 83 "Item Journal Line"
     var
         LastItemJnlLine: Record "Item Journal Line";
         ItemJnlLine3: Record "Item Journal Line";
+        NoSeries: Codeunit "No. Series";
         PrevDocNo: Code[20];
         FirstDocNo: Code[20];
         TempFirstDocNo: Code[20];
@@ -4533,42 +4543,39 @@ table 83 "Item Journal Line"
             exit;
 
         FirstDocNo := DocNo;
-        with ItemJnlLine2 do begin
-            SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            LastItemJnlLine.Init();
-            First := true;
-            if FindSet() then
-                repeat
-                    if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (ItemJnlLine2.GetFilter("Document No.") = '')) then begin
-                        Commit();
-                        Clear(NoSeriesMgt);
-                        ItemJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-                        TempFirstDocNo := NoSeriesMgt.TryGetNextNo(ItemJnlBatch."No. Series", "Posting Date");
-                        if (FirstDocNo <> TempFirstDocNo) AND (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
-                            DocNo := TempFirstDocNo;
-                            FirstDocNo := DocNo;
-                            First := true;
-                        end;
+        ItemJnlLine2.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Document No.");
+        ItemJnlLine2.SetRange("Journal Template Name", ItemJnlLine2."Journal Template Name");
+        ItemJnlLine2.SetRange("Journal Batch Name", ItemJnlLine2."Journal Batch Name");
+        LastItemJnlLine.Init();
+        First := true;
+        if ItemJnlLine2.FindSet() then
+            repeat
+                if ((FirstDocNo <> GetTempRenumberDocumentNo()) and (ItemJnlLine2.GetFilter("Document No.") = '')) then begin
+                    Commit();
+                    ItemJnlBatch.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name");
+                    TempFirstDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", ItemJnlLine2."Posting Date");
+                    if (FirstDocNo <> TempFirstDocNo) and (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
+                        DocNo := TempFirstDocNo;
+                        FirstDocNo := DocNo;
+                        First := true;
                     end;
-                    if "Document No." = FirstDocNo then
-                        exit;
-                    if not First and
-                        (("Posting Date" <> PrevPostingDate) or
-                        ("Document No." = '')) and
-                        not LastItemJnlLine.EmptyLine()
-                    then
-                        DocNo := IncStr(DocNo);
-                    PrevDocNo := "Document No.";
-                    PrevPostingDate := "Posting Date";
-                    ItemJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
-                    ItemJnlLine3."Document No." := DocNo;
-                    ItemJnlLine3.Modify();
-                    First := false;
-                    LastItemJnlLine := ItemJnlLine2
-                until Next() = 0
-        end;
+                end;
+                if ItemJnlLine2."Document No." = FirstDocNo then
+                    exit;
+                if not First and
+                    ((ItemJnlLine2."Posting Date" <> PrevPostingDate) or
+                    (ItemJnlLine2."Document No." = '')) and
+                    not LastItemJnlLine.EmptyLine()
+                then
+                    DocNo := IncStr(DocNo);
+                PrevDocNo := ItemJnlLine2."Document No.";
+                PrevPostingDate := ItemJnlLine2."Posting Date";
+                ItemJnlLine3.Get(ItemJnlLine2."Journal Template Name", ItemJnlLine2."Journal Batch Name", ItemJnlLine2."Line No.");
+                ItemJnlLine3."Document No." := DocNo;
+                ItemJnlLine3.Modify();
+                First := false;
+                LastItemJnlLine := ItemJnlLine2;
+            until ItemJnlLine2.Next() = 0;
 
         OnAfterRenumberDocNoOnLines(DocNo, ItemJnlLine2);
     end;
@@ -5147,7 +5154,7 @@ table 83 "Item Journal Line"
             Error(UpdateInterruptedErr);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnCheckItemJournalLinePostRestrictions()
     begin
     end;

@@ -31,7 +31,7 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
 
         // [GIVEN] Transaction Mode with "Acc. No. Pmt./Rcpt. in Process" = "G"
         TransactionMode.Init();
-        TransactionMode.Code := LibraryUTUtility.GetNewCode;
+        TransactionMode.Code := LibraryUTUtility.GetNewCode();
         TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo();
         TransactionMode.Insert();
 
@@ -63,12 +63,12 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
 
         // [GIVEN] Transaction Mode "TM" with "Acc. No. Pmt./Rcpt. in Process" = "G"
         TransactionMode.Init();
-        TransactionMode.Code := LibraryUTUtility.GetNewCode;
+        TransactionMode.Code := LibraryUTUtility.GetNewCode();
         TransactionMode."Acc. No. Pmt./Rcpt. in Process" := LibraryERM.CreateGLAccountNo();
         TransactionMode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
-        TransactionModeList.Trap;
+        TransactionModeList.Trap();
         CalcGLAccWhereUsed.CheckGLAcc(TransactionMode."Acc. No. Pmt./Rcpt. in Process");
 
         // [THEN] Transaction Mode List page opened with Code = "TM"
@@ -86,28 +86,28 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
 
     local procedure ValidateWhereUsedRecord(ExpectedTableCaption: Text; ExpectedFieldCaption: Text; ExpectedLineValue: Text)
     begin
-        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText, InvalidTableCaptionErr);
-        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText, InvalidFieldCaptionErr);
-        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText, InvalidLineValueErr);
+        Assert.AreEqual(ExpectedTableCaption, LibraryVariableStorage.DequeueText(), InvalidTableCaptionErr);
+        Assert.AreEqual(ExpectedFieldCaption, LibraryVariableStorage.DequeueText(), InvalidFieldCaptionErr);
+        Assert.AreEqual(ExpectedLineValue, LibraryVariableStorage.DequeueText(), InvalidLineValueErr);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
+        GLAccountWhereUsedList.First();
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Table Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList."Field Name".Value);
         LibraryVariableStorage.Enqueue(GLAccountWhereUsedList.Line.Value);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure WhereUsedShowDetailsHandler(var GLAccountWhereUsedList: TestPage "G/L Account Where-Used List")
     begin
-        GLAccountWhereUsedList.First;
-        GLAccountWhereUsedList.ShowDetails.Invoke;
+        GLAccountWhereUsedList.First();
+        GLAccountWhereUsedList.ShowDetails.Invoke();
     end;
 }
 

@@ -5,6 +5,7 @@ table 5555 "Permission Conflicts Overview"
     access = Internal;
     Extensible = false;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

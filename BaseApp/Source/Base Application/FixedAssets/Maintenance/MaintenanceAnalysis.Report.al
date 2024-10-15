@@ -384,27 +384,26 @@ report 5630 "Maintenance - Analysis"
 
     local procedure MakeGroupHeadLine()
     begin
-        with "Fixed Asset" do
-            case GroupTotals of
-                GroupTotals::"FA Class":
-                    GroupHeadLine := "FA Class Code";
-                GroupTotals::"FA SubClass":
-                    GroupHeadLine := "FA Subclass Code";
-                GroupTotals::"Main Asset":
-                    begin
-                        GroupHeadLine := StrSubstNo('%1 %2', SelectStr(GroupTotals + 1, Text007), "Component of Main Asset");
-                        if "Component of Main Asset" = '' then
-                            GroupHeadLine := GroupHeadLine + '*****';
-                    end;
-                GroupTotals::"Global Dimension 1":
-                    GroupHeadLine := "Global Dimension 1 Code";
-                GroupTotals::"FA Location":
-                    GroupHeadLine := "FA Location Code";
-                GroupTotals::"Global Dimension 2":
-                    GroupHeadLine := "Global Dimension 2 Code";
-                GroupTotals::"FA Posting Group":
-                    GroupHeadLine := "FA Posting Group";
-            end;
+        case GroupTotals of
+            GroupTotals::"FA Class":
+                GroupHeadLine := "Fixed Asset"."FA Class Code";
+            GroupTotals::"FA SubClass":
+                GroupHeadLine := "Fixed Asset"."FA Subclass Code";
+            GroupTotals::"Main Asset":
+                begin
+                    GroupHeadLine := StrSubstNo('%1 %2', SelectStr(GroupTotals + 1, Text007), "Fixed Asset"."Component of Main Asset");
+                    if "Fixed Asset"."Component of Main Asset" = '' then
+                        GroupHeadLine := GroupHeadLine + '*****';
+                end;
+            GroupTotals::"Global Dimension 1":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 1 Code";
+            GroupTotals::"FA Location":
+                GroupHeadLine := "Fixed Asset"."FA Location Code";
+            GroupTotals::"Global Dimension 2":
+                GroupHeadLine := "Fixed Asset"."Global Dimension 2 Code";
+            GroupTotals::"FA Posting Group":
+                GroupHeadLine := "Fixed Asset"."FA Posting Group";
+        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
     end;
@@ -416,31 +415,29 @@ report 5630 "Maintenance - Analysis"
         EndingDate2 := EndingDate;
         if EndingDate2 = 0D then
             EndingDate2 := DMY2Date(31, 12, 9999);
-        with MaintenanceLedgEntry do begin
-            if DateSelection = DateSelection::"Posting Date" then
-                case Period of
-                    Period::"before Starting Date":
-                        SetRange("Posting Date", 0D, StartingDate - 1);
-                    Period::"Net Change":
-                        SetRange("Posting Date", StartingDate, EndingDate2);
-                    Period::"at Ending Date":
-                        SetRange("Posting Date", 0D, EndingDate2);
-                end;
-            if DateSelection = DateSelection::"FA Posting Date" then
-                case Period of
-                    Period::"before Starting Date":
-                        SetRange("FA Posting Date", 0D, StartingDate - 1);
-                    Period::"Net Change":
-                        SetRange("FA Posting Date", StartingDate, EndingDate2);
-                    Period::"at Ending Date":
-                        SetRange("FA Posting Date", 0D, EndingDate2);
-                end;
-            SetRange("Maintenance Code");
-            if MaintenanceCode <> '' then
-                SetRange("Maintenance Code", MaintenanceCode);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        if DateSelection = DateSelection::"Posting Date" then
+            case Period of
+                Period::"before Starting Date":
+                    MaintenanceLedgEntry.SetRange("Posting Date", 0D, StartingDate - 1);
+                Period::"Net Change":
+                    MaintenanceLedgEntry.SetRange("Posting Date", StartingDate, EndingDate2);
+                Period::"at Ending Date":
+                    MaintenanceLedgEntry.SetRange("Posting Date", 0D, EndingDate2);
+            end;
+        if DateSelection = DateSelection::"FA Posting Date" then
+            case Period of
+                Period::"before Starting Date":
+                    MaintenanceLedgEntry.SetRange("FA Posting Date", 0D, StartingDate - 1);
+                Period::"Net Change":
+                    MaintenanceLedgEntry.SetRange("FA Posting Date", StartingDate, EndingDate2);
+                Period::"at Ending Date":
+                    MaintenanceLedgEntry.SetRange("FA Posting Date", 0D, EndingDate2);
+            end;
+        MaintenanceLedgEntry.SetRange("Maintenance Code");
+        if MaintenanceCode <> '' then
+            MaintenanceLedgEntry.SetRange("Maintenance Code", MaintenanceCode);
+        MaintenanceLedgEntry.CalcSums(Amount);
+        exit(MaintenanceLedgEntry.Amount);
     end;
 }
 

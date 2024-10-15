@@ -110,7 +110,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         Assert.AreNotEqual(DocAmtInclVat, PurchaseLine."Amount Including VAT", 'Line amount including vat has been changed');
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"): Decimal
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
@@ -122,7 +122,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         exit(PurchaseLine."VAT %");
     end;
 
-    local procedure ValidateDocAmountVATPurchaseHeaderScenario(DocumentType: Option)
+    local procedure ValidateDocAmountVATPurchaseHeaderScenario(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -137,7 +137,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         Assert.ExpectedErrorCode('Dialog');
     end;
 
-    local procedure ValidateDocAmountInclVATPurchaseHeaderScenario(DocumentType: Option)
+    local procedure ValidateDocAmountInclVATPurchaseHeaderScenario(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";

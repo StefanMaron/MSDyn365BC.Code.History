@@ -1,6 +1,8 @@
 namespace Microsoft.Finance.Consolidation;
 
+#if not CLEAN24
 using Microsoft.Finance.Currency;
+#endif
 using System.Environment;
 using System.Telemetry;
 
@@ -69,6 +71,75 @@ page 241 "Business Unit Card"
                     ToolTip = 'Specifies the last date on which consolidation was run.';
                 }
             }
+            group("Data import")
+            {
+                field("Default Data Import Method"; Rec."Default Data Import Method")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the data import method to use when importing data from the business unit. Database is for companies within the same environment and API is for companies in different environments.';
+                    Visible = IsSaaS;
+
+                    trigger OnValidate()
+                    begin
+                        Clear(Rec."Company Name");
+                        Clear(Rec."BC API URL");
+                        Clear(Rec."AAD Tenant ID");
+                        Clear(Rec."External Company Id");
+                        Clear(Rec."External Company Name");
+                        UpdateAPISettingsVisible();
+                    end;
+                }
+                group("DB Settings")
+                {
+                    ShowCaption = false;
+                    Visible = not APISettingsVisible;
+                    field("Company Name"; Rec."Company Name")
+                    {
+                        ApplicationArea = Suite;
+                        ToolTip = 'Specifies the company that will become a business unit in the consolidated company.';
+                        ShowMandatory = true;
+                    }
+                }
+                group("API Settings")
+                {
+                    ShowCaption = false;
+                    Visible = APISettingsVisible;
+                    field("BC API URL"; Rec."BC API URL")
+                    {
+                        Caption = 'API''s Endpoint';
+                        ApplicationArea = Suite;
+                        ToolTip = 'Specifies the URL for the API of the Business Central company from which data will be imported. You can get this value from the page "Consolidation Setup" in the Business Central company for this business unit.';
+                        ShowMandatory = true;
+
+                        trigger OnValidate()
+                        var
+                            ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
+                        begin
+                            if Rec."BC API URL" = '' then begin
+                                Clear(Rec."AAD Tenant ID");
+                                Clear(Rec."External Company Id");
+                                Clear(Rec."External Company Name");
+                                exit;
+                            end;
+                            if not ImportConsolidationFromAPI.ValidateBCUrl(Rec."BC API URL") then
+                                Error(UrlOfBCInstanceInvalidErr);
+                            Rec."AAD Tenant ID" := CopyStr(ImportConsolidationFromAPI.GetAADTenantIdFromBCUrl(Rec."BC API URL"), 1, MaxStrLen(Rec."AAD Tenant ID"));
+                            ImportConsolidationFromAPI.SelectCompanyForBusinessUnit(Rec);
+                        end;
+                    }
+                    field("BC Company Name"; Rec."External Company Name")
+                    {
+                        ApplicationArea = Suite;
+                        ToolTip = 'Specifies the company name of the Business Central company from which data will be imported.';
+                        Editable = false;
+                    }
+                }
+                field("File Format"; Rec."File Format")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the file format to use for the business unit data. If the business unit has version 3.70 or earlier, it must submit a .txt file. If the version is 4.00 or later, it must use an XML file.';
+                }
+            }
             group("G/L Accounts")
             {
                 Caption = 'G/L Accounts';
@@ -118,76 +189,6 @@ page 241 "Business Unit Card"
                     ToolTip = 'Specifies the general ledger account that losses due to exchange rates during consolidation are posted to for business units that you do not own 100%. If this field is blank, the account in the Exch. Rate Losses Acc. field is used.';
                 }
             }
-            group("Data import")
-            {
-                field("Default Data Import Method"; Rec."Default Data Import Method")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the data import method to use when importing data from the business unit. Database is for companies within the same environment and API is for companies in different environments.';
-                    Visible = IsSaaS;
-
-                    trigger OnValidate()
-                    begin
-                        Clear(Rec."Company Name");
-                        Clear(Rec."BC API URL");
-                        Clear(Rec."AAD Tenant ID");
-                        Clear(Rec."External Company Id");
-                        Clear(Rec."External Company Name");
-                        UpdateAPISettingsVisible();
-                    end;
-                }
-                group("DB Settings")
-                {
-                    ShowCaption = false;
-                    Visible = not APISettingsVisible;
-                    field("Company Name"; Rec."Company Name")
-                    {
-                        ApplicationArea = Suite;
-                        ToolTip = 'Specifies the company that will become a business unit in the consolidated company.';
-                        ShowMandatory = true;
-                    }
-                }
-
-                group("API Settings")
-                {
-                    ShowCaption = false;
-                    Visible = APISettingsVisible;
-                    field("BC API URL"; Rec."BC API URL")
-                    {
-                        Caption = 'API''s Endpoint';
-                        ApplicationArea = Suite;
-                        ToolTip = 'Specifies the URL for the API of the Business Central company from which data will be imported. You can get this value from the page "Consolidation Setup" in the Business Central company for this business unit.';
-                        ShowMandatory = true;
-
-                        trigger OnValidate()
-                        var
-                            ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
-                        begin
-                            if Rec."BC API URL" = '' then begin
-                                Clear(Rec."AAD Tenant ID");
-                                Clear(Rec."External Company Id");
-                                Clear(Rec."External Company Name");
-                                exit;
-                            end;
-                            if not ImportConsolidationFromAPI.ValidateBCUrl(Rec."BC API URL") then
-                                Error(UrlOfBCInstanceInvalidErr);
-                            Rec."AAD Tenant ID" := CopyStr(ImportConsolidationFromAPI.GetAADTenantIdFromBCUrl(Rec."BC API URL"), 1, MaxStrLen(Rec."AAD Tenant ID"));
-                            ImportConsolidationFromAPI.SelectCompanyForBusinessUnit(Rec);
-                        end;
-                    }
-                    field("BC Company Name"; Rec."External Company Name")
-                    {
-                        ApplicationArea = Suite;
-                        ToolTip = 'Specifies the company name of the Business Central company from which data will be imported.';
-                        Editable = false;
-                    }
-                }
-                field("File Format"; Rec."File Format")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the file format to use for the business unit data. If the business unit has version 3.70 or earlier, it must submit a .txt file. If the version is 4.00 or later, it must use an XML file.';
-                }
-            }
         }
         area(factboxes)
         {
@@ -208,10 +209,29 @@ page 241 "Business Unit Card"
     {
         area(navigation)
         {
+            action(ConfigureExchangeRates)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Exchange Rates';
+                ToolTip = 'Edit the currency exchange rates used for this business unit in the next consolidation process.';
+                Image = Currencies;
+                trigger OnAction()
+                var
+                    ConsolidationCurrency: Codeunit "Consolidation Currency";
+                begin
+                    ConsolidationCurrency.ConfigureBusinessUnitCurrencies(Rec);
+                    Rec.Modify();
+                end;
+            }
+#if not CLEAN24
             group("E&xch. Rates")
             {
                 Caption = 'E&xch. Rates';
                 Image = ManualExchangeRate;
+                Visible = false;
+                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 action("Average Rate (Manual)")
                 {
                     ApplicationArea = Suite;
@@ -219,6 +239,10 @@ page 241 "Business Unit Card"
                     Ellipsis = true;
                     Image = ManualExchangeRate;
                     ToolTip = 'Manage exchange rate calculations.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     begin
@@ -238,6 +262,10 @@ page 241 "Business Unit Card"
                     Ellipsis = true;
                     Image = Close;
                     ToolTip = 'The currency exchange rate that is valid on the date that the balance sheet or income statement is prepared.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     begin
@@ -256,6 +284,10 @@ page 241 "Business Unit Card"
                     Caption = 'Last Closing Rate';
                     Image = Close;
                     ToolTip = 'The rate that was used in the last balance sheet closing.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
 
                     trigger OnAction()
                     begin
@@ -269,6 +301,7 @@ page 241 "Business Unit Card"
                     end;
                 }
             }
+#endif
             group("&Reports")
             {
                 Caption = '&Reports';
@@ -311,11 +344,19 @@ page 241 "Business Unit Card"
                 action("Test Database")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Test Database';
+                    Caption = 'Test Database (same environment)';
                     Ellipsis = true;
                     Image = TestDatabase;
-                    RunObject = Report "Consolidation - Test Database";
                     ToolTip = 'Preview the consolidation, without transferring data.';
+
+                    trigger OnAction()
+                    begin
+                        if Rec."Default Data Import Method" <> Rec."Default Data Import Method"::Database then
+                            if not Confirm(ConfirmRunInAPIBusinessUnitMsg) then
+                                exit;
+                        Report.Run(Report::"Consolidation - Test Database");
+                    end;
+
                 }
                 action("T&est File")
                 {
@@ -332,11 +373,18 @@ page 241 "Business Unit Card"
                 action("Run Consolidation")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Run Consolidation';
+                    Caption = 'Run Consolidation (same environment)';
                     Ellipsis = true;
                     Image = ImportDatabase;
-                    RunObject = Report "Import Consolidation from DB";
-                    ToolTip = 'Run consolidation.';
+                    ToolTip = 'Run consolidation for business units in the same environment.';
+
+                    trigger OnAction()
+                    begin
+                        if Rec."Default Data Import Method" <> Rec."Default Data Import Method"::Database then
+                            if not Confirm(ConfirmRunInAPIBusinessUnitMsg) then
+                                exit;
+                        Report.Run(Report::"Import Consolidation from DB");
+                    end;
                 }
                 action("I&mport File")
                 {
@@ -359,20 +407,41 @@ page 241 "Business Unit Card"
         }
         area(Promoted)
         {
+            actionref(ConfigureExchangeRates_Promoted; ConfigureExchangeRates)
+            {
+            }
+#if not CLEAN24
             group(Category_Category4)
             {
                 Caption = 'Exch. Rates', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                Visible = false;
+                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
 
                 actionref("Average Rate (Manual)_Promoted"; "Average Rate (Manual)")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref("Closing Rate_Promoted"; "Closing Rate")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
             }
+#endif
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
@@ -381,11 +450,14 @@ page 241 "Business Unit Card"
     }
 
     var
+#if not CLEAN24
         ChangeExchangeRate: Page "Change Exchange Rate";
         Text000: Label 'Average Rate (Manual)';
         Text001: Label 'Closing Rate';
         Text002: Label 'Last Closing Rate';
+#endif
         UrlOfBCInstanceInvalidErr: Label 'The URL of the Business Central business unit is invalid. You can get this URL from the page "Consolidation Setup" in the other Business Central environment.';
+        ConfirmRunInAPIBusinessUnitMsg: Label 'The current business unit is not set up to import data from another Business Central company in the same environment. Do you want to continue?';
         APISettingsVisible: Boolean;
         IsSaaS: Boolean;
 

@@ -3,6 +3,7 @@ namespace Microsoft.Finance.Currency;
 table 264 "Currency Amount"
 {
     Caption = 'Currency Amount';
+    DataClassification = CustomerContent;
 
     fields
     {

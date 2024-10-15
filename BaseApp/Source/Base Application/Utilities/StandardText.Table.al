@@ -12,6 +12,7 @@ table 7 "Standard Text"
 {
     Caption = 'Standard Text';
     LookupPageID = "Standard Text Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

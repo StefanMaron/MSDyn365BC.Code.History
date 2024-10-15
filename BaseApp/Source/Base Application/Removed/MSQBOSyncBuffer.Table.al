@@ -5,6 +5,7 @@ table 7828 "MS-QBO Sync Buffer"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

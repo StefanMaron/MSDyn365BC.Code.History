@@ -29,17 +29,17 @@ codeunit 144070 Digipoort
         // [SCENARIO 262526] The only "Digipoort Delivery URL" and "Digipoort Status URL" fields are mandatory in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortDeliveryURLSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortStatusURLSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
 
-        ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        ElecTaxDeclarationSetup.CheckDigipoortSetup();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -54,27 +54,27 @@ codeunit 144070 Digipoort
         // [SCENARIO 262526] Fields "Digipoort Client Cert. Name", "Digipoort Service Cert. Name", "Digipoort Delivery URL", "Digipoort Status URL" are mandatory in On-Premise
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortClientCertNameSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Client Cert. Name" := LibraryUtility.GenerateGUID();
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortServiceCertNameSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Service Cert. Name" := LibraryUtility.GenerateGUID();
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortDeliveryURLSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Delivery URL" := LibraryUtility.GenerateGUID();
 
-        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        asserterror ElecTaxDeclarationSetup.CheckDigipoortSetup();
         Assert.ExpectedError(DigipoortStatusURLSetupErr);
 
         ElecTaxDeclarationSetup."Digipoort Status URL" := LibraryUtility.GenerateGUID();
 
-        ElecTaxDeclarationSetup.CheckDigipoortSetup;
+        ElecTaxDeclarationSetup.CheckDigipoortSetup();
     end;
 
     [Test]
@@ -88,11 +88,11 @@ codeunit 144070 Digipoort
         // [SCENARIO 262526] The only "Digipoort Delivery URL" and "Digipoort Status URL" fields must be visible on "Elec. Tax Declaration Setup" page in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        ElecTaxDeclarationSetup.OpenView;
-        Assert.IsFalse(ElecTaxDeclarationSetup."Digipoort Client Cert. Name".Visible, 'Digipoort Client Cert. Name must be hidden');
-        Assert.IsFalse(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible, 'Digipoort Service Cert. Name must be hidden');
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible, 'Digipoort Delivery URL must be visible');
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible, 'Digipoort Status URL must be visible');
+        ElecTaxDeclarationSetup.OpenView();
+        Assert.IsFalse(ElecTaxDeclarationSetup."Digipoort Client Cert. Name".Visible(), 'Digipoort Client Cert. Name must be hidden');
+        Assert.IsFalse(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible(), 'Digipoort Service Cert. Name must be hidden');
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible(), 'Digipoort Delivery URL must be visible');
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible(), 'Digipoort Status URL must be visible');
         ElecTaxDeclarationSetup.Close();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
@@ -110,11 +110,11 @@ codeunit 144070 Digipoort
         // [SCENARIO 262526] must be visible on "Elec. Tax Declaration Setup" page in On-Premise
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
-        ElecTaxDeclarationSetup.OpenView;
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Client Cert. Name".Visible, 'Digipoort Client Cert. Name must be visible');
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible, 'Digipoort Service Cert. Name must be visible');
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible, 'Digipoort Delivery URL must be visible');
-        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible, 'Digipoort Status URL must be visible');
+        ElecTaxDeclarationSetup.OpenView();
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Client Cert. Name".Visible(), 'Digipoort Client Cert. Name must be visible');
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible(), 'Digipoort Service Cert. Name must be visible');
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible(), 'Digipoort Delivery URL must be visible');
+        Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible(), 'Digipoort Status URL must be visible');
         ElecTaxDeclarationSetup.Close();
     end;
 
@@ -130,12 +130,12 @@ codeunit 144070 Digipoort
         // [FEATURE] [UI]
         // [SCENARIO 262523] The only "Digipoort Delivery URL" and "Digipoort Status URL" fields must be visible on "Elec. Tax Declaration Setup" page in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        MockElecTaxDeclarationSetupSaaS;
+        MockElecTaxDeclarationSetupSaaS();
         MockElecTaxDeclarationHeader(ElecTaxDeclarationHeader);
 
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.GotoRecord(ElecTaxDeclarationHeader);
-        ElecTaxDeclarationCard.SubmitElectronicTaxDeclaration.Invoke;
+        ElecTaxDeclarationCard.SubmitElectronicTaxDeclaration.Invoke();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -151,12 +151,12 @@ codeunit 144070 Digipoort
         // [FEATURE] [UI]
         // [SCENARIO 262523] The only "Digipoort Delivery URL" and "Digipoort Status URL" fields must be visible on "Elec. Tax Declaration Setup" page in On-Premise
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        MockElecTaxDeclarationSetupOnPrem;
+        MockElecTaxDeclarationSetupOnPrem();
         MockElecTaxDeclarationHeader(ElecTaxDeclarationHeader);
 
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.GotoRecord(ElecTaxDeclarationHeader);
-        asserterror ElecTaxDeclarationCard.SubmitElectronicTaxDeclaration.Invoke;
+        asserterror ElecTaxDeclarationCard.SubmitElectronicTaxDeclaration.Invoke();
         Assert.ExpectedError(InvalidDeliverUriFormatErr);
     end;
 
@@ -172,12 +172,12 @@ codeunit 144070 Digipoort
         // [FEATURE] [UI]
         // [SCENARIO 262523] The only "Digipoort Delivery URL" and "Digipoort Status URL" fields must be visible on "Elec. Tax Declaration Setup" page in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        MockElecTaxDeclarationSetupSaaS;
+        MockElecTaxDeclarationSetupSaaS();
         MockElecTaxDeclResponseMsg(ElecTaxDeclResponseMsg);
 
-        ElecTaxDeclResponseMsgs.OpenEdit;
+        ElecTaxDeclResponseMsgs.OpenEdit();
         ElecTaxDeclResponseMsgs.GotoRecord(ElecTaxDeclResponseMsg);
-        ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke;
+        ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -195,15 +195,15 @@ codeunit 144070 Digipoort
         // [SCENARIO 262523] "Process Response Messages" action on page "Elec. Tax Decl. Response Msgs."
         // [SCENARIO 262523] calls report "Receive Response Messages" without request page in On-Premise mode
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
-        MockElecTaxDeclarationSetupOnPrem;
+        MockElecTaxDeclarationSetupOnPrem();
         MockElecTaxDeclarationHeader(ElecTaxDeclarationHeader);
         ElecTaxDeclarationHeader."Message ID" := LibraryUtility.GenerateGUID();
         ElecTaxDeclarationHeader.Modify();
         MockElecTaxDeclResponseMsg(ElecTaxDeclResponseMsg);
 
-        ElecTaxDeclResponseMsgs.OpenEdit;
+        ElecTaxDeclResponseMsgs.OpenEdit();
         ElecTaxDeclResponseMsgs.GotoRecord(ElecTaxDeclResponseMsg);
-        asserterror ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke;
+        asserterror ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke();
         Assert.ExpectedError(InvalidGetStatusUriFormatErr);
     end;
 
@@ -249,14 +249,14 @@ codeunit 144070 Digipoort
     [Scope('OnPrem')]
     procedure SubmitElecTaxDeclarationRequestPageHandler(var SubmitElecTaxDeclaration: TestRequestPage "Submit Elec. Tax Declaration")
     begin
-        SubmitElecTaxDeclaration.Cancel.Invoke;
+        SubmitElecTaxDeclaration.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReceiveResponseMessagesRequestPageHandler(var ReceiveResponseMessages: TestRequestPage "Receive Response Messages")
     begin
-        ReceiveResponseMessages.Cancel.Invoke;
+        ReceiveResponseMessages.Cancel().Invoke();
     end;
 }
 

@@ -25,43 +25,41 @@ codeunit 6 "Fiscal Year-Close"
 
     local procedure "Code"()
     begin
-        with AccountingPeriod do begin
-            AccountingPeriod2.SetRange(Closed, false);
-            AccountingPeriod2.Find('-');
+        AccountingPeriod2.SetRange(Closed, false);
+        AccountingPeriod2.Find('-');
 
-            FiscalYearStartDate := AccountingPeriod2."Starting Date";
-            AccountingPeriod := AccountingPeriod2;
-            TestField("New Fiscal Year", true);
+        FiscalYearStartDate := AccountingPeriod2."Starting Date";
+        AccountingPeriod := AccountingPeriod2;
+        AccountingPeriod.TestField("New Fiscal Year", true);
 
-            AccountingPeriod2.SetRange("New Fiscal Year", true);
-            if AccountingPeriod2.Find('>') then begin
-                FiscalYearEndDate := CalcDate('<-1D>', AccountingPeriod2."Starting Date");
+        AccountingPeriod2.SetRange("New Fiscal Year", true);
+        if AccountingPeriod2.Find('>') then begin
+            FiscalYearEndDate := CalcDate('<-1D>', AccountingPeriod2."Starting Date");
 
-                AccountingPeriod3 := AccountingPeriod2;
-                AccountingPeriod2.SetRange("New Fiscal Year");
-                AccountingPeriod2.Find('<');
-            end else
-                Error(Text001);
+            AccountingPeriod3 := AccountingPeriod2;
+            AccountingPeriod2.SetRange("New Fiscal Year");
+            AccountingPeriod2.Find('<');
+        end else
+            Error(Text001);
 
-            if not
-               Confirm(
-                 Text002 +
-                 Text003 +
-                 Text004, false,
-                 FiscalYearStartDate, FiscalYearEndDate)
-            then
-                exit;
+        if not
+            Confirm(
+                Text002 +
+                Text003 +
+                Text004, false,
+                FiscalYearStartDate, FiscalYearEndDate)
+        then
+            exit;
 
-            Reset();
+        AccountingPeriod.Reset();
 
-            SetRange("Starting Date", FiscalYearStartDate, AccountingPeriod2."Starting Date");
-            ModifyAll(Closed, true);
+        AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, AccountingPeriod2."Starting Date");
+        AccountingPeriod.ModifyAll(Closed, true);
 
-            SetRange("Starting Date", FiscalYearStartDate, AccountingPeriod3."Starting Date");
-            ModifyAll("Date Locked", true);
+        AccountingPeriod.SetRange("Starting Date", FiscalYearStartDate, AccountingPeriod3."Starting Date");
+        AccountingPeriod.ModifyAll("Date Locked", true);
 
-            Reset();
-        end;
+        AccountingPeriod.Reset();
 
         OnAfterCode(AccountingPeriod, AccountingPeriod2, AccountingPeriod3);
     end;

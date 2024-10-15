@@ -12,7 +12,6 @@ codeunit 137352 "SCM Inventory Reports - V"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryCosting: Codeunit "Library - Costing";
-        LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
@@ -94,7 +93,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemTrackingAppendixReport(DocType, SalesLine."Document No.", SalesLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Lot No. on Item Tracking Appendix Report Report.
         VerifyLotNoOnItemTrackingAppendixReport(SalesLine."No.", LotNo, SalesLine.Quantity);
@@ -121,7 +120,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemTrackingAppendixReport(DocType::"Sales Post. Shipment", DocumentNo, SalesLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Verify  Lot No. on Item Tracking Appendix Report.
         VerifyLotNoOnItemTrackingAppendixReport(SalesLine."No.", LotNo, SalesLine.Quantity);
@@ -145,7 +144,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemTrackingAppendixReport(DocType::"Sales Credit Memo", SalesLine."Document No.", SalesLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Verify  Lot No. on Item Tracking Appendix Report.
         VerifyLotNoOnItemTrackingAppendixReport(SalesLine."No.", LotNo, SalesLine.Quantity);
@@ -175,7 +174,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Commit();
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Verify  Lot No. on Item Tracking Appendix Report.
         VerifyLotNoOnItemTrackingAppendixReport(SalesLine."No.", LotNo, SalesLine.Quantity);
@@ -239,7 +238,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemTrackingAppendixReport(DocType, PurchaseLine."Document No.", PurchaseLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Verify  Lot No. and Serial No. on Item Tracking Appendix Report.
         VerifyItemTrackingAppendixReport(PurchaseLine."No.", LotNo, SerialNo);
@@ -296,7 +295,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         EnqueueValuesForItemTrackingAppendixReport(DocType, PurchaseHeader."No.", PurchaseLine."No.");
 
         // [WHEN] Run Item Tracking Appendix Report.
-        RunItemTrackingAppendixReport;
+        RunItemTrackingAppendixReport();
 
         // [THEN] Verify  Lot No. and Serial No. on Item Tracking Appendix Report.
         VerifyItemTrackingAppendixReport(PurchaseLine."No.", LotNo, SerialNo);
@@ -383,7 +382,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Create Sales Order, Post and undo Shipment.
         Initialize();
-        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, LibraryInventory.CreateItemNo);
+        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, LibraryInventory.CreateItemNo());
         UndoSalesShipment(SalesLine);
         FindShipmentLine(SalesShipmentLine, SalesLine."No.");
 
@@ -407,7 +406,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Create Sales Return Order, Post and undo Return Receipt.
         Initialize();
-        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", LibraryInventory.CreateItemNo);
+        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Return Order", LibraryInventory.CreateItemNo());
         UndoReturnReceipt(SalesLine);
         FindReturnReceiptLine(ReturnReceiptLine, SalesLine);
 
@@ -433,7 +432,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity, ItemLedgerEntry."Lot No.",
           ItemLedgerEntry."Serial No.", true, false, false);
     end;
@@ -452,7 +451,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity,
           ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", false, true, true);
     end;
@@ -473,10 +472,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity,
           ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", false, false, false);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_ItemJournalLine', PurchaseLine."Location Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_ItemJournalLine', PurchaseLine."Bin Code");
     end;
@@ -497,10 +496,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.", ItemLedgerEntry."Entry Type"::Purchase);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity,
           ItemLedgerEntry."Lot No.", ItemLedgerEntry."Serial No.", false, true, true);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LocCode_ItemJournalLine', PurchaseLine."Location Code");
         LibraryReportDataset.AssertCurrentRowValueEquals('BinCode_ItemJournalLine', PurchaseLine."Bin Code");
     end;
@@ -533,7 +532,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PhysInvListRptWithDiffLoc(PurchaseLine, PurchaseLine2, SerialNo, LotNo, true, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity, LotNo[1], SerialNo[1], true, true, true);
         VerifyPhysInventoryListReport(PurchaseLine2."No.", PurchaseLine2.Quantity, LotNo[2], SerialNo[2], true, true, true);
     end;
@@ -553,7 +552,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PhysInvListRptWithDiffLoc(PurchaseLine, PurchaseLine2, SerialNo, LotNo, false, true);  // Booleans value are respective to ShowQuantity and ShowTracking.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity, LotNo[1], SerialNo[1], false, true, true);
         VerifyPhysInventoryListReport(PurchaseLine2."No.", PurchaseLine2.Quantity, LotNo[2], SerialNo[2], false, true, true);
     end;
@@ -605,7 +604,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         RunPhysInventoryListReport(ItemJournalBatch);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(SalesLine."No.", 0, LotNo, '', true, true, true);
     end;
 
@@ -642,7 +641,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         RunPhysInventoryListReport(ItemJournalBatch);
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPhysInventoryListReport(PurchaseLine."No.", PurchaseLine.Quantity, LotNo, SerialNo, true, true, true);
     end;
 
@@ -705,9 +704,9 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Create Item, create and post Purchase Order, create Sales Order, run Adjust Cost Item Entries and Post Inventory To G/L batch job.
         Initialize();
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreateAndPostPurchaseOrder(ItemNo, false);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifySalesLineAndPostSalesOrder(SalesLine, SalesHeader, ItemNo);
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
@@ -884,19 +883,19 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Unit cost is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE
         RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate(), WorkDate());
 
         // [THEN] Item is not shown in the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', ItemNo);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, StrSubstNo(ItemMustNotBeReportedErr, ItemNo));
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), StrSubstNo(ItemMustNotBeReportedErr, ItemNo));
     end;
 
     [Test]
@@ -912,14 +911,14 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Cost amount is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 1
-        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate + 1, WorkDate + 1);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WorkDate() + 1
+        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate() + 1, WorkDate() + 1);
 
         // [THEN] Item "I" is present in the report. Quantity = "Q"; Sales amount = "P1" + "P2"; Profit = "P1" + "P2" - ("C1" + "C2").
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -939,14 +938,14 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Cost amount is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WORKDATE + 1
-        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate(), WorkDate + 1);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WorkDate() + 1
+        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate(), WorkDate() + 1);
 
         // [THEN] Item "I" is present in the report. Quantity = "Q", Sales amount = "P1", Profit = "P1" - "C1"
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -966,14 +965,14 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Cost amount is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE + 1 to WORKDATE + 2
-        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate + 1, WorkDate + 2);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WorkDate() + 1 to WorkDate() + 2
+        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate() + 1, WorkDate() + 2);
 
         // [THEN] Item "I" is present in the report. Quantity = "Q", Sales amount = "P1" + "P2", Profit = "P1" + "P2" - "C1" - "C2"
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -992,19 +991,19 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Cost amount is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 2
-        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate + 2, WorkDate + 2);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WorkDate() + 2
+        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate() + 2, WorkDate() + 2);
 
         // [THEN] Item is not shown in the report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', ItemNo);
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, StrSubstNo(ItemMustNotBeReportedErr, ItemNo));
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), StrSubstNo(ItemMustNotBeReportedErr, ItemNo));
     end;
 
     [Test]
@@ -1020,14 +1019,14 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I" purchased. Cost amount is "C1"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P1"
-        // [GIVEN] Post shipment on workdate, post invoice on workdate + 1 day
-        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = workdate + 2 days
-        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = workdate + 2 days
+        // [GIVEN] Post shipment on WorkDate(), post invoice on WorkDate() + 1 day
+        // [GIVEN] Apply purchase item charge to shipment, cost amount = "C2", posting date = WorkDate() + 2 days
+        // [GIVEN] Apply sales item charge to shipment, sales amount = "P2", posting date = WorkDate() + 2 days
         Initialize();
-        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates;
+        ItemNo := PostSalesShipAndInvoiceWithItemChargesOnDifferentDates();
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WORKDATE + 2
-        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate(), WorkDate + 2);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date period from WORKDATE to WorkDate() + 2
+        RunItemSalesReportFilterOnPostingDate(ItemNo, WorkDate(), WorkDate() + 2);
 
         // [THEN] Item "I" is present in the report. Quantity = "Q", Sales amount = "P1" + "P2", Profit = "P1" + "P2" - "C1" - "C2"
         ValueEntry.SetRange("Item No.", ItemNo);
@@ -1055,24 +1054,24 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [GIVEN] Sales order for "Q" pcs of item "I". Sales amount = "P". Post shipment on workdate
         CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.");
 
-        // [GIVEN] Invoice "Q" / 2 pcs on workdate + 1 day
+        // [GIVEN] Invoice "Q" / 2 pcs on WorkDate() + 1 day
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate + 1);
+        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate() + 1);
         SalesLine.Find();
         SalesLine.Validate("Qty. to Invoice", SalesLine.Quantity / 2);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
-        // [GIVEN] Invoice remaining "Q" / 2 pcs on workdate + 2 days
-        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate + 2);
+        // [GIVEN] Invoice remaining "Q" / 2 pcs on WorkDate() + 2 days
+        UpdatePostingDateOnSalesHeader(SalesHeader, WorkDate() + 2);
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 2
-        RunItemSalesReportFilterOnPostingDate(Item."No.", WorkDate + 2, WorkDate + 2);
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WorkDate() + 2
+        RunItemSalesReportFilterOnPostingDate(Item."No.", WorkDate() + 2, WorkDate() + 2);
 
         // [THEN] Item "I" is present in the report. Quantity = "Q" / 2, Sales amount = "P" / 2, Profit = ("P" - "C") / 2
         ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.SetRange("Posting Date", WorkDate + 2);
+        ValueEntry.SetRange("Posting Date", WorkDate() + 2);
         VerifyReportItemLine(Item."No.", ValueEntry);
     end;
 
@@ -1101,20 +1100,20 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
-        PostSalesInvoiceOnNewPostingDate(SalesLine."Document Type", SalesLine."Document No.", WorkDate + 1);
+        PostSalesInvoiceOnNewPostingDate(SalesLine."Document Type", SalesLine."Document No.", WorkDate() + 1);
 
         // [WHEN] Run "Customer/Item Sales" report filtered by item "I"
-        RunItemSalesReportFilterOnPostingDate(Item."No.", WorkDate(), WorkDate + 1);
+        RunItemSalesReportFilterOnPostingDate(Item."No.", WorkDate(), WorkDate() + 1);
 
         // [THEN] Customer "CU2" is present in the report
         // [THEN] Customer "CU1" is not reported
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Bill-to Customer No.");
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, WrongCustomerErr);
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), WrongCustomerErr);
 
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Sell-to Customer No.");
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, WrongCustomerErr);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), WrongCustomerErr);
     end;
 
     [Test]
@@ -1143,7 +1142,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
-        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WORKDATE + 2
+        // [WHEN] Run "Customer/Item Sales" report filtered by item "I" and date = WorkDate() + 2
         RunItemSalesReportFilterOnPostingDate(Item."No.", WorkDate(), WorkDate());
 
         // [THEN] Report has one entry for item "I", quantity = "Q1" + "Q2", Sales amount = "P1" + "P2"
@@ -1170,8 +1169,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         Initialize();
 
         // [GIVEN] Item "I" is in inventory.
-        ItemNo := CreateItem;
-        CustomerNo := CreateCustomer;
+        ItemNo := CreateItem();
+        CustomerNo := CreateCustomer();
         PostItemJournalLine(
           ItemNo, LibraryRandom.RandIntInRange(50, 100), LibraryRandom.RandDec(10, 2), ItemJournalLine."Entry Type"::"Positive Adjmt.");
 
@@ -1214,13 +1213,13 @@ codeunit 137352 "SCM Inventory Reports - V"
         Initialize();
 
         // [GIVEN] Item "I" is in inventory.
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         PostItemJournalLine(
           ItemNo, LibraryRandom.RandIntInRange(50, 100), LibraryRandom.RandDec(10, 2), ItemJournalLine."Entry Type"::"Positive Adjmt.");
 
         // [GIVEN] A sales order with item "I" for each of the two customers "C1" and "C2". Sales amount of each document = "X1" and "X2" respectively.
         for i := 1 to ArrayLen(CustomerNo) do begin
-            CustomerNo[i] := CreateCustomer;
+            CustomerNo[i] := CreateCustomer();
             LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo[i]);
             ModifySalesLineAndPostSalesOrder(SalesLine, SalesHeader, ItemNo);
 
@@ -1236,7 +1235,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         // [THEN] The report shows sales for both "C1" and "C2" customers.
         // [THEN] Sales amount for customer "C1" is "X1" + "Y1".
         // [THEN] Sales amount for customer "C2" is "X2" + "Y2".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.Reset();
         for i := 1 to ArrayLen(CustomerNo) do begin
             ItemLedgerEntry.SetRange("Source No.", CustomerNo[i]);
@@ -1244,7 +1243,7 @@ codeunit 137352 "SCM Inventory Reports - V"
             ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
 
             LibraryReportDataset.SetRange('Customer__No__', CustomerNo[i]);
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals(
               'ValueEntryBuffer__Sales_Amount__Actual___Control44', ItemLedgerEntry."Sales Amount (Actual)");
         end;
@@ -1270,8 +1269,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         Initialize();
 
         // [GIVEN] "X" pcs of item "I" are in stock.
-        ItemNo := CreateItem;
-        CustomerNo := CreateCustomer;
+        ItemNo := CreateItem();
+        CustomerNo := CreateCustomer();
         for i := 1 to 2 do
             Qty[i] := LibraryRandom.RandIntInRange(20, 40);
         PostItemJournalLine(
@@ -1323,20 +1322,20 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         // [GIVEN] Item "I".
         // [GIVEN] Post a purchase order for "I" with receive and invoice option on WORKDATE. Cost amount = "C1".
-        ItemNo := CreateItem;
+        ItemNo := CreateItem();
         CreateAndPostPurchaseOrder(ItemNo, true);
         FindPurchRcptLine(PurchRcptLine, ItemNo);
 
         // [GIVEN] Post a sales order for "I" with ship and invoice option on WORKDATE.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         ModifySalesLineAndPostSalesOrder(SalesLine, SalesHeader, ItemNo);
 
         // [GIVEN] Create purchase invoice with item charge and assign it to posted receipt of "I".
-        // [GIVEN] Cost amount of the item charge = "C2", Posting date = WORKDATE + 1 day.
+        // [GIVEN] Cost amount of the item charge = "C2", Posting date = WorkDate() + 1 day.
         // [GIVEN] Post the purchase invoice.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Expected Receipt Date", LibraryRandom.RandDate(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
@@ -1370,10 +1369,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         RunCalculateInventoryReportRequestPage(false, true);
 
         // [THEN] "Include items with no transactions" setting is reset to FALSE.
-        Assert.AreEqual(Format(false), LibraryVariableStorage.DequeueText, CalcInvtReportInitializeErr);
-        Assert.AreEqual(Format(false), LibraryVariableStorage.DequeueText, CalcInvtReportInitializeErr);
+        Assert.AreEqual(Format(false), LibraryVariableStorage.DequeueText(), CalcInvtReportInitializeErr);
+        Assert.AreEqual(Format(false), LibraryVariableStorage.DequeueText(), CalcInvtReportInitializeErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1389,10 +1388,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         RunCalculateInventoryReportRequestPage(true, true);
 
         // [THEN] "Include items with no transactions" setting remains TRUE.
-        Assert.AreEqual(Format(true), LibraryVariableStorage.DequeueText, CalcInvtReportInitializeErr);
-        Assert.AreEqual(Format(true), LibraryVariableStorage.DequeueText, CalcInvtReportInitializeErr);
+        Assert.AreEqual(Format(true), LibraryVariableStorage.DequeueText(), CalcInvtReportInitializeErr);
+        Assert.AreEqual(Format(true), LibraryVariableStorage.DequeueText(), CalcInvtReportInitializeErr);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1503,8 +1502,8 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // Lazy Setup.
         if isInitialized then
@@ -1546,8 +1545,8 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         Customer: Record Customer;
     begin
-        Customer.Get(CreateCustomer);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        Customer.Get(CreateCustomer());
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         LibraryVariableStorage.Enqueue(ChangeBillToCustomerNo);
         SalesHeader.Validate("Bill-to Customer No.", Customer."No.");
         SalesHeader.Modify(true);
@@ -1559,7 +1558,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ExpirationDate: DateFormula;
     begin
         LibraryInventory.CreateTrackedItem(
-          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(true, true, true));  // Use blank value for Serial No.
+          Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(true, true, true));  // Use blank value for Serial No.
         Evaluate(ExpirationDate, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         Item.Validate("Expiration Calculation", ExpirationDate);
         Item.Modify(true);
@@ -1622,7 +1621,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, CreateAndUpdateTrackedItem, LocationCode);
+        CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, CreateAndUpdateTrackedItem(), LocationCode);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, PurchaseLine."No.", LocationCode2);
     end;
 
@@ -1644,7 +1643,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure CreateAndModifyItem(var Item: Record Item; CostingMethod: Enum "Costing Method")
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Standard Cost", LibraryRandom.RandDec(100, 1));  // Using Random value for Standard Cost.
         Item.Validate("Costing Method", CostingMethod);
         Item.Modify(true);
@@ -1654,17 +1653,15 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         ItemJournalBatch: Record "Item Journal Batch";
         Item: Record Item;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalcBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
+        NoSeries: Codeunit "No. Series";
     begin
         Item.SetRange("No.", ItemNo);
         SelectAndClearItemJournalBatch(ItemJournalBatch, ItemJournalBatch."Template Type"::Revaluation);
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryCosting.CalculateInventoryValue(
-          ItemJournalLine, Item, WorkDate(), NoSeriesManagement.GetNextNo(ItemJournalBatch."No. Series", WorkDate(), false), CalculatePer::Item,
-          false, false, false, CalcBase::" ", false);
+          ItemJournalLine, Item, WorkDate(), NoSeries.PeekNextNo(ItemJournalBatch."No. Series"), "Inventory Value Calc. Per"::Item,
+          false, false, false, "Inventory Value Calc. Base"::" ", false);
     end;
 
     local procedure CreateItemJournalForPhysInventory(var ItemJournalLine: Record "Item Journal Line")
@@ -1694,7 +1691,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         Location.Validate("Bin Mandatory", BinMandatory);
         Location.Modify(true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
     end;
 
     local procedure CreatePurchaseDoc(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; ItemNo: Code[20])
@@ -1718,7 +1715,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.CreatePurchaseLine(
           ChargePurchaseLine, PurchaseHeader, ChargePurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         ChargePurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
         ChargePurchaseLine.Modify(true);
         LibraryInventory.CreateItemChargeAssignPurchase(
@@ -1731,7 +1728,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         Item: Record Item;
     begin
         LibraryInventory.CreateTrackedItem(
-          Item, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCode(SNSpecific, true, false));  // Use blank value for Serial No.
+          Item, LibraryUtility.GetGlobalNoSeriesCode(), LibraryUtility.GetGlobalNoSeriesCode(), CreateItemTrackingCode(SNSpecific, true, false));  // Use blank value for Serial No.
         CreatePurchaseDoc(PurchaseLine, DocumentType, Item."No.");
         PurchaseLine.Validate("Location Code", LocationCode);
         if BinCode <> '' then
@@ -1759,7 +1756,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
     end;
 
@@ -1769,7 +1766,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -1784,7 +1781,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         WarehouseJournalLine.Validate("Journal Batch Name", WarehouseJournalBatch.Name);
         WarehouseJournalLine.Validate("Location Code", WarehouseJournalBatch."Location Code");
         BinContent.SetRange("Item No.", ItemNo);
-        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, RegisteringDate, LibraryUtility.GenerateGUID, false);
+        LibraryWarehouse.WhseCalculateInventory(WarehouseJournalLine, BinContent, RegisteringDate, LibraryUtility.GenerateGUID(), false);
     end;
 
     local procedure EnqueueValuesForItemTrackingAppendixReport(DocType: Option; DocumentNo: Code[20]; ItemNo: Code[20])
@@ -1945,11 +1942,11 @@ codeunit 137352 "SCM Inventory Reports - V"
           Item."No.", LibraryRandom.RandIntInRange(10, 20), LibraryRandom.RandInt(1000), ItemJournalLine."Entry Type"::"Positive Adjmt.");
 
         CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Order, Item."No.");
-        PostSalesInvoiceOnNewPostingDate(SalesLine."Document Type", SalesLine."Document No.", WorkDate + 1);
+        PostSalesInvoiceOnNewPostingDate(SalesLine."Document Type", SalesLine."Document No.", WorkDate() + 1);
 
         FindShipmentLine(SalesShipmentLine, Item."No.");
-        PostPurchItemChargeAssignedToShipment(LibraryPurchase.CreateVendorNo, WorkDate + 2, SalesShipmentLine);
-        PostSalesItemChargeAssignedToShipment(SalesLine."Sell-to Customer No.", WorkDate + 2, SalesShipmentLine);
+        PostPurchItemChargeAssignedToShipment(LibraryPurchase.CreateVendorNo(), WorkDate() + 2, SalesShipmentLine);
+        PostSalesItemChargeAssignedToShipment(SalesLine."Sell-to Customer No.", WorkDate() + 2, SalesShipmentLine);
 
         exit(Item."No.");
     end;
@@ -2045,7 +2042,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         CreateItemJournalForPhysInventory(ItemJournalLine);
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
-        CalculateInventory.InitializeRequest(WorkDate(), LibraryUtility.GenerateGUID, ItemsNotInInvt, ItemsWithNoTrans);
+        CalculateInventory.InitializeRequest(WorkDate(), LibraryUtility.GenerateGUID(), ItemsNotInInvt, ItemsWithNoTrans);
         CalculateInventory.UseRequestPage(true);
         Commit();
         CalculateInventory.Run();
@@ -2177,7 +2174,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     local procedure SetupForSalesReport(var SalesLine: Record "Sales Line")
     begin
         // Create Item, create and post Sales Order.
-        CreateAndPostSalesOrder(SalesLine, CreateItem);
+        CreateAndPostSalesOrder(SalesLine, CreateItem());
 
         // Create and Post Purchase Order and run Adjust Cost Item Entries.
         CreateAndPostPurchaseOrder(SalesLine."No.", false);
@@ -2227,7 +2224,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         Item.Get(ItemNo);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Open, true);
         ItemLedgerEntry.FindSet();
@@ -2249,7 +2246,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.FindSet();
         repeat
@@ -2262,9 +2259,9 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyLotNoOnItemTrackingAppendixReport(No: Code[20]; LotNo: Code[50]; Quantity: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_ItemTrackingLine', No);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('LotNo', LotNo);
         LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ItemTrackingLine', Quantity);
     end;
@@ -2277,7 +2274,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyItemExpirationQuantityReport(ItemNo: Code[20]; Inventory: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('No_Item', ItemNo);
 
         Assert.AreEqual(Inventory, LibraryReportDataset.Sum('InvtQty4'), 'Wrong end date qty in report.');
@@ -2286,9 +2283,9 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyInventoryValuationReport(SalesLine: Record "Sales Line"; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemNo', SalesLine."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('DecreaseInvoicedQty', SalesLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('DecreaseInvoicedValue', -Amount);
         LibraryReportDataset.AssertCurrentRowValueEquals('EndingInvoicedValue', Amount);
@@ -2296,9 +2293,9 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyInventoryCostVarianceReport(ItemLedgerEntry: Record "Item Ledger Entry"; StandardCost: Decimal; DocumentNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('DocNo_ItemLedgerEntry', DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('PostDate_ItemLedgerEntry', Format(ItemLedgerEntry."Posting Date"));
         LibraryReportDataset.AssertCurrentRowValueEquals('StandardCost_Item', StandardCost);
     end;
@@ -2323,18 +2320,18 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyPostedSalesReport(SalesLine: Record "Sales Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         case SalesLine."Document Type" of
             SalesLine."Document Type"::Order:
                 begin
                     LibraryReportDataset.SetRange('No_SalesShptLine', SalesLine."No.");
-                    LibraryReportDataset.GetNextRow;
+                    LibraryReportDataset.GetNextRow();
                     LibraryReportDataset.AssertCurrentRowValueEquals('Qty_SalesShptLine', SalesLine.Quantity);
                 end;
             SalesLine."Document Type"::"Return Order":
                 begin
                     LibraryReportDataset.SetRange('No_ReturnReceiptLine', SalesLine."No.");
-                    LibraryReportDataset.GetNextRow;
+                    LibraryReportDataset.GetNextRow();
                     LibraryReportDataset.AssertCurrentRowValueEquals('Qty_ReturnReceiptLine', SalesLine.Quantity);
                 end;
         end;
@@ -2344,10 +2341,10 @@ codeunit 137352 "SCM Inventory Reports - V"
     var
         PurchItemChargeAmt: Decimal;
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('ValueEntryBuffer__Item_No__', ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         ValueEntry.CalcSums("Cost Amount (Non-Invtbl.)");
         PurchItemChargeAmt := ValueEntry."Cost Amount (Non-Invtbl.)";
@@ -2363,9 +2360,9 @@ codeunit 137352 "SCM Inventory Reports - V"
 
     local procedure VerifyRevaluationPostingTestReport(ItemJournalLine: Record "Item Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('Item_Journal_Line__Item_No__', ItemJournalLine."Item No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('Item_Journal_Line_Quantity', ItemJournalLine.Quantity);
         LibraryReportDataset.AssertCurrentRowValueEquals('Item_Journal_Line__Inventory_Value__Revalued__',
           ItemJournalLine."Inventory Value (Revalued)");
@@ -2377,9 +2374,9 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         FindItemLedgerEntry(ItemLedgerEntry, ItemNo, ItemLedgerEntry."Entry Type"::Sale);
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)", "Cost Amount (Actual)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(ItemNoElementName, ItemNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(CustNameElementName, CustomerNo);
         LibraryReportDataset.AssertCurrentRowValueEquals(SalesAmtElementName, ItemLedgerEntry."Sales Amount (Actual)");
         LibraryReportDataset.AssertCurrentRowValueEquals(ProfitElementName, ItemLedgerEntry."Sales Amount (Actual)" +
@@ -2402,7 +2399,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure EnterQuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2412,27 +2409,27 @@ codeunit 137352 "SCM Inventory Reports - V"
         case LibraryVariableStorage.DequeueInteger() of
             TrackingOption::AssignSerialNo:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;
-                    ItemTrackingLines.First;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    ItemTrackingLines.First();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Serial No.".Value);
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
             TrackingOption::AssignLotNo:
                 begin
-                    ItemTrackingLines."Assign Lot No.".Invoke;
+                    ItemTrackingLines."Assign Lot No.".Invoke();
                     LibraryVariableStorage.Enqueue(ItemTrackingLines."Lot No.".Value);
                 end;
             TrackingOption::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2449,7 +2446,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage.Dequeue(FileName);
         ItemTrackingAppendix.Document.SetValue(Document);
         ItemTrackingAppendix.DocumentNo.SetValue(DocumentNo);
-        ItemTrackingAppendix.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemTrackingAppendix.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2464,7 +2461,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage.Dequeue(PeriodLength);
         ItemExpirationQuantity.EndingDate.SetValue(EndingDate);
         ItemExpirationQuantity.PeriodLength.SetValue(PeriodLength);
-        ItemExpirationQuantity.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemExpirationQuantity.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure PostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; UnitAmount: Decimal; EntryType: Enum "Item Ledger Document Type")
@@ -2492,7 +2489,7 @@ codeunit 137352 "SCM Inventory Reports - V"
 
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)",
-          LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
         PurchaseLine.Modify(true);
 
@@ -2514,7 +2511,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesHeader.Modify(true);
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), LibraryRandom.RandInt(10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
         SalesLine.Modify(true);
 
@@ -2534,7 +2531,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         CurrentSaveValuesId := REPORT::"Sales - Return Receipt";
         LibraryVariableStorage.Dequeue(FileName);
         SalesReturnReceipt.ShowCorrectionLines.SetValue(true);
-        SalesReturnReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesReturnReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2549,7 +2546,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryVariableStorage.Dequeue(ShowSerialLotNumber);
         PhysInventoryList.ShowCalculatedQty.SetValue(ShowQtyCalculated);
         PhysInventoryList.ShowSerialLotNumber.SetValue(ShowSerialLotNumber);
-        PhysInventoryList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInventoryList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2574,7 +2571,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         SalesShipment.LogInteraction.SetValue(LogInteraction);
         SalesShipment."Show Correction Lines".SetValue(ShowCorrectionLines);
         SalesShipment.ShowLotSN.SetValue(ShowLotSN);
-        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2582,7 +2579,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure InventoryCustomersSalesRequestPageHandler(var InventoryCustomerSales: TestRequestPage "Inventory - Customer Sales")
     begin
         CurrentSaveValuesId := REPORT::"Inventory - Customer Sales";
-        InventoryCustomerSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryCustomerSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2590,7 +2587,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure CustomerItemSalesRequestPageHandler(var CustomerItemSales: TestRequestPage "Customer/Item Sales")
     begin
         CurrentSaveValuesId := REPORT::"Customer/Item Sales";
-        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2598,9 +2595,9 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure CustomerItemSalesRequestFilterOnPostingDatePageHandler(var CustomerItemSales: TestRequestPage "Customer/Item Sales")
     begin
         CurrentSaveValuesId := REPORT::"Customer/Item Sales";
-        CustomerItemSales."Value Entry".SetFilter("Item No.", LibraryVariableStorage.DequeueText);
-        CustomerItemSales."Value Entry".SetFilter("Posting Date", LibraryVariableStorage.DequeueText);
-        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemSales."Value Entry".SetFilter("Item No.", LibraryVariableStorage.DequeueText());
+        CustomerItemSales."Value Entry".SetFilter("Posting Date", LibraryVariableStorage.DequeueText());
+        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2620,7 +2617,7 @@ codeunit 137352 "SCM Inventory Reports - V"
         InventoryValuation.EndingDate.SetValue(EndDate);
         InventoryValuation.IncludeExpectedCost.SetValue(InclExpCost);
 
-        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryValuation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2628,7 +2625,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure RevaluationPostingTestRequestPageHandler(var RevaluationPostingTest: TestRequestPage "Revaluation Posting - Test")
     begin
         CurrentSaveValuesId := REPORT::"Revaluation Posting - Test";
-        RevaluationPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RevaluationPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2636,7 +2633,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     procedure InventoryCostVarianceRequestPageHandler(var InventoryCostVariance: TestRequestPage "Inventory - Cost Variance")
     begin
         CurrentSaveValuesId := REPORT::"Inventory - Cost Variance";
-        InventoryCostVariance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InventoryCostVariance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2645,7 +2642,7 @@ codeunit 137352 "SCM Inventory Reports - V"
     begin
         CurrentSaveValuesId := REPORT::Status;
         Status.StatusDate.SetValue(WorkDate());
-        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Status.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

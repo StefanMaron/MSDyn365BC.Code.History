@@ -1,4 +1,4 @@
-﻿#if not CLEAN22
+#if not CLEAN22
 report 11413 "Create Intrastat Decl. Disk"
 {
     // // Note: Intrastat Jnl. Batch dataitem has MaxIteration = 1
@@ -377,7 +377,7 @@ report 11413 "Create Intrastat Decl. Disk"
         exit(DelChr(Text, '=', ' 0123456789') <> '');
     end;
 
-    local procedure PADSTR2(String: Text[1024]; Length: Integer; FillCharacter: Text[1]; Where: Text[1]) Result: Text[1024]
+    local procedure PADSTR2(String: Text[1024]; Length: Integer; FillCharacter: Text[1]; Where: Text[1]): Text[1024]
     var
         PaddingLength: Integer;
     begin

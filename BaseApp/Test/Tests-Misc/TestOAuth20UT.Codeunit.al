@@ -36,6 +36,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
 
     [Test]
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetAuthorizationURL()
     var
         OAuth20Setup: Record "OAuth 2.0 Setup";
@@ -48,11 +49,12 @@ codeunit 134780 "Test OAuth 2.0 UT"
 
         Assert.AreEqual(
           GetAuthorizationURLString(OAuth20Setup),
-          OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID")), '');
+          OAuth20Mgt.GetAuthorizationURLAsSecretText(OAuth20Setup, OAuth20Setup.GetTokenAsSecretText(OAuth20Setup."Client ID").Unwrap()).Unwrap(), '');
     end;
 
     [Test]
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure HttpLog_GetAuthorizationURL()
     var
         OAuth20Setup: Record "OAuth 2.0 Setup";
@@ -63,7 +65,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
         Initialize();
         CreateOAuthSetup(OAuth20Setup);
 
-        OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        OAuth20Mgt.GetAuthorizationURLAsSecretText(OAuth20Setup, OAuth20Setup.GetTokenAsSecretText((OAuth20Setup."Client ID")).Unwrap());
 
         VerifyHttpLog(OAuth20Setup, true, RequestAuthCodeTxt, '');
         VerifyHttpLogWithBlankedDetails(OAuth20Setup);
@@ -339,6 +341,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
     [Test]
     [HandlerFunctions('HttpLog_MPH')]
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure UI_HttpLog()
     var
         OAuth20Setup: Record "OAuth 2.0 Setup";
@@ -349,7 +352,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
         // [SCENARIO 258181] PAG 1140 "OAuth 2.0 Setup" action "Http Log" opens Activity Log page for the current OAuth Setup
         Initialize();
         CreateOAuthSetup(OAuth20Setup);
-        OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        OAuth20Mgt.GetAuthorizationURLAsSecretText(OAuth20Setup, OAuth20Setup.GetTokenAsSecretText((OAuth20Setup."Client ID")).Unwrap());
 
         OpenOAuthSetupPage(OAuth20SetupPage, OAuth20Setup);
         OAuth20SetupPage.HttpLog.Invoke();
@@ -493,6 +496,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
     end;
 
     [Test]
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetAuthorizationURLWithCodeChallenge()
     var
@@ -507,13 +511,14 @@ codeunit 134780 "Test OAuth 2.0 UT"
         OAuth20Setup.Validate("Code Challenge Method", OAuth20Setup."Code Challenge Method"::S256);
         OAuth20Setup.Modify(true);
 
-        ActualURL := OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        ActualURL := OAuth20Mgt.GetAuthorizationURLAsSecretText(OAuth20Setup, OAuth20Setup.GetTokenAsSecretText(OAuth20Setup."Client ID").Unwrap()).Unwrap();
         Assert.IsTrue(StrPos(ActualURL, 'code_challenge_method=S256') > 0, 'Url does not contain a code challenge');
         OAuth20Setup.Find();
-        Assert.IsTrue(OAuth20Setup.GetToken(OAuth20Setup."Code Verifier") <> '', 'Code verifier is empty');
+        Assert.IsTrue(OAuth20Setup.GetTokenAsSecretText(OAuth20Setup."Code Verifier").Unwrap() <> '', 'Code verifier is empty');
     end;
 
     [Test]
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetAuthorizationURLWithNonce()
     var
@@ -528,7 +533,7 @@ codeunit 134780 "Test OAuth 2.0 UT"
         OAuth20Setup.Validate("Use Nonce", true);
         OAuth20Setup.Modify(true);
 
-        ActualURL := OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, OAuth20Setup.GetToken(OAuth20Setup."Client ID"));
+        ActualURL := OAuth20Mgt.GetAuthorizationURLAsSecretText(OAuth20Setup, OAuth20Setup.GetTokenAsSecretText(OAuth20Setup."Client ID").Unwrap()).Unwrap();
         Assert.IsTrue(StrPos(ActualURL, 'nonce=') > 0, 'Url does not contain a nonce');
     end;
 
@@ -604,23 +609,32 @@ codeunit 134780 "Test OAuth 2.0 UT"
         Page.Run(Page::"OAuth 2.0 Setup", OAuth20Setup);
     end;
 
+    [NonDebuggable]
     local procedure GetAuthorizationURLString(OAuth20Setup: Record "OAuth 2.0 Setup"): Text
     begin
         with OAuth20Setup do
             exit(
               StrSubstNo(
                 '%1%2?response_type=%3&client_id=%4&scope=%5&redirect_uri=%6',
-                "Service URL", "Authorization URL Path", "Authorization Response Type", GetToken("Client ID"), Scope, "Redirect URL"));
+                "Service URL", "Authorization URL Path", "Authorization Response Type", GetTokenAsSecretText("Client ID").Unwrap(), Scope, "Redirect URL"));
     end;
 
     local procedure SetOAuthSetupTestTokens(var OAuth20Setup: Record "OAuth 2.0 Setup")
+    var
+        ClientID: Text;
+        ClientSecret: Text;
+        AccessToken: Text;
+        RefreshToken: Text;
     begin
-        with OAuth20Setup do begin
-            SetToken("Client ID", 'Dummy Test Client ID');
-            SetToken("Client Secret", 'Dummy Test Client Secret');
-            SetToken("Access Token", 'Dummy Test Access Token');
-            SetToken("Refresh Token", 'Dummy Test Refresh Token');
-        end;
+        ClientID := 'Dummy Test Client ID';
+        ClientSecret := 'Dummy Test Client Secret';
+        AccessToken := 'Dummy Test Access Token';
+        RefreshToken := 'Dummy Test Refresh Token';
+
+        OAuth20Setup.SetToken(OAuth20Setup."Client ID", ClientID);
+        OAuth20Setup.SetToken(OAuth20Setup."Client Secret", ClientSecret);
+        OAuth20Setup.SetToken(OAuth20Setup."Access Token", AccessToken);
+        OAuth20Setup.SetToken(OAuth20Setup."Refresh Token", RefreshToken);
     end;
 
     local procedure VerifyRemovedTokensAfterRecordDeleteForTokenScope(OAuthSetupTokenDataScope: Option)

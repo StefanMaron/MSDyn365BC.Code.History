@@ -60,18 +60,6 @@ codeunit 1385 "Vendor Templ. Mgt."
         OnAfterApplyVendorTemplate(Vendor, VendorTempl);
     end;
 
-    [Obsolete('Replaced by ApplyVendorTemplate with different set of parameters', '18.0')]
-    procedure ApplyContactVendorTemplate(var Vendor: Record Vendor; Contact: Record Contact)
-    var
-        VendorTempl: Record "Vendor Templ.";
-    begin
-        VendorTempl.SetRange("Contact Type", Contact.Type);
-        if not SelectVendorTemplate(VendorTempl) then
-            exit;
-
-        ApplyVendorTemplate(Vendor, VendorTempl);
-    end;
-
     local procedure ApplyTemplate(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ."; UpdateExistingValues: Boolean)
     var
         VendorRecRef: RecordRef;
@@ -103,7 +91,7 @@ codeunit 1385 "Vendor Templ. Mgt."
                 if (not UpdateExistingValues and (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value)) or
                    (UpdateExistingValues and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value))
                 then
-                    VendorFldRef.Value := VendorTemplFldRef.Value;
+                    VendorFldRef.Value := VendorTemplFldRef.Value();
             end;
         end;
         VendorRecRef.SetTable(Vendor);
@@ -340,12 +328,19 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     procedure InitVendorNo(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         if VendorTempl."No. Series" = '' then
             exit;
 
-        NoSeriesManagement.InitSeries(VendorTempl."No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+        Vendor."No. Series" := VendorTempl."No. Series";
+        if Vendor."No." <> '' then begin
+            NoSeries.TestManual(Vendor."No. Series");
+            exit;
+        end;
+
+        NoSeries.TestAutomatic(Vendor."No. Series");
+        Vendor."No." := NoSeries.GetNextNo(Vendor."No. Series");
     end;
 
     local procedure TemplateFieldCanBeProcessed(FieldNumber: Integer; FieldExclusionList: List of [Integer]): Boolean
@@ -568,18 +563,19 @@ codeunit 1385 "Vendor Templ. Mgt."
     procedure FillVendorKeyFromInitSeries(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
     var
         Vendor: Record Vendor;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         FldRef: FieldRef;
     begin
         if RecRef.Number = Database::Vendor then begin
             if ConfigTemplateHeader."Instance No. Series" = '' then
                 exit;
 
-            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+            NoSeries.TestAutomatic(ConfigTemplateHeader."Instance No. Series");
+
             FldRef := RecRef.Field(Vendor.FieldNo("No."));
-            FldRef.Value := Vendor."No.";
+            FldRef.Value := NoSeries.GetNextNo(ConfigTemplateHeader."Instance No. Series");
             FldRef := RecRef.Field(Vendor.FieldNo("No. Series"));
-            FldRef.Value := Vendor."No. Series";
+            FldRef.Value := ConfigTemplateHeader."Instance No. Series";
         end;
     end;
 }

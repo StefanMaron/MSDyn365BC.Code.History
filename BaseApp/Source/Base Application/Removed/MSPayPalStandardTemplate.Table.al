@@ -5,6 +5,7 @@ table 7861 "MS- PayPal Standard Template"
     ObsoleteState = Removed;
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

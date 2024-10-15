@@ -48,42 +48,40 @@ codeunit 5804 ItemCostManagement
         if UnitCostUpdated then
             exit;
 
-        with Item do begin
-            if NewStdCost <> 0 then
-                "Standard Cost" := NewStdCost;
+        if NewStdCost <> 0 then
+            Item."Standard Cost" := NewStdCost;
 
-            xUnitCost := Item."Unit Cost";
-            if "Costing Method" = "Costing Method"::Standard then
-                "Unit Cost" := "Standard Cost"
+        xUnitCost := Item."Unit Cost";
+        if Item."Costing Method" = Item."Costing Method"::Standard then
+            Item."Unit Cost" := Item."Standard Cost"
+        else
+            if CalledFromAdjustment then
+                CalcUnitCostFromAverageCost(Item)
             else
-                if CalledFromAdjustment then
-                    CalcUnitCostFromAverageCost(Item)
-                else
-                    UpdateUnitCostFromLastDirectCost(Item, LastDirectCost);
-            ItemUnitCostUpdated := xUnitCost <> Item."Unit Cost";
+                UpdateUnitCostFromLastDirectCost(Item, LastDirectCost);
+        ItemUnitCostUpdated := xUnitCost <> Item."Unit Cost";
 
-            if RecalcStdCost then
-                RecalcStdCostItem(Item);
+        if RecalcStdCost then
+            RecalcStdCostItem(Item);
 
-            CheckUpdateLastDirectCost(Item, LastDirectCost);
+        CheckUpdateLastDirectCost(Item, LastDirectCost);
 
-            IsHandled := false;
-            OnUpdateUnitCostOnBeforeValidatePriceProfitCalculation(Item, IsHandled);
-            if not IsHandled then
-                Validate("Price/Profit Calculation");
+        IsHandled := false;
+        OnUpdateUnitCostOnBeforeValidatePriceProfitCalculation(Item, IsHandled);
+        if not IsHandled then
+            Item.Validate(Item."Price/Profit Calculation");
 
-            RunOnModifyTrigger := CalledByFieldNo <> 0;
-            OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(Item, RunOnModifyTrigger, CalledByFieldNo);
-            if CheckItem.Get("No.") then
-                if RunOnModifyTrigger then
-                    Modify(true)
-                else
-                    Modify();
+        RunOnModifyTrigger := CalledByFieldNo <> 0;
+        OnUpdateUnitCostOnAfterCalcRunOnModifyTrigger(Item, RunOnModifyTrigger, CalledByFieldNo);
+        if CheckItem.Get(Item."No.") then
+            if RunOnModifyTrigger then
+                Item.Modify(true)
+            else
+                Item.Modify();
 
-            OnUpdateUnitCostOnBeforeUpdateSKU(Item, UpdateSKU);
-            if UpdateSKU then
-                FindUpdateUnitCostSKU(Item, LocationCode, VariantCode, FilterSKU, LastDirectCost);
-        end;
+        OnUpdateUnitCostOnBeforeUpdateSKU(Item, UpdateSKU);
+        if UpdateSKU then
+            FindUpdateUnitCostSKU(Item, LocationCode, VariantCode, FilterSKU, LastDirectCost);
 
         OnAfterUpdateUnitCost(Item, CalledByFieldNo);
     end;
@@ -99,16 +97,14 @@ codeunit 5804 ItemCostManagement
         if IsHandled then
             exit;
 
-        with Item do begin
-            CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
-            if CalculateAverageCost(Item, AverageCost, AverageCostACY) then begin
-                if AverageCost <> 0 then
-                    "Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
-            end else begin
-                CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
-                if AverageCost <> 0 then
-                    "Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
-            end;
+        CostCalcMgt.GetRndgSetup(GLSetup, Currency, RndgSetupRead);
+        if CalculateAverageCost(Item, AverageCost, AverageCostACY) then begin
+            if AverageCost <> 0 then
+                Item."Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
+        end else begin
+            CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
+            if AverageCost <> 0 then
+                Item."Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
         end;
     end;
 
@@ -121,14 +117,13 @@ codeunit 5804 ItemCostManagement
         if IsHandled then
             exit;
 
-        with Item do
-            if ("Unit Cost" = 0) or ((InvoicedQty > 0) and (LastDirectCost <> 0)) then begin
-                CalcFields("Net Invoiced Qty.");
-                IsHandled := false;
-                OnUpdateUnitCostOnBeforeNetInvoiceQtyCheck(Item, IsHandled);
-                if ("Net Invoiced Qty." > 0) and ("Net Invoiced Qty." <= InvoicedQty) and not IsHandled then
-                    "Unit Cost" := LastDirectCost;
-            end;
+        if (Item."Unit Cost" = 0) or ((InvoicedQty > 0) and (LastDirectCost <> 0)) then begin
+            Item.CalcFields(Item."Net Invoiced Qty.");
+            IsHandled := false;
+            OnUpdateUnitCostOnBeforeNetInvoiceQtyCheck(Item, IsHandled);
+            if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) and not IsHandled then
+                Item."Unit Cost" := LastDirectCost;
+        end;
     end;
 
     local procedure CheckUpdateLastDirectCost(var Item: Record Item; LastDirectCost: Decimal)
@@ -154,23 +149,21 @@ codeunit 5804 ItemCostManagement
         if IsHandled then
             exit;
 
-        with FromItem do begin
-            Item.Get("No.");
-            Item.Validate("Standard Cost", "Standard Cost");
-            Item."Single-Level Material Cost" := "Single-Level Material Cost";
-            Item."Single-Level Capacity Cost" := "Single-Level Capacity Cost";
-            Item."Single-Level Subcontrd. Cost" := "Single-Level Subcontrd. Cost";
-            Item."Single-Level Cap. Ovhd Cost" := "Single-Level Cap. Ovhd Cost";
-            Item."Single-Level Mfg. Ovhd Cost" := "Single-Level Mfg. Ovhd Cost";
-            Item."Rolled-up Material Cost" := "Rolled-up Material Cost";
-            Item."Rolled-up Capacity Cost" := "Rolled-up Capacity Cost";
-            Item."Rolled-up Subcontracted Cost" := "Rolled-up Subcontracted Cost";
-            Item."Rolled-up Mfg. Ovhd Cost" := "Rolled-up Mfg. Ovhd Cost";
-            Item."Rolled-up Cap. Overhead Cost" := "Rolled-up Cap. Overhead Cost";
-            Item."Last Unit Cost Calc. Date" := "Last Unit Cost Calc. Date";
-            OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
-            Item.Modify();
-        end;
+        Item.Get(FromItem."No.");
+        Item.Validate("Standard Cost", FromItem."Standard Cost");
+        Item."Single-Level Material Cost" := FromItem."Single-Level Material Cost";
+        Item."Single-Level Capacity Cost" := FromItem."Single-Level Capacity Cost";
+        Item."Single-Level Subcontrd. Cost" := FromItem."Single-Level Subcontrd. Cost";
+        Item."Single-Level Cap. Ovhd Cost" := FromItem."Single-Level Cap. Ovhd Cost";
+        Item."Single-Level Mfg. Ovhd Cost" := FromItem."Single-Level Mfg. Ovhd Cost";
+        Item."Rolled-up Material Cost" := FromItem."Rolled-up Material Cost";
+        Item."Rolled-up Capacity Cost" := FromItem."Rolled-up Capacity Cost";
+        Item."Rolled-up Subcontracted Cost" := FromItem."Rolled-up Subcontracted Cost";
+        Item."Rolled-up Mfg. Ovhd Cost" := FromItem."Rolled-up Mfg. Ovhd Cost";
+        Item."Rolled-up Cap. Overhead Cost" := FromItem."Rolled-up Cap. Overhead Cost";
+        Item."Last Unit Cost Calc. Date" := FromItem."Last Unit Cost Calc. Date";
+        OnUpdateStdCostSharesOnAfterCopyCosts(Item, FromItem);
+        Item.Modify();
     end;
 
     procedure UpdateUnitCostSKU(Item: Record Item; var SKU: Record "Stockkeeping Unit"; LastDirectCost: Decimal; NewStdCost: Decimal; MatchSKU: Boolean; CalledByFieldNo: Integer)
@@ -183,77 +176,74 @@ codeunit 5804 ItemCostManagement
     begin
         IsHandled := false;
         OnBeforeUpdateUnitCostSKU(Item, SKU, LastDirectCost, NewStdCost, MatchSKU, CalledByFieldNo, UnitCostUpdated, CalledFromAdjustment);
-        if not UnitCostUpdated then
-            with SKU do begin
-                if NewStdCost <> 0 then
-                    "Standard Cost" := NewStdCost;
-                if Item."Costing Method" <> Item."Costing Method"::Standard then begin
-                    GetInvtSetup();
-                    if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then begin
-                        IsHandled := false;
-                        OnUpdateUnitCostSKUOnBeforeCalcNonItemAvgCostCalcType(Item, SKU, CalledFromAdjustment, IsHandled);
-                        if not IsHandled then
-                            if CalledFromAdjustment then begin
-                                ValueEntry."Item No." := Item."No.";
-                                ValueEntry."Valuation Date" := DMY2Date(31, 12, 9999);
-                                ValueEntry."Location Code" := "Location Code";
-                                ValueEntry."Variant Code" := "Variant Code";
-                                ValueEntry.SumCostsTillValuationDate(ValueEntry);
-                                if ValueEntry."Item Ledger Entry Quantity" <> 0 then begin
-                                    AverageCost :=
-                                      (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
-                                      ValueEntry."Item Ledger Entry Quantity";
-                                    if AverageCost < 0 then
-                                        AverageCost := 0;
-                                end else begin
-                                    Item.SetRange("Location Filter", "Location Code");
-                                    Item.SetRange("Variant Filter", "Variant Code");
-                                    CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
-                                end;
-                                if AverageCost <> 0 then
-                                    "Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
-                            end else
-                                if ("Unit Cost" = 0) or ((InvoicedQty > 0) and MatchSKU and (LastDirectCost <> 0)) then begin
-                                    Item.SetRange("Location Filter", "Location Code");
-                                    Item.SetRange("Variant Filter", "Variant Code");
-                                    Item.CalcFields("Net Invoiced Qty.");
-                                    Item.SetRange("Location Filter");
-                                    Item.SetRange("Variant Filter");
-                                    if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) then
-                                        "Unit Cost" := LastDirectCost;
-                                    OnUpdateUnitCostSKUOnAfterSetSKUUnitCosts(SKU, Item, InvoicedQty, LastDirectCost);
-                                end;
-                    end else
-                        "Unit Cost" := Item."Unit Cost";
+        if not UnitCostUpdated then begin
+            if NewStdCost <> 0 then
+                SKU."Standard Cost" := NewStdCost;
+            if Item."Costing Method" <> Item."Costing Method"::Standard then begin
+                GetInvtSetup();
+                if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then begin
+                    IsHandled := false;
+                    OnUpdateUnitCostSKUOnBeforeCalcNonItemAvgCostCalcType(Item, SKU, CalledFromAdjustment, IsHandled);
+                    if not IsHandled then
+                        if CalledFromAdjustment then begin
+                            ValueEntry."Item No." := Item."No.";
+                            ValueEntry."Valuation Date" := DMY2Date(31, 12, 9999);
+                            ValueEntry."Location Code" := SKU."Location Code";
+                            ValueEntry."Variant Code" := SKU."Variant Code";
+                            ValueEntry.SumCostsTillValuationDate(ValueEntry);
+                            if ValueEntry."Item Ledger Entry Quantity" <> 0 then begin
+                                AverageCost :=
+                                  (ValueEntry."Cost Amount (Actual)" + ValueEntry."Cost Amount (Expected)") /
+                                  ValueEntry."Item Ledger Entry Quantity";
+                                if AverageCost < 0 then
+                                    AverageCost := 0;
+                            end else begin
+                                Item.SetRange("Location Filter", SKU."Location Code");
+                                Item.SetRange("Variant Filter", SKU."Variant Code");
+                                CalcLastAdjEntryAvgCost(Item, AverageCost, AverageCostACY);
+                            end;
+                            if AverageCost <> 0 then
+                                SKU."Unit Cost" := Round(AverageCost, GLSetup."Unit-Amount Rounding Precision");
+                        end else
+                            if (SKU."Unit Cost" = 0) or ((InvoicedQty > 0) and MatchSKU and (LastDirectCost <> 0)) then begin
+                                Item.SetRange("Location Filter", SKU."Location Code");
+                                Item.SetRange("Variant Filter", SKU."Variant Code");
+                                Item.CalcFields("Net Invoiced Qty.");
+                                Item.SetRange("Location Filter");
+                                Item.SetRange("Variant Filter");
+                                if (Item."Net Invoiced Qty." > 0) and (Item."Net Invoiced Qty." <= InvoicedQty) then
+                                    SKU."Unit Cost" := LastDirectCost;
+                                OnUpdateUnitCostSKUOnAfterSetSKUUnitCosts(SKU, Item, InvoicedQty, LastDirectCost);
+                            end;
                 end else
-                    "Unit Cost" := "Standard Cost";
+                    SKU."Unit Cost" := Item."Unit Cost";
+            end else
+                SKU."Unit Cost" := SKU."Standard Cost";
 
-                OnUpdateUnitCostSKUOnBeforeMatchSKU(SKU, Item);
-                if MatchSKU and (LastDirectCost <> 0) then
-                    "Last Direct Cost" := LastDirectCost;
+            OnUpdateUnitCostSKUOnBeforeMatchSKU(SKU, Item);
+            if MatchSKU and (LastDirectCost <> 0) then
+                SKU."Last Direct Cost" := LastDirectCost;
 
-                if CalledByFieldNo <> 0 then
-                    Modify(true)
-                else
-                    Modify();
-            end;
+            if CalledByFieldNo <> 0 then
+                SKU.Modify(true)
+            else
+                SKU.Modify();
+        end;
         OnAfterUpdateUnitCostSKU(Item, SKU);
     end;
 
     local procedure RecalcStdCostItem(var Item: Record Item)
     begin
-        with Item do begin
-            "Single-Level Material Cost" := "Standard Cost";
-            "Single-Level Mfg. Ovhd Cost" := 0;
-            "Single-Level Capacity Cost" := 0;
-            "Single-Level Subcontrd. Cost" := 0;
-            "Single-Level Cap. Ovhd Cost" := 0;
-            "Rolled-up Material Cost" := "Standard Cost";
-            "Rolled-up Mfg. Ovhd Cost" := 0;
-            "Rolled-up Capacity Cost" := 0;
-            "Rolled-up Subcontracted Cost" := 0;
-            "Rolled-up Cap. Overhead Cost" := 0;
-        end;
+        Item."Single-Level Material Cost" := Item."Standard Cost";
+        Item."Single-Level Mfg. Ovhd Cost" := 0;
+        Item."Single-Level Capacity Cost" := 0;
+        Item."Single-Level Subcontrd. Cost" := 0;
+        Item."Single-Level Cap. Ovhd Cost" := 0;
+        Item."Rolled-up Material Cost" := Item."Standard Cost";
+        Item."Rolled-up Mfg. Ovhd Cost" := 0;
+        Item."Rolled-up Capacity Cost" := 0;
+        Item."Rolled-up Subcontracted Cost" := 0;
+        Item."Rolled-up Cap. Overhead Cost" := 0;
 
         OnAfterRecalcStdCostItem(Item);
     end;
@@ -275,40 +265,38 @@ codeunit 5804 ItemCostManagement
 
         if CalculateQuantity(Item) <> 0 then
             exit;
-        if not HasOpenEntries(Item) then
+        if HasOpenEntries(Item) then
             exit;
 
-        with ValueEntry do begin
-            SetFilters(ValueEntry, Item);
-            if Find('+') then
-                repeat
-                    ComputeThisEntry := ("Item Ledger Entry Quantity" < 0) and not Adjustment and not "Drop Shipment";
-                    if ComputeThisEntry then begin
-                        ItemLedgEntry.Get("Item Ledger Entry No.");
-                        IsSubOptimal :=
-                          ItemLedgEntry.Correction or
-                          ((Item."Costing Method" = Item."Costing Method"::Average) and not "Valued By Average Cost");
+        SetFilters(ValueEntry, Item);
+        if ValueEntry.Find('+') then
+            repeat
+                ComputeThisEntry := (ValueEntry."Item Ledger Entry Quantity" < 0) and not ValueEntry.Adjustment and not ValueEntry."Drop Shipment";
+                if ComputeThisEntry then begin
+                    ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
+                    IsSubOptimal :=
+                      ItemLedgEntry.Correction or
+                      ((Item."Costing Method" = Item."Costing Method"::Average) and not ValueEntry."Valued By Average Cost");
 
-                        if not IsSubOptimal or (IsSubOptimal and (AverageCost = 0)) then begin
-                            ItemLedgEntry.CalcFields(
-                              "Cost Amount (Expected)", "Cost Amount (Actual)",
-                              "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)");
-                            AverageCost :=
-                              (ItemLedgEntry."Cost Amount (Expected)" +
-                               ItemLedgEntry."Cost Amount (Actual)") /
-                              ItemLedgEntry.Quantity;
-                            AverageCostACY :=
-                              (ItemLedgEntry."Cost Amount (Expected) (ACY)" +
-                               ItemLedgEntry."Cost Amount (Actual) (ACY)") /
-                              ItemLedgEntry.Quantity;
+                    if not IsSubOptimal or (IsSubOptimal and (AverageCost = 0)) then begin
+                        ItemLedgEntry.CalcFields(
+                          "Cost Amount (Expected)", "Cost Amount (Actual)",
+                          "Cost Amount (Expected) (ACY)", "Cost Amount (Actual) (ACY)");
+                        AverageCost :=
+                          (ItemLedgEntry."Cost Amount (Expected)" +
+                           ItemLedgEntry."Cost Amount (Actual)") /
+                          ItemLedgEntry.Quantity;
+                        AverageCostACY :=
+                          (ItemLedgEntry."Cost Amount (Expected) (ACY)" +
+                           ItemLedgEntry."Cost Amount (Actual) (ACY)") /
+                          ItemLedgEntry.Quantity;
 
-                            OnCalcLastAdjEntryAvgCostOnAfterCalcAverageCost(ItemLedgEntry, ValueEntry, Item, AverageCost, AverageCostACY);
-                            if (AverageCost <> 0) and not IsSubOptimal then
-                                exit;
-                        end;
+                        OnCalcLastAdjEntryAvgCostOnAfterCalcAverageCost(ItemLedgEntry, ValueEntry, Item, AverageCost, AverageCostACY);
+                        if (AverageCost <> 0) and not IsSubOptimal then
+                            exit;
                     end;
-                until Next(-1) = 0;
-        end;
+                end;
+            until ValueEntry.Next(-1) = 0;
     end;
 
     procedure CalculateAverageCost(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal): Boolean
@@ -370,14 +358,12 @@ codeunit 5804 ItemCostManagement
 
     procedure SetFilters(var ValueEntry: Record "Value Entry"; var Item: Record Item)
     begin
-        with ValueEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
-            SetRange("Item No.", Item."No.");
-            SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-        end;
+        ValueEntry.Reset();
+        ValueEntry.SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.SetFilter("Valuation Date", Item.GetFilter("Date Filter"));
+        ValueEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        ValueEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
         OnAfterSetFilters(ValueEntry, Item);
     end;
 
@@ -385,13 +371,11 @@ codeunit 5804 ItemCostManagement
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetFilters(ValueEntry, Item);
-            CalcSums("Item Ledger Entry Quantity");
-            CalcQty := "Item Ledger Entry Quantity";
-            OnAfterCalculateQuantity(ValueEntry, Item, CalcQty);
-            exit(CalcQty);
-        end;
+        SetFilters(ValueEntry, Item);
+        ValueEntry.CalcSums("Item Ledger Entry Quantity");
+        CalcQty := ValueEntry."Item Ledger Entry Quantity";
+        OnAfterCalculateQuantity(ValueEntry, Item, CalcQty);
+        exit(CalcQty);
     end;
 
     local procedure CalculateCostAmt(var Item: Record Item; Actual: Boolean) CostAmount: Decimal
@@ -404,30 +388,26 @@ codeunit 5804 ItemCostManagement
         if IsHandled then
             exit(CostAmount);
 
-        with ValueEntry do begin
-            SetFilters(ValueEntry, Item);
-            if Actual then begin
-                CalcSums("Cost Amount (Actual)");
-                exit("Cost Amount (Actual)");
-            end;
-            CalcSums("Cost Amount (Expected)");
-            exit("Cost Amount (Expected)");
+        SetFilters(ValueEntry, Item);
+        if Actual then begin
+            ValueEntry.CalcSums("Cost Amount (Actual)");
+            exit(ValueEntry."Cost Amount (Actual)");
         end;
+        ValueEntry.CalcSums("Cost Amount (Expected)");
+        exit(ValueEntry."Cost Amount (Expected)");
     end;
 
     local procedure CalculateCostAmtACY(var Item: Record Item; Actual: Boolean): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetFilters(ValueEntry, Item);
-            if Actual then begin
-                CalcSums("Cost Amount (Actual) (ACY)");
-                exit("Cost Amount (Actual) (ACY)");
-            end;
-            CalcSums("Cost Amount (Expected) (ACY)");
-            exit("Cost Amount (Expected) (ACY)");
+        SetFilters(ValueEntry, Item);
+        if Actual then begin
+            ValueEntry.CalcSums("Cost Amount (Actual) (ACY)");
+            exit(ValueEntry."Cost Amount (Actual) (ACY)");
         end;
+        ValueEntry.CalcSums("Cost Amount (Expected) (ACY)");
+        exit(ValueEntry."Cost Amount (Expected) (ACY)");
     end;
 
     local procedure CalculatePreciseCostAmounts(var Item: Record Item; NeedCalcPreciseAmt: Boolean; NeedCalcPreciseAmtACY: Boolean; var PreciseAmt: Decimal; var PreciseAmtACY: Decimal)
@@ -473,20 +453,18 @@ codeunit 5804 ItemCostManagement
                     until ItemApplicationEntry.Next() = 0;
             until OpenOutbndItemLedgEntry.Next() = 0;
 
-        with TempItemLedgerEntry do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    if NeedCalcPreciseAmt then begin
-                        CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
-                        PreciseAmt += ("Cost Amount (Actual)" + "Cost Amount (Expected)") / Quantity * "Remaining Quantity";
-                    end;
-                    if NeedCalcPreciseAmtACY then begin
-                        CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
-                        PreciseAmtACY += ("Cost Amount (Actual) (ACY)" + "Cost Amount (Expected) (ACY)") / Quantity * "Remaining Quantity";
-                    end;
-                until Next() = 0;
-        end;
+        TempItemLedgerEntry.Reset();
+        if TempItemLedgerEntry.FindSet() then
+            repeat
+                if NeedCalcPreciseAmt then begin
+                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
+                    PreciseAmt += (TempItemLedgerEntry."Cost Amount (Actual)" + TempItemLedgerEntry."Cost Amount (Expected)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                end;
+                if NeedCalcPreciseAmtACY then begin
+                    TempItemLedgerEntry.CalcFields("Cost Amount (Actual) (ACY)", "Cost Amount (Expected) (ACY)");
+                    PreciseAmtACY += (TempItemLedgerEntry."Cost Amount (Actual) (ACY)" + TempItemLedgerEntry."Cost Amount (Expected) (ACY)") / TempItemLedgerEntry.Quantity * TempItemLedgerEntry."Remaining Quantity";
+                end;
+            until TempItemLedgerEntry.Next() = 0;
     end;
 
     local procedure ExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
@@ -494,26 +472,24 @@ codeunit 5804 ItemCostManagement
         OpenItemLedgEntry: Record "Item Ledger Entry";
         OpenValueEntry: Record "Value Entry";
     begin
-        with OpenValueEntry do begin
-            OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive);
-            OpenItemLedgEntry.SetRange("Item No.", Item."No.");
-            OpenItemLedgEntry.SetRange(Open, true);
-            OpenItemLedgEntry.SetRange(Positive, false);
-            OpenItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            OpenItemLedgEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            SetCurrentKey("Item Ledger Entry No.");
-            OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(OpenItemLedgEntry, Item);
-            if OpenItemLedgEntry.Find('-') then
-                repeat
-                    SetRange("Item Ledger Entry No.", OpenItemLedgEntry."Entry No.");
-                    if Find('-') then
-                        repeat
-                            CostAmt := CostAmt - "Cost Amount (Actual)" - "Cost Amount (Expected)";
-                            CostAmtACY := CostAmtACY - "Cost Amount (Actual) (ACY)" - "Cost Amount (Expected) (ACY)";
-                            Quantity := Quantity - "Item Ledger Entry Quantity";
-                        until Next() = 0;
-                until OpenItemLedgEntry.Next() = 0;
-        end;
+        OpenItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", Positive);
+        OpenItemLedgEntry.SetRange("Item No.", Item."No.");
+        OpenItemLedgEntry.SetRange(Open, true);
+        OpenItemLedgEntry.SetRange(Positive, false);
+        OpenItemLedgEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+        OpenItemLedgEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+        OpenValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        OnExcludeOpenOutbndCostsOnAfterOpenItemLedgEntrySetFilters(OpenItemLedgEntry, Item);
+        if OpenItemLedgEntry.Find('-') then
+            repeat
+                OpenValueEntry.SetRange("Item Ledger Entry No.", OpenItemLedgEntry."Entry No.");
+                if OpenValueEntry.Find('-') then
+                    repeat
+                        CostAmt := CostAmt - OpenValueEntry."Cost Amount (Actual)" - OpenValueEntry."Cost Amount (Expected)";
+                        CostAmtACY := CostAmtACY - OpenValueEntry."Cost Amount (Actual) (ACY)" - OpenValueEntry."Cost Amount (Expected) (ACY)";
+                        Quantity := Quantity - OpenValueEntry."Item Ledger Entry Quantity";
+                    until OpenValueEntry.Next() = 0;
+            until OpenItemLedgEntry.Next() = 0;
 
         OnAfterExcludeOpenOutbndCosts(Item, CostAmt, CostAmtACY, Quantity);
     end;
@@ -522,15 +498,13 @@ codeunit 5804 ItemCostManagement
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", Open);
-            SetRange("Item No.", Item."No.");
-            SetRange(Open, true);
-            SetFilter("Location Code", Item.GetFilter("Location Filter"));
-            SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-            exit(not FindFirst())
-        end;
+        ItemLedgEntry.Reset();
+        ItemLedgEntry.SetCurrentKey(ItemLedgEntry."Item No.", ItemLedgEntry.Open);
+        ItemLedgEntry.SetRange(ItemLedgEntry."Item No.", Item."No.");
+        ItemLedgEntry.SetRange(ItemLedgEntry.Open, true);
+        ItemLedgEntry.SetFilter(ItemLedgEntry."Location Code", Item.GetFilter("Location Filter"));
+        ItemLedgEntry.SetFilter(ItemLedgEntry."Variant Code", Item.GetFilter("Variant Filter"));
+        exit(not ItemLedgEntry.IsEmpty());
     end;
 
     procedure SetProperties(NewCalledFromAdjustment: Boolean; NewInvoicedQty: Decimal)
@@ -559,24 +533,22 @@ codeunit 5804 ItemCostManagement
         SKU: Record "Stockkeeping Unit";
     begin
         GetInvtSetup();
-        with SKU do begin
-            SetRange("Item No.", Item."No.");
-            if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then
-                if FilterSKU then begin
-                    SetFilter("Location Code", '%1|%2', '', LocationCode);
-                    SetFilter("Variant Code", '%1|%2', '', VariantCode);
-                end else begin
-                    SetFilter("Location Code", Item.GetFilter("Location Filter"));
-                    SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
-                end;
-            OnFindUpdateUnitCostSKUOnBeforeLoopUpdateUnitCostSKU(SKU, FilterSKU);
-            if Find('-') then
-                repeat
-                    UpdateUnitCostSKU(
-                      Item, SKU, LastDirectCost, 0,
-                      ("Location Code" = LocationCode) and ("Variant Code" = VariantCode), 0);
-                until Next() = 0;
-        end;
+        SKU.SetRange("Item No.", Item."No.");
+        if InvtSetup."Average Cost Calc. Type" <> InvtSetup."Average Cost Calc. Type"::Item then
+            if FilterSKU then begin
+                SKU.SetFilter("Location Code", '%1|%2', '', LocationCode);
+                SKU.SetFilter("Variant Code", '%1|%2', '', VariantCode);
+            end else begin
+                SKU.SetFilter("Location Code", Item.GetFilter("Location Filter"));
+                SKU.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
+            end;
+        OnFindUpdateUnitCostSKUOnBeforeLoopUpdateUnitCostSKU(SKU, FilterSKU);
+        if SKU.Find('-') then
+            repeat
+                UpdateUnitCostSKU(
+                  Item, SKU, LastDirectCost, 0,
+                  (SKU."Location Code" = LocationCode) and (SKU."Variant Code" = VariantCode), 0);
+            until SKU.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

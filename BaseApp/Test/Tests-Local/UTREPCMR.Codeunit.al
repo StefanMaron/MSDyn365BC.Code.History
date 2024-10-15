@@ -41,7 +41,7 @@ codeunit 144041 "UT REP CMR"
     begin
         // Purpose of test is to validate Sales Shipment Header - OnAfterGetRecord with Location for report 11401 CMR - Sales Shipment.
         Initialize();
-        CMRWithSalesShipment(SalesShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
+        CMRWithSalesShipment(SalesShipmentLine, CreateLocation(), LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Sales Shipment.
         LibraryReportDataset.AssertElementWithValueExists(
@@ -78,7 +78,7 @@ codeunit 144041 "UT REP CMR"
         REPORT.Run(REPORT::"CMR - Sales Shipment");  // Opens CMRSalesShipmentRequestPageHandler.
 
         // Verify: Verify Ship To, Ship-to Address and Document No. on Report CMR - Sales Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ShipTo', SalesShipmentHeader."Ship-to City");
         LibraryReportDataset.AssertElementWithValueExists('ShipToAddr_1_', SalesShipmentHeader."Ship-to Name");
         LibraryReportDataset.AssertElementWithValueExists('Sales_Shipment_Line_Document_No_', SalesShipmentHeader."No.");
@@ -94,7 +94,7 @@ codeunit 144041 "UT REP CMR"
     begin
         // Purpose of test is to validate Transfer Shipment Header - OnAfterGetRecord with Location for report 11402 CMR - Transfer Shipment.
         Initialize();
-        CMRWithTransferShipment(TransferShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
+        CMRWithTransferShipment(TransferShipmentLine, CreateLocation(), LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Transfer Shipment.
         LibraryReportDataset.AssertElementWithValueExists(
@@ -131,7 +131,7 @@ codeunit 144041 "UT REP CMR"
         REPORT.Run(REPORT::"CMR - Transfer Shipment");  // Opens CMRTransferShipmentRequestPageHandler.
 
         // Verify: Verify Transfer-from City, Transfer-from Address, Transfer-to City and Document No. On Report CMR - Transfer Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TransferFrom', TransferShipmentHeader."Transfer-from City");
         LibraryReportDataset.AssertElementWithValueExists('FromAddr_1_', TransferShipmentHeader."Transfer-from Name");
         LibraryReportDataset.AssertElementWithValueExists('TransferTo', TransferShipmentHeader."Transfer-to City");
@@ -148,7 +148,7 @@ codeunit 144041 "UT REP CMR"
     begin
         // Purpose of test is to validate Return Shipment Header - OnAfterGetRecord with Location for report 11410 CMR - Return Shipment.
         Initialize();
-        CMRWithReturnShipment(ReturnShipmentLine, CreateLocation, LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
+        CMRWithReturnShipment(ReturnShipmentLine, CreateLocation(), LibraryRandom.RandDec(10, 2));  // Use Random for Units Per Parcel.
 
         // Verify: Verify Units Per Parcel on Report CMR - Return Shipment.
         LibraryReportDataset.AssertElementWithValueExists(
@@ -185,7 +185,7 @@ codeunit 144041 "UT REP CMR"
         REPORT.Run(REPORT::"CMR - Return Shipment");  // Opens CMRReturnShipmentRequestPageHandler.
 
         // Verify: Verify Ship To, Ship-to Address and Document No. on Report CMR - Return Shipment.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ShipTo', ReturnShipmentHeader."Ship-to City");
         LibraryReportDataset.AssertElementWithValueExists('ShipToAddr_1_', ReturnShipmentHeader."Ship-to Name");
         LibraryReportDataset.AssertElementWithValueExists('Return_Shipment_Line_Document_No_', ReturnShipmentHeader."No.");
@@ -200,7 +200,7 @@ codeunit 144041 "UT REP CMR"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -209,7 +209,7 @@ codeunit 144041 "UT REP CMR"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code);
     end;
@@ -218,9 +218,9 @@ codeunit 144041 "UT REP CMR"
     var
         SalesShipmentLine: Record "Sales Shipment Line";
     begin
-        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesShipmentHeader."No." := LibraryUTUtility.GetNewCode();
         SalesShipmentHeader."Location Code" := LocationCode;
-        SalesShipmentHeader."Sell-to Address" := LibraryUTUtility.GetNewCode;
+        SalesShipmentHeader."Sell-to Address" := LibraryUTUtility.GetNewCode();
         SalesShipmentHeader."Sell-to City" := SalesShipmentHeader."Sell-to Address";
         SalesShipmentHeader."Sell-to Post Code" := SalesShipmentHeader."Sell-to Address";
         SalesShipmentHeader."Ship-to Name" := SalesShipmentHeader."Sell-to Address";
@@ -229,7 +229,7 @@ codeunit 144041 "UT REP CMR"
         SalesShipmentHeader.Insert();
         SalesShipmentLine."Document No." := SalesShipmentHeader."No.";
         SalesShipmentLine.Type := SalesShipmentLine.Type::Item;
-        SalesShipmentLine."No." := CreateItem;
+        SalesShipmentLine."No." := CreateItem();
         SalesShipmentLine."Units per Parcel" := UnitsPerParcel;
         SalesShipmentLine.Quantity := LibraryRandom.RandDec(10, 2);  // Use Random For Quantity.
         SalesShipmentLine.Insert();
@@ -239,17 +239,17 @@ codeunit 144041 "UT REP CMR"
     var
         TransferShipmentLine: Record "Transfer Shipment Line";
     begin
-        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode;
+        TransferShipmentHeader."No." := LibraryUTUtility.GetNewCode();
         TransferShipmentHeader."Transfer-from Code" := TransferFromCode;
         TransferShipmentHeader."Transfer-from Name" := TransferShipmentHeader."Transfer-from Name";
         TransferShipmentHeader."Transfer-from Address" := TransferShipmentHeader."Transfer-from Name";
         TransferShipmentHeader."Transfer-from Post Code" := TransferShipmentHeader."Transfer-from Name";
         TransferShipmentHeader."Transfer-from City" := TransferShipmentHeader."Transfer-from Name";
-        TransferShipmentHeader."Transfer-to Code" := CreateLocation;
+        TransferShipmentHeader."Transfer-to Code" := CreateLocation();
         TransferShipmentHeader."Transfer-to City" := TransferShipmentHeader."Transfer-from Name";
         TransferShipmentHeader.Insert();
         TransferShipmentLine."Document No." := TransferShipmentHeader."No.";
-        TransferShipmentLine."Item No." := CreateItem;
+        TransferShipmentLine."Item No." := CreateItem();
         TransferShipmentLine."Units per Parcel" := UnitsPerParcel;
         TransferShipmentLine.Quantity := LibraryRandom.RandDec(10, 2);  // Use Random For Quantity.
         TransferShipmentLine.Insert();
@@ -259,18 +259,18 @@ codeunit 144041 "UT REP CMR"
     var
         ReturnShipmentLine: Record "Return Shipment Line";
     begin
-        ReturnShipmentHeader."No." := LibraryUTUtility.GetNewCode;
+        ReturnShipmentHeader."No." := LibraryUTUtility.GetNewCode();
         ReturnShipmentHeader."Location Code" := LocationCode;
-        ReturnShipmentHeader."Pay-to Address" := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Pay-to City" := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Pay-to Post Code" := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Ship-to Name" := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Ship-to Address" := LibraryUTUtility.GetNewCode;
-        ReturnShipmentHeader."Ship-to City" := LibraryUTUtility.GetNewCode;
+        ReturnShipmentHeader."Pay-to Address" := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Pay-to City" := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Pay-to Post Code" := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Ship-to Name" := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Ship-to Address" := LibraryUTUtility.GetNewCode();
+        ReturnShipmentHeader."Ship-to City" := LibraryUTUtility.GetNewCode();
         ReturnShipmentHeader.Insert();
         ReturnShipmentLine."Document No." := ReturnShipmentHeader."No.";
         ReturnShipmentLine.Type := ReturnShipmentLine.Type::Item;
-        ReturnShipmentLine."No." := CreateItem;
+        ReturnShipmentLine."No." := CreateItem();
         ReturnShipmentLine."Units per Parcel" := UnitsPerParcel;
         ReturnShipmentLine.Quantity := LibraryRandom.RandDec(10, 2);  // Use Random For Quantity.
         ReturnShipmentLine.Insert();
@@ -284,7 +284,7 @@ codeunit 144041 "UT REP CMR"
     begin
         LibraryVariableStorage.Dequeue(No);
         CMRSalesShipment."Sales Shipment Header".SetFilter("No.", No);
-        CMRSalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CMRSalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -295,7 +295,7 @@ codeunit 144041 "UT REP CMR"
     begin
         LibraryVariableStorage.Dequeue(No);
         CMRTransferShipment."Transfer Shipment Header".SetFilter("No.", No);
-        CMRTransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CMRTransferShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -306,7 +306,7 @@ codeunit 144041 "UT REP CMR"
     begin
         LibraryVariableStorage.Dequeue(No);
         CMRReturnShipment."Return Shipment Header".SetFilter("No.", No);
-        CMRReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CMRReturnShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

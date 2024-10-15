@@ -1,9 +1,11 @@
 ﻿namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.ExtendedText;
 using Microsoft.Inventory.Availability;
 using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Inventory.Location;
 using Microsoft.Utilities;
 
@@ -48,6 +50,30 @@ page 5936 "Service Credit Memo Subform"
                         NoOnAfterValidate();
                         if Rec."Variant Code" = '' then
                             VariantCodeMandatory := Item.IsVariantMandatory(Rec.Type = Rec.Type::Item, Rec."No.");
+                    end;
+                }
+                field("Item Reference No."; Rec."Item Reference No.")
+                {
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Service, ItemReferences;
+                    QuickEntry = false;
+                    ToolTip = 'Specifies the referenced item number.';
+                    Visible = ItemReferenceVisible;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    var
+                        ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
+                    begin
+                        ServItemReferenceMgt.ServiceReferenceNoLookUp(Rec);
+                        InsertExtendedText(false);
+                        NoOnAfterValidate();
+                        CurrPage.Update();
+                    end;
+
+                    trigger OnValidate()
+                    begin
+                        NoOnAfterValidate();
+                        CurrPage.Update();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -497,6 +523,23 @@ page 5936 "Service Credit Memo Subform"
                         Rec.OpenItemTrackingLines();
                     end;
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
             }
             group(Errors)
             {
@@ -568,14 +611,16 @@ page 5936 "Service Credit Memo Subform"
     var
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
-        SetDimensionsVisibility();
         BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+        SetDimensionsVisibility();
+        SetItemReferenceVisibility();
     end;
 
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         BackgroundErrorCheck: Boolean;
+        ItemReferenceVisible: Boolean;
         ShowAllLinesEnabled: Boolean;
         VariantCodeMandatory: Boolean;
 
@@ -609,6 +654,13 @@ page 5936 "Service Credit Memo Subform"
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
+    end;
+
+    local procedure SetItemReferenceVisibility()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        ItemReferenceVisible := not ItemReference.IsEmpty();
     end;
 
     protected procedure NoOnAfterValidate()

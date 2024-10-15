@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 11413 "Elec. Tax Decl. Response Msg."
 {
     Caption = 'Elec. Tax Decl. Response Msg.';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -18,6 +18,7 @@ table 5335 "Integration Table Mapping"
     Caption = 'Integration Table Mapping';
     DrillDownPageID = "Integration Table Mapping List";
     LookupPageID = "Integration Table Mapping List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -269,6 +270,22 @@ table 5335 "Integration Table Mapping"
                     Rec.DisableMultiCompanySynchronization();
             end;
         }
+        field(35; "Table Caption"; Text[250])
+        {
+            Caption = 'Table Caption';
+        }
+        field(98; "No. of Errors"; Integer)
+        {
+            Caption = 'Number of Errors';
+            FieldClass = FlowField;
+            CalcFormula = sum("Integration Synch. Job".Failed where("Integration Table Mapping Name" = field(Name)));
+        }
+        field(99; "No. of Skipped"; Integer)
+        {
+            Caption = 'Number of Skipped Records';
+            FieldClass = FlowField;
+            CalcFormula = count("CRM Integration Record" where("Table ID" = field("Table ID"), Skipped = const(true)));
+        }
         field(100; "Full Sync is Running"; Boolean)
         {
             Caption = 'Full Sync is Running';
@@ -294,6 +311,11 @@ table 5335 "Integration Table Mapping"
         {
             Caption = 'Last Full Sync Start DateTime';
             Description = 'The starting date and time of the last time FullSync was run. This is used to re-run in case FullSync failed to reset these fields.';
+        }
+        field(103; "User Defined"; Boolean)
+        {
+            Caption = 'User Defined';
+            Description = 'Indicates whether the table mapping was defined manually by the user or by the system.';
         }
     }
 
@@ -651,7 +673,7 @@ table 5335 "Integration Table Mapping"
             FromField := FromRec.FieldIndex(Counter);
             if not (FromField.Type in [FieldType::BLOB, FieldType::TableFilter]) then begin
                 ToField := ToRec.Field(FromField.Number);
-                ToField.Value := FromField.Value;
+                ToField.Value := FromField.Value();
             end;
         end;
         ToRec.Insert(ValidateOnInsert);

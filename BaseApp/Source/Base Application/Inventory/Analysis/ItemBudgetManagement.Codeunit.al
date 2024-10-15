@@ -293,77 +293,74 @@ codeunit 7130 "Item Budget Management"
 
     procedure SetBufferFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; ItemBudgetName: Record "Item Budget Name"; ItemFilter: Text; SourceTypeFilter: Enum "Analysis Source Type"; SourceNoFilter: Text; DateFilter: Text; GlobalDim1Filter: Text; GlobalDim2Filter: Text; BudgetDim1Filter: Text; BudgetDim2Filter: Text; BudgetDim3Filter: Text)
     begin
-        with ItemStatisticsBuf do begin
-            Reset();
-            SetRange("Analysis Area Filter", ItemBudgetName."Analysis Area");
-            SetRange("Budget Filter", ItemBudgetName.Name);
-            if ItemFilter <> '' then
-                SetFilter("Item Filter", ItemFilter);
-            if SourceNoFilter <> '' then begin
-                SetFilter("Source Type Filter", '%1', SourceTypeFilter);
-                SetFilter("Source No. Filter", SourceNoFilter);
-            end;
-            if DateFilter <> '' then
-                SetFilter("Date Filter", DateFilter);
-            if GlobalDim1Filter <> '' then
-                SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
-            if GlobalDim2Filter <> '' then
-                SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
-            if BudgetDim1Filter <> '' then
-                SetFilter("Dimension 1 Filter", BudgetDim1Filter);
-            if BudgetDim2Filter <> '' then
-                SetFilter("Dimension 2 Filter", BudgetDim2Filter);
-            if BudgetDim3Filter <> '' then
-                SetFilter("Dimension 3 Filter", BudgetDim3Filter);
+        ItemStatisticsBuf.Reset();
+        ItemStatisticsBuf.SetRange("Analysis Area Filter", ItemBudgetName."Analysis Area");
+        ItemStatisticsBuf.SetRange("Budget Filter", ItemBudgetName.Name);
+        if ItemFilter <> '' then
+            ItemStatisticsBuf.SetFilter("Item Filter", ItemFilter);
+        if SourceNoFilter <> '' then begin
+            ItemStatisticsBuf.SetFilter("Source Type Filter", '%1', SourceTypeFilter);
+            ItemStatisticsBuf.SetFilter("Source No. Filter", SourceNoFilter);
         end;
+        if DateFilter <> '' then
+            ItemStatisticsBuf.SetFilter("Date Filter", DateFilter);
+        if GlobalDim1Filter <> '' then
+            ItemStatisticsBuf.SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
+        if GlobalDim2Filter <> '' then
+            ItemStatisticsBuf.SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
+        if BudgetDim1Filter <> '' then
+            ItemStatisticsBuf.SetFilter("Dimension 1 Filter", BudgetDim1Filter);
+        if BudgetDim2Filter <> '' then
+            ItemStatisticsBuf.SetFilter("Dimension 2 Filter", BudgetDim2Filter);
+        if BudgetDim3Filter <> '' then
+            ItemStatisticsBuf.SetFilter("Dimension 3 Filter", BudgetDim3Filter);
     end;
 
     procedure SetDimensionFilters(var ItemStatisticsBuf: Record "Item Statistics Buffer"; DimType: Enum "Item Budget Dimension Type"; DimCodeBuf: Record "Dimension Code Buffer")
     begin
-        with ItemStatisticsBuf do
-            case DimType of
-                GlobalDimType::Item:
-                    SetRange("Item Filter", DimCodeBuf.Code);
-                GlobalDimType::Customer:
-                    begin
-                        SetRange("Source Type Filter", "Source Type Filter"::Customer);
-                        SetRange("Source No. Filter", DimCodeBuf.Code);
-                    end;
-                GlobalDimType::Vendor:
-                    begin
-                        SetRange("Source Type Filter", "Source Type Filter"::Vendor);
-                        SetRange("Source No. Filter", DimCodeBuf.Code);
-                    end;
-                GlobalDimType::Location:
-                    SetRange("Location Filter", DimCodeBuf.Code);
-                GlobalDimType::Period:
-                    SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
-                GlobalDimType::"Global Dimension 1":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Global Dimension 1 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Global Dimension 1 Filter", DimCodeBuf.Code);
-                GlobalDimType::"Global Dimension 2":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Global Dimension 2 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Global Dimension 2 Filter", DimCodeBuf.Code);
-                GlobalDimType::"Budget Dimension 1":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 1 Filter", DimCodeBuf.Code);
-                GlobalDimType::"Budget Dimension 2":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 2 Filter", DimCodeBuf.Code);
-                GlobalDimType::"Budget Dimension 3":
-                    if DimCodeBuf.Totaling <> '' then
-                        SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
-                    else
-                        SetRange("Dimension 3 Filter", DimCodeBuf.Code);
-            end;
+        case DimType of
+            GlobalDimType::Item:
+                ItemStatisticsBuf.SetRange("Item Filter", DimCodeBuf.Code);
+            GlobalDimType::Customer:
+                begin
+                    ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Customer);
+                    ItemStatisticsBuf.SetRange("Source No. Filter", DimCodeBuf.Code);
+                end;
+            GlobalDimType::Vendor:
+                begin
+                    ItemStatisticsBuf.SetRange("Source Type Filter", ItemStatisticsBuf."Source Type Filter"::Vendor);
+                    ItemStatisticsBuf.SetRange("Source No. Filter", DimCodeBuf.Code);
+                end;
+            GlobalDimType::Location:
+                ItemStatisticsBuf.SetRange("Location Filter", DimCodeBuf.Code);
+            GlobalDimType::Period:
+                ItemStatisticsBuf.SetRange("Date Filter", DimCodeBuf."Period Start", DimCodeBuf."Period End");
+            GlobalDimType::"Global Dimension 1":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuf.SetFilter("Global Dimension 1 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuf.SetRange("Global Dimension 1 Filter", DimCodeBuf.Code);
+            GlobalDimType::"Global Dimension 2":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuf.SetFilter("Global Dimension 2 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuf.SetRange("Global Dimension 2 Filter", DimCodeBuf.Code);
+            GlobalDimType::"Budget Dimension 1":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuf.SetFilter("Dimension 1 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuf.SetRange("Dimension 1 Filter", DimCodeBuf.Code);
+            GlobalDimType::"Budget Dimension 2":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuf.SetFilter("Dimension 2 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuf.SetRange("Dimension 2 Filter", DimCodeBuf.Code);
+            GlobalDimType::"Budget Dimension 3":
+                if DimCodeBuf.Totaling <> '' then
+                    ItemStatisticsBuf.SetFilter("Dimension 3 Filter", DimCodeBuf.Totaling)
+                else
+                    ItemStatisticsBuf.SetRange("Dimension 3 Filter", DimCodeBuf.Code);
+        end;
     end;
 
     local procedure DimCodeToType(DimCode: Code[20]; ItemBudgetName: Record "Item Budget Name"): Enum "Item Budget Dimension Type"
@@ -564,34 +561,33 @@ codeunit 7130 "Item Budget Management"
         ItemBudgetEntry: Record "Item Budget Entry";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
     begin
-        if Confirm(Text006) then
-            with ItemBudgetEntry do begin
-                SetRange("Analysis Area", AnalysisArea);
-                SetRange("Budget Name", ItemBudgetName);
-                if ItemFilter <> '' then
-                    SetFilter("Item No.", ItemFilter);
-                if DateFilter <> '' then
-                    SetFilter(Date, DateFilter);
-                if SourceNoFilter <> '' then begin
-                    SetRange("Source Type", SourceTypeFilter);
-                    SetFilter("Source No.", SourceNoFilter);
-                end;
-                if GlobalDim1Filter <> '' then
-                    SetFilter("Global Dimension 1 Code", GlobalDim1Filter);
-                if GlobalDim2Filter <> '' then
-                    SetFilter("Global Dimension 2 Code", GlobalDim2Filter);
-                if BudgetDim1Filter <> '' then
-                    SetFilter("Budget Dimension 1 Code", BudgetDim1Filter);
-                if BudgetDim2Filter <> '' then
-                    SetFilter("Budget Dimension 2 Code", BudgetDim2Filter);
-                if BudgetDim3Filter <> '' then
-                    SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
-                SetCurrentKey("Entry No.");
-                if FindFirst() then
-                    UpdateItemAnalysisView.SetLastBudgetEntryNo("Entry No." - 1);
-                SetCurrentKey("Analysis Area", "Budget Name");
-                DeleteAll(true);
+        if Confirm(Text006) then begin
+            ItemBudgetEntry.SetRange("Analysis Area", AnalysisArea);
+            ItemBudgetEntry.SetRange("Budget Name", ItemBudgetName);
+            if ItemFilter <> '' then
+                ItemBudgetEntry.SetFilter("Item No.", ItemFilter);
+            if DateFilter <> '' then
+                ItemBudgetEntry.SetFilter(Date, DateFilter);
+            if SourceNoFilter <> '' then begin
+                ItemBudgetEntry.SetRange("Source Type", SourceTypeFilter);
+                ItemBudgetEntry.SetFilter("Source No.", SourceNoFilter);
             end;
+            if GlobalDim1Filter <> '' then
+                ItemBudgetEntry.SetFilter("Global Dimension 1 Code", GlobalDim1Filter);
+            if GlobalDim2Filter <> '' then
+                ItemBudgetEntry.SetFilter("Global Dimension 2 Code", GlobalDim2Filter);
+            if BudgetDim1Filter <> '' then
+                ItemBudgetEntry.SetFilter("Budget Dimension 1 Code", BudgetDim1Filter);
+            if BudgetDim2Filter <> '' then
+                ItemBudgetEntry.SetFilter("Budget Dimension 2 Code", BudgetDim2Filter);
+            if BudgetDim3Filter <> '' then
+                ItemBudgetEntry.SetFilter("Budget Dimension 3 Code", BudgetDim3Filter);
+            ItemBudgetEntry.SetCurrentKey("Entry No.");
+            if ItemBudgetEntry.FindFirst() then
+                UpdateItemAnalysisView.SetLastBudgetEntryNo(ItemBudgetEntry."Entry No." - 1);
+            ItemBudgetEntry.SetCurrentKey("Analysis Area", ItemBudgetEntry."Budget Name");
+            ItemBudgetEntry.DeleteAll(true);
+        end;
     end;
 
     local procedure GetGLSetup()

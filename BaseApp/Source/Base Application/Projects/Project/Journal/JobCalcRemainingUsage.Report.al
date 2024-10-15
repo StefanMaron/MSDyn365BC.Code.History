@@ -7,7 +7,7 @@ using Microsoft.Projects.Project.Planning;
 
 report 1090 "Job Calc. Remaining Usage"
 {
-    Caption = 'Job Calc. Remaining Usage';
+    Caption = 'Project Calc. Remaining Usage';
     ProcessingOnly = true;
 
     dataset
@@ -65,7 +65,7 @@ report 1090 "Job Calc. Remaining Usage"
                         Editable = false;
                         Lookup = false;
                         TableRelation = "Gen. Journal Template";
-                        ToolTip = 'Specifies the template name of the job journal where the remaining usage is inserted as lines.';
+                        ToolTip = 'Specifies the template name of the project journal where the remaining usage is inserted as lines.';
 
                         trigger OnValidate()
                         begin
@@ -110,7 +110,7 @@ report 1090 "Job Calc. Remaining Usage"
                     {
                         ApplicationArea = Reservation;
                         Caption = 'Reserved from stock';
-                        ToolTip = 'Specifies if you want to include only job planning lines that are fully or partially reserved from current stock.';
+                        ToolTip = 'Specifies if you want to include only project planning lines that are fully or partially reserved from current stock.';
                         ValuesAllowed = " ", "Full and Partial", Full;
                     }
                 }

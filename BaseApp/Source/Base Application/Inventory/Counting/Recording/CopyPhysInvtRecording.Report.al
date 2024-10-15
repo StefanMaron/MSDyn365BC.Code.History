@@ -44,7 +44,7 @@ report 5883 "Copy Phys. Invt. Recording"
     begin
         IsHandled := false;
         OnPreReportOnBeforeCopyLine(PhysInvtRecordLine, ToPhysInvtRecordLine, LineSpacing, NoOfCopies, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if NoOfCopies <= 0 then

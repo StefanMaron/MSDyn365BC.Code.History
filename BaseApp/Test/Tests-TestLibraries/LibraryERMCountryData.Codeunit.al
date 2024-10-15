@@ -87,7 +87,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -132,7 +132,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateGeneralPostingSetupData()
     begin
-        CreateMissingGeneralPostingSetup;
+        CreateMissingGeneralPostingSetup();
     end;
 
     [Scope('OnPrem')]
@@ -175,7 +175,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateFAPostingGroup()
     begin
-        UpdateAccountInFAPostingGroups;
+        UpdateAccountInFAPostingGroups();
     end;
 
     procedure UpdateFAPostingType()
@@ -215,15 +215,15 @@ codeunit 131305 "Library - ERM Country Data"
                 GeneralPostingSetup.Reset();
                 if not GeneralPostingSetup.Get(GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code) then begin
                     LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GeneralBusinessPostingGroup.Code, GeneralProductPostingGroup.Code);
-                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Sales Line Disc. Account", GeneralPostingSetup."Sales Account");
                     GeneralPostingSetup.Validate("Sales Inv. Disc. Account", GeneralPostingSetup."Sales Account");
-                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Purch. Line Disc. Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("Sales Credit Memo Account", GeneralPostingSetup."Sales Account");
                     GeneralPostingSetup.Validate("Purch. Credit Memo Account", GeneralPostingSetup."Purch. Account");
-                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount());
                     GeneralPostingSetup.Validate("Overhead Applied Account", GeneralPostingSetup."Direct Cost Applied Account");
                     GeneralPostingSetup.Validate("Purchase Variance Account", GeneralPostingSetup."Purch. Account");
                     GeneralPostingSetup.Validate("COGS Account", GeneralPostingSetup."Overhead Applied Account");
@@ -241,23 +241,23 @@ codeunit 131305 "Library - ERM Country Data"
         if GeneralPostingSetup.FindSet() then
             repeat
                 if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount());
                 if GeneralPostingSetup."Sales Credit Memo Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Credit Memo Account", CreateGLAccount());
                 if GeneralPostingSetup."COGS Account" = '' then
-                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("COGS Account", CreateGLAccount());
                 if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
-                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccount());
                 if GeneralPostingSetup."Purch. Account" = '' then
-                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purch. Account", CreateGLAccount());
                 if GeneralPostingSetup."Sales Account" = '' then
-                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Sales Account", CreateGLAccount());
                 if GeneralPostingSetup."Direct Cost Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", CreateGLAccount());
                 if GeneralPostingSetup."Overhead Applied Account" = '' then
-                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Overhead Applied Account", CreateGLAccount());
                 if GeneralPostingSetup."Purchase Variance Account" = '' then
-                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
+                    GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount());
                 GeneralPostingSetup.Modify(true);
             until GeneralPostingSetup.Next() = 0;
     end;
@@ -353,7 +353,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -370,7 +370,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         if FAPostingGroup.FindSet() then
             repeat
-                FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", CreateGLAccountWithSetup);
+                FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", CreateGLAccountWithSetup());
                 FAPostingGroup.Modify(true);
             until FAPostingGroup.Next() = 0;
     end;

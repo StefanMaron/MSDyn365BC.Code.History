@@ -16,6 +16,7 @@ table 11000001 "Payment History"
     Caption = 'Payment History';
     DrillDownPageID = "Payment History List";
     LookupPageID = "Payment History List";
+    DataClassification = CustomerContent;
 
     fields
     {

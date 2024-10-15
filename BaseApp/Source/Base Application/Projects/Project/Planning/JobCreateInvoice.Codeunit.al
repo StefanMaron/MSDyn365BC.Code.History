@@ -14,6 +14,8 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
+using System.Reflection;
+using System.Text;
 
 codeunit 1002 "Job Create-Invoice"
 {
@@ -28,6 +30,7 @@ codeunit 1002 "Job Create-Invoice"
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempJobPlanningLine: Record "Job Planning Line" temporary;
+        TempJobPlanningLine2: Record "Job Planning Line" temporary;
         TransferExtendedText: Codeunit "Transfer Extended Text";
         JobInvCurrency: Boolean;
         UpdateExchangeRates: Boolean;
@@ -42,13 +45,15 @@ codeunit 1002 "Job Create-Invoice"
         Text007: Label 'You must specify %1.';
         Text008: Label 'The lines were successfully transferred to a credit memo.';
         Text009: Label 'The selected planning lines must have the same %1.';
-        Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
+        Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the project. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
         SalesHeader: Record "Sales Header";
+        Job: Record Job;
+        JobPlanningLine2: Record "Job Planning Line";
         GetSalesInvoiceNo: Report "Job Transfer to Sales Invoice";
         GetSalesCrMemoNo: Report "Job Transfer to Credit Memo";
         Done: Boolean;
@@ -62,14 +67,14 @@ codeunit 1002 "Job Create-Invoice"
         OnCreateSalesInvoiceOnBeforeRunReport(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled, CrMemo);
         if not IsHandled then
             if not CrMemo then begin
-                GetSalesInvoiceNo.SetCustomer(JobPlanningLine."Job No.");
+                GetSalesInvoiceNo.SetCustomer(JobPlanningLine);
                 GetSalesInvoiceNo.RunModal();
                 IsHandled := false;
                 OnBeforeGetInvoiceNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
                 if not IsHandled then
                     GetSalesInvoiceNo.GetInvoiceNo(Done, NewInvoice, PostingDate, DocumentDate, InvoiceNo);
             end else begin
-                GetSalesCrMemoNo.SetCustomer(JobPlanningLine."Job No.");
+                GetSalesCrMemoNo.SetCustomer(JobPlanningLine);
                 GetSalesCrMemoNo.RunModal();
                 IsHandled := false;
                 OnBeforeGetCrMemoNo(JobPlanningLine, Done, NewInvoice, PostingDate, InvoiceNo, IsHandled);
@@ -85,8 +90,24 @@ codeunit 1002 "Job Create-Invoice"
                     Error(Text005);
                 Error(Text004);
             end;
-            CreateSalesInvoiceLines(
-              JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
+
+            Job.Get(JobPlanningLine."Job No.");
+            if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+                CreateSalesInvoiceLines(
+                    JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo)
+            else begin
+                JobPlanningLine2.Copy(JobPlanningLine);
+                JobPlanningLine2.SetCurrentKey("Job No.", "Job Task No.", "Line No.");
+                JobPlanningLine2.FindSet();
+                JobPlanningLine.Reset();
+                repeat
+                    JobPlanningLine.SetFilter("Job No.", JobPlanningLine2."Job No.");
+                    JobPlanningLine.SetFilter("Job Task No.", JobPlanningLine2."Job Task No.");
+                    JobPlanningLine.SetFilter("Line No.", '%1', JobPlanningLine2."Line No.");
+                    JobPlanningLine.FindFirst();
+                    CreateSalesInvoiceLines(JobPlanningLine."Job No.", JobPlanningLine, InvoiceNo, NewInvoice, PostingDate, DocumentDate, CrMemo);
+                until JobPlanningLine2.Next() = 0;
+            end;
 
             Commit();
 
@@ -131,7 +152,8 @@ codeunit 1002 "Job Create-Invoice"
         if Job.Blocked = Job.Blocked::All then
             Job.TestBlocked();
         if Job."Currency Code" = '' then
-            JobInvCurrency := Job."Invoice Currency Code" <> '';
+            JobInvCurrency := IsJobInvCurrencyDependingOnBillingMethod(Job, JobPlanningLineSource);
+
         OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job, JobInvCurrency);
         CheckJobBillToCustomer(JobPlanningLineSource, Job);
 
@@ -154,7 +176,7 @@ codeunit 1002 "Job Create-Invoice"
             repeat
                 if TransferLine(JobPlanningLine) then begin
                     LineCounter := LineCounter + 1;
-                    if JobPlanningLine."Job No." <> JobNo then
+                    if (JobPlanningLine."Job No." <> JobNo) and (not JobPlanningLineSource.GetSkipCheckForMultipleJobsOnSalesLine()) then
                         LastError := StrSubstNo(Text009, JobPlanningLine.FieldCaption("Job No."));
                     OnCreateSalesInvoiceLinesOnAfterValidateJobPlanningLine(JobPlanningLine, LastError);
                     if LastError <> '' then
@@ -186,8 +208,10 @@ codeunit 1002 "Job Create-Invoice"
 
                     OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(
                       JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated);
+#if not CLEAN24
                     if not CreditMemo then
                         CheckJobPlanningLineIsNegative(JobPlanningLine);
+#endif
 
                     CreateSalesLine(JobPlanningLine);
 
@@ -216,20 +240,29 @@ codeunit 1002 "Job Create-Invoice"
 
     local procedure CheckJobBillToCustomer(var JobPlanningLineSource: Record "Job Planning Line"; Job: Record Job)
     var
+        JobTask: Record "Job Task";
         Cust: Record Customer;
+        BillToCustomerNo: Code[20];
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckJobBillToCustomer(JobPlanningLineSource, Job, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
-        Job.TestField("Bill-to Customer No.");
-#if not CLEAN21
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then begin
+            Job.TestField("Bill-to Customer No.");
+            BillToCustomerNo := Job."Bill-to Customer No.";
+        end else begin
+            JobTask.Get(JobPlanningLineSource."Job No.", JobPlanningLineSource."Job Task No.");
+            JobTask.TestField("Bill-to Customer No.");
+            BillToCustomerNo := JobTask."Bill-to Customer No.";
+        end;
+#if not CLEAN23
         IsHandled := false;
         OnCreateSalesInvoiceLinesOnBeforeGetCustomer(JobPlanningLineSource, Cust, IsHandled);
         if not IsHandled then
 #endif
-            Cust.Get(Job."Bill-to Customer No.");
+            Cust.Get(BillToCustomerNo);
     end;
 
     procedure DeleteSalesInvoiceBuffer()
@@ -279,24 +312,26 @@ codeunit 1002 "Job Create-Invoice"
         end;
 
         OnCreateSalesInvoiceJobTaskTestJob(Job, JobPlanningLine, PostingDate);
-        Job.TestField("Bill-to Customer No.");
+        TestIfBillToCustomerExistOnJobOrJobTask(Job, JobTask2);
         if Job.Blocked = Job.Blocked::All then
             Job.TestBlocked();
         if Job."Currency Code" = '' then
-            JobInvCurrency := Job."Invoice Currency Code" <> '';
-        Cust.Get(Job."Bill-to Customer No.");
+            JobInvCurrency := IsJobInvCurrencyDependingOnBillingMethod(Job, JobTask2);
+        Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
 
         if CreateNewInvoice(JobTask, InvoicePerTask, OldJobNo, OldJobTaskNo, LastJobTask) then begin
             Job.Get(TempJobPlanningLine."Job No.");
-            Cust.Get(Job."Bill-to Customer No.");
-            NoOfInvoices := NoOfInvoices + 1;
+            Cust.Get(ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job, JobTask2));
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
-            CreateSalesHeader(Job, PostingDate, DocumentDate, TempJobPlanningLine);
+            if not SalesInvoiceExistForMultipleCustomerBillingMethod(Job) then begin
+                CreateSalesHeader(Job, PostingDate, DocumentDate, TempJobPlanningLine);
+                NoOfInvoices := NoOfInvoices + 1;
+            end;
             OnCreateSalesInvoiceJobTaskOnBeforeTempJobPlanningLineFind(JobTask, SalesHeader, InvoicePerTask, TempJobPlanningLine);
             if TempJobPlanningLine.Find('-') then
                 repeat
                     Job.Get(TempJobPlanningLine."Job No.");
-                    JobInvCurrency := (Job."Currency Code" = '') and (Job."Invoice Currency Code" <> '');
+                    JobInvCurrency := (Job."Currency Code" = '') and IsJobInvCurrencyDependingOnBillingMethod(Job, TempJobPlanningLine);
                     JobPlanningLine := TempJobPlanningLine;
                     JobPlanningLine.Find();
                     if JobPlanningLine.Type in [JobPlanningLine.Type::Resource,
@@ -347,6 +382,11 @@ codeunit 1002 "Job Create-Invoice"
                 if TransferLine(JobPlanningLine) then begin
                     TempJobPlanningLine := JobPlanningLine;
                     TempJobPlanningLine.Insert();
+
+                    if Job."Task Billing Method" = Job."Task Billing Method"::"Multiple customers" then begin
+                        TempJobPlanningLine2 := JobPlanningLine;
+                        TempJobPlanningLine2.Insert();
+                    end;
                 end;
             until JobPlanningLine.Next() = 0;
     end;
@@ -382,6 +422,7 @@ codeunit 1002 "Job Create-Invoice"
 
     local procedure CreateSalesHeader(Job: Record Job; PostingDate: Date; DocumentDate: Date; JobPlanningLine: Record "Job Planning Line")
     var
+        JobTask: Record "Job Task";
         SalesSetup: Record "Sales & Receivables Setup";
         IsHandled: Boolean;
     begin
@@ -404,28 +445,38 @@ codeunit 1002 "Job Create-Invoice"
 
         if not IsHandled then begin
             SalesHeader.SetHideValidationDialog(true);
-            SalesHeader.Validate("Sell-to Customer No.", Job."Sell-to Customer No.");
-            SalesHeader.Validate("Bill-to Customer No.", Job."Bill-to Customer No.");
+            SalesHeader.Validate("Sell-to Customer No.", GetCustomerNo(Job, JobPlanningLine, true));
+            SalesHeader.Validate("Bill-to Customer No.", GetCustomerNo(Job, JobPlanningLine, false));
         end;
 
-        if Job."Payment Method Code" <> '' then
-            SalesHeader.Validate("Payment Method Code", Job."Payment Method Code");
-        if Job."Payment Terms Code" <> '' then
-            SalesHeader.Validate("Payment Terms Code", Job."Payment Terms Code");
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then begin
+            if Job."Payment Method Code" <> '' then
+                SalesHeader.Validate("Payment Method Code", Job."Payment Method Code");
+            if Job."Payment Terms Code" <> '' then
+                SalesHeader.Validate("Payment Terms Code", Job."Payment Terms Code");
+            if Job."External Document No." <> '' then
+                SalesHeader.Validate("External Document No.", Job."External Document No.");
+        end else begin
+            JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+            if JobTask."Payment Method Code" <> '' then
+                SalesHeader.Validate("Payment Method Code", JobTask."Payment Method Code");
+            if JobTask."Payment Terms Code" <> '' then
+                SalesHeader.Validate("Payment Terms Code", JobTask."Payment Terms Code");
+            if JobTask."External Document No." <> '' then
+                SalesHeader.Validate("External Document No.", JobTask."External Document No.");
+        end;
 
         if Job."Currency Code" <> '' then
             SalesHeader.Validate("Currency Code", Job."Currency Code")
         else
-            SalesHeader.Validate("Currency Code", Job."Invoice Currency Code");
+            SalesHeader.Validate("Currency Code", ReturnJobDataDependingOnTaskBillingMethod(Job, JobPlanningLine, 'Invoice Currency Code'));
+
         if PostingDate <> 0D then
             SalesHeader.Validate("Posting Date", PostingDate);
         if DocumentDate <> 0D then
             SalesHeader.Validate("Document Date", DocumentDate);
 
-        if Job."External Document No." <> '' then
-            SalesHeader.Validate("External Document No.", Job."External Document No.");
-
-        SalesHeader."Your Reference" := Job."Your Reference";
+        SalesHeader."Your Reference" := ReturnJobDataDependingOnTaskBillingMethod(Job, JobPlanningLine, 'Your Reference');
 
         if SalesHeader."Document Type" = SalesHeader."Document Type"::Invoice then
             SalesHeader.SetDefaultPaymentServices();
@@ -433,9 +484,67 @@ codeunit 1002 "Job Create-Invoice"
         IsHandled := false;
         OnCreateSalesHeaderOnBeforeUpdateSalesHeader(SalesHeader, Job, IsHandled, JobPlanningLine);
         if not IsHandled then
-            UpdateSalesHeader(SalesHeader, Job);
+            if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+                UpdateSalesHeader(SalesHeader, Job)
+            else
+                UpdateSalesHeader(SalesHeader, JobPlanningLine);
         OnBeforeModifySalesHeader(SalesHeader, Job, JobPlanningLine);
         SalesHeader.Modify(true);
+    end;
+
+    local procedure SalesInvoiceExistForMultipleCustomerBillingMethod(Job: Record Job): Boolean
+    var
+        JobTask: Record "Job Task";
+        JobTask2: Record "Job Task";
+        JobPlanningLineInvoice: Record "Job Planning Line Invoice";
+        TempJobPlanningLine3: Record "Job Planning Line" temporary;
+        SelectionFilterMgt: Codeunit SelectionFilterManagement;
+        RecRef: RecordRef;
+        JobTaskFilter: Text;
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit;
+
+        TempJobPlanningLine3.Copy(TempJobPlanningLine2, true);
+        TempJobPlanningLine3.Reset();
+        TempJobPlanningLine3.SetFilter("Job Contract Entry No.", '<>%1', TempJobPlanningLine."Job Contract Entry No.");
+        RecRef.GetTable(TempJobPlanningLine3);
+        JobTaskFilter := SelectionFilterMgt.GetSelectionFilter(RecRef, TempJobPlanningLine3.FieldNo("Job Task No."));
+        if JobTaskFilter = '' then
+            exit;
+
+        if JobTask.Get(TempJobPlanningLine."Job No.", TempJobPlanningLine."Job Task No.") then begin
+            JobTask2.SetRange("Job No.", Job."No.");
+            JobTask2.SetFilter("Job Task No.", JobTaskFilter);
+            JobTask2.SetRange("Sell-to Customer No.", JobTask."Sell-to Customer No.");
+            JobTask2.SetRange("Bill-to Customer No.", JobTask."Bill-to Customer No.");
+            JobTask2.SetRange("Invoice Currency Code", JobTask."Invoice Currency Code");
+            if JobTask2.FindFirst() then begin
+                JobPlanningLineInvoice.SetRange("Job No.", Job."No.");
+                JobPlanningLineInvoice.SetRange("Job Task No.", JobTask2."Job Task No.");
+                if JobPlanningLineInvoice.FindFirst() then begin
+                    SalesHeader.Get(SalesHeader."Document Type"::Invoice, JobPlanningLineInvoice."Document No.");
+                    exit(true);
+                end;
+            end;
+        end;
+    end;
+
+    local procedure GetCustomerNo(Job: Record Job; JobPlanningLine: Record "Job Planning Line"; SellToCustomerNo: Boolean): Code[20]
+    var
+        JobTask: Record "Job Task";
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            if SellToCustomerNo then
+                exit(Job."Sell-to Customer No.")
+            else
+                exit(Job."Bill-to Customer No.");
+
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        if SellToCustomerNo then
+            exit(JobTask."Sell-to Customer No.")
+        else
+            exit(JobTask."Bill-to Customer No.");
     end;
 
     local procedure CreateSalesLine(var JobPlanningLine: Record "Job Planning Line")
@@ -615,19 +724,17 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
 
-        with JobPlanningLine do begin
-            CalcFields("Qty. Transferred to Invoice");
-            if Quantity > 0 then begin
-                if ("Qty. to Transfer to Invoice" > 0) and ("Qty. to Transfer to Invoice" > (Quantity - "Qty. Transferred to Invoice")) or
-                   ("Qty. to Transfer to Invoice" < 0)
-                then
-                    Error(Text003, FieldCaption("Qty. to Transfer to Invoice"), 0, Quantity - "Qty. Transferred to Invoice");
-            end else
-                if ("Qty. to Transfer to Invoice" > 0) or
-                   ("Qty. to Transfer to Invoice" < 0) and ("Qty. to Transfer to Invoice" < (Quantity - "Qty. Transferred to Invoice"))
-                then
-                    Error(Text003, FieldCaption("Qty. to Transfer to Invoice"), Quantity - "Qty. Transferred to Invoice", 0);
-        end;
+        JobPlanningLine.CalcFields("Qty. Transferred to Invoice");
+        if JobPlanningLine.Quantity > 0 then begin
+            if (JobPlanningLine."Qty. to Transfer to Invoice" > 0) and (JobPlanningLine."Qty. to Transfer to Invoice" > (JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice")) or
+                (JobPlanningLine."Qty. to Transfer to Invoice" < 0)
+            then
+                Error(Text003, JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"), 0, JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice");
+        end else
+            if (JobPlanningLine."Qty. to Transfer to Invoice" > 0) or
+                (JobPlanningLine."Qty. to Transfer to Invoice" < 0) and (JobPlanningLine."Qty. to Transfer to Invoice" < (JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice"))
+            then
+                Error(Text003, JobPlanningLine.FieldCaption("Qty. to Transfer to Invoice"), JobPlanningLine.Quantity - JobPlanningLine."Qty. Transferred to Invoice", 0);
     end;
 
     procedure DeleteSalesLine(SalesLine: Record "Sales Line")
@@ -641,24 +748,22 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
 
-        with JobPlanningLineInvoice do begin
-            case SalesLine."Document Type" of
-                SalesLine."Document Type"::Invoice:
-                    SetRange("Document Type", "Document Type"::Invoice);
-                SalesLine."Document Type"::"Credit Memo":
-                    SetRange("Document Type", "Document Type"::"Credit Memo");
-            end;
-            SetRange("Document No.", SalesLine."Document No.");
-            SetRange("Line No.", SalesLine."Line No.");
-            if FindSet() then
-                repeat
-                    JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
-                    Delete();
-                    JobPlanningLine.UpdateQtyToTransfer();
-                    OnDeleteSalesLineOnBeforeJobPlanningLineModify(JobPlanningLine);
-                    JobPlanningLine.Modify();
-                until Next() = 0;
+        case SalesLine."Document Type" of
+            SalesLine."Document Type"::Invoice:
+                JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::Invoice);
+            SalesLine."Document Type"::"Credit Memo":
+                JobPlanningLineInvoice.SetRange("Document Type", JobPlanningLineInvoice."Document Type"::"Credit Memo");
         end;
+        JobPlanningLineInvoice.SetRange("Document No.", SalesLine."Document No.");
+        JobPlanningLineInvoice.SetRange("Line No.", SalesLine."Line No.");
+        if JobPlanningLineInvoice.FindSet() then
+            repeat
+                JobPlanningLine.Get(JobPlanningLineInvoice."Job No.", JobPlanningLineInvoice."Job Task No.", JobPlanningLineInvoice."Job Planning Line No.");
+                JobPlanningLineInvoice.Delete();
+                JobPlanningLine.UpdateQtyToTransfer();
+                OnDeleteSalesLineOnBeforeJobPlanningLineModify(JobPlanningLine);
+                JobPlanningLine.Modify();
+            until JobPlanningLineInvoice.Next() = 0;
     end;
 
     procedure FindInvoices(var TempJobPlanningLineInvoice: Record "Job Planning Line Invoice" temporary; JobNo: Code[20]; JobTaskNo: Code[20]; JobPlanningLineNo: Integer; DetailLevel: Option All,"Per Job","Per Job Task","Per Job Planning Line")
@@ -757,21 +862,20 @@ codeunit 1002 "Job Create-Invoice"
         OnBeforeGetJobPlanningLineInvoices(JobPlanningLine);
 
         ClearAll();
-        with JobPlanningLine do begin
-            if "Line No." = 0 then
-                exit;
-            TestField("Job No.");
-            TestField("Job Task No.");
+        if JobPlanningLine."Line No." = 0 then
+            exit;
 
-            JobPlanningLineInvoice.SetRange("Job No.", "Job No.");
-            JobPlanningLineInvoice.SetRange("Job Task No.", "Job Task No.");
-            JobPlanningLineInvoice.SetRange("Job Planning Line No.", "Line No.");
-            if JobPlanningLineInvoice.Count = 1 then begin
-                JobPlanningLineInvoice.FindFirst();
-                OpenSalesInvoice(JobPlanningLineInvoice);
-            end else
-                PAGE.RunModal(PAGE::"Job Invoices", JobPlanningLineInvoice);
-        end;
+        JobPlanningLine.TestField("Job No.");
+        JobPlanningLine.TestField("Job Task No.");
+
+        JobPlanningLineInvoice.SetRange("Job No.", JobPlanningLine."Job No.");
+        JobPlanningLineInvoice.SetRange("Job Task No.", JobPlanningLine."Job Task No.");
+        JobPlanningLineInvoice.SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
+        if JobPlanningLineInvoice.Count = 1 then begin
+            JobPlanningLineInvoice.FindFirst();
+            OpenSalesInvoice(JobPlanningLineInvoice);
+        end else
+            PAGE.RunModal(PAGE::"Job Invoices", JobPlanningLineInvoice);
     end;
 
     procedure OpenSalesInvoice(JobPlanningLineInvoice: Record "Job Planning Line Invoice")
@@ -786,31 +890,30 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
 
-        with JobPlanningLineInvoice do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    begin
-                        SalesHeader.Get(SalesHeader."Document Type"::Invoice, "Document No.");
-                        PAGE.RunModal(PAGE::"Sales Invoice", SalesHeader);
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", "Document No.");
-                        PAGE.RunModal(PAGE::"Sales Credit Memo", SalesHeader);
-                    end;
-                "Document Type"::"Posted Invoice":
-                    begin
-                        if not SalesInvHeader.Get("Document No.") then
-                            Error(Text012, SalesInvHeader.TableCaption(), "Document No.");
-                        PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvHeader);
-                    end;
-                "Document Type"::"Posted Credit Memo":
-                    begin
-                        if not SalesCrMemoHeader.Get("Document No.") then
-                            Error(Text012, SalesCrMemoHeader.TableCaption(), "Document No.");
-                        PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
-                    end;
-            end;
+        case JobPlanningLineInvoice."Document Type" of
+            JobPlanningLineInvoice."Document Type"::Invoice:
+                begin
+                    SalesHeader.Get(SalesHeader."Document Type"::Invoice, JobPlanningLineInvoice."Document No.");
+                    PAGE.RunModal(PAGE::"Sales Invoice", SalesHeader);
+                end;
+            JobPlanningLineInvoice."Document Type"::"Credit Memo":
+                begin
+                    SalesHeader.Get(SalesHeader."Document Type"::"Credit Memo", JobPlanningLineInvoice."Document No.");
+                    PAGE.RunModal(PAGE::"Sales Credit Memo", SalesHeader);
+                end;
+            JobPlanningLineInvoice."Document Type"::"Posted Invoice":
+                begin
+                    if not SalesInvHeader.Get(JobPlanningLineInvoice."Document No.") then
+                        Error(Text012, SalesInvHeader.TableCaption(), JobPlanningLineInvoice."Document No.");
+                    PAGE.RunModal(PAGE::"Posted Sales Invoice", SalesInvHeader);
+                end;
+            JobPlanningLineInvoice."Document Type"::"Posted Credit Memo":
+                begin
+                    if not SalesCrMemoHeader.Get(JobPlanningLineInvoice."Document No.") then
+                        Error(Text012, SalesCrMemoHeader.TableCaption(), JobPlanningLineInvoice."Document No.");
+                    PAGE.RunModal(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                end;
+        end;
 
         OnAfterOpenSalesInvoice(JobPlanningLineInvoice);
     end;
@@ -866,8 +969,56 @@ codeunit 1002 "Job Create-Invoice"
         OnAfterUpdateSalesHeader(SalesHeader, Job);
     end;
 
+    local procedure UpdateSalesHeader(var SalesHeader: Record "Sales Header"; JobPlanningLine: Record "Job Planning Line")
+    var
+        JobTask: Record "Job Task";
+        FormatAddress: Codeunit "Format Address";
+    begin
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        SalesHeader."Bill-to Contact No." := JobTask."Bill-to Contact No.";
+        SalesHeader."Bill-to Contact" := JobTask."Bill-to Contact";
+        SalesHeader."Bill-to Name" := JobTask."Bill-to Name";
+        SalesHeader."Bill-to Name 2" := JobTask."Bill-to Name 2";
+        SalesHeader."Bill-to Address" := JobTask."Bill-to Address";
+        SalesHeader."Bill-to Address 2" := JobTask."Bill-to Address 2";
+        SalesHeader."Bill-to City" := JobTask."Bill-to City";
+        SalesHeader."Bill-to Post Code" := JobTask."Bill-to Post Code";
+        SalesHeader."Bill-to Country/Region Code" := JobTask."Bill-to Country/Region Code";
+
+        SalesHeader."Sell-to Contact No." := JobTask."Sell-to Contact No.";
+        SalesHeader."Sell-to Contact" := JobTask."Sell-to Contact";
+        SalesHeader."Sell-to Customer Name" := JobTask."Sell-to Customer Name";
+        SalesHeader."Sell-to Customer Name 2" := JobTask."Sell-to Customer Name 2";
+        SalesHeader."Sell-to Address" := JobTask."Sell-to Address";
+        SalesHeader."Sell-to Address 2" := JobTask."Sell-to Address 2";
+        SalesHeader."Sell-to City" := JobTask."Sell-to City";
+        SalesHeader."Sell-to Post Code" := JobTask."Sell-to Post Code";
+        SalesHeader."Sell-to Country/Region Code" := JobTask."Sell-to Country/Region Code";
+
+        if JobTask."Ship-to Code" <> '' then
+            SalesHeader.Validate("Ship-to Code", JobTask."Ship-to Code")
+        else
+            if SalesHeader."Ship-to Code" = '' then begin
+                SalesHeader."Ship-to Contact" := JobTask."Ship-to Contact";
+                SalesHeader."Ship-to Name" := JobTask."Ship-to Name";
+                SalesHeader."Ship-to Address" := JobTask."Ship-to Address";
+                SalesHeader."Ship-to Address 2" := JobTask."Ship-to Address 2";
+                SalesHeader."Ship-to City" := JobTask."Ship-to City";
+                SalesHeader."Ship-to Post Code" := JobTask."Ship-to Post Code";
+                SalesHeader."Ship-to Country/Region Code" := JobTask."Ship-to Country/Region Code";
+                if FormatAddress.UseCounty(SalesHeader."Ship-to Country/Region Code") then
+                    SalesHeader."Ship-to County" := JobTask."Ship-to County";
+            end;
+
+        if FormatAddress.UseCounty(SalesHeader."Bill-to Country/Region Code") then
+            SalesHeader."Bill-to County" := JobTask."Bill-to County";
+        if FormatAddress.UseCounty(SalesHeader."Sell-to Country/Region Code") then
+            SalesHeader."Sell-to County" := JobTask."Sell-to County";
+    end;
+
     local procedure TestSalesHeader(var SalesHeader: Record "Sales Header"; var Job: Record Job; JobPlanningLine: Record "Job Planning Line")
     var
+        JobTask: Record "Job Task";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -875,13 +1026,23 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
 
-        SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
-        SalesHeader.TestField("Sell-to Customer No.", Job."Sell-to Customer No.");
+        Job.Get(JobPlanningLine."Job No.");
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then begin
+            SalesHeader.TestField("Bill-to Customer No.", Job."Bill-to Customer No.");
+            SalesHeader.TestField("Sell-to Customer No.", Job."Sell-to Customer No.");
+        end else begin
+            JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+            SalesHeader.TestField("Bill-to Customer No.", JobTask."Bill-to Customer No.");
+            SalesHeader.TestField("Sell-to Customer No.", JobTask."Sell-to Customer No.");
+        end;
 
         if Job."Currency Code" <> '' then
             SalesHeader.TestField("Currency Code", Job."Currency Code")
         else
-            SalesHeader.TestField("Currency Code", Job."Invoice Currency Code");
+            if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+                SalesHeader.TestField("Currency Code", Job."Invoice Currency Code")
+            else
+                SalesHeader.TestField("Currency Code", JobTask."Invoice Currency Code");
         OnAfterTestSalesHeader(SalesHeader, Job, JobPlanningLine);
     end;
 
@@ -980,6 +1141,67 @@ codeunit 1002 "Job Create-Invoice"
         end;
     end;
 
+    local procedure IsJobInvCurrencyDependingOnBillingMethod(Job: Record Job; var JobPlanningLineSource: Record "Job Planning Line"): Boolean
+    var
+        JobTask: Record "Job Task";
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit(Job."Invoice Currency Code" <> '')
+        else begin
+            JobTask.Get(JobPlanningLineSource."Job No.", JobPlanningLineSource."Job Task No.");
+            exit(JobTask."Invoice Currency Code" <> '');
+        end;
+    end;
+
+    local procedure IsJobInvCurrencyDependingOnBillingMethod(Job: Record Job; JobTask: Record "Job Task"): Boolean
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit(Job."Invoice Currency Code" <> '')
+        else
+            exit(JobTask."Invoice Currency Code" <> '');
+    end;
+
+    local procedure TestIfBillToCustomerExistOnJobOrJobTask(Job: Record Job; JobTask: Record "Job Task")
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            Job.TestField("Bill-to Customer No.")
+        else
+            JobTask.TestField("Bill-to Customer No.");
+    end;
+
+    local procedure ReturnBillToCustomerNoDependingOnTaskBillingMethod(Job: Record Job; JobTask2: Record "Job Task"): Code[20]
+    var
+        JobTask: Record "Job Task";
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then
+            exit(Job."Bill-to Customer No.")
+        else
+            if JobTask.Get(TempJobPlanningLine."Job No.", TempJobPlanningLine."Job Task No.") then
+                exit(JobTask."Bill-to Customer No.")
+            else
+                exit(JobTask2."Bill-to Customer No.");
+    end;
+
+    local procedure ReturnJobDataDependingOnTaskBillingMethod(Job: Record Job; JobPlanningLine: Record "Job Planning Line"; FieldName: Text): Text[35]
+    var
+        JobTask: Record "Job Task";
+        DataTypeMgt: Codeunit "Data Type Management";
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+    begin
+        if Job."Task Billing Method" = Job."Task Billing Method"::"One customer" then begin
+            RecRef.GetTable(Job);
+            if DataTypeMgt.FindFieldByName(RecRef, FldRef, FieldName) then
+                exit(FldRef.Value());
+        end else begin
+            JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+            RecRef.GetTable(JobTask);
+            if DataTypeMgt.FindFieldByName(RecRef, FldRef, FieldName) then
+                exit(FldRef.Value());
+        end;
+    end;
+
+#if not CLEAN24
     local procedure CheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line")
     var
         IsHandled: Boolean;
@@ -988,6 +1210,7 @@ codeunit 1002 "Job Create-Invoice"
         if IsHandled then
             exit;
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
@@ -1163,7 +1386,7 @@ codeunit 1002 "Job Create-Invoice"
     local procedure OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesHeader2: Record "Sales Header"; NewInvoice: Boolean; var NoOfSalesLinesCreated: Integer)
     begin
     end;
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced with OnBeforeCheckJobBillToCustomer', '21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnBeforeGetCustomer(JobPlanningLine: Record "Job Planning Line"; var Customer: Record Customer; var IsHandled: Boolean)
@@ -1235,10 +1458,13 @@ codeunit 1002 "Job Create-Invoice"
     begin
     end;
 
+#if not CLEAN24
+    [Obsolete('Has no purpose in procedure CheckJobPlanningLineIsNegative anymore', '24.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesInvoiceLinesOnAfterSetJobInvCurrency(Job: Record Job; var JobInvCurrency: Boolean)

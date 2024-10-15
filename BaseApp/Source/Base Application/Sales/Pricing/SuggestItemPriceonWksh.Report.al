@@ -1,4 +1,4 @@
-﻿#if not CLEAN21
+﻿#if not CLEAN23
 namespace Microsoft.Sales.Pricing;
 
 using Microsoft.CRM.Campaign;
@@ -28,59 +28,57 @@ report 7051 "Suggest Item Price on Wksh."
                 CurrentUnitPrice: Decimal;
             begin
                 Window.Update(1, "No.");
-                with SalesPriceWksh do begin
-                    Init();
-                    Validate("Item No.", Item."No.");
+                SalesPriceWksh.Init();
+                SalesPriceWksh.Validate("Item No.", Item."No.");
 
-                    if not ("Unit of Measure Code" in [Item."Base Unit of Measure", '']) then
-                        if not ItemUnitOfMeasure.Get("Item No.", "Unit of Measure Code") then
-                            CurrReport.Skip();
+                if not (SalesPriceWksh."Unit of Measure Code" in [Item."Base Unit of Measure", '']) then
+                    if not ItemUnitOfMeasure.Get(SalesPriceWksh."Item No.", SalesPriceWksh."Unit of Measure Code") then
+                        CurrReport.Skip();
 
-                    Validate("Unit of Measure Code", ToUnitofMeasure.Code);
-                    CurrentUnitPrice :=
-                      Round(
-                        CurrExchRate.ExchangeAmtLCYToFCY(
-                          WorkDate(), ToCurrency.Code,
-                          Item."Unit Price",
-                          CurrExchRate.ExchangeRate(
-                            WorkDate(), ToCurrency.Code)) *
-                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"),
-                        ToCurrency."Unit-Amount Rounding Precision");
+                SalesPriceWksh.Validate("Unit of Measure Code", ToUnitofMeasure.Code);
+                CurrentUnitPrice :=
+                  Round(
+                    CurrExchRate.ExchangeAmtLCYToFCY(
+                      WorkDate(), ToCurrency.Code,
+                      Item."Unit Price",
+                      CurrExchRate.ExchangeRate(
+                        WorkDate(), ToCurrency.Code)) *
+                    UOMMgt.GetQtyPerUnitOfMeasure(Item, SalesPriceWksh."Unit of Measure Code"),
+                    ToCurrency."Unit-Amount Rounding Precision");
 
-                    if CurrentUnitPrice > PriceLowerLimit then
-                        "New Unit Price" := CurrentUnitPrice * UnitPriceFactor;
+                if CurrentUnitPrice > PriceLowerLimit then
+                    SalesPriceWksh."New Unit Price" := CurrentUnitPrice * UnitPriceFactor;
 
-                    OnBeforeRoundMethod(SalesPriceWksh, Item, ToCurrency, UnitPriceFactor, PriceLowerLimit, CurrentUnitPrice);
+                OnBeforeRoundMethod(SalesPriceWksh, Item, ToCurrency, UnitPriceFactor, PriceLowerLimit, CurrentUnitPrice);
 
-                    if RoundingMethod.Code <> '' then begin
-                        RoundingMethod."Minimum Amount" := "New Unit Price";
-                        if RoundingMethod.Find('=<') then begin
-                            "New Unit Price" := "New Unit Price" + RoundingMethod."Amount Added Before";
-                            if RoundingMethod.Precision > 0 then
-                                "New Unit Price" :=
-                                  Round(
-                                    "New Unit Price",
-                                    RoundingMethod.Precision, CopyStr('=><', RoundingMethod.Type + 1, 1));
-                            "New Unit Price" := "New Unit Price" + RoundingMethod."Amount Added After";
-                        end;
+                if RoundingMethod.Code <> '' then begin
+                    RoundingMethod."Minimum Amount" := SalesPriceWksh."New Unit Price";
+                    if RoundingMethod.Find('=<') then begin
+                        SalesPriceWksh."New Unit Price" := SalesPriceWksh."New Unit Price" + RoundingMethod."Amount Added Before";
+                        if RoundingMethod.Precision > 0 then
+                            SalesPriceWksh."New Unit Price" :=
+                              Round(
+                                SalesPriceWksh."New Unit Price",
+                                RoundingMethod.Precision, CopyStr('=><', RoundingMethod.Type + 1, 1));
+                        SalesPriceWksh."New Unit Price" := SalesPriceWksh."New Unit Price" + RoundingMethod."Amount Added After";
                     end;
+                end;
 
-                    CalcCurrentPrice(PriceAlreadyExists);
+                SalesPriceWksh.CalcCurrentPrice(PriceAlreadyExists);
 
-                    if not PriceAlreadyExists then begin
-                        "Current Unit Price" := CurrentUnitPrice;
-                        "VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
-                    end;
+                if not PriceAlreadyExists then begin
+                    SalesPriceWksh."Current Unit Price" := CurrentUnitPrice;
+                    SalesPriceWksh."VAT Bus. Posting Gr. (Price)" := Item."VAT Bus. Posting Gr. (Price)";
+                end;
 
-                    OnBeforeModifyOrInsertSalesPriceWksh(SalesPriceWksh);
+                OnBeforeModifyOrInsertSalesPriceWksh(SalesPriceWksh);
 
-                    if PriceAlreadyExists or CreateNewPrices then begin
-                        SalesPriceWksh2 := SalesPriceWksh;
-                        if SalesPriceWksh2.Find('=') then
-                            Modify()
-                        else
-                            Insert();
-                    end;
+                if PriceAlreadyExists or CreateNewPrices then begin
+                    SalesPriceWksh2 := SalesPriceWksh;
+                    if SalesPriceWksh2.Find('=') then
+                        SalesPriceWksh.Modify()
+                    else
+                        SalesPriceWksh.Insert();
                 end;
             end;
 
@@ -279,31 +277,29 @@ report 7051 "Suggest Item Price on Wksh."
 
         if ToUnitofMeasure.Code <> '' then
             ToUnitofMeasure.Find();
-        with SalesPriceWksh do begin
-            Validate("Sales Type", ToSalesType);
-            Validate("Sales Code", ToSalesCode);
-            Validate("Currency Code", ToCurrency.Code);
-            Validate("Starting Date", ToStartDate);
-            Validate("Ending Date", ToEndDate);
-            "Unit of Measure Code" := ToUnitofMeasure.Code;
+        SalesPriceWksh.Validate("Sales Type", ToSalesType);
+        SalesPriceWksh.Validate("Sales Code", ToSalesCode);
+        SalesPriceWksh.Validate("Currency Code", ToCurrency.Code);
+        SalesPriceWksh.Validate("Starting Date", ToStartDate);
+        SalesPriceWksh.Validate("Ending Date", ToEndDate);
+        SalesPriceWksh."Unit of Measure Code" := ToUnitofMeasure.Code;
 
-            case ToSalesType of
-                ToSalesType::Customer:
-                    begin
-                        ToCust."No." := ToSalesCode;
-                        ToCust.Find();
-                        "Price Includes VAT" := ToCust."Prices Including VAT";
-                        "Allow Line Disc." := ToCust."Allow Line Disc.";
-                    end;
-                ToSalesType::"Customer Price Group":
-                    begin
-                        ToCustPriceGr.Code := ToSalesCode;
-                        ToCustPriceGr.Find();
-                        "Price Includes VAT" := ToCustPriceGr."Price Includes VAT";
-                        "Allow Line Disc." := ToCustPriceGr."Allow Line Disc.";
-                        "Allow Invoice Disc." := ToCustPriceGr."Allow Invoice Disc.";
-                    end;
-            end;
+        case ToSalesType of
+            ToSalesType::Customer:
+                begin
+                    ToCust."No." := ToSalesCode;
+                    ToCust.Find();
+                    SalesPriceWksh."Price Includes VAT" := ToCust."Prices Including VAT";
+                    SalesPriceWksh."Allow Line Disc." := ToCust."Allow Line Disc.";
+                end;
+            ToSalesType::"Customer Price Group":
+                begin
+                    ToCustPriceGr.Code := ToSalesCode;
+                    ToCustPriceGr.Find();
+                    SalesPriceWksh."Price Includes VAT" := ToCustPriceGr."Price Includes VAT";
+                    SalesPriceWksh."Allow Line Disc." := ToCustPriceGr."Allow Line Disc.";
+                    SalesPriceWksh."Allow Invoice Disc." := ToCustPriceGr."Allow Invoice Disc.";
+                end;
         end;
     end;
 
@@ -340,7 +336,7 @@ report 7051 "Suggest Item Price on Wksh."
 
     procedure InitializeRequest(NewToSalesType: Option; NewToSalesCode: Code[20]; NewToStartDateText: Date; NewToEndDateText: Date; NewToCurrCode: Code[10]; NewToUOMCode: Code[10])
     begin
-        ToSalesType := NewToSalesType;
+        ToSalesType := "Sales Price Type".FromInteger(NewToSalesType);
         ToSalesCode := NewToSalesCode;
         ToStartDate := NewToStartDateText;
         ToEndDate := NewToEndDateText;

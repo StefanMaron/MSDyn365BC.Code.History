@@ -165,32 +165,30 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         PaymentHistoryLine: Record "Payment History Line";
         XMLParent: DotNet XmlNode;
     begin
-        with PaymentHistoryLine do begin
-            XMLParent := XMLNodeCurr;
+        XMLParent := XMLNodeCurr;
 
-            Clear(LastPaymentHistoryLine);
-            SetCurrentKey(Date, "Sequence Type");
-            SetFilter("Sequence Type", '>%1', "Sequence Type"::" ");
-            SetRange("Our Bank", "Payment History"."Our Bank");
-            SetRange("Run No.", "Payment History"."Run No.");
-            SetFilter(
-              Status,
-              '%1|%2|%3',
-              PaymentHistoryLine.Status::New,
-              PaymentHistoryLine.Status::Transmitted,
-              PaymentHistoryLine.Status::"Request for Cancellation");
-            if FindSet() then
-                repeat
-                    if (Date <> LastPaymentHistoryLine.Date) or ("Sequence Type" <> LastPaymentHistoryLine."Sequence Type") then begin
-                        LastPaymentHistoryLine := PaymentHistoryLine;
-                        XMLNodeCurr := XMLParent;
-                        AddPaymentInformation(XMLNodeCurr, PaymentHistoryLine, BankAcc);
-                    end;
-                    AddTrxInformation(XMLNodeCurr, PaymentHistoryLine);
-                until Next() = 0;
+        Clear(LastPaymentHistoryLine);
+        PaymentHistoryLine.SetCurrentKey(Date, "Sequence Type");
+        PaymentHistoryLine.SetFilter("Sequence Type", '>%1', PaymentHistoryLine."Sequence Type"::" ");
+        PaymentHistoryLine.SetRange("Our Bank", "Payment History"."Our Bank");
+        PaymentHistoryLine.SetRange("Run No.", "Payment History"."Run No.");
+        PaymentHistoryLine.SetFilter(
+          Status,
+          '%1|%2|%3',
+          PaymentHistoryLine.Status::New,
+          PaymentHistoryLine.Status::Transmitted,
+          PaymentHistoryLine.Status::"Request for Cancellation");
+        if PaymentHistoryLine.FindSet() then
+            repeat
+                if (PaymentHistoryLine.Date <> LastPaymentHistoryLine.Date) or (PaymentHistoryLine."Sequence Type" <> LastPaymentHistoryLine."Sequence Type") then begin
+                    LastPaymentHistoryLine := PaymentHistoryLine;
+                    XMLNodeCurr := XMLParent;
+                    AddPaymentInformation(XMLNodeCurr, PaymentHistoryLine, BankAcc);
+                end;
+                AddTrxInformation(XMLNodeCurr, PaymentHistoryLine);
+            until PaymentHistoryLine.Next() = 0;
 
-            XMLNodeCurr := XMLParent;
-        end;
+        XMLNodeCurr := XMLParent;
     end;
 
     local procedure AddPaymentInformation(XMLNodeCurr: DotNet XmlNode; PaymentHistoryLine: Record "Payment History Line"; var BankAcc: Record "Bank Account")

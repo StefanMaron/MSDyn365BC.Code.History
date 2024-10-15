@@ -37,14 +37,16 @@ codeunit 144018 "ERM MISC"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         AmountError: Label '%1 must be %2 in %3.';
-        FileManagement: Codeunit "File Management";
-        LibraryTextFileValidation: Codeunit "Library - Text File Validation";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNLLocalization: Codeunit "Library - NL Localization";
+#if not CLEAN22
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+#endif
         isInitialized: Boolean;
+#if not CLEAN22
         EntryExitPointErr: Label 'Reported Entry/Exit Point is incorrect.';
         AdvChecklistErr: Label 'There are one or more errors. For details, see the journal error FactBox.';
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -94,7 +96,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
 
         // [GIVEN] VAT Registration No of 14 symbol length in Company Information
-        CountryCode := SetIntrastatDataOnCompanyInfo;
+        CountryCode := SetIntrastatDataOnCompanyInfo();
 
         // [GIVEN] Intrastat Journal with One Intrastat Journal Line
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
@@ -107,10 +109,10 @@ codeunit 144018 "ERM MISC"
         // [THEN] We have LAST 12 characters "VAT Registration No." from 5 position in Header and from 8 position in lines in intrastat declaration file.
         FileTempBlob.CreateInStream(FileInStream);
         FileInStream.ReadText(FileLine);
-        Assert.AreEqual(GetExpectedVATRegNo, CopyStr(FileLine, 5, 12), '');
+        Assert.AreEqual(GetExpectedVATRegNo(), CopyStr(FileLine, 5, 12), '');
 
         FileInStream.ReadText(FileLine);
-        Assert.AreEqual(GetExpectedVATRegNo, CopyStr(FileLine, 8, 12), '');
+        Assert.AreEqual(GetExpectedVATRegNo(), CopyStr(FileLine, 8, 12), '');
     end;
 #endif
 
@@ -120,7 +122,7 @@ codeunit 144018 "ERM MISC"
     begin
         // Setup: Create and Post Service Document with Transaction Mode Code and Bank Account Code.
         Initialize();
-        CreateServiceDocument(ServiceHeader, DocumentType, CreateItem);
+        CreateServiceDocument(ServiceHeader, DocumentType, CreateItem());
 
         // Exercise.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // Post as Ship and Invoice.
@@ -202,7 +204,7 @@ codeunit 144018 "ERM MISC"
         // [THEN] Bank Account Posting Group is shown on "G/L Account Where-Used List"
         // Verify in WhereUsedHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -253,7 +255,7 @@ codeunit 144018 "ERM MISC"
         // [THEN] Customer Posting Group is shown on "G/L Account Where-Used List"
         // [THEN] Transaction Mode is shown on "G/L Account Where-Used List"
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -268,7 +270,7 @@ codeunit 144018 "ERM MISC"
 
         // [GIVEN] Init CBG Statement with "Journal Template Name" = new Gen Journal Template and "No." = 1001
         CBGStatement.Init();
-        CBGStatement.Validate("Journal Template Name", CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo));
+        CBGStatement.Validate("Journal Template Name", CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo()));
         CBGStatement.Validate("No.", LibraryRandom.RandIntInRange(1000, 2000));
 
         // [WHEN] Insert CBG Statement
@@ -292,7 +294,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
 
         // [GIVEN] Gen. Journal Template "T"
-        GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo);
+        GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo());
 
         // [GIVEN] CBG Statement with Journal Template Name = "T" and "No." = 1;
         FirstCBGStatementNo := CreateCBGStatementWithTemplate(GenJnlTemplateName);
@@ -327,7 +329,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
 
         // [GIVEN] Bank Account "B"
-        BankAccountNo := CreateBankAccountNo;
+        BankAccountNo := CreateBankAccountNo();
 
         // [GIVEN] Gen Journal Template with Bal. Account = "B"
         LibraryVariableStorage.Enqueue(CreateGenJournalTemplateWithBankAccount(BankAccountNo));
@@ -345,7 +347,7 @@ codeunit 144018 "ERM MISC"
         BankGiroJournal."Account No.".AssertEquals(BankAccountNo);
         BankGiroJournal."No.".AssertEquals(0);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -362,7 +364,7 @@ codeunit 144018 "ERM MISC"
         Initialize();
 
         // [GIVEN] Stan created new Bank/Giro Journal from new Template
-        GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo);
+        GenJnlTemplateName := CreateGenJournalTemplateWithBankAccount(CreateBankAccountNo());
         LibraryVariableStorage.Enqueue(GenJnlTemplateName);
         BankGiroJournal.OpenNew();
 
@@ -377,11 +379,13 @@ codeunit 144018 "ERM MISC"
         // [THEN] Stan can see No. = 1 on Bank/Giro Journal page
         BankGiroJournal."No.".AssertEquals(CBGStatement."No.");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
 #if not CLEAN22
+#pragma warning disable AS0072
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure EmptyEntryExitPointInIntrastatFile()
@@ -397,7 +401,7 @@ codeunit 144018 "ERM MISC"
         // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo());
 
         // [GIVEN] Set an empty "Entry/Exit Point" on Intrastat Jnl. Line
         IntrastatJnlLine.Validate("Entry/Exit Point", '');
@@ -413,6 +417,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure FilledEntryExitPointInIntrastatFile()
@@ -428,7 +433,7 @@ codeunit 144018 "ERM MISC"
         // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line, which "Entry/Exit Point" equals 'XX'
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo());
         Commit();
         LibraryVariableStorage.Enqueue(false);
 
@@ -443,6 +448,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyFalse()
@@ -470,6 +476,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyTrue()
@@ -501,6 +508,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure PartnerIDInShipmentIntrastatFileCounterpartyTrueCountryCodeOrigin()
     var
@@ -544,6 +552,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure PartnerIDInReceiptIntrastatFileCounterpartyFalse()
@@ -567,6 +576,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     [Scope('OnPrem')]
     procedure PartnerIDInReceiptIntrastatFileCounterpartyTrue()
@@ -597,6 +607,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure TransactionSpecificationIsCheckedForShipmentIntrastatFileCounterpartyTrue()
     var
@@ -618,6 +629,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('IntrastatChecklistRPH')]
     procedure ChecklistReportChecksForTransactionSpecificationForShipments()
     var
@@ -639,6 +651,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('IntrastatChecklistRPH')]
     procedure ChecklistReportChecksForTransactionSpecificationForReceipts()
     var
@@ -660,6 +673,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatChecklistRPH')]
     procedure ChecklistReportForCorrectionShipmentLine()
     var
@@ -697,6 +711,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatChecklistRPH')]
     procedure ChecklistReportForCorrectionReceiptLine()
     var
@@ -734,6 +749,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('IntrastatFormRPH')]
     procedure IntrastatFormChecksForTransactionSpecificationForShipments()
     var
@@ -755,6 +771,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('IntrastatFormRPH')]
     procedure IntrastatFormChecksForTransactionSpecificationForReceipts()
     var
@@ -776,6 +793,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntrastatFormRPH')]
     procedure IntrastatFormForCorrectionReceiptLine()
     var
@@ -818,6 +836,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     procedure TestCheckIntrastatJournalLineForCorrection()
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
@@ -854,6 +873,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure CreateDeclReportChecksForTransactionSpecificationForShipmentsCounterparty()
     var
@@ -876,6 +896,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure CreateDeclReportChecksForTransactionSpecificationForReceiptsCounterparty()
     var
@@ -898,6 +919,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
     procedure CreateDeclReportWithNegativeZeroSSpecialUnitsForCorrection()
     var
@@ -926,6 +948,7 @@ codeunit 144018 "ERM MISC"
     end;
 
     [Test]
+    [Obsolete('Not used.', '22.0')]
     [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
     procedure CreateDeclReport2022ExportsTransactionSpecificationForReceiptsCounterparty()
     var
@@ -949,6 +972,7 @@ codeunit 144018 "ERM MISC"
         VerifyTransactionAndPatnerIDInDeclarationFile(
           FileTempBlob, PadStr('', 17, ' '), '  ', '+');
     end;
+#pragma warning restore AS0072
 #endif
 
     local procedure Initialize()
@@ -1013,7 +1037,7 @@ codeunit 144018 "ERM MISC"
     begin
         CreateSimpleIntrastatJnlTemplateAndBatch(IntrastatJnlBatch);
         CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
-          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo());
         UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine, Type);
     end;
 #endif
@@ -1052,7 +1076,7 @@ codeunit 144018 "ERM MISC"
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Bank);
         GenJournalTemplate.Validate("Bal. Account Type", GenJournalTemplate."Bal. Account Type"::"Bank Account");
         GenJournalTemplate.Validate("Bal. Account No.", BankAccountNo);
-        GenJournalTemplate.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalTemplate.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalTemplate.Modify(true);
         exit(GenJournalTemplate.Name);
     end;
@@ -1101,7 +1125,7 @@ codeunit 144018 "ERM MISC"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Transaction Mode Code", TransactionMode.Code);
         Customer.Validate("Preferred Bank Account Code", CreateCustomerBankAccount(Customer."No."));
-        Customer.Validate("Payment Terms Code", CreatePaymentTerms);
+        Customer.Validate("Payment Terms Code", CreatePaymentTerms());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1142,7 +1166,7 @@ codeunit 144018 "ERM MISC"
         Vendor: Record Vendor;
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Country/Region Code", FindCountryRegionCode);
+        Vendor.Validate("Country/Region Code", FindCountryRegionCode());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1172,7 +1196,7 @@ codeunit 144018 "ERM MISC"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         TariffNumber.FindFirst();
         Item.Validate("Tariff No.", TariffNumber."No.");
         Item.Modify(true);
@@ -1229,7 +1253,7 @@ codeunit 144018 "ERM MISC"
         CreateItemWithTariffNo(Item[1]);
         CreateItemWithTariffNo(Item[2]);
         ItemFilter := Item[1]."No.";
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateForeignVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateForeignVendorNo());
 
         PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -1255,10 +1279,10 @@ codeunit 144018 "ERM MISC"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", CreateVendor());
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
         Amount := PurchaseLine."Outstanding Amount" - (PurchaseLine."Outstanding Amount" / PurchaseHeader."Payment Discount %") / 100;
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -1282,9 +1306,9 @@ codeunit 144018 "ERM MISC"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CreateCustomer());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandDec(10, 2));  // Taking Random Quantity.
         Amount := SalesLine."Outstanding Amount" - (SalesLine."Outstanding Amount" / SalesHeader."Payment Discount %") / 100;
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
@@ -1311,7 +1335,7 @@ codeunit 144018 "ERM MISC"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CreateCustomer());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         if DocumentType = ServiceHeader."Document Type"::Order then begin
             LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
@@ -1331,7 +1355,7 @@ codeunit 144018 "ERM MISC"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Transaction Mode Code", TransactionMode.Code);
         Vendor.Validate("Preferred Bank Account Code", CreateVendorBankAccount(Vendor."No."));
-        Vendor.Validate("Payment Terms Code", CreatePaymentTerms);
+        Vendor.Validate("Payment Terms Code", CreatePaymentTerms());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -1399,10 +1423,10 @@ codeunit 144018 "ERM MISC"
     var
         BankGiroJournal: TestPage "Bank/Giro Journal";
     begin
-        BankGiroJournal.OpenEdit;
+        BankGiroJournal.OpenEdit();
         BankGiroJournal.FILTER.SetFilter("Account No.", JournalTemplateName);
         BankGiroJournal.FILTER.SetFilter("Document No.", DocumentNo);
-        BankGiroJournal.Post.Invoke;
+        BankGiroJournal.Post.Invoke();
     end;
 
 #if not CLEAN22
@@ -1410,11 +1434,11 @@ codeunit 144018 "ERM MISC"
     var
         IntrastatJournal: TestPage "Intrastat Journal";
     begin
-        IntrastatJournal.OpenEdit;
-        LibraryVariableStorage.AssertEmpty;
+        IntrastatJournal.OpenEdit();
+        LibraryVariableStorage.AssertEmpty();
         LibraryVariableStorage.Enqueue(CalcDate('<+1D>', WorkDate()));
         LibraryVariableStorage.Enqueue(CalcDate('<+1M>', WorkDate()));
-        IntrastatJournal.GetEntries.Invoke;
+        IntrastatJournal.GetEntries.Invoke();
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
         IntrastatJournal.Close();
     end;
@@ -1484,12 +1508,12 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
         IntrastatJnlLine.Validate("Entry/Exit Point", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Entry/Exit Point"));
         IntrastatJnlLine.Validate(Date, WorkDate());
-        IntrastatJnlLine.Validate("Item No.", CreateItemForIntrastat);
+        IntrastatJnlLine.Validate("Item No.", CreateItemForIntrastat());
         IntrastatJnlLine.Validate("Source Entry No.", LibraryRandom.RandIntInRange(1, 10));
         IntrastatJnlLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
         IntrastatJnlLine.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 10, 2));
         IntrastatJnlLine.Validate("Country/Region Code", CountryCode);
-        IntrastatJnlLine.Validate("Country/Region of Origin Code", CreateCountryRegionCode);
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", CreateCountryRegionCode());
         IntrastatJnlLine.Modify(true);
     end;
 
@@ -1510,7 +1534,7 @@ codeunit 144018 "ERM MISC"
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::"Bank Account");
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
@@ -1593,9 +1617,6 @@ codeunit 144018 "ERM MISC"
 
 #if not CLEAN22
     local procedure VerifyAdvanvedChecklistError(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FieldName: Text)
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        ErrorMessage: Record "Error Message";
     begin
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(AdvChecklistErr);
@@ -1620,8 +1641,8 @@ codeunit 144018 "ERM MISC"
     [Scope('OnPrem')]
     procedure GenJournalTemplListCBGPageHandler(var GenJournalTemplListCBG: TestPage "Gen. Journal Templ. List (CBG)")
     begin
-        GenJournalTemplListCBG.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GenJournalTemplListCBG.OK.Invoke;
+        GenJournalTemplListCBG.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GenJournalTemplListCBG.OK().Invoke();
     end;
 
 #if not CLEAN22
@@ -1637,7 +1658,7 @@ codeunit 144018 "ERM MISC"
         GetItemLedgerEntriesReqPage.StartingDate.SetValue(StartDate);
         GetItemLedgerEntriesReqPage.EndingDate.SetValue(EndDate);
         GetItemLedgerEntriesReqPage.IndirectCostPctReq.SetValue(0);
-        GetItemLedgerEntriesReqPage.OK.Invoke;
+        GetItemLedgerEntriesReqPage.OK().Invoke();
     end;
 #endif
 
@@ -1654,13 +1675,13 @@ codeunit 144018 "ERM MISC"
     var
         i: Integer;
     begin
-        GLAccountWhereUsedList.First;
-        for i := 2 to LibraryVariableStorage.DequeueInteger do begin // for 2 lines and more
-            GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
+        GLAccountWhereUsedList.First();
+        for i := 2 to LibraryVariableStorage.DequeueInteger() do begin // for 2 lines and more
+            GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText());
             GLAccountWhereUsedList.Next();
         end;
-        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
-        GLAccountWhereUsedList.OK.Invoke;
+        GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText());
+        GLAccountWhereUsedList.OK().Invoke();
     end;
 
 #if not CLEAN22
@@ -1668,8 +1689,8 @@ codeunit 144018 "ERM MISC"
     [Scope('OnPrem')]
     procedure CreateIntrastatDeclDiskReqPageHandler(var CreateIntrastatDeclDisk: TestRequestPage "Create Intrastat Decl. Disk")
     begin
-        CreateIntrastatDeclDisk.Counterparty.SetValue(LibraryVariableStorage.DequeueBoolean);
-        CreateIntrastatDeclDisk.OK.Invoke;
+        CreateIntrastatDeclDisk.Counterparty.SetValue(LibraryVariableStorage.DequeueBoolean());
+        CreateIntrastatDeclDisk.OK().Invoke();
     end;
 
     [RequestPageHandler]

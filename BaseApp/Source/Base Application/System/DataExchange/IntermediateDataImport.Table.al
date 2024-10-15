@@ -5,6 +5,7 @@ using System.Reflection;
 table 1214 "Intermediate Data Import"
 {
     Caption = 'Intermediate Data Import';
+    DataClassification = CustomerContent;
 
     fields
     {

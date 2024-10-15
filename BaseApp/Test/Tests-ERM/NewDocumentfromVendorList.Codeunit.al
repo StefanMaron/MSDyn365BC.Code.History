@@ -28,11 +28,11 @@ codeunit 134773 "New Document from Vendor List"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -42,8 +42,8 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseInvoice.Close();
 
         // Execute
-        PurchaseInvoice.Trap;
-        VendorList.NewPurchaseInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        VendorList.NewPurchaseInvoice.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseInvoiceIsVendorAddress(PurchaseInvoice, Vendor);
@@ -71,11 +71,11 @@ codeunit 134773 "New Document from Vendor List"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
-        PurchaseOrder.Trap;
-        VendorList.NewPurchaseOrder.Invoke;
+        PurchaseOrder.Trap();
+        VendorList.NewPurchaseOrder.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseOrderIsVendorAddress(PurchaseOrder, Vendor);
@@ -85,8 +85,8 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseOrder.Close();
 
         // Execute
-        PurchaseOrder.Trap;
-        VendorList.NewPurchaseOrder.Invoke;
+        PurchaseOrder.Trap();
+        VendorList.NewPurchaseOrder.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseOrderIsVendorAddress(PurchaseOrder, Vendor);
@@ -114,11 +114,11 @@ codeunit 134773 "New Document from Vendor List"
         LibraryPurchase.CreateVendorWithAddress(Vendor);
 
         // Execute
-        VendorList.OpenEdit;
+        VendorList.OpenEdit();
         VendorList.GotoRecord(Vendor);
 
-        PurchaseCreditMemo.Trap;
-        VendorList.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorList.NewPurchaseCrMemo.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo, Vendor);
@@ -128,8 +128,8 @@ codeunit 134773 "New Document from Vendor List"
         PurchaseCreditMemo.Close();
 
         // Execute
-        PurchaseCreditMemo.Trap;
-        VendorList.NewPurchaseCrMemo.Invoke;
+        PurchaseCreditMemo.Trap();
+        VendorList.NewPurchaseCrMemo.Invoke();
 
         // Verification
         VerifyBillToAddressOnPurchaseCreditMemoIsVendorAddress(PurchaseCreditMemo, Vendor);

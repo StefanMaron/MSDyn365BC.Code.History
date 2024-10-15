@@ -580,8 +580,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact ID and Verify error code "Agent Contact ID must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Blank Agent Contact ID, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, '', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Blank Agent Contact ID, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -594,8 +594,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Name and verify error code "Agent Contact Name must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty.".
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Blank Agent Contact Name, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Blank Agent Contact Name, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -608,8 +608,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Address and verify error code "Agent Contact Address must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '',
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Blank Agent Contact Address, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '',
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Blank Agent Contact Address, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -622,8 +622,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Post Code and verify error code "Agent Contact Post Code must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty.".
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Blank Agent Contact Post Code, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Blank Agent Contact Post Code, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -636,8 +636,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact City and verify error code "Agent Contact City must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode, '', '');  // Blank Agent Contact City, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', LibraryUTUtility.GetNewCode(), '', '');  // Blank Agent Contact City, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -650,8 +650,8 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Phone No and verify error code "Agent Contact Phone No. must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '', '');  // Blank Agent Contact Phone No, Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '', '');  // Blank Agent Contact Phone No, Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -664,7 +664,7 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Details and Tax Payer Contact No. and verify error code "Tax Payer Contact Name must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", '', '', '', '', '', '', LibraryUTUtility.GetNewCode, '');  // Blank Agent Contact Detais and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", '', '', '', '', '', '', LibraryUTUtility.GetNewCode(), '');  // Blank Agent Contact Detais and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -677,7 +677,7 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Blank Agent Contact Details and Tax Payer Contact Name and verify error code "Tax Payer Contact Phone No. must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty."
         // on OnInitReport Trigger of Report 11403 Create Elec. VAT Declaration.
         ElectronicVATDeclarationError(
-          ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", '', '', '', '', '', '', '', LibraryUTUtility.GetNewCode);  // Blank Agent Contact Detais and Tax Payer Contact Name.
+          ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", '', '', '', '', '', '', '', LibraryUTUtility.GetNewCode());  // Blank Agent Contact Detais and Tax Payer Contact Name.
     end;
 
     local procedure ElectronicVATDeclarationError(VATContactType: Option; AgentContactID: Code[17]; AgentContactName: Text; AgentContactAddress: Text; AgentContactPostCode: Code[20]; AgentContactCity: Text; AgentContactPhoneNo: Text; TaxPayerContactName: Text; TaxPayerContactPhoneNo: Text)
@@ -727,8 +727,8 @@ codeunit 144049 "UT REP EVAT"
     begin
         // Purpose of this test is to validate Agent Details OnAfterGetRecord Trigger of Electronic Tax Declaration Header on Report 11403 Create Elec. VAT Declaration.
         ElectronicTaxDeclarationHeaderWithType(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Blank Tax Payer Contact Name and Tax Payer Contact Phone No.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Blank Tax Payer Contact Name and Tax Payer Contact Phone No.
     end;
 
     [Test]
@@ -742,7 +742,7 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of this test is to validate Tax Payer Details OnAfterGetRecord Trigger of Electronic Tax Declaration Header on Report 11403 Create Elec. VAT Declaration.
         ElectronicTaxDeclarationHeaderWithType(
           ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", '', '', '', '', '', '',
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Contact Agent Details.
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());  // Blank Contact Agent Details.
     end;
 
     local procedure ElectronicTaxDeclarationHeaderWithType(VATContactType: Option; AgentContactID: Code[17]; AgentContactName: Text; AgentContactAddress: Text; AgentContactPostCode: Code[20]; AgentContactCity: Text; AgentContactPhoneNo: Text; TaxPayerContactName: Text; TaxPayerContactPhoneNo: Text)
@@ -789,11 +789,11 @@ codeunit 144049 "UT REP EVAT"
         // Purpose of the test is to verify Elec. Tax Declaration Header - OnAfterGetRecord of Report 11403 (Create Elec. VAT Declaration).
         // Setup.
         Initialize();
-        NamePrefix := DelChr(LibraryUTUtility.GetNewCode, '=', ' ');
+        NamePrefix := DelChr(LibraryUTUtility.GetNewCode(), '=', ' ');
         UpdateElectronicTaxDeclarationSetup(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode,
-          NamePrefix + ' ' + LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Tax Payer Contact Name and Tax Payer Contact Phone No as blank.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode(),
+          NamePrefix + ' ' + LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Tax Payer Contact Name and Tax Payer Contact Phone No as blank.
         No :=
           CreateElecTaxDeclarationHeader(
             ElecTaxDeclarationHeader."Declaration Period"::January, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
@@ -1050,7 +1050,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is set in Electronic Tax Declaration Setup
         // [GIVEN] Electronic Tax Declaration Header with Type "ICP Declaration"
-        UpdateCompanyInformationForFiscalEntityNo;
+        UpdateCompanyInformationForFiscalEntityNo();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ElecTaxDeclarationSetup."ICP Contact Type"::"Tax Payer", ElecTaxDeclarationHeader."Declaration Period"::January, true, false,
@@ -1087,7 +1087,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "VAT Registration No." = "X", "Fiscal Entity No." = "Y" in Company Information
         // [GIVEN] "Part Of Fiscal Entity" is not set in Electronic Tax Declaration Setup
         // [GIVEN] Electronic Tax Declaration Header with Type "ICP Declaration"
-        UpdateCompanyInformationForFiscalEntityNo;
+        UpdateCompanyInformationForFiscalEntityNo();
         No :=
           ModifyElecTaxDeclarationSetupAndCreateVATEntry(
             ElecTaxDeclarationSetup."ICP Contact Type"::"Tax Payer", ElecTaxDeclarationHeader."Declaration Period"::January, false, false,
@@ -1123,7 +1123,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1b. Sales Amount (Low Rate)"
         // [GIVEN] "L"."VAT Prod. Posting Group" = "X"
         // [GIVEN] "L"."Print With" = "Opposite Sign"
-        No := CreateElecTaxDeclHeaderWithSetup;
+        No := CreateElecTaxDeclHeaderWithSetup();
         CreateVATStatementLine(VATStatementLine);
 
         // [GIVEN] Posted Sales Invoice - "I"
@@ -1167,7 +1167,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1c. Sales Amount (Other Non-Zero Rates)"
         // [GIVEN] "L"."VAT Prod. Posting Group" = "Y"
         // [GIVEN] "L"."Print With" = "Sign"
-        No := CreateElecTaxDeclHeaderWithSetup;
+        No := CreateElecTaxDeclHeaderWithSetup();
         CategoryCode :=
           FindCategoryCode(
             ElecTaxDeclVATCategory.Category::"1. By Us (Domestic)",
@@ -1211,7 +1211,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1b. Tax Amount (Low Rate)"
         // [GIVEN] "L"."VAT Prod. Posting Group" = "X"
         // [GIVEN] "L"."Print With" = "Opposite Sign"
-        No := CreateElecTaxDeclHeaderWithSetup;
+        No := CreateElecTaxDeclHeaderWithSetup();
         CreateVATStatementLine(VATStatementLine);
 
         // [GIVEN] Posted Sales Invoice, where "VAT Prod. Posting Group" = "X", Amount = 100, "VAT %" = 15
@@ -1252,7 +1252,7 @@ codeunit 144049 "UT REP EVAT"
         // [GIVEN] "L"."Elec. Tax Declaration Category Code" = "1c. Tax Amount (Other Non-Zero Rates)"
         // [GIVEN] "L"."VAT Prod. Posting Group" = "Y"
         // [GIVEN] "L"."Print With" = "Sign"
-        No := CreateElecTaxDeclHeaderWithSetup;
+        No := CreateElecTaxDeclHeaderWithSetup();
         CategoryCode :=
           FindCategoryCode(
             ElecTaxDeclVATCategory.Category::"1. By Us (Domestic)",
@@ -1303,7 +1303,7 @@ codeunit 144049 "UT REP EVAT"
         // [SCENARIO 196180] The return value of GetVATIdentificationNo function in Table 39 "Company Information" is "VAT Registration No." when "Part Of Fiscal Entity" is not set
 
         Initialize();
-        NewCode := LibraryUTUtility.GetNewCode10;
+        NewCode := LibraryUTUtility.GetNewCode10();
         CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := 'NL' + NewCode;
         CompanyInformation.Modify();
@@ -1342,7 +1342,7 @@ codeunit 144049 "UT REP EVAT"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT REP EVAT");
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        UpdateCompanyInformation;
+        UpdateCompanyInformation();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT REP EVAT");
@@ -1362,11 +1362,11 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationLine.DeleteAll();
 
         UpdateElectronicTaxDeclarationSetup(
-          VATContactType, LibraryUTUtility.GetNewCode10,
-          LibraryUtility.GenerateGUID,// agent contact name without prefix
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUtility.GenerateGUID,// tax payer name without prefix
-          LibraryUTUtility.GetNewCode);
+          VATContactType, LibraryUTUtility.GetNewCode10(),
+          LibraryUtility.GenerateGUID(),// agent contact name without prefix
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUtility.GenerateGUID(),// tax payer name without prefix
+          LibraryUTUtility.GetNewCode());
         DeclarationNo := CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader."Declaration Period"::January, DeclarationType);
         CreateVATStatementLine(VATStatementLine);
         LibraryVariableStorage.Enqueue(VATStatementLine."Statement Template Name");  // Enqueue value for CreateElecVATDeclarationRequestPageHandler.
@@ -1378,10 +1378,10 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
         ElecTaxDeclarationHeader."Declaration Type" := DeclarationType;
-        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationHeader."Declaration Period" := DeclarationPeriod;
         ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(WorkDate(), 3);
-        ElecTaxDeclarationHeader."Our Reference" := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationHeader."Our Reference" := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationHeader.Insert();
         exit(ElecTaxDeclarationHeader."No.");
     end;
@@ -1392,12 +1392,12 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         NamePrefix: Text;
     begin
-        NamePrefix := DelChr(LibraryUTUtility.GetNewCode, '=', ' ');
+        NamePrefix := DelChr(LibraryUTUtility.GetNewCode(), '=', ' ');
 
         UpdateElectronicTaxDeclarationSetup(
-          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10,
-          NamePrefix + ' ' + LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '');  // Tax Payer Contact Name and Tax Payer Contact Phone No as blank.
+          ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10(),
+          NamePrefix + ' ' + LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', '');  // Tax Payer Contact Name and Tax Payer Contact Phone No as blank.
 
         exit(
           CreateElecTaxDeclarationHeader(
@@ -1414,7 +1414,7 @@ codeunit 144049 "UT REP EVAT"
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry."VAT Calculation Type" := VATEntry."VAT Calculation Type"::"Reverse Charge VAT";
         VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
-        VATEntry."VAT Registration No." := LibraryUTUtility.GetNewCode;
+        VATEntry."VAT Registration No." := LibraryUTUtility.GetNewCode();
         VATEntry."EU 3-Party Trade" := EU3PartyTrade;
         VATEntry."EU Service" := EUService;
         VATEntry.Insert();
@@ -1455,9 +1455,9 @@ codeunit 144049 "UT REP EVAT"
     var
         ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
     begin
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.FILTER.SetFilter("No.", No);
-        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke;
+        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke();
     end;
 
     local procedure FindCategoryCode(Category: Option; SubCategory: Option): Code[10]
@@ -1493,14 +1493,14 @@ codeunit 144049 "UT REP EVAT"
     begin
         ElecTaxDeclarationSetup.Get();
         ElecTaxDeclarationSetup."ICP Contact Type" := ICPContactType;
-        ElecTaxDeclarationSetup."Agent Contact ID" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Agent Contact Name" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Agent Contact Phone No." := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Agent Contact Address" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Agent Contact Post Code" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Agent Contact City" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Tax Payer Contact Name" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Tax Payer Contact Phone No." := LibraryUTUtility.GetNewCode;
+        ElecTaxDeclarationSetup."Agent Contact ID" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Agent Contact Name" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Agent Contact Phone No." := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Agent Contact Address" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Agent Contact Post Code" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Agent Contact City" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Tax Payer Contact Name" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Tax Payer Contact Phone No." := LibraryUTUtility.GetNewCode();
         ElecTaxDeclarationSetup."Part of Fiscal Entity" := PartOfFiscalEntity;
         ElecTaxDeclarationSetup.Modify();
         No := CreateElecTaxDeclarationHeader(DeclarationPeriod, ElecTaxDeclarationHeader."Declaration Type"::"ICP Declaration");
@@ -1530,8 +1530,8 @@ codeunit 144049 "UT REP EVAT"
         VATStatementLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         VATStatementLine.Modify();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(500));
         SalesLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         SalesLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
@@ -1545,9 +1545,9 @@ codeunit 144049 "UT REP EVAT"
     var
         ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
     begin
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.FILTER.SetFilter("No.", No);
-        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke;
+        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke();
         ElecTaxDeclarationCard.Close();
     end;
 
@@ -1566,7 +1566,7 @@ codeunit 144049 "UT REP EVAT"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation."Fiscal Entity No." := LibraryUTUtility.GetNewCode;
+        CompanyInformation."Fiscal Entity No." := LibraryUTUtility.GetNewCode();
         CompanyInformation.Modify();
     end;
 
@@ -1596,9 +1596,9 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationSetup."Tax Payer Contact Name" := TaxPayerContactName;
         ElecTaxDeclarationSetup."Tax Payer Contact Phone No." := TaxPayerContactPhoneNo;
         ElecTaxDeclarationSetup."Part of Fiscal Entity" := true;
-        ElecTaxDeclarationSetup."Service Agency Contact ID" := LibraryUTUtility.GetNewCode10;
-        ElecTaxDeclarationSetup."Service Agency Contact Name" := LibraryUTUtility.GetNewCode;
-        ElecTaxDeclarationSetup."Svc. Agency Contact Phone No." := LibraryUTUtility.GetNewCode;
+        ElecTaxDeclarationSetup."Service Agency Contact ID" := LibraryUTUtility.GetNewCode10();
+        ElecTaxDeclarationSetup."Service Agency Contact Name" := LibraryUTUtility.GetNewCode();
+        ElecTaxDeclarationSetup."Svc. Agency Contact Phone No." := LibraryUTUtility.GetNewCode();
         ElecTaxDeclarationSetup.Modify();
     end;
 
@@ -1626,7 +1626,7 @@ codeunit 144049 "UT REP EVAT"
     [Scope('OnPrem')]
     procedure CreateElectronicICPDeclarationRequestPageHadler(var CreateElecICPDeclaration: TestRequestPage "Create Elec. ICP Declaration")
     begin
-        CreateElecICPDeclaration.OK.Invoke;
+        CreateElecICPDeclaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1640,7 +1640,7 @@ codeunit 144049 "UT REP EVAT"
         LibraryVariableStorage.Dequeue(VATStatementName);
         CreateElecVATDeclaration.VATTemplateName.SetValue(VATTemplateName);
         CreateElecVATDeclaration.VATStatementName.SetValue(VATStatementName);
-        CreateElecVATDeclaration.OK.Invoke;
+        CreateElecVATDeclaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1649,7 +1649,7 @@ codeunit 144049 "UT REP EVAT"
     begin
         CreateElecVATDeclaration.VATTemplateName.SetValue('');
         CreateElecVATDeclaration.VATStatementName.SetValue('');
-        CreateElecVATDeclaration.OK.Invoke;
+        CreateElecVATDeclaration.OK().Invoke();
     end;
 
     [MessageHandler]

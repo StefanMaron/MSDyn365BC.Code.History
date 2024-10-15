@@ -26,7 +26,7 @@ page 900 "Assembly Order"
     RefreshOnActivate = true;
     SourceTable = "Assembly Header";
     SourceTableView = sorting("Document Type", "No.")
-                      ORDER(Ascending)
+                      order(ascending)
                       where("Document Type" = const(Order));
 
     layout
@@ -499,7 +499,7 @@ page 900 "Assembly Order"
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Asm.-to-Order Whse. Shpt. Line';
-                    Enabled = NOT IsAsmToOrderEditable;
+                    Enabled = not IsAsmToOrderEditable;
                     Image = ShipmentLines;
                     ToolTip = 'View the list of warehouse shipment lines that exist for sales orders that are linked to this assembly order as assemble-to-order links. ';
 

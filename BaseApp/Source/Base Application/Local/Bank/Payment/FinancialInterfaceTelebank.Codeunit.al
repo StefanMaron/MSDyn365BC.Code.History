@@ -33,7 +33,6 @@ codeunit 11000001 "Financial Interface Telebank"
         BankAcc: Record "Bank Account";
         BankAccPostingGrp: Record "Bank Account Posting Group";
         TempErrorMessage: Record "Error Message" temporary;
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         NewSeriesCode: Code[20];
         "New Document No.": Code[20];
         NewPostingDate: Date;
@@ -45,6 +44,12 @@ codeunit 11000001 "Financial Interface Telebank"
         DifferentCurrencyQst: Label 'One of the applied document currency codes is different from the bank account''s currency code. This will lead to different currencies in the detailed ledger entries between the document and the applied payment. Document details:\Account Type: %1-%2\Ledger Entry No.: %3\Document Currency: %4\Bank Currency: %5\\Do you want to continue?', Comment = '%1 - account type (vendor\customer), %2 - account number, %3 - ledger entry no., %4 - document currency code, %5 -  bank currency code';
 
     procedure PostPaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; var PaymentHist: Record "Payment History")
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         PaymentHistLine.TestField(Status, PaymentHistLine.Status::New);
         BankAcc.Get(PaymentHistLine."Our Bank");
@@ -58,11 +63,16 @@ codeunit 11000001 "Financial Interface Telebank"
 
         "New Document No." := '';
         NewPostingDate := Today;
-        NoSeriesManagement.InitSeries(TrMode."Posting No. Series",
-          '',
-          NewPostingDate,
-          "New Document No.",
-          NewSeriesCode);
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Posting No. Series", '', NewPostingDate, "New Document No.", NewSeriesCode, IsHandled);
+        if not IsHandled then begin
+#endif
+            NewSeriesCode := TrMode."Posting No. Series";
+            "New Document No." := NoSeries.GetNextNo(NewSeriesCode);
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewSeriesCode, TrMode."Posting No. Series", NewPostingDate, "New Document No.");
+        end;
+#endif
 
         "Initialize GJLine"(GenJnlLine);
         GenJnlLine.Validate("System-Created Entry", true);
@@ -108,6 +118,12 @@ codeunit 11000001 "Financial Interface Telebank"
 
     [Scope('OnPrem')]
     procedure ReversePaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; NewStatus: Option New,Transmitted,"Request for Cancellation",Rejected,Cancelled,Posted; var PaymentHist: Record "Payment History")
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if not (PaymentHistLine.Status in
                 [PaymentHistLine.Status::New,
@@ -127,11 +143,16 @@ codeunit 11000001 "Financial Interface Telebank"
 
         "New Document No." := '';
         NewPostingDate := Today;
-        NoSeriesManagement.InitSeries(TrMode."Correction Posting No. Series",
-          '',
-          NewPostingDate,
-          "New Document No.",
-          NewSeriesCode);
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Correction Posting No. Series", '', NewPostingDate, "New Document No.", NewSeriesCode, IsHandled);
+        if not IsHandled then begin
+#endif
+            NewSeriesCode := TrMode."Correction Posting No. Series";
+            "New Document No." := NoSeries.GetNextNo(NewSeriesCode);
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(NewSeriesCode, TrMode."Correction Posting No. Series", NewPostingDate, "New Document No.");
+        end;
+#endif
 
         "Initialize GJLine"(GenJnlLine);
         GenJnlLine.Validate("System-Created Entry", true);
@@ -179,7 +200,6 @@ codeunit 11000001 "Financial Interface Telebank"
         "Detail line".ModifyAll(Status, "Detail line".Status::Correction);
     end;
 
-    [Scope('OnPrem')]
     procedure ProcessPaymReceived(var GenJnlLine: Record "Gen. Journal Line"; var PaymentHistLine: Record "Payment History Line"; CBGStatementline: Record "CBG Statement Line")
     var
         CBGStatement: Record "CBG Statement";

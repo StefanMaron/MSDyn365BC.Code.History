@@ -251,35 +251,34 @@ codeunit 5321 "Exchange Web Services Server"
         Attachment: DotNet IAttachment;
     begin
         if TryGetEmailWithAttachments(EmailMessage, ItemID) then begin
-            if not IsNull(EmailMessage) then
-                with TempExchangeObject do begin
-                    Init();
-                    Validate("Item ID", EmailMessage.Id);
-                    Validate(Type, Type::Email);
-                    Validate(Name, EmailMessage.Subject);
-                    Validate(Owner, UserSecurityId());
-                    SetBody(EmailMessage.TextBody);
-                    SetContent(EmailMessage.Content);
-                    SetViewLink(EmailMessage.LinkUrl);
-                    if not Insert(true) then
-                        Modify(true);
+            if not IsNull(EmailMessage) then begin
+                TempExchangeObject.Init();
+                TempExchangeObject.Validate("Item ID", EmailMessage.Id);
+                TempExchangeObject.Validate(Type, TempExchangeObject.Type::Email);
+                TempExchangeObject.Validate(Name, EmailMessage.Subject);
+                TempExchangeObject.Validate(Owner, UserSecurityId());
+                TempExchangeObject.SetBody(EmailMessage.TextBody);
+                TempExchangeObject.SetContent(EmailMessage.Content);
+                TempExchangeObject.SetViewLink(EmailMessage.LinkUrl);
+                if not TempExchangeObject.Insert(true) then
+                    TempExchangeObject.Modify(true);
 
-                    Attachments := EmailMessage.Attachments;
-                    foreach Attachment in Attachments do begin
-                        Init();
-                        Validate(Type, Type::Attachment);
-                        Validate("Item ID", Attachment.Id);
-                        Validate(Name, Attachment.Name);
-                        Validate("Parent ID", EmailMessage.Id);
-                        Validate("Content Type", Attachment.ContentType);
-                        Validate(InitiatedAction, Action);
-                        Validate(IsInline, Attachment.IsInline);
-                        Validate(RecId, RecRef.RecordId());
-                        SetContent(Attachment.Content);
-                        if not Insert(true) then
-                            Modify(true);
-                    end;
-                end else begin
+                Attachments := EmailMessage.Attachments;
+                foreach Attachment in Attachments do begin
+                    TempExchangeObject.Init();
+                    TempExchangeObject.Validate(Type, TempExchangeObject.Type::Attachment);
+                    TempExchangeObject.Validate("Item ID", Attachment.Id);
+                    TempExchangeObject.Validate(Name, Attachment.Name);
+                    TempExchangeObject.Validate("Parent ID", EmailMessage.Id);
+                    TempExchangeObject.Validate("Content Type", Attachment.ContentType);
+                    TempExchangeObject.Validate(InitiatedAction, Action);
+                    TempExchangeObject.Validate(IsInline, Attachment.IsInline);
+                    TempExchangeObject.Validate(RecId, RecRef.RecordId());
+                    TempExchangeObject.SetContent(Attachment.Content);
+                    if not TempExchangeObject.Insert(true) then
+                        TempExchangeObject.Modify(true);
+                end;
+            end else begin
                 Session.LogMessage('0000D8Y', ExpiredTokenTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
                 Error(ExpiredTokenErr);
             end;

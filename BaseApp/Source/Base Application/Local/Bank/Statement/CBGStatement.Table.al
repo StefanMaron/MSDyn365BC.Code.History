@@ -19,6 +19,7 @@ using Microsoft.Finance.VAT.Calculation;
 table 11400 "CBG Statement"
 {
     Caption = 'CBG Statement';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -60,12 +61,12 @@ table 11400 "CBG Statement"
             trigger OnValidate()
             var
                 JournalTemplate: Record "Gen. Journal Template";
-                NoSeriesMgt: Codeunit NoSeriesManagement;
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Document No." <> xRec."Document No." then begin
                     JournalTemplate.Get("Journal Template Name");
                     JournalTemplate.TestField("No. Series");
-                    NoSeriesMgt.TestManual(JournalTemplate."No. Series");
+                    NoSeries.TestManual(JournalTemplate."No. Series");
                     "No. Series" := '';
                 end;
             end;
@@ -202,7 +203,11 @@ table 11400 "CBG Statement"
         JournalTemplate: Record "Gen. Journal Template";
         BankAccount: Record "Bank Account";
         GLAccount: Record "G/L Account";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         "Journal Template Name" := DelChr(UseTemplate, '<>', '''');
@@ -271,7 +276,18 @@ table 11400 "CBG Statement"
 
         if (JournalTemplate.Type = JournalTemplate.Type::Bank) and ("Document No." = '') then begin
             JournalTemplate.TestField("No. Series");
-            NoSeriesMgt.InitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series");
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                "No. Series" := JournalTemplate."No. Series";
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "Document No." := NoSeries.GetNextNo("No. Series", Date);
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
+            end;
+#endif
         end;
 
         if JournalTemplate.Type = JournalTemplate.Type::Bank then
@@ -333,17 +349,15 @@ table 11400 "CBG Statement"
     var
         CBGStatement: Record "CBG Statement";
         JournalTemplate: Record "Gen. Journal Template";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        with CBGStatement do begin
-            CBGStatement := Rec;
-            JournalTemplate.Get("Journal Template Name");
-            JournalTemplate.TestField("No. Series");
-            if NoSeriesMgt.SelectSeries(JournalTemplate."No. Series", OldCBGStatement."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("Document No.");
-                Rec := CBGStatement;
-                exit(true);
-            end;
+        CBGStatement := Rec;
+        JournalTemplate.Get(CBGStatement."Journal Template Name");
+        JournalTemplate.TestField("No. Series");
+        if NoSeries.LookupRelatedNoSeries(JournalTemplate."No. Series", OldCBGStatement."No. Series", CBGStatement."No. Series") then begin
+            CBGStatement."Document No." := NoSeries.GetNextNo(CBGStatement."No. Series");
+            Rec := CBGStatement;
+            exit(true);
         end;
     end;
 

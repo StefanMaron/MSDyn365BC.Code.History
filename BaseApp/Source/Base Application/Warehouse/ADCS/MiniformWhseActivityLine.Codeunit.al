@@ -184,17 +184,15 @@ codeunit 7711 "Miniform Whse. Activity Line"
             exit;
         end;
 
-        with WhseActLine do begin
-            Evaluate(QtyToHandle, InputValue);
-            if QtyToHandle = Abs(QtyToHandle) then begin
-                CheckItemNo(WhseActLine, "Item No.");
-                if QtyToHandle <= "Qty. Outstanding" then
-                    Validate("Qty. to Handle", QtyToHandle)
-                else
-                    Remark := Text011;
-            end else
+        Evaluate(QtyToHandle, InputValue);
+        if QtyToHandle = Abs(QtyToHandle) then begin
+            CheckItemNo(WhseActLine, WhseActLine."Item No.");
+            if QtyToHandle <= WhseActLine."Qty. Outstanding" then
+                WhseActLine.Validate("Qty. to Handle", QtyToHandle)
+            else
                 Remark := Text011;
-        end;
+        end else
+            Remark := Text011;
     end;
 
     local procedure Reset(var WhseActLine2: Record "Warehouse Activity Line")
@@ -235,50 +233,48 @@ codeunit 7711 "Miniform Whse. Activity Line"
         QtyToPutAway: Decimal;
     begin
         WhseActLine.Copy(WhseActivLine2);
-        with WhseActLine do begin
-            SetCurrentKey("Activity Type", "No.", "Item No.", "Variant Code", "Action Type");
-            SetRange("Activity Type", "Activity Type");
-            SetRange("No.", "No.");
-            SetRange("Action Type");
+        WhseActLine.SetCurrentKey(WhseActLine."Activity Type", WhseActLine."No.", WhseActLine."Item No.", WhseActLine."Variant Code", WhseActLine."Action Type");
+        WhseActLine.SetRange("Activity Type", WhseActLine."Activity Type");
+        WhseActLine.SetRange("No.", WhseActLine."No.");
+        WhseActLine.SetRange("Action Type");
 
-            if Find('-') then
-                repeat
-                    SetRange("Item No.", "Item No.");
-                    SetRange("Variant Code", "Variant Code");
-                    SetTrackingFilterFromWhseActivityLine(WhseActLine);
+        if WhseActLine.Find('-') then
+            repeat
+                WhseActLine.SetRange("Item No.", WhseActLine."Item No.");
+                WhseActLine.SetRange("Variant Code", WhseActLine."Variant Code");
+                WhseActLine.SetTrackingFilterFromWhseActivityLine(WhseActLine);
 
-                    if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
-                       (WhseActivLine2.GetFilter("Action Type") = '')
-                    then begin
-                        SetRange("Action Type", "Action Type"::Take);
-                        if Find('-') then
-                            repeat
-                                QtyToPick := QtyToPick + "Qty. to Handle (Base)";
-                            until Next() = 0;
-                    end;
+                if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Take) or
+                   (WhseActivLine2.GetFilter("Action Type") = '')
+                then begin
+                    WhseActLine.SetRange("Action Type", WhseActLine."Action Type"::Take);
+                    if WhseActLine.Find('-') then
+                        repeat
+                            QtyToPick := QtyToPick + WhseActLine."Qty. to Handle (Base)";
+                        until WhseActLine.Next() = 0;
+                end;
 
-                    if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Place) or
-                       (WhseActivLine2.GetFilter("Action Type") = '')
-                    then begin
-                        SetRange("Action Type", "Action Type"::Place);
-                        if Find('-') then
-                            repeat
-                                QtyToPutAway := QtyToPutAway + "Qty. to Handle (Base)";
-                            until Next() = 0;
-                    end;
+                if (WhseActivLine2."Action Type" = WhseActivLine2."Action Type"::Place) or
+                   (WhseActivLine2.GetFilter("Action Type") = '')
+                then begin
+                    WhseActLine.SetRange("Action Type", WhseActLine."Action Type"::Place);
+                    if WhseActLine.Find('-') then
+                        repeat
+                            QtyToPutAway := QtyToPutAway + WhseActLine."Qty. to Handle (Base)";
+                        until WhseActLine.Next() = 0;
+                end;
 
-                    if QtyToPick <> QtyToPutAway then
-                        exit(false);
+                if QtyToPick <> QtyToPutAway then
+                    exit(false);
 
-                    SetRange("Action Type");
-                    Find('+');
-                    SetRange("Item No.");
-                    SetRange("Variant Code");
-                    ClearTrackingFilter();
-                    QtyToPick := 0;
-                    QtyToPutAway := 0;
-                until Next() = 0;
-        end;
+                WhseActLine.SetRange("Action Type");
+                WhseActLine.Find('+');
+                WhseActLine.SetRange("Item No.");
+                WhseActLine.SetRange("Variant Code");
+                WhseActLine.ClearTrackingFilter();
+                QtyToPick := 0;
+                QtyToPutAway := 0;
+            until WhseActLine.Next() = 0;
         exit(true);
     end;
 

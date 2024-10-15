@@ -79,7 +79,7 @@ codeunit 144056 "ERM Telebank Prepayment"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank Prepayment");
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if IsInitialized then
             exit;
@@ -146,10 +146,9 @@ codeunit 144056 "ERM Telebank Prepayment"
 
     local procedure GetPostedDocumentNo(NoSeries: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
-        Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));
+        exit(NoSeriesCodeunit.PeekNextNo(NoSeries));
     end;
 }
 

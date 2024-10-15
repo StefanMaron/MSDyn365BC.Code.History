@@ -60,6 +60,12 @@ page 5237 "Employee Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies a description of the employee entry.';
                 }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = BasicHR;
+                    Editable = false;
+                    ToolTip = 'Specifies the currency code for the amount on the line.';
+                }
                 field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = BasicHR;

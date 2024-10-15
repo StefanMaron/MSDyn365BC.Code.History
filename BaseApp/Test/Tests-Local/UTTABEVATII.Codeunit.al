@@ -33,7 +33,7 @@ codeunit 144046 "UT TAB EVAT II"
 
         // Setup: Test to verify error, Our Reference must start with 'OB-' in Elec. Tax Declaration Header Declaration Type='VAT Declaration',No.=''.
         Initialize();
-        OnValidateOurReferenceElecTaxDeclarationHeader(LibraryUTUtility.GetNewCode10, TableErr);  // Our Reference - with random code.
+        OnValidateOurReferenceElecTaxDeclarationHeader(LibraryUTUtility.GetNewCode10(), TableErr);  // Our Reference - with random code.
     end;
 
     [Test]
@@ -89,7 +89,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Setup.
         Initialize();
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
-        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode;
+        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode();
         ElecTaxDeclarationHeader."Declaration Period" := ElecTaxDeclarationHeader."Declaration Period"::December;  // Used Declaration Period as last month of the year.
 
         // Exercise.
@@ -245,7 +245,7 @@ codeunit 144046 "UT TAB EVAT II"
           ElecTaxDeclarationLine, ElecTaxDeclarationHeader."Declaration Type", ElecTaxDeclarationLine."Declaration No.");
 
         // Exercise.
-        asserterror ElecTaxDeclarationHeader.OnPreExport;
+        asserterror ElecTaxDeclarationHeader.OnPreExport();
 
         // Verify: Verify Expected error code, Actual error: You cannot export a Elec. Tax Declaration Header of Declaration Type ICP Declaration if there was no relevant economic activity during the declaration period.
         Assert.ExpectedErrorCode(DialogErr);
@@ -264,7 +264,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Setup.
         Initialize();
         CreateElecTaxDeclarationHeader(ElecTaxDeclarationHeader, ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
-        Name := LibraryUTUtility.GetNewCode;
+        Name := LibraryUTUtility.GetNewCode();
 
         // Exercise.
         ElecTaxDeclarationHeader.InsertLine(ElecTaxDeclarationLine."Line Type"::Element, 0, Name, Name);  // Indentation Level - 0, Name and Data.
@@ -312,11 +312,11 @@ codeunit 144046 "UT TAB EVAT II"
 
         // Setup: Update VAT Declaration Nos. and ICP Declaration Nos. on Elec. Tax Declaration Setup.
         Initialize();
-        UpdateElecTaxDeclarationSetup(ElecTaxDeclarationSetup, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode10);  // VAT Declaration Nos and ICP Declaration Nos.
+        UpdateElecTaxDeclarationSetup(ElecTaxDeclarationSetup, LibraryUTUtility.GetNewCode10(), LibraryUTUtility.GetNewCode10());  // VAT Declaration Nos and ICP Declaration Nos.
         ElecTaxDeclarationHeader."Declaration Type" := DeclarationType;
 
         // Exercise.
-        asserterror ElecTaxDeclarationHeader.TestNoSeries;
+        asserterror ElecTaxDeclarationHeader.TestNoSeries();
 
         // Verify: Verify Expected error code, Actual error: VAT Declaration Nos. or ICP Declaration Nos. must have a value in Elec. Tax Declaration Setup: Primary Key=. It cannot be zero or empty.
         Assert.ExpectedErrorCode('TestField');
@@ -455,7 +455,7 @@ codeunit 144046 "UT TAB EVAT II"
         // Setup.
         Initialize();
         CreateElecTaxDeclarationLine(
-          ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"VAT Declaration", LibraryUTUtility.GetNewCode);  // Using Random code for Elec. Tax Declaration Line - Declaration No.
+          ElecTaxDeclarationLine, ElecTaxDeclarationLine."Declaration Type"::"VAT Declaration", LibraryUTUtility.GetNewCode());  // Using Random code for Elec. Tax Declaration Line - Declaration No.
 
         // Exercise.
         asserterror ElecTaxDeclarationLine.Rename(
@@ -521,7 +521,7 @@ codeunit 144046 "UT TAB EVAT II"
         Initialize();
         ElecTaxDeclarationHeader."No." := CreateNoSeriesLine(CreateNoSeries(true));
         ElecTaxDeclarationHeader.Insert();
-        No := LibraryUTUtility.GetNewCode10;
+        No := LibraryUTUtility.GetNewCode10();
 
         // Exercise.
         ElecTaxDeclarationHeader.Rename(ElecTaxDeclarationHeader."Declaration Type", No);
@@ -545,7 +545,7 @@ codeunit 144046 "UT TAB EVAT II"
         ElecTaxDeclarationHeader.Insert();
 
         // Exercise.
-        asserterror ElecTaxDeclarationHeader.Validate("No.", LibraryUTUtility.GetNewCode);
+        asserterror ElecTaxDeclarationHeader.Validate("No.", LibraryUTUtility.GetNewCode());
 
         // Verify: Verify expected error code, actual error: You may not enter numbers manually. If you want to enter numbers manually, please activate Manual Nos. in No. Series.
         Assert.ExpectedErrorCode(DialogErr);
@@ -563,7 +563,7 @@ codeunit 144046 "UT TAB EVAT II"
         Initialize();
 
         // Exercise.
-        asserterror CompanyInformation.Validate("Fiscal Entity No.", LibraryUTUtility.GetNewCode);
+        asserterror CompanyInformation.Validate("Fiscal Entity No.", LibraryUTUtility.GetNewCode());
 
         // Verify: Verify expected error code, actual error: The entered VAT Registration number is not in agreement with the format specified for Country/Region Code NL.
         Assert.ExpectedErrorCode(DialogErr);
@@ -609,7 +609,7 @@ codeunit 144046 "UT TAB EVAT II"
     local procedure CreateElecTaxDeclarationHeader(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"; DeclarationType: Option)
     begin
         ElecTaxDeclarationHeader."Declaration Type" := DeclarationType;
-        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode;
+        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode();
         ElecTaxDeclarationHeader.Insert();
     end;
 
@@ -642,7 +642,7 @@ codeunit 144046 "UT TAB EVAT II"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries."Default Nos." := true;
         NoSeries."Manual Nos." := ManualNos;
         NoSeries.Insert();
@@ -654,7 +654,7 @@ codeunit 144046 "UT TAB EVAT II"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine."Series Code" := NoSeriesCode;
-        NoSeriesLine."Starting No." := LibraryUTUtility.GetNewCode;
+        NoSeriesLine."Starting No." := LibraryUTUtility.GetNewCode();
         NoSeriesLine.Insert();
         exit(NoSeriesLine."Starting No.");
     end;

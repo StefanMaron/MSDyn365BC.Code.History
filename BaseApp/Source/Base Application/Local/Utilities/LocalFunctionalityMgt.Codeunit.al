@@ -81,12 +81,11 @@ codeunit 11400 "Local Functionality Mgt."
     begin
         Res := CopyStr(CharacterFilter(PhoneNumber, '+0123456789'), 1, 20);
 
-        if CopyStr(Res, 1, 3) <> '+31' then begin
+        if CopyStr(Res, 1, 3) <> '+31' then
             if CopyStr(Res, 1, 4) = '0031' then
                 Res := '+31' + CopyStr(Res, 5)
             else
                 Res := '+31' + CopyStr(Res, 2);
-        end;
 
         if Res[4] = '0' then
             Res := '+31' + CopyStr(Res, 5);
@@ -97,23 +96,21 @@ codeunit 11400 "Local Functionality Mgt."
     var
         TotalAmountDecimal: Decimal;
     begin
-        with PaymentHistoryLine do begin
-            SetRange("Our Bank", PaymentHistory."Our Bank");
-            SetRange("Run No.", PaymentHistory."Run No.");
-            SetFilter(Status, '%1|%2|%3', Status::New, Status::Transmitted, Status::"Request for Cancellation");
-            LineCount := Format(Count);
+        PaymentHistoryLine.SetRange("Our Bank", PaymentHistory."Our Bank");
+        PaymentHistoryLine.SetRange("Run No.", PaymentHistory."Run No.");
+        PaymentHistoryLine.SetFilter(Status, '%1|%2|%3', PaymentHistoryLine.Status::New, PaymentHistoryLine.Status::Transmitted, PaymentHistoryLine.Status::"Request for Cancellation");
+        LineCount := Format(PaymentHistoryLine.Count);
 
-            TotalAmountDecimal := 0;
-            SetFilter("Foreign Amount", '<>0');
-            CalcSums("Foreign Amount");
-            TotalAmountDecimal += "Foreign Amount";
+        TotalAmountDecimal := 0;
+        PaymentHistoryLine.SetFilter("Foreign Amount", '<>0');
+        PaymentHistoryLine.CalcSums("Foreign Amount");
+        TotalAmountDecimal += PaymentHistoryLine."Foreign Amount";
 
-            SetFilter("Foreign Amount", '=0');
-            CalcSums(Amount);
-            TotalAmountDecimal += Amount;
+        PaymentHistoryLine.SetFilter("Foreign Amount", '=0');
+        PaymentHistoryLine.CalcSums(Amount);
+        TotalAmountDecimal += PaymentHistoryLine.Amount;
 
-            TotalAmount := Format(Abs(TotalAmountDecimal), 0, '<Precision,2:2><Standard Format,9>');
-        end;
+        TotalAmount := Format(Abs(TotalAmountDecimal), 0, '<Precision,2:2><Standard Format,9>');
     end;
 
     [Scope('OnPrem')]

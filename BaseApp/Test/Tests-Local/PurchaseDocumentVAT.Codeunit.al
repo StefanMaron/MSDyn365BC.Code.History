@@ -34,7 +34,7 @@ codeunit 144541 "Purchase Document - VAT"
         Initialize();
 
         // [GIVEN] Vendor, Our Bank Account, Purch.Invoice with the same currency = "X" and Amount = "A"
-        CurrencyCode := CreateCurrencyWithRandomExchangeRate;
+        CurrencyCode := CreateCurrencyWithRandomExchangeRate();
         Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, CurrencyCode, CurrencyCode, CurrencyCode);
 
         // [WHEN] Run Get Proposal Entries Report
@@ -58,7 +58,7 @@ codeunit 144541 "Purchase Document - VAT"
         Initialize();
 
         // [GIVEN] Vendor, Our Bank Account with no Currency, Purch.Invoice Currency = "X" and Amount = "A"
-        Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, '', '', CreateCurrencyWithRandomExchangeRate);
+        Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, '', '', CreateCurrencyWithRandomExchangeRate());
 
         // [WHEN] Run Get Proposal Entries Report
         REPORT.Run(REPORT::"Get Proposal Entries");
@@ -106,7 +106,7 @@ codeunit 144541 "Purchase Document - VAT"
         Initialize();
 
         // [GIVEN] Vendor with empty Currency, Our Bank Account, Purch.Invoice with the same Currency = "X" and Amount = "A"
-        CurrencyCode := CreateCurrencyWithRandomExchangeRate;
+        CurrencyCode := CreateCurrencyWithRandomExchangeRate();
         Amount := ScenarioPurchInvoiceWithCurrency(PurchaseHeader, '', CurrencyCode, CurrencyCode);
 
         // [WHEN] Run Get Proposal Entries Report
@@ -127,7 +127,7 @@ codeunit 144541 "Purchase Document - VAT"
     begin
         // [SCENARIO] Verify program allows to set Prices Including VAT =True on Purchase order when Check Doc. Total Amounts=True on Purchase & Payables Setup window.
         Initialize();
-        UpdatePurchasePayableSetup;
+        UpdatePurchasePayableSetup();
         CreatePurchaseDocumentWithPriceIncludingVAT(PurchaseHeader, PurchaseLine,
           PurchaseHeader."Document Type"::Order, '', '');
 
@@ -170,23 +170,23 @@ codeunit 144541 "Purchase Document - VAT"
         Amt: Decimal;
     begin
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         Amt := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Purchase Invoice with one line with G/L Account 'A'
         PurchaseInvoice.OpenNew();
-        Vendor.Get(LibraryPurchase.CreateVendorNo);
+        Vendor.Get(LibraryPurchase.CreateVendorNo());
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);
-        DocNo := PurchaseInvoice."No.".Value;
+        DocNo := PurchaseInvoice."No.".Value();
         PurchaseInvoice."Vendor Invoice No.".SetValue(DocNo);
         PurchaseInvoice.PurchLines.Type.SetValue(PurchaseInvoice.PurchLines.Type.GetOption(2));
         PurchaseInvoice.PurchLines."No.".SetValue(GLAccountNo);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(Amt);
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         // [WHEN] create the second line with G/L Account 'A', set "Direct Unit Cost" to 'X'
         PurchaseInvoice.PurchLines."No.".SetValue(GLAccountNo);
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(Amt);
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.OK().Invoke();
 
         // [THEN] "Qty. to Receive" is 1 in the second line
         VerifyPurchLineQtyToReceive(DocNo, 1);
@@ -206,8 +206,8 @@ codeunit 144541 "Purchase Document - VAT"
         SetupCheckDocTotalAmt(false);
 
         // [GIVEN] Posted Purchase Invoice "A" with Currency "X" and Posted Purchase Invoice "B" with Currency "Y" for the same Vendor
-        CurrencyCode[1] := CreateCurrencyWithRandomExchangeRate;
-        CurrencyCode[2] := CreateCurrencyWithRandomExchangeRate;
+        CurrencyCode[1] := CreateCurrencyWithRandomExchangeRate();
+        CurrencyCode[2] := CreateCurrencyWithRandomExchangeRate();
         InvoiceAmount[1] := CreatePostPurchaseInvoice(
             PurchaseHeader[1], CreateVendorWithCurrency('', CreateVendorTransactionMode('')), CurrencyCode[1]);
         InvoiceAmount[2] := CreatePostPurchaseInvoice(
@@ -238,24 +238,24 @@ codeunit 144541 "Purchase Document - VAT"
         // [FEATURE] [UI]
         // [SCENARIO 376541] Return Qty. to Ship is equal to 1 after user adds a line with G/L Account to already existing one
         Initialize();
-        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup();
         Amount := LibraryRandom.RandDec(100, 2);
 
         // [GIVEN] Purchase Credit Memo with 1 line for G/L Account
         PurchaseCrMemo.OpenNew();
         LibraryPurchase.CreateVendor(Vendor);
         PurchaseCrMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
-        DocNo := PurchaseCrMemo."No.".Value;
+        DocNo := PurchaseCrMemo."No.".Value();
         PurchaseCrMemo."Vendor Cr. Memo No.".SetValue(DocNo);
         PurchaseCrMemo.PurchLines.Type.SetValue(PurchaseCrMemo.PurchLines.Type.GetOption(2));
         PurchaseCrMemo.PurchLines."No.".SetValue(GLAccountNo);
         PurchaseCrMemo.PurchLines."Direct Unit Cost".SetValue(Amount);
 
         // [WHEN] Go to next line and set G/L Account No. and Amount
-        PurchaseCrMemo.PurchLines.New;
+        PurchaseCrMemo.PurchLines.New();
         PurchaseCrMemo.PurchLines."No.".SetValue(GLAccountNo);
         PurchaseCrMemo.PurchLines."Direct Unit Cost".SetValue(Amount);
-        PurchaseCrMemo.OK.Invoke;
+        PurchaseCrMemo.OK().Invoke();
 
         // [THEN] Second lines has "Return Qty. to Ship" = 1
         VerifyPurchLineReturnQtyToShip(DocNo, 1);
@@ -495,7 +495,7 @@ codeunit 144541 "Purchase Document - VAT"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision());
         Currency.Modify(true);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -532,7 +532,7 @@ codeunit 144541 "Purchase Document - VAT"
         with TransactionMode do begin
             LibraryNLLocalization.CreateTransactionMode(TransactionMode, "Account Type"::Vendor);
             Validate("Our Bank", CreateOurBank(CurencyCode));
-            Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode);
+            Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
             Modify(true);
             exit(Code);
         end;
@@ -555,7 +555,7 @@ codeunit 144541 "Purchase Document - VAT"
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         PurchaseHeader.Validate("VAT Base Discount %", VATBaseDiscount);
@@ -688,7 +688,7 @@ codeunit 144541 "Purchase Document - VAT"
     procedure GetProposalEntriesRequestPageHandler(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
         GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1m>', LibraryRandom.RandInt(5)), WorkDate()));
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 
     [MessageHandler]

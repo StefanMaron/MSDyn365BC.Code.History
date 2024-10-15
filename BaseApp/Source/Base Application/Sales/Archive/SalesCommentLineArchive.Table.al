@@ -11,6 +11,7 @@ table 5126 "Sales Comment Line Archive"
     Caption = 'Sales Comment Line Archive';
     DrillDownPageID = "Sales Archive Comment Sheet";
     LookupPageID = "Sales Archive Comment Sheet";
+    DataClassification = CustomerContent;
 
     fields
     {

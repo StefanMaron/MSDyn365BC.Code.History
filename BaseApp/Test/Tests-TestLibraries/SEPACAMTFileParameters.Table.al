@@ -1,5 +1,6 @@
 table 139145 "SEPA CAMT File Parameters"
 {
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -1,4 +1,4 @@
-namespace Microsoft.Finance.GeneralLedger.Account;
+﻿namespace Microsoft.Finance.GeneralLedger.Account;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.CostAccounting.Account;
@@ -30,6 +30,7 @@ table 15 "G/L Account"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Chart of Accounts";
     LookupPageID = "G/L Account List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -211,6 +212,48 @@ table 15 "G/L Account"
                     Indentation := 0;
             end;
         }
+        field(20; "Source Currency Code"; Code[10])
+        {
+            Caption = 'Currency Code';
+            TableRelation = Currency;
+            DataClassification = SystemMetadata;
+
+            trigger OnValidate()
+            var
+                GLAccountSourceCurrency: Record "G/L Account Source Currency";
+            begin
+                if "Source Currency Code" <> '' then
+                    TestField("Source Currency Posting", "Source Currency Posting"::"Same Currency");
+
+                if ("Source Currency Code" <> '') and
+                   (("Account Type" <> "Account Type"::Posting) or ("Income/Balance" <> "Income/Balance"::"Balance Sheet"))
+                then
+                    Error(CurrencyCodeErr);
+
+                if ("Source Currency Code" <> xRec."Source Currency Code") and (xRec."Source Currency Code" <> '') then begin
+                    GLAccountSourceCurrency."G/L Account No." := "No.";
+                    GLAccountSourceCurrency."Currency Code" := xRec."Source Currency Code";
+                    GLAccountSourceCurrency.CalcFields("Balance at Date", "Source Curr. Balance at Date");
+                    if (GLAccountSourceCurrency."Balance at Date" <> 0) or (GLAccountSourceCurrency."Source Curr. Balance at Date" <> 0) then
+                        Error(BalanceMustBeZeroErr);
+                end;
+
+                if "Source Currency Code" <> xRec."Source Currency Code" then
+                    GLAccountSourceCurrency.InsertRecord("No.", "Source Currency Code");
+            end;
+        }
+        field(21; "Source Currency Posting"; Enum "G/L Source Currency Posting")
+        {
+            Caption = 'Source Currency Posting';
+        }
+        field(22; "Source Currency Revaluation"; Boolean)
+        {
+            Caption = 'Source Currency Revaluation';
+        }
+        field(23; "Unrealized Revaluation"; Boolean)
+        {
+            Caption = 'Unrealized Revaluation';
+        }
         field(25; "Last Modified Date Time"; DateTime)
         {
             Caption = 'Last Modified Date Time';
@@ -244,12 +287,12 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry".Amount where("G/L Account No." = field("No."),
-                                                        "G/L Account No." = field(FILTER(Totaling)),
+                                                        "G/L Account No." = field(filter(Totaling)),
                                                         "Business Unit Code" = field("Business Unit Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                        "Posting Date" = field(UPPERLIMIT("Date Filter")),
-                                                        "VAT Reporting Date" = field(UPPERLIMIT("VAT Reporting Date Filter")),
+                                                        "Posting Date" = field(upperlimit("Date Filter")),
+                                                        "VAT Reporting Date" = field(upperlimit("VAT Reporting Date Filter")),
                                                         "Dimension Set ID" = field("Dimension Set ID Filter")));
             Caption = 'Balance at Date';
             Editable = false;
@@ -259,7 +302,7 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry".Amount where("G/L Account No." = field("No."),
-                                                        "G/L Account No." = field(FILTER(Totaling)),
+                                                        "G/L Account No." = field(filter(Totaling)),
                                                         "Business Unit Code" = field("Business Unit Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -274,7 +317,7 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Budget Entry".Amount where("G/L Account No." = field("No."),
-                                                               "G/L Account No." = field(FILTER(Totaling)),
+                                                               "G/L Account No." = field(filter(Totaling)),
                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -307,7 +350,7 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry".Amount where("G/L Account No." = field("No."),
-                                                        "G/L Account No." = field(FILTER(Totaling)),
+                                                        "G/L Account No." = field(filter(Totaling)),
                                                         "Business Unit Code" = field("Business Unit Filter"),
                                                         "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                         "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -320,11 +363,11 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Budget Entry".Amount where("G/L Account No." = field("No."),
-                                                               "G/L Account No." = field(FILTER(Totaling)),
+                                                               "G/L Account No." = field(filter(Totaling)),
                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                               Date = field(UPPERLIMIT("Date Filter")),
+                                                               Date = field(upperlimit("Date Filter")),
                                                                "Budget Name" = field("Budget Filter"),
                                                                "Dimension Set ID" = field("Dimension Set ID Filter")));
             Caption = 'Budget at Date';
@@ -432,11 +475,12 @@ table 15 "G/L Account"
             AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("G/L Entry"."Debit Amount" where("G/L Account No." = field("No."),
-                                                                "G/L Account No." = field(FILTER(Totaling)),
+                                                                "G/L Account No." = field(filter(Totaling)),
                                                                 "Business Unit Code" = field("Business Unit Filter"),
                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                 "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
                                                                 "Posting Date" = field("Date Filter"),
+                                                                "VAT Reporting Date" = field("VAT Reporting Date Filter"),
                                                                 "Dimension Set ID" = field("Dimension Set ID Filter")));
             Caption = 'Debit Amount';
             Editable = false;
@@ -447,7 +491,7 @@ table 15 "G/L Account"
             AutoFormatType = 1;
             BlankZero = true;
             CalcFormula = sum("G/L Entry"."Credit Amount" where("G/L Account No." = field("No."),
-                                                                 "G/L Account No." = field(FILTER(Totaling)),
+                                                                 "G/L Account No." = field(filter(Totaling)),
                                                                  "Business Unit Code" = field("Business Unit Filter"),
                                                                  "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                  "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -467,7 +511,7 @@ table 15 "G/L Account"
             AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
             CalcFormula = sum("G/L Budget Entry".Amount where("G/L Account No." = field("No."),
-                                                               "G/L Account No." = field(FILTER(Totaling)),
+                                                               "G/L Account No." = field(filter(Totaling)),
                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -482,7 +526,7 @@ table 15 "G/L Account"
             AutoFormatType = 1;
             BlankNumbers = BlankNegAndZero;
             CalcFormula = - sum("G/L Budget Entry".Amount where("G/L Account No." = field("No."),
-                                                                "G/L Account No." = field(FILTER(Totaling)),
+                                                                "G/L Account No." = field(filter(Totaling)),
                                                                 "Business Unit Code" = field("Business Unit Filter"),
                                                                 "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                 "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -525,7 +569,7 @@ table 15 "G/L Account"
         {
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."VAT Amount" where("G/L Account No." = field("No."),
-                                                              "G/L Account No." = field(FILTER(Totaling)),
+                                                              "G/L Account No." = field(filter(Totaling)),
                                                               "Business Unit Code" = field("Business Unit Filter"),
                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -540,7 +584,7 @@ table 15 "G/L Account"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("G/L Account No." = field("No."),
-                                                                              "G/L Account No." = field(FILTER(Totaling)),
+                                                                              "G/L Account No." = field(filter(Totaling)),
                                                                               "Business Unit Code" = field("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -555,12 +599,12 @@ table 15 "G/L Account"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("G/L Account No." = field("No."),
-                                                                              "G/L Account No." = field(FILTER(Totaling)),
+                                                                              "G/L Account No." = field(filter(Totaling)),
                                                                               "Business Unit Code" = field("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
-                                                                              "VAT Reporting Date" = field(UPPERLIMIT("VAT Reporting Date Filter")),
-                                                                              "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                                              "VAT Reporting Date" = field(upperlimit("VAT Reporting Date Filter")),
+                                                                              "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Add.-Currency Balance at Date';
             Editable = false;
             FieldClass = FlowField;
@@ -570,7 +614,7 @@ table 15 "G/L Account"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."Additional-Currency Amount" where("G/L Account No." = field("No."),
-                                                                              "G/L Account No." = field(FILTER(Totaling)),
+                                                                              "G/L Account No." = field(filter(Totaling)),
                                                                               "Business Unit Code" = field("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter")));
@@ -588,7 +632,7 @@ table 15 "G/L Account"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."Add.-Currency Debit Amount" where("G/L Account No." = field("No."),
-                                                                              "G/L Account No." = field(FILTER(Totaling)),
+                                                                              "G/L Account No." = field(filter(Totaling)),
                                                                               "Business Unit Code" = field("Business Unit Filter"),
                                                                               "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -603,7 +647,7 @@ table 15 "G/L Account"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CalcFormula = sum("G/L Entry"."Add.-Currency Credit Amount" where("G/L Account No." = field("No."),
-                                                                               "G/L Account No." = field(FILTER(Totaling)),
+                                                                               "G/L Account No." = field(filter(Totaling)),
                                                                                "Business Unit Code" = field("Business Unit Filter"),
                                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
                                                                                "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
@@ -617,6 +661,49 @@ table 15 "G/L Account"
         {
             Caption = 'Default IC Partner G/L Acc. No';
             TableRelation = "IC G/L Account"."No.";
+        }
+        field(75; "Source Currency Net Change"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            CalcFormula = sum("G/L Entry"."Source Currency Amount" where("G/L Account No." = field("No."),
+                                                                          "G/L Account No." = field(filter(Totaling)),
+                                                                          "Business Unit Code" = field("Business Unit Filter"),
+                                                                          "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                          "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                          "VAT Reporting Date" = field("VAT Reporting Date Filter"),
+                                                                          "Posting Date" = field("Date Filter")));
+            Caption = 'Source Currency Net Change';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(76; "Source Curr. Balance at Date"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            CalcFormula = sum("G/L Entry"."Source Currency Amount" where("G/L Account No." = field("No."),
+                                                                          "G/L Account No." = field(filter(Totaling)),
+                                                                          "Business Unit Code" = field("Business Unit Filter"),
+                                                                          "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                          "Global Dimension 2 Code" = field("Global Dimension 2 Filter"),
+                                                                          "VAT Reporting Date" = field(upperlimit("VAT Reporting Date Filter")),
+                                                                          "Posting Date" = field(upperlimit("Date Filter"))));
+            Caption = 'Source Curr. Balance at Date';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(77; "Source Currency Balance"; Decimal)
+        {
+            AutoFormatExpression = GetCurrencyCode();
+            AutoFormatType = 1;
+            CalcFormula = sum("G/L Entry"."Source Currency Amount" where("G/L Account No." = field("No."),
+                                                                          "G/L Account No." = field(filter(Totaling)),
+                                                                          "Business Unit Code" = field("Business Unit Filter"),
+                                                                          "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),
+                                                                          "Global Dimension 2 Code" = field("Global Dimension 2 Filter")));
+            Caption = 'Source Currency Balance';
+            Editable = false;
+            FieldClass = FlowField;
         }
         field(80; "Account Subcategory Entry No."; Integer)
         {
@@ -636,7 +723,7 @@ table 15 "G/L Account"
         }
         field(81; "Account Subcategory Descript."; Text[80])
         {
-            CalcFormula = Lookup("G/L Account Category".Description where("Entry No." = field("Account Subcategory Entry No.")));
+            CalcFormula = lookup("G/L Account Category".Description where("Entry No." = field("Account Subcategory Entry No.")));
             Caption = 'Account Subcategory Descript.';
             Editable = false;
             FieldClass = FlowField;
@@ -645,6 +732,11 @@ table 15 "G/L Account"
         {
             Caption = 'VAT Reporting Date Filter';
             FieldClass = FlowFilter;
+        }
+        field(83; "Exclude From Consolidation"; Boolean)
+        {
+            Caption = 'Exclude from Consolidation';
+            DataClassification = CustomerContent;
         }
         field(400; "Dimension Set ID Filter"; Integer)
         {
@@ -832,6 +924,8 @@ table 15 "G/L Account"
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         CannotChangeSetupOnPrepmtAccErr: Label 'You cannot change %2 on account %3 while %1 is pending prepayment.', Comment = '%2 - field caption, %3 - account number, %1 - recordId - "Sales Header: Order, 1001".';
+        CurrencyCodeErr: Label 'Currency codes are only allowed for assets and liabilities and posting account.';
+        BalanceMustBeZeroErr: Label 'In order to change the currency code, the balance of the account must be zero.';
 
     local procedure AsPriceAsset(var PriceAsset: Record "Price Asset"; PriceType: Enum "Price Type")
     begin
@@ -904,7 +998,7 @@ table 15 "G/L Account"
             if GLAccountCategory.Get("Account Subcategory Entry No.") then
                 GLAccountCategories.SetRecord(GLAccountCategory);
         GLAccountCategory.SetRange("Income/Balance", "Income/Balance");
-        if "Account Category" <> 0 then
+        if "Account Category" <> "Account Category"::" " then
             GLAccountCategory.SetRange("Account Category", "Account Category");
         GLAccountCategories.SetTableView(GLAccountCategory);
         GLAccountCategories.LookupMode(true);

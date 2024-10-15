@@ -31,7 +31,6 @@ codeunit 9033 "Invite External Accountant"
         GlobalAdministratorRoleTemplateIdTxt: Label '62e90394-69f5-4237-9190-012177145e10', Locked = true;
         UserAdministratorRoleTemplateIdTxt: Label 'fe930be7-5e62-47db-91af-98c3a49a38b1', Locked = true;
         ExternalAccountantLicenseSkuIdTxt: Label '9a1e33ed-9697-43f3-b84c-1b0959dbb1d4', Locked = true;
-        TrialViralLicenseSkuIdTxt: Label '6a4a1628-9b9a-424d-bed5-4118f0ede3fd', Locked = true;
         InviteExternalAccountantTelemetryCategoryTxt: Label 'AL Dynamics 365 Invite External Accountant', Locked = true;
         InviteExternalAccountantTelemetryStartTxt: Label 'Invite External Accountant process started.', Locked = true;
         InviteExternalAccountantTelemetryEndTxt: Label 'Invite External Accountant process ended with the following result:  %1:  License is %2.', Locked = true;
@@ -163,7 +162,7 @@ codeunit 9033 "Invite External Accountant"
                     if not JSONManagement.GetDecimalPropertyValueFromJObjectByName(JsonObject, ConsumedUnitsTxt, ConsumedUnitsValue) then
                         Error(ExternalAccountantLicenseAvailabilityErr);
                     // Check to see if there is an external accountant license available.
-                    if (SkuIdValue = ExternalAccountantLicenseSkuIdTxt) or (SkuIdValue = TrialViralLicenseSkuIdTxt) then begin
+                    if (SkuIdValue = ExternalAccountantLicenseSkuIdTxt) then begin
                         TargetLicense := SkuIdValue;
                         if not JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, PrepaidUnitsTxt, PrepaidUnitsValue) then
                             Error(ExternalAccountantLicenseAvailabilityErr);

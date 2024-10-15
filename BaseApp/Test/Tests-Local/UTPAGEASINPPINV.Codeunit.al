@@ -29,7 +29,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         // [SCENARIO] Total DocAmount fields are enabled on Invoice page if "Check Doc. Total Amounts" is on.
         Initialize();
         // [GIVEN] "Check Doc. Total Amounts" is 'Yes'
-        EnableDocTotalAmounts;
+        EnableDocTotalAmounts();
         // [GIVEN] Create Purchase Invoice.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
@@ -37,8 +37,8 @@ codeunit 144034 "UT PAG EASINPPINV"
         OpenPurchaseInvoice(PurchaseInvoicePage, PurchaseHeader."No.");
 
         // [THEN] Verify DocAmountVAT and DocAmount are enabled on Purchase Invoice.
-        Assert.IsTrue(PurchaseInvoicePage.DocAmountVAT.Enabled, MustBeEnabledMsg);
-        Assert.IsTrue(PurchaseInvoicePage.DocAmount.Enabled, MustBeEnabledMsg);
+        Assert.IsTrue(PurchaseInvoicePage.DocAmountVAT.Enabled(), MustBeEnabledMsg);
+        Assert.IsTrue(PurchaseInvoicePage.DocAmount.Enabled(), MustBeEnabledMsg);
         PurchaseInvoicePage.Close();
     end;
 
@@ -60,7 +60,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         OpenPurchaseInvoice(PurchaseInvoice, PurchaseHeader."No.");
 
         // [WHEN] Invokes Action - Statistics on Purchase Invoice page and verification of Quantity is done inside PurchaseStatisticsPageHandler.
-        PurchaseInvoice.Statistics.Invoke;  // Opens PurchaseStatisticsPageHandler.
+        PurchaseInvoice.Statistics.Invoke();  // Opens PurchaseStatisticsPageHandler.
         PurchaseInvoice.Close();
     end;
 
@@ -85,7 +85,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         OpenPurchaseInvoice(PurchaseInvoice, PurchaseHeader."No.");
 
         // [WHEN] Run action "Move Negative Purchase Lines"
-        PurchaseInvoice.MoveNegativeLines.Invoke;  // Opens - MoveNegativePurchaseLinesRequestPageHandler
+        PurchaseInvoice.MoveNegativeLines.Invoke();  // Opens - MoveNegativePurchaseLinesRequestPageHandler
 
         // [THEN] Verify Purchase Credit Memo with positive line is created.
         PurchaseLine2.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
@@ -107,7 +107,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         // [SCENARIO] Total DocAmount fields are enabled on Credit memo page if "Check Doc. Total Amounts" is on.
         Initialize();
         // [GIVEN] "Check Doc. Total Amounts" is 'Yes'
-        EnableDocTotalAmounts;
+        EnableDocTotalAmounts();
         // [GIVEN] Create Purchase Credit Memo.
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
@@ -115,8 +115,8 @@ codeunit 144034 "UT PAG EASINPPINV"
         OpenPurchaseCreditMemo(PurchaseCreditMemoPage, PurchaseHeader."No.");
 
         // [THEN] Verify DocAmountVAT and DocAmount are enabled on Purchase Credit Memo.
-        Assert.IsTrue(PurchaseCreditMemoPage.DocAmountVAT.Enabled, MustBeEnabledMsg);
-        Assert.IsTrue(PurchaseCreditMemoPage.DocAmount.Enabled, MustBeEnabledMsg);
+        Assert.IsTrue(PurchaseCreditMemoPage.DocAmountVAT.Enabled(), MustBeEnabledMsg);
+        Assert.IsTrue(PurchaseCreditMemoPage.DocAmount.Enabled(), MustBeEnabledMsg);
         PurchaseCreditMemoPage.Close();
     end;
 
@@ -124,14 +124,14 @@ codeunit 144034 "UT PAG EASINPPINV"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT PAG EASINPPINV");
         LibraryVariableStorage.Clear();
-        LibraryPurchase.DisableWarningOnCloseUnpostedDoc;
+        LibraryPurchase.DisableWarningOnCloseUnpostedDoc();
     end;
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Pay-to Vendor No." := CreateVendor;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchaseHeader."Pay-to Vendor No." := CreateVendor();
         PurchaseHeader.Insert();
     end;
 
@@ -141,7 +141,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine."No." := CreateItem;
+        PurchaseLine."No." := CreateItem();
         PurchaseLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchaseLine.Amount := LibraryRandom.RandDec(10, 2);
         PurchaseLine."Line Amount" := PurchaseLine.Quantity * PurchaseLine.Amount;
@@ -153,10 +153,10 @@ codeunit 144034 "UT PAG EASINPPINV"
         VendorPostingGroup: Record "Vendor Posting Group";
         Vendor: Record Vendor;
     begin
-        VendorPostingGroup.Code := LibraryUTUtility.GetNewCode10;
-        VendorPostingGroup."Invoice Rounding Account" := LibraryUTUtility.GetNewCode;
+        VendorPostingGroup.Code := LibraryUTUtility.GetNewCode10();
+        VendorPostingGroup."Invoice Rounding Account" := LibraryUTUtility.GetNewCode();
         VendorPostingGroup.Insert();
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Vendor Posting Group" := VendorPostingGroup.Code;
         Vendor.Insert();
         exit(Vendor."No.");
@@ -166,7 +166,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Insert();
         exit(Item."No.");
     end;
@@ -182,13 +182,13 @@ codeunit 144034 "UT PAG EASINPPINV"
 
     local procedure OpenPurchaseInvoice(var PurchaseInvoice: TestPage "Purchase Invoice"; No: Code[20])
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseCreditMemo(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; No: Code[20])
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
     end;
 
@@ -206,7 +206,7 @@ codeunit 144034 "UT PAG EASINPPINV"
     [Scope('OnPrem')]
     procedure MoveNegativePurchaseLinesRequestPageHandler(var MoveNegativePurchaseLines: TestRequestPage "Move Negative Purchase Lines")
     begin
-        MoveNegativePurchaseLines.OK.Invoke;
+        MoveNegativePurchaseLines.OK().Invoke();
     end;
 
     [ConfirmHandler]

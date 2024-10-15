@@ -11,184 +11,6 @@
       <rd:DataSourceID>c6dd82b3-8f3b-43c5-86e5-597552e7c562</rd:DataSourceID>
     </DataSource>
   </DataSources>
-  <DataSets>
-    <DataSet Name="DataSet_Result">
-      <Query>
-        <DataSourceName>DataSource</DataSourceName>
-        <CommandText />
-      </Query>
-      <Fields>
-        <Field Name="CompanyName">
-          <DataField>CompanyName</DataField>
-        </Field>
-        <Field Name="WhseActivHeaderCaption">
-          <DataField>WhseActivHeaderCaption</DataField>
-        </Field>
-        <Field Name="MovementFilter">
-          <DataField>MovementFilter</DataField>
-        </Field>
-        <Field Name="SumUpLines">
-          <DataField>SumUpLines</DataField>
-        </Field>
-        <Field Name="ShowLotSN">
-          <DataField>ShowLotSN</DataField>
-        </Field>
-        <Field Name="InvtMovement">
-          <DataField>InvtMovement</DataField>
-        </Field>
-        <Field Name="SortMethod_WhseActivHeader">
-          <DataField>SortMethod_WhseActivHeader</DataField>
-        </Field>
-        <Field Name="AssignedUserID_WhseActivHeader">
-          <DataField>AssignedUserID_WhseActivHeader</DataField>
-        </Field>
-        <Field Name="No1_WhseActivHeader">
-          <DataField>No1_WhseActivHeader</DataField>
-        </Field>
-        <Field Name="LocCode_WhseActivHeader">
-          <DataField>LocCode_WhseActivHeader</DataField>
-        </Field>
-        <Field Name="SourceDoc_WhseActivLine">
-          <DataField>SourceDoc_WhseActivLine</DataField>
-        </Field>
-        <Field Name="LocationBinMandatory">
-          <DataField>LocationBinMandatory</DataField>
-        </Field>
-        <Field Name="MovementListCaption">
-          <DataField>MovementListCaption</DataField>
-        </Field>
-        <Field Name="DueDateCaption">
-          <DataField>DueDateCaption</DataField>
-        </Field>
-        <Field Name="QtyHandledCaption">
-          <DataField>QtyHandledCaption</DataField>
-        </Field>
-        <Field Name="SourceNoCaption">
-          <DataField>SourceNoCaption</DataField>
-        </Field>
-        <Field Name="DestinationTypeCaption">
-          <DataField>DestinationTypeCaption</DataField>
-        </Field>
-        <Field Name="DestinationNoCaption">
-          <DataField>DestinationNoCaption</DataField>
-        </Field>
-        <Field Name="ItemNoCaption">
-          <DataField>ItemNoCaption</DataField>
-        </Field>
-        <Field Name="DescriptionCaption">
-          <DataField>DescriptionCaption</DataField>
-        </Field>
-        <Field Name="VariantCodeCaption">
-          <DataField>VariantCodeCaption</DataField>
-        </Field>
-        <Field Name="ShelfNoCaption">
-          <DataField>ShelfNoCaption</DataField>
-        </Field>
-        <Field Name="QuantityBaseCaption">
-          <DataField>QuantityBaseCaption</DataField>
-        </Field>
-        <Field Name="QtytoHandleCaption">
-          <DataField>QtytoHandleCaption</DataField>
-        </Field>
-        <Field Name="UOMCodeCaption">
-          <DataField>UOMCodeCaption</DataField>
-        </Field>
-        <Field Name="ActionTypeCaption">
-          <DataField>ActionTypeCaption</DataField>
-        </Field>
-        <Field Name="ZoneCodeCaption">
-          <DataField>ZoneCodeCaption</DataField>
-        </Field>
-        <Field Name="BinCodeCaption">
-          <DataField>BinCodeCaption</DataField>
-        </Field>
-        <Field Name="SourceNo_WhseActivLine">
-          <DataField>SourceNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="SourceDocumentText">
-          <DataField>SourceDocumentText</DataField>
-        </Field>
-        <Field Name="ShelfNo_WhseActivLine">
-          <DataField>ShelfNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="ItemNo_WhseActivLine">
-          <DataField>ItemNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="Description_WhseActivLine">
-          <DataField>Description_WhseActivLine</DataField>
-        </Field>
-        <Field Name="VariantCode_WhseActivLine">
-          <DataField>VariantCode_WhseActivLine</DataField>
-        </Field>
-        <Field Name="UOMCode_WhseActivLine">
-          <DataField>UOMCode_WhseActivLine</DataField>
-        </Field>
-        <Field Name="DueDate_WhseActivLine">
-          <DataField>DueDate_WhseActivLine</DataField>
-        </Field>
-        <Field Name="QtytoHandle_WhseActivLine">
-          <DataField>QtytoHandle_WhseActivLine</DataField>
-        </Field>
-        <Field Name="QtytoHandle_WhseActivLineFormat">
-          <DataField>QtytoHandle_WhseActivLineFormat</DataField>
-        </Field>
-        <Field Name="QtyBase_WhseActivLine">
-          <DataField>QtyBase_WhseActivLine</DataField>
-        </Field>
-        <Field Name="QtyBase_WhseActivLineFormat">
-          <DataField>QtyBase_WhseActivLineFormat</DataField>
-        </Field>
-        <Field Name="DestType_WhseActivLine">
-          <DataField>DestType_WhseActivLine</DataField>
-        </Field>
-        <Field Name="DestNo_WhseActivLine">
-          <DataField>DestNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="ZoneCode_WhseActivLine">
-          <DataField>ZoneCode_WhseActivLine</DataField>
-        </Field>
-        <Field Name="BinCode_WhseActivLine">
-          <DataField>BinCode_WhseActivLine</DataField>
-        </Field>
-        <Field Name="ActionType_WhseActivLine">
-          <DataField>ActionType_WhseActivLine</DataField>
-        </Field>
-        <Field Name="LotNo_WhseActivLine">
-          <DataField>LotNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="SerialNo_WhseActivLine">
-          <DataField>SerialNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="LineNo_WhseActivLine">
-          <DataField>LineNo_WhseActivLine</DataField>
-        </Field>
-        <Field Name="EmptyStringCaption">
-          <DataField>EmptyStringCaption</DataField>
-        </Field>
-        <Field Name="LotNo_WhseActivLine2">
-          <DataField>LotNo_WhseActivLine2</DataField>
-        </Field>
-        <Field Name="SerialNo_WhseActivLine2">
-          <DataField>SerialNo_WhseActivLine2</DataField>
-        </Field>
-        <Field Name="QtyBase_WhseActivLine2">
-          <DataField>QtyBase_WhseActivLine2</DataField>
-        </Field>
-        <Field Name="QtyBase_WhseActivLine2Format">
-          <DataField>QtyBase_WhseActivLine2Format</DataField>
-        </Field>
-        <Field Name="QtytoHandl_WhseActivLine2">
-          <DataField>QtytoHandl_WhseActivLine2</DataField>
-        </Field>
-        <Field Name="QtytoHandl_WhseActivLine2Format">
-          <DataField>QtytoHandl_WhseActivLine2Format</DataField>
-        </Field>
-        <Field Name="LineNo_WhseActivLine2">
-          <DataField>LineNo_WhseActivLine2</DataField>
-        </Field>
-      </Fields>
-    </DataSet>
-  </DataSets>
   <ReportSections>
     <ReportSection>
       <Body>
@@ -4053,6 +3875,7 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell>
@@ -4502,7 +4325,6 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                       <TablixCell>
@@ -11829,4 +11651,182 @@ End Function
   <ConsumeContainerWhitespace>true</ConsumeContainerWhitespace>
   <rd:ReportUnitType>Cm</rd:ReportUnitType>
   <rd:ReportID>5ce281b4-d1c0-4567-884f-41ba86d94d40</rd:ReportID>
+  <DataSets>
+    <DataSet Name="DataSet_Result">
+      <Fields>
+        <Field Name="CompanyName">
+          <DataField>CompanyName</DataField>
+        </Field>
+        <Field Name="WhseActivHeaderCaption">
+          <DataField>WhseActivHeaderCaption</DataField>
+        </Field>
+        <Field Name="MovementFilter">
+          <DataField>MovementFilter</DataField>
+        </Field>
+        <Field Name="SumUpLines">
+          <DataField>SumUpLines</DataField>
+        </Field>
+        <Field Name="ShowLotSN">
+          <DataField>ShowLotSN</DataField>
+        </Field>
+        <Field Name="InvtMovement">
+          <DataField>InvtMovement</DataField>
+        </Field>
+        <Field Name="SortMethod_WhseActivHeader">
+          <DataField>SortMethod_WhseActivHeader</DataField>
+        </Field>
+        <Field Name="AssignedUserID_WhseActivHeader">
+          <DataField>AssignedUserID_WhseActivHeader</DataField>
+        </Field>
+        <Field Name="No1_WhseActivHeader">
+          <DataField>No1_WhseActivHeader</DataField>
+        </Field>
+        <Field Name="LocCode_WhseActivHeader">
+          <DataField>LocCode_WhseActivHeader</DataField>
+        </Field>
+        <Field Name="SourceDoc_WhseActivLine">
+          <DataField>SourceDoc_WhseActivLine</DataField>
+        </Field>
+        <Field Name="LocationBinMandatory">
+          <DataField>LocationBinMandatory</DataField>
+        </Field>
+        <Field Name="MovementListCaption">
+          <DataField>MovementListCaption</DataField>
+        </Field>
+        <Field Name="DueDateCaption">
+          <DataField>DueDateCaption</DataField>
+        </Field>
+        <Field Name="QtyHandledCaption">
+          <DataField>QtyHandledCaption</DataField>
+        </Field>
+        <Field Name="SourceNoCaption">
+          <DataField>SourceNoCaption</DataField>
+        </Field>
+        <Field Name="DestinationTypeCaption">
+          <DataField>DestinationTypeCaption</DataField>
+        </Field>
+        <Field Name="DestinationNoCaption">
+          <DataField>DestinationNoCaption</DataField>
+        </Field>
+        <Field Name="ItemNoCaption">
+          <DataField>ItemNoCaption</DataField>
+        </Field>
+        <Field Name="DescriptionCaption">
+          <DataField>DescriptionCaption</DataField>
+        </Field>
+        <Field Name="VariantCodeCaption">
+          <DataField>VariantCodeCaption</DataField>
+        </Field>
+        <Field Name="ShelfNoCaption">
+          <DataField>ShelfNoCaption</DataField>
+        </Field>
+        <Field Name="QuantityBaseCaption">
+          <DataField>QuantityBaseCaption</DataField>
+        </Field>
+        <Field Name="QtytoHandleCaption">
+          <DataField>QtytoHandleCaption</DataField>
+        </Field>
+        <Field Name="UOMCodeCaption">
+          <DataField>UOMCodeCaption</DataField>
+        </Field>
+        <Field Name="ActionTypeCaption">
+          <DataField>ActionTypeCaption</DataField>
+        </Field>
+        <Field Name="ZoneCodeCaption">
+          <DataField>ZoneCodeCaption</DataField>
+        </Field>
+        <Field Name="BinCodeCaption">
+          <DataField>BinCodeCaption</DataField>
+        </Field>
+        <Field Name="SourceNo_WhseActivLine">
+          <DataField>SourceNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="SourceDocumentText">
+          <DataField>SourceDocumentText</DataField>
+        </Field>
+        <Field Name="ShelfNo_WhseActivLine">
+          <DataField>ShelfNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="ItemNo_WhseActivLine">
+          <DataField>ItemNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="Description_WhseActivLine">
+          <DataField>Description_WhseActivLine</DataField>
+        </Field>
+        <Field Name="VariantCode_WhseActivLine">
+          <DataField>VariantCode_WhseActivLine</DataField>
+        </Field>
+        <Field Name="UOMCode_WhseActivLine">
+          <DataField>UOMCode_WhseActivLine</DataField>
+        </Field>
+        <Field Name="DueDate_WhseActivLine">
+          <DataField>DueDate_WhseActivLine</DataField>
+        </Field>
+        <Field Name="QtytoHandle_WhseActivLine">
+          <DataField>QtytoHandle_WhseActivLine</DataField>
+        </Field>
+        <Field Name="QtytoHandle_WhseActivLineFormat">
+          <DataField>QtytoHandle_WhseActivLineFormat</DataField>
+        </Field>
+        <Field Name="QtyBase_WhseActivLine">
+          <DataField>QtyBase_WhseActivLine</DataField>
+        </Field>
+        <Field Name="QtyBase_WhseActivLineFormat">
+          <DataField>QtyBase_WhseActivLineFormat</DataField>
+        </Field>
+        <Field Name="DestType_WhseActivLine">
+          <DataField>DestType_WhseActivLine</DataField>
+        </Field>
+        <Field Name="DestNo_WhseActivLine">
+          <DataField>DestNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="ZoneCode_WhseActivLine">
+          <DataField>ZoneCode_WhseActivLine</DataField>
+        </Field>
+        <Field Name="BinCode_WhseActivLine">
+          <DataField>BinCode_WhseActivLine</DataField>
+        </Field>
+        <Field Name="ActionType_WhseActivLine">
+          <DataField>ActionType_WhseActivLine</DataField>
+        </Field>
+        <Field Name="LotNo_WhseActivLine">
+          <DataField>LotNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="SerialNo_WhseActivLine">
+          <DataField>SerialNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="LineNo_WhseActivLine">
+          <DataField>LineNo_WhseActivLine</DataField>
+        </Field>
+        <Field Name="EmptyStringCaption">
+          <DataField>EmptyStringCaption</DataField>
+        </Field>
+        <Field Name="LotNo_WhseActivLine2">
+          <DataField>LotNo_WhseActivLine2</DataField>
+        </Field>
+        <Field Name="SerialNo_WhseActivLine2">
+          <DataField>SerialNo_WhseActivLine2</DataField>
+        </Field>
+        <Field Name="QtyBase_WhseActivLine2">
+          <DataField>QtyBase_WhseActivLine2</DataField>
+        </Field>
+        <Field Name="QtyBase_WhseActivLine2Format">
+          <DataField>QtyBase_WhseActivLine2Format</DataField>
+        </Field>
+        <Field Name="QtytoHandl_WhseActivLine2">
+          <DataField>QtytoHandl_WhseActivLine2</DataField>
+        </Field>
+        <Field Name="QtytoHandl_WhseActivLine2Format">
+          <DataField>QtytoHandl_WhseActivLine2Format</DataField>
+        </Field>
+        <Field Name="LineNo_WhseActivLine2">
+          <DataField>LineNo_WhseActivLine2</DataField>
+        </Field>
+      </Fields>
+      <Query>
+        <DataSourceName>DataSource</DataSourceName>
+        <CommandText />
+      </Query>
+    </DataSet>
+  </DataSets>
 </Report>

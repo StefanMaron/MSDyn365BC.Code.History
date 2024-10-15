@@ -10,7 +10,7 @@ codeunit 130010 "Library - Calc. Complexity"
 
     procedure IsConstant(f1: Integer; f2: Integer): Boolean
     begin
-        exit(f2 <= f1 * Noise);
+        exit(f2 <= f1 * Noise());
     end;
 
     procedure IsLinear(x1: Decimal; x2: Decimal; x3: Decimal; f1: Decimal; f2: Decimal; f3: Decimal): Boolean
@@ -34,7 +34,7 @@ codeunit 130010 "Library - Calc. Complexity"
 
         ExpectedF3 := (a * x3) + b;
 
-        ExpectedUpperBound := ExpectedF3 * Noise;
+        ExpectedUpperBound := ExpectedF3 * Noise();
 
         exit(f3 <= ExpectedUpperBound);
     end;
@@ -59,7 +59,7 @@ codeunit 130010 "Library - Calc. Complexity"
 
         ExpectedF3 := (a * Log(x3)) + b;
 
-        ExpectedUpperBound := ExpectedF3 * Noise;
+        ExpectedUpperBound := ExpectedF3 * Noise();
 
         exit(f3 <= ExpectedUpperBound);
     end;
@@ -94,7 +94,7 @@ codeunit 130010 "Library - Calc. Complexity"
 
         ExpectedF4 := (a * x4 * Log(x4)) + (b * x4) + c;
 
-        ExpectedUpperBound := ExpectedF4 * Noise;
+        ExpectedUpperBound := ExpectedF4 * Noise();
 
         exit(f4 <= ExpectedUpperBound);
     end;
@@ -129,7 +129,7 @@ codeunit 130010 "Library - Calc. Complexity"
 
         ExpectedF4 := (a * x4 * x4) + (b * x4) + c;
 
-        ExpectedUpperBound := ExpectedF4 * Noise;
+        ExpectedUpperBound := ExpectedF4 * Noise();
 
         exit(f4 <= ExpectedUpperBound);
     end;

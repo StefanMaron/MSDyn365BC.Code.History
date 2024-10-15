@@ -36,13 +36,13 @@ page 1393 "Trial Balance"
                 group(Control44)
                 {
                     ShowCaption = false;
-                    Visible = NOT IsError;
+                    Visible = not IsError;
                     field(DescriptionCap; DescriptionCap)
                     {
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(Description1; Descriptions[1])
                     {
@@ -64,7 +64,7 @@ page 1393 "Trial Balance"
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(Description5; Descriptions[5])
                     {
@@ -81,32 +81,32 @@ page 1393 "Trial Balance"
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(Description8; Descriptions[8])
                     {
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(Description9; Descriptions[9])
                     {
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
                         Style = Strong;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                 }
                 group(Control33)
                 {
                     ShowCaption = false;
-                    Visible = NOT IsError;
+                    Visible = not IsError;
                     field("PeriodCaptionTxt[1]"; PeriodCaptionTxt[1])
                     {
                         ApplicationArea = Basic, Suite;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(CurrentPeriodValues1; Values[1, 1])
                     {
@@ -223,13 +223,13 @@ page 1393 "Trial Balance"
                 group(Control22)
                 {
                     ShowCaption = false;
-                    Visible = PeriodVisible AND (NOT IsError);
+                    Visible = PeriodVisible and (not IsError);
                     field("PeriodCaptionTxt[2]"; PeriodCaptionTxt[2])
                     {
                         ApplicationArea = All;
                         ShowCaption = false;
                         Style = StrongAccent;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                     }
                     field(CurrentPeriodMinusOneValues1; Values[1, 2])
                     {
@@ -357,7 +357,7 @@ page 1393 "Trial Balance"
                 Caption = 'Previous Period';
                 Image = PreviousRecord;
                 ToolTip = 'Show the information based on the previous period. If you set the View by field to Day, the date filter changes to the day before.';
-                Visible = NOT IsError;
+                Visible = not IsError;
 
                 trigger OnAction()
                 begin
@@ -377,7 +377,7 @@ page 1393 "Trial Balance"
                 Caption = 'Next Period';
                 Image = NextRecord;
                 ToolTip = 'Show the information based on the next period. If you set the View by field to Day, the date filter changes to the day before.';
-                Visible = NOT IsError;
+                Visible = not IsError;
 
                 trigger OnAction()
                 begin

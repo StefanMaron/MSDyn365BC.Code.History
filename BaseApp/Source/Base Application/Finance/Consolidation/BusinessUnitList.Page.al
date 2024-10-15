@@ -107,6 +107,12 @@ page 240 "Business Unit List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date on which consolidation was run.';
                 }
+                field(LastConsolidationEndingDate; LastConsolidationEndingDate)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Last Consolidation Ending Date';
+                    ToolTip = 'Specifies the ending date of the last consolidation run for this business unit.';
+                }
             }
         }
         area(factboxes)
@@ -128,10 +134,31 @@ page 240 "Business Unit List"
     {
         area(navigation)
         {
+            action(ConfigureExchangeRates)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Exchange Rates';
+                ToolTip = 'Edit the currency exchange rates used for this business unit in the next consolidation process.';
+                Image = Currencies;
+                trigger OnAction()
+                var
+                    ConsolidationCurrency: Codeunit "Consolidation Currency";
+                begin
+                    if Rec.IsEmpty() then
+                        Error(CreateBusinessUnitFirstErr);
+                    ConsolidationCurrency.ConfigureBusinessUnitCurrencies(Rec);
+                    Rec.Modify();
+                end;
+            }
+#if not CLEAN24
             group("E&xch. Rates")
             {
                 Caption = 'E&xch. Rates';
                 Image = ManualExchangeRate;
+                Visible = false;
+                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 action("Average Rate (Manual)")
                 {
                     ApplicationArea = Suite;
@@ -139,6 +166,11 @@ page 240 "Business Unit List"
                     Ellipsis = true;
                     Image = ManualExchangeRate;
                     ToolTip = 'Manage exchange rate calculations.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+
 
                     trigger OnAction()
                     begin
@@ -158,6 +190,11 @@ page 240 "Business Unit List"
                     Ellipsis = true;
                     Image = Close;
                     ToolTip = 'The currency exchange rate that is valid on the date that the balance sheet or income statement is prepared.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+
 
                     trigger OnAction()
                     begin
@@ -176,6 +213,11 @@ page 240 "Business Unit List"
                     Caption = 'Last Closing Rate';
                     Image = Close;
                     ToolTip = 'The rate that was used in the last balance sheet closing.';
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+
 
                     trigger OnAction()
                     begin
@@ -189,6 +231,7 @@ page 240 "Business Unit List"
                     end;
                 }
             }
+#endif
             group("&Reports")
             {
                 Caption = '&Reports';
@@ -231,7 +274,7 @@ page 240 "Business Unit List"
                 action("Test Database")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Test Database';
+                    Caption = 'Test Database (same environment)';
                     Ellipsis = true;
                     Image = TestDatabase;
                     RunObject = Report "Consolidation - Test Database";
@@ -253,7 +296,7 @@ page 240 "Business Unit List"
                 action("Run Consolidation")
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Run Consolidation';
+                    Caption = 'Run Consolidation (same environment)';
                     Ellipsis = true;
                     Image = ImportDatabase;
                     RunObject = Report "Import Consolidation from DB";
@@ -297,9 +340,9 @@ page 240 "Business Unit List"
                 action(ConsolidationsInProgress)
                 {
                     ApplicationArea = Suite;
-                    Caption = 'Consolidations in Progress';
+                    Caption = 'Consolidation runs status';
                     Image = JobJournal;
-                    ToolTip = 'Shows the consolidations in progress';
+                    ToolTip = 'Shows the consolidation runs.';
                     RunObject = Page "Consolidations in Progress";
                     Visible = IsSaaS;
                 }
@@ -310,25 +353,47 @@ page 240 "Business Unit List"
                     Image = Setup;
                     Tooltip = 'Setup of the consolidation parameters';
                     RunObject = Page "Consolidation Setup";
+                    Visible = IsSaaS;
                 }
             }
         }
         area(Promoted)
         {
+            actionref(ConfigureExchangeRates_Promoted; ConfigureExchangeRates)
+            {
+            }
+#if not CLEAN24
             group("Category_Exch. Rates")
             {
                 Caption = 'Exch. Rates';
+                Visible = false;
+                ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
 
                 actionref("Average Rate (Manual)_Promoted"; "Average Rate (Manual)")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref("Closing Rate_Promoted"; "Closing Rate")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
                 actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
                 {
+                    Visible = false;
+                    ObsoleteReason = 'Use the action ConfigureExchangeRates instead.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
             }
+#endif
             actionref(Setup_Promoted; Setup)
             {
             }
@@ -339,12 +404,19 @@ page 240 "Business Unit List"
     }
 
     var
+        ConsolidateBusinessUnits: Codeunit "Consolidate Business Units";
+#if not CLEAN24
         ChangeExchangeRate: Page "Change Exchange Rate";
+#endif
         CompanyName: Text;
+        LastConsolidationEndingDate: Date;
         IsSaaS: Boolean;
+        CreateBusinessUnitFirstErr: Label 'You need to create a Business Unit first to configure its exchange rates.';
+#if not CLEAN24
         Text000: Label 'Average Rate (Manual)';
         Text001: Label 'Closing Rate';
         Text002: Label 'Last Closing Rate';
+#endif
 
     trigger OnOpenPage()
     var
@@ -359,6 +431,7 @@ page 240 "Business Unit List"
             CompanyName := Rec."Company Name";
         if Rec."Default Data Import Method" = Rec."Default Data Import Method"::API then
             CompanyName := Rec."External Company Name";
+        LastConsolidationEndingDate := ConsolidateBusinessUnits.GetLastConsolidationEndingDate(Rec);
     end;
 
     procedure GetSelectionFilter(): Text

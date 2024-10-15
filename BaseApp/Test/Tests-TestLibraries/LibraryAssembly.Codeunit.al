@@ -236,7 +236,7 @@ codeunit 132207 "Library - Assembly"
         BatchPostAssemblyOrders.InitializeRequest(PostingDate, ReplacePostingDate);
         BatchPostAssemblyOrders.SetTableView(AssemblyHeader);
         if ExpectedError = '' then
-            BatchPostAssemblyOrders.RunModal
+            BatchPostAssemblyOrders.RunModal()
         else begin
             asserterror BatchPostAssemblyOrders.RunModal();
             Assert.IsTrue(StrPos(GetLastErrorText, ExpectedError) > 0, 'Actual:' + GetLastErrorText);
@@ -378,10 +378,10 @@ codeunit 132207 "Library - Assembly"
             exit(Item."Standard Cost");
         ExpectedCost := ExpectedCost * (1 + Item."Indirect Cost %" / 100) + Item."Overhead Rate";
 
-        MaterialCost := Round(MaterialCost, LibraryERM.GetUnitAmountRoundingPrecision);
-        CapacityCost := Round(CapacityCost, LibraryERM.GetUnitAmountRoundingPrecision);
-        CapOverhead := Round(CapOverhead, LibraryERM.GetUnitAmountRoundingPrecision);
-        exit(Round(ExpectedCost, LibraryERM.GetUnitAmountRoundingPrecision));
+        MaterialCost := Round(MaterialCost, LibraryERM.GetUnitAmountRoundingPrecision());
+        CapacityCost := Round(CapacityCost, LibraryERM.GetUnitAmountRoundingPrecision());
+        CapOverhead := Round(CapOverhead, LibraryERM.GetUnitAmountRoundingPrecision());
+        exit(Round(ExpectedCost, LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
     procedure CalcExpectedPrice(ParentItemNo: Code[20]): Decimal
@@ -414,7 +414,7 @@ codeunit 132207 "Library - Assembly"
 
         if ExpectedPrice = 0 then
             exit(Item."Unit Price");
-        exit(Round(ExpectedPrice, LibraryERM.GetUnitAmountRoundingPrecision));
+        exit(Round(ExpectedPrice, LibraryERM.GetUnitAmountRoundingPrecision()));
     end;
 
     [Normal]
@@ -461,12 +461,12 @@ codeunit 132207 "Library - Assembly"
             exit((Item."Standard Cost" * (100 + Item."Indirect Cost %") / 100 + Item."Overhead Rate") *
               AssemblyHeader.Quantity * AssemblyHeader."Qty. per Unit of Measure");
 
-        MaterialCost := Round(MaterialCost, LibraryERM.GetAmountRoundingPrecision);
-        ResourceCost := Round(ResourceCost, LibraryERM.GetAmountRoundingPrecision);
-        ResourceOvhd := Round(ResourceOvhd, LibraryERM.GetAmountRoundingPrecision);
-        AssemblyOvhd := Round(AssemblyOvhd, LibraryERM.GetAmountRoundingPrecision);
+        MaterialCost := Round(MaterialCost, LibraryERM.GetAmountRoundingPrecision());
+        ResourceCost := Round(ResourceCost, LibraryERM.GetAmountRoundingPrecision());
+        ResourceOvhd := Round(ResourceOvhd, LibraryERM.GetAmountRoundingPrecision());
+        AssemblyOvhd := Round(AssemblyOvhd, LibraryERM.GetAmountRoundingPrecision());
         ExpectedCost := MaterialCost + ResourceCost + ResourceOvhd + AssemblyOvhd;
-        exit(Round(ExpectedCost, LibraryERM.GetAmountRoundingPrecision));
+        exit(Round(ExpectedCost, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     [Normal]
@@ -651,13 +651,13 @@ codeunit 132207 "Library - Assembly"
     begin
         if AssemblySetup."Assembly Order Nos." = '' then
             AssemblySetup.Validate("Assembly Order Nos.",
-              LibraryUtility.GetGlobalNoSeriesCode);
+              LibraryUtility.GetGlobalNoSeriesCode());
         if AssemblySetup."Posted Assembly Order Nos." = '' then
-            AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            AssemblySetup.Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if AssemblySetup."Assembly Quote Nos." = '' then
-            AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            AssemblySetup.Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         if AssemblySetup."Blanket Assembly Order Nos." = '' then
-            AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            AssemblySetup.Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Default Location for Orders", LocationCode);
         AssemblySetup.Validate("Copy Component Dimensions from", DimensionsFrom);
         AssemblySetup.Validate("Posted Assembly Order Nos.", PostedOrdersNo);
@@ -938,7 +938,6 @@ codeunit 132207 "Library - Assembly"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        AssemblyLine: Record "Assembly Line";
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
         Resource: Record Resource;
@@ -988,7 +987,7 @@ codeunit 132207 "Library - Assembly"
     end;
 
     [Normal]
-    procedure CreateItemWithSKU(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; CreatePer: Option Location,Variant,"Location & Variant"; GenProdPostingGr: Code[20]; InvtPostingGr: Code[20]; LocationCode: Code[10])
+    procedure CreateItemWithSKU(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; CreatePer: Enum "SKU Creation Method"; GenProdPostingGr: Code[20]; InvtPostingGr: Code[20]; LocationCode: Code[10])
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -1335,7 +1334,6 @@ codeunit 132207 "Library - Assembly"
     var
         Resource: Record Resource;
         Item: Record Item;
-        AssemblyLine: Record "Assembly Line";
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         case Type of
@@ -1559,22 +1557,41 @@ codeunit 132207 "Library - Assembly"
     end;
 
     procedure NeedsAdjustment(var AdjUnitCost: Decimal; Item: Record Item; PostedAssemblyLine: Record "Posted Assembly Line"; FinalAdjSource: Option; UnitCost: Decimal): Boolean
+    begin
+        if FinalAdjSource = AdjSource::Revaluation then
+            AdjUnitCost := GetDirectUnitCost(Item."No.") - PostedAssemblyLine."Unit Cost"
+        else
+            AdjUnitCost := GetInboundItemCost(Item."No.") - PostedAssemblyLine."Unit Cost";
+
+        exit(
+            Item."Cost is Adjusted" and
+            (Abs(AdjUnitCost) > LibraryERM.GetAmountRoundingPrecision()) and
+            (Abs(AdjUnitCost * PostedAssemblyLine.Quantity) >= LibraryERM.GetAmountRoundingPrecision())
+        );
+    end;
+
+    local procedure GetInboundItemCost(ItemNo: Code[20]): Decimal
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
+        ItemLedgerEntry.SetLoadFields(Quantity, "Cost Amount (Actual)", "Remaining Quantity");
+        ItemLedgerEntry.SetAutoCalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.FindFirst();
+        exit(ItemLedgerEntry.GetUnitCostLCY());
+    end;
+
+    local procedure GetDirectUnitCost(ItemNo: Code[20]): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
-        AdjUnitCost := UnitCost - PostedAssemblyLine."Unit Cost";
-
-        ValueEntry.Reset();
-        ValueEntry.SetRange("Item No.", Item."No.");
-        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
-        if ValueEntry.FindFirst() and (FinalAdjSource = AdjSource::Revaluation) then
-            AdjUnitCost -= ValueEntry."Cost per Unit";
-
-        exit(
-          Item."Cost is Adjusted" and
-          (Abs(AdjUnitCost) > LibraryERM.GetAmountRoundingPrecision) and
-          (Abs(AdjUnitCost * PostedAssemblyLine.Quantity) >= LibraryERM.GetAmountRoundingPrecision)
-          )
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Entry Type", ValueEntry."Item Ledger Entry Type"::"Positive Adjmt.");
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetLoadFields("Cost per Unit");
+        ValueEntry.FindFirst();
+        exit(ValueEntry."Cost per Unit");
     end;
 
     [Normal]
@@ -1657,16 +1674,15 @@ codeunit 132207 "Library - Assembly"
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Revaluation, ItemJournalTemplate.Name);
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::Purchase, Item."No.", 0);
         Item.SetRange("No.", Item."No.");
-        LibraryCosting.CreateRevaluationJnlLines(Item, ItemJournalLine, ItemJournalLine."Document No.", CalculatePer::Item,
-          CalculationBase::" ", true, true, true, PostingDate);
+        LibraryCosting.CreateRevaluationJnlLines(
+            Item, ItemJournalLine, ItemJournalLine."Document No.", "Inventory Value Calc. Per"::Item,
+            "Inventory Value Calc. Base"::" ", true, true, true, PostingDate);
 
         ItemJournalLine.Reset();
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
@@ -1679,12 +1695,12 @@ codeunit 132207 "Library - Assembly"
 
     procedure RollUpAsmCost(var SalesLine: Record "Sales Line")
     begin
-        SalesLine.RollUpAsmCost;
+        SalesLine.RollUpAsmCost();
     end;
 
     procedure RollUpAsmPrice(var SalesLine: Record "Sales Line")
     begin
-        SalesLine.RollupAsmPrice;
+        SalesLine.RollupAsmPrice();
     end;
 
     [Normal]
@@ -1860,7 +1876,7 @@ codeunit 132207 "Library - Assembly"
     begin
         Commit();
         if AssemblyHeader.Quantity = 0 then begin
-            asserterror AssemblyHeader.UpdateUnitCost;
+            asserterror AssemblyHeader.UpdateUnitCost();
             Assert.AreEqual(
               StrSubstNo(ErrorZeroQty, AssemblyHeader."No."), GetLastErrorText,
               'Actual:' + GetLastErrorText + '; Expected:' + StrSubstNo(ErrorZeroQty, AssemblyHeader."No."));
@@ -1870,9 +1886,9 @@ codeunit 132207 "Library - Assembly"
 
         Item.Get(AssemblyHeader."Item No.");
         if Item."Costing Method" <> Item."Costing Method"::Standard then
-            AssemblyHeader.UpdateUnitCost
+            AssemblyHeader.UpdateUnitCost()
         else begin
-            asserterror AssemblyHeader.UpdateUnitCost;
+            asserterror AssemblyHeader.UpdateUnitCost();
             Assert.IsTrue(StrPos(GetLastErrorText, ErrorStdCost) > 0, 'Actual:' + GetLastErrorText + '; Expected:' + ErrorStdCost);
             ClearLastError();
         end;
@@ -1885,8 +1901,7 @@ codeunit 132207 "Library - Assembly"
     begin
         AssemblySetup.Get();
         if AssemblySetup."Assembly Order Nos." = '' then
-            AssemblySetup.Validate("Assembly Order Nos.",
-              LibraryUtility.GetGlobalNoSeriesCode);
+            AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssemblySetup.Validate("Copy Component Dimensions from", DimensionsFrom);
         AssemblySetup.Validate("Default Location for Orders", LocationCode);
         AssemblySetup.Validate("Posted Assembly Order Nos.", PostedOrdersNos);
@@ -2053,7 +2068,6 @@ codeunit 132207 "Library - Assembly"
             DimensionSetEntry.SetRange("Dimension Value Code", DefaultDimension."Dimension Value Code");
             Assert.AreEqual(
               1, DimensionSetEntry.Count, 'Wrong no. of dimension set entries for dimension ' + Format(DefaultDimension."Dimension Code"));
-            DimensionSetEntry.FindFirst();
         until DefaultDimension.Next() = 0;
     end;
 
@@ -2341,8 +2355,8 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of output value entries for item' + AssemblyHeader."Item No.");
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
-            LibraryERM.GetAmountRoundingPrecision),
-          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for header.');
+            LibraryERM.GetAmountRoundingPrecision()),
+          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for header.');
 
         // Consumption value entries for items.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
@@ -2363,7 +2377,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(
                   TempAssemblyLine."Cost Amount" * Round(TempAssemblyLine."Quantity to Consume" / TempAssemblyLine.Quantity),
-                  -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+                  -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
                   'Wrong value entry cost amount for item ' + TempAssemblyLine."No.");
             until TempAssemblyLine.Next() = 0;
 
@@ -2388,7 +2402,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, ValueEntry."Cost Amount (Actual)",
-                  LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
+                  LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
             until TempAssemblyLine.Next() = 0;
     end;
 
@@ -2424,8 +2438,8 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.FindFirst();
 
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
-            LibraryERM.GetAmountRoundingPrecision),
-          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for header.');
+            LibraryERM.GetAmountRoundingPrecision()),
+          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for header.');
     end;
 
     [Normal]
@@ -2458,8 +2472,8 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of output value entries for item' + AssemblyHeader."Item No.");
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
-            LibraryERM.GetAmountRoundingPrecision),
-          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for header.');
+            LibraryERM.GetAmountRoundingPrecision()),
+          ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for header.');
 
         // Consumption value entries for items.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
@@ -2479,8 +2493,8 @@ codeunit 132207 "Library - Assembly"
                 Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of consumpt. value entries for item' + TempAssemblyLine."No.");
                 ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(Round(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
-                    TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision),
-                  -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+                    TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision()),
+                  -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
                   'Wrong value entry cost amount for item ' + TempAssemblyLine."No.");
             until TempAssemblyLine.Next() = 0;
 
@@ -2505,7 +2519,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, ValueEntry."Cost Amount (Actual)",
-                  LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
+                  LibraryERM.GetAmountRoundingPrecision(), 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
             until TempAssemblyLine.Next() = 0;
     end;
 
@@ -2555,8 +2569,8 @@ codeunit 132207 "Library - Assembly"
                 Assert.AreEqual(1, ResLedgerEntry.Count, 'Wrong no. of res ledger entries for res. ' + TempAssemblyLine."No.");
                 ResLedgerEntry.FindFirst();
                 Assert.AreNearlyEqual(Round(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
-                    TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision), ResLedgerEntry."Total Cost",
-                  LibraryERM.GetAmountRoundingPrecision, 'Wrong Res. Ledger Cost amount for res. ' + TempAssemblyLine."No.")
+                    TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision()), ResLedgerEntry."Total Cost",
+                  LibraryERM.GetAmountRoundingPrecision(), 'Wrong Res. Ledger Cost amount for res. ' + TempAssemblyLine."No.")
             until TempAssemblyLine.Next() = 0;
     end;
 
@@ -2606,7 +2620,7 @@ codeunit 132207 "Library - Assembly"
                 CapacityLedgerEntry.CalcFields("Direct Cost");
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, CapacityLedgerEntry."Direct Cost",
-                  LibraryERM.GetAmountRoundingPrecision, 'Wrong Cap. Ledger Cost amount for res. ' + TempAssemblyLine."No.")
+                  LibraryERM.GetAmountRoundingPrecision(), 'Wrong Cap. Ledger Cost amount for res. ' + TempAssemblyLine."No.")
             until TempAssemblyLine.Next() = 0;
     end;
 
@@ -2959,7 +2973,7 @@ codeunit 132207 "Library - Assembly"
             repeat
                 ActualAmount += GLEntry.Amount;
             until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, 'Account:' + AccountNo);
+        Assert.AreNearlyEqual(Amount, ActualAmount, LibraryERM.GetAmountRoundingPrecision(), 'Account:' + AccountNo);
     end;
 
     [Normal]
@@ -2979,20 +2993,19 @@ codeunit 132207 "Library - Assembly"
           ValueEntry."Item Ledger Entry Type"::"Assembly Consumption");
         ValueEntry.SetRange(Adjustment, true);
 
-        if NeedsAdjustment(AdjUnitCost, Item, PostedAssemblyLine, FinalAdjSource, UnitCost)
-        then begin
+        if NeedsAdjustment(AdjUnitCost, Item, PostedAssemblyLine, FinalAdjSource, UnitCost) then begin
             Assert.AreEqual(1, ValueEntry.Count, 'Different than 1 entry for comp. item no. ' + PostedAssemblyLine."No.");
             ValueEntry.FindFirst();
             Assert.AreNearlyEqual(Abs(AdjUnitCost), Abs(ValueEntry."Cost per Unit"),
-              LibraryERM.GetAmountRoundingPrecision, 'Wrong unit cost for adj.');
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong unit cost for adj.');
             // Currently system's absolute error for "Cost Amount (Actual)" depends on ValueEntry."Valued Quantity" and GLSetup."Unit-amount rounding precision"
             Assert.AreNearlyEqual(
               ValueEntry."Cost Amount (Actual)", ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity",
-              LibraryERM.GetUnitAmountRoundingPrecision * ValueEntry."Valued Quantity",
+              LibraryERM.GetUnitAmountRoundingPrecision() * ValueEntry."Valued Quantity",
               'Wrong adj. entry cost amount.');
         end else begin
             // For differences in adj. amount less than 0.01, eliminate rounding adjustment entries.
-            ValueEntry.SetFilter("Cost Amount (Actual)", '>%1', LibraryERM.GetAmountRoundingPrecision);
+            ValueEntry.SetFilter("Cost Amount (Actual)", '>%1', LibraryERM.GetAmountRoundingPrecision());
             Assert.IsTrue(ValueEntry.IsEmpty, 'Unexpected adj. entries for comp item no. ' + PostedAssemblyLine."No.");
         end;
     end;
@@ -3048,11 +3061,11 @@ codeunit 132207 "Library - Assembly"
             ValueEntry.FindFirst();
             Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of adjustment entries for header.');
             Assert.AreNearlyEqual(-AdjAmount, ValueEntry."Cost Amount (Actual)",
-              LibraryERM.GetAmountRoundingPrecision, 'Wrong header adj. entry cost amount.');
+              LibraryERM.GetAmountRoundingPrecision(), 'Wrong header adj. entry cost amount.');
             // Currently system's absolute error for "Cost Amount (Actual)" depends on ValueEntry."Valued Quantity" and GLSetup."Unit-amount rounding precision"
             Assert.AreNearlyEqual(
               ValueEntry."Cost Amount (Actual)", ValueEntry."Cost per Unit" * ValueEntry."Valued Quantity",
-              LibraryERM.GetUnitAmountRoundingPrecision * ValueEntry."Valued Quantity",
+              LibraryERM.GetUnitAmountRoundingPrecision() * ValueEntry."Valued Quantity",
               'Wrong header adj. entry cost per unit.');
         end else
             Assert.IsTrue(ValueEntry.IsEmpty, 'Unexpected adj. entries for header ' + PostedAssemblyHeader."No.");
@@ -3073,7 +3086,7 @@ codeunit 132207 "Library - Assembly"
             repeat
                 ActualVarianceAmount += ValueEntry."Cost Amount (Actual)";
             until ValueEntry.Next() = 0;
-            Assert.AreNearlyEqual(VarianceAmount, ActualVarianceAmount, LibraryERM.GetAmountRoundingPrecision,
+            Assert.AreNearlyEqual(VarianceAmount, ActualVarianceAmount, LibraryERM.GetAmountRoundingPrecision(),
               'Wrong variance entry cost amount for header.');
         end else
             Assert.IsTrue(ValueEntry.IsEmpty, 'Unexpected variance entry for ' + PostedAssemblyHeader."No.");
@@ -3108,7 +3121,7 @@ codeunit 132207 "Library - Assembly"
           GetValueEntriesAmount(PostedAssemblyHeader, ValueEntry."Item Ledger Entry Type"::"Assembly Output",
             ValueEntry."Entry Type"::"Indirect Cost", ValueEntry."Variance Type"::" ", PostedAssemblyHeader."Item No.", false);
 
-        Assert.AreNearlyEqual(IndirectCostAmount, ActualIndirectCostAmount, LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(IndirectCostAmount, ActualIndirectCostAmount, LibraryERM.GetAmountRoundingPrecision(),
           'Wrong Output indirect cost');
 
         // Resource component indirect cost.
@@ -3126,7 +3139,7 @@ codeunit 132207 "Library - Assembly"
                 FindLineValueEntries(ValueEntry, PostedAssemblyLine, ValueEntry."Entry Type"::"Indirect Cost",
                   ValueEntry."Item Ledger Entry Type"::" ");
                 if ValueEntry.FindFirst() then
-                    Assert.AreNearlyEqual(IndirectCostAmount, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
+                    Assert.AreNearlyEqual(IndirectCostAmount, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
                       'Wrong component indirect cost');
             until PostedAssemblyLine.Next() = 0;
     end;
@@ -3147,17 +3160,17 @@ codeunit 132207 "Library - Assembly"
                 if AssemblyLine."Resource Usage Type" <> AssemblyLine."Resource Usage Type"::Fixed then begin
                     Assert.AreNearlyEqual(AssemblyHeader.Quantity * AssemblyHeader."Qty. per Unit of Measure" *
                       AssemblyLine."Quantity per", AssemblyLine.Quantity,
-                      LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong partial line quantity.');
+                      LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong partial line quantity.');
                     Assert.AreNearlyEqual(
                       AssemblyHeader."Remaining Quantity" * AssemblyHeader."Qty. per Unit of Measure" * AssemblyLine."Quantity per",
                       AssemblyLine."Quantity to Consume",
-                      LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong partial line qty. to consume.');
+                      LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong partial line qty. to consume.');
                 end else begin
                     Assert.AreNearlyEqual(AssemblyLine."Quantity per", AssemblyLine.Quantity,
-                      LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong partial line qty. - fixed.');
+                      LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong partial line qty. - fixed.');
                     Assert.AreNearlyEqual(
                       AssemblyLine.Quantity - AssemblyLine."Consumed Quantity", AssemblyLine."Quantity to Consume",
-                      LibraryERM.GetUnitAmountRoundingPrecision, 'Wrong partial line qty. to consume - fixed.');
+                      LibraryERM.GetUnitAmountRoundingPrecision(), 'Wrong partial line qty. to consume - fixed.');
                 end;
             until AssemblyLine.Next() = 0;
         end;
@@ -3187,7 +3200,7 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, PostedAssemblyHeader.Count, 'Wrong no. of posted assembly order records!');
         PostedAssemblyHeader.FindFirst();
         Assert.AreNearlyEqual(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity, PostedAssemblyHeader."Cost Amount",
-          LibraryERM.GetAmountRoundingPrecision, 'Wrong posted cost amount.');
+          LibraryERM.GetAmountRoundingPrecision(), 'Wrong posted cost amount.');
         if TempAssemblyLine.FindSet() then
             repeat
                 PostedAssemblyLine.Reset();
@@ -3211,7 +3224,7 @@ codeunit 132207 "Library - Assembly"
                 if TempAssemblyLine.Type <> TempAssemblyLine.Type::" " then
                     Assert.AreNearlyEqual(
                       TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" / TempAssemblyLine.Quantity,
-                      PostedAssemblyLine."Cost Amount", LibraryERM.GetAmountRoundingPrecision, 'Wrong posted line cost amount.');
+                      PostedAssemblyLine."Cost Amount", LibraryERM.GetAmountRoundingPrecision(), 'Wrong posted line cost amount.');
             until TempAssemblyLine.Next() = 0;
     end;
 
@@ -3384,17 +3397,17 @@ codeunit 132207 "Library - Assembly"
             until AssemblyLine.Next() = 0;
 
         ReturnQtyAvailable := Proportion;
-        with AsmHeader do begin
-            EarliestDueDate := 0D;
-            if EarliestStartingDate > 0D then begin
-                EarliestEndingDate := // earliest starting date + lead time calculation
-                  LeadTimeMgt.PlannedEndingDate("Item No.", "Location Code", "Variant Code",
-                    '', LeadTimeMgt.ManufacturingLeadTime("Item No.", "Location Code", "Variant Code"),
-                    ReqLine."Ref. Order Type"::Assembly, EarliestStartingDate);
-                EarliestDueDate := // earliest ending date + (default) safety lead time
-                  LeadTimeMgt.PlannedDueDate("Item No.", "Location Code", "Variant Code",
-                    EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
-            end;
+        EarliestDueDate := 0D;
+        if EarliestStartingDate > 0D then begin
+            EarliestEndingDate :=
+              // earliest starting date + lead time calculation
+              LeadTimeMgt.PlannedEndingDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+                '', LeadTimeMgt.ManufacturingLeadTime(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code"),
+                ReqLine."Ref. Order Type"::Assembly, EarliestStartingDate);
+            EarliestDueDate :=
+              // earliest ending date + (default) safety lead time
+              LeadTimeMgt.PlannedDueDate(AsmHeader."Item No.", AsmHeader."Location Code", AsmHeader."Variant Code",
+                EarliestEndingDate, '', ReqLine."Ref. Order Type"::Assembly);
         end;
     end;
 

@@ -41,8 +41,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Document No.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::"Bank/Giro", CreateVendorLedgerEntry,
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::"Bank/Giro", CreateVendorLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -56,8 +56,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line without Document No.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::Cash, CreateCustomerLedgerEntry, '',
-          LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::Cash, CreateCustomerLedgerEntry(), '',
+          LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode(), '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -71,8 +71,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Customer, Bank Type "Bank/Giro", Applies To Document No. and Identification Blank.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::"Bank/Giro", CreateCustomerLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::"Bank/Giro", CreateCustomerLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -86,8 +86,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Customer, Bank Type Cash, Applies To Document No. and Identification Blank.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::Cash, CreateCustomerLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::Cash, CreateCustomerLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -101,8 +101,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Vendor, Bank Type "Bank/Giro", Applies To Document No. and Identification Blank.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::"Bank/Giro", CreateVendorLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::"Bank/Giro", CreateVendorLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -116,8 +116,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Vendor, Bank Type Cash, Applies To Document No. and Identification Blank.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::Cash, CreateVendorLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::Cash, CreateVendorLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', LibraryRandom.RandInt(10), true);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -131,8 +131,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Vendor, VAT Percent 0 and Amount Incl VAT False.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::Cash, CreateVendorLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', 0, false);  // Taking VAT Percent 0.
+          CBGStatementLine."Account Type"::Vendor, CBGStatement.Type::Cash, CreateVendorLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', 0, false);  // Taking VAT Percent 0.
     end;
 
     [Test]
@@ -146,8 +146,8 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         // Purpose of this test case to validate CBG Statement and CBG Statement Line with Account Type Vendor, Random VAT Percent and Amount Incl VAT False.
         CBGPostingTestFromCBGStatement(
-          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::"Bank/Giro", CreateCustomerLedgerEntry,
-          LibraryUTUtility.GetNewCode, '', '', '', LibraryRandom.RandInt(10), false);  // Taking Random VAT Percent.
+          CBGStatementLine."Account Type"::Customer, CBGStatement.Type::"Bank/Giro", CreateCustomerLedgerEntry(),
+          LibraryUTUtility.GetNewCode(), '', '', '', LibraryRandom.RandInt(10), false);  // Taking Random VAT Percent.
     end;
 
     [Test]
@@ -191,9 +191,9 @@ codeunit 144010 "UT REP Cash Bank Giro"
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
 
         // [THEN] Line with "Applied Amount" = "--" is hidden off Applied Entry section.
-        VerifyCBGEntryApplyIDLineInvisible;
+        VerifyCBGEntryApplyIDLineInvisible();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Line with "Applied Amount" = "--" is visible in Applied Entry section.
         VerifyCBGCustEntryApplyIDLineVisible(CustLedgerEntry);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -282,9 +282,9 @@ codeunit 144010 "UT REP Cash Bank Giro"
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
 
         // [THEN] Line with "Applied Amount" = "--" is hidden off Applied Entry section.
-        VerifyCBGEntryApplyIDLineInvisible;
+        VerifyCBGEntryApplyIDLineInvisible();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -329,7 +329,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Line with "Applied Amount" = "--" is visible in Applied Entry section.
         VerifyCBGVendorEntryApplyIDLineVisible(VendorLedgerEntry);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -372,9 +372,9 @@ codeunit 144010 "UT REP Cash Bank Giro"
         RunCBGPostingTestReport(CBGStatement."No.", CBGStatement."Journal Template Name", true);
 
         // [THEN] Line with "Applied Amount" = "--" is hidden off Applied Entry section.
-        VerifyCBGEntryApplyIDLineInvisible;
+        VerifyCBGEntryApplyIDLineInvisible();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -418,7 +418,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Line with "Applied Amount" = "--" is visible in Applied Entry section.
         VerifyCBGEmplEntryApplyIDLineVisible(EmployeeLedgerEntry);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -471,7 +471,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Zero decimals for "Applied Amount" are shown in Applied Entry section.
         VerifyAppliedAmountZeroDecimalsAreShown(DetailLine.Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -524,7 +524,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Zero decimals for "Applied Amount" are shown in Applied Entry section.
         VerifyAppliedAmountZeroDecimalsAreShown(DetailLine.Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -576,7 +576,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         // [THEN] Zero decimals for "Applied Amount" are shown in Applied Entry section.
         VerifyAppliedAmountZeroDecimalsAreShown(DetailLine.Amount);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure CBGPostingTestFromCBGStatement(AccountType: Option; Type: Option; AccountNo: Code[20]; DocumentNo: Code[20]; AppliesToDocNo: Code[20]; AppliesToID: Code[50]; Identification: Code[20]; VATPercent: Integer; AmountInclVAT: Boolean)
@@ -724,7 +724,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         CBGStatement.Date := WorkDate();
         CBGStatement.Type := Type;
         CBGStatement."Document No." := DocumentNo;
-        CBGStatement.Currency := LibraryUTUtility.GetNewCode10;
+        CBGStatement.Currency := LibraryUTUtility.GetNewCode10();
         CBGStatement.Insert();
     end;
 
@@ -756,7 +756,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Customer No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Customer No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry.Insert();
     end;
 
@@ -772,7 +772,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry."Vendor No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Vendor No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry.Insert();
     end;
 
@@ -780,7 +780,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     begin
         EmployeeLedgerEntry.Init();
         EmployeeLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(EmployeeLedgerEntry, EmployeeLedgerEntry.FieldNo("Entry No."));
-        EmployeeLedgerEntry."Employee No." := LibraryUTUtility.GetNewCode;
+        EmployeeLedgerEntry."Employee No." := LibraryUTUtility.GetNewCode();
         EmployeeLedgerEntry.Insert();
     end;
 
@@ -854,7 +854,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
     local procedure RunCBGPostingTestReport(CBGStatementNo: Integer; JnlTemplateName: Code[10]; ShowAppliedEntries: Boolean)
     begin
         Commit();
-        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName);
+        LibraryVariableStorage.Enqueue(LibraryReportValidation.GetFileName());
         LibraryVariableStorage.Enqueue(CBGStatementNo);
         LibraryVariableStorage.Enqueue(JnlTemplateName);
         LibraryVariableStorage.Enqueue(ShowAppliedEntries);
@@ -863,7 +863,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
 
     local procedure VerifyCBGDataOnReport(CBGStatement: Record "CBG Statement"; AccountNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('No_CBGStmt', CBGStatement."No.");
         LibraryReportDataset.AssertElementWithValueExists('AccNo_CBGStmt', CBGStatement."Account No.");
         LibraryReportDataset.AssertElementWithValueExists('JnlTmpltName_CBGStmt', CBGStatement."Journal Template Name");
@@ -882,7 +882,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         DocDateColNo: Integer;
         AppliedAmountColNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         AppliedEntryCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Applied Entries');
         FirstAppliedEntryRowNo := AppliedEntryCaptionRowNo + 2;
 
@@ -922,7 +922,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         DocDateColNo: Integer;
         AppliedAmountColNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         AppliedEntryCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Applied Entries');
         FirstAppliedEntryRowNo := AppliedEntryCaptionRowNo + 2;
 
@@ -962,7 +962,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         DocDateColNo: Integer;
         AppliedAmountColNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         AppliedEntryCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Applied Entries');
         FirstAppliedEntryRowNo := AppliedEntryCaptionRowNo + 2;
 
@@ -1002,7 +1002,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         DocDateColNo: Integer;
         AppliedAmountColNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         AppliedEntryCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Applied Entries');
         FirstAppliedEntryRowNo := AppliedEntryCaptionRowNo + 2;
 
@@ -1037,7 +1037,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         AppliedAmountColNo: Integer;
         AppliedEntryDetailRowNo: Integer;
     begin
-        LibraryReportValidation.OpenExcelFile;
+        LibraryReportValidation.OpenExcelFile();
         AppliedEntryCaptionRowNo := LibraryReportValidation.FindRowNoFromColumnCaption('Applied Entries');
         AppliedAmountColNo :=
           LibraryReportValidation.FindColumnNoFromColumnCaptionInsideArea(
@@ -1054,10 +1054,10 @@ codeunit 144010 "UT REP Cash Bank Giro"
     [Scope('OnPrem')]
     procedure CBGPostingTestRequestPageHandler(var CBGPostingTest: TestRequestPage "CBG Posting - Test")
     begin
-        CBGPostingTest."CBG Statement".SetFilter("No.", Format(LibraryVariableStorage.DequeueInteger));
-        CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean);
-        CBGPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CBGPostingTest."CBG Statement".SetFilter("No.", Format(LibraryVariableStorage.DequeueInteger()));
+        CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean());
+        CBGPostingTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1066,10 +1066,10 @@ codeunit 144010 "UT REP Cash Bank Giro"
     var
         FileName: Variant;
     begin
-        FileName := LibraryVariableStorage.DequeueText;
-        CBGPostingTest."CBG Statement".SetFilter("No.", Format(LibraryVariableStorage.DequeueInteger));
-        CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText);
-        CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean);
+        FileName := LibraryVariableStorage.DequeueText();
+        CBGPostingTest."CBG Statement".SetFilter("No.", Format(LibraryVariableStorage.DequeueInteger()));
+        CBGPostingTest."Gen. Journal Batch".SetFilter("Journal Template Name", LibraryVariableStorage.DequeueText());
+        CBGPostingTest."Show Applied Entries".SetValue(LibraryVariableStorage.DequeueBoolean());
         CBGPostingTest.SaveAsExcel(FileName);
     end;
 

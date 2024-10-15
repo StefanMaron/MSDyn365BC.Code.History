@@ -90,7 +90,6 @@ codeunit 136103 "Service Items"
         Item: Record Item;
         ServiceItem: Record "Service Item";
         TroubleshootingLineNo: Code[20];
-        Type: Option "Service Item Group",Item,"Service Item";
     begin
         // [SCENARIO] Verify that the Troubleshooting assigned to the Item has been populated on the Service Item linked to it.
         // 1. Find a random Item and create and assign Troubleshooting to it.
@@ -100,7 +99,7 @@ codeunit 136103 "Service Items"
         // [GIVEN] Setup demonstration data, create and assign Troubleshooting to the Item and create Service Item.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        CreateAndAssignTroubleshooting(TroubleshootingLineNo, Type::Item, Item."No.");
+        CreateAndAssignTroubleshooting(TroubleshootingLineNo, "Troubleshooting Item Type"::Item, Item."No.");
         CreateServiceItem(ServiceItem);
 
         // [WHEN] Attach Item to Service Item.
@@ -116,7 +115,6 @@ codeunit 136103 "Service Items"
     procedure TestTrblshtngAssgnmntServGroup()
     var
         ServiceItem: Record "Service Item";
-        Type: Option "Service Item Group",Item,"Service Item";
         TroubleshootingLineNo: Code[20];
         ServiceItemGroupCode: Code[10];
     begin
@@ -127,8 +125,8 @@ codeunit 136103 "Service Items"
 
         // [GIVEN] Setup demonstration data, create Service Item Group and create and assign Troubleshooting to it. Create Service Item.
         Initialize();
-        ServiceItemGroupCode := CreateServiceItemGroup;
-        CreateAndAssignTroubleshooting(TroubleshootingLineNo, Type::"Service Item Group", ServiceItemGroupCode);
+        ServiceItemGroupCode := CreateServiceItemGroup();
+        CreateAndAssignTroubleshooting(TroubleshootingLineNo, "Troubleshooting Item Type"::"Service Item Group", ServiceItemGroupCode);
         CreateServiceItem(ServiceItem);
 
         // [WHEN] Attach Service Item Group to Service Item.
@@ -223,7 +221,7 @@ codeunit 136103 "Service Items"
 
         // [GIVEN] Create Service Item Group and create a new Item with it.
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Service Item Group", CreateServiceGroupForAutoCreat);
+        Item.Validate("Service Item Group", CreateServiceGroupForAutoCreat());
         Item.Modify(true);
 
         // [WHEN] Create and Post Sales Order.
@@ -722,7 +720,6 @@ codeunit 136103 "Service Items"
         ServiceContractHeader: Record "Service Contract Header";
         ServiceContractLine: Record "Service Contract Line";
         ServiceCommentLine: Record "Service Comment Line";
-        ServContractLineList: Page "Serv. Item List (Contract)";
         PageServContractLineList: TestPage "Serv. Item List (Contract)";
         Comment: Text[80];
     begin
@@ -919,7 +916,7 @@ codeunit 136103 "Service Items"
         Initialize();
 
         // 2. Exercise: Create Service Quote.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // 3. Verify: Verify Service document Log for Service Quote creation.
         // The value 13 is the event number for Service Quote creation.
@@ -940,7 +937,7 @@ codeunit 136103 "Service Items"
         Initialize();
 
         // 2. Exercise: Create Service Header of Document Type Invoice.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
         // 3. Verify: Verify Service document Log for Service Invoice creation.
         // The value 20 is the event number for Service Invoice Creation.
@@ -961,8 +958,8 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Header with Document Type Invoice and Service Line of Type Item.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Randon because value is not important.
         ServiceLine.Modify(true);
 
@@ -991,7 +988,7 @@ codeunit 136103 "Service Items"
         Initialize();
 
         // 2. Exercise: Create Service Header of Document Type Credit Memo.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
 
         // 3. Verify: Verify Service document Log for Service Credit Memo creation.
         // The value 21 is the event number for Service Credit Memo Creation.
@@ -1013,13 +1010,13 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Header with Document Type Credit Memo and Service Line of Type Item.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Use Randon because value is not important.
         ServiceLine.Modify(true);
 
         // 2. Exercise: Post Service Credit Memo.
-        ExecuteConfirmHandlerInvoiceES;
+        ExecuteConfirmHandlerInvoiceES();
         LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
 
         // 3. Verify: Verify Service document Log for Posted Service Credit Memo.
@@ -1044,7 +1041,7 @@ codeunit 136103 "Service Items"
         LibraryService.CreateServiceItem(ServiceItem, '');
 
         // 2. Exercise: Change Item No. on Service Item.
-        ServiceItem.Validate("Item No.", LibraryInventory.CreateItemNo);
+        ServiceItem.Validate("Item No.", LibraryInventory.CreateItemNo());
         ServiceItem.Modify(true);
 
         // 3. Verify: Verify Service Item Log for Item No. changed.
@@ -1193,7 +1190,7 @@ codeunit 136103 "Service Items"
         Item.Modify(true);
 
         LibraryERM.FindCurrency(Currency);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Currency Code", Currency.Code);
         SalesHeader.Modify(true);
         CreateSalesLine(Quantity, SalesHeader, Item."No.");
@@ -1211,7 +1208,7 @@ codeunit 136103 "Service Items"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ServiceHeader: Record "Service Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         NextServiceOrderNo: Code[20];
     begin
         // Covers document number Test Case139849 - refer to TFS ID 168064.
@@ -1220,11 +1217,11 @@ codeunit 136103 "Service Items"
         // 1. Setup: Get next Service Order No from No Series.
         ServiceMgtSetup.Get();
         if ServiceMgtSetup."Service Order Nos." = '' then
-            ServiceMgtSetup."Service Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        NextServiceOrderNo := NoSeriesManagement.GetNextNo(ServiceMgtSetup."Service Order Nos.", WorkDate(), false);
+            ServiceMgtSetup."Service Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        NextServiceOrderNo := NoSeries.PeekNextNo(ServiceMgtSetup."Service Order Nos.");
 
         // 2. Exercise: Find Customer and Create new Service Order.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // 3. Verify: Check that the Service Order No is not incremented automatically as per the setup.
         ServiceHeader.TestField("No.", NextServiceOrderNo);
@@ -1243,7 +1240,7 @@ codeunit 136103 "Service Items"
         Initialize();
 
         // [WHEN] Find Customer and Create Service Header.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [THEN] Verifying the Customer.
         VerifyCustomer(ServiceHeader);
@@ -1264,7 +1261,7 @@ codeunit 136103 "Service Items"
         Initialize();
 
         // [WHEN] Find Customer, create Service Header, create Service Item, create Service Item Line.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
@@ -1366,7 +1363,7 @@ codeunit 136103 "Service Items"
 
         // 2. Exercise: Create Component for Service Item and Create Service Line.
         LibraryService.CreateServiceItemComponent(
-          ServiceItemComponent, ServiceItemLine."Service Item No.", ServiceItemComponent.Type::Item, FindDifferentItem);
+          ServiceItemComponent, ServiceItemLine."Service Item No.", ServiceItemComponent.Type::Item, FindDifferentItem());
         CreateServiceLineReplacement(ServiceLine, ServiceItemLine, NewCopyComponentsFrom, Replacement::"Temporary");
 
         // 3. Verify: Verify Service Line after Service Item replacement with Copy Components from as parameter.
@@ -1394,7 +1391,7 @@ codeunit 136103 "Service Items"
 
         // 2. Exercise: Create Component for Service Item, Create Service Line and Post Service Order as Ship.
         LibraryService.CreateServiceItemComponent(
-          ServiceItemComponent, ServiceItemLine."Service Item No.", ServiceItemComponent.Type::Item, FindDifferentItem);
+          ServiceItemComponent, ServiceItemLine."Service Item No.", ServiceItemComponent.Type::Item, FindDifferentItem());
         CreateServiceLineReplacement(
           ServiceLine, ServiceItemLine, ServiceLine."Copy Components From"::"Old Serv.Item w/o Serial No.", Replacement::Permanent);
         ServiceHeader.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.");
@@ -1420,7 +1417,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Header of Document Type Order.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // 2. Exercise: Delete the Service Document log. The value 1 is the event number for Service Order Creation.
         FilterServiceDocumentLog(ServiceDocumentLog, ServiceHeader."Document Type", ServiceHeader."No.", 1);
@@ -1446,7 +1443,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Service Header of Document Type Order.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // 2. Exercise: Try to delete the Service Document log with Process Deleted Only option as TRUE.
         // The value 1 is the event number for Service Order Creation.
@@ -1476,7 +1473,7 @@ codeunit 136103 "Service Items"
         // 1. Setup: Create Service Header of Document Type Order, Service Item, ServiceItem Line, multiple Service Lines.
         // Post the Document as Ship and Invoice.
         Initialize();
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         CreateMultipleServiceLines(ServiceHeader, ServiceItemLine."Line No.");
@@ -1594,7 +1591,7 @@ codeunit 136103 "Service Items"
         // [FEATURE] [Return Order]
         // [SCENARIO] Service Item doesn't exist After posting Sales Return Order.
         Initialize();
-        UpdateNoSeries;
+        UpdateNoSeries();
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Item With Service Item Group. Make positive Inventory Adjustment.
@@ -1607,7 +1604,7 @@ codeunit 136103 "Service Items"
         CreateAndPostSalesReturnOrder(CustomerNo);
 
         // [THEN] Item Ledger Entry exists for Item No. and Service Item Does Not exist.
-        Assert.IsFalse(ServiceItem.Find, ServiceItem."No.");
+        Assert.IsFalse(ServiceItem.Find(), ServiceItem."No.");
     end;
 
     [Test]
@@ -1623,7 +1620,7 @@ codeunit 136103 "Service Items"
         // [FEATURE] [Return Order]
         // [SCENARIO 376221] System doesn't delete Service Item with Open Service Ledger Entries After posting Sales Return Order.
         Initialize();
-        UpdateNoSeries;
+        UpdateNoSeries();
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Item With Service Item Group. Make positive Inventory Adjustment.
@@ -1654,7 +1651,7 @@ codeunit 136103 "Service Items"
 
         // 1. Setup: Create Item With Service Item Group.
         Initialize();
-        UpdateNoSeries;
+        UpdateNoSeries();
         CreateAndPostItemJournalLine(ItemJournalLine);
 
         // 2. Exercise: Post Item Journal.
@@ -1939,7 +1936,7 @@ codeunit 136103 "Service Items"
         MockServiceItemLedgerEntry(ServiceLedgerEntry, ServiceItem."No.", LibraryFiscalYear.GetFirstPostingDate(false), false);
         Assert.ExpectedMessage(
           StrSubstNo(CheckIfCanBeDeletedServiceItemDatePeriodErr, ServiceItem.TableCaption(), ServiceItem."No."),
-          ServiceItem.CheckIfCanBeDeleted);
+          ServiceItem.CheckIfCanBeDeleted());
     end;
 
     [Test]
@@ -1958,7 +1955,7 @@ codeunit 136103 "Service Items"
 
         Assert.ExpectedMessage(
           StrSubstNo(CheckIfCanBeDeletedServiceItemOpenErr, ServiceItem.TableCaption(), ServiceItem."No."),
-          ServiceItem.CheckIfCanBeDeleted);
+          ServiceItem.CheckIfCanBeDeleted());
     end;
 
     [Test]
@@ -2103,7 +2100,7 @@ codeunit 136103 "Service Items"
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         // [WHEN] Validate "C2" on "SI"."Customer No."
-        asserterror ServiceItem.Validate("Customer No.", LibrarySales.CreateCustomerNo);
+        asserterror ServiceItem.Validate("Customer No.", LibrarySales.CreateCustomerNo());
 
         // [THEN] First line of Error  "You cannot change the Customer No. in the service item because of the following outstanding service order line:" thrown.
         // [THEN] Second line of Error "Order "O1", line "L1", service item number "SI1", serial number "SN1", customer "C1", ship-to code "S1"." thrown.
@@ -2136,12 +2133,12 @@ codeunit 136103 "Service Items"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Item Card page open for "III"
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         // [GIVEN] Troubleshooting Setup open from Item Card
-        TroubleshootingSetupPage1.Trap;
-        ItemCard."Troubleshooting Setup".Invoke;
+        TroubleshootingSetupPage1.Trap();
+        ItemCard."Troubleshooting Setup".Invoke();
 
         // [GIVEN] Troubleshooting Header with "No." = "XXX"
         MockTroubleshootingHeader(TroubleshootingHeader);
@@ -2149,11 +2146,11 @@ codeunit 136103 "Service Items"
         // [GIVEN] Troubleshooting Header "XXX" is set for Troubleshooting setup for Item "III"
         TroubleshootingSetupPage1."Troubleshooting No.".Value := TroubleshootingHeader."No.";
         TroubleshootingSetupPage1.Next();
-        TroubleshootingSetupPage1.OK.Invoke;
+        TroubleshootingSetupPage1.OK().Invoke();
 
         // [WHEN] Open Troubleshooting Setup for Item "III" again
-        TroubleshootingSetupPage2.Trap;
-        ItemCard."Troubleshooting Setup".Invoke;
+        TroubleshootingSetupPage2.Trap();
+        ItemCard."Troubleshooting Setup".Invoke();
 
         // [THEN] Troubleshooting Setup inserted for "III"
         TroubleshootingSetupRec.Init();
@@ -2162,6 +2159,51 @@ codeunit 136103 "Service Items"
         Assert.RecordIsNotEmpty(TroubleshootingSetupRec);
 
         TroubleshootingSetupPage2."Troubleshooting No.".AssertEquals(TroubleshootingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckServiceItemNoIsShownOrHiddenOnTheCard()
+    var
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        ServiceItemCard: TestPage "Service Item Card";
+        OldServiceItemNoSeries: Code[20];
+    begin
+        // [SCENARIO 424764] System will hide No. field on Service Item card page if "Service Item Nos." is default without manual input
+        Initialize();
+
+        // [GIVEN] Number series related to "Service Item Nos." in "Service Mgt. Setup" table
+        ServiceMgtSetup.Get();
+        if ServiceMgtSetup."Service Item Nos." <> '' then
+            OldServiceItemNoSeries := ServiceMgtSetup."Service Item Nos.";
+        LibraryUtility.CreateNoSeries(NoSeries, true, false, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '', '');
+        ServiceMgtSetup.Validate("Service Item Nos.", NoSeries.Code);
+        ServiceMgtSetup.Modify(true);
+
+        // [WHEN] [THEN] init new service item and check if "No." field is hidden
+        DocumentNoVisibility.ClearState();
+        ServiceItemCard.OpenNew();
+        Assert.IsFalse(ServiceItemCard."No.".Visible(), 'No. field should be hidden');
+
+        // [WHEN] Service item no series is set to manual nos
+        NoSeries.Get(ServiceMgtSetup."Service Item Nos.");
+        NoSeries."Manual Nos." := true;
+        NoSeries.Modify(true);
+
+        // [THEN] init new service item and check if "No." field is visible
+        DocumentNoVisibility.ClearState();
+        Clear(ServiceItemCard);
+        ServiceItemCard.OpenNew();
+        Assert.IsTrue(ServiceItemCard."No.".Visible(), 'No. field should be visible');
+
+        if OldServiceItemNoSeries <> '' then begin
+            ServiceMgtSetup.Validate("Service Contract Nos.", OldServiceItemNoSeries);
+            ServiceMgtSetup.Modify(true);
+        end;
     end;
 
     [Test]
@@ -2439,10 +2481,10 @@ codeunit 136103 "Service Items"
     var
         ServiceItemCard: TestPage "Service Item Card";
     begin
-        ServiceItemCard.OpenEdit;
+        ServiceItemCard.OpenEdit();
         ServiceItemCard.FILTER.SetFilter("No.", No);
-        ServiceItemCard."Service Item Group Code".SetValue(ServiceItemGroupWithSkill);
-        ServiceItemCard.OK.Invoke;
+        ServiceItemCard."Service Item Group Code".SetValue(ServiceItemGroupWithSkill());
+        ServiceItemCard.OK().Invoke();
     end;
 
     local procedure AssignSerialNumberInItemJournal(ItemJournalLineBatchName: Code[10])
@@ -2450,10 +2492,10 @@ codeunit 136103 "Service Items"
         ItemJournal: TestPage "Item Journal";
     begin
         Commit();  // Commit required to avoid rollback of write transaction before opening Item Journal Item Tracking Lines.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLineBatchName);
         LibraryVariableStorage.Enqueue(ItemTrackingLinesAssignment::AssignSerialNo);
-        ItemJournal.ItemTrackingLines.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
     end;
 
     local procedure AssignTrackingOnItemJournalLines(JournalTemplateName: Code[10]; JournalBatchName: Code[10])
@@ -2471,8 +2513,8 @@ codeunit 136103 "Service Items"
         ServiceItemCard: TestPage "Service Item Card";
     begin
         ServiceItemCard.OpenNew();
-        ServiceItemCard.Description.Activate;
-        ServiceItemNo := ServiceItemCard."No.".Value;
+        ServiceItemCard.Description.Activate();
+        ServiceItemNo := ServiceItemCard."No.".Value();
     end;
 
     local procedure PageUpdateServiceItem(No: Code[20])
@@ -2481,10 +2523,10 @@ codeunit 136103 "Service Items"
         ServiceItemCard: TestPage "Service Item Card";
     begin
         LibraryInventory.CreateItem(Item);
-        ServiceItemCard.OpenEdit;
+        ServiceItemCard.OpenEdit();
         ServiceItemCard.FILTER.SetFilter("No.", No);
         ServiceItemCard."Item No.".SetValue(Item."No.");
-        ServiceItemCard.OK.Invoke;
+        ServiceItemCard.OK().Invoke();
     end;
 
     local procedure ServiceItemGroupWithSkill(): Code[10]
@@ -2494,7 +2536,7 @@ codeunit 136103 "Service Items"
     begin
         LibraryService.CreateServiceItemGroup(ServiceItemGroup);
         LibraryResource.CreateResourceSkill(
-          ResourceSkill, ResourceSkill.Type::"Service Item Group", ServiceItemGroup.Code, CreateSkillCode);
+          ResourceSkill, ResourceSkill.Type::"Service Item Group", ServiceItemGroup.Code, CreateSkillCode());
         exit(ServiceItemGroup.Code);
     end;
 
@@ -2552,8 +2594,8 @@ codeunit 136103 "Service Items"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Service Item Group", ServiceItemGroup.Code);
         Item.Validate("Item Tracking Code", ItemTrackingCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        Item.Validate("Lot Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -2563,7 +2605,7 @@ codeunit 136103 "Service Items"
         Item: Record Item;
     begin
         Item.Get(CreateItemWithServiceItemGroup(FindItemTrackingCode(true, false)));
-        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryUtility.GenerateRandomFraction);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryUtility.GenerateRandomFraction());
         exit(Item."Base Unit of Measure");
     end;
 
@@ -2605,15 +2647,15 @@ codeunit 136103 "Service Items"
             LibraryUtility.GetFieldLength(DATABASE::"Item Journal Line", ItemJournalLine.FieldNo("Document No."))));
         ItemJournalLine.Validate("Posting Date", PostingDate);
         ItemJournalLine.Validate("Unit of Measure Code", ItemUnitOfMeasureCode);
-        ItemJournalLine.Validate(Amount, LibraryUtility.GenerateRandomFraction);
+        ItemJournalLine.Validate(Amount, LibraryUtility.GenerateRandomFraction());
         ItemJournalLine.Modify(true);
     end;
 
     local procedure CreateItemWithVendor(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Service Item Group", CreateServiceGroupForAutoCreat);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Service Item Group", CreateServiceGroupForAutoCreat());
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -2626,7 +2668,7 @@ codeunit 136103 "Service Items"
         Purchasing.Validate("Drop Shipment", true);
         Purchasing.Modify(true);
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Qty);
         SalesLine.Validate("Purchasing Code", Purchasing.Code);
         SalesLine.Validate("Qty. to Ship", 0);
@@ -2645,7 +2687,7 @@ codeunit 136103 "Service Items"
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
         LibraryPlanning.GetSalesOrders(SalesLine, RequisitionLine, RetrieveDimensionsFrom::"Sales Line");
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
     end;
 
     local procedure CreateSalesLine(var Quantity: Decimal; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
@@ -2660,7 +2702,7 @@ codeunit 136103 "Service Items"
     local procedure CreateServiceItem(var ServiceItem: Record "Service Item")
     begin
         // Create new Service Item with random Customer.
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
     end;
 
     local procedure CreateServiceItemFromOrder(var ServiceItemLine: Record "Service Item Line")
@@ -2685,9 +2727,9 @@ codeunit 136103 "Service Items"
         ServiceHeader: Record "Service Header";
     begin
         // Create Service Order - Service Header and Service Item Line with description and Item No.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        ServiceItemLine.Validate("Item No.", CreateItemWithBOMComponents);
+        ServiceItemLine.Validate("Item No.", CreateItemWithBOMComponents());
         ServiceItemLine.Validate(
           Description, Format(ServiceItemLine."Document Type") + ServiceItemLine."Document No." + Format(ServiceItemLine."Line No."));
         ServiceItemLine.Modify(true);
@@ -2713,7 +2755,7 @@ codeunit 136103 "Service Items"
         ServiceItemGroupCode := ServiceItemGroup.Code;
 
         // Create Skill Code and validate in the Skill Code field of the Resource Skill.
-        LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::"Service Item Group", ServiceItemGroupCode, CreateSkillCode);
+        LibraryResource.CreateResourceSkill(ResourceSkill, ResourceSkill.Type::"Service Item Group", ServiceItemGroupCode, CreateSkillCode());
     end;
 
     local procedure CreateServiceItemWithAmounts(var ServiceItem: Record "Service Item")
@@ -2743,7 +2785,7 @@ codeunit 136103 "Service Items"
         // Create a new Item having two BOM Components. Create a new Service Item and validate the Item in the
         // Item No. field of the Service Item.
         CreateServiceItem(ServiceItem);
-        ServiceItem.Validate("Item No.", CreateItemWithBOMComponents);
+        ServiceItem.Validate("Item No.", CreateItemWithBOMComponents());
         ServiceItem.Modify(true);
 
         // Copy Service Item Component from BOM to Service Item.
@@ -2762,9 +2804,9 @@ codeunit 136103 "Service Items"
         // Create a new Service Item with any two random Service Item Components.
         CreateServiceItem(ServiceItem);
         LibraryService.CreateServiceItemComponent(
-          ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo);
+          ServiceItemComponent, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo());
         LibraryService.CreateServiceItemComponent(
-          ServiceItemComponent2, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo);
+          ServiceItemComponent2, ServiceItem."No.", ServiceItemComponent.Type::Item, LibraryInventory.CreateItemNo());
         ItemNo := LibraryInventory.CreateItemNo();
     end;
 
@@ -2814,13 +2856,13 @@ codeunit 136103 "Service Items"
     var
         ServiceHeader: Record "Service Header";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
 
         if Type = Type::Item then
-            ServiceItemLine.Validate("Item No.", LibraryInventory.CreateItemNo)
+            ServiceItemLine.Validate("Item No.", LibraryInventory.CreateItemNo())
         else
-            ServiceItemLine.Validate("Service Item Group Code", CreateServiceItemGroup);
+            ServiceItemLine.Validate("Service Item Group Code", CreateServiceItemGroup());
 
         // Validate Description as Primary Key since the value is not important.
         if ServiceItemLine.Description = '' then
@@ -2837,7 +2879,7 @@ codeunit 136103 "Service Items"
         exit(SkillCode.Code);
     end;
 
-    local procedure CreateAndAssignTroubleshooting(var TroubleshootingHeaderNo: Code[20]; Type: Option; No: Code[20])
+    local procedure CreateAndAssignTroubleshooting(var TroubleshootingHeaderNo: Code[20]; Type: Enum "Troubleshooting Item Type"; No: Code[20])
     var
         TroubleshootingSetup: Record "Troubleshooting Setup";
         TroubleshootingLine: Record "Troubleshooting Line";
@@ -2857,7 +2899,7 @@ codeunit 136103 "Service Items"
     begin
         Item.Get(CreateItemWithServiceItemGroup(FindItemTrackingCode(false, true)));
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase,
-          WorkDate, Item."Base Unit of Measure", Item."No.", LibraryRandom.RandInt(10));
+          WorkDate(), Item."Base Unit of Measure", Item."No.", LibraryRandom.RandInt(10));
         AssignSerialNumberInItemJournal(ItemJournalLine."Journal Batch Name");
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -2868,7 +2910,7 @@ codeunit 136103 "Service Items"
     begin
         Item.Get(CreateItemWithServiceItemGroup(FindItemTrackingCode(false, true)));
         CreateItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::Purchase,
-          WorkDate, Item."Base Unit of Measure", Item."No.", LibraryRandom.RandIntInRange(2, 100));
+          WorkDate(), Item."Base Unit of Measure", Item."No.", LibraryRandom.RandIntInRange(2, 100));
         AssignSerialNumberInItemJournal(ItemJournalLine."Journal Batch Name");
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -2896,7 +2938,7 @@ codeunit 136103 "Service Items"
         SalesHeader: Record "Sales Header";
         Item: Record Item;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         with SalesLine do begin
             LibrarySales.CreateSalesLine(
               SalesLine, SalesHeader, Type::Item, LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(10));
@@ -2979,11 +3021,11 @@ codeunit 136103 "Service Items"
         ServiceItemList: TestPage "Service Item List";
         ServiceItemComponentList: TestPage "Service Item Component List";
     begin
-        ServiceItemList.OpenEdit;
+        ServiceItemList.OpenEdit();
         ServiceItemList.GotoRecord(ServiceItem);
-        ServiceItemComponentList.Trap;
-        ServiceItemList."Com&ponent List".Invoke;
-        ServiceItemComponentList.First;
+        ServiceItemComponentList.Trap();
+        ServiceItemList."Com&ponent List".Invoke();
+        ServiceItemComponentList.First();
         ServiceItemComponentList.Next();
         ServiceItemComponentList.Type.SetValue(ServiceItemComponent.Type::Item);
         ServiceItemComponentList."No.".SetValue(ItemNo);
@@ -3024,7 +3066,7 @@ codeunit 136103 "Service Items"
 
     local procedure FindDifferentItem(): Code[20]
     begin
-        exit(LibraryInventory.CreateItemNo);
+        exit(LibraryInventory.CreateItemNo());
     end;
 
     local procedure FindServiceItem(var ServiceItem: Record "Service Item"; ServiceItemLine: Record "Service Item Line")
@@ -3402,10 +3444,10 @@ codeunit 136103 "Service Items"
         ServiceItemCard: TestPage "Service Item Card";
         Troubleshooting: TestPage Troubleshooting;
     begin
-        ServiceItemCard.OpenEdit;
-        Troubleshooting.Trap;
+        ServiceItemCard.OpenEdit();
+        Troubleshooting.Trap();
         ServiceItemCard.GotoRecord(ServiceItem);
-        ServiceItemCard."<Page Troubleshooting>".Invoke;
+        ServiceItemCard."<Page Troubleshooting>".Invoke();
         Troubleshooting.FILTER.SetFilter("No.", TroubleshootingLineNo);
         Assert.AreEqual(TroubleshootingLineNo, Troubleshooting."No.".Value, 'Troubleshooting');
     end;
@@ -3428,7 +3470,7 @@ codeunit 136103 "Service Items"
         ServiceItem: Record "Service Item";
         ServiceItemCard: TestPage "Service Item Card";
     begin
-        ServiceItemCard.OpenView;
+        ServiceItemCard.OpenView();
         ServiceItemCard.FILTER.SetFilter("No.", No);
         ServiceItem.Get(No);
         ServiceItemCard."Item No.".AssertEquals(ServiceItem."Item No.");
@@ -3439,7 +3481,7 @@ codeunit 136103 "Service Items"
         ServiceItem: Record "Service Item";
         ServiceItemCard: TestPage "Service Item Card";
     begin
-        ServiceItemCard.OpenView;
+        ServiceItemCard.OpenView();
         ServiceItemCard.FILTER.SetFilter("No.", No);
         ServiceItem.Get(No);
         ServiceItemCard."Item No.".AssertEquals(ServiceItem."Item No.");
@@ -3558,36 +3600,36 @@ codeunit 136103 "Service Items"
         AssignedValue := AssignValueForTracking;
         case AssignedValue of
             AssignedValue::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             AssignedValue::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
             AssignedValue::AssignLotNo:
-                ItemTrackingLines."Assign Lot No.".Invoke;
+                ItemTrackingLines."Assign Lot No.".Invoke();
             AssignedValue::AssistEdit:
-                ItemTrackingLines."Lot No.".AssistEdit;
+                ItemTrackingLines."Lot No.".AssistEdit();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3597,7 +3639,7 @@ codeunit 136103 "Service Items"
         DocumentType: Option "Posted Shipments","Posted Invoices","Posted Return Receipts","Posted Cr. Memos";
     begin
         PostedSalesDocumentLines.PostedShipmentsBtn.SetValue(Format(DocumentType::"Posted Shipments"));
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3607,16 +3649,14 @@ codeunit 136103 "Service Items"
         DocumentType: Option "Posted Receipts","Posted Invoices","Posted Return Shipments","Posted Cr. Memos";
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(DocumentType::"Posted Receipts");
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [PageHandler]
     procedure CommentSheetPageHandler(var ServiceCommentSheet: TestPage "Service Comment Sheet")
-    var
-        ServiceCommentLine: Record "Service Comment Line";
     begin
         ServiceCommentSheet.Comment.SetValue(LibraryVariableStorage.DequeueText());
-        ServiceCommentSheet.OK.Invoke;
+        ServiceCommentSheet.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeMoveVendEntries', '', false, false)]

@@ -1,6 +1,7 @@
 table 130011 "Tainted Table"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

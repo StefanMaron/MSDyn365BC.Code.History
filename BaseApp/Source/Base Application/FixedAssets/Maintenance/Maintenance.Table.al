@@ -5,6 +5,7 @@ table 5626 Maintenance
     Caption = 'Maintenance';
     DrillDownPageID = Maintenance;
     LookupPageID = Maintenance;
+    DataClassification = CustomerContent;
 
     fields
     {

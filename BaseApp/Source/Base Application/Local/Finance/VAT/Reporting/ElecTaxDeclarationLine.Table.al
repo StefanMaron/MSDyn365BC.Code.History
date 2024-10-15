@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 11410 "Elec. Tax Declaration Line"
 {
     Caption = 'Elec. Tax Declaration Line';
+    DataClassification = CustomerContent;
 
     fields
     {

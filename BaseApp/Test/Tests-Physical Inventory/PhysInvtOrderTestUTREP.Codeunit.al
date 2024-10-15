@@ -31,7 +31,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader.Status := PhysInvtOrderHeader.Status::Open;
         PhysInvtOrderHeader."Posting Date" := 0D;
-        PhysInvtOrderHeader."No. Series" := LibraryUTUtility.GetNewCode10;
+        PhysInvtOrderHeader."No. Series" := LibraryUTUtility.GetNewCode10();
         PhysInvtOrderHeader.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
@@ -39,7 +39,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Warning for Status, Posting Date, Posting No. Series on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', 'Status must be Finished.');
         LibraryReportDataset.AssertElementWithValueExists(
           'ErrorText_Number_', StrSubstNo(ValueSpecifiedWarningTxt, PhysInvtOrderHeader.FieldCaption("Posting Date")));
@@ -72,7 +72,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Warning for Posting Date range on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'ErrorText_Number_', StrSubstNo(AllowedRangeWarningTxt, PhysInvtOrderHeader.FieldCaption("Posting Date")));
     end;
@@ -103,7 +103,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Warning for Posting Date range on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'ErrorText_Number_', StrSubstNo(AllowedRangeWarningTxt, PhysInvtOrderHeader.FieldCaption("Posting Date")));
     end;
@@ -122,14 +122,14 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         // Setup.
         Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode());
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Warning for Qty. Expected Calculated, On Recording Lines, General Product Posting Group, Inventory Posting Group and Item on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control41', 'Qty. Exp. Calculated must be Yes.');
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control41', 'On Recording Lines must be Yes.');
         LibraryReportDataset.AssertElementWithValueExists(
@@ -153,14 +153,14 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         // Setup.
         Initialize();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem());
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
 
         // Exercise.
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Warning for Blocked Item on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'ErrorText_Number__Control41', StrSubstNo('Blocked must be No for Item %1.', PhysInvtOrderLine."Item No."));
     end;
@@ -210,12 +210,12 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         // [SCENARIO] validate Function OnAfterGetRecord for Dataset PhysInvtOrderHeader - Report 5005352 - Phys. Invt. Order - Test.
         // [GIVEN] Create Physical Inventory Order Header and Line with Location.
         Initialize();
-        LocationCode := LibraryUTUtility.GetNewCode10;
+        LocationCode := LibraryUTUtility.GetNewCode10();
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         PhysInvtOrderHeader."Location Code" := LocationCode;
         PhysInvtOrderHeader.Modify();
 
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryUTUtility.GetNewCode());
         PhysInvtOrderLine."Location Code" := LocationCode;
         PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestWithFiltersRequestPageHandler.
@@ -225,7 +225,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify Location Code and Status on Report Phys. Invt. Order - Test.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'Phys__Inventory_Order_Line__Location_Code_', PhysInvtOrderHeader."Location Code");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -249,7 +249,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         DimensionSetEntry.FindLast();
         CreateDimensionSetEntry(DimensionSetEntry2, DimensionSetEntry."Dimension Set ID" + LibraryRandom.RandInt(10));  // Value required for non existing Dimension Set Entry.
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem());
         PhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID";
         PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
@@ -258,7 +258,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify DimText on Report Phys. Invt. Order - Test for newly created Dimension Set ID.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'DimText', StrSubstNo('%1 - %2', DimensionSetEntry2."Dimension Code", DimensionSetEntry2."Dimension Value Code"));
     end;
@@ -285,7 +285,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         CreateDimensionSetEntry(DimensionSetEntry3, DimensionSetID);
 
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
-        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem);
+        CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", CreateBlockedItem());
         PhysInvtOrderLine."Dimension Set ID" := DimensionSetEntry3."Dimension Set ID";
         PhysInvtOrderLine.Modify();
         LibraryVariableStorage.Enqueue(PhysInvtOrderHeader."No.");  // Required inside PhysInvtOrderTestRequestPageHandler.
@@ -294,7 +294,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         REPORT.Run(REPORT::"Phys. Invt. Order - Test");
 
         // [THEN] Verify DimText on Report Phys. Invt. Order - Test for existing Dimension Set ID.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('DimText',
           StrSubstNo('%1 - %2; %3 - %4',
             DimensionSetEntry2."Dimension Code", DimensionSetEntry2."Dimension Value Code",
@@ -309,7 +309,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
     end;
 
@@ -325,7 +325,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item.Blocked := true;
         Item.Insert();
         exit(Item."No.")
@@ -335,8 +335,8 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
     var
         DimensionValue: Record "Dimension Value";
     begin
-        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
-        DimensionValue.Code := LibraryUTUtility.GetNewCode;
+        DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode();
+        DimensionValue.Code := LibraryUTUtility.GetNewCode();
         DimensionValue.Insert();
 
         DimensionSetEntry."Dimension Set ID" := DimensionSetID;
@@ -354,7 +354,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         LibraryVariableStorage.Dequeue(PhysInvtOrderHeaderNo);
         PhysInvtOrderTest."Phys. Invt. Order Header".SetFilter("No.", PhysInvtOrderHeaderNo);
         PhysInvtOrderTest.ShowDimensions.SetValue(true);
-        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -370,7 +370,7 @@ codeunit 137453 "Phys. Invt. Order-Test UT REP"
         PhysInvtOrderTest."Phys. Invt. Order Header".SetFilter("No.", PhysInvtOrderHeaderNo);
         PhysInvtOrderTest."Phys. Invt. Order Header".SetFilter("Location Code", LocationCode);
         PhysInvtOrderTest."Phys. Invt. Order Header".SetFilter(Status, Format(Status::Open));
-        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PhysInvtOrderTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

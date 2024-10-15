@@ -304,7 +304,7 @@ codeunit 11409 "Elec. Tax Declaration Mgt."
         if VATReportHeaderForResponseMessage."Message Id" = '' then
             exit;
 
-        ElecTaxDeclResponseMsg."VAT Report Config. Code" := VATReportHeaderForResponseMessage."VAT Report Config. Code";
+        ElecTaxDeclResponseMsg."VAT Report Config. Code" := VATReportHeaderForResponseMessage."VAT Report Config. Code".AsInteger();
         ElecTaxDeclResponseMsg."VAT Report No." := VATReportHeaderForResponseMessage."No.";
     end;
 

@@ -3,20 +3,16 @@ namespace Microsoft.Bank.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using System.Integration;
 
+#if not CLEAN22
 #pragma warning disable AS0109
+#endif
 table 1062 "Payment Reporting Argument"
-#pragma warning restore AS0109
 {
     Caption = 'Payment Reporting Argument';
     Permissions = TableData "Payment Reporting Argument" = rimd;
     ReplicateData = false;
-#if CLEAN21
     TableType = Temporary;
-#else
-    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '21.0';
-#endif
+    DataClassification = CustomerContent;
 
     fields
     {

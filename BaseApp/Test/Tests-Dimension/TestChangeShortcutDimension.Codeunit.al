@@ -20,7 +20,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         // Exercise
-        ClearShortCutDims;
+        ClearShortCutDims();
 
         // Validate
         DimensionValue.SetRange("Global Dimension No.", 3, 8);
@@ -39,7 +39,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         DimNo: Integer;
     begin
         // Exercise
-        ClearShortCutDims;
+        ClearShortCutDims();
         DimNo := 2;
         with GeneralLedgerSetup do begin
             Get();
@@ -83,7 +83,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         DimSetID2: Integer;
     begin
         // Init
-        ClearShortCutDims;
+        ClearShortCutDims();
         LibraryDimension.CreateDimension(Dimension1);
         LibraryDimension.CreateDimensionValue(DimensionValue1, Dimension1.Code);
         DimSetID1 := LibraryDimension.CreateDimSet(DimSetID1, DimensionValue1."Dimension Code", DimensionValue1.Code);

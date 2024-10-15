@@ -9,6 +9,7 @@ table 282 "Entry/Exit Point"
     Caption = 'Entry/Exit Point';
     DrillDownPageID = "Entry/Exit Points";
     LookupPageID = "Entry/Exit Points";
+    DataClassification = CustomerContent;
 
     fields
     {

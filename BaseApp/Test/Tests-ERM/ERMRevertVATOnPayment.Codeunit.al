@@ -31,7 +31,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Revert VAT On Payment");
 
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -156,7 +156,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Payment Terms Code", PaymentTermsCode);
-        Customer.Validate("Currency Code", CurrencyWithExchangeRate);
+        Customer.Validate("Currency Code", CurrencyWithExchangeRate());
         Customer.Modify(true);
     end;
 
@@ -164,7 +164,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Terms Code", PaymentTermsCode);
-        Vendor.Validate("Currency Code", CurrencyWithExchangeRate);
+        Vendor.Validate("Currency Code", CurrencyWithExchangeRate());
         Vendor.Modify(true);
     end;
 
@@ -188,7 +188,7 @@ codeunit 134917 "ERM Revert VAT On Payment"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Create new exchange rates with random values.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, CreateCurrency, WorkDate());
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CreateCurrency(), WorkDate());
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100 * LibraryRandom.RandDec(10, 2));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 2 * CurrencyExchangeRate."Exchange Rate Amount");

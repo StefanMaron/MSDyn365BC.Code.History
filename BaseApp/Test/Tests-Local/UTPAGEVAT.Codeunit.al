@@ -66,13 +66,13 @@ codeunit 144048 "UT PAG EVAT"
 
         // Setup.
         Initialize();
-        ElecTaxDeclVATCateg.OpenEdit;
+        ElecTaxDeclVATCateg.OpenEdit();
 
         // Exercise.
         ElecTaxDeclVATCateg.Category.SetValue(ElecTaxDeclVATCategory.Category::"5. Calculation");
 
         // Verify: Verify the Editable property of Calculation when the Category is set to "5. Calculation".
-        Assert.IsTrue(ElecTaxDeclVATCateg.Calculation.Editable, StrSubstNo(FieldEditableMsg, ElecTaxDeclVATCateg.Calculation.Caption));
+        Assert.IsTrue(ElecTaxDeclVATCateg.Calculation.Editable(), StrSubstNo(FieldEditableMsg, ElecTaxDeclVATCateg.Calculation.Caption));
         ElecTaxDeclVATCateg.Close();
     end;
 
@@ -90,25 +90,25 @@ codeunit 144048 "UT PAG EVAT"
         // Setup.
         Initialize();
         VATStatementName.FindFirst();
-        No := CreateElectronicTaxDeclarationHeader;
+        No := CreateElectronicTaxDeclarationHeader();
         CreateVATStatementLine(VATStatementName);
         LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");  // Enqueue value for CreateElecVATDeclarationRequestPageHandler.
         LibraryVariableStorage.Enqueue(VATStatementName.Name);  // Enqueue value for CreateElecVATDeclarationRequestPageHandler.
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.FILTER.SetFilter("No.", No);
 
         // Exercise.
-        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke;
+        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke();
 
         // Verify: Verify Our Reference, Declaration Period and Declaration Year is not enable and Status is Created on Elec. Tax Declaration Card.
         ElecTaxDeclarationCard.Status.AssertEquals(ElecTaxDeclarationCard.Status.GetOption(2));  // 2 is for Option String Created.
         Assert.IsFalse(
-          ElecTaxDeclarationCard."Our Reference".Editable, StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Our Reference".Caption));
+          ElecTaxDeclarationCard."Our Reference".Editable(), StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Our Reference".Caption));
         Assert.IsFalse(
-          ElecTaxDeclarationCard."Declaration Period".Editable,
+          ElecTaxDeclarationCard."Declaration Period".Editable(),
           StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Declaration Period".Caption));
         Assert.IsFalse(
-          ElecTaxDeclarationCard."Declaration Year".Editable, StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Declaration Year".Caption));
+          ElecTaxDeclarationCard."Declaration Year".Editable(), StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Declaration Year".Caption));
         ElecTaxDeclarationCard.Close();
     end;
 
@@ -128,10 +128,10 @@ codeunit 144048 "UT PAG EVAT"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         ElecTaxDeclHeader.DeleteAll(); // Ensure no declarations are processed
         ElecTaxDeclRespMsg.DeleteAll();
-        ElecTaxDeclResponseMsgs.OpenEdit;
+        ElecTaxDeclResponseMsgs.OpenEdit();
 
         // Exercise.
-        ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke;  // Opens ReceiveResponseMessagesRequestPageHandler.
+        ElecTaxDeclResponseMsgs.ReceiveResponseMessages.Invoke();  // Opens ReceiveResponseMessagesRequestPageHandler.
 
         // Verify: No response lines are fetched
         Assert.AreEqual(0, ElecTaxDeclRespMsg.Count, ValueEqualMsg);
@@ -148,10 +148,10 @@ codeunit 144048 "UT PAG EVAT"
         // Purpose of the test is to verify ProcessResponseMessages - OnAction of Page - 11416 (Elec. Tax Decl. Response Msgs).
         // Setup.
         Initialize();
-        ElecTaxDeclResponseMsgs.OpenEdit;
+        ElecTaxDeclResponseMsgs.OpenEdit();
 
         // Exercise.
-        ElecTaxDeclResponseMsgs.ProcessResponseMessages.Invoke;  // Opens ProcessResponseMessagesReportHandler.
+        ElecTaxDeclResponseMsgs.ProcessResponseMessages.Invoke();  // Opens ProcessResponseMessagesReportHandler.
 
         // Verify: Verify report Process Response Messages run successfully and handled in ProcessResponseMessagesReportHandler.
         ElecTaxDeclResponseMsgs.Close();
@@ -170,7 +170,7 @@ codeunit 144048 "UT PAG EVAT"
 
         // Setup
         Initialize();
-        No := CreateElectronicTaxDeclarationHeader;
+        No := CreateElectronicTaxDeclarationHeader();
         ElecTaxDeclarationHeader.Get(ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration", No);
         CreateDeclarationLine(No, 'lineA', ElecTaxDeclLine."Line Type"::Element, 0);
         CreateDeclarationLine(No, 'lineB', ElecTaxDeclLine."Line Type"::Attribute, 1);
@@ -179,7 +179,7 @@ codeunit 144048 "UT PAG EVAT"
 
         // Exercise: Open page
         ElecTaxDeclLine.Reset();
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.GotoRecord(ElecTaxDeclarationHeader);
 
         // Verify: Check filter only shows elements
@@ -215,10 +215,10 @@ codeunit 144048 "UT PAG EVAT"
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
-        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationHeader."Declaration Period" := ElecTaxDeclarationHeader."Declaration Period"::Year;
         ElecTaxDeclarationHeader."Declaration Year" := LibraryRandom.RandInt(10);
-        ElecTaxDeclarationHeader."Our Reference" := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationHeader."Our Reference" := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationHeader.Insert();
         exit(ElecTaxDeclarationHeader."No.");
     end;
@@ -245,23 +245,21 @@ codeunit 144048 "UT PAG EVAT"
         LibraryVariableStorage.Dequeue(VATStatementName);
         CreateElecVATDeclaration.VATTemplateName.SetValue(VATTemplateName);
         CreateElecVATDeclaration.VATStatementName.SetValue(VATStatementName);
-        CreateElecVATDeclaration.OK.Invoke;
+        CreateElecVATDeclaration.OK().Invoke();
     end;
 
     local procedure CreateDeclarationLine(DeclarationNo: Code[20]; Data: Text; LineType: Option; Identation: Integer)
     var
         ElecTaxDeclLine: Record "Elec. Tax Declaration Line";
     begin
-        with ElecTaxDeclLine do begin
-            Init();
-            "Declaration Type" := "Declaration Type"::"VAT Declaration";
-            "Declaration No." := DeclarationNo;
-            Data := CopyStr(Data, 1, MaxStrLen(Data));
-            "Indentation Level" := Identation;
-            "Line Type" := LineType;
-            Name := LibraryUTUtility.GetNewCode10;
-            Insert(true);
-        end;
+        ElecTaxDeclLine.Init();
+        ElecTaxDeclLine."Declaration Type" := ElecTaxDeclLine."Declaration Type"::"VAT Declaration";
+        ElecTaxDeclLine."Declaration No." := DeclarationNo;
+        ElecTaxDeclLine.Data := CopyStr(Data, 1, MaxStrLen(ElecTaxDeclLine.Data));
+        ElecTaxDeclLine."Indentation Level" := Identation;
+        ElecTaxDeclLine."Line Type" := LineType;
+        ElecTaxDeclLine.Name := LibraryUTUtility.GetNewCode10();
+        ElecTaxDeclLine.Insert(true);
     end;
 
     local procedure CountDeclLinesPageRows(var CardPage: TestPage "Elec. Tax Declaration Card"): Integer
@@ -269,7 +267,7 @@ codeunit 144048 "UT PAG EVAT"
         "Count": Integer;
     begin
         Count := 0;
-        if CardPage.Control1000017.First then begin
+        if CardPage.Control1000017.First() then begin
             Count += 1;
             while CardPage.Control1000017.Next() do
                 Count += 1;

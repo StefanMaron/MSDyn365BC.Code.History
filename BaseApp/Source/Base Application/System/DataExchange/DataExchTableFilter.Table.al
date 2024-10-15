@@ -4,6 +4,7 @@ table 1233 "Data Exch. Table Filter"
 {
     Caption = 'Data Exch. Table Filter';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

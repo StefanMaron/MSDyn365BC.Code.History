@@ -18,6 +18,7 @@ table 11409 "Elec. Tax Declaration Header"
     Permissions = TableData "Elec. Tax Declaration Line" = imd,
                   TableData "Elec. Tax Decl. Error Log" = d,
                   TableData "Elec. Tax Decl. Response Msg." = d;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -39,10 +40,12 @@ table 11409 "Elec. Tax Declaration Header"
             Caption = 'No.';
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "No." <> xRec."No." then begin
                     ElecTaxDeclarationSetup.Get();
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
             end;
@@ -221,11 +224,28 @@ table 11409 "Elec. Tax Declaration Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         if "No." = '' then begin
             ElecTaxDeclarationSetup.Get();
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
+            "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", 0D, "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                    "No. Series" := xRec."No. Series";
+                "No." := NoSeries.GetNextNo("No. Series", 0D);
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), 0D, "No.");
+            end;
+#endif
         end;
     end;
 
@@ -236,7 +256,6 @@ table 11409 "Elec. Tax Declaration Header"
         ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup";
         ElecTaxDeclErrorLog: Record "Elec. Tax Decl. Error Log";
         ElecTaxDeclResponseMsg: Record "Elec. Tax Decl. Response Msg.";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text002: Label 'The value in %1 must be unique. Value %3 is already used in %2 %4 %5.';
         Text003: Label 'You cannot change %1 once a %2 is assigned to a %3.';
         Text004: Label 'can only contain letters, digits and dashes';
@@ -253,16 +272,16 @@ table 11409 "Elec. Tax Declaration Header"
 
     [Scope('OnPrem')]
     procedure AssistEdit(OldElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header"): Boolean
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        with ElecTaxDeclarationHeader do begin
-            ElecTaxDeclarationHeader := Rec;
-            ElecTaxDeclarationSetup.Get();
-            Rec.TestNoSeries();
-            if NoSeriesMgt.SelectSeries(Rec.GetNoSeriesCode(), OldElecTaxDeclarationHeader."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("No.");
-                Rec := ElecTaxDeclarationHeader;
-                exit(true);
-            end;
+        ElecTaxDeclarationHeader := Rec;
+        ElecTaxDeclarationSetup.Get();
+        Rec.TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(Rec.GetNoSeriesCode(), OldElecTaxDeclarationHeader."No. Series", ElecTaxDeclarationHeader."No. Series") then begin
+            ElecTaxDeclarationHeader."No." := NoSeries.GetNextNo(ElecTaxDeclarationHeader."No. Series");
+            Rec := ElecTaxDeclarationHeader;
+            exit(true);
         end;
     end;
 

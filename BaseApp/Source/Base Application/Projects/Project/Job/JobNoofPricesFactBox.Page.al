@@ -8,13 +8,13 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Source;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 
 page 9098 "Job No. of Prices FactBox"
 {
-    Caption = 'Job Details - No. of Prices';
+    Caption = 'Project Details - No. of Prices';
     PageType = CardPart;
     SourceTable = Job;
 
@@ -25,15 +25,15 @@ page 9098 "Job No. of Prices FactBox"
             field("No."; Rec."No.")
             {
                 ApplicationArea = Jobs;
-                Caption = 'Job No.';
-                ToolTip = 'Specifies the job number.';
+                Caption = 'Project No.';
+                ToolTip = 'Specifies the project number.';
 
                 trigger OnDrillDown()
                 begin
                     ShowDetails();
                 end;
             }
-#if not CLEAN21
+#if not CLEAN23
             field(NoOfResourcePrices; NoOfResourcePrices)
             {
                 ApplicationArea = Jobs;
@@ -58,7 +58,7 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'Item';
                 Visible = not ExtendedPriceEnabled;
-                ToolTip = 'Specifies the total usage cost of items associated with this job.';
+                ToolTip = 'Specifies the total usage cost of items associated with this project.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '16.0';
@@ -77,7 +77,7 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'G/L Account';
                 Visible = not ExtendedPriceEnabled;
-                ToolTip = 'Specifies the sum of values in the Job G/L Account Prices window.';
+                ToolTip = 'Specifies the sum of values in the Project G/L Account Prices window.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '16.0';
@@ -109,7 +109,7 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'Item';
                 Visible = ExtendedPriceEnabled;
-                ToolTip = 'Specifies the total usage cost of items associated with this job.';
+                ToolTip = 'Specifies the total usage cost of items associated with this project.';
 
                 trigger OnDrillDown()
                 begin
@@ -121,7 +121,7 @@ page 9098 "Job No. of Prices FactBox"
                 ApplicationArea = Jobs;
                 Caption = 'G/L Account';
                 Visible = ExtendedPriceEnabled;
-                ToolTip = 'Specifies the sum of values in the Job G/L Account Prices window.';
+                ToolTip = 'Specifies the sum of values in the Project G/L Account Prices window.';
 
                 trigger OnDrillDown()
                 begin
@@ -171,7 +171,7 @@ page 9098 "Job No. of Prices FactBox"
     var
         PriceListLine: Record "Price List Line";
     begin
-#if not CLEAN21
+#if not CLEAN23
         if CalcOldNoOfRecords() then
             exit;
 #endif
@@ -189,7 +189,7 @@ page 9098 "Job No. of Prices FactBox"
         NoOfAccountPrices := PriceListLine.Count();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CalcOldNoOfRecords(): Boolean;
     var
         JobResourcePrice: Record "Job Resource Price";

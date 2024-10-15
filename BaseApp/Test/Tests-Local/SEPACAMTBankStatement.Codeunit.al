@@ -137,7 +137,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         InitSunshineFileParameters(
           SEPACAMTFileParameters, BankAccount, TempCBGStatement, TempCreditCBGStatementLine, TempDebitCBGStatementLine);
         SEPACAMTFileParameters.SkipTxDtlsAmt := true;
-        SEPACAMTFileParameters.UstrdFieldValue1 := InitUnstructuredTextFieldValue;
+        SEPACAMTFileParameters.UstrdFieldValue1 := InitUnstructuredTextFieldValue();
         WriteCAMTFile(SEPACAMTFileParameters);
 
         // Exercise.
@@ -209,7 +209,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         UstrdFieldVal: Text[140];
     begin
         AddtlNtryInfFieldVal := InitAdditionalEntryInfFieldValue(10);
-        UstrdFieldVal := InitUnstructuredTextFieldValue;
+        UstrdFieldVal := InitUnstructuredTextFieldValue();
 
         // Pre-setup.
         CreateBankAccWithBankStatementSetup(BankAccount, GenJournalTemplate, 'SEPA CAMT');
@@ -257,9 +257,9 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         UstrdFieldVal2: Text[140];
         UstrdFieldVal3: Text[140];
     begin
-        UstrdFieldVal1 := InitUnstructuredTextFieldValue;
-        UstrdFieldVal2 := InitUnstructuredTextFieldValue;
-        UstrdFieldVal3 := InitUnstructuredTextFieldValue;
+        UstrdFieldVal1 := InitUnstructuredTextFieldValue();
+        UstrdFieldVal2 := InitUnstructuredTextFieldValue();
+        UstrdFieldVal3 := InitUnstructuredTextFieldValue();
 
         // Pre-setup.
         CreateBankAccWithBankStatementSetup(BankAccount, GenJournalTemplate, 'SEPA CAMT');
@@ -567,7 +567,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CreateImportProtocol(ImportProtocol, BankAccount."No.", false);
 
         // Setup - create a file... not XML
-        WriteNonXmlFile;
+        WriteNonXmlFile();
 
         // Exercise
         asserterror RunImportSEPACAMTReport(ImportProtocol.Code);
@@ -717,7 +717,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         SEPACAMTFileParameters.RelatedPartyCity := LibraryUtility.GenerateGUID();
         SEPACAMTFileParameters.RelatedPartyBankAccount := BankAccount."Bank Account No.";
         SEPACAMTFileParameters.AddtlNtryInfFieldValue :=
-          PadStr(LibraryUtility.GenerateGUID, MaxStrLen(CBGStatementLineAddInfo.Description), '0');
+          PadStr(LibraryUtility.GenerateGUID(), MaxStrLen(CBGStatementLineAddInfo.Description), '0');
         SEPACAMTFileParameters.AddtlNtryInfFieldValue += LibraryUtility.GenerateGUID();
 
         WriteCAMTFile(SEPACAMTFileParameters);
@@ -865,7 +865,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         CreateImportProtocol(ImportProtocol, BankAccount."No.", false);
 
         // [GIVEN] Data Exch. Column Def. for "SEPA CAMT" with Path = ".../Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" is removed.
-        RemoveDataExchColumnDef(TempDataExchColumnDef, 'SEPA CAMT', GetEndToEndIdPath);
+        RemoveDataExchColumnDef(TempDataExchColumnDef, 'SEPA CAMT', GetEndToEndIdPath());
 
         // [GIVEN] XML file with SEPA CAMT Bank Statement, that is imported to CBG Statement.
         // [GIVEN] "Stmt/Ntry/NtryDtls/TxDtls/Refs/EndToEndId" has value "A".
@@ -947,7 +947,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         LibraryCAMTFileMgt.SetupSourceMock('SEPA CAMT', TempBlob);
 
         // [WHEN] Import xml file
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         // [THEN] Create one Bank Acc. Reconciliation Line
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
@@ -1025,7 +1025,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         GenJournalTemplate.Validate("Bal. Account Type", GenJournalTemplate."Bal. Account Type"::"Bank Account");
         GenJournalTemplate.Validate("Bal. Account No.", BankAccount."No.");
         GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Bank);
-        GenJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalTemplate.Modify();
     end;
 
@@ -1054,7 +1054,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
     local procedure CreateExpectedCBGStatementLine(var TempCreditCBGStatementLine: Record "CBG Statement Line" temporary; Amount: Decimal)
     begin
-        TempCreditCBGStatementLine.Date := WorkDate + LibraryRandom.RandInt(10);
+        TempCreditCBGStatementLine.Date := WorkDate() + LibraryRandom.RandInt(10);
         TempCreditCBGStatementLine."Document No." :=
           LibraryUtility.GenerateRandomCode(TempCreditCBGStatementLine.FieldNo("Document No."), DATABASE::"CBG Statement Line");
         TempCreditCBGStatementLine.Amount := Amount;
@@ -1333,7 +1333,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
             "CBG Statement Line No." := CBGStatementLine."Line No.";
             RecRef.GetTable(CBGStatementLineAddInfo);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Description := PadStr(LibraryUtility.GenerateGUID, MaxStrLen(Description), '0');
+            Description := PadStr(LibraryUtility.GenerateGUID(), MaxStrLen(Description), '0');
             "Information Type" := InformationType;
             Insert();
         end;
@@ -1492,7 +1492,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
             Assert.IsTrue(Find('-'), 'Unable to find additional info for the CBG Statement Line.');
             repeat
                 AdditionalInfoDescription += Description;
-            until Next = 0;
+            until Next() = 0;
         end;
         Assert.AreEqual(ExpectedDescription, AdditionalInfoDescription, 'Unexpected description stored in CBGStatementLineAddInfo table.');
     end;
@@ -1540,14 +1540,14 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         with CBGStatementLineAddInfo do begin
             SetRange("Journal Template Name", CBGStatement."Journal Template Name");
             SetRange(Description, ExpectedDescription);
-            Assert.IsFalse(FindFirst, 'Unexpected line found in GBM Statement Line Additional Info table for ' + GetFilters);
+            Assert.IsFalse(FindFirst(), 'Unexpected line found in GBM Statement Line Additional Info table for ' + GetFilters);
         end;
     end;
 
     local procedure WriteLine(var OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure WriteCAMTFile(SEPACAMTFileParameters: Record "SEPA CAMT File Parameters")
@@ -1800,7 +1800,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
 
             Assert.AreEqual(FirstExpectedEntry, Description, StrSubstNo(IncorrectValueForTypeErr, Format("Information Type")));
             if SecondExpectedEntry <> '' then begin
-                Next;
+                Next();
                 Assert.AreEqual(SecondExpectedEntry, Description, StrSubstNo(IncorrectValueForTypeErr, Format("Information Type")));
             end;
         end;
@@ -1828,7 +1828,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
     begin
         LibraryVariableStorage.Dequeue(ImportProtocol);
         ImportProtocolList.FILTER.SetFilter(Code, ImportProtocol);
-        ImportProtocolList.OK.Invoke;
+        ImportProtocolList.OK().Invoke();
     end;
 
     [ConfirmHandler]

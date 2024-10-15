@@ -7,7 +7,7 @@ using Microsoft.Projects.Project.Job;
 
 page 1032 "Available - Job Planning Lines"
 {
-    Caption = 'Available - Job Planning Lines';
+    Caption = 'Available - Project Planning Lines';
     DataCaptionExpression = CaptionText;
     DeleteAllowed = false;
     Editable = false;
@@ -29,7 +29,7 @@ page 1032 "Available - Job Planning Lines"
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the status of a job order.';
+                    ToolTip = 'Specifies the status of a project order.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -39,23 +39,23 @@ page 1032 "Available - Job Planning Lines"
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
-                    ToolTip = 'Specifies the location code for the item on the job planning line.';
+                    ToolTip = 'Specifies the location code for the item on the project planning line.';
                 }
                 field("Planning Date"; Rec."Planning Date")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the date of the planning line. You can use the planning date for filtering the totals of the job, for example, if you want to see the budgeted usage for a specific month of the year.';
+                    ToolTip = 'Specifies the date of the planning line. You can use the planning date for filtering the totals of the project, for example, if you want to see the budgeted usage for a specific month of the year.';
                 }
                 field("Remaining Qty. (Base)"; Rec."Remaining Qty. (Base)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the remaining quantity of the resource, item, or general ledger account that remains to complete a job, expressed in base units of measure. The quantity is calculated as the difference between Quantity and Qty. Posted.';
+                    ToolTip = 'Specifies the remaining quantity of the resource, item, or general ledger account that remains to complete a project, expressed in base units of measure. The quantity is calculated as the difference between Quantity and Qty. Posted.';
                 }
                 field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
-                    ToolTip = 'Specifies the quantity of the item that is reserved for the job planning line.';
+                    ToolTip = 'Specifies the quantity of the item that is reserved for the project planning line.';
                 }
                 field(QtyToReserveBase; QtyToReserveBase)
                 {
@@ -106,7 +106,7 @@ page 1032 "Available - Job Planning Lines"
                     ApplicationArea = Reservation;
                     Caption = '&Reserve';
                     Image = Reserve;
-                    ToolTip = 'Reserve one or more units of the item on the job planning line, either from inventory or from incoming supply.';
+                    ToolTip = 'Reserve one or more units of the item on the project planning line, either from inventory or from incoming supply.';
 
                     trigger OnAction()
                     begin
@@ -299,12 +299,12 @@ page 1032 "Available - Job Planning Lines"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservFrom(var ReservationEntry: Record "Reservation Entry")
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateReservMgt(var ReservationEntry: Record "Reservation Entry")
     begin
     end;

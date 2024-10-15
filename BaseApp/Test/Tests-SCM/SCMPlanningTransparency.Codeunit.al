@@ -10,7 +10,6 @@ codeunit 137058 "SCM Planning Transparency"
     end;
 
     var
-        RequisitionLine: Record "Requisition Line";
         LocationBlue: Record Location;
         LocationRed: Record Location;
         LibraryInventory: Codeunit "Library - Inventory";
@@ -28,20 +27,19 @@ codeunit 137058 "SCM Planning Transparency"
         UntrackedQuantity: Decimal;
         TotalQuantity: Decimal;
         isInitialized: Boolean;
-        TrackingMessage: Label 'The change will not affect existing entries';
-        NoTrackingLines: Label 'There are no order tracking entries for this line';
-        Source: array[7] of Text[250];
-        ExceptionMessage: Label 'Exception: The projected available inventory is below Safety Stock Quantity';
-        AttentionMessage: Label 'Attention: The Starting Date ';
-        AttentionProdOrderMessage: Label 'Attention: The Status of Prod. Order';
-        SafetyStockMessage: Label 'Safety Stock Quantity';
-        OrderMultipleMessage: Label 'Order Multiple';
-        MinOrderQtyMessage: Label 'Minimum Order Quantity';
-        ReorderPointMessage: Label 'Reorder Point';
-        ReorderQtyMessage: Label 'Reorder Quantity';
-        BlanketOrderMessage: Label 'Blanket Order';
-        ProductionForecastMessage: Label 'Demand Forecast';
-        MaximumInventoryMessage: Label 'Maximum Inventory';
+        TrackingMsg: Label 'The change will not affect existing entries';
+        NoTrackingLinesMsg: Label 'There are no order tracking entries for this line';
+        ExceptionMsg: Label 'Exception: The projected available inventory is below Safety Stock Quantity';
+        AttentionMsg: Label 'Attention: The Starting Date ';
+        AttentionProdOrderMsg: Label 'Attention: The Status of Prod. Order';
+        SafetyStockMsg: Label 'Safety Stock Quantity';
+        OrderMultipleMsg: Label 'Order Multiple';
+        MinOrderQtyMsg: Label 'Minimum Order Quantity';
+        ReorderPointMsg: Label 'Reorder Point';
+        ReorderQtyMsg: Label 'Reorder Quantity';
+        BlanketOrderMsg: Label 'Blanket Order';
+        ProductionForecastMsg: Label 'Demand Forecast';
+        MaximumInventoryMsg: Label 'Maximum Inventory';
         ErrUntrackedPlanningElementMsg: Label 'Untracked Planning Element Source must be same.';
         GlobalItemNo: Code[20];
 
@@ -79,10 +77,9 @@ codeunit 137058 "SCM Planning Transparency"
           Item, LibraryRandom.RandInt(5) + 5, LibraryRandom.RandInt(2), 1, Item."Replenishment System"::Purchase);  // Value important for test. Maximum Inventory, Reorder Point. Safety Stock Quantity.
         PurchaseQuantity := LibraryRandom.RandDec(5, 2) + 10;
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
-        // Value must be less than Purchase Order Qty. Random shipment date.
-        CreateSalesOrder(
-          SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate() + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
+        // Value must be less than Purchase Order Qty.
+        CreateSalesOrder(SalesHeader, Item."No.", '', PurchaseQuantity - 5, WorkDate() + 1);
 
         if CalcPlanAndUpdateSales then begin
             // Planning Worksheet -> Calculate Regenerative plan & Carry Out Action Message.
@@ -122,7 +119,7 @@ codeunit 137058 "SCM Planning Transparency"
           Item."Replenishment System"::Purchase);  // Value important for Test. Maximum Inventory,Reorder Point,Safety Stock Qty.
         PurchaseQuantity := LibraryRandom.RandDec(5, 2) + 10;
         CreatePurchaseOrder(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, Item."No.", PurchaseQuantity, WorkDate() + 1);  // Large Random Value required for Test, Receipt date includes safety lead time.
         // Value must be less than Purchase Order Qty. Random shipment date.
         CreateSalesOrder(
           SalesHeader, Item."No.", '', PurchaseQuantity - 5, CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
@@ -163,7 +160,7 @@ codeunit 137058 "SCM Planning Transparency"
           LibraryRandom.RandInt(5) + 5, 0);  // Value important for Test.
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.",
-          LibraryRandom.RandInt(5), WorkDate + 1);  // Small Random Value required for Test, Date includes safety lead time.
+          LibraryRandom.RandInt(5), WorkDate() + 1);  // Small Random Value required for Test, Date includes safety lead time.
 
         LibraryPlanning.CalcRegenPlanForPlanWksh(
           Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
@@ -191,12 +188,12 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Setup: Select Item planning parameters with Purchase return order qty. Values important for test.
         Initialize();
-        SelectUntrackedPlanningSource(Source, ExceptionMessage, AttentionMessage, SafetyStockMessage, '', '');
         MinimumOrderQty := LibraryRandom.RandInt(5) * 10;
         SafetyStockQty := MinimumOrderQty / 2;
         OrderMultipleQty := SafetyStockQty / 2;
         PurchaseReturnQty := MinimumOrderQty + OrderMultipleQty + SafetyStockQty;
-        OrderTrackingForPurchaseReturnOrder(PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, Source);
+        OrderTrackingForPurchaseReturnOrder(
+            PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, SelectUntrackedPlanningSource(ExceptionMsg, AttentionMsg, SafetyStockMsg, '', ''));
     end;
 
     [Test]
@@ -211,12 +208,12 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Setup: Select Item planning parameters with Purchase return order qty. Values important for test.
         Initialize();
-        SelectUntrackedPlanningSource(Source, ExceptionMessage, AttentionMessage, SafetyStockMessage, OrderMultipleMessage, '');
         MinimumOrderQty := LibraryRandom.RandInt(5) * 10;
         SafetyStockQty := MinimumOrderQty / 2;
         OrderMultipleQty := SafetyStockQty / 2;
         PurchaseReturnQty := MinimumOrderQty + SafetyStockQty + 1;
-        OrderTrackingForPurchaseReturnOrder(PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, Source);
+        OrderTrackingForPurchaseReturnOrder(
+            PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, SelectUntrackedPlanningSource(ExceptionMsg, AttentionMsg, SafetyStockMsg, OrderMultipleMsg, ''));
     end;
 
     [Test]
@@ -231,26 +228,26 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         // Setup: Select Item planning parameters with Purchase return order qty. Values important for test.
         Initialize();
-        SelectUntrackedPlanningSource(
-          Source, ExceptionMessage, AttentionMessage, SafetyStockMessage, MinOrderQtyMessage, OrderMultipleMessage);
         MinimumOrderQty := LibraryRandom.RandInt(5) * 10;
         SafetyStockQty := MinimumOrderQty / 2 - 1;
         OrderMultipleQty := MinimumOrderQty / 2 + 1;
         PurchaseReturnQty := OrderMultipleQty;
-        OrderTrackingForPurchaseReturnOrder(PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, Source);
+        OrderTrackingForPurchaseReturnOrder(
+            PurchaseReturnQty, SafetyStockQty, MinimumOrderQty, OrderMultipleQty, SelectUntrackedPlanningSource(ExceptionMsg, AttentionMsg, SafetyStockMsg, MinOrderQtyMsg, OrderMultipleMsg));
     end;
 
-    local procedure OrderTrackingForPurchaseReturnOrder(PurchaseReturnQuantity: Decimal; SafetyStockQuantity: Decimal; MinimumOrderQuantity: Decimal; OrderMultiple: Decimal; Source: array[7] of Text[250])
+    local procedure OrderTrackingForPurchaseReturnOrder(PurchaseReturnQuantity: Decimal; SafetyStockQuantity: Decimal; MinimumOrderQuantity: Decimal; OrderMultiple: Decimal; PlanningSource: array[7] of Text[250])
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        RequisitionLine: Record "Requisition Line";
     begin
         // Create Lot for Lot item with Purchase return order, Planning Worksheet -> Calculate Regenerative plan.
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase, SafetyStockQuantity, MinimumOrderQuantity, OrderMultiple, 0);
         CreatePurchaseOrder(
           PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Item."No.",
-          PurchaseReturnQuantity, WorkDate + 1);  // Purchase Line Quantity important for Test, Date include safety lead time.
+          PurchaseReturnQuantity, WorkDate() + 1);  // Purchase Line Quantity important for Test, Date include safety lead time.
         SelectPurchaseLine(PurchaseLine, PurchaseLine."Document Type"::"Return Order", PurchaseHeader."No.");
         LibraryPlanning.CalcRegenPlanForPlanWksh(
           Item, WorkDate(), CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
@@ -265,7 +262,7 @@ codeunit 137058 "SCM Planning Transparency"
         OpenOrderTrackingForRequisition(RequisitionLine);
 
         // Verify Untracked planning elements.
-        VerifyUntrackedPlanningElementSource(Source);
+        VerifyUntrackedPlanningElementSource(PlanningSource);
     end;
 
     [Test]
@@ -301,10 +298,11 @@ codeunit 137058 "SCM Planning Transparency"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create item with Fixed Reorder Quantity, Create Sales Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize();
-        CreateFixedReorderQtyItem(Item, LibraryRandom.RandInt(5), LibraryRandom.RandInt(5));  // Reorder Point, Reorder Quantity.
+        CreateFixedReorderQtyItem(Item, LibraryRandom.RandInt(5), LibraryRandom.RandIntInRange(6, 10));  // Reorder Point, Reorder Quantity.
         // Large Random Value required for Test. Random shipment date.
         CreateSalesOrder(
           SalesHeader, Item."No.", '', LibraryRandom.RandInt(10) + 10,
@@ -328,8 +326,7 @@ codeunit 137058 "SCM Planning Transparency"
         OpenOrderTrackingForRequisition(RequisitionLine);
 
         // Verify Untracked planning elements.
-        SelectUntrackedPlanningSource(Source, ExceptionMessage, ReorderPointMessage, ReorderQtyMessage, '', '');
-        VerifyUntrackedPlanningElementSource(Source);
+        VerifyUntrackedPlanningElementSource(ExceptionMsg, ReorderPointMsg, ReorderQtyMsg, '', '');
     end;
 
     [Test]
@@ -388,6 +385,7 @@ codeunit 137058 "SCM Planning Transparency"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
         SalesLineQty: Decimal;
     begin
         // Create Item Stockkeeping Unit setup and sales order. Planning Worksheet -> Calculate Regenerative plan.
@@ -397,11 +395,11 @@ codeunit 137058 "SCM Planning Transparency"
         CreateSalesOrder(
           SalesHeader, Item."No.", LocationBlue.Code, SalesLineQty,
           CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + LibraryRandom.RandInt(30));
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate() + LibraryRandom.RandInt(30));
 
         if UpdateSalesAndCalcPlan then begin  // Update Sales Order. Run Regenerative plan again & Select Requisition Line for Expected quantities.
             ModifySalesOrderQuantity(SalesHeader, LocationRed.Code, SalesLineQty - 1);  // New quantity less than previous sales quantity.
-            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + LibraryRandom.RandInt(30));
+            LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate() + LibraryRandom.RandInt(30));
             SelectRequisitionLine(RequisitionLine, Item."No.", LocationRed.Code);
         end else
             SelectRequisitionLine(RequisitionLine, Item."No.", LocationBlue.Code);
@@ -423,6 +421,7 @@ codeunit 137058 "SCM Planning Transparency"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Item with re-order policy - Order, Create Blanket Sales Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize();
@@ -444,8 +443,7 @@ codeunit 137058 "SCM Planning Transparency"
         OpenOrderTrackingForRequisition(RequisitionLine);
 
         // Verify Untracked planning elements.
-        SelectUntrackedPlanningSource(Source, BlanketOrderMessage, '', '', '', '');
-        VerifyUntrackedPlanningElementSource(Source);
+        VerifyUntrackedPlanningElementSource(BlanketOrderMsg, '', '', '', '');
     end;
 
     [Test]
@@ -455,6 +453,7 @@ codeunit 137058 "SCM Planning Transparency"
     var
         Item: Record Item;
         ProductionOrder: Record "Production Order";
+        RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Item with re-order policy - LFL and planning parameters, Create Released Prod. Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize();
@@ -476,9 +475,7 @@ codeunit 137058 "SCM Planning Transparency"
         until RequisitionLine.Next() = 0;
 
         // Verify Untracked planning elements.
-        SelectUntrackedPlanningSource(
-          Source, SafetyStockMessage, ExceptionMessage, AttentionMessage, AttentionMessage, AttentionProdOrderMessage);
-        VerifyUntrackedPlanningElementSource(Source);
+        VerifyUntrackedPlanningElementSource(SafetyStockMsg, ExceptionMsg, AttentionMsg, AttentionMsg, AttentionProdOrderMsg);
     end;
 
     [Test]
@@ -488,6 +485,7 @@ codeunit 137058 "SCM Planning Transparency"
     var
         Item: Record Item;
         ManufacturingSetup: Record "Manufacturing Setup";
+        RequisitionLine: Record "Requisition Line";
     begin
         // Setup: Create Item with re-order policy - Order, Create Blanket Sales Order, Planning Worksheet -> Calculate Regenerative plan.
         Initialize();
@@ -497,7 +495,7 @@ codeunit 137058 "SCM Planning Transparency"
           LibraryRandom.RandInt(5) + 10, 0);  // Values required.
         CreateProductionForecastSetup(Item."No.");
         GlobalItemNo := Item."No.";
-        CalcRegenPlanForPlanningWorksheet;  // Calculate plan using Planning worksheet page.
+        CalcRegenPlanForPlanningWorksheet();  // Calculate plan using Planning worksheet page.
 
         // Select Requisition Line for Expected Quantities.
         SelectRequisitionLine(RequisitionLine, Item."No.", '');
@@ -508,9 +506,7 @@ codeunit 137058 "SCM Planning Transparency"
         OpenOrderTrackingForRequisition(RequisitionLine);
 
         // Verify Untracked planning elements.
-        SelectUntrackedPlanningSource(
-          Source, ProductionForecastMessage, SafetyStockMessage, ExceptionMessage, AttentionMessage, '');
-        VerifyUntrackedPlanningElementSource(Source);
+        VerifyUntrackedPlanningElementSource(ProductionForecastMsg, SafetyStockMsg, ExceptionMsg, AttentionMsg, '');
 
         // Tear Down.
         UpdateForecastOnManufacturingSetup(
@@ -563,6 +559,7 @@ codeunit 137058 "SCM Planning Transparency"
         SalesHeader: Record "Sales Header";
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";
+        RequisitionLine: Record "Requisition Line";
         FirmPlannedProdQty: Decimal;
         SalesOrderQty: Decimal;
         SalesShipmentDate: Date;
@@ -603,8 +600,7 @@ codeunit 137058 "SCM Planning Transparency"
         end else begin
             SelectRequisitionLine(RequisitionLine, Item."No.", '');
             OpenOrderTrackingForRequisition(RequisitionLine);  // Open and verify Order Tracking from Planning Worksheet page.Verification is inside test page handler - OrderTrackingPageHandler.
-            SelectUntrackedPlanningSource(Source, ReorderPointMessage, MaximumInventoryMessage, '', '', '');
-            VerifyUntrackedPlanningElementSource(Source);  // Verify untracked planning element for Requisition line.
+            VerifyUntrackedPlanningElementSource(ReorderPointMsg, MaximumInventoryMsg, '', '', '');  // Verify untracked planning element for Requisition line.
         end;
     end;
 
@@ -613,9 +609,9 @@ codeunit 137058 "SCM Planning Transparency"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning Transparency");
-        ClearGlobals;
+        ClearGlobals();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -625,7 +621,7 @@ codeunit 137058 "SCM Planning Transparency"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         NoSeriesSetup();
-        CreateLocationSetup;
+        CreateLocationSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning Transparency");
@@ -635,6 +631,7 @@ codeunit 137058 "SCM Planning Transparency"
     var
         ReservationEntry: Record "Reservation Entry";
         UntrackedPlanningElement: Record "Untracked Planning Element";
+        RequisitionLine: Record "Requisition Line";
     begin
         ReservationEntry.DeleteAll();
         UntrackedPlanningElement.DeleteAll();
@@ -643,7 +640,6 @@ codeunit 137058 "SCM Planning Transparency"
         Clear(UntrackedQuantity);
         Clear(TotalQuantity);
         Clear(Counter);
-        Clear(Source);
         Clear(GlobalItemNo);
     end;
 
@@ -653,12 +649,12 @@ codeunit 137058 "SCM Planning Transparency"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -816,12 +812,12 @@ codeunit 137058 "SCM Planning Transparency"
         PurchaseLine.SetRange("No.", ItemNo);
     end;
 
-    local procedure SelectRequisitionLine(var RequisitionLine2: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        RequisitionLine2.SetRange(Type, RequisitionLine.Type::Item);
-        RequisitionLine2.SetRange("No.", ItemNo);
-        RequisitionLine2.SetRange("Location Code", LocationCode);
-        RequisitionLine2.FindSet();
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.SetRange("Location Code", LocationCode);
+        RequisitionLine.FindSet();
     end;
 
     local procedure SelectRequisitionLineQuantity(var RequisitionLine2: Record "Requisition Line") RequisitionLineQuantity: Decimal
@@ -859,6 +855,8 @@ codeunit 137058 "SCM Planning Transparency"
     end;
 
     local procedure CarryOutActionMessage(ItemNo: Code[20])
+    var
+        RequisitionLine: Record "Requisition Line";
     begin
         AcceptActionMessage(ItemNo);
         SelectRequisitionLine(RequisitionLine, ItemNo, '');
@@ -867,17 +865,17 @@ codeunit 137058 "SCM Planning Transparency"
 
     local procedure AcceptActionMessage(ItemNo: Code[20])
     var
-        RequisitionLine2: Record "Requisition Line";
+        RequisitionLine: Record "Requisition Line";
         VendorNo: Code[20];
     begin
         VendorNo := LibraryPurchase.CreateVendorNo();
-        SelectRequisitionLine(RequisitionLine2, ItemNo, '');
+        SelectRequisitionLine(RequisitionLine, ItemNo, '');
         repeat
-            if RequisitionLine2."Ref. Order Type" = RequisitionLine2."Ref. Order Type"::Purchase then
-                RequisitionLine2.Validate("Vendor No.", VendorNo);
-            RequisitionLine2.Validate("Accept Action Message", true);
-            RequisitionLine2.Modify(true);
-        until RequisitionLine2.Next() = 0;
+            if RequisitionLine."Ref. Order Type" = RequisitionLine."Ref. Order Type"::Purchase then
+                RequisitionLine.Validate("Vendor No.", VendorNo);
+            RequisitionLine.Validate("Accept Action Message", true);
+            RequisitionLine.Modify(true);
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure CreateTransferRoute(var TransferRoute: Record "Transfer Route"; TransferFrom: Code[10]; TransferTo: Code[10])
@@ -939,19 +937,19 @@ codeunit 137058 "SCM Planning Transparency"
     begin
         Commit();
         RequisitionWkshName.FindFirst();
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
-    local procedure SelectUntrackedPlanningSource(var Source: array[7] of Text[250]; Message: Text[250]; Message2: Text[250]; Message3: Text[250]; Message4: Text[250]; Message5: Text[250])
+    local procedure SelectUntrackedPlanningSource(Message: Text[250]; Message2: Text[250]; Message3: Text[250]; Message4: Text[250]; Message5: Text[250]) PlanningSource: array[7] of Text[250]
     begin
-        Source[1] := Message;
-        Source[2] := Message2;
-        Source[3] := Message3;
-        Source[4] := Message4;
-        Source[5] := Message5;
+        PlanningSource[1] := Message;
+        PlanningSource[2] := Message2;
+        PlanningSource[3] := Message3;
+        PlanningSource[4] := Message4;
+        PlanningSource[5] := Message5;
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20])
@@ -961,7 +959,12 @@ codeunit 137058 "SCM Planning Transparency"
         ProdOrderLine.FindLast();
     end;
 
-    local procedure VerifyUntrackedPlanningElementSource(Source2: array[7] of Text[250])
+    local procedure VerifyUntrackedPlanningElementSource(Message: Text[250]; Message2: Text[250]; Message3: Text[250]; Message4: Text[250]; Message5: Text[250])
+    begin
+        VerifyUntrackedPlanningElementSource(SelectUntrackedPlanningSource(Message, Message2, Message3, Message4, Message5));
+    end;
+
+    local procedure VerifyUntrackedPlanningElementSource(PlanningSource: array[7] of Text[250])
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
         Index: Integer;
@@ -969,7 +972,7 @@ codeunit 137058 "SCM Planning Transparency"
         UntrackedPlanningElement.FindSet();
         Index := 1;
         repeat
-            Assert.IsTrue(StrPos(UntrackedPlanningElement.Source, Source2[Index]) > 0, ErrUntrackedPlanningElementMsg);
+            Assert.IsTrue(StrPos(UntrackedPlanningElement.Source, PlanningSource[Index]) > 0, ErrUntrackedPlanningElementMsg);
             Index += 1;
         until UntrackedPlanningElement.Next() = 0;
     end;
@@ -990,9 +993,9 @@ codeunit 137058 "SCM Planning Transparency"
         Counter += 1;
         case Counter of
             1:
-                Assert.IsTrue(StrPos(Message, TrackingMessage) > 0, Message);
+                Assert.IsTrue(StrPos(Message, TrackingMsg) > 0, Message);
             2:
-                Assert.IsTrue(StrPos(Message, NoTrackingLines) > 0, Message);
+                Assert.IsTrue(StrPos(Message, NoTrackingLinesMsg) > 0, Message);
         end;
     end;
 
@@ -1000,7 +1003,7 @@ codeunit 137058 "SCM Planning Transparency"
     [Scope('OnPrem')]
     procedure NoTrackingLinesMessageHandler(Message: Text[1024])
     begin
-        Assert.IsTrue(StrPos(Message, NoTrackingLines) > 0, Message);
+        Assert.IsTrue(StrPos(Message, NoTrackingLinesMsg) > 0, Message);
     end;
 
     [RequestPageHandler]
@@ -1011,7 +1014,7 @@ codeunit 137058 "SCM Planning Transparency"
         CalculatePlanPlanWksh.Item.SetFilter("No.", GlobalItemNo);
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(CalcDate('<' + '+' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 }
 

@@ -9,6 +9,7 @@ using Microsoft.Foundation.Address;
 table 11403 "Reporting ICP"
 {
     Caption = 'Reporting ICP';
+    DataClassification = CustomerContent;
 
     fields
     {

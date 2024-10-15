@@ -48,7 +48,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO] Coupling a Salesperson to a CRM Systemuser
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Salesperson and CRM Systemuser with different data
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -56,13 +56,13 @@ codeunit 139182 "CRM Coupling Test"
         ExpectedCRMName := CRMSystemuser.FullName;
 
         // [GIVEN] The Salesperson Card page
-        SalespersonPurchaserCard.OpenView;
+        SalespersonPurchaserCard.OpenView();
         SalespersonPurchaserCard.GotoRecord(SalespersonPurchaser);
 
         // [WHEN] Invoking the Set Up Coupling action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         LibraryVariableStorage.Enqueue(ExpectedCRMName);
-        SalespersonPurchaserCard.ManageCRMCoupling.Invoke;
+        SalespersonPurchaserCard.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Salesperson to the CRM Systemuser with synch (from CRM)
         // This is done in SetCouplingRecordPageHandler
@@ -102,7 +102,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Customer]
         // [SCENARIO] Coupling a Customer to a CRM Account
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Customer and a CRM Account with different data
         LibrarySales.CreateCustomer(Customer);
@@ -111,13 +111,13 @@ codeunit 139182 "CRM Coupling Test"
         OriginalCustomerName := Customer.Name;
 
         // [GIVEN] The Mini Customer Card page
-        CustomerCard.OpenView;
+        CustomerCard.OpenView();
         CustomerCard.GotoRecord(Customer);
 
         // [WHEN] Invoking the Set Up Coupling action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         LibraryVariableStorage.Enqueue(CRMAccount.Name);
-        CustomerCard.ManageCRMCoupling.Invoke;
+        CustomerCard.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Customer to the CRM Account with synch from NAV
         // This is done in SetCouplingRecordPageHandler
@@ -157,7 +157,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Contact]
         // [SCENARIO] Coupling a Contact to a CRM Contact
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Person type Contact and a CRM Contact with different data
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -171,12 +171,12 @@ codeunit 139182 "CRM Coupling Test"
           'Please make sure the library functions creating Contacts and CRM Contacts generate unique names');
 
         // [GIVEN] The Contact List page
-        ContactList.OpenView;
+        ContactList.OpenView();
         ContactList.GotoRecord(Contact);
 
         // [WHEN] Invoking the Set Up Coupling action
         LibraryVariableStorage.Enqueue(OriginalCRMContactName);
-        ContactList.ManageCRMCoupling.Invoke;
+        ContactList.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Contact to the CRM Contact without synch
         // This is done in DoNotSyncCouplingRecordPageHandler
@@ -211,16 +211,16 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Customer]
         // [SCENARIO] Create new Customer from CRM Account list page
-        TestInit;
+        TestInit();
         // [GIVEN] new CRM Account
         CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
 
         // [WHEN] Run "Create Customer from CRM" action on "Customer List" page
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        CustomerListPage.OpenView;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CustomerListPage.OpenView();
         LibraryVariableStorage.Enqueue(CRMAccount.Name);
-        CustomerListPage.CreateFromCRM.Invoke;
+        CustomerListPage.CreateFromCRM.Invoke();
         // handled by CRMAccountListModalHandler
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         JobQueueEntryID :=
@@ -253,7 +253,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Contact]
         // [SCENARIO] Create new Contact from CRM Contact list page
-        TestInit;
+        TestInit();
         // [GIVEN] CRM Account 'A', coupled to a Customer that has link to a Company Contact
         CreateCRMAccountCoupledToCustomerWithContact(CRMAccount);
 
@@ -263,10 +263,10 @@ codeunit 139182 "CRM Coupling Test"
         CRMContact.TestField(ParentCustomerIdType, CRMContact.ParentCustomerIdType::account);
 
         // [WHEN] Run "Create Contact from CRM" action on "Contact List" page
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        ContactListPage.OpenView;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        ContactListPage.OpenView();
         LibraryVariableStorage.Enqueue(CRMContact.EMailAddress1);
-        ContactListPage.CreateFromCRM.Invoke;
+        ContactListPage.CreateFromCRM.Invoke();
         // handled by CRMContactListModalHandler
         CRMContact.SetRange(ContactId, CRMContact.ContactId);
         JobQueueEntryID :=
@@ -288,9 +288,9 @@ codeunit 139182 "CRM Coupling Test"
     [Scope('OnPrem')]
     procedure DoNotSyncCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText);
+        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText());
         CRMCouplingRecord.SyncActionControl.SetValue(SyncAction::DoNotSynch);
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.OK().Invoke();
     end;
 
     [Test]
@@ -311,25 +311,25 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Currency]
         // [SCENARIO] Creating a CRM Transactioncurrency using a Currency and the CRM Coupling Currency page
-        TestInit;
-        EnableConnection;
+        TestInit();
+        EnableConnection();
         // Make sure the LCY is already present in CRM
         CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
         Clear(CRMTransactioncurrency);
         OriginalNumberOfCRMTransactioncurrencies := CRMTransactioncurrency.Count();
 
         // [GIVEN] A Currency with non-zero exchange rate
-        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
         CurrencyCode := LibraryUtility.GenerateRandomCodeWithLength(Currency.FieldNo(Code), DATABASE::Currency, 5);
         Currency.Rename(CurrencyCode); // Renaming explicitly because CRM can't handle more than 5 chars
 
         // [GIVEN] The Currency Card page
-        CurrencyCard.OpenView;
+        CurrencyCard.OpenView();
         CurrencyCard.GotoRecord(Currency);
 
         // [WHEN] Invoking the Synchronize Now action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        CurrencyCard.ManageCRMCoupling.Invoke;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CurrencyCard.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Currency using Create New
         // This is done in CreateNewCouplingRecordPageHandler
@@ -347,7 +347,7 @@ codeunit 139182 "CRM Coupling Test"
         // [THEN] The Currency and CRM Transactioncurrency contain the same data
         CRMIntegrationRecord.FindIDFromRecordID(Currency.RecordId, CRMID);
         CRMTransactioncurrency.Get(CRMID);
-        Assert.IsTrue(Currency.Find, 'The Currency was renamed');
+        Assert.IsTrue(Currency.Find(), 'The Currency was renamed');
         Assert.AreEqual(CurrencyCode, CRMTransactioncurrency.ISOCurrencyCode,
           'The CRM Transactioncurrency must have the same ISO currency code as the Currency');
         // [THEN] CurrencyPrecision is not zero
@@ -385,8 +385,8 @@ codeunit 139182 "CRM Coupling Test"
         // [FEATURE] [UI] [Currency]
         // [SCENARIO] Creating a CRM Transactioncurrency using a Currency and the CRM Coupling Currency page should fail
         // [SCENARIO] if no exchange rate are defined
-        TestInit;
-        EnableConnection;
+        TestInit();
+        EnableConnection();
         // Make sure the LCY is already present in CRM
         CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
         Clear(CRMTransactioncurrency);
@@ -398,12 +398,12 @@ codeunit 139182 "CRM Coupling Test"
         Currency.Rename(CurrencyCode); // Renaming explicitly because CRM can't handle more than 5 chars
 
         // [GIVEN] The Currency Card page
-        CurrencyCard.OpenView;
+        CurrencyCard.OpenView();
         CurrencyCard.GotoRecord(Currency);
 
         // [WHEN] Invoking the Synchronize Now action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        CurrencyCard.ManageCRMCoupling.Invoke;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CurrencyCard.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Currency using Create New
         // This is done in CreateNewCouplingRecordPageHandler
@@ -449,7 +449,7 @@ codeunit 139182 "CRM Coupling Test"
         // [FEATURE] [UI] [Item]
         // [SCENARIO] Coupling an Item to a CRM Product
 
-        TestInit;
+        TestInit();
 
         // [GIVEN] An Item and a CRM Product with different data
         PrepareItemForCoupling(Item, Item."Replenishment System"::Assembly, CRMUom);
@@ -502,14 +502,14 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Item]
         // [SCENARIO] Coupling an Item to a new CRM Product
-        TestInit;
+        TestInit();
         // [GIVEN] An Item, where "Unit Price" is 'X'
         PrepareItemForCoupling(Item, Item."Replenishment System"::Purchase, CRMUom);
         Item."Unit Price" := LibraryRandom.RandDec(100, 2);
         Item.Modify();
 
         // [WHEN] Couple to a new CRM Product
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMIntegrationManagement.CreateNewRecordsInCRM(Item.RecordId);
         // JobQueueEntry is inserted and executed
         Item.SetRange(SystemId, Item.SystemId);
@@ -549,7 +549,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Item] [Unit Of Measure]
         // [SCENARIO] An error should be thrown if coupling an Item, where "Base Unit Of Measure" is blank, to a CRM Product
-        TestInit;
+        TestInit();
 
         // [GIVEN] An Item, where "Base Unit Of Measure" is blank
         PrepareItemForCoupling(Item, Item."Replenishment System"::Purchase, CRMUom);
@@ -557,7 +557,7 @@ codeunit 139182 "CRM Coupling Test"
         Item.Modify();
 
         // [WHEN] Couple to a new CRM Product
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMIntegrationManagement.CreateNewRecordsInCRM(Item.RecordId);
         // JobQueueEntry is inserted and executed
         Item.SetRange(SystemId, Item.SystemId);
@@ -593,7 +593,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Item] [Assembly]
         // [SCENARIO] Coupling an Assembled Item to a CRM Product
-        TestInit;
+        TestInit();
         // [GIVEN] Assembled Item with "Unit Price" = 0
         PrepareItemForCoupling(Item, Item."Replenishment System"::Assembly, CRMUom);
         Item.TestField("Unit Price", 0);
@@ -666,7 +666,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Unit Of Measure]
         // [SCENARIO] Coupling a Unit of Measure to another CRM Uomschedule
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Unit of Measure and two CRM Uomschedules, all with different data
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
@@ -684,13 +684,13 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(UnitOfMeasure.RecordId, CRMUomschedule1.UoMScheduleId);
 
         // [GIVEN] The Unit of Measure List page
-        UnitsOfMeasure.OpenView;
+        UnitsOfMeasure.OpenView();
         UnitsOfMeasure.GotoRecord(UnitOfMeasure);
 
         // [WHEN] Invoking the Set Up Coupling action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         LibraryVariableStorage.Enqueue(CRMUomschedule2.Name);
-        UnitsOfMeasure.ManageCRMCoupling.Invoke;
+        UnitsOfMeasure.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Unit of Measure to the other CRM Uomschedule with synch from NAV
         // Happens in SyncToCRMCouplingRecordPageHandler
@@ -714,7 +714,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [THEN] The previously uncoupled CRM Uomschedule data was overwritten with the Unit of Measure data
         CRMUomschedule2.Find();
-        Assert.IsTrue(UnitOfMeasure.Find, 'The Unit of Measure was renamed');
+        Assert.IsTrue(UnitOfMeasure.Find(), 'The Unit of Measure was renamed');
         Assert.AreEqual(OriginalUoMCode, CRMUomschedule2.BaseUoMName,
           'The second CRM Uomschedule should have the same Base UoM Name as the Code of the Unit of Measure');
     end;
@@ -723,12 +723,12 @@ codeunit 139182 "CRM Coupling Test"
     [Scope('OnPrem')]
     procedure SyncToCRMCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText);
+        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText());
         CRMCouplingRecord.SyncActionControl.SetValue(SyncAction::PushToCRM);
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.OK().Invoke();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('SetCouplingRecordPageHandler,SyncStartedNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
@@ -746,8 +746,8 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Price List]
         // [SCENARIO] Coupling a Customer Price Group to a CRM PriceLevel
-        TestInit;
-        EnableConnection;
+        TestInit();
+        EnableConnection();
 
         // [GIVEN] A Customer Price Group and a CRM PriceLevel with different data
         LibrarySales.CreateCustomerPriceGroup(CustomerPriceGroup);
@@ -756,13 +756,13 @@ codeunit 139182 "CRM Coupling Test"
         OriginalPriceGroupCode := CustomerPriceGroup.Code;
 
         // [GIVEN] The Customer Price Groups list page
-        CustomerPriceGroups.OpenView;
+        CustomerPriceGroups.OpenView();
         CustomerPriceGroups.GotoRecord(CustomerPriceGroup);
 
         // [WHEN] Invoking the Set Up Coupling action
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         LibraryVariableStorage.Enqueue(CRMPricelevel.Name);
-        CustomerPriceGroups.ManageCRMCoupling.Invoke;
+        CustomerPriceGroups.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Customer Price Group to the CRM Pricelevel with synch from NAV
         // This is done in SetCouplingRecordPageHandler
@@ -803,7 +803,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Price List]
         // [SCENARIO] Coupling a Customer Price Group with child Sales Line, create new Pricelevel in CRM
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Customer Price Group with child Sales Line
         LibraryCRMIntegration.CreateCoupledItemAndProduct(Item, CRMProduct);
@@ -813,12 +813,12 @@ codeunit 139182 "CRM Coupling Test"
           0D, '', '', '', 0, LibraryRandom.RandDecInRange(10, 100, 2));
 
         // [GIVEN] The Customer Price Groups list page
-        CustomerPriceGroups.OpenView;
+        CustomerPriceGroups.OpenView();
         CustomerPriceGroups.GotoRecord(CustomerPriceGroup);
 
         // [WHEN] Invoking the Set Up Coupling action, Create New
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        CustomerPriceGroups.ManageCRMCoupling.Invoke;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        CustomerPriceGroups.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Customer Price Group to newly created CRM Pricelevel
         // This is done in CreateNewCouplingRecordPageHandler
@@ -867,7 +867,7 @@ codeunit 139182 "CRM Coupling Test"
         PriceListHeader.Modify();
 
         // [GIVEN] Open "Sales Price List" page
-        SalesPriceList.OpenView;
+        SalesPriceList.OpenView();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
         // [THEN] CRM action group is not enabled
@@ -904,7 +904,7 @@ codeunit 139182 "CRM Coupling Test"
         PriceListHeader.Modify();
 
         // [GIVEN] Open "Sales Price List" page
-        SalesPriceList.OpenView;
+        SalesPriceList.OpenView();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
         // [THEN] CRM action group is not enabled
@@ -945,13 +945,13 @@ codeunit 139182 "CRM Coupling Test"
         PriceListHeader.Modify();
 
         // [GIVEN] The "Sales Price List" page
-        SalesPriceList.OpenView;
+        SalesPriceList.OpenView();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
         Assert.IsTrue(SalesPriceList.ManageCRMCoupling.Enabled(), 'ManageCRMCoupling.Enabled');
 
         // [WHEN] Invoking the Set Up Coupling action, Create New
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        SalesPriceList.ManageCRMCoupling.Invoke;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        SalesPriceList.ManageCRMCoupling.Invoke();
 
         // [WHEN] Coupling the Price List Header to newly created CRM Pricelevel
         // This is done in CreateNewCouplingRecordPageHandler
@@ -1211,7 +1211,7 @@ codeunit 139182 "CRM Coupling Test"
     procedure CreateNewCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
         CRMCouplingRecord.CreateNewControl.SetValue(true);
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1219,7 +1219,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         LibraryVariableStorage.Enqueue(CRMCouplingRecord.NAVName.Value());
         CRMCouplingRecord.CreateNewControl.SetValue(true);
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.OK().Invoke();
     end;
 
     [Test]
@@ -1240,7 +1240,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Resource]
         // [SCENARIO] Canceling the coupling of a Resource to a CRM Product
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Resource and a CRM Product with different data
         LibraryResource.CreateResourceNew(Resource);
@@ -1254,12 +1254,12 @@ codeunit 139182 "CRM Coupling Test"
         OriginalCRMProductName := CRMProduct.Name;
 
         // [GIVEN] The Resource List page
-        ResourceList.OpenView;
+        ResourceList.OpenView();
         ResourceList.GotoRecord(Resource);
 
         // [WHEN] Invoking the Set Up Coupling action
         LibraryVariableStorage.Enqueue(CRMProduct.ProductNumber);
-        ResourceList.ManageCRMCoupling.Invoke;
+        ResourceList.ManageCRMCoupling.Invoke();
 
         // [WHEN] Selecting the CRM Product to couple to but then closing the page using Cancel
         // This happens in CancelCouplingRecordPageHandler
@@ -1289,7 +1289,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Resource] [Unit Of Measure]
         // [SCENARIO] An error should be thrown if coupling a Resource, where "Base Unit Of Measure" is blank, to a CRM Product
-        TestInit;
+        TestInit();
 
         // [GIVEN] A Resource, where "Base Unit Of Measure" is blank
         LibraryResource.CreateResourceNew(Resource);
@@ -1297,7 +1297,7 @@ codeunit 139182 "CRM Coupling Test"
         Resource.Modify();
 
         // [WHEN] Couple to a new CRM Product
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMIntegrationManagement.CreateNewRecordsInCRM(Resource.RecordId);
         Resource.SetRange(SystemId, Resource.SystemId);
         JobQueueEntryID :=
@@ -1326,7 +1326,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Job Queue]
         // [SCENARIO] Coupling a NAV record to a new CRM record should not depend on previous synchronization time.
-        TestInit;
+        TestInit();
         // [GIVEN] new Unit of Measure is created at 10:53:17
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
 
@@ -1335,7 +1335,7 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationTableMapping.ModifyAll("Synch. Modified On Filter", CurrentDateTime + 1);
 
         // [WHEN] Couple the UoM using Create New
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         UnitOfMeasure.SetRange(SystemId, UnitOfMeasure.SystemId);
         CRMIntegrationManagement.CreateNewRecordsInCRM(UnitOfMeasure);
         // execute the job
@@ -1366,7 +1366,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Contact] [Customer]
         // [SCENARIO] Removing the coupling for a customer with complicated contact relations
-        TestInit;
+        TestInit();
 
         // [GIVEN] A customer coupled to a CRM account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1430,7 +1430,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Opportunity]
         // [SCENARIO] Coupling Opportunity to new CRM Opportunity
-        TestInit;
+        TestInit();
 
         // [GIVEN] Opportunity
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1440,7 +1440,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
 
         // [WHEN] Couple Opportunity using Create New
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         Opportunity.SetRange(SystemId, Opportunity.SystemId);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Opportunity);
         // execute the job
@@ -1470,7 +1470,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Opportunity]
         // [SCENARIO] Coupling Opportunity to CRM Opportunity
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson coupled to CRM Systemuser
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1483,13 +1483,13 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMOpportunity(CRMOpportunity);
         ExpectedCRMName := CRMOpportunity.Name;
         // [GIVEN] Opportunity Card page
-        OpportunityCard.OpenView;
+        OpportunityCard.OpenView();
         OpportunityCard.GotoRecord(Opportunity);
 
         // [WHEN] Couple Opportunity to CRM Opportunity
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         LibraryVariableStorage.Enqueue(ExpectedCRMName);
-        OpportunityCard.ManageCRMCoupling.Invoke;
+        OpportunityCard.ManageCRMCoupling.Invoke();
         // execute the job
         Opportunity.SetRange(SystemId, Opportunity.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
@@ -1531,7 +1531,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Opportunity]
         // [SCENARIO] Coupling Opportunity to new CRM Opportunity with empty Salesperson Code
-        TestInit;
+        TestInit();
 
         // [GIVEN] Opportunity with Salesperson Code = ''
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1541,7 +1541,7 @@ codeunit 139182 "CRM Coupling Test"
         Opportunity.Modify();
 
         // [WHEN] Couple Opportunity using Create New
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         Opportunity.SetRange(SystemId, Opportunity.SystemId);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Opportunity);
         // execute the job
@@ -1570,7 +1570,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 208299] Coupling of CRM users to Salesperson in CRM SystemUser page.
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson "SP" and CRM User "CU"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
@@ -1578,7 +1578,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
 
         // [WHEN] CRM Systemuser List page is opened
-        CRMSystemuserList.OpenEdit;
+        CRMSystemuserList.OpenEdit();
 
         // [THEN] CRM User "CU" has "Coupled" = No and no coupled Salesperson defined
         CRMSystemuserList.GotoKey(CRMSystemuser.SystemUserId);
@@ -1586,14 +1586,14 @@ codeunit 139182 "CRM Coupling Test"
         CRMSystemuserList.SalespersonPurchaserCode.AssertEquals('');
 
         // [WHEN] Lookup is made and "SP" Salesperson selected
-        CRMSystemuserList.SalespersonPurchaserCode.Lookup;
+        CRMSystemuserList.SalespersonPurchaserCode.Lookup();
 
         // [THEN] CRM User "CU" has Salesperson = "SP" in CRM Systemuser List page
         CRMSystemuserList.Coupled.AssertEquals(Coupled::No);
         CRMSystemuserList.SalespersonPurchaserCode.AssertEquals(SalespersonPurchaser.Code);
 
         // [WHEN] Action Couple is invoked
-        CRMSystemuserList.Couple.Invoke;
+        CRMSystemuserList.Couple.Invoke();
 
         // [THEN] CRM User "CU" has "Coupled" = Yes and Salesperson = "SP"
         CRMSystemuserList.Coupled.AssertEquals(Coupled::Yes);
@@ -1611,13 +1611,13 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 208299] Coupled CRM User has Coupled = Yes and defined Salesperson
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson "SP" and CRM User "CU" are coupled
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         // [WHEN] CRM Systemuser List page is opened
-        CRMSystemuserList.OpenEdit;
+        CRMSystemuserList.OpenEdit();
 
         // [THEN] CRM Systemuser "CU" has "Coupled" = Yes, Salesperson Code = "SP"
         CRMSystemuserList.GotoKey(CRMSystemuser.SystemUserId);
@@ -1638,7 +1638,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 208299] Change coupling of Salesperson from one CRM User to other CRM User
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson "SP" coupled to CRM User "CU1"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -1648,12 +1648,12 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser2);
 
         // [WHEN] CRM Systemuser List page is opened
-        CRMSystemuserList.OpenEdit;
+        CRMSystemuserList.OpenEdit();
 
         // [WHEN] Salesperson "SP" is selected for CRM User "CU2"
         CRMSystemuserList.GotoKey(CRMSystemuser2.SystemUserId);
         LibraryVariableStorage.Enqueue(SalespersonPurchaser.Code);
-        CRMSystemuserList.SalespersonPurchaserCode.Lookup;
+        CRMSystemuserList.SalespersonPurchaserCode.Lookup();
 
         // [THEN] CRM User "CU1" has Coupled = "Yes" and no coupled Salesperson defined
         CRMSystemuserList.GotoKey(CRMSystemuser.SystemUserId);
@@ -1661,7 +1661,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMSystemuserList.SalespersonPurchaserCode.AssertEquals('');
 
         // [WHEN] Couple is invoked
-        CRMSystemuserList.Couple.Invoke;
+        CRMSystemuserList.Couple.Invoke();
 
         // [THEN] CRM User "CU1" has Coupled = "No" and no coupled Salesperson defined
         CRMSystemuserList.Coupled.AssertEquals(Coupled::No);
@@ -1690,7 +1690,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO] Synchronize CRM Product to Item
-        TestInit;
+        TestInit();
         Item.DeleteAll(false);
         LibraryCRMIntegration.EnsureCDSCompany(CDSCompany);
 
@@ -1704,7 +1704,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMProduct.Modify();
 
         // [WHEN] Synchronize CRM Product to Item
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMProduct.SetRange(ProductId, CRMProduct.ProductId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView(), IntegrationTableMapping);
@@ -1735,7 +1735,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO] Synchronize CRM Product to Item
-        TestInit;
+        TestInit();
         Item.DeleteAll(false);
         LibraryCRMIntegration.EnsureCDSCompany(CDSCompany);
 
@@ -1751,7 +1751,7 @@ codeunit 139182 "CRM Coupling Test"
         CRMProductService.Modify();
 
         // [WHEN] Synchronize CRM Product to Item
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMProduct.SetRange(ProductId, CRMProduct.ProductId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMProduct);
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Product", CRMProduct.GetView(), IntegrationTableMapping);
@@ -1773,12 +1773,12 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Integration User]
         // [SCENARIO] Synchronize CRM Account, modified by Integration User, to new Customer
-        TestInit;
+        TestInit();
 
         // [GIVEN] Customer coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount);
         // [GIVEN] CRM Account's last modification was done by the integration user.
-        CRMAccount.ModifiedBy := CRMConnectionSetup.GetIntegrationUserID;
+        CRMAccount.ModifiedBy := CRMConnectionSetup.GetIntegrationUserID();
         CRMAccount.Modify();
         // [GIVEN] Coupling is removed
         CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
@@ -1803,7 +1803,7 @@ codeunit 139182 "CRM Coupling Test"
         Customer: array[2] of Record Customer;
     begin
         // [SCENARIO] Synchronize CRM Account, coupled to a deleted Customer, to new Customer
-        TestInit;
+        TestInit();
         // [GIVEN] Customer coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount);
         // [GIVEN] Customer is deleted,
@@ -1832,14 +1832,14 @@ codeunit 139182 "CRM Coupling Test"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         // [SCENARIO] Synchronize Customer, coupled to a deleted CRM Account, to new CRM Account
-        TestInit;
+        TestInit();
         // [GIVEN] Customer coupled to CRM Account
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount[1]);
         // [GIVEN] CRM Account is deleted
         CRMAccount[1].Delete(true);
 
         // [WHEN] Synchronize Customer to new CRM Account
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         Customer.SetRange(SystemId, Customer.SystemId);
         CRMIntegrationManagement.CreateNewRecordsInCRM(Customer);
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Customer, Customer.GetView(), IntegrationTableMapping);
@@ -1861,17 +1861,17 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 215918] User can remove coupling for CRM User on CRM SystemUser List page
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson "SP" and CRM User "CU" are coupled
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
-        CRMSystemuserList.OpenEdit;
+        CRMSystemuserList.OpenEdit();
         CRMSystemuserList.GotoKey(CRMSystemuser.SystemUserId);
         CRMSystemuserList.Coupled.AssertEquals(Coupled::Yes);
 
         // [WHEN] Salesperson/Purchaser value is changed to '' for coupled CRM User and Couple action called
         CRMSystemuserList.SalespersonPurchaserCode.SetValue('');
-        CRMSystemuserList.Couple.Invoke;
+        CRMSystemuserList.Couple.Invoke();
 
         // [THEN] CRM Systemuser "CU" has "Coupled" = No, Salesperson Code = ""
         CRMSystemuserList.Coupled.AssertEquals(Coupled::No);
@@ -1889,13 +1889,13 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 215918] Selection of Salesperson already defined for other user clears old user Salesperson code
-        TestInit;
+        TestInit();
 
         // [GIVEN] Salesperson "SP" and CRM User "CU1", "CU2"
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser1);
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser2);
-        CRMSystemuserList.OpenEdit;
+        CRMSystemuserList.OpenEdit();
         CRMSystemuserList.GotoKey(CRMSystemuser1.SystemUserId);
 
         // [GIVEN] Salesperson/Purchaser value is changed to 'SP' for CRM User "CU1"
@@ -1924,32 +1924,32 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [UI] [Salesperson]
         // [SCENARIO 215918] When CRM SystemUser List page opened from Salesperson/Purchaser page coupling controls are not shown
-        TestInit;
+        TestInit();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         LibraryCRMIntegration.CreateCRMSystemUser(CRMSystemuser);
 
         // [WHEN] CRM Systemuser List page opened from Salesperson card
-        SalespersonPurchaserCard.OpenEdit;
+        SalespersonPurchaserCard.OpenEdit();
         SalespersonPurchaserCard.GotoRecord(SalespersonPurchaser);
-        SalespersonPurchaserCard.ManageCRMCoupling.Invoke;
+        SalespersonPurchaserCard.ManageCRMCoupling.Invoke();
 
         // [THEN] "Couple" and "Uncouple" controls are not VISIBLE
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Couple control should not be visible');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Uncouple control should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Couple control should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Uncouple control should not be visible');
 
         // [THEN] "Create Salesperson" control is VISIBLE
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Create Salesperson control should be visible');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Create Salesperson control should be visible');
 
         // [THEN] Salesperson/Purchaser Code column field should be disabled
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Salesperson/Purchaser Code column field should be disabled');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'Salesperson/Purchaser Code column field should be disabled');
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CancelCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText);
-        CRMCouplingRecord.Cancel.Invoke;
+        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText());
+        CRMCouplingRecord.Cancel().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1975,7 +1975,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer] [Contact]
         // [SCENARIO 225428] Primary Contact in CRM Account is updated from Customer when synchronize
-        TestInit;
+        TestInit();
 
         // [GIVEN] Customer "CUST" is coupled with CRM Account "CRMACC"
         GetIntegrationTableMapping(IntegrationTableMapping, Database::Customer);
@@ -1988,7 +1988,7 @@ codeunit 139182 "CRM Coupling Test"
         SetCustomerPrimaryContact(Customer, Contact);
 
         // [WHEN] Synchronize "CUST" with "CRMACC"
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         SyncAction := SyncAction::PushToCRM;
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
         Customer.SetRange(SystemId, Customer.SystemId);
@@ -2017,7 +2017,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer] [Contact]
         // [SCENARIO 225428] Primary Contact in Customer is updated from CRM Account when synchronize
-        TestInit;
+        TestInit();
 
         // [GIVEN] Customer "CUST" is coupled with CRM Account "CRMACC"
         GetIntegrationTableMapping(IntegrationTableMapping, Database::Customer);
@@ -2032,7 +2032,7 @@ codeunit 139182 "CRM Coupling Test"
         SetCRMAccountPrimaryContact(CRMAccount, CRMContact.ContactId);
 
         // [WHEN] Synchronize "CUST" with "CRMACC"
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         SyncAction := SyncAction::PushToNAV;
         CRMIntegrationManagement.UpdateOneNow(Customer.RecordId);
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
@@ -2058,7 +2058,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer-Contact Link] [Clear Value on Failed Sync]
         // [SCENARIO 230754] NAV to CRM sync field with "Clear Value on Failed Sync"=Yes makes field empty and does not cause error
-        TestInit;
+        TestInit();
 
         // [GIVEN] Integration Field Mapping for "Primary Contact No." with "Clear on Fail"=Yes
         SetupPrimaryContactIntegrationFieldMapping(true);
@@ -2096,7 +2096,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer-Contact Link]
         // [SCENARIO 230754] NAV to CRM sync field with "Clear Value on Failed Sync"=No causes error and does not change field value
-        TestInit;
+        TestInit();
 
         // [GIVEN] Integration Field Mapping for "Primary Contact No." with "Clear on Fail"=Yes
         SetupPrimaryContactIntegrationFieldMapping(false);
@@ -2143,7 +2143,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer-Contact Link] [Clear Value on Failed Sync]
         // [SCENARIO 230754] CRM to NAV sync field with "Clear Value on Failed Sync"=Yes makes field empty and does not cause error
-        TestInit;
+        TestInit();
 
         // [GIVEN] Integration Field Mapping for "Primary Contact No." with "Clear on Fail"=Yes
         SetupPrimaryContactIntegrationFieldMapping(true);
@@ -2184,7 +2184,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer-Contact Link]
         // [SCENARIO 230754] CRM to NAV sync field with "Clear Value on Failed Sync"=No causes error and does not change field value
-        TestInit;
+        TestInit();
 
         // [GIVEN] Integration Field Mapping for "Primary Contact No." with "Clear on Fail"=No
         SetupPrimaryContactIntegrationFieldMapping(false);
@@ -2236,9 +2236,9 @@ codeunit 139182 "CRM Coupling Test"
     begin
         // [FEATURE] [Customer-Contact Link] [UI]
         // [SCENARIO 230754] User is able to couple not coupled customer and its primary contact in sequence: first contact, second customer
-        TestInit;
-        EnableConnection;
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        TestInit();
+        EnableConnection();
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
 
         // [GIVEN] Contact 'CONT'
         LibraryCRMIntegration.CreateContact(Contact);
@@ -2278,16 +2278,16 @@ codeunit 139182 "CRM Coupling Test"
         LibraryVariableStorage.Clear();
         LibraryTemplates.EnableTemplatesFeature();
 
-        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
+        MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID(), '', '', false);
 
         // Enable CRM Integration with Integration Table Mappings
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
         CRMConnectionSetup.Modify();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         RecordLink.DeleteAll();
     end;
@@ -2307,9 +2307,9 @@ codeunit 139182 "CRM Coupling Test"
         ContactCard: TestPage "Contact Card";
         CRMID: Guid;
     begin
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard.GotoRecord(Contact);
-        ContactCard.ManageCRMCoupling.Invoke;
+        ContactCard.ManageCRMCoupling.Invoke();
 
         Contact.SetRange(SystemId, Contact.SystemId);
         LibraryCRMIntegration.RunJobQueueEntry(
@@ -2383,7 +2383,7 @@ codeunit 139182 "CRM Coupling Test"
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
         CRMAccount.SetRange(AccountId, CRMAccount.AccountId);
         CRMIntegrationManagement.CreateNewRecordsFromCRM(CRMAccount);
         LibraryCRMIntegration.RunJobQueueEntry(DATABASE::"CRM Account", CRMAccount.GetView(), IntegrationTableMapping);
@@ -2411,11 +2411,11 @@ codeunit 139182 "CRM Coupling Test"
     var
         ItemList: TestPage "Item List";
     begin
-        ItemList.OpenView;
+        ItemList.OpenView();
         ItemList.GotoRecord(Item);
 
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
-        ItemList.CRMGoToProduct.Invoke;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
+        ItemList.CRMGoToProduct.Invoke();
         Item.SetRange(SystemId, Item.SystemId);
         exit(LibraryCRMIntegration.RunJobQueueEntry(DATABASE::Item, Item.GetView(), IntegrationTableMapping));
     end;
@@ -2468,7 +2468,7 @@ codeunit 139182 "CRM Coupling Test"
         Customer: Record Customer;
         CRMAccount: Record "CRM Account";
     begin
-        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", GetCustomerTableMappingName);
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", GetCustomerTableMappingName());
         IntegrationFieldMapping.SetRange("Field No.", Customer.FieldNo("Primary Contact No."));
         IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMAccount.FieldNo(PrimaryContactId));
         exit(IntegrationFieldMapping.FindFirst())
@@ -2526,7 +2526,7 @@ codeunit 139182 "CRM Coupling Test"
     begin
         if not FindPrimaryContactIntegrationFieldMapping(IntegrationFieldMapping) then
             IntegrationFieldMapping.CreateRecord(
-              GetCustomerTableMappingName,
+              GetCustomerTableMappingName(),
               Customer.FieldNo("Primary Contact No."),
               CRMAccount.FieldNo(PrimaryContactId),
               IntegrationFieldMapping.Direction::Bidirectional,
@@ -2579,9 +2579,9 @@ codeunit 139182 "CRM Coupling Test"
     procedure CRMAccountListModalHandler(var CRMAccountListPage: TestPage "CRM Account List")
     begin
         Assert.IsTrue(
-          CRMAccountListPage.FindFirstField(Name, LibraryVariableStorage.DequeueText),
+          CRMAccountListPage.FindFirstField(Name, LibraryVariableStorage.DequeueText()),
           'CRM Account is not found in the list page');
-        CRMAccountListPage.CreateFromCRM.Invoke;
+        CRMAccountListPage.CreateFromCRM.Invoke();
     end;
 
     [ModalPageHandler]
@@ -2589,9 +2589,9 @@ codeunit 139182 "CRM Coupling Test"
     procedure CRMContactListModalHandler(var CRMContactListPage: TestPage "CRM Contact List")
     begin
         Assert.IsTrue(
-          CRMContactListPage.FindFirstField(EMailAddress1, LibraryVariableStorage.DequeueText),
+          CRMContactListPage.FindFirstField(EMailAddress1, LibraryVariableStorage.DequeueText()),
           'CRM Contact is not found in the list page');
-        CRMContactListPage.CreateFromCRM.Invoke;
+        CRMContactListPage.CreateFromCRM.Invoke();
     end;
 
     [SendNotificationHandler]
@@ -2611,32 +2611,32 @@ codeunit 139182 "CRM Coupling Test"
         LibraryVariableStorage.Dequeue(SalespersonCodeVAR);
         SalespersonCode := SalespersonCodeVAR;
         SalespersonsPurchasers.GotoKey(SalespersonCode);
-        SalespersonsPurchasers.OK.Invoke;
+        SalespersonsPurchasers.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CRMCouplingRecordModalPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.Lookup;
+        CRMCouplingRecord.CRMName.Lookup();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CRMSystemuserCouplingControlModalPageHandler(var CRMSystemuserList: TestPage "CRM Systemuser List")
     begin
-        LibraryVariableStorage.Enqueue(CRMSystemuserList.Couple.Visible);
-        LibraryVariableStorage.Enqueue(CRMSystemuserList.DeleteCDSCoupling.Visible);
-        LibraryVariableStorage.Enqueue(CRMSystemuserList.CreateFromCRM.Visible);
-        LibraryVariableStorage.Enqueue(CRMSystemuserList.SalespersonPurchaserCode.Editable);
+        LibraryVariableStorage.Enqueue(CRMSystemuserList.Couple.Visible());
+        LibraryVariableStorage.Enqueue(CRMSystemuserList.DeleteCDSCoupling.Visible());
+        LibraryVariableStorage.Enqueue(CRMSystemuserList.CreateFromCRM.Visible());
+        LibraryVariableStorage.Enqueue(CRMSystemuserList.SalespersonPurchaserCode.Editable());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SetCouplingRecordPageHandler(var CRMCouplingRecord: TestPage "CRM Coupling Record")
     begin
-        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText);
-        CRMCouplingRecord.OK.Invoke;
+        CRMCouplingRecord.CRMName.SetValue(LibraryVariableStorage.DequeueText());
+        CRMCouplingRecord.OK().Invoke();
     end;
 
     [StrMenuHandler]

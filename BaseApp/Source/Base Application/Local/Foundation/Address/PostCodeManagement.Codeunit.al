@@ -33,18 +33,6 @@ codeunit 11401 "Post Code Management"
     var
         PostCodeLookupTable: Codeunit "Post Code Lookup - Table";
 
-#if not CLEAN21
-    [Obsolete('Replaced by procedure FindStreetName()', '21.0')]
-    procedure FindStreetNameFromAddress(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[50]; CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
-    var
-        CityName: Text[30];
-    begin
-        CityName := CopyStr(City, 1, MaxStrLen(CityName));
-        FindStreetName(Address, Address2, PostCode, CityName, CountryCode, PhoneNo, FaxNo);
-        City := CityName;
-    end;
-#endif
-
     procedure FindStreetName(var Address: Text[100]; var Address2: Text[50]; var PostCode: Code[20]; var City: Text[30]; var CountryCode: Code[10]; var PhoneNo: Text[30]; var FaxNo: Text[30])
     var
         NewAddress: Text[100];
@@ -450,16 +438,7 @@ codeunit 11401 "Post Code Management"
     var
         PhoneNo: Text[30];
         FaxNo: Text[30];
-#if not CLEAN21
-        IsHandled: Boolean;
-#endif
     begin
-#if not CLEAN21
-        IsHandled := false;
-        Rec.RunOnBeforeFindStreetNameFromSellToAddress(Rec, IsHandled);
-        if IsHandled then
-            exit;
-#endif
         FindStreetName(
             Rec."Sell-to Address", Rec."Sell-to Address 2", Rec."Sell-to Post Code", Rec."Sell-to City",
             Rec."Sell-to Country/Region Code", PhoneNo, FaxNo);

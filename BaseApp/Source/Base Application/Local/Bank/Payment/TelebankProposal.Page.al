@@ -450,10 +450,10 @@ page 11000001 "Telebank Proposal"
                 label(MessageLabel)
                 {
                     ApplicationArea = Basic, Suite;
-                    CaptionClass = Format(ErrorWarningLabelText);
+                    CaptionClass = Format(ErrorWarningLabelText());
                     Editable = false;
                 }
-                field(Message; ErrorWarningText)
+                field(Message; ErrorWarningText())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Error message';
@@ -471,7 +471,7 @@ page 11000001 "Telebank Proposal"
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount available to use for payments.';
                 }
-                field(TotalAmount; TotAmount)
+                field(TotalAmount; TotAmount())
                 {
                     ApplicationArea = Basic, Suite;
                     AutoFormatExpression = BankAccount."Currency Code";

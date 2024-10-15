@@ -191,7 +191,7 @@ page 7005 "Price List Line Review"
                     Enabled = PriceMandatory;
                     Visible = SalesPriceVisible;
                     StyleExpr = PriceStyle;
-                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for project-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -342,10 +342,10 @@ page 7005 "Price List Line Review"
             action(SalesJobPriceLists)
             {
                 ApplicationArea = All;
-                Caption = 'Sales Job Price Lists';
+                Caption = 'Sales Project Price Lists';
                 Image = Sales;
                 Visible = IsSalesPrice;
-                ToolTip = 'View the list of all sales job price lists.';
+                ToolTip = 'View the list of all sales project price lists.';
 
                 trigger OnAction()
                 begin
@@ -368,10 +368,10 @@ page 7005 "Price List Line Review"
             action(PurchJobPriceLists)
             {
                 ApplicationArea = All;
-                Caption = 'Purchase Job Price Lists';
+                Caption = 'Purchase Project Price Lists';
                 Image = Purchase;
                 Visible = IsPurchPrice;
-                ToolTip = 'View the list of all purchase job price lists.';
+                ToolTip = 'View the list of all purchase project price lists.';
 
                 trigger OnAction()
                 begin
@@ -628,6 +628,6 @@ page 7005 "Price List Line Review"
         if Rec."Price List Code" <> PriceListHeader.Code then
             if not PriceListHeader.Get(Rec."Price List Code") then
                 exit('');
-        Exit(PriceListHeader.Description);
+        exit(PriceListHeader.Description);
     end;
 }

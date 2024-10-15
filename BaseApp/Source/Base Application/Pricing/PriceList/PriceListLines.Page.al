@@ -52,21 +52,21 @@ page 7001 "Price List Lines"
                 field(ParentSourceNo; Rec."Parent Source No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Assign-to Job No.';
+                    Caption = 'Assign-to Project No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     Visible = ParentSourceNoVisible;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToParentNo; Rec."Assign-to Parent No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Assign-to Job No.';
+                    Caption = 'Assign-to Project No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     ShowMandatory = IsParentAllowed;
                     Visible = AssignToParentNoVisible;
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
                 {
@@ -223,7 +223,7 @@ page 7001 "Price List Lines"
                     Enabled = PriceMandatory;
                     Visible = CostFactorVisible;
                     StyleExpr = PriceStyle;
-                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for project-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Allow Line Disc."; Rec."Allow Line Disc.")
                 {

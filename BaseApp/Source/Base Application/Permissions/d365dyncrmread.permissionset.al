@@ -2,6 +2,7 @@ namespace System.Security.AccessControl;
 
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.Dataverse;
+using Microsoft.Integration.FieldService;
 using Microsoft.Sales.Customer;
 using Microsoft.Integration.SyncEngine;
 using Microsoft.CRM.Interaction;
@@ -13,6 +14,7 @@ permissionset 618 "D365 DYN CRM READ"
 
     Caption = 'Dynamics 365 Sales Integration - Read';
     Permissions = tabledata "CDS Available Virtual Table" = R,
+                  tabledata "CDS BC Table Relation" = R,
                   tabledata "CDS Company" = R,
                   tabledata "CDS Connection Setup" = R,
                   tabledata "CDS Coupled Business Unit" = R,
@@ -73,10 +75,26 @@ permissionset 618 "D365 DYN CRM READ"
                   tabledata "CRM Synch. Job Status Cue" = R,
                   tabledata "CRM Systemuser" = R,
                   tabledata "CRM Systemuserroles" = R,
+                  tabledata "CDS Field Security Profile" = R,
+                  tabledata "CDS System User Profiles" = R,
                   tabledata "CRM Team" = R,
                   tabledata "CRM Transactioncurrency" = R,
                   tabledata "CRM Uom" = R,
                   tabledata "CRM Uomschedule" = R,
+                  tabledata "FS Connection Setup" = R,
+                  tabledata "FS Bookable Resource" = R,
+                  tabledata "FS Bookable Resource Booking" = R,
+                  tabledata "FS BookableResourceBookingHdr" = R,
+                  tabledata "FS Customer Asset" = R,
+                  tabledata "FS Customer Asset Category" = R,
+                  tabledata "FS Project Task" = R,
+                  tabledata "FS Resource Pay Type" = R,
+                  tabledata "FS Work Order" = R,
+                  tabledata "FS Work Order Incident" = R,
+                  tabledata "FS Work Order Product" = R,
+                  tabledata "FS Work Order Service" = R,
+                  tabledata "FS Work Order Substatus" = R,
+                  tabledata "FS Work Order Type" = R,
                   tabledata "Customer Templ." = R,
                   tabledata "Vendor Templ." = R,
                   tabledata "Integration Field Mapping" = R,
@@ -84,5 +102,8 @@ permissionset 618 "D365 DYN CRM READ"
                   tabledata "Integration Synch. Job Errors" = R,
                   tabledata "Integration Table Mapping" = R,
                   tabledata "Interaction Template" = R,
-                  tabledata "Temp Integration Field Mapping" = R;
+                  tabledata "Man. Integration Field Mapping" = R,
+                  tabledata "Man. Integration Table Mapping" = R,
+                  tabledata "Temp Integration Field Mapping" = R,
+                  tabledata "Man. Int. Field Mapping" = R;
 }

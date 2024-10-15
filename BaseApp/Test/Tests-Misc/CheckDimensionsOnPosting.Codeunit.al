@@ -56,13 +56,13 @@ codeunit 134486 "Check Dimensions On Posting"
         SourceCodeSetup.Modify();
 
         DimMgt.SetSourceCode(DATABASE::"Sales Header");
-        Assert.AreEqual(SourceCodeSetup.Sales, DimMgt.GetSourceCode, '36');
+        Assert.AreEqual(SourceCodeSetup.Sales, DimMgt.GetSourceCode(), '36');
         DimMgt.SetSourceCode(DATABASE::"Sales Line");
-        Assert.AreEqual(SourceCodeSetup.Sales, DimMgt.GetSourceCode, '37');
+        Assert.AreEqual(SourceCodeSetup.Sales, DimMgt.GetSourceCode(), '37');
         DimMgt.SetSourceCode(DATABASE::"Purchase Header");
-        Assert.AreEqual(SourceCodeSetup.Purchases, DimMgt.GetSourceCode, '38');
+        Assert.AreEqual(SourceCodeSetup.Purchases, DimMgt.GetSourceCode(), '38');
         DimMgt.SetSourceCode(DATABASE::"Purchase Line");
-        Assert.AreEqual(SourceCodeSetup.Purchases, DimMgt.GetSourceCode, '39');
+        Assert.AreEqual(SourceCodeSetup.Purchases, DimMgt.GetSourceCode(), '39');
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [SCENARIO] Failed posting opens "Error Messages" page that contains one line for blocked dimension value.
         Initialize();
         // [GIVEN] Forward Link "Working With Dims" has Link 'X'
-        ExpectedSupportURL := SetupSupportURL;
+        ExpectedSupportURL := SetupSupportURL();
         // [GIVEN] Customer 'A'
         CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Dimension value 'Department','ADM' is blocked
@@ -99,10 +99,10 @@ codeunit 134486 "Check Dimensions On Posting"
           SalesHeader.RecordId, DimensionValue[1].RecordId, DimensionValue[1].FieldNo(Blocked), ExpectedErrorMessage, ExpectedSupportURL);
 
         // [WHEN] Run action "Open Related Record"
-        SalesOrderPage.Trap;
+        SalesOrderPage.Trap();
         LibraryErrorMessage.GetTestPage(ErrorMessagesPage);
-        ErrorMessagesPage.First;
-        ErrorMessagesPage.OpenRelatedRecord.Invoke;
+        ErrorMessagesPage.First();
+        ErrorMessagesPage.OpenRelatedRecord.Invoke();
         // [THEN] "Sales Order" page is open on Sales Order '1002'
         SalesOrderPage."No.".AssertEquals(SalesHeader."No.");
     end;
@@ -121,7 +121,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [SCENARIO] Failed posting opens "Error Messages" page that contains one line for deleted dimension value.
         Initialize();
         // [GIVEN] Forward Link "Working With Dims" has Link 'X'
-        ExpectedSupportURL := SetupSupportURL;
+        ExpectedSupportURL := SetupSupportURL();
         // [GIVEN] Customer 'A', where dimension value 'Department','ADM' is default
         CustomerNo := CreateCustDefaultDimensionValue(DimensionValue);
         // [GIVEN] Sales Order '1002', where "Sell-To Customer No." is 'A'
@@ -760,7 +760,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SourceDimRecID[6] := SalesHeader.RecordId;
 
         // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesBatchPostMgt.RunWithUI(SalesHeader, 2, '');
 
@@ -1004,7 +1004,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [SCENARIO] Failed posting opens "Error Messages" page that contains one line for blocked dimension value.
         Initialize();
         // [GIVEN] Forward Link "Working With Dims" has Link 'X'
-        ExpectedSupportURL := SetupSupportURL;
+        ExpectedSupportURL := SetupSupportURL();
         // [GIVEN] Vendor 'A'
         VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Dimension value 'Department','ADM' is blocked
@@ -1022,10 +1022,10 @@ codeunit 134486 "Check Dimensions On Posting"
           PurchHeader.RecordId, DimensionValue[1].RecordId, DimensionValue[1].FieldNo(Blocked), ExpectedErrorMessage, ExpectedSupportURL);
 
         // [WHEN] Run action "Open Related Record"
-        PurchOrderPage.Trap;
+        PurchOrderPage.Trap();
         LibraryErrorMessage.GetTestPage(ErrorMessagesPage);
-        ErrorMessagesPage.First;
-        ErrorMessagesPage.OpenRelatedRecord.Invoke;
+        ErrorMessagesPage.First();
+        ErrorMessagesPage.OpenRelatedRecord.Invoke();
         // [THEN] "Purchase Order" page is open on Purchase Order '1002'
         PurchOrderPage."No.".AssertEquals(PurchHeader."No.");
     end;
@@ -1044,7 +1044,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [SCENARIO] Failed posting opens "Error Messages" page that contains one line for deleted dimension value..
         Initialize();
         // [GIVEN] Forward Link "Working With Dims" has Link 'X'
-        ExpectedSupportURL := SetupSupportURL;
+        ExpectedSupportURL := SetupSupportURL();
         // [GIVEN] Vendor 'A', where dimension value 'Department','ADM' is default
         VendorNo := CreateVendDefaultDimensionValue(DimensionValue);
         // [GIVEN] Purchase Order '1002', where "Buy-from Vendor No." is 'A'
@@ -1682,7 +1682,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SourceDimRecID[6] := PurchHeader.RecordId;
 
         // [WHEN] Post two Sales Orders '1002' and '1003' as a batch
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchBatchPostMgt.RunWithUI(PurchHeader, 2, '');
 
@@ -1922,12 +1922,12 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        DimensionValuesPage.Trap;
-        ErrorMessagesPage.Source.DrillDown;
+        DimensionValuesPage.Trap();
+        ErrorMessagesPage.Source.DrillDown();
         // [THEN] "Dimension Values" page is open
         Assert.AreEqual(DimensionValue.Code, DimensionValuesPage.Code.Value, 'Dim Value Code');
     end;
@@ -1950,7 +1950,7 @@ codeunit 134486 "Check Dimensions On Posting"
         // [GIVEN] Default Dimension 'Default Dimension: Department, ADM'
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         LibraryDimension.CreateDefaultDimension(
-          DefaultDimension, DATABASE::Customer, LibrarySales.CreateCustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
+          DefaultDimension, DATABASE::Customer, LibrarySales.CreateCustomerNo(), DimensionValue."Dimension Code", DimensionValue.Code);
 
         // [GIVEN] Dim error, where "Source" = 'Default Dimension: Department, ADM'
         TempErrorMessage.Validate("Record ID", DefaultDimension.RecordId);
@@ -1958,16 +1958,16 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        DefaultDimensionsPage.Trap;
-        ErrorMessagesPage.Source.DrillDown;
+        DefaultDimensionsPage.Trap();
+        ErrorMessagesPage.Source.DrillDown();
 
         // [THEN] "Default Dimensions" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(DefaultDimension."Dimension Code", DefaultDimensionsPage."Dimension Code".Value, 'Default Dim Code');
-        Assert.IsFalse(DefaultDimensionsPage.Next, 'should be no second line');
+        Assert.IsFalse(DefaultDimensionsPage.Next(), 'should be no second line');
     end;
 
     [Test]
@@ -1995,12 +1995,12 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        DimensionsPage.Trap;
-        ErrorMessagesPage.Source.DrillDown;
+        DimensionsPage.Trap();
+        ErrorMessagesPage.Source.DrillDown();
 
         // [THEN] "Dimensions" page is open, where "Dimension Code" = 'Department'
         Assert.AreEqual(Dimension.Code, DimensionsPage.Code.Value, 'Default Dim Code');
@@ -2041,21 +2041,21 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        DimensionCombinations.Trap;
-        ErrorMessagesPage.Source.DrillDown;
+        DimensionCombinations.Trap();
+        ErrorMessagesPage.Source.DrillDown();
 
         // [THEN] "Dimension Combinations" page is open, where "Code" = 'Department', Column1 is 'Blocked', Column2 is empty.
-        DimensionCombinations.MatrixForm.First;
+        DimensionCombinations.MatrixForm.First();
         Assert.AreEqual(
           DimensionValue[1]."Dimension Code", DimensionCombinations.MatrixForm.Code.Value, 'Combination Dim Code');
         Assert.AreEqual(
           Format(DimensionCombination."Combination Restriction"), DimensionCombinations.MatrixForm.Field1.Value, 'Column1');
         Assert.AreEqual('', DimensionCombinations.MatrixForm.Field2.Value, 'Column2');
-        Assert.IsFalse(DimensionCombinations.MatrixForm.Next, 'should be one record in matrix');
+        Assert.IsFalse(DimensionCombinations.MatrixForm.Next(), 'should be one record in matrix');
     end;
 
     [Test]
@@ -2088,22 +2088,22 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        MyDimValueCombinations.Trap;
-        ErrorMessagesPage.Source.DrillDown;
+        MyDimValueCombinations.Trap();
+        ErrorMessagesPage.Source.DrillDown();
 
         // [THEN] "MyDim Value Combinations" page is open, where "Code" = 'ADM', Column1 is 'Blocked', Column2 is empty
-        MyDimValueCombinations.MatrixForm.First;
+        MyDimValueCombinations.MatrixForm.First();
         Assert.AreEqual(
           DimensionValue[1].Code, MyDimValueCombinations.MatrixForm.Code.Value, 'Dim Combination Value Code');
         DimensionCombination."Combination Restriction" := DimensionCombination."Combination Restriction"::Blocked;
         Assert.AreEqual(
           Format(DimensionCombination."Combination Restriction"), MyDimValueCombinations.MatrixForm.Field1.Value, 'Column1');
         Assert.AreEqual('', MyDimValueCombinations.MatrixForm.Field2.Value, 'Column2');
-        Assert.IsFalse(MyDimValueCombinations.MatrixForm.Next, 'should be one record in matrix');
+        Assert.IsFalse(MyDimValueCombinations.MatrixForm.Next(), 'should be one record in matrix');
     end;
 
     [Test]
@@ -2135,15 +2135,15 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        ErrorMessagesPage.Source.DrillDown;
+        ErrorMessagesPage.Source.DrillDown();
 
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2174,14 +2174,14 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Context"
-        ErrorMessagesPage.Context.DrillDown;
+        ErrorMessagesPage.Context.DrillDown();
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2217,14 +2217,14 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Context"
-        ErrorMessagesPage.Context.DrillDown;
+        ErrorMessagesPage.Context.DrillDown();
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocLineDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocLineDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Dimension Set is updated on the line
         SalesLine.Find();
         Assert.AreNotEqual(DimSetID, SalesLine."Dimension Set ID", 'Dim Set ID must be changed');
@@ -2259,14 +2259,14 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Source"
-        ErrorMessagesPage.Source.DrillDown;
+        ErrorMessagesPage.Source.DrillDown();
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2297,14 +2297,14 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Context"
-        ErrorMessagesPage.Context.DrillDown;
+        ErrorMessagesPage.Context.DrillDown();
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -2340,14 +2340,14 @@ codeunit 134486 "Check Dimensions On Posting"
 
         // [GIVEN] Open ErrorMessages page
         ErrorMessages.SetRecords(TempErrorMessage);
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         ErrorMessages.Run();
 
         // [WHEN] Drill Down on "Context"
-        ErrorMessagesPage.Context.DrillDown;
+        ErrorMessagesPage.Context.DrillDown();
         // [THEN] "Edit Dimension Set Entries" page is open, where "Dimension Code" = 'Department'
-        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText, 'Doc Dim Code'); // from DocDimsModalPageHandler
-        LibraryVariableStorage.AssertEmpty;
+        Assert.AreEqual(DimensionValue."Dimension Code", LibraryVariableStorage.DequeueText(), 'Doc Dim Code'); // from DocDimsModalPageHandler
+        LibraryVariableStorage.AssertEmpty();
         // [THEN] Dimension Set is updated on the line
         PurchLine.Find();
         Assert.AreNotEqual(DimSetID, PurchLine."Dimension Set ID", 'Dim Set ID must be changed');
@@ -2788,9 +2788,9 @@ codeunit 134486 "Check Dimensions On Posting"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Check Dimensions On Posting");
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdatePrepaymentAccounts;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Check Dimensions On Posting");
@@ -2924,7 +2924,7 @@ codeunit 134486 "Check Dimensions On Posting"
     local procedure PostPurchDocument(PurchHeader: Record "Purchase Header"; CodeunitID: Integer)
     begin
         PurchHeaderToPost(PurchHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchHeader.SendToPosting(CodeunitID);
     end;
 
@@ -2933,7 +2933,7 @@ codeunit 134486 "Check Dimensions On Posting"
         PurchPostPrepmtYesNo: Codeunit "Purch.-Post Prepmt. (Yes/No)";
     begin
         PurchHeaderToPost(PurchHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchPostPrepmtYesNo.PostPrepmtInvoiceYN(PurchHeader, false);
     end;
 
@@ -2942,7 +2942,7 @@ codeunit 134486 "Check Dimensions On Posting"
         PurchPostYesNo: Codeunit "Purch.-Post (Yes/No)";
     begin
         PurchHeaderToPost(PurchHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         PurchPostYesNo.Preview(PurchHeader);
     end;
 
@@ -2957,7 +2957,7 @@ codeunit 134486 "Check Dimensions On Posting"
     local procedure PostSalesDocument(SalesHeader: Record "Sales Header"; CodeunitID: Integer)
     begin
         SalesHeaderToPost(SalesHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SendToPosting(CodeunitID);
     end;
 
@@ -2966,7 +2966,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SalesPostPrepaymentYesNo: Codeunit "Sales-Post Prepayment (Yes/No)";
     begin
         SalesHeaderToPost(SalesHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesPostPrepaymentYesNo.PostPrepmtInvoiceYN(SalesHeader, false);
     end;
 
@@ -2975,7 +2975,7 @@ codeunit 134486 "Check Dimensions On Posting"
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
     begin
         SalesHeaderToPost(SalesHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesPostYesNo.Preview(SalesHeader);
     end;
 
@@ -3016,7 +3016,7 @@ codeunit 134486 "Check Dimensions On Posting"
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
     begin
         NamedForwardLink.Init();
-        NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions;
+        NamedForwardLink.Name := ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions();
         NamedForwardLink.Link := LibraryUtility.GenerateGUID();
         NamedForwardLink.Insert();
         exit(NamedForwardLink.Link);
@@ -3108,11 +3108,11 @@ codeunit 134486 "Check Dimensions On Posting"
     begin
         LibraryVariableStorage.Enqueue(EditDimensionSetEntriesPage."Dimension Code".Value);
         // add another dimension with value to change the dimension set id.
-        EditDimensionSetEntriesPage.New;
+        EditDimensionSetEntriesPage.New();
         LibraryDimension.CreateDimWithDimValue(DimensionValue);
         EditDimensionSetEntriesPage."Dimension Code".Value(DimensionValue."Dimension Code");
         EditDimensionSetEntriesPage.DimensionValueCode.Value(DimensionValue.Code);
-        EditDimensionSetEntriesPage.OK.Invoke;
+        EditDimensionSetEntriesPage.OK().Invoke();
     end;
 
     [ConfirmHandler]

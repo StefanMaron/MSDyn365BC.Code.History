@@ -7,6 +7,7 @@ namespace Microsoft.Bank.Reconciliation;
 table 11000008 "Reconciliation Buffer"
 {
     Caption = 'Reconciliation Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

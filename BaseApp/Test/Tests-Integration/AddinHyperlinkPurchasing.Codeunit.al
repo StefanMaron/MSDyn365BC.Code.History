@@ -63,9 +63,9 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         Initialize();
 
         // [GIVEN] Purchase Invoice has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, 'PDOC0001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), 'PDOC0001');
         // [GIVEN] Purchase Credit Memo has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor, 'PDOC0001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor(), 'PDOC0001');
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupDocumentNoMatch(OfficeAddinContext, PurchaseHeader."No.");
@@ -88,10 +88,10 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         Initialize();
 
         // [GIVEN] Purchase Invoice has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, '9990001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), '9990001');
 
         // [GIVEN] Purchase Credit Memo has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor, '9990001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", CreateVendor(), '9990001');
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, 'invoice 9990001');
@@ -117,10 +117,10 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [SCENARIO 147201] Stan will get a window to select a doc number when clicking on a hyperlink for a doc number that exists for the same doc type in Sales and Purchasing
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         // [GIVEN] Purchase Invoice has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, 'DOC0001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), 'DOC0001');
 
         // [GIVEN] Sales Quote has been created
         CreateGLAccount(GLAccount);
@@ -149,10 +149,10 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     begin
         // [SCENARIO 147201] Stan will get a window to select a doc number when clicking on a hyperlink for a doc number that exists for the same doc type in Sales and Purchasing
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         // [GIVEN] Purchase Invoice has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, '9990002');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), '9990002');
 
         // [GIVEN] Sales Invoice has been created
         CreateGLAccount(GLAccount);
@@ -215,7 +215,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         DocNo := PurchaseHeader."No.";
 
         // Need to create the regular expression that contains both the Purchase Order window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseOrder + '# ' + DocNo;
+        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseOrder() + '# ' + DocNo;
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -246,7 +246,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         DocNo := PurchaseHeader."No.";
 
         // Need to create the regular expression that contains both the Purchase Order acronym and document number
-        ExpressionMatch := HyperlinkManifest.GetAcronymForPurchaseOrder + DocNo;
+        ExpressionMatch := HyperlinkManifest.GetAcronymForPurchaseOrder() + DocNo;
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -300,7 +300,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         Initialize();
 
         // [GIVEN] Purchase Invoice has been created
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, 'PINVOICE001');
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), 'PINVOICE001');
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupDocumentNoMatch(OfficeAddinContext, PurchaseHeader."No.");
@@ -330,10 +330,10 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
 
         // [GIVEN] Purchase Invoice has been created
         No := 'PINVOICE002';
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, No);
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), No);
 
         // Need to create the regular expression that contains both the Purchase Invoice window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseInvoice + '# ' + No;
+        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseInvoice() + '# ' + No;
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -367,7 +367,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         // [GIVEN] Purchase Invoice has been created
         No := 'PINVOICE003';
         KeyWord := UpperCase(Format(DocType::Invoice));
-        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor, No);
+        LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(), No);
 
         // Need to create the regular expression that contains both the invoice keyword and document number
         ExpressionMatch := KeyWord + ': ' + No;
@@ -429,7 +429,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         CreateandPostPurchInvoice(PurchInvHeader, 'PINVOICE005', 2);
 
         // Need to create the regular expression that contains both the Purchase Invoice window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseInvoice + '# ' + PurchInvHeader."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseInvoice() + '# ' + PurchInvHeader."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -522,7 +522,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, No);
 
         // Need to create the regular expression that contains both the Purchase Credit Memo window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseCrMemo + '# ' + No;
+        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseCrMemo() + '# ' + No;
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -618,7 +618,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         CreateandPostPurchCrMemo(PurchCrMemoHdr, 'PCRMEMO005', 2);
 
         // Need to create the regular expression that contains both the Purchase Credit Memo window title and document number
-        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseCrMemo + '# ' + PurchCrMemoHdr."No.";
+        ExpressionMatch := HyperlinkManifest.GetNameForPurchaseCrMemo() + '# ' + PurchCrMemoHdr."No.";
 
         // [WHEN] OfficeAddinContext table's filter has been set to what hyperlink add-in would do.
         SetupRegExMatch(OfficeAddinContext, ExpressionMatch);
@@ -678,7 +678,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         AddinManifestManagement.GetAddinByHostType(OfficeAddin, OfficeHostType.OutlookHyperlink);
         OfficeAddinContext.SetRange(Version, OfficeAddin.Version);
 
-        OutlookMailEngine.Trap;
+        OutlookMailEngine.Trap();
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
     end;
 
@@ -741,9 +741,9 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
             Error(PostPurchInvErr);
 
         // Test to ensure the Print action is not visible when in add-in mode.
-        Assert.AreEqual(false, PostedPurchaseInvoice.Print.Visible, 'Print action should not be visible');
+        Assert.AreEqual(false, PostedPurchaseInvoice.Print.Visible(), 'Print action should not be visible');
         // Test to ensure the Navigate action is not visible when in add-in mode.
-        Assert.AreEqual(false, PostedPurchaseInvoice.Navigate.Visible, 'Navigate action should not be visible');
+        Assert.AreEqual(false, PostedPurchaseInvoice.Navigate.Visible(), 'Navigate action should not be visible');
 
         PostedPurchaseInvoice.Close();
     end;
@@ -758,9 +758,9 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
             Error(PostPurchCrMemoErr);
 
         // Test to ensure the Print action is not visible when in add-in mode.
-        Assert.AreEqual(false, PostedPurchCreditMemo."&Print".Visible, 'Print action should not be visible');
+        Assert.AreEqual(false, PostedPurchCreditMemo."&Print".Visible(), 'Print action should not be visible');
         // Test to ensure the Navigate action is not visible when in add-in mode.
-        Assert.AreEqual(false, PostedPurchCreditMemo."&Navigate".Visible, 'Navigate action should not be visible');
+        Assert.AreEqual(false, PostedPurchCreditMemo."&Navigate".Visible(), 'Navigate action should not be visible');
 
         PostedPurchCreditMemo.Close();
     end;
@@ -770,7 +770,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibraryERM: Codeunit "Library - ERM";
         No: Code[20];
     begin
-        No := LibraryERM.CreateGLAccountWithPurchSetup;
+        No := LibraryERM.CreateGLAccountWithPurchSetup();
         GLAccount.Get(No);
     end;
 
@@ -906,7 +906,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         OfficeHost: DotNet OfficeHost;
     begin
         OfficeAddinContext.DeleteAll();
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
 
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
 
@@ -918,7 +918,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
-        if NameValueBuffer.Get(SessionId) then begin
+        if NameValueBuffer.Get(SessionId()) then begin
             NameValueBuffer.Delete();
             Commit();
         end;
@@ -968,14 +968,14 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
     var
         LibrarySales: Codeunit "Library - Sales";
     begin
-        SetOfficeHostUnAvailable;
+        SetOfficeHostUnAvailable();
         Clear(SalesHeader);
         SalesHeader.SetHideValidationDialog(true);
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader."No." := DocNo;
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
-        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         SalesHeader.Modify(true);
         InitializeOfficeHostProvider(OfficeHostType.OutlookHyperlink);
     end;
@@ -988,7 +988,7 @@ codeunit 139050 "Add-in Hyperlink Purchasing"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
         LibraryInventory.CreateItem(Item);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));

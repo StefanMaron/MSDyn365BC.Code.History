@@ -2,6 +2,8 @@ namespace System.Environment.Configuration;
 
 table 9171 "Profile Import"
 {
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "App ID"; Guid)

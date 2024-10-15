@@ -60,7 +60,6 @@ codeunit 144051 "ERM EVAT"
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         AgentConAddressErr: Label 'Agent Contact Address must have a value in Elec. Tax Declaration Setup';
-        ValuesMustBeEqual: Label 'The values must be equal';
         SuppliesAmountZeroErr: Label 'Element %1 with Data zero exsits';
         SubElementErr: Label 'Element bd-ob-tuple:IntraCommunitySupplies should have 3 subelements';
         ParentElementErr: Label 'Parent of element %1 is wrong';
@@ -90,7 +89,7 @@ codeunit 144051 "ERM EVAT"
 
         // Verify: Verify Total VAT Amount on VAT Statement report.
         FindRowOnVATStatementReport(RowNo);
-        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmountCap, Round(CalculateVATAmount, 1, '<'));  // Taken 1 for Precision and '<' for Direction.
+        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmountCap, Round(CalculateVATAmount(), 1, '<'));  // Taken 1 for Precision and '<' for Direction.
     end;
 
     [Test]
@@ -108,7 +107,7 @@ codeunit 144051 "ERM EVAT"
 
         // Verify: Verify Total VAT Amount on VAT Statement report.
         FindRowOnVATStatementReport(RowNo);
-        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmountCap, CalculateVATAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmountCap, CalculateVATAmount());
     end;
 
     [Test]
@@ -163,7 +162,7 @@ codeunit 144051 "ERM EVAT"
         VATStatementName.FindFirst();
         CreateAndPostGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::" ", '<-3M>');
         CreateAndModifyVATStatementLineWithAccountTotaling(
-          VATStatementName, LibraryUtility.GenerateGUID, VATStatementLine.Type::"Account Totaling",
+          VATStatementName, LibraryUtility.GenerateGUID(), VATStatementLine.Type::"Account Totaling",
           GenJournalLine."Account No.", CalculateWith);
 
         // Enqueue for CreateElecVATDeclarationRequestPageHandler.
@@ -174,7 +173,7 @@ codeunit 144051 "ERM EVAT"
         No := CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration");
 
         // Verify: Verify values of Voorbelasting on Elec. Tax Declaration Line.
-        VerifyElecTaxDeclarationLine(No, 'bd-i:ValueAddedTaxOnInput', Format(CalculateVATAmount div 1));
+        VerifyElecTaxDeclarationLine(No, 'bd-i:ValueAddedTaxOnInput', Format(CalculateVATAmount() div 1));
     end;
 
     [Test]
@@ -214,9 +213,9 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclHeader.Modify();
 
         // Exercise: Submit a declaration with NewStatus
-        ElecTaxDeclCard.OpenEdit;
+        ElecTaxDeclCard.OpenEdit();
         ElecTaxDeclCard.FILTER.SetFilter("No.", No);
-        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke;
+        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke();
         ElecTaxDeclCard.Close();
 
         Assert.ExpectedError(StatusMustBeCreatedErr);
@@ -248,9 +247,9 @@ codeunit 144051 "ERM EVAT"
             until ElecTaxDeclLine.Next() = 0;
 
         // Exercise: Attempt to submit an empty report
-        ElecTaxDeclCard.OpenEdit;
+        ElecTaxDeclCard.OpenEdit();
         ElecTaxDeclCard.FILTER.SetFilter("No.", No);
-        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke;
+        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke();
         ElecTaxDeclCard.Close();
 
         // Verify
@@ -299,9 +298,9 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclHeader.Modify();
 
         // Exercise: Submit a declaration with status=NewStatus
-        ElecTaxDeclCard.OpenEdit;
+        ElecTaxDeclCard.OpenEdit();
         ElecTaxDeclCard.FILTER.SetFilter("No.", No);
-        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke;
+        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke();
         ElecTaxDeclCard.Close();
 
         Assert.ExpectedError(StatusMustBeCreatedErr);
@@ -420,10 +419,10 @@ codeunit 144051 "ERM EVAT"
         CreateResponseMessage(NextNo, '100', 'Aanleveren gelukt.', ElecTaxDeclHeader);
 
         // Exercise: Process "received" response messages
-        ElecTaxDeclRespMsgPage.OpenEdit;
+        ElecTaxDeclRespMsgPage.OpenEdit();
         ElecTaxDeclRespMsgPage.FILTER.SetFilter("Declaration Type", Format(ElecTaxDeclHeader."Declaration Type"));
         ElecTaxDeclRespMsgPage.FILTER.SetFilter("Declaration No.", Format(ElecTaxDeclHeader."No."));
-        ElecTaxDeclRespMsgPage.ProcessResponseMessages.Invoke;
+        ElecTaxDeclRespMsgPage.ProcessResponseMessages.Invoke();
         ElecTaxDeclRespMsgPage.Close();
 
         // Verify: Status is changed to acknowledged
@@ -470,7 +469,7 @@ codeunit 144051 "ERM EVAT"
         CreateResponseMessage(NextNo, '100', 'Aanleveren gelukt.', ElecTaxDeclHeader);
         MsgNo := CreateResponseMessage(NextNo, '311', 'Aanleveren gelukt.', ElecTaxDeclHeader);
 
-        XmlFile := BuildDigipoortErrorXml;
+        XmlFile := BuildDigipoortErrorXml();
         ElecTaxDeclRespMsg.Get(MsgNo);
         ElecTaxDeclRespMsg.Message.Import(XmlFile);
         ElecTaxDeclRespMsg.Modify(true);
@@ -480,10 +479,10 @@ codeunit 144051 "ERM EVAT"
         Assert.AreEqual(0, ElecTaxDeclErrorLog.Count, '');
 
         // Exercise: Process "received" response messages
-        ElecTaxDeclRespMsgPage.OpenEdit;
+        ElecTaxDeclRespMsgPage.OpenEdit();
         ElecTaxDeclRespMsgPage.FILTER.SetFilter("Declaration Type", Format(ElecTaxDeclHeader."Declaration Type"));
         ElecTaxDeclRespMsgPage.FILTER.SetFilter("Declaration No.", Format(ElecTaxDeclHeader."No."));
-        ElecTaxDeclRespMsgPage.ProcessResponseMessages.Invoke;
+        ElecTaxDeclRespMsgPage.ProcessResponseMessages.Invoke();
         ElecTaxDeclRespMsgPage.Close();
 
         // Verify: Status is changed to error and erros are added to error log
@@ -520,9 +519,9 @@ codeunit 144051 "ERM EVAT"
         No := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"VAT Declaration");
 
         // Exercise: Try to submit
-        ElecTaxDeclCard.OpenEdit;
+        ElecTaxDeclCard.OpenEdit();
         ElecTaxDeclCard.FILTER.SetFilter("No.", No);
-        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke;
+        asserterror ElecTaxDeclCard.SubmitElectronicTaxDeclaration.Invoke();
         ElecTaxDeclCard.Close();
 
         // Verify: An exception is thrown by Digipoort add-in
@@ -661,11 +660,11 @@ codeunit 144051 "ERM EVAT"
         // [THEN] Endpoints are of nt17 version
         VerifyICPXBLRDocContent(ElecTaxDeclHeader, TempFile);
         VATEntry[1].Base += VATEntry[2].Base;
-        VerifyICPVATEntry(TempFile, VATEntry[1]);
-        VerifyICPVATEntry(TempFile, VATEntry[3]);
-        VerifyICPVATEntry(TempFile, VATEntry[4]);
-        VerifyICPVATEntry(TempFile, VATEntry[5]);
-        VerifyICPVATEntry(TempFile, VATEntry[6]);
+        VerifyICPVATEntry(VATEntry[1]);
+        VerifyICPVATEntry(VATEntry[3]);
+        VerifyICPVATEntry(VATEntry[4]);
+        VerifyICPVATEntry(VATEntry[5]);
+        VerifyICPVATEntry(VATEntry[6]);
     end;
 
     [Test]
@@ -681,7 +680,7 @@ codeunit 144051 "ERM EVAT"
 
         // Setup: Create a Reverse Charge Sales Invoice VAT Entry with base amount greater than 0 and less than 1.
         Initialize();
-        CreateSalesInvoiceVATEntry;
+        CreateSalesInvoiceVATEntry();
 
         // Exercise: Create Electronic Tax ICP Declaration.
         ElecTaxDeclHeaderNo := CreateElectronicTaxDeclaration(ElecTaxDeclHeader."Declaration Type"::"ICP Declaration");
@@ -840,7 +839,7 @@ codeunit 144051 "ERM EVAT"
         LibraryXMLRead.VerifyXMLDeclaration('1.0', 'UTF-8', 'yes');
     end;
 
-    local procedure VerifyICPVATEntry(TempFile: Text; var VATEntry: Record "VAT Entry")
+    local procedure VerifyICPVATEntry(var VATEntry: Record "VAT Entry")
     var
         TagName: Text;
         ElementName: Text;
@@ -888,7 +887,7 @@ codeunit 144051 "ERM EVAT"
         // [GIVEN] Country/Region record with "EU Country/Region Code" = "EL", it is different from Code = "GR".
         // [GIVEN] VAT Entry with "Country/Region Code" = "GR", "VAT Registration No." = "EL1234567". Posting Date must be less than TODAY.
         MockCountryRegionRecord(
-          CountryRegion, LibraryUtility.GenerateGUID,
+          CountryRegion, LibraryUtility.GenerateGUID(),
           CopyStr(LibraryUtility.GenerateRandomXMLText(2), 1, 2),
           CopyStr(LibraryUtility.GenerateRandomXMLText(2), 1, 2));
         MockVATEntry(
@@ -924,13 +923,13 @@ codeunit 144051 "ERM EVAT"
         Initialize();
         LibraryPermissions.SetTestabilitySoftwareAsAService(true);
         ElecTaxDeclarationSetup.Get();
-        ElecTaxDeclarationSetup.Validate("Client Certificate Code", MockIsolatedCertificate);
-        ElecTaxDeclarationSetup.Validate("Service Certificate Code", MockIsolatedCertificate);
+        ElecTaxDeclarationSetup.Validate("Client Certificate Code", MockIsolatedCertificate());
+        ElecTaxDeclarationSetup.Validate("Service Certificate Code", MockIsolatedCertificate());
         ElecTaxDeclarationSetup.Validate("Use Certificate Setup", true);
         ElecTaxDeclarationSetup.Validate("Digipoort Delivery URL", LibraryUtility.GenerateGUID());
         ElecTaxDeclarationSetup.Validate("Digipoort Status URL", LibraryUtility.GenerateGUID());
         ElecTaxDeclarationSetup.Modify(true);
-        Commit;
+        Commit();
         // We do not actually run the report but only check the OnInitReport trigger, then cancel the report by CancelSubmitElecTaxDeclarationReportRequestPageHandler
         SubmitElecTaxDeclaration.Run();
         LibraryPermissions.SetTestabilitySoftwareAsAService(false);
@@ -995,7 +994,7 @@ codeunit 144051 "ERM EVAT"
 
         // [THEN] XBRL content was downloaded
         // Handle download by OnBeforeDownloadFromStreamHandler
-        VerifyContentWasDownloaded;
+        VerifyContentWasDownloaded();
 
         // Tear down
         ElecTaxDeclarationCard.Close();
@@ -1055,7 +1054,6 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
         VATEntry: Record "VAT Entry";
         CountryRegion: Record "Country/Region";
-        FileManagement: Codeunit "File Management";
         ElecTaxDeclHeaderNo: Code[20];
     begin
         // [SCENARIO 405527] ICP declaration does not contains VAT entries with country/region code outside EU
@@ -1164,7 +1162,7 @@ codeunit 144051 "ERM EVAT"
         IsolatedCertificate.Init();
         IsolatedCertificate.Code :=
           LibraryUtility.GenerateRandomCode(IsolatedCertificate.FieldNo(Code), DATABASE::"Isolated Certificate");
-        IsolatedCertificate.Insert;
+        IsolatedCertificate.Insert();
         exit(IsolatedCertificate.Code);
     end;
 
@@ -1172,7 +1170,7 @@ codeunit 144051 "ERM EVAT"
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.SetRange("Posting Date", GetDeclarationQuarterStartingDate, CalcDate('<+CQ>', GetDeclarationQuarterStartingDate));
+        VATEntry.SetRange("Posting Date", GetDeclarationQuarterStartingDate(), CalcDate('<+CQ>', GetDeclarationQuarterStartingDate()));
         VATEntry.FindSet();
         repeat
             VATAmount := VATAmount + VATEntry.Amount;
@@ -1201,7 +1199,7 @@ codeunit 144051 "ERM EVAT"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(100, 2));  // Taken random Amount.
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(100, 2));  // Taken random Amount.
         GenJournalLine.Validate("Posting Date", CalcDate(RelativeDate, Today));  // Taken Posting Date as previous quarter.
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1247,8 +1245,8 @@ codeunit 144051 "ERM EVAT"
     begin
         LibraryNLLocalization.CreateElecTaxDeclarationHeader(
           ElecTaxDeclarationHeader, DeclarationType);
-        ElecTaxDeclarationHeader.Validate("Declaration Period", GetDeclarationPeriod);
-        ElecTaxDeclarationHeader.Validate("Declaration Year", GetDeclarationYear);
+        ElecTaxDeclarationHeader.Validate("Declaration Period", GetDeclarationPeriod());
+        ElecTaxDeclarationHeader.Validate("Declaration Year", GetDeclarationYear());
         ElecTaxDeclarationHeader.Validate("Our Reference", 'OB-' +
           LibraryUtility.GenerateRandomXMLText(
             LibraryUtility.GetFieldLength(DATABASE::"Elec. Tax Declaration Header",
@@ -1288,10 +1286,10 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
     begin
         No := CreateAndModifyElecTaxDeclarationHeader(DeclarationType);
-        ElecTaxDeclarationCard.OpenEdit;
+        ElecTaxDeclarationCard.OpenEdit();
         ElecTaxDeclarationCard.FILTER.SetFilter("No.", No);
         Commit();  // COMMIT required here.
-        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke;
+        ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke();
         ElecTaxDeclarationCard.Close();
     end;
 
@@ -1397,15 +1395,15 @@ codeunit 144051 "ERM EVAT"
         IsolatedCertificate.Init();
         IsolatedCertificate.Code :=
           LibraryUtility.GenerateRandomCode20(IsolatedCertificate.FieldNo(Code), DATABASE::"Isolated Certificate");
-        IsolatedCertificate.Insert;
+        IsolatedCertificate.Insert();
         exit(IsolatedCertificate.Code);
     end;
 
     local procedure FindRowOnVATStatementReport(RowNo: Code[20]): Boolean
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(VatStmtLineRowNoCap, RowNo);
-        exit(LibraryReportDataset.GetNextRow);
+        exit(LibraryReportDataset.GetNextRow());
     end;
 
     local procedure FilterOnElecTaxDeclLine(var ElecTaxDeclLine: Record "Elec. Tax Declaration Line"; DeclarationType: Option; DeclarationNo: Code[20]; LineType: Option; ExpectedName: Text[80])
@@ -1455,17 +1453,17 @@ codeunit 144051 "ERM EVAT"
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
-        ElecTaxDeclarationHeader."Declaration Period" := GetDeclarationPeriod;
+        ElecTaxDeclarationHeader."Declaration Period" := GetDeclarationPeriod();
 
         case ElecTaxDeclarationHeader."Declaration Period" of
             ElecTaxDeclarationHeader."Declaration Period"::"First Quarter":
-                exit(DMY2Date(1, 1, GetDeclarationYear));
+                exit(DMY2Date(1, 1, GetDeclarationYear()));
             ElecTaxDeclarationHeader."Declaration Period"::"Second Quarter":
-                exit(DMY2Date(1, 4, GetDeclarationYear));
+                exit(DMY2Date(1, 4, GetDeclarationYear()));
             ElecTaxDeclarationHeader."Declaration Period"::"Third Quarter":
-                exit(DMY2Date(1, 7, GetDeclarationYear));
+                exit(DMY2Date(1, 7, GetDeclarationYear()));
             ElecTaxDeclarationHeader."Declaration Period"::"Fourth Quarter":
-                exit(DMY2Date(1, 10, GetDeclarationYear));
+                exit(DMY2Date(1, 10, GetDeclarationYear()));
         end;
     end;
 
@@ -1572,14 +1570,14 @@ codeunit 144051 "ERM EVAT"
         LibraryVariableStorage.Dequeue(VATStatementName);
         CreateElecVATDeclaration.VATTemplateName.SetValue(VATTemplateName);
         CreateElecVATDeclaration.VATStatementName.SetValue(VATStatementName);
-        CreateElecVATDeclaration.OK.Invoke;
+        CreateElecVATDeclaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateElecICPDeclarationRequestPageHandler(var CreateElecICPDeclaration: TestRequestPage "Create Elec. ICP Declaration")
     begin
-        CreateElecICPDeclaration.OK.Invoke;
+        CreateElecICPDeclaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1587,7 +1585,7 @@ codeunit 144051 "ERM EVAT"
     procedure CreateElecICPDeclarationWithFilterRequestPageHandler(var CreateElecICPDeclaration: TestRequestPage "Create Elec. ICP Declaration")
     begin
         CreateElecICPDeclaration."VAT Entry".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText());
-        CreateElecICPDeclaration.OK.Invoke();
+        CreateElecICPDeclaration.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1599,12 +1597,12 @@ codeunit 144051 "ERM EVAT"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
         LibraryVariableStorage.Dequeue(RoundToWholeNumbers);
-        VATStatement.StartingDate.SetValue(GetDeclarationQuarterStartingDate);
-        VATStatement.EndingDate.SetValue(CalcDate('<+CQ>', GetDeclarationQuarterStartingDate));
+        VATStatement.StartingDate.SetValue(GetDeclarationQuarterStartingDate());
+        VATStatement.EndingDate.SetValue(CalcDate('<+CQ>', GetDeclarationQuarterStartingDate()));
         VATStatement.Selection.SetValue(Selection::Open);
         VATStatement.PeriodSelection.SetValue(PeriodSelection::"Within Period");
         VATStatement.RoundToWholeNumbers.SetValue(RoundToWholeNumbers);
-        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -1618,7 +1616,7 @@ codeunit 144051 "ERM EVAT"
     [Scope('OnPrem')]
     procedure ConfirmHandlerWithVerification(Question: Text; var Reply: Boolean)
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
         Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
@@ -1709,7 +1707,7 @@ codeunit 144051 "ERM EVAT"
     [Scope('OnPrem')]
     procedure CancelSubmitElecTaxDeclarationReportRequestPageHandler(var SubmitElecTaxDeclaration: TestRequestPage "Submit Elec. Tax Declaration")
     begin
-        SubmitElecTaxDeclaration.Cancel.Invoke;
+        SubmitElecTaxDeclaration.Cancel().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadFromStreamHandler', '', false, false)]

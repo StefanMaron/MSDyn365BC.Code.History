@@ -335,9 +335,6 @@ page 6322 "Power BI WS Report Selection"
         ShowAdditionalFields: Boolean; // This value is always false, but dynamic visibility of fields enables testability
         ErrorMessageText: Text;
         FailedToLoadReportListTelemetryErr: Label 'PowerBIReportSelection failed to load reports. Error message: %1', Locked = true;
-#if not CLEAN21
-        FailedToInsertReportTelemetryMsg: Label 'Failed to insert report in buffer (has null id: %1).', Locked = true;
-#endif
 
     procedure SetContext(ParentContext: Text[30])
     begin
@@ -425,39 +422,5 @@ page 6322 "Power BI WS Report Selection"
         IsErrorMessageVisible := true;
         Session.LogMessage('0000F5B', StrSubstNo(FailedToLoadReportListTelemetryErr, GetLastErrorText(true)), Verbosity::Warning, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
     end;
-
-#if not CLEAN21
-    [Obsolete('Use the page builtin function GetRecord instead.', '21.0')]
-    [Scope('OnPrem')]
-    procedure GetSelectedReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary)
-    var
-        TempPowerBISelectionElement: Record "Power BI Selection Element" temporary;
-    begin
-        TempPowerBIReportBuffer.Reset();
-        TempPowerBIReportBuffer.DeleteAll();
-
-        TempPowerBISelectionElement.Copy(Rec, true);
-        TempPowerBISelectionElement.Reset();
-        TempPowerBISelectionElement.SetRange(Enabled, true);
-        TempPowerBISelectionElement.SetRange(Type, TempPowerBISelectionElement.Type::"Report");
-
-        if TempPowerBISelectionElement.FindSet() then
-            repeat
-                TempPowerBIReportBuffer.Init();
-
-                TempPowerBIReportBuffer.ReportID := TempPowerBISelectionElement.ID;
-                TempPowerBIReportBuffer.ReportName := CopyStr(TempPowerBISelectionElement.Name, 1, MaxStrLen(TempPowerBIReportBuffer.ReportName));
-                TempPowerBIReportBuffer.Enabled := TempPowerBISelectionElement.Enabled;
-                TempPowerBIReportBuffer.ReportEmbedUrl := TempPowerBISelectionElement.EmbedUrl;
-                TempPowerBIReportBuffer."Workspace ID" := TempPowerBISelectionElement.WorkspaceID;
-                TempPowerBIReportBuffer."Workspace Name" := TempPowerBISelectionElement.WorkspaceName;
-
-                if not TempPowerBIReportBuffer.Insert() then
-                    Session.LogMessage('0000FDQ', StrSubstNo(FailedToInsertReportTelemetryMsg, IsNullGuid(TempPowerBIReportBuffer.ReportID)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
-            until TempPowerBISelectionElement.Next() = 0;
-
-        if TempPowerBIReportBuffer.Get(Rec.ID) then;
-    end;
-#endif
 }
 

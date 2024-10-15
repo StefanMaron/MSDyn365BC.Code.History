@@ -99,7 +99,7 @@ codeunit 135090 "API Webhook Sending Events"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnBeforeDeleteInactiveJobs', '', false, false)]
     local procedure HandleOnBeforeDeleteInactiveJobs()
     begin
-        MarkOnHoldJobsAsReady;
+        MarkOnHoldJobsAsReady();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Webhook Notification Send", 'OnBeforeSendNotification', '', false, false)]
@@ -121,8 +121,8 @@ codeunit 135090 "API Webhook Sending Events"
         ActualEntityCount: Integer;
         I: Integer;
     begin
-        ExpectedNotificationUrl := LibraryVariableStorage.DequeueText;
-        ExpectedEntityCount := LibraryVariableStorage.DequeueInteger;
+        ExpectedNotificationUrl := LibraryVariableStorage.DequeueText();
+        ExpectedEntityCount := LibraryVariableStorage.DequeueInteger();
         Assert.AreEqual(ExpectedNotificationUrl, NotificationUrl, 'Incorrect notification URL');
 
         JSONManagement.InitializeObject(Payload);
@@ -134,9 +134,9 @@ codeunit 135090 "API Webhook Sending Events"
         JSONManagement.InitializeCollectionFromJArray(ValueJArray);
 
         for I := 0 to ActualEntityCount - 1 do begin
-            ExpectedSubscriptionID := LibraryVariableStorage.DequeueText;
-            ExpectedChangeType := LibraryVariableStorage.DequeueText;
-            ExpectedResourceUrl := LibraryVariableStorage.DequeueText;
+            ExpectedSubscriptionID := LibraryVariableStorage.DequeueText();
+            ExpectedChangeType := LibraryVariableStorage.DequeueText();
+            ExpectedResourceUrl := LibraryVariableStorage.DequeueText();
             JSONManagement.GetJObjectFromCollectionByIndex(ValueJObject, I);
             GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(ValueJObject, 'subscriptionId', ActualSubscriptionID);
             GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(ValueJObject, 'changeType', ActualChangeType);
@@ -153,7 +153,7 @@ codeunit 135090 "API Webhook Sending Events"
         ExpectedStatusCode: Integer;
         ActualStatusCode: Integer;
     begin
-        ExpectedStatusCode := LibraryVariableStorage.DequeueInteger;
+        ExpectedStatusCode := LibraryVariableStorage.DequeueInteger();
         if not IsNull(HttpStatusCode) then
             ActualStatusCode := HttpStatusCode;
         Assert.AreEqual(ExpectedStatusCode, ActualStatusCode,
@@ -170,7 +170,7 @@ codeunit 135090 "API Webhook Sending Events"
     [Scope('OnPrem')]
     procedure AssertEmptyQueue()
     begin
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Scope('OnPrem')]

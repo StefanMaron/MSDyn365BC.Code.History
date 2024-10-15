@@ -54,20 +54,18 @@ codeunit 783 "Relationship Performance Mgt."
     var
         I: Integer;
     begin
-        with BusinessChartBuffer do begin
-            Initialize();
-            AddDecimalMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, "Chart Type"::StackedColumn);
-            SetXAxis(TempOpportunity.TableCaption(), "Data Type"::String);
-            CalcTopFiveOpportunities(TempOpportunity);
-            TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
-            OnUpdateDataOnAfterTempOpportunitySetFilters(TempOpportunity);
-            if TempOpportunity.FindSet() then
-                repeat
-                    I += 1;
-                    AddBusinessChartBufferColumn(BusinessChartBuffer, TempOpportunity);
-                    SetValueByIndex(0, I - 1, TempOpportunity."Estimated Value (LCY)");
-                until TempOpportunity.Next() = 0;
-        end;
+        BusinessChartBuffer.Initialize();
+        BusinessChartBuffer.AddDecimalMeasure(TempOpportunity.FieldCaption("Estimated Value (LCY)"), 1, BusinessChartBuffer."Chart Type"::StackedColumn);
+        BusinessChartBuffer.SetXAxis(TempOpportunity.TableCaption(), BusinessChartBuffer."Data Type"::String);
+        CalcTopFiveOpportunities(TempOpportunity);
+        TempOpportunity.SetAutoCalcFields("Estimated Value (LCY)");
+        OnUpdateDataOnAfterTempOpportunitySetFilters(TempOpportunity);
+        if TempOpportunity.FindSet() then
+            repeat
+                I += 1;
+                AddBusinessChartBufferColumn(BusinessChartBuffer, TempOpportunity);
+                BusinessChartBuffer.SetValueByIndex(0, I - 1, TempOpportunity."Estimated Value (LCY)");
+            until TempOpportunity.Next() = 0;
     end;
 
     local procedure AddBusinessChartBufferColumn(var BusinessChartBuffer: Record "Business Chart Buffer"; var TempOpportunity: Record Opportunity temporary)

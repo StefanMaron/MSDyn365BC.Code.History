@@ -111,7 +111,6 @@ codeunit 143000 "Library - NL Localization"
     end;
 
     procedure SetupExportProtocolChecksum(var ExportProtocol: Record "Export Protocol"; GenerateChecksum: Boolean; AppendChecksumToFile: Boolean)
-    var
     begin
         ExportProtocol.Validate("Append Checksum to File", AppendChecksumToFile);
         ExportProtocol.Validate("Generate Checksum", GenerateChecksum);

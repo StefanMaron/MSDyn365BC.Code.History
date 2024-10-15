@@ -12,7 +12,6 @@ codeunit 137265 "SCM Package Tracking Purchase"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -24,10 +23,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         PackageNoRequiredErr: Label 'You must assign a package number for item %1.', Comment = '%1 - Item No.';
         PackageNoInfoFoundErr: Label '%1  is not found, filters: %2.';
         PackageNoInfoQtyErr: Label 'Incorrect quantity for Package No. Information = %1, filters: %2.';
-        PackageNoInfoDoesNotExistErr: Label 'The Package No. Information does not exist.';
         ItemTrackingErr: Label 'Item Tracking Serial No.  Lot No.  Package No.';
         IncorrConfirmDialogOpenedErr: Label 'Incorrect confirm dialog opened.';
-        ItemTrackingDoesNotMatchErr: Label 'Item Tracking does not match for line 10000, Item %1, Qty. to Receive 4';
         DoYouWantToUndoMsg: Label 'Do you really want to undo the selected Receipt lines';
         QtyToInvoiceDoesNotMatchItemTrackingErr: Label 'The quantity to invoice does not match the quantity defined in item tracking.';
 
@@ -215,8 +212,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[1]."No.", Location.Code, '', '', PackageNo[1], 4);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[2]."No.", Location.Code, '', '', PackageNo[2], 5);
 
-        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, 4, 0, Location.Code);
-        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, 5, 0, Location.Code);
+        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, Location.Code);
+        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, Location.Code);
     end;
 
     [Test]
@@ -375,7 +372,6 @@ codeunit 137265 "SCM Package Tracking Purchase"
         PurchaseLine: Record "Purchase Line";
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
-        InvtSetup: Record "Inventory Setup";
         Qty: Decimal;
         PackageNo: Code[50];
     begin
@@ -561,8 +557,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[1]."No.", Location.Code, '', '', PackageNo[1], 4);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[2]."No.", Location.Code, '', '', PackageNo[2], 5);
 
-        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, 4, 0, Location.Code);
-        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, 5, 0, Location.Code);
+        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, Location.Code);
+        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, Location.Code);
     end;
 
     [Test]
@@ -605,8 +601,8 @@ codeunit 137265 "SCM Package Tracking Purchase"
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[1]."No.", '', '', '', PackageNo[1], 4);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item[2]."No.", '', '', '', PackageNo[2], 5);
 
-        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, 4, 0, '');
-        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, 5, 0, '');
+        CheckPackageNoInfoInfo(Item[1]."No.", PackageNo[1], 4, '');
+        CheckPackageNoInfoInfo(Item[2]."No.", PackageNo[2], 5, '');
     end;
 
     [Test]
@@ -722,7 +718,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
             CreateItemChargeAssignPurchFromReceipt(
               PurchaseInvLine, ItemChargeNo, Item[1]."No.", PurchRcptLine);
         until PurchRcptLine.Next() = 0;
-        ItemChargeAssgntSCode.AssignItemCharges(PurchaseInvLine, 1, 1, ItemChargeAssgntSCode.AssignEquallyMenuText);
+        ItemChargeAssgntSCode.AssignItemCharges(PurchaseInvLine, 1, 1, ItemChargeAssgntSCode.AssignEquallyMenuText());
 
         LibrarySmallBusiness.UpdatePurchHeaderDocTotal(PurchaseInvHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseInvHeader, true, true);
@@ -879,7 +875,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CheckPackageNoInfoInfo(ItemNo: Code[20]; PackageNo: Code[50]; Inventory: Decimal; Purchase: Decimal; Sales: Decimal; Locationcode: Code[10]): Boolean
+    local procedure CheckPackageNoInfoInfo(ItemNo: Code[20]; PackageNo: Code[50]; Inventory: Decimal; Locationcode: Code[10]): Boolean
     var
         PackageNoInfo: Record "Package No. Information";
     begin

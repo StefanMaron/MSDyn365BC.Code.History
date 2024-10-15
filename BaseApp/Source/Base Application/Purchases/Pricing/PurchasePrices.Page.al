@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Purchases.Pricing;
 
 using Microsoft.Inventory.Item;
@@ -164,7 +164,7 @@ page 7012 "Purchase Prices"
                 Caption = 'Copy Prices';
                 Image = Copy;
                 ToolTip = 'Select prices and press OK to copy them to Vendor No.';
-                Visible = NOT IsLookupMode;
+                Visible = not IsLookupMode;
 
                 trigger OnAction()
                 begin

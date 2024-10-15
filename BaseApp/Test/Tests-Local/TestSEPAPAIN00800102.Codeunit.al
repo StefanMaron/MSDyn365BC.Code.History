@@ -277,7 +277,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         SetUpSEPA(BankAccount, Customer1, DirectDebitMandate);
         CreateAndPostSalesInvoice(Customer1."No.", false);
 
-        SetUpTransactionMode(TransactionMode, BankAccount."No.", 3 - Customer1."Partner Type".AsInteger(), TransactionMode."Account Type"::Customer); // Partner Type <> Customer1.Partner Type
+        SetUpTransactionMode(TransactionMode, BankAccount."No.", "Partner Type".FromInteger(3 - Customer1."Partner Type".AsInteger()), TransactionMode."Account Type"::Customer); // Partner Type <> Customer1.Partner Type
         CreateCustomerWithBankAccount(Customer2, BankAccount, TransactionMode.Code, TransactionMode."Partner Type", DirectDebitMandate);
         CreateAndPostSalesInvoice(Customer2."No.", false);
 
@@ -395,11 +395,11 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         CreateMandate(DirectDebitMandate, Customer."No.", BankAccount."No.", 0D, 0D);
 
         // exercise
-        CustomerBankAccountCard.OpenEdit;
+        CustomerBankAccountCard.OpenEdit();
         CustomerBankAccountCard.GotoKey(DirectDebitMandate."Customer No.", DirectDebitMandate."Customer Bank Account Code");
         CustomerBankAccountCard."Direct Debit Mandate ID".SetValue(DirectDebitMandate.ID);
 
-        CustomerBankAccountCard.OK.Invoke;
+        CustomerBankAccountCard.OK().Invoke();
 
         // verify
         CustomerBankAccount.Get(DirectDebitMandate."Customer No.", DirectDebitMandate."Customer Bank Account Code");
@@ -534,7 +534,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ExportSEPAFile(BankAccount."No.");
 
         // verify
-        VerifyPostlAdrDoesNotExist;
+        VerifyPostlAdrDoesNotExist();
     end;
 
     [Test]
@@ -631,11 +631,11 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         Initialize();
 
         // setup
-        SetUpSEPAVendor(BankAccount, Vendor, CreateCurrency);
+        SetUpSEPAVendor(BankAccount, Vendor, CreateCurrency());
 
         // exercise
         CreateAndPostPurchaseInvoice(Vendor."No.");
-        GetEntriesAtDate(BankAccount."No.", CalcDate('<3D>', WorkDate()));
+        GetEntriesAtDate(CalcDate('<3D>', WorkDate()));
         ProcessProposals(BankAccount."No.");
 
         // verify
@@ -979,7 +979,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         else
             RandomValue := LibraryRandom.RandDec(10, 2);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, RandomValue);
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), RandomValue);
         SalesLine.Validate("Unit Price", RandomValue);
         SalesLine.Modify(true);
     end;
@@ -993,7 +993,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         PurchaseHeader.Validate("Doc. Amount Incl. VAT", PurchaseLine."Amount Including VAT");
@@ -1024,7 +1024,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         end
     end;
 
-    local procedure CreateCustomerWithBankAccount(var Customer: Record Customer; BankAccount: Record "Bank Account"; TransactionModeCode: Code[20]; PartnerType: Option; var DirectDebitMandate: Record "SEPA Direct Debit Mandate")
+    local procedure CreateCustomerWithBankAccount(var Customer: Record Customer; BankAccount: Record "Bank Account"; TransactionModeCode: Code[20]; PartnerType: Enum "Partner Type"; var DirectDebitMandate: Record "SEPA Direct Debit Mandate")
     var
         CustomerBankAccount: Record "Customer Bank Account";
         PostCode: Record "Post Code";
@@ -1058,7 +1058,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         CustomerBankAccount.Modify(true);
     end;
 
-    local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; BankAccount: Record "Bank Account"; TransactionModeCode: Code[20]; PartnerType: Option; CurrencyCode: Code[10])
+    local procedure CreateVendorWithBankAccount(var Vendor: Record Vendor; BankAccount: Record "Bank Account"; TransactionModeCode: Code[20]; PartnerType: Enum "Partner Type"; CurrencyCode: Code[10])
     var
         VendorBankAccount: Record "Vendor Bank Account";
         PostCode: Record "Post Code";
@@ -1166,7 +1166,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         REPORT.RunModal(REPORT::"Get Proposal Entries", false, true, TransactionMode);
     end;
 
-    local procedure GetEntriesAtDate(BankAccountNo: Code[20]; CurrencyDate: Date)
+    local procedure GetEntriesAtDate(CurrencyDate: Date)
     var
         TransactionMode: Record "Transaction Mode";
     begin
@@ -1251,7 +1251,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     var
         DirectDebitMandate: Record "SEPA Direct Debit Mandate";
         ProposalLine: Record "Proposal Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         LineNo: Integer;
     begin
         with ProposalLine do begin
@@ -1259,7 +1259,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
             FindFirst();
             for LineNo := 1 to NumberOfPayments - 1 do begin
                 "Line No." += 1;
-                Identification := NoSeriesMgt.GetNextNo("Identification No. Series", "Transaction Date", true);
+                Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
                 if NewMandatePerPayment then begin
                     CreateMandate(DirectDebitMandate, "Account No.", Bank, 0D, 0D);
                     "Direct Debit Mandate ID" := DirectDebitMandate.ID;
@@ -1278,7 +1278,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         ProposalLine.SetRange("Our Bank No.", BankAccountNo);
         ProposalLine.FindFirst();
         ProcessProposalLines.Run(ProposalLine);
-        ProcessProposalLines.ProcessProposallines;
+        ProcessProposalLines.ProcessProposallines();
     end;
 
     local procedure RejectPayment(BankAccountNo: Code[20])
@@ -1336,7 +1336,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         GLAccount: Record "G/L Account";
         CountryRegionCode: Code[10];
     begin
-        CountryRegionCode := SetUpCountrySEPAAllowed;
+        CountryRegionCode := SetUpCountrySEPAAllowed();
         CreateFreelyTransferableMax(CountryRegionCode);
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Creditor Identifier",
@@ -1351,7 +1351,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
           '&' + LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Account Holder Name"), DATABASE::"Bank Account"));
         BankAccount.Validate("Account Holder Address",
           '@' + LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Account Holder Address"), DATABASE::"Bank Account"));
-        BankAccount.Validate("Account Holder Post Code", FindPostCode);
+        BankAccount.Validate("Account Holder Post Code", FindPostCode());
 
         BankAccPostingGroup.Next(LibraryRandom.RandInt(BankAccPostingGroup.Count));
 
@@ -1385,7 +1385,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         CreateSEPABankAccount(BankAccount);
         SetUpTransactionMode(
-          TransactionMode, BankAccount."No.", LibraryRandom.RandIntInRange(1, 2), TransactionMode."Account Type"::Customer);
+          TransactionMode, BankAccount."No.", "Partner Type".FromInteger(LibraryRandom.RandIntInRange(1, 2)), TransactionMode."Account Type"::Customer);
         CreateCustomerWithBankAccount(Customer, BankAccount, TransactionMode.Code, TransactionMode."Partner Type", DirectDebitMandate);
     end;
 
@@ -1395,13 +1395,13 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         CreateSEPABankAccount(BankAccount);
         SetUpTransactionMode(
-          TransactionMode, BankAccount."No.", LibraryRandom.RandIntInRange(1, 2), TransactionMode."Account Type"::Vendor);
+          TransactionMode, BankAccount."No.", "Partner Type".FromInteger(LibraryRandom.RandIntInRange(1, 2)), TransactionMode."Account Type"::Vendor);
         CreateVendorWithBankAccount(
           Vendor, BankAccount, TransactionMode.Code, TransactionMode."Partner Type", CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(BankAccount."Country/Region Code", CurrencyCode);
     end;
 
-    local procedure SetUpTransactionMode(var TransactionMode: Record "Transaction Mode"; BankAccountCode: Code[20]; PartnerType: Option ,Company,Person; AccountType: Option)
+    local procedure SetUpTransactionMode(var TransactionMode: Record "Transaction Mode"; BankAccountCode: Code[20]; PartnerType: Enum "Partner Type"; AccountType: Option)
     var
         GLAccount: Record "G/L Account";
         SourceCode: Record "Source Code";
@@ -1413,7 +1413,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         TransactionMode.Validate("Account Type", AccountType);
         TransactionMode.Validate("Export Protocol", ExportProtocol.Code);
         TransactionMode.Validate("Our Bank", BankAccountCode);
-        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode());
         // this is necessary as process proposal for two diff. lines requires diff. ifentifiers (No.Series Code)
         LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, Format(LibraryRandom.RandInt(1000000)), '');
@@ -1423,8 +1423,8 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", GLAccount."No.");
         SourceCode.Next(LibraryRandom.RandInt(SourceCode.Count));
         TransactionMode.Validate("Source Code", SourceCode.Code);
-        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
-        TransactionMode.Validate("Correction Posting No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Validate("Correction Posting No. Series", LibraryERM.CreateNoSeriesCode());
         TransactionMode.Validate("Correction Source Code", SourceCode.Code);
         TransactionMode.Validate("Partner Type", PartnerType);
         TransactionMode.Insert(true);
@@ -1721,7 +1721,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         LibraryVariableStorage.Dequeue(NewStatus);
         ChangeStatusReport.NewStatus.SetValue(NewStatus);
-        ChangeStatusReport.OK.Invoke;
+        ChangeStatusReport.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1732,7 +1732,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         LibraryVariableStorage.Dequeue(StoredCurrencyDate);
         GetProposalEntries.CurrencyDate.SetValue(StoredCurrencyDate);
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 }
 

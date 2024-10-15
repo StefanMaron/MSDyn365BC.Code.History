@@ -243,7 +243,7 @@ codeunit 134307 "Workflow Cond. Eval. Tests"
         // Setup - Workflow Types
         CreateAnyPurchaseHeaderEvent(EntryWorkflowEvent);
         CreateAnyPurchaseHeaderEvent(CondWorkflowEvent);
-        CreateWorkflowTableRelations;
+        CreateWorkflowTableRelations();
 
         // Setup  - Workflow
         LibraryWorkflow.CreateWorkflow(Workflow);

@@ -6,6 +6,7 @@ using Microsoft.Purchases.Vendor;
 table 317 "Payable Vendor Ledger Entry"
 {
     Caption = 'Payable Vendor Ledger Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

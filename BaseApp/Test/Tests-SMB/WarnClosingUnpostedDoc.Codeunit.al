@@ -39,15 +39,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Invoice document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         // [GIVEN] Page opened
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [WHEN] Page closed
         SalesInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
-          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
+          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText(), 'CloseUnpostedConfirmHandler');
         SalesHeader.Delete(true);
     end;
 
@@ -63,9 +63,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Invoice document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesInvoice.Close();
@@ -85,9 +85,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Credit Memo document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesCreditMemo.Close();
@@ -107,9 +107,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Credit Memo document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesCreditMemo.Close();
@@ -129,11 +129,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Notification for unreleased documents disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Page opened
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesOrder.Close();
@@ -153,10 +153,10 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         // [GIVEN] Notification for unposted and unreleased documents disabled
-        DisableWarningOnCloseUnpostedDoc;
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnpostedDoc();
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Page opened
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesOrder.Close();
@@ -176,9 +176,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Return Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesReturnOrder.Close();
@@ -198,9 +198,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Sales Return Order document
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesReturnOrder.Close();
@@ -221,15 +221,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Invoice document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
-          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
+          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText(), 'CloseUnpostedConfirmHandler');
         PurchaseHeader.Delete(true);
     end;
 
@@ -245,9 +245,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Invoice document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseInvoice.Close();
@@ -267,9 +267,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Credit Memo document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseCreditMemo.Close();
@@ -289,9 +289,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Credit Memo document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseCreditMemo.Close();
@@ -312,11 +312,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         ClearTable(DATABASE::"Warehouse Receipt Line");
         // [GIVEN] Notification for unreleased documents disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseOrder.Close();
@@ -337,10 +337,10 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         ClearTable(DATABASE::"Warehouse Receipt Line");
         // [GIVEN] Notification for unposted and unreleased documents disabled
-        DisableWarningOnCloseUnreleasedOrders;
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnreleasedOrders();
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseOrder.Close();
@@ -360,9 +360,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Return Order document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseReturnOrder.Close();
@@ -382,9 +382,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Purchase Return Order document
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseReturnOrder.Close();
@@ -405,15 +405,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Service Invoice document
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceInvoice.Close();
         // [THEN] Page closes with UI Confirm
         Assert.AreEqual(
-          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText, 'CloseUnpostedConfirmHandler');
+          DocumentNotPostedClosePageQst, LibraryVariableStorage.DequeueText(), 'CloseUnpostedConfirmHandler');
     end;
 
     [Test]
@@ -428,9 +428,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Service Invoice document
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Invoice);
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceInvoice.Close();
@@ -449,9 +449,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Service Credit Memo document
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceCreditMemo.Close();
@@ -470,9 +470,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Service Credit Memo document
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceCreditMemo.Close();
@@ -492,9 +492,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
         ClearTable(DATABASE::"Repair Status");
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceOrder.Close();
@@ -514,9 +514,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         CreateServiceDocument(ServiceHeader, ServiceHeader."Document Type"::Order);
         ClearTable(DATABASE::"Repair Status");
         // [GIVEN] Notification for unposted documents disabled
-        DisableWarningOnCloseUnpostedDoc;
+        DisableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceOrder.Close();
@@ -538,9 +538,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesCreditMemo.Close();
@@ -563,11 +563,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Notification for unreleased documents disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Page opened
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesOrder.Close();
@@ -590,9 +590,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.GotoRecord(SalesHeader);
         // [WHEN] Page closed
         SalesReturnOrder.Close();
@@ -615,9 +615,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseCreditMemo.Close();
@@ -641,11 +641,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unreleased documents disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseOrder.Close();
@@ -668,9 +668,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
         // [WHEN] Page closed
         PurchaseReturnOrder.Close();
@@ -693,9 +693,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceCreditMemo.Close();
@@ -718,9 +718,9 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [GIVEN] Table My Notifications is empty
         MyNotifications.DeleteAll();
         // [GIVEN] Notification for unposted documents enabled with default filter for Document Type: Invoice
-        EnableWarningOnCloseUnpostedDoc;
+        EnableWarningOnCloseUnpostedDoc();
         // [GIVEN] Page opened
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
         // [WHEN] Page closed
         ServiceOrder.Close();
@@ -740,30 +740,30 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Sales]
         // [SCENARIO 275555] Query returns at least one line with location that has "Require Shipment" enabled, notification shows
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [GIVEN] Order was not released
         SalesHeader.Status := SalesHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns a line with Require Shipment = true
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
         CreateSalesLineWithLocation(SalesLine, SalesHeader,
-          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Shipment, true);
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
         SalesOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
-        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
+        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText(), 'UnreleasedConfirmHandlerYES');
     end;
 
     [Test]
@@ -779,30 +779,30 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Sales]
         // [SCENARIO 275555] Query returns at least one line with location that has "Require Pick" enabled, notification shows
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [GIVEN] Order was not released
         SalesHeader.Status := SalesHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns a line with Require Pick = true
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Pick, true);
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
         SalesOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
-        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
+        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText(), 'UnreleasedConfirmHandlerYES');
     end;
 
     [Test]
@@ -817,30 +817,30 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Sales]
         // [SCENARIO 275555] Query returns no lines that have Require Pick or Require Shipment enabled, notification doesn't show
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [GIVEN] Order was not released
         SalesHeader.Status := SalesHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns no lines with Require Pick = true and no lines with Require Shipment = true
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, true, false);
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Pick, true);
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 must return no lines on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 must return no lines on this input');
         MyQuery.SetRange(Require_Pick);
         MyQuery.SetRange(Require_Shipment, true);
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 must return no lines on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 must return no lines on this input');
 
         // [WHEN] User presses "close page"
         SalesOrder.Close();
@@ -861,30 +861,30 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Purchase]
         // [SCENARIO 275555] Query returns at least one line with location that has "Require Receive" enabled, notification shows
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Purchase order page is open
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [GIVEN] Order is not released
         PurchaseHeader.Status := PurchaseHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns a line with "Require Receive" = true
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, false);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader,
-          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Receive, true);
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5002 must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5002 must return one line on this input');
 
         // [WHEN] User presses "close page"
         PurchaseOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
-        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
+        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText(), 'UnreleasedConfirmHandlerYES');
     end;
 
     [Test]
@@ -900,30 +900,30 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Purchase]
         // [SCENARIO 275555] Query returns at least one line with location that has "Require Put-away" enabled, notification shows
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Purchase order page is open
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [GIVEN] Order is not released
         PurchaseHeader.Status := PurchaseHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns a line with "Require Put-away" = true
         LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader,
-          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Put_away, true);
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5002 must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5002 must return one line on this input');
 
         // [WHEN] User presses "close page"
         PurchaseOrder.Close();
 
         // [THEN] Notification for the unreleased document pops up
-        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText, 'UnreleasedConfirmHandlerYES');
+        Assert.AreEqual(OrderNotUnreleasedCloseQst, LibraryVariableStorage.DequeueText(), 'UnreleasedConfirmHandlerYES');
     end;
 
     [Test]
@@ -938,28 +938,28 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order] [Purchase]
         // [SCENARIO 275555] Query returns no lines that have "Require Put-away"or "Require Receive" enabled, notification doesn't show
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.GotoRecord(PurchaseHeader);
         // [GIVEN] Order was not released
         PurchaseHeader.Status := PurchaseHeader.Status::Open;
         // [GIVEN] Notification for not released orders was enabled
-        EnableWarningOnCloseUnreleasedOrders;
+        EnableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns no lines with "Require Put-away" = true and no lines with "Require Receive" = true
         LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader,
-          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.SetRange(Require_Put_away, true);
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 must return no lines on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 must return no lines on this input');
         MyQuery.SetRange(Require_Put_away);
         MyQuery.SetRange(Require_Receive, true);
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 must return no lines on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 must return no lines on this input');
 
         // [WHEN] User presses "close page"
         PurchaseOrder.Close();
@@ -979,24 +979,24 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order]
         // [SCENARIO 275555] Order is released, notification is enabled but not shown
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [GIVEN] Order was released
         SalesHeader.Status := SalesHeader.Status::Released;
         // [GIVEN] Notification for not released orders was disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Query returns a line with Require Shipment = true
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
         CreateSalesLineWithLocation(SalesLine, SalesHeader,
-          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.SetRange(Require_Shipment, true);
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5001 must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5001 must return one line on this input');
 
         // [WHEN] User presses "close page"
         SalesOrder.Close();
@@ -1014,16 +1014,16 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [Unreleased] [Order]
         // [SCENARIO 275555] Order is not released, but notification is disabled and not shown
-        InitUnreleasedTests;
+        InitUnreleasedTests();
 
         // [GIVEN] Sale order page was open
         CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         // [GIVEN] Order was not released
         SalesHeader.Status := SalesHeader.Status::Open;
         // [GIVEN] Notification for not released orders was disabled
-        DisableWarningOnCloseUnreleasedOrders;
+        DisableWarningOnCloseUnreleasedOrders();
         // [GIVEN] Company had at least one location that has "Require Shipment" enabled
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
 
@@ -1044,14 +1044,14 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [UT] [Sales] [Location] [Query]
         // [SCENARIO 275555] Query 5001 returns empty for Invoice
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
         CreateSalesLineWithLocation(SalesLine, SalesHeader,
-          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         // Not an order (invoice), but with valid line
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1063,11 +1063,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [UT] [Sales] [Location] [Query]
         // [SCENARIO 275555] Query 5001 returns empty for order with no lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         // Empty order
         MyQuery.SetRange(Document_No, SalesHeader."No.");
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1082,15 +1082,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [FEATURE] [UT] [Sales] [Location] [Query]
         // [SCENARIO 275555] Query 5001 returns empty for Order with lines that have type <> item, quantity = 0, location code = ''
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         // Three lines, each missing a vital part: 1st doesn't have a location, 2nd has quantity = 0, 3rd is not an item type
         CreateSalesLineWithLocation(SalesLine, SalesHeader, '',
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
-        CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), 0);
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1105,19 +1105,19 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [FEATURE] [UT] [Sales] [Location] [Query]
         // [SCENARIO 275555] Query 5001 returns Location."Require Pick" and Location."Require Receive" for Order
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         // A correct line
         CreateSalesLineWithLocation(SalesLine, SalesHeader, Location.Code,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5001 returned no lines, but it must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5001 returned no lines, but it must return one line on this input');
         Assert.AreEqual(SalesHeader."No.", MyQuery.Document_No, 'Document No from query must match actual document No');
         Assert.AreEqual(Location.Code, MyQuery.Location_Code, 'Location code from query must match actual Location.Code');
         Assert.AreEqual(Location."Require Pick",
           MyQuery.Require_Pick, 'Require Pick form query must match actual Location."Require Pick"');
         Assert.AreEqual(Location."Require Shipment",
           MyQuery.Require_Shipment, 'Require Shipment form query must match actual Location."Require Shipment"');
-        Assert.IsFalse(MyQuery.Read, 'Query 5001 returned more than 1 line, but must return only 1 on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5001 returned more than 1 line, but must return only 1 on this input');
     end;
 
     [Test]
@@ -1131,14 +1131,14 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [UT] [Purchase] [Location] [Query]
         // [SCENARIO 275555] Query 5002 returns empty for Invoice
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
-          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         // Not an order (invoice), but with valid line
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1150,11 +1150,11 @@ codeunit 138046 "Warn Closing Unposted Doc"
     begin
         // [FEATURE] [UT] [Purchase] [Location] [Query]
         // [SCENARIO 275555] Query 5002 returns empty for order with no lines
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         // Empty order
         MyQuery.SetRange(Document_No, PurchaseHeader."No.");
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1169,16 +1169,16 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [FEATURE] [UT] [Purchase] [Location] [Query]
         // [SCENARIO 275555] Query 5002 returns empty for Order with lines that have type <> item, quantity = 0, location code = ''
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         // Three lines, each missing a vital part: 1st doesn't have a location, 2nd has quantity = 0, 3rd is not an item type
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, '',
-          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
-          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, 0);
+          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 0);
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));
         MyQuery.Open();
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 returned lines, but it must be empty on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 returned lines, but it must be empty on this input');
     end;
 
     [Test]
@@ -1193,18 +1193,18 @@ codeunit 138046 "Warn Closing Unposted Doc"
         // [FEATURE] [UT] [Purchase] [Location] [Query]
         // [SCENARIO 275555] Query 5002 returns Location."Require Pick" and Location."Require Receive" for Order
         LibraryWarehouse.CreateLocationWMS(Location, false, true, true, true, true);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLineWithLocation(PurchaseLine, PurchaseHeader, Location.Code,
-          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+          PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         MyQuery.Open();
-        Assert.IsTrue(MyQuery.Read, 'Query 5002 returned no lines, but it must return one line on this input');
+        Assert.IsTrue(MyQuery.Read(), 'Query 5002 returned no lines, but it must return one line on this input');
         Assert.AreEqual(PurchaseHeader."No.", MyQuery.Document_No, 'Document No from query must match actual document No');
         Assert.AreEqual(Location.Code, MyQuery.Location_Code, 'Location code from query must match actual Location.Code');
         Assert.AreEqual(Location."Require Put-away",
           MyQuery.Require_Put_away, 'Require Put-away form query must match actual Location."Require Put-away"');
         Assert.AreEqual(Location."Require Receive",
           MyQuery.Require_Receive, 'Require Receive form query must match actual Location."Require Receive"');
-        Assert.IsFalse(MyQuery.Read, 'Query 5002 returned more than 1 line, but must return only 1 on this input');
+        Assert.IsFalse(MyQuery.Read(), 'Query 5002 returned more than 1 line, but must return only 1 on this input');
     end;
 
     [Test]
@@ -1226,10 +1226,10 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibrarySmallBusiness.CreateSalesLine(SalesLine, SalesHeader, Item, LibraryRandom.RandDecInRange(1, 100, 2));
 
         // Exercise
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
-        SalesOrder.Post.Invoke;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
+        SalesOrder.Post.Invoke();
     end;
 
     local procedure Initialize()
@@ -1249,7 +1249,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         ClearTable(DATABASE::Resource);
 
         LibraryERMCountryData.CreateVATData();
-        CreateUserPersonalization;
+        CreateUserPersonalization();
 
         MyNotificationsPage.InitializeNotificationsWithDefaultState();
 
@@ -1263,7 +1263,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
     begin
-        LibrarySales.EnableWarningOnCloseUnpostedDoc;
+        LibrarySales.EnableWarningOnCloseUnpostedDoc();
         LibraryVariableStorage.Clear();
         Location.DeleteAll();
     end;
@@ -1295,15 +1295,15 @@ codeunit 138046 "Warn Closing Unposted Doc"
             DATABASE::"Warehouse Receipt Line":
                 WarehouseReceiptLine.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateUserPersonalization()
     var
         UserPersonalization: Record "User Personalization";
     begin
-        if not UserPersonalization.Get(UserSecurityId) then begin
-            UserPersonalization.Validate("User SID", UserSecurityId);
+        if not UserPersonalization.Get(UserSecurityId()) then begin
+            UserPersonalization.Validate("User SID", UserSecurityId());
             UserPersonalization.Insert();
         end;
     end;
@@ -1360,7 +1360,7 @@ codeunit 138046 "Warn Closing Unposted Doc"
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, Customer."No.");
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure EnableWarningOnCloseUnpostedDoc()

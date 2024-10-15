@@ -181,6 +181,11 @@ report 11000000 "Get Proposal Entries"
                 VenEntry: Record "Vendor Ledger Entry";
                 EmployeeLedgerEntry: Record "Employee Ledger Entry";
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
+                NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+                NoSeriesManagement: Codeunit NoSeriesManagement;
+                IsHandled: Boolean;
+#endif
                 UseDocumentNo: Code[35];
             begin
                 DetailLine := "Detail Line";
@@ -294,11 +299,16 @@ report 11000000 "Get Proposal Entries"
 
                 if ProposalLine.Identification = '' then begin
                     TrMode.TestField("Identification No. Series");
-                    NoSeriesManagement.InitSeries(TrMode."Identification No. Series",
-                      '',
-                      ProposalLine."Transaction Date",
-                      ProposalLine.Identification,
-                      ProposalLine."Identification No. Series");
+#if not CLEAN24
+                    NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Identification No. Series", '', ProposalLine."Transaction Date", ProposalLine.Identification, ProposalLine."Identification No. Series", IsHandled);
+                    if not IsHandled then begin
+#endif
+                        ProposalLine."Identification No. Series" := TrMode."Identification No. Series";
+                        ProposalLine.Identification := NoSeries.GetNextNo(ProposalLine."Identification No. Series", ProposalLine."Transaction Date");
+#if not CLEAN24
+                        NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(ProposalLine."Identification No. Series", TrMode."Identification No. Series", ProposalLine."Transaction Date", ProposalLine.Identification);
+                    end;
+#endif
                 end;
 
                 ProposalLine."Foreign Currency" := DetailLine."Currency Code (Entry)";
@@ -483,7 +493,6 @@ report 11000000 "Get Proposal Entries"
         TrMode: Record "Transaction Mode";
         CompanyInfo: Record "Company Information";
         ProcessProposalLines: Codeunit "Process Proposal Lines";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         NumberOfEntries: Integer;
         NumeratorPostings: Integer;
         NumberOfDetailLines: Integer;

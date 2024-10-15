@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 11000006 "CBG Statement Line Add. Info."
 {
     Caption = 'CBG Statement Line Add. Info.';
+    DataClassification = CustomerContent;
 
     fields
     {

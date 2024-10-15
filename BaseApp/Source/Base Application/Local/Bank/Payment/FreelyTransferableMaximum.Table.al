@@ -13,6 +13,7 @@ table 11405 "Freely Transferable Maximum"
     DataCaptionFields = "Country/Region Code", "Currency Code";
     DrillDownPageID = "Freely Transferable Maximums";
     LookupPageID = "Freely Transferable Maximums";
+    DataClassification = CustomerContent;
 
     fields
     {

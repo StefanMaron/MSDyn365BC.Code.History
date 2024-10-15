@@ -193,7 +193,7 @@ codeunit 144057 "UT COD Telebank"
     var
         DummyTransactionMode: Record "Transaction Mode";
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Transaction Mode Code" := CreateTransactionMode(DummyTransactionMode."Account Type"::Customer);
         Customer.Insert();
     end;
@@ -207,7 +207,7 @@ codeunit 144057 "UT COD Telebank"
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1
         else
             CustLedgerEntry."Entry No." := 1;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Transaction Mode Code" := TransactionModeCode;
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, CustLedgerEntry."Customer No.");
@@ -246,7 +246,7 @@ codeunit 144057 "UT COD Telebank"
     var
         TransactionMode: Record "Transaction Mode";
     begin
-        TransactionMode.Code := LibraryUTUtility.GetNewCode;
+        TransactionMode.Code := LibraryUTUtility.GetNewCode();
         TransactionMode."Account Type" := AccountType;
         TransactionMode.Insert();
         exit(TransactionMode.Code);
@@ -256,7 +256,7 @@ codeunit 144057 "UT COD Telebank"
     var
         DummyTransactionMode: Record "Transaction Mode";
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Transaction Mode Code" := CreateTransactionMode(DummyTransactionMode."Account Type"::Vendor);
         Vendor.Insert();
     end;
@@ -270,7 +270,7 @@ codeunit 144057 "UT COD Telebank"
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1
         else
             VendorLedgerEntry."Entry No." := 1;
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Transaction Mode Code" := TransactionModeCode;
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, VendorLedgerEntry."Vendor No.");
@@ -296,7 +296,7 @@ codeunit 144057 "UT COD Telebank"
             EmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No." + 1
         else
             EmployeeLedgerEntry."Entry No." := 1;
-        EmployeeLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        EmployeeLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         EmployeeLedgerEntry."Employee No." := EmployeeNo;
         EmployeeLedgerEntry."Transaction Mode Code" := TransactionModeCode;
         EmployeeLedgerEntry.Open := true;
@@ -307,8 +307,8 @@ codeunit 144057 "UT COD Telebank"
     begin
         with PaymentHistory do begin
             Init();
-            "Our Bank" := LibraryUTUtility.GetNewCode;
-            "Run No." := LibraryUTUtility.GetNewCode;
+            "Our Bank" := LibraryUTUtility.GetNewCode();
+            "Run No." := LibraryUTUtility.GetNewCode();
             Insert();
         end;
     end;
@@ -321,12 +321,12 @@ codeunit 144057 "UT COD Telebank"
             "Run No." := PaymentHistory."Run No.";
             "Line No." := 1;
             "Account Type" := "Account Type"::Customer;
-            "Account No." := LibraryUTUtility.GetNewCode;
+            "Account No." := LibraryUTUtility.GetNewCode();
             Date := WorkDate();
             Amount := 1;
-            Bank := LibraryUTUtility.GetNewCode10;
-            "Currency Code" := LibraryUTUtility.GetNewCode10;
-            "Description 1" := LibraryUTUtility.GetNewCode;
+            Bank := LibraryUTUtility.GetNewCode10();
+            "Currency Code" := LibraryUTUtility.GetNewCode10();
+            "Description 1" := LibraryUTUtility.GetNewCode();
             Insert();
         end;
     end;
@@ -376,7 +376,7 @@ codeunit 144057 "UT COD Telebank"
                     PaymentHistoryLine."Description 1" := AppliesToDocNo;
                 Assert.AreEqual(PaymentHistoryLine."Description 1", Description, FieldName(Description));
                 PaymentHistoryLine.Next();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

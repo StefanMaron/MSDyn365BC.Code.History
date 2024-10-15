@@ -16,6 +16,7 @@ table 5852 "Invt. Receipt Header"
     Caption = 'Item Receipt Header';
     DataCaptionFields = "No.", "Posting Description";
     LookupPageID = "Posted Invt. Receipts";
+    DataClassification = CustomerContent;
 
     fields
     {

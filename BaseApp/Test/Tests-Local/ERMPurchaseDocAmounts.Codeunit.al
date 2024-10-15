@@ -69,8 +69,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PostPurchInvoiceWithDocAmountInclVATError()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Post Purchase Invoice with wrong Document Amount Including VAT.
         Initialize();
@@ -80,8 +78,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PostPurchCrMemoWithDocAmountInclVATError()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Post Purchase Credit Memo with wrong Document Amount Including VAT.
         Initialize();
@@ -151,8 +147,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithDiffItemsMultipleLinesDocAmountInclVAT()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for different Items having different VAT %.
         Initialize();
@@ -162,8 +156,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PurchCrMemoDiffItemsWithMultipleLinesDocAmtInclVAT()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for different Items having different VAT %.
         Initialize();
@@ -201,8 +193,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithMultipleLinesDocAmountInclVAT()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Invoice with multiple lines for same Item.
         Initialize();
@@ -212,8 +202,6 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
     [Test]
     [Scope('OnPrem')]
     procedure PurchCrMemoWithMultipleLinesDocAmountInclVAT()
-    var
-        PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO] Purchase Credit Memo with multiple lines for same Item.
         Initialize();
@@ -236,7 +224,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         // [GIVEN] Purchase Invoice with Line having Qty = 1 and Unit Cost is <zero>
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Validate("Unit Cost", 0);
         PurchaseLine.Modify(true);
 
@@ -409,7 +397,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         PurchCrMemoLine.TestField("Amount Including VAT", AmountIncludingVAT);
     end;
 
-    local procedure CorrectInvoiceFromListPage(Type: Option Inventory,Service)
+    local procedure CorrectInvoiceFromListPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -445,7 +433,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         DisableCheckDocTotalAmounts();
     end;
 
-    local procedure CorrectInvoiceFromCardPage(Type: Option Inventory,Service)
+    local procedure CorrectInvoiceFromCardPage(Type: Enum "Item Type")
     var
         Vendor: Record Vendor;
         Item: Record Item;
@@ -481,7 +469,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         DisableCheckDocTotalAmounts();
     end;
 
-    local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Option Inventory,Service; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
+    local procedure CreateAndPostPurchaseInvForNewItemAndVendor(var Item: Record Item; Type: Enum "Item Type"; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")
     begin
         CreateItemWithCost(Item, Type, UnitCost);
         LibrarySmallBusiness.CreateVendor(Vendor);
@@ -535,7 +523,7 @@ codeunit 144032 "ERM Purchase Doc. Amounts"
         Assert.AreEqual(TotalDebit, TotalCredit, '');
     end;
 
-    local procedure CreateItemWithCost(var Item: Record Item; Type: Option Inventory,Service; UnitCost: Decimal)
+    local procedure CreateItemWithCost(var Item: Record Item; Type: Enum "Item Type"; UnitCost: Decimal)
     begin
         LibrarySmallBusiness.CreateItem(Item);
         Item.Validate(Type, Type);

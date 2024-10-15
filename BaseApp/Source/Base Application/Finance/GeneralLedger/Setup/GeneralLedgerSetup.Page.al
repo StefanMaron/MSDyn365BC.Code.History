@@ -438,6 +438,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the accounts set up for VAT posting in the VAT Posting Setup window will be adjusted for exchange rate fluctuations.';
                 }
+                field("Acc. Receivables Category"; Rec."Acc. Receivables Category")
+                {
+                    ApplicationArea = All;
+                    Tooltip = 'Specifies the G/L Account Category that will be used for the Account Receivables accounts.';
+                }
             }
             group(Application)
             {
@@ -491,6 +496,11 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the maximum allowed amount that a payment or refund can differ from the amount on the related invoice or credit memo.';
                 }
+                field("App. Dimension Posting"; Rec."App. Dimension Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies dimension source for Realized Gain/Loss application entries.';
+                }
             }
             group(Telebanking)
             {
@@ -534,12 +544,12 @@ page 118 "General Ledger Setup"
                 field("Job WIP Jnl. Template Name"; Rec."Job WIP Jnl. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the journal template you want to use for posting job WIP to G/L.';
+                    ToolTip = 'Specifies the name of the journal template you want to use for posting project WIP to G/L.';
                 }
                 field("Job WIP Jnl. Batch Name"; Rec."Job WIP Jnl. Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the name of the journal batch you want to use for posting job WIP to G/L.';
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting project WIP to G/L.';
                 }
                 field("Bank Acc. Recon. Template Name"; Rec."Bank Acc. Recon. Template Name")
                 {

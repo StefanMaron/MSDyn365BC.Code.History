@@ -412,7 +412,7 @@ page 9302 "Sales Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -428,7 +428,7 @@ page 9302 "Sales Credit Memos"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -493,8 +493,11 @@ page 9302 "Sales Credit Memos"
 
                     trigger OnAction()
                     var
+                        SelectedSalesHeader: Record "Sales Header";
                         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
                     begin
+                        CurrPage.SetSelectionFilter(SelectedSalesHeader);
+                        SalesPostYesNo.MessageIfPostingPreviewMultipleDocuments(SelectedSalesHeader, Rec."No.");
                         SalesPostYesNo.Preview(Rec);
                     end;
                 }

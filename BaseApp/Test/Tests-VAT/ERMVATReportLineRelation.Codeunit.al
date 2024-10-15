@@ -79,9 +79,9 @@ codeunit 134057 "ERM VAT Report Line Relation"
             VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
         end;
 
-        VATStatement.Trap;
+        VATStatement.Trap();
         PAGE.Run(PAGE::"VAT Statement", VATStatementLine);
-        asserterror Assert.IsFalse(VATStatement."Box No.".Visible, 'VATStatement."Box No." should not be visible'); // NL
+        asserterror Assert.IsFalse(VATStatement."Box No.".Visible(), 'VATStatement."Box No." should not be visible'); // NL
         VATStatement.Close();
         Assert.ExpectedErrorCode('TestFieldNotFound');
     end;

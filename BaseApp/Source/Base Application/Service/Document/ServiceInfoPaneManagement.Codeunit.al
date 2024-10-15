@@ -74,14 +74,12 @@ codeunit 5972 "Service Info-Pane Management"
 
     local procedure GetItem(var ServLine: Record "Service Line"): Boolean
     begin
-        with Item do begin
-            if (ServLine.Type <> ServLine.Type::Item) or (ServLine."No." = '') then
-                exit(false);
+        if (ServLine.Type <> ServLine.Type::Item) or (ServLine."No." = '') then
+            exit(false);
 
-            if ServLine."No." <> "No." then
-                Get(ServLine."No.");
-            exit(true);
-        end;
+        if ServLine."No." <> Item."No." then
+            Item.Get(ServLine."No.");
+        exit(true);
     end;
 
     procedure CalcNoOfServItemComponents(var ServItemLine: Record "Service Item Line"): Integer
@@ -143,7 +141,7 @@ codeunit 5972 "Service Info-Pane Management"
     begin
         IsHandled := false;
         OnBeforeCalcNoOfSkilledResources(ServItemLine, ResultValue, IsHandled);
-        IF IsHandled THEN
+        if IsHandled then
             exit(0);
 
         if ServItem.Get(ServItemLine."Service Item No.") then begin

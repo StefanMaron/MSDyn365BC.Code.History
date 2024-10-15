@@ -44,17 +44,17 @@ enum 7003 "Price Source Type" implements "Price Source", "Price Source Group"
     }
     value(30; "All Jobs")
     {
-        Caption = 'All Jobs';
+        Caption = 'All Projects';
         Implementation = "Price Source" = "Price Source - All", "Price Source Group" = "Price Source Group - Job";
     }
     value(31; Job)
     {
-        Caption = 'Job';
+        Caption = 'Project';
         Implementation = "Price Source" = "Price Source - Job", "Price Source Group" = "Price Source Group - Job";
     }
     value(32; "Job Task")
     {
-        Caption = 'Job Task';
+        Caption = 'Project Task';
         Implementation = "Price Source" = "Price Source - Job Task", "Price Source Group" = "Price Source Group - Job";
     }
     value(50; Campaign)

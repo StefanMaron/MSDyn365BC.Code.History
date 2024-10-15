@@ -2,7 +2,7 @@ namespace Microsoft.Manufacturing.ProductionBOM;
 
 using Microsoft.Inventory.Item;
 
-Query 3689 "Item Production BOMs"
+query 3689 "Item Production BOMs"
 {
     QueryType = Normal;
 

@@ -125,10 +125,25 @@ page 5772 "Warehouse Pick Summary"
                 RunPageView = sorting("Item No.");
                 ToolTip = 'View the quantities of the item in each bin where it exists. You can see all the important parameters relating to bin content, and you can modify certain bin content parameters in this window.';
             }
+            action("Reservation Entries")
+            {
+                ApplicationArea = Warehouse, Reservation;
+                Caption = 'Reservation Entries';
+                Image = ReservationLedger;
+                ToolTip = 'View all reservation entries for the selected line.';
+
+                trigger OnAction()
+                begin
+                    Rec.ShowReservationEntries();
+                end;
+            }
         }
         area(Promoted)
         {
             actionref(BinContentPromoted; "Bin Content")
+            {
+            }
+            actionref(ReservationEntriesPromoted; "Reservation Entries")
             {
             }
         }

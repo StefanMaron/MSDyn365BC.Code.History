@@ -45,6 +45,7 @@ table 5992 "Service Invoice Header"
     DrillDownPageID = "Posted Service Invoices";
     LookupPageID = "Posted Service Invoices";
     Permissions = TableData "Service Order Allocation" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -832,6 +833,10 @@ table 5992 "Service Invoice Header"
         {
             Caption = 'Allow Line Disc.';
         }
+        field(9001; "Quote No."; Code[20])
+        {
+            Caption = 'Quote No.';
+        }	
         field(11000000; "Transaction Mode Code"; Code[20])
         {
             Caption = 'Transaction Mode Code';
@@ -1024,6 +1029,27 @@ table 5992 "Service Invoice Header"
             else
                 exit('Unfavorable');
         end;
+    end;
+
+    procedure PrintToDocumentAttachment(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceInvoiceHeader.Count() = 1;
+        if ServiceInvoiceHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceInvoiceHeader, ShowNotificationAction);
+            until ServiceInvoiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceInvoiceHeader: Record "Service Invoice Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceInvoiceHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
     end;
 
     [IntegrationEvent(false, false)]

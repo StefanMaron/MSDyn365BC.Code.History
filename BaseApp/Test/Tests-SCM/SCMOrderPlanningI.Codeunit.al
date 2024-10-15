@@ -549,12 +549,12 @@ codeunit 137046 "SCM Order Planning - I"
         // Exercise : Create Firm Planned Production Order and again Change Replenishment System and Make Order.
         CreateAndRefreshProdOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ParentItem."No.", LocationBlue.Code, LibraryRandom.RandDec(10, 2),
-          WorkDate);
+          WorkDate());
         LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
         ChangeReplenishmentSystem(
           RequisitionLine, RequisitionLine."Replenishment System"::"Prod. Order", RequisitionLine."Replenishment System"::Purchase,
           ProductionOrder."No.", ParentItem."Vendor No.");
-        PurchaseOrderNo := FindPurchaseOrderNo;
+        PurchaseOrderNo := FindPurchaseOrderNo();
         MakeSupplyOrdersActiveLine(
           ProductionOrder."No.", RequisitionLine."No.", LocationBlue.Code,
           ManufacturingUserTemplate."Create Production Order"::"Firm Planned");
@@ -715,7 +715,7 @@ codeunit 137046 "SCM Order Planning - I"
         CreateSalesLine(SalesHeader, Item."No.", '', ShipmentDate, Quantity, Quantity);
         CreateSalesLine(SalesHeader, Item2."No.", '', ShipmentDate2, Quantity, Quantity);
         LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
-        PurchaseOrderNo := FindPurchaseOrderNo;
+        PurchaseOrderNo := FindPurchaseOrderNo();
 
         // Exercise: Run Make Supply Order.
         MakeSupplyOrdersActiveOrder(SalesHeader."No.");
@@ -947,7 +947,7 @@ codeunit 137046 "SCM Order Planning - I"
         // [GIVEN] Sales Order of Item "I" with Special Order Purchasing
         CreateItemWithVendorNo(Item);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         LibraryPurchase.CreateSpecialOrderPurchasingCode(Purchasing);
@@ -958,7 +958,7 @@ codeunit 137046 "SCM Order Planning - I"
         GetSpecialOrder(RequisitionLine, Item."No.");
 
         // [WHEN] Carry Out Action Message
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [THEN] Purchase Order is created and its "Sell-to Customer No." field is blank
         FindPurchaseHeaderByItemNo(PurchaseHeader, Item."No.");
@@ -983,7 +983,7 @@ codeunit 137046 "SCM Order Planning - I"
         // [GIVEN] Sales Order "SO" of Item "I" with Drop Shipment Purchasing
         CreateItemWithVendorNo(Item);
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(),
           Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         LibraryPurchase.CreateDropShipmentPurchasingCode(Purchasing);
@@ -994,7 +994,7 @@ codeunit 137046 "SCM Order Planning - I"
         GetDropShipment(RequisitionLine, SalesLine);
 
         // [WHEN] Run "Carry Out Action Message" in the requisition worksheet
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate(), WorkDate(), WorkDate(), '');
 
         // [THEN] Purchase Order is created and its "Sell-to Customer No." field is populated with "SO"."Sell-to Customer No."
         FindPurchaseHeaderByItemNo(PurchaseHeader, Item."No.");
@@ -1030,15 +1030,15 @@ codeunit 137046 "SCM Order Planning - I"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Order Planning - I");
-        ClearGlobals;
+        ClearGlobals();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Order Planning - I");
 
-        CreateLocationSetup;
+        CreateLocationSetup();
         NoSeriesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -1055,7 +1055,7 @@ codeunit 137046 "SCM Order Planning - I"
         Clear(VerifyOnGlobal);
         Clear(DemandTypeGlobal);
         RequisitionLine.DeleteAll();
-        ClearManufacturingUserTemplate;
+        ClearManufacturingUserTemplate();
     end;
 
     local procedure NoSeriesSetup()
@@ -1064,11 +1064,11 @@ codeunit 137046 "SCM Order Planning - I"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1161,7 +1161,7 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure CreateItemWithVendorNo(var Item: Record Item)
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -1290,10 +1290,9 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure CreateAndUpdateSKU(Item: Record Item; LocationBlue: Record Location; LocationRed: Record Location; LocationOrange: Record Location)
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
-        SKUCreationMethod: Option Location,Variant,"Location & Variant";
     begin
         Item.SetRange("No.", Item."No.");
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUCreationMethod::"Location & Variant", false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::"Location & Variant", false, false);
         UpdatePurchReplenishmentOnSKU(
           StockkeepingUnit, Item, LocationOrange, StockkeepingUnit."Replenishment System"::Purchase, Item."Vendor No.");
         UpdatePurchReplenishmentOnSKU(StockkeepingUnit, Item, LocationRed, StockkeepingUnit."Replenishment System"::"Prod. Order", '');
@@ -1528,10 +1527,10 @@ codeunit 137046 "SCM Order Planning - I"
     local procedure FindPurchaseOrderNo(): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         PurchasesPayablesSetup.Get();
-        exit(NoSeriesManagement.GetNextNo(PurchasesPayablesSetup."Order Nos.", WorkDate(), false));
+        exit(NoSeries.PeekNextNo(PurchasesPayablesSetup."Order Nos."));
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])

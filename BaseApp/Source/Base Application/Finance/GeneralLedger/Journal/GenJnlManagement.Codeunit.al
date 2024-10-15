@@ -39,7 +39,6 @@ codeunit 230 GenJnlManagement
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
-        CBGStatement: Record "CBG Statement";
         GenJnlTemplateType: Option;
     begin
         JnlSelected := true;

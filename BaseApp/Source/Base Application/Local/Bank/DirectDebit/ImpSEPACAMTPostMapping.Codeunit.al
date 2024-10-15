@@ -127,20 +127,18 @@ codeunit 11407 "Imp. SEPA CAMT Post-Mapping"
 
     local procedure PrepareCBGStatementLineAddInfo(var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; ReferenceCBGStatementLine: Record "CBG Statement Line")
     begin
-        with CBGStatementLineAddInfo do begin
-            SetRange("Journal Template Name", ReferenceCBGStatementLine."Journal Template Name");
-            SetRange("CBG Statement No.", ReferenceCBGStatementLine."No.");
-            SetRange("CBG Statement Line No.", ReferenceCBGStatementLine."Line No.");
-            if FindLast() then
-                "Line No." += 10000
-            else
-                "Line No." := 10000;
+        CBGStatementLineAddInfo.SetRange("Journal Template Name", ReferenceCBGStatementLine."Journal Template Name");
+        CBGStatementLineAddInfo.SetRange("CBG Statement No.", ReferenceCBGStatementLine."No.");
+        CBGStatementLineAddInfo.SetRange("CBG Statement Line No.", ReferenceCBGStatementLine."Line No.");
+        if CBGStatementLineAddInfo.FindLast() then
+            CBGStatementLineAddInfo."Line No." += 10000
+        else
+            CBGStatementLineAddInfo."Line No." := 10000;
 
-            Init();
-            "Journal Template Name" := ReferenceCBGStatementLine."Journal Template Name";
-            "CBG Statement No." := ReferenceCBGStatementLine."No.";
-            "CBG Statement Line No." := ReferenceCBGStatementLine."Line No.";
-        end
+        CBGStatementLineAddInfo.Init();
+        CBGStatementLineAddInfo."Journal Template Name" := ReferenceCBGStatementLine."Journal Template Name";
+        CBGStatementLineAddInfo."CBG Statement No." := ReferenceCBGStatementLine."No.";
+        CBGStatementLineAddInfo."CBG Statement Line No." := ReferenceCBGStatementLine."Line No.";
     end;
 }
 

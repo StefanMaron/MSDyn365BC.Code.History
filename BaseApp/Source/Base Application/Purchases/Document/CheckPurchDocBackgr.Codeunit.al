@@ -114,7 +114,7 @@ codeunit 9068 "Check Purch. Doc. Backgr."
     var
         ID: Integer;
     begin
-        If TempErrorMessage.FindLast() then;
+        if TempErrorMessage.FindLast() then;
         ID := TempErrorMessage.ID + 1;
 
         if TempLineErrorMessage.FindSet() then

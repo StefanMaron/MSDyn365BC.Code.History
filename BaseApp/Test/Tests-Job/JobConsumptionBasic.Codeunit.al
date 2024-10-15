@@ -47,7 +47,7 @@
     local procedure Initialize()
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-#if not CLEAN21
+#if not CLEAN23
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
 #endif
@@ -61,7 +61,7 @@
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Job Consumption Basic");
 
-#if not CLEAN21
+#if not CLEAN23
         // Removing special prices
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -98,7 +98,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalResBlank()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBlank, LibraryJob.ResourceType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBlank(), LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -106,7 +106,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalResSchedule()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule, LibraryJob.ResourceType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule(), LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -114,7 +114,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalResContract()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeContract, LibraryJob.ResourceType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeContract(), LibraryJob.ResourceType());
     end;
 
     [Test]
@@ -122,7 +122,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalResBoth()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBoth, LibraryJob.ResourceType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBoth(), LibraryJob.ResourceType())
     end;
 
     [Test]
@@ -130,7 +130,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalGLAccBlank()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBlank, LibraryJob.GLAccountType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBlank(), LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -138,7 +138,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalGLAccSchedule()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule, LibraryJob.GLAccountType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule(), LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -146,7 +146,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalGLAccContract()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeContract, LibraryJob.GLAccountType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeContract(), LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -154,7 +154,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalGLAccountBoth()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBoth, LibraryJob.GLAccountType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBoth(), LibraryJob.GLAccountType())
     end;
 
     [Test]
@@ -162,7 +162,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalItemBlank()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBlank, LibraryJob.ItemType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBlank(), LibraryJob.ItemType())
     end;
 
     [Test]
@@ -170,7 +170,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalItemSchedule()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule, LibraryJob.ItemType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeSchedule(), LibraryJob.ItemType())
     end;
 
     [Test]
@@ -178,7 +178,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalItemContract()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeContract, LibraryJob.ItemType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeContract(), LibraryJob.ItemType())
     end;
 
     [Test]
@@ -186,7 +186,7 @@
     [Scope('OnPrem')]
     procedure TestJobJournalItemBoth()
     begin
-        JobJournalConsumption(LibraryJob.UsageLineTypeBoth, LibraryJob.ItemType)
+        JobJournalConsumption(LibraryJob.UsageLineTypeBoth(), LibraryJob.ItemType())
     end;
 
     local procedure JobJournalConsumption(LineType: Enum "Job Line Type"; ConsumableType: Enum "Job Planning Line Type")
@@ -219,7 +219,7 @@
         // Verify (planning lines and job ledger)
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -252,119 +252,119 @@
         // Verify (planning lines and job ledger)
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccBlank()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccSchedule()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccContract()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobGLAccBoth()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBoth())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemBlank()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemSchedule()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemContract()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchOrderJobItemBoth()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Order, LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccBlank()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBlank())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccSchedule()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccContract()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobGLAccBoth()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.GLAccountType(), LibraryJob.UsageLineTypeBoth())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemBlank()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBlank)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType(), LibraryJob.UsageLineTypeBlank())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemSchedule()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeSchedule)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType(), LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemContract()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeContract)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType(), LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestPurchInvJobItemBoth()
     begin
-        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType, LibraryJob.UsageLineTypeBoth)
+        JobPurchaseConsumption("Purchase Document Type"::Invoice, LibraryJob.ItemType(), LibraryJob.UsageLineTypeBoth())
     end;
 
     local procedure JobPurchaseConsumption(PurchaseDocumentType: Enum "Purchase Document Type"; ConsumableType: Enum "Job Planning Line Type"; JobLineType: Enum "Job Line Type")
@@ -410,35 +410,35 @@
 
         LibraryJob.VerifyGLEntries(JobLedgerEntry);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestJobGLJournalBlank()
     begin
-        JobGLJournalConsumption(LibraryJob.UsageLineTypeBlank)
+        JobGLJournalConsumption(LibraryJob.UsageLineTypeBlank())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestJobGLJournalSchedule()
     begin
-        JobGLJournalConsumption(LibraryJob.UsageLineTypeSchedule)
+        JobGLJournalConsumption(LibraryJob.UsageLineTypeSchedule())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestJobGLJournalContract()
     begin
-        JobGLJournalConsumption(LibraryJob.UsageLineTypeContract)
+        JobGLJournalConsumption(LibraryJob.UsageLineTypeContract())
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestJobGLJournalBoth()
     begin
-        JobGLJournalConsumption(LibraryJob.UsageLineTypeBoth)
+        JobGLJournalConsumption(LibraryJob.UsageLineTypeBoth())
     end;
 
     [Test]
@@ -550,7 +550,7 @@
         Assert.AreEqual(1, JobLedgerEntry.Count, 'Found multiple job ledger entries.');
         LibraryJob.VerifyGLEntries(JobLedgerEntry);
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -564,7 +564,7 @@
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
         JobPlanningLine.Modify();
-        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
+        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem(), IsInventoryTypeItemErr);
     end;
 
     [Test]
@@ -578,7 +578,7 @@
         MockJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine.Modify();
-        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
+        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem(), IsInventoryTypeItemErr);
     end;
 
     [Test]
@@ -595,7 +595,7 @@
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
         JobPlanningLine.Modify();
-        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem, IsInventoryTypeItemErr);
+        Assert.IsFalse(JobPlanningLine.IsNonInventoriableItem(), IsInventoryTypeItemErr);
     end;
 
     [Test]
@@ -615,7 +615,7 @@
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
         JobPlanningLine.Modify();
-        Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem, IsServiceTypeItemErr);
+        Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem(), IsServiceTypeItemErr);
     end;
 
     [Test]
@@ -635,7 +635,7 @@
         JobPlanningLine.Type := JobPlanningLine.Type::Item;
         JobPlanningLine."No." := Item."No.";
         JobPlanningLine.Modify();
-        Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem, IsNonInventoryTypeItemErr);
+        Assert.IsTrue(JobPlanningLine.IsNonInventoriableItem(), IsNonInventoryTypeItemErr);
     end;
 
     local procedure CreateSingleLinePurchaseDoc(PurchaseDocumentType: Enum "Purchase Document Type"; var PurchaseHeader: Record "Purchase Header")
@@ -644,7 +644,7 @@
     begin
         // Create a purchase document with a single line.
         CreateSingleLinePurchDocWithVendorAndItem(
-          PurchaseHeader, PurchaseLine, PurchaseDocumentType, LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo,
+          PurchaseHeader, PurchaseLine, PurchaseDocumentType, LibraryPurchase.CreateVendorNo(), LibraryInventory.CreateItemNo(),
           LibraryRandom.RandInt(100));
     end;
 
@@ -666,7 +666,7 @@
 
     local procedure CreateJobGLJournalLineGLAccWithVATPostingSetup(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type"; GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        CreateJobGLJournalLine(GenJournalLine, JobTask, JobLineType, LibraryERM.CreateGLAccountWithSalesSetup, GenJournalBatch);
+        CreateJobGLJournalLine(GenJournalLine, JobTask, JobLineType, LibraryERM.CreateGLAccountWithSalesSetup(), GenJournalBatch);
     end;
 
     local procedure CreateJobGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JobTask: Record "Job Task"; JobLineType: Enum "Job Line Type"; GLAccountNo: Code[20]; GenJournalBatch: Record "Gen. Journal Batch")
@@ -694,7 +694,7 @@
             VATPostingSetup.Validate("VAT Identifier", VATPostingSetup."VAT Prod. Posting Group");
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("VAT %", LibraryRandom.RandIntInRange(5, 25));
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -739,7 +739,7 @@
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindSet
+        PurchaseLine.FindSet();
     end;
 
     local procedure GetPurchaseReceiptLines(VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
@@ -811,7 +811,7 @@
             Quantity := GenJournalLine."Job Quantity";
             "Unit Cost (LCY)" := GenJournalLine."Job Unit Cost (LCY)";
             "Unit Price (LCY)" := GenJournalLine."Job Unit Price (LCY)";
-            Insert
+            Insert();
         end;
 
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine)
@@ -900,8 +900,8 @@
     [Scope('OnPrem')]
     procedure GetReceiptLinesPageHandler(var GetReceiptLines: TestPage "Get Receipt Lines")
     begin
-        GetReceiptLines.GotoKey(LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueInteger);
-        GetReceiptLines.OK.Invoke;
+        GetReceiptLines.GotoKey(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueInteger());
+        GetReceiptLines.OK().Invoke();
     end;
 }
 

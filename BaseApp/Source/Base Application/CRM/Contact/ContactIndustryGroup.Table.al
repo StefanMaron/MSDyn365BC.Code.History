@@ -5,6 +5,7 @@ using Microsoft.CRM.Setup;
 table 5058 "Contact Industry Group"
 {
     Caption = 'Contact Industry Group';
+    DataClassification = CustomerContent;
     DrillDownPageID = "Contact Industry Groups";
 
     fields
@@ -23,14 +24,14 @@ table 5058 "Contact Industry Group"
         }
         field(3; "Industry Group Description"; Text[100])
         {
-            CalcFormula = Lookup("Industry Group".Description where(Code = field("Industry Group Code")));
+            CalcFormula = lookup("Industry Group".Description where(Code = field("Industry Group Code")));
             Caption = 'Industry Group Description';
             Editable = false;
             FieldClass = FlowField;
         }
         field(4; "Contact Name"; Text[100])
         {
-            CalcFormula = Lookup(Contact.Name where("No." = field("Contact No.")));
+            CalcFormula = lookup(Contact.Name where("No." = field("Contact No.")));
             Caption = 'Contact Name';
             Editable = false;
             FieldClass = FlowField;

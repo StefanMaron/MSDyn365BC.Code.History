@@ -9,6 +9,7 @@ table 11411 "Elec. Tax Decl. VAT Category"
     Caption = 'Elec. Tax Decl. VAT Category';
     DrillDownPageID = "Elec. Tax Decl. VAT Categ.";
     LookupPageID = "Elec. Tax Decl. VAT Categ.";
+    DataClassification = CustomerContent;
 
     fields
     {

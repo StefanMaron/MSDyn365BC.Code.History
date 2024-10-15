@@ -44,25 +44,23 @@ codeunit 5615 "Budget Depreciation"
         if IsHandled then
             exit;
 
-        with FADeprBook do begin
-            if not Get(FANo, DeprBookCode) then
-                exit;
-            case "Depreciation Method" of
-                "Depreciation Method"::"Declining-Balance 1",
-                "Depreciation Method"::"DB1/SL",
-                "Depreciation Method"::"DB2/SL":
-                    if NoOfErrors = 0 then begin
-                        CreateMessage();
-                        NoOfErrors := 1;
-                    end;
-                else begin
-                    if EndingDate1 > 0D then
-                        CalculateNormalDepr.Calculate(
-                          DeprAmount1, NumberOfDays, FANo, DeprBookCode, EndingDate1, DummyEntryAmounts, 0D, 0);
-                    if EndingDate2 > 0D then
-                        CalculateNormalDepr.Calculate(
-                          DeprAmount2, NumberOfDays, FANo, DeprBookCode, EndingDate2, DummyEntryAmounts, 0D, 0);
+        if not FADeprBook.Get(FANo, DeprBookCode) then
+            exit;
+        case FADeprBook."Depreciation Method" of
+            FADeprBook."Depreciation Method"::"Declining-Balance 1",
+            FADeprBook."Depreciation Method"::"DB1/SL",
+            FADeprBook."Depreciation Method"::"DB2/SL":
+                if NoOfErrors = 0 then begin
+                    CreateMessage();
+                    NoOfErrors := 1;
                 end;
+            else begin
+                if EndingDate1 > 0D then
+                    CalculateNormalDepr.Calculate(
+                      DeprAmount1, NumberOfDays, FANo, DeprBookCode, EndingDate1, DummyEntryAmounts, 0D, 0);
+                if EndingDate2 > 0D then
+                    CalculateNormalDepr.Calculate(
+                      DeprAmount2, NumberOfDays, FANo, DeprBookCode, EndingDate2, DummyEntryAmounts, 0D, 0);
             end;
         end;
     end;
@@ -179,13 +177,11 @@ codeunit 5615 "Budget Depreciation"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        with GLBudgetEntry do begin
-            DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Global Dimension 1 Code", "Global Dimension 2 Code");
-            UpdateBudgetDimFromDimSetID("Budget Dimension 1 Code", "Dimension Set ID", GLBudgetName."Budget Dimension 1 Code");
-            UpdateBudgetDimFromDimSetID("Budget Dimension 2 Code", "Dimension Set ID", GLBudgetName."Budget Dimension 2 Code");
-            UpdateBudgetDimFromDimSetID("Budget Dimension 3 Code", "Dimension Set ID", GLBudgetName."Budget Dimension 3 Code");
-            UpdateBudgetDimFromDimSetID("Budget Dimension 4 Code", "Dimension Set ID", GLBudgetName."Budget Dimension 4 Code");
-        end;
+        DimMgt.UpdateGlobalDimFromDimSetID(GLBudgetEntry."Dimension Set ID", GLBudgetEntry."Global Dimension 1 Code", GLBudgetEntry."Global Dimension 2 Code");
+        UpdateBudgetDimFromDimSetID(GLBudgetEntry."Budget Dimension 1 Code", GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 1 Code");
+        UpdateBudgetDimFromDimSetID(GLBudgetEntry."Budget Dimension 2 Code", GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 2 Code");
+        UpdateBudgetDimFromDimSetID(GLBudgetEntry."Budget Dimension 3 Code", GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 3 Code");
+        UpdateBudgetDimFromDimSetID(GLBudgetEntry."Budget Dimension 4 Code", GLBudgetEntry."Dimension Set ID", GLBudgetName."Budget Dimension 4 Code");
     end;
 
     local procedure UpdateBudgetDimFromDimSetID(var BudgetDimensionValue: Code[20]; DimSetID: Integer; BudgetDimensionCode: Code[20])

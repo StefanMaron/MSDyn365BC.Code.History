@@ -67,11 +67,9 @@ codeunit 144036 "UT PAG Telebank"
         UnexpectedMsg: Label 'Unexpected Message.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryHumanResource: Codeunit "Library - Human Resource";
-        FileManagement: Codeunit "File Management";
         CodeCoverageMgt: Codeunit "Code Coverage Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryNLLocalization: Codeunit "Library - NL Localization";
 
     [Test]
     [HandlerFunctions('ObjectListHandler')]
@@ -82,12 +80,12 @@ codeunit 144036 "UT PAG Telebank"
         AllObj: Record AllObj;
         ExportProtocols: TestPage "Export Protocols";
     begin
-        ExportProtocols.OpenEdit;
-        ExportProtocols.New;
-        ExportProtocols.Code.SetValue(LibraryUTUtility.GetNewCode);
+        ExportProtocols.OpenEdit();
+        ExportProtocols.New();
+        ExportProtocols.Code.SetValue(LibraryUTUtility.GetNewCode());
         ExportProtocols."Export Object Type".SetValue(ExportProtocol."Export Object Type"::Report);
         LibraryVariableStorage.Enqueue(AllObj."Object Type"::Report);
-        ExportProtocols."Export ID".Lookup;
+        ExportProtocols."Export ID".Lookup();
         // Verified by ObjectListHandler
         Assert.AreNotEqual('', ExportProtocols."Export Name".Value, ExportProtocol.FieldName("Export Name"));
     end;
@@ -101,12 +99,12 @@ codeunit 144036 "UT PAG Telebank"
         AllObj: Record AllObj;
         ExportProtocols: TestPage "Export Protocols";
     begin
-        ExportProtocols.OpenEdit;
-        ExportProtocols.New;
-        ExportProtocols.Code.SetValue(LibraryUTUtility.GetNewCode);
+        ExportProtocols.OpenEdit();
+        ExportProtocols.New();
+        ExportProtocols.Code.SetValue(LibraryUTUtility.GetNewCode());
         ExportProtocols."Export Object Type".SetValue(ExportProtocol."Export Object Type"::XMLPort);
         LibraryVariableStorage.Enqueue(AllObj."Object Type"::XMLport);
-        ExportProtocols."Export ID".Lookup;
+        ExportProtocols."Export ID".Lookup();
         // Verified by ObjectListHandler
         Assert.AreNotEqual('', ExportProtocols."Export Name".Value, ExportProtocol.FieldName("Export Name"));
     end;
@@ -122,12 +120,12 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate Bank Account Code on Page - 26 Vendor Card.
         // Setup: Create Vendor and Vendor Bank Account.
-        VendorCard.OpenEdit;
-        VendorCard.FILTER.SetFilter("No.", CreateVendor);
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", CreateVendor());
         VendorBankAccountCode := CreateVendorBankAccountByPage(VendorCard."No.".Value);
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Vendor Card Page.
-        VendorCard."Preferred Bank Account Code".Lookup;
+        VendorCard."Preferred Bank Account Code".Lookup();
 
         // Verify: Verify Vendor Bank Account Code on Vendor Card.
         VendorCard."Preferred Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -235,12 +233,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Purchase Quote with Vendor No.
         // Setup: Create Purchase Quote and Create Vendor Bank Account by Page.
         OpenPurchaseQuote(PurchaseQuote);
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         PurchaseQuote."Buy-from Vendor Name".SetValue(Vendor.Name);  // COMMIT have been used on OnValidate of field "Buy-from Vendor No." on Page 49 - Purchase Quote.
         VendorBankAccountCode := CreateVendorBankAccountByPage(Vendor."No.");
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Purchase Quote Page.
-        PurchaseQuote."Bank Account Code".Lookup;
+        PurchaseQuote."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Purchase Quote Page.
         PurchaseQuote."Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -259,12 +257,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Purchase Order with Vendor No.
         // Setup: Create Purchase Order and Create Vendor Bank Account by Page.
         OpenPurchaseOrder(PurchaseOrder);
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         PurchaseOrder."Buy-from Vendor Name".SetValue(Vendor.Name);  // COMMIT have been used on OnValidate of field "Buy-from Vendor No." on Page 50 - Purchase Order.
         VendorBankAccountCode := CreateVendorBankAccountByPage(Vendor."No.");
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Purchase Order Page.
-        PurchaseOrder."Bank Account Code".Lookup;
+        PurchaseOrder."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Purchase Order Page.
         PurchaseOrder."Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -284,12 +282,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Purchase Return Order with Vendor No.
         // Setup: Create Purchase Return Order and Create Vendor Bank Account by Page.
         OpenPurchaseReturnOrder(PurchaseReturnOrder);
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         PurchaseReturnOrder."Buy-from Vendor Name".SetValue(Vendor.Name);
         VendorBankAccountCode := CreateVendorBankAccountByPage(Vendor."No.");
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Purchase Return Order Page.
-        PurchaseReturnOrder."Bank Account Code".Lookup;
+        PurchaseReturnOrder."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Purchase Return Order Page.
         PurchaseReturnOrder."Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -308,12 +306,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Purchase Invoice with Vendor No.
         // Setup: Create Purchase Invoice and Create Vendor Bank Account by Page.
         OpenPurchaseInvoice(PurchaseInvoice);
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         PurchaseInvoice."Buy-from Vendor Name".SetValue(Vendor.Name);  // COMMIT have been used on OnValidate of field "Buy-from Vendor No." on Page 51 - Purchase Invoice.
         VendorBankAccountCode := CreateVendorBankAccountByPage(Vendor."No.");
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Purchase Invoice Page.
-        PurchaseInvoice."Bank Account Code".Lookup;
+        PurchaseInvoice."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Purchase Invoice Page.
         PurchaseInvoice."Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -332,12 +330,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Purchase Credit Memo with Vendor No.
         // Setup: Create Purchase Credit Memo and Create Vendor Bank Account by Page.
         OpenPurchaseCreditMemo(PurchaseCreditMemo);
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
         VendorBankAccountCode := CreateVendorBankAccountByPage(Vendor."No.");
 
         // Exercise: Lookup through VendorBankAccountListPageHandler on Purchase Credit Memo Page.
-        PurchaseCreditMemo."Bank Account Code".Lookup;
+        PurchaseCreditMemo."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Purchase Credit Memo Page.
         PurchaseCreditMemo."Bank Account Code".AssertEquals(VendorBankAccountCode);
@@ -355,12 +353,12 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate Bank Account Code On Customer Card.
         // Setup: Create Customer and Customer Bank Account.
-        CustomerCard.OpenEdit;
-        CustomerCard.FILTER.SetFilter("No.", CreateCustomer);
+        CustomerCard.OpenEdit();
+        CustomerCard.FILTER.SetFilter("No.", CreateCustomer());
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(CustomerCard."No.".Value);
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Customer Card Page.
-        CustomerCard."Preferred Bank Account Code".Lookup;
+        CustomerCard."Preferred Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Customer Card Page.
         CustomerCard."Preferred Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -468,12 +466,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Sales Quote with Customer No.
         // Setup: Create Sales Quote and CreateCustomer Bank Account Card by Page.
         OpenSalesQuote(SalesQuote);
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(Customer."No.");
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Sales Quote Page.
-        SalesQuote."Bank Account Code".Lookup;
+        SalesQuote."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Sales Quote Page.
         SalesQuote."Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -492,12 +490,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Sales Order with Customer No.
         // Setup: Create Sales Order and CreateCustomer Bank Account Card by Page.
         OpenSalesOrder(SalesOrder);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         SalesOrder."Sell-to Customer Name".SetValue(CustomerNo);  // COMMIT have been used on OnValidate of "Sell-to Customer No." field on  Page 42 - Sales Order.
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(CustomerNo);
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Sales Order Page.
-        SalesOrder."Bank Account Code".Lookup;
+        SalesOrder."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Sales Page.
         SalesOrder."Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -517,12 +515,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Sales Return Order with Customer No.
         // Setup: Create Sales Return Order and CreateCustomer Bank Account Card by Page.
         OpenSalesReturnOrder(SalesReturnOrder);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         SalesReturnOrder."Sell-to Customer Name".SetValue(CustomerNo);
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(CustomerNo);
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Sales Return Order Page.
-        SalesReturnOrder."Bank Account Code".Lookup;
+        SalesReturnOrder."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Sales Return Order Page.
         SalesReturnOrder."Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -541,12 +539,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Sales Invoice with Customer No.
         // Setup: Create Sales Invoice and CreateCustomer Bank Account Card by Page.
         OpenSalesInvoice(SalesInvoice);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         SalesInvoice."Sell-to Customer Name".SetValue(CustomerNo);  // COMMIT have been used on OnValidate of "Sell-to Customer No." field on  Page 43 - Sales Invoice.
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(CustomerNo);
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Sales invoice Page.
-        SalesInvoice."Bank Account Code".Lookup;
+        SalesInvoice."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Sales Invoice Page.
         SalesInvoice."Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -565,12 +563,12 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code on Sales Credit Memo with Customer No.
         // Setup: Create Sales Credit Memo and CreateCustomer Bank Account Card by Page.
         OpenSalesCreditMemo(SalesCreditMemo);
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         SalesCreditMemo."Sell-to Customer Name".SetValue(CustomerNo);  // COMMIT have been used on OnValidate of "Sell-to Customer No." field on Page 44 - Sales Cr. Memo.
         CustomerBankAccountCode := CreateCustomerBankAccountByPage(CustomerNo);
 
         // Exercise: Lookup through CustomerBankAccountListPageHandler on Sales Credit Memo Page.
-        SalesCreditMemo."Bank Account Code".Lookup;
+        SalesCreditMemo."Bank Account Code".Lookup();
 
         // Verify: Verify Bank Account Code on Sales Credit Memo Page.
         SalesCreditMemo."Bank Account Code".AssertEquals(CustomerBankAccountCode);
@@ -587,11 +585,11 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate Proposal field on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount);
+        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount());
         LibraryVariableStorage.Enqueue(TelebankBankOverview."No.".Value);
 
         // Exercise: Drilldown Proposal field.
-        TelebankBankOverview.Proposal.DrillDown;  // Using TelebankProposalPageHandler.
+        TelebankBankOverview.Proposal.DrillDown();  // Using TelebankProposalPageHandler.
 
         // Verify: Verification done by TelebankProposalPageHandler, Telebank Proposal page open successfully.
         TelebankBankOverview.Close();
@@ -606,10 +604,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Contact on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        TelebankBankOverview.OpenEdit;
+        TelebankBankOverview.OpenEdit();
 
         // Exercise: Drilldown Proposal field, COMMIT have been used in this action, function ShowContact in Table ID 270 - Bank Account.
-        TelebankBankOverview.Contact.Invoke;  // Using ContactListPageHandler.
+        TelebankBankOverview.Contact.Invoke();  // Using ContactListPageHandler.
 
         // Verify: Verification done by ContactListPageHandler, Contact List page open successfully.
         TelebankBankOverview.Close();
@@ -625,11 +623,11 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Proposal on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount);
+        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount());
         LibraryVariableStorage.Enqueue(TelebankBankOverview."No.".Value);
 
         // Exercise: Call action Proposal on Telebank overview page.
-        TelebankBankOverview.Proposal_Navigate.Invoke;  // Using TelebankProposalPageHandler.
+        TelebankBankOverview.Proposal_Navigate.Invoke();  // Using TelebankProposalPageHandler.
 
         // Verify: Verification done by TelebankProposalPageHandler, Telebank Proposal page open successfully.
         TelebankBankOverview.Close();
@@ -645,10 +643,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Get Proposal Entries on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        TelebankBankOverview.OpenEdit;
+        TelebankBankOverview.OpenEdit();
 
         // Exercise: Call action Get Proposal Entries on Telebank overview page.
-        TelebankBankOverview.GetProposalEntries.Invoke;  // Using GetProposalEntriesRequestPageHandler.
+        TelebankBankOverview.GetProposalEntries.Invoke();  // Using GetProposalEntriesRequestPageHandler.
 
         // Verify: Verification done by GetProposalEntriesRequestPageHandler, report Get Proposal Entries request Page open successfully.
         TelebankBankOverview.Close();
@@ -664,10 +662,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Proposal Overview on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        TelebankBankOverview.OpenEdit;
+        TelebankBankOverview.OpenEdit();
 
         // Exercise: Call action Proposal Overview on Telebank overview page.
-        TelebankBankOverview.ProposalOverview.Invoke;  // Using ProposalOverviewRequestPageHandler.
+        TelebankBankOverview.ProposalOverview.Invoke();  // Using ProposalOverviewRequestPageHandler.
 
         // Verify: Verification done by ProposalOverviewRequestPageHandler, report Proposal Overview request page open successfully.
         TelebankBankOverview.Close();
@@ -683,10 +681,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Payment History Overview on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        TelebankBankOverview.OpenEdit;
+        TelebankBankOverview.OpenEdit();
 
         // Exercise: Call action Payment History Overview on Telebank overview page.
-        TelebankBankOverview.PaymentHistoryOverview.Invoke;  // Using PaymentHistoryOverviewRequestPageHandler.
+        TelebankBankOverview.PaymentHistoryOverview.Invoke();  // Using PaymentHistoryOverviewRequestPageHandler.
 
         // Verify: Verification done by PaymentHistoryOverviewRequestPageHandler, report Payment History Overview request page open successfully.
         TelebankBankOverview.Close();
@@ -702,11 +700,11 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate page action Page DimensionsMultiple Overview on Telebank - Bank Overview page ID - 11000000.
         // Setup: Open Telebank Bank Overview page.
-        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount);
+        OpenTelebankOverview(TelebankBankOverview, CreateBankAccount());
         LibraryVariableStorage.Enqueue(CreateDefaultDimension(DATABASE::"Bank Account", TelebankBankOverview."No.".Value));
 
         // Exercise: Call action Dimension on Telebank overview page.
-        TelebankBankOverview.DimensionsMultiple.Invoke;  // Using DefaultDimensionsMultiplePageHandler.
+        TelebankBankOverview.DimensionsMultiple.Invoke();  // Using DefaultDimensionsMultiplePageHandler.
 
         // Verify: Verification done by DefaultDimensionsMultiplePageHandler.
         TelebankBankOverview.Close();
@@ -727,11 +725,11 @@ codeunit 144036 "UT PAG Telebank"
         // [FEATURE] [Dimensions]
         // [SCENARIO 270714] Telebank Proposal does not change global dimensions in proposal line after Header Dimensions opened
         // [GIVEN] Proposal Line with global dimensions "Dim1" and "Dim2"
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
         CreateProposalLineWithBank(
-          ProposalLine."Account Type"::Customer, Customer."No.", Customer."Transaction Mode Code", CreateBankAccount);
-        GlobalDimension1Value := LibraryUTUtility.GetNewCode;
-        GlobalDimension2Value := LibraryUTUtility.GetNewCode;
+          ProposalLine."Account Type"::Customer, Customer."No.", Customer."Transaction Mode Code", CreateBankAccount());
+        GlobalDimension1Value := LibraryUTUtility.GetNewCode();
+        GlobalDimension2Value := LibraryUTUtility.GetNewCode();
 
         ProposalLine.SetRange("Account No.", Customer."No.");
         ProposalLine.FindFirst();
@@ -740,12 +738,12 @@ codeunit 144036 "UT PAG Telebank"
         ProposalLine.Modify();
 
         // [GIVEN] Telebank Proposal page with the proposal line
-        TelebankProposal.OpenView;
+        TelebankProposal.OpenView();
         TelebankProposal.BankAccFilter.SetValue(ProposalLine."Our Bank No.");
         TelebankProposal.GotoRecord(ProposalLine);
 
         // [WHEN] Call action Proposal/Dimension on Telebank Proposal page
-        TelebankProposal.HeaderDimensions.Invoke; // EditDimensionSetEntriesPageHandler
+        TelebankProposal.HeaderDimensions.Invoke(); // EditDimensionSetEntriesPageHandler
         TelebankProposal.Close();
 
         // [THEN] Shortcut Dimensions 1 and 2 still equal to "Dim1" and "Dim2" respectively
@@ -764,7 +762,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate Percentage Amount field on Proposal Detail Line page ID - 11000002.
         // Setup: Open Proposal Detail Line page.
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
         Percentage := LibraryRandom.RandDec(100, 2);  // Using Random for Percentage.
 
         // Exercise: Validate Percentage Amount field on Proposal Detail Line page.
@@ -785,10 +783,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Check on Proposal Detail Line page ID - 11000002.
         // Setup: Open Proposal Detail Line page.
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
 
         // Exercise: Validate action Check on Proposal Detail Line page.
-        ProposalDetailLine.Check.Invoke;  // Using MessageHandler.
+        ProposalDetailLine.Check.Invoke();  // Using MessageHandler.
 
         // Verify: Verification done by MessageHandler, Check action call successfully.
         ProposalDetailLine.Close();
@@ -804,10 +802,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Process on Proposal Detail Line page ID - 11000002.
         // Setup: Open Proposal Detail Line page.
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
 
         // Exercise: Validate action Process on Proposal Detail Line page.
-        ProposalDetailLine.Process.Invoke;
+        ProposalDetailLine.Process.Invoke();
 
         // Verify: Verification done by MessageHandler & ConfirmHandler, process action call successfully.
     end;
@@ -822,11 +820,11 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action To Other Bank on Proposal Detail Line page - ID 11000002.
         // Setup: Open Proposal Detail Line page.
-        ProposalDetailLine.OpenEdit;
-        ProposalDetailLine.FILTER.SetFilter("Our Bank No.", CreateBankAccount);
+        ProposalDetailLine.OpenEdit();
+        ProposalDetailLine.FILTER.SetFilter("Our Bank No.", CreateBankAccount());
 
         // Exercise: Validate action To Other Bank on Proposal Detail Line page.
-        ProposalDetailLine.ToOtherBank.Invoke;
+        ProposalDetailLine.ToOtherBank.Invoke();
 
         // Verify: Verification done by BankAccountListPageHandler, Bank Account List page open successfully.
         ProposalDetailLine.Close();
@@ -843,7 +841,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Update Descriptions for Customer on Proposal Detail Line page ID - 11000002.
         // Setup.
-        Customer.Get(CreateCustomer);
+        Customer.Get(CreateCustomer());
 
         // Exercise and Verify.
         UpdateDescriptionsProposalDetailLine(
@@ -862,7 +860,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Update Descriptions for Vendor on Proposal Detail Line page ID - 11000002.
         // Setup.
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
 
         // Exercise and Verify.
         UpdateDescriptionsProposalDetailLine(
@@ -880,7 +878,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Update Descriptions for Employee on Proposal Detail Line page ID - 11000002.
         // Setup.
-        Employee.Get(CreateEmployee);
+        Employee.Get(CreateEmployee());
 
         // Exercise and Verify.
         UpdateDescriptionsProposalDetailLine(
@@ -897,7 +895,7 @@ codeunit 144036 "UT PAG Telebank"
         OpenProposalDetailLine(ProposalDetailLine, AccountType, AccountNo, TransactionModeCode);  // Using VendorLedgerEntriesPageHandler.
 
         // Exercise: Call action Update Description on Proposal Deatail Line page.
-        ProposalDetailLine.UpdateDescriptions.Invoke;
+        ProposalDetailLine.UpdateDescriptions.Invoke();
 
         // Verify: Verify Description field value on Proposal Detail Line subform page.
         ProposalDetailLine."Description 1".AssertEquals('Invoice ' + DocumentNo);
@@ -914,10 +912,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Dimensions on Payment History Line Subform page ID - 11000008.
         // Setup: Open Payment History Card page.
-        PaymentHistoryCard.OpenEdit;
+        PaymentHistoryCard.OpenEdit();
 
         // Exercise: Call action Dimensions on Payment History Card page.
-        PaymentHistoryCard.Subform.Dimension.Invoke;  // Using DimensionSetEntriesPageHandler.
+        PaymentHistoryCard.Subform.Dimension.Invoke();  // Using DimensionSetEntriesPageHandler.
 
         // Verify: Verification done by DimensionSetEntriesPageHandler, Dimension Set Entries page open successfully.
         PaymentHistoryCard.Close();
@@ -933,10 +931,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Ledger Entries on Payment History Line Subform page ID - 11000008.
         // Setup: Open Payment History Card page.
-        PaymentHistoryCard.OpenEdit;
+        PaymentHistoryCard.OpenEdit();
 
         // Exercise: Call action Ledger Entries on Payment History Card page.
-        PaymentHistoryCard.Subform.LedgerEntries.Invoke; // Using CustomerLedgerEntriesPageHandler.
+        PaymentHistoryCard.Subform.LedgerEntries.Invoke(); // Using CustomerLedgerEntriesPageHandler.
 
         // Verify: Verification done by GeneralLedgerEntriesPageHandler, General Ledger Entries page open successfully.
         PaymentHistoryCard.Close();
@@ -952,10 +950,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Detail Infromation on Payment History Line Subform page ID - 11000008.
         // Setup: Open Payment History Card page.
-        PaymentHistoryCard.OpenEdit;
+        PaymentHistoryCard.OpenEdit();
 
         // Exercise: Call action Detail Infromation on Payment History Card page.
-        PaymentHistoryCard.Subform.DetailInformation.Invoke;  // Using PaymentHistoryLineDetailPageHandler.
+        PaymentHistoryCard.Subform.DetailInformation.Invoke();  // Using PaymentHistoryLineDetailPageHandler.
 
         // Verify: Verification done by PaymentHistoryLineDetailPageHandler, Detail Information page open successfully.
         PaymentHistoryCard.Close();
@@ -971,12 +969,12 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // Purpose of the test is to validate action Modify on ImportProtocol List page ID - 11000016.
         // Setup: Open Import Protocol List page.
-        ImportProtocolList.OpenEdit;
-        ImportProtocolList.FILTER.SetFilter(Code, CreateImportProtocol);
+        ImportProtocolList.OpenEdit();
+        ImportProtocolList.FILTER.SetFilter(Code, CreateImportProtocol());
         LibraryVariableStorage.Enqueue(ImportProtocolList.Code.Value);
 
         // Exercise: Call action Modify on Import Protocol List page.
-        ImportProtocolList.Modify.Invoke;  // Using ImportProtocolsPageHandler.
+        ImportProtocolList.Modify.Invoke();  // Using ImportProtocolsPageHandler.
 
         // Verify: Verification done by ImportProtocolsPageHandler, Import Protocol List page open in edit mode successfully.
         ImportProtocolList.Close();
@@ -993,8 +991,8 @@ codeunit 144036 "UT PAG Telebank"
         // Purpose of the test is to validate Bank Account Code On Open Page - 370 Bank Account Card.
 
         // Setup.
-        No := CreateBankAccount;
-        BankAccountCard.OpenEdit;
+        No := CreateBankAccount();
+        BankAccountCard.OpenEdit();
 
         // Exercise.
         BankAccountCard.FILTER.SetFilter("No.", No);
@@ -1016,7 +1014,7 @@ codeunit 144036 "UT PAG Telebank"
         // [FEATURE] [Import Protocol]
         // [SCENARIO 202689] Look Up on "Import ID" field of Import Protocol should open Object page
         ImportProtocols.OpenNew();
-        ImportProtocols."Import ID".Lookup;
+        ImportProtocols."Import ID".Lookup();
     end;
 
     [Test]
@@ -1028,10 +1026,10 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // [FEATURE] [Import Protocol]
         // [SCENARIO 202689] Drill Down on "Import ID" field of Import Protocol should open Object page
-        Objects.Trap;
-        ImportProtocols.OpenEdit;
-        ImportProtocols."Import ID".DrillDown;
-        Objects.OK.Invoke;
+        Objects.Trap();
+        ImportProtocols.OpenEdit();
+        ImportProtocols."Import ID".DrillDown();
+        Objects.OK().Invoke();
     end;
 
     [Test]
@@ -1048,19 +1046,19 @@ codeunit 144036 "UT PAG Telebank"
     begin
         // [FEATURE] [Proposal Line] [Performance]
         // [SCENARIO 281948] BankAccount is not updated for every record on the page
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         LibraryERM.CreateBankAccount(BankAccount);
         for i := 1 to LibraryRandom.RandIntInRange(10, 20) do
             CreateProposalLineWithBank(ProposalLine."Account Type"::Vendor, Vendor."No.", Vendor."Transaction Mode Code", BankAccount."No.");
 
         OpenTelebankOverview(TelebankBankOverview, BankAccount."No.");
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        TelebankProposal.Trap;
-        TelebankBankOverview.Proposal_Navigate.Invoke;
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
+        TelebankProposal.Trap();
+        TelebankBankOverview.Proposal_Navigate.Invoke();
+        CodeCoverageMgt.StopApplicationCoverage();
 
         TelebankProposal.Close();
 
@@ -1073,7 +1071,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -1083,11 +1081,11 @@ codeunit 144036 "UT PAG Telebank"
         Customer: Record Customer;
         TransactionMode: Record "Transaction Mode";
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.Name := LibraryUTUtility.GetNewCode;
-        Customer."Payment Terms Code" := CreatePaymentTerms;
-        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.Name := LibraryUTUtility.GetNewCode();
+        Customer."Payment Terms Code" := CreatePaymentTerms();
+        Customer."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        Customer."Customer Posting Group" := LibraryUTUtility.GetNewCode10();
         Customer."Transaction Mode Code" := CreateTransactionMode(TransactionMode."Account Type"::Customer);
         Customer.Insert(true);
         exit(Customer."No.");
@@ -1098,7 +1096,7 @@ codeunit 144036 "UT PAG Telebank"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         CustomerBankAccount."Customer No." := CustomerNo;
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
         exit(CustomerBankAccount.Code);
     end;
@@ -1108,7 +1106,7 @@ codeunit 144036 "UT PAG Telebank"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         CustomerBankAccount."Customer No." := CustomerNo;
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert(true);  // TRUE is required for test the code on OnInsert Trigger.
         exit(CustomerBankAccount.Code);
     end;
@@ -1117,7 +1115,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         CustomerBankAccountCard: TestPage "Customer Bank Account Card";
     begin
-        CustomerBankAccountCard.OpenEdit;
+        CustomerBankAccountCard.OpenEdit();
         CustomerBankAccountCard.FILTER.SetFilter(Code, CreateCustomerBankAccount(CustomerNo));
         exit(CustomerBankAccountCard.Code.Value);
     end;
@@ -1133,7 +1131,7 @@ codeunit 144036 "UT PAG Telebank"
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate();
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         CustLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
@@ -1158,7 +1156,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         ImportProtocol: Record "Import Protocol";
     begin
-        ImportProtocol.Code := LibraryUTUtility.GetNewCode;
+        ImportProtocol.Code := LibraryUTUtility.GetNewCode();
         ImportProtocol.Insert();
         exit(ImportProtocol.Code);
     end;
@@ -1167,7 +1165,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         PaymentTerms.Insert();
         exit(PaymentTerms.Code);
     end;
@@ -1195,7 +1193,7 @@ codeunit 144036 "UT PAG Telebank"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.")
     end;
@@ -1205,7 +1203,7 @@ codeunit 144036 "UT PAG Telebank"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         exit(SalesHeader."No.")
     end;
@@ -1215,7 +1213,7 @@ codeunit 144036 "UT PAG Telebank"
         TransactionMode: Record "Transaction Mode";
     begin
         TransactionMode."Account Type" := AccountType;
-        TransactionMode.Code := LibraryUTUtility.GetNewCode;
+        TransactionMode.Code := LibraryUTUtility.GetNewCode();
         TransactionMode.Insert();
         exit(TransactionMode.Code);
     end;
@@ -1225,10 +1223,10 @@ codeunit 144036 "UT PAG Telebank"
         Vendor: Record Vendor;
         TransactionMode: Record "Transaction Mode";
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Name := LibraryUTUtility.GetNewCode;
-        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor.Name := LibraryUTUtility.GetNewCode();
+        Vendor."Gen. Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        Vendor."Vendor Posting Group" := LibraryUTUtility.GetNewCode10();
         Vendor."Transaction Mode Code" := CreateTransactionMode(TransactionMode."Account Type"::Vendor);
         Vendor.Insert(true);
         exit(Vendor."No.");
@@ -1239,7 +1237,7 @@ codeunit 144036 "UT PAG Telebank"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBankAccount."Vendor No." := VendorNo;
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert();
         exit(VendorBankAccount.Code);
     end;
@@ -1249,7 +1247,7 @@ codeunit 144036 "UT PAG Telebank"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBankAccount."Vendor No." := VendorNo;
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert(true);  // TRUE is required for test the code on OnInsert Trigger.
         exit(VendorBankAccount.Code);
     end;
@@ -1258,7 +1256,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         VendorBankAccountCard: TestPage "Vendor Bank Account Card";
     begin
-        VendorBankAccountCard.OpenEdit;
+        VendorBankAccountCard.OpenEdit();
         VendorBankAccountCard.FILTER.SetFilter(Code, CreateVendorBankAccount(VendorNo));
         exit(VendorBankAccountCard.Code.Value);
     end;
@@ -1274,7 +1272,7 @@ codeunit 144036 "UT PAG Telebank"
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate();
-        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry.Amount := -LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."External Document No." := VendorLedgerEntry."Document No.";
@@ -1305,7 +1303,7 @@ codeunit 144036 "UT PAG Telebank"
         EmployeeLedgerEntry."Document Type" := EmployeeLedgerEntry."Document Type"::Invoice;
         EmployeeLedgerEntry."Employee No." := EmployeeNo;
         EmployeeLedgerEntry."Posting Date" := WorkDate();
-        EmployeeLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        EmployeeLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         EmployeeLedgerEntry.Amount := -LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         EmployeeLedgerEntry.Open := true;
         EmployeeLedgerEntry.Description := EmployeeLedgerEntry."Document No.";
@@ -1316,16 +1314,16 @@ codeunit 144036 "UT PAG Telebank"
     local procedure OpenProposalDetailLine(var ProposalDetailLine: TestPage "Proposal Detail Line"; AccountType: Option; AccountNo: Code[20]; TransactionMode: Code[20])
     begin
         CreateProposalLine(AccountType, AccountNo, TransactionMode);
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
         ProposalDetailLine.FILTER.SetFilter("Account No.", AccountNo);
-        ProposalDetailLine.Control2."Serial No. (Entry)".Lookup;
+        ProposalDetailLine.Control2."Serial No. (Entry)".Lookup();
     end;
 
     local procedure OpenPurchaseCreditMemo(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", CreatePurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo"));
     end;
 
@@ -1333,7 +1331,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", CreatePurchaseDocument(PurchaseHeader."Document Type"::Invoice));
     end;
 
@@ -1341,7 +1339,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", CreatePurchaseDocument(PurchaseHeader."Document Type"::Order));
     end;
 
@@ -1349,7 +1347,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", CreatePurchaseDocument(PurchaseHeader."Document Type"::Quote));
     end;
 
@@ -1357,7 +1355,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", CreatePurchaseDocument(PurchaseHeader."Document Type"::"Return Order"));
     end;
 
@@ -1365,7 +1363,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", CreateSalesDocument(SalesHeader."Document Type"::"Credit Memo"));
     end;
 
@@ -1373,7 +1371,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", CreateSalesDocument(SalesHeader."Document Type"::Invoice));
     end;
 
@@ -1381,7 +1379,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", CreateSalesDocument(SalesHeader."Document Type"::Order));
     end;
 
@@ -1389,7 +1387,7 @@ codeunit 144036 "UT PAG Telebank"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", CreateSalesDocument(SalesHeader."Document Type"::Quote));
     end;
 
@@ -1397,13 +1395,13 @@ codeunit 144036 "UT PAG Telebank"
     var
         SalesHeader: Record "Sales Header";
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", CreateSalesDocument(SalesHeader."Document Type"::"Return Order"));
     end;
 
     local procedure OpenTelebankOverview(var TelebankBankOverview: TestPage "Telebank - Bank Overview"; No: Code[20])
     begin
-        TelebankBankOverview.OpenEdit;
+        TelebankBankOverview.OpenEdit();
         TelebankBankOverview.FILTER.SetFilter("No.", No);
     end;
 
@@ -1411,7 +1409,7 @@ codeunit 144036 "UT PAG Telebank"
     [Scope('OnPrem')]
     procedure BankAccountListPageHandler(var BankAccountList: TestPage "Bank Account List")
     begin
-        BankAccountList.OK.Invoke;
+        BankAccountList.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1425,28 +1423,28 @@ codeunit 144036 "UT PAG Telebank"
     [Scope('OnPrem')]
     procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
     begin
-        ContactList.OK.Invoke;
+        ContactList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerBankAccountListPageHandler(var CustomerBankAccountList: TestPage "Customer Bank Account List")
     begin
-        CustomerBankAccountList.OK.Invoke;
+        CustomerBankAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesModalPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.OK.Invoke;
+        CustomerLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerLedgerEntriesPageHandler(var CustomerLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustomerLedgerEntries.OK.Invoke;
+        CustomerLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1457,21 +1455,21 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(DimensionCode);
         DefaultDimensionsMultiple."Dimension Code".AssertEquals(DimensionCode);
-        DefaultDimensionsMultiple.OK.Invoke;
+        DefaultDimensionsMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DimensionSetEntriesPageHandler(var DimensionSetEntries: TestPage "Dimension Set Entries")
     begin
-        DimensionSetEntries.OK.Invoke;
+        DimensionSetEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EditDimensionSetEntriesPageHandler(var EditDimensionSetEntries: TestPage "Edit Dimension Set Entries")
     begin
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1484,7 +1482,7 @@ codeunit 144036 "UT PAG Telebank"
     [Scope('OnPrem')]
     procedure ExportBTL91ABNAMRORequestPageHandler(var ExportBTL91ABNAMRO: TestRequestPage "Export BTL91-ABN AMRO")
     begin
-        ExportBTL91ABNAMRO.OK.Invoke;
+        ExportBTL91ABNAMRO.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1499,14 +1497,14 @@ codeunit 144036 "UT PAG Telebank"
     [Scope('OnPrem')]
     procedure GetProposalEntriesRequestPageHandler(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustomerCardPageHandler(var CustomerCard: TestPage "Customer Card")
     begin
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1536,7 +1534,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(Code);
         ImportProtocols.Code.AssertEquals(Code);
-        ImportProtocols.OK.Invoke;
+        ImportProtocols.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1556,14 +1554,14 @@ codeunit 144036 "UT PAG Telebank"
         AllObjWithCaption.SetRange("Object Type", ObjectType);
         AllObjWithCaption.FindLast();
         ObjectsList.GotoRecord(AllObjWithCaption);
-        ObjectsList.OK.Invoke;
+        ObjectsList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentHistoryCardModalPageHandler(var PaymentHistoryCard: TestPage "Payment History Card")
     begin
-        PaymentHistoryCard.OK.Invoke;
+        PaymentHistoryCard.OK().Invoke();
     end;
 
     [PageHandler]
@@ -1574,14 +1572,14 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(OurBank);
         PaymentHistoryCard."Our Bank".AssertEquals(OurBank);
-        PaymentHistoryCard.OK.Invoke;
+        PaymentHistoryCard.OK().Invoke();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure PaymentHistoryLineDetailPageHandler(var PaymentHistoryLineDetail: TestPage "Payment History Line Detail")
     begin
-        PaymentHistoryLineDetail.OK.Invoke;
+        PaymentHistoryLineDetail.OK().Invoke();
     end;
 
     [PageHandler]
@@ -1592,7 +1590,7 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(OurBank);
         PaymentHistoryList."Our Bank".AssertEquals(OurBank);
-        PaymentHistoryList.OK.Invoke;
+        PaymentHistoryList.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1615,35 +1613,35 @@ codeunit 144036 "UT PAG Telebank"
     begin
         LibraryVariableStorage.Dequeue(Bank);
         TelebankProposal.BankAccFilter.AssertEquals(Bank);
-        TelebankProposal.OK.Invoke;
+        TelebankProposal.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorBankAccountListPageHandler(var VendorBankAccountList: TestPage "Vendor Bank Account List")
     begin
-        VendorBankAccountList.OK.Invoke;
+        VendorBankAccountList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EmployeeLedgerEntriesPageHandler(var EmployeeLedgerEntries: TestPage "Employee Ledger Entries")
     begin
-        EmployeeLedgerEntries.OK.Invoke;
+        EmployeeLedgerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ObjectsPageHandler(var Objects: TestPage Objects)
     begin
-        Objects.OK.Invoke;
+        Objects.OK().Invoke();
     end;
 }
 

@@ -382,10 +382,10 @@ codeunit 135020 "Data Migration Tests"
         DataMigrationStatus."Migration Type" := DataMigrationErrorTable."Migration Type";
         DataMigrationStatus."Destination Table ID" := DataMigrationErrorTable."Destination Table ID";
         DataMigrationStatus.Insert();
-        DataMigrationError.OpenEdit;
+        DataMigrationError.OpenEdit();
 
         // [WHEN] we Drilldown on the Migration error messages
-        asserterror DataMigrationError."Error Message".DrillDown;
+        asserterror DataMigrationError."Error Message".DrillDown();
 
         // [THEN] The right error message gets thrown that the extension is not installed.
         Assert.ExpectedError(ExtensionNotInstalledErr);
@@ -410,9 +410,9 @@ codeunit 135020 "Data Migration Tests"
 
         // [WHEN] The Total Number field on a record is clicked
         // [THEN] an event is raised that can be captured on the extensions
-        DataMigrationOverview.OpenEdit;
-        DataMigrationOverview.First;
-        asserterror DataMigrationOverview."Total Number".DrillDown;
+        DataMigrationOverview.OpenEdit();
+        DataMigrationOverview.First();
+        asserterror DataMigrationOverview."Total Number".DrillDown();
 
         // Verify that the error on our event subscriber was thrown
         Assert.ExpectedError(FakeErrorErr);
@@ -440,7 +440,7 @@ codeunit 135020 "Data Migration Tests"
         InitializeMigrationWithErrors(2);
 
         // [WHEN] The first error is skipped
-        DataMigrationErrorPage.OpenView;
+        DataMigrationErrorPage.OpenView();
         SkipFirstError(DataMigrationErrorPage);
 
         // [THEN] The staging table record is deleted
@@ -451,7 +451,7 @@ codeunit 135020 "Data Migration Tests"
         SkipFirstError(DataMigrationErrorPage);
 
         // [THEN] The staging table record is deleted
-        Assert.IsFalse(Customer.Get(LibraryVariableStorage.DequeueText), 'Staging record was expected to be deleted');
+        Assert.IsFalse(Customer.Get(LibraryVariableStorage.DequeueText()), 'Staging record was expected to be deleted');
 
         // [THEN] The whole entry of Data Migration Status is deleted
         Assert.RecordIsEmpty(DataMigrationStatus);
@@ -478,7 +478,7 @@ codeunit 135020 "Data Migration Tests"
         InitializeMigrationWithErrors(3);
 
         // [WHEN] The first error is skipped
-        DataMigrationErrorPage.OpenView;
+        DataMigrationErrorPage.OpenView();
         SkipFirstError(DataMigrationErrorPage);
 
         // [THEN] The staging table record is deleted
@@ -513,9 +513,9 @@ codeunit 135020 "Data Migration Tests"
         InitializeMigrationWithErrors(2);
 
         // [WHEN] The first error is retried
-        DataMigrationErrorPage.OpenView;
-        DataMigrationErrorPage.First;
-        DataMigrationErrorPage.Migrate.Invoke;
+        DataMigrationErrorPage.OpenView();
+        DataMigrationErrorPage.First();
+        DataMigrationErrorPage.Migrate.Invoke();
 
         // [THEN] The migration for the corresponding records starts
         // Verify the OnBeforeStartMigration event was fired by trying to enqueue a variable enqueueed in the subscriber
@@ -595,8 +595,8 @@ codeunit 135020 "Data Migration Tests"
 
     local procedure SkipFirstError(var DataMigrationErrorPage: TestPage "Data Migration Error")
     begin
-        DataMigrationErrorPage.First;
-        DataMigrationErrorPage.SkipSelection.Invoke;
+        DataMigrationErrorPage.First();
+        DataMigrationErrorPage.SkipSelection.Invoke();
     end;
 
     local procedure VerifySkippedRecords(TotalNumber: Integer; ErrorCount: Integer)

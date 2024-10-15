@@ -28,6 +28,7 @@ table 11307 "G/L Entry Application Buffer"
     DrillDownPageID = "General Ledger Entries";
     LookupPageID = "General Ledger Entries";
     Permissions = TableData "G/L Entry" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -468,14 +469,11 @@ table 11307 "G/L Entry Application Buffer"
         UpdateRealTable2(
           GLEntry, GLEntry."Remaining Amount" - TotalAppliedAmount,
           (GLEntry."Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
-
         // Update Temporary Table
-        with GLEntryApplicationBuffer do begin
-            Get(BaseEntryNo);
-            UpdateTempTable2(
-              GLEntryApplicationBuffer, "Remaining Amount" - TotalAppliedAmount,
-              ("Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
-        end;
+        GLEntryApplicationBuffer.Get(BaseEntryNo);
+        GLEntryApplicationBuffer.UpdateTempTable2(
+          GLEntryApplicationBuffer, GLEntryApplicationBuffer."Remaining Amount" - TotalAppliedAmount,
+          (GLEntryApplicationBuffer."Remaining Amount" - TotalAppliedAmount) <> 0, 0, 0D, 0, '');
     end;
 
     [Scope('OnPrem')]
@@ -489,34 +487,32 @@ table 11307 "G/L Entry Application Buffer"
         // 'Real' G/L Entry changed whilst undoing ?
         RealEntryChanged(GLEntryApplicationBuffer, GLEntry);
 
-        with GLEntryApplicationBuffer do begin
-            Reset();
+        GLEntryApplicationBuffer.Reset();
 
-            if "Closed by Entry No." <> 0 then begin
-                OrgGLEntry.Get("Closed by Entry No.");
-                OrgGLEntry.TestField("Closed by Entry No.", 0);
-            end else
-                OrgGLEntry.Get("Entry No.");
-            BaseEntryNo := OrgGLEntry."Entry No.";
+        if GLEntryApplicationBuffer."Closed by Entry No." <> 0 then begin
+            OrgGLEntry.Get(GLEntryApplicationBuffer."Closed by Entry No.");
+            OrgGLEntry.TestField("Closed by Entry No.", 0);
+        end else
+            OrgGLEntry.Get(GLEntryApplicationBuffer."Entry No.");
+        BaseEntryNo := OrgGLEntry."Entry No.";
 
-            UndoGLEntry.SetCurrentKey("Closed by Entry No.");
-            UndoGLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
-            if UndoGLEntry.FindSet() then
-                repeat
-                    RealEntryChanged(GLEntryApplicationBuffer, GLEntry);
-                    if Get(UndoGLEntry."Entry No.") then
-                        UpdateTempTable2(GLEntryApplicationBuffer, "Closed by Amount", true, 0, 0D, 0, '');
-                    UpdateRealTable2(UndoGLEntry, UndoGLEntry."Closed by Amount", true, 0, 0D, 0, '');
-                until UndoGLEntry.Next() = 0;
+        UndoGLEntry.SetCurrentKey("Closed by Entry No.");
+        UndoGLEntry.SetRange("Closed by Entry No.", OrgGLEntry."Entry No.");
+        if UndoGLEntry.FindSet() then
+            repeat
+                GLEntryApplicationBuffer.RealEntryChanged(GLEntryApplicationBuffer, GLEntry);
+                if GLEntryApplicationBuffer.Get(UndoGLEntry."Entry No.") then
+                    GLEntryApplicationBuffer.UpdateTempTable2(GLEntryApplicationBuffer, GLEntryApplicationBuffer."Closed by Amount", true, 0, 0D, 0, '');
+                GLEntryApplicationBuffer.UpdateRealTable2(UndoGLEntry, UndoGLEntry."Closed by Amount", true, 0, 0D, 0, '');
+            until UndoGLEntry.Next() = 0;
 
-            GLEntry.Get(BaseEntryNo);
-            UpdateRealTable2(GLEntry, GLEntry.Amount, true, 0, 0D, 0, '');
-            if Get(BaseEntryNo) then
-                UpdateTempTable2(GLEntryApplicationBuffer, Amount, true, 0, 0D, 0, '');
+        GLEntry.Get(BaseEntryNo);
+        GLEntryApplicationBuffer.UpdateRealTable2(GLEntry, GLEntry.Amount, true, 0, 0D, 0, '');
+        if GLEntryApplicationBuffer.Get(BaseEntryNo) then
+            GLEntryApplicationBuffer.UpdateTempTable2(GLEntryApplicationBuffer, GLEntryApplicationBuffer.Amount, true, 0, 0D, 0, '');
 
-            SetRange("Closed by Entry No.");
-            SetCurrentKey("G/L Account No.", "Posting Date", "Entry No.", Open);
-        end;
+        GLEntryApplicationBuffer.SetRange("Closed by Entry No.");
+        GLEntryApplicationBuffer.SetCurrentKey("G/L Account No.", "Posting Date", "Entry No.", Open);
     end;
 
 #if not CLEAN23
@@ -525,15 +521,13 @@ table 11307 "G/L Entry Application Buffer"
     procedure UpdateTempTable(var GLEntryApplicationBuffer: Record "G/L Entry Application Buffer"; RemainingAmt: Decimal; IsOpen: Boolean; ClosedbyEntryNo: Integer; ClosedbyDate: Date; ClosedbyAmt: Decimal; AppliesToID: Code[20])
     begin
         // Update Temporary Table
-        with GLEntryApplicationBuffer do begin
-            "Remaining Amount" := RemainingAmt;
-            Open := IsOpen;
-            "Closed by Entry No." := ClosedbyEntryNo;
-            "Closed at Date" := ClosedbyDate;
-            "Closed by Amount" := ClosedbyAmt;
-            "Applies-to ID" := AppliesToID;
-            Modify();
-        end;
+        GLEntryApplicationBuffer."Remaining Amount" := RemainingAmt;
+        GLEntryApplicationBuffer.Open := IsOpen;
+        GLEntryApplicationBuffer."Closed by Entry No." := ClosedbyEntryNo;
+        GLEntryApplicationBuffer."Closed at Date" := ClosedbyDate;
+        GLEntryApplicationBuffer."Closed by Amount" := ClosedbyAmt;
+        GLEntryApplicationBuffer."Applies-to ID" := AppliesToID;
+        GLEntryApplicationBuffer.Modify();
     end;
 #endif
 

@@ -101,13 +101,15 @@ codeunit 30238 "Shpfy Fulfillment Orders API"
     var
         JFulfillmentOrders: JsonArray;
         JItem: JsonToken;
+        JObject: JsonObject;
     begin
-        if JsonHelper.GetJsonArray(JResponse, JFulfillmentOrders, 'data.order.fulfillmentOrders.edges') then begin
-            foreach JItem in JFulfillmentOrders do
-                ExtractFulfillmentOrder(ShopifyShop, JItem, Cursor);
+        if JsonHelper.GetJsonObject(JResponse, JObject, 'data.order') then
+            if JsonHelper.GetJsonArray(JResponse, JFulfillmentOrders, 'data.order.fulfillmentOrders.edges') then begin
+                foreach JItem in JFulfillmentOrders do
+                    ExtractFulfillmentOrder(ShopifyShop, JItem, Cursor);
 
-            exit(true);
-        end;
+                exit(true);
+            end;
     end;
 
     internal procedure ExtractFulfillmentOrder(var ShopifyShop: Record "Shpfy Shop"; JFulfillmentOrder: JsonToken; var Cursor: Text)
@@ -132,6 +134,7 @@ codeunit 30238 "Shpfy Fulfillment Orders API"
             FulfillmentOrderHeader."Shopify Location Id" := JsonHelper.GetValueAsBigInteger(JNode, 'assignedLocation.location.legacyResourceId');
             FulfillmentOrderHeader."Updated At" := JsonHelper.GetValueAsDateTime(JNode, 'updatedAt');
             FulfillmentOrderHeader.Status := CopyStr(JsonHelper.GetValueAsText(JNode, 'status'), 1, MaxStrLen(FulfillmentOrderHeader.Status));
+            FulfillmentOrderHeader."Delivery Method Type" := ConvertToDeliveryMethodType(JsonHelper.GetValueAsText(JNode, 'deliveryMethod.methodType'));
             if not FulfillmentOrderHeader.Insert() then
                 FulfillmentOrderHeader.Modify();
             GetFulfillmentOrderLines(ShopifyShop, FulfillmentOrderHeader);
@@ -160,6 +163,7 @@ codeunit 30238 "Shpfy Fulfillment Orders API"
 
                     FulfillmentOrderLine."Shopify Order Id" := FulfillmentOrderHeader."Shopify Order Id";
                     FulfillmentOrderLine."Shopify Location Id" := FulfillmentOrderHeader."Shopify Location Id";
+                    FulfillmentOrderLine."Delivery Method Type" := FulfillmentOrderHeader."Delivery Method Type";
                     FulfillmentOrderLine."Shopify Product Id" := JsonHelper.GetValueAsBigInteger(JNode, 'lineItem.product.legacyResourceId');
                     FulfillmentOrderLine."Shopify Variant Id" := JsonHelper.GetValueAsBigInteger(JNode, 'lineItem.variant.legacyResourceId');
                     FulfillmentOrderLine."Total Quantity" := JsonHelper.GetValueAsDecimal(JNode, 'totalQuantity');
@@ -202,5 +206,14 @@ codeunit 30238 "Shpfy Fulfillment Orders API"
                 end else
                     break;
         until not JsonHelper.GetValueAsBoolean(JResponse, 'data.order.fulfillmentOrders.pageInfo.hasNextPage');
+    end;
+
+    local procedure ConvertToDeliveryMethodType(Value: Text): Enum "Shpfy Delivery Method Type"
+    begin
+        Value := CommunicationMgt.ConvertToCleanOptionValue(Value);
+        if Enum::"Shpfy Delivery Method Type".Names().Contains(Value) then
+            exit(Enum::"Shpfy Delivery Method Type".FromInteger(Enum::"Shpfy Delivery Method Type".Ordinals().Get(Enum::"Shpfy Delivery Method Type".Names().IndexOf(Value))))
+        else
+            exit(Enum::"Shpfy Delivery Method Type"::" ");
     end;
 }

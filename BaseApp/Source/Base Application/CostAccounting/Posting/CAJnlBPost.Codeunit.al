@@ -25,36 +25,34 @@ codeunit 1107 "CA Jnl.-B. Post"
         CAJnlPostBatch: Codeunit "CA Jnl.-Post Batch";
         JnlWithErrors: Boolean;
     begin
-        with CostJnlBatch do begin
-            if not Confirm(Text000) then
-                exit;
+        if not Confirm(Text000) then
+            exit;
 
-            Find('-');
-            repeat
-                CostJnlLine."Journal Template Name" := "Journal Template Name";
-                CostJnlLine."Journal Batch Name" := Name;
-                CostJnlLine."Line No." := 1;
-                Clear(CAJnlPostBatch);
-                if CAJnlPostBatch.Run(CostJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(Text002);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup(0);
-                Name := '';
+        CostJnlBatch.Find('-');
+        repeat
+            CostJnlLine."Journal Template Name" := CostJnlBatch."Journal Template Name";
+            CostJnlLine."Journal Batch Name" := CostJnlBatch.Name;
+            CostJnlLine."Line No." := 1;
+            Clear(CAJnlPostBatch);
+            if CAJnlPostBatch.Run(CostJnlLine) then
+                CostJnlBatch.Mark(false)
+            else begin
+                CostJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until CostJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(Text002);
+
+        if not CostJnlBatch.Find('=><') then begin
+            CostJnlBatch.Reset();
+            CostJnlBatch.FilterGroup(2);
+            CostJnlBatch.SetRange("Journal Template Name", CostJnlBatch."Journal Template Name");
+            CostJnlBatch.FilterGroup(0);
+            CostJnlBatch.Name := '';
         end;
     end;
 }

@@ -44,7 +44,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify error Account Type G/L Account and Description blank on General Journal.
-        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount);
+        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"G/L Account", CreateGLAccount());
     end;
 
     [Test]
@@ -55,7 +55,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify error Account Type Customer and Description blank on General Journal.
-        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::Customer, CreateCustomer);
+        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify error Account Type Vendor and Description blank on General Journal.
-        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::Vendor, CreateVendor);
+        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::Vendor, CreateVendor());
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify error Account Type Bank Account and Description blank on General Journal.
-        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount);
+        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"Bank Account", CreateBankAccount());
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Purpose of the test is to verify error Account Type Fixed Asset and Description blank on FA G/L Journal.
-        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset);
+        CreateAndPostGeneralJournal(GenJournalLine."Account Type"::"Fixed Asset", CreateFixedAsset());
     end;
 
     local procedure CreateAndPostGeneralJournal(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
@@ -113,7 +113,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of the test is to verify error Account Type G/L Account and Description blank on Cash Journal.
-        CreateAndPostCashJournal(CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount);
+        CreateAndPostCashJournal(CBGStatementLine."Account Type"::"G/L Account", CreateGLAccount());
     end;
 
     [Test]
@@ -124,7 +124,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of the test is to verify error Account Type Customer and Description blank on Cash Journal.
-        CreateAndPostCashJournal(CBGStatementLine."Account Type"::Customer, CreateCustomer);
+        CreateAndPostCashJournal(CBGStatementLine."Account Type"::Customer, CreateCustomer());
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of the test is to verify error Account Type Vendor and Description blank on Cash Journal.
-        CreateAndPostCashJournal(CBGStatementLine."Account Type"::Vendor, CreateVendor);
+        CreateAndPostCashJournal(CBGStatementLine."Account Type"::Vendor, CreateVendor());
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine: Record "CBG Statement Line";
     begin
         // Purpose of the test is to verify error Account Type Bank Account and Description blank on Cash Journal.
-        CreateAndPostCashJournal(CBGStatementLine."Account Type"::"Bank Account", CreateBankAccount);
+        CreateAndPostCashJournal(CBGStatementLine."Account Type"::"Bank Account", CreateBankAccount());
     end;
 
     local procedure CreateAndPostCashJournal(AccountType: Option; AccountNo: Code[20])
@@ -157,7 +157,7 @@ codeunit 144026 "UT COD Required Description"
         CreateCGBStatement(CBGStatement, AccountType, AccountNo);
 
         // Exercise.
-        asserterror CBGStatement.ProcessStatementASGenJournal;
+        asserterror CBGStatement.ProcessStatementASGenJournal();
 
         // Verify. Verify actual error,Description must have a value in Gen. Journal Line Journal Template Name.
         Assert.ExpectedErrorCode('TestField');
@@ -167,7 +167,7 @@ codeunit 144026 "UT COD Required Description"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -176,7 +176,7 @@ codeunit 144026 "UT COD Required Description"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -185,11 +185,11 @@ codeunit 144026 "UT COD Required Description"
     var
         CBGStatementLine: Record "CBG Statement Line";
     begin
-        CBGStatement."Journal Template Name" := CreateGenJournalTemplate;
+        CBGStatement."Journal Template Name" := CreateGenJournalTemplate();
         CBGStatement."No." := LibraryRandom.RandInt(10);  // Use Random for No.
         CBGStatement.Type := CBGStatement.Type::Cash;
         CBGStatement."Account Type" := CBGStatement."Account Type"::"G/L Account";
-        CBGStatement."Account No." := CreateGLAccount;
+        CBGStatement."Account No." := CreateGLAccount();
         CBGStatement.Insert();
         CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
         CBGStatementLine."No." := CBGStatement."No.";
@@ -199,7 +199,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine."Account Type" := AccountType;
         CBGStatementLine."Account No." := AccountNo;
         CBGStatementLine.Date := WorkDate();
-        CBGStatementLine."Document No." := LibraryUTUtility.GetNewCode;
+        CBGStatementLine."Document No." := LibraryUTUtility.GetNewCode();
         CBGStatementLine.Insert();
     end;
 
@@ -207,7 +207,7 @@ codeunit 144026 "UT COD Required Description"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
@@ -216,7 +216,7 @@ codeunit 144026 "UT COD Required Description"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -225,15 +225,15 @@ codeunit 144026 "UT COD Required Description"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch."Journal Template Name" := CreateGenJournalTemplate;
-        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
+        GenJournalBatch."Journal Template Name" := CreateGenJournalTemplate();
+        GenJournalBatch.Name := LibraryUTUtility.GetNewCode10();
         GenJournalBatch.Insert();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
         GenJournalLine."Posting Date" := WorkDate();
-        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
+        GenJournalLine."Document No." := LibraryUTUtility.GetNewCode();
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);  // Use Random for Amount.
         GenJournalLine.Insert();
     end;
@@ -242,9 +242,9 @@ codeunit 144026 "UT COD Required Description"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalTemplate."No. Series" := CreateNoSeries;
-        GenJournalTemplate."Source Code" := LibraryUTUtility.GetNewCode10;
+        GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10();
+        GenJournalTemplate."No. Series" := CreateNoSeries();
+        GenJournalTemplate."Source Code" := LibraryUTUtility.GetNewCode10();
         GenJournalTemplate.Insert();
         exit(GenJournalTemplate.Name);
     end;
@@ -254,7 +254,7 @@ codeunit 144026 "UT COD Required Description"
         NoSeries: Record "No. Series";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeries.Code := LibraryUTUtility.GetNewCode10;
+        NoSeries.Code := LibraryUTUtility.GetNewCode10();
         NoSeries.Insert();
         NoSeriesLine."Series Code" := NoSeries.Code;
         NoSeriesLine.Insert();
@@ -265,7 +265,7 @@ codeunit 144026 "UT COD Required Description"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;

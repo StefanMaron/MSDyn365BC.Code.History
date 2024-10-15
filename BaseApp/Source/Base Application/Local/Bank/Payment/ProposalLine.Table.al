@@ -24,6 +24,7 @@ table 11000000 "Proposal Line"
     DataCaptionFields = "Order", "Account Type", "Account No.";
     DrillDownPageID = "Telebank Proposal";
     LookupPageID = "Telebank Proposal";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -279,15 +280,25 @@ table 11000000 "Proposal Line"
             trigger OnValidate()
             var
                 TrMode: Record "Transaction Mode";
+                NoSeries: Codeunit "No. Series";
+#if not CLEAN24
                 NoSeriesManagement: Codeunit NoSeriesManagement;
+                IsHandled: Boolean;
+#endif
+
             begin
                 TrMode.Get("Account Type", "Transaction Mode");
                 TrMode.TestField("Identification No. Series");
-                NoSeriesManagement.InitSeries(TrMode."Identification No. Series",
-                  '',
-                  "Transaction Date",
-                  Identification,
-                  "Identification No. Series");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Identification No. Series", '', "Transaction Date", Identification, "Identification No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "Identification No. Series" := TrMode."Identification No. Series";
+                    Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
+#if not CLEAN24
+                    NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("Identification No. Series", TrMode."Identification No. Series", "Transaction Date", Identification);
+                end;
+#endif
             end;
         }
         field(16; "Bank Account No."; Text[30])
@@ -319,7 +330,11 @@ table 11000000 "Proposal Line"
             trigger OnValidate()
             var
                 TrMode: Record "Transaction Mode";
+                NoSeries: Codeunit "No. Series";
+#if not CLEAN24
                 NoSeriesManagement: Codeunit NoSeriesManagement;
+                IsHandled: Boolean;
+#endif
             begin
                 if "Transaction Mode" <> xRec."Transaction Mode" then
                     TestDetailAvailable(FieldCaption("Our Bank No."));
@@ -334,11 +349,16 @@ table 11000000 "Proposal Line"
 
                 if Identification = '' then begin
                     TrMode.TestField("Identification No. Series");
-                    NoSeriesManagement.InitSeries(TrMode."Identification No. Series",
-                      '',
-                      "Transaction Date",
-                      Identification,
-                      "Identification No. Series");
+#if not CLEAN24
+                    NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TrMode."Identification No. Series", '', "Transaction Date", Identification, "Identification No. Series", IsHandled);
+                    if not IsHandled then begin
+#endif
+                        "Identification No. Series" := TrMode."Identification No. Series";
+                        Identification := NoSeries.GetNextNo("Identification No. Series", "Transaction Date");
+#if not CLEAN24
+                        NoSeriesManagement.RaiseObsoleteOnAfterInitSeries("Identification No. Series", TrMode."Identification No. Series", "Transaction Date", Identification);
+                    end;
+#endif
                 end;
             end;
         }
@@ -724,19 +744,15 @@ table 11000000 "Proposal Line"
     var
         Prop: Record "Proposal Line";
         TrMode: Record "Transaction Mode";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        with Prop do begin
-            Prop := Rec;
-            TrMode.Get("Account Type", "Transaction Mode");
-            TrMode.TestField("Identification No. Series");
-            if NoSeriesMgt.SelectSeries(TrMode."Identification No. Series", OldProp."Identification No. Series", "Identification No. Series"
-                 )
-            then begin
-                NoSeriesMgt.SetSeries(Identification);
-                Rec := Prop;
-                exit(true);
-            end;
+        Prop := Rec;
+        TrMode.Get(Prop."Account Type", Prop."Transaction Mode");
+        TrMode.TestField("Identification No. Series");
+        if NoSeries.LookupRelatedNoSeries(TrMode."Identification No. Series", OldProp."Identification No. Series", Prop."Identification No. Series") then begin
+            Prop.Identification := NoSeries.GetNextNo(Prop."Identification No. Series");
+            Rec := Prop;
+            exit(true);
         end;
     end;
 

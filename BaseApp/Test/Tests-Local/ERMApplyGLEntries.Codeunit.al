@@ -1,4 +1,5 @@
 #if not CLEAN22
+#pragma warning disable AS0072
 codeunit 144003 "ERM Apply GL Entries"
 {
     // // [FEATURE] [Apply]
@@ -12,6 +13,9 @@ codeunit 144003 "ERM Apply GL Entries"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Not used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -73,8 +77,8 @@ codeunit 144003 "ERM Apply GL Entries"
         // [GIVEN] "Doc1" / G/L Account "Y" with Amount = -200
         // [GIVEN] "Doc2" / G/L Account "X" with Amount = -150
         // [GIVEN] "Doc2" / G/L Account "Y" with Amount = 150
-        GLAccountNoX := CreateGLAccount;
-        GLAccountNoY := CreateGLAccount;
+        GLAccountNoX := CreateGLAccount();
+        GLAccountNoY := CreateGLAccount();
         Amount1 := LibraryRandom.RandDecInRange(10, 20, 2);
         Amount2 := Amount1 / 2;
         SelectGeneralJournalBatch(GenJournalBatch);
@@ -119,7 +123,7 @@ codeunit 144003 "ERM Apply GL Entries"
 
         Amount1 := LibraryRandom.RandIntInRange(1, 100);
         Amount2 := LibraryRandom.RandIntInRange(1, 100);
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
 
         // [GIVEN] Two General Journal Lines: Line[1].Amount = "XX"; Line[2].Amount = "YY"
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::" ", Amount1, GLAccountNo);
@@ -149,11 +153,11 @@ codeunit 144003 "ERM Apply GL Entries"
         EntryNo := MockGLEntryWithDescription(LibraryUtility.GenerateRandomText(MaxStrLen(GLEntry.Description)));
 
         // [GIVEN] Opened General Ledger Entries page.
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(EntryNo));
 
         // [WHEN] Invoke "Apply Entries".
-        GeneralLedgerEntries.ApplyEntries.Invoke;
+        GeneralLedgerEntries.ApplyEntries.Invoke();
 
         // [THEN] Page "Apply General Ledger Entries" is opened without any error.
         // [THEN] Description fields of "G/L Entry" and "G/L Entry Application Buffer" tables have the same length.
@@ -173,7 +177,7 @@ codeunit 144003 "ERM Apply GL Entries"
     begin
         // Setup: Create General Ledger Account, Create And Post General Journal.
         Initialize();
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::Invoice, Amount, GLAccountNo);
         CreateAndPostGeneralJournalLine(GenJournalLine."Document Type"::Payment, AppliedAmount, GLAccountNo);
         LibraryVariableStorage.Enqueue(Amount + AppliedAmount);  // Enqueue value for ApplyGeneralLedgerEntriesPageHandler.
@@ -189,16 +193,16 @@ codeunit 144003 "ERM Apply GL Entries"
     var
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("G/L Account No.", GLAccountNo);
-        GeneralLedgerEntries.ApplyEntries.Invoke;
+        GeneralLedgerEntries.ApplyEntries.Invoke();
     end;
 
     local procedure ApplyGeneralLedgerEntriesOnTwoLinesAndThenOnFirstLine(GLAccountNo: Code[20]; Amount1: Decimal; Amount2: Decimal): Integer
     var
         GeneralLedgerEntriesApply: TestPage "General Ledger Entries Apply";
     begin
-        GeneralLedgerEntriesApply.Trap;
+        GeneralLedgerEntriesApply.Trap();
         ApplyGeneralLedgerEntriesToGLAccount(GLAccountNo);
 
         GeneralLedgerEntriesApply.Amount.AssertEquals(Amount1);
@@ -228,7 +232,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GeneralLedgerEntriesApply.ShowAppliedAmount.AssertEquals(0);
         GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AssertEquals(Amount2);
 
-        exit(GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AsInteger);
+        exit(GeneralLedgerEntriesApply.ShowTotalAppliedAmount.AsInteger());
     end;
 
     local procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; GLAccountNo: Code[20])
@@ -239,7 +243,7 @@ codeunit 144003 "ERM Apply GL Entries"
         SelectGeneralJournalBatch(GenJournalBatch);
         CreateGenJournalLine(
           GenJournalLine, GenJournalBatch, DocumentType, Amount, GLAccountNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount);
+          GenJournalLine."Bal. Account Type"::"Bank Account", CreateBankAccount());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -310,7 +314,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          RemainingAmount, GLEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
+          RemainingAmount, GLEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(RemainingAmountMsg, GLEntry.FieldCaption("Remaining Amount"), RemainingAmount, GLEntry.TableCaption()));
     end;
 

@@ -7,6 +7,7 @@ table 851 "Cortana Intelligence"
     ObsoleteReason = 'Renamed to Cash Flow Azure AI Buffer';
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

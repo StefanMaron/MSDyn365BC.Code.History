@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +10,7 @@ table 11000005 "Export Protocol"
 {
     Caption = 'Export Protocol';
     LookupPageID = "Export Protocols";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -49,7 +50,7 @@ table 11000005 "Export Protocol"
             var
                 AllObjWithCaption: Record AllObjWithCaption;
             begin
-                AllObjWithCaption.SetRange("Object Type", GetObjectType("Export Object Type"));
+                AllObjWithCaption.SetRange("Object Type", GetObjectType());
                 AllObjWithCaption.SetRange("Object ID", "Export ID");
                 AllObjWithCaption.FindFirst();
                 "Export Name" := AllObjWithCaption."Object Name";
@@ -136,7 +137,7 @@ table 11000005 "Export Protocol"
     {
     }
 
-    local procedure GetObjectType(Option: Integer): Integer
+    local procedure GetObjectType(): Integer
     var
         AllObj: Record AllObj;
     begin

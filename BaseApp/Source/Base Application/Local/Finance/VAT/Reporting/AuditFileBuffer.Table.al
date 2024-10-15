@@ -7,6 +7,7 @@ namespace Microsoft.Finance.VAT.Reporting;
 table 11404 "Audit File Buffer"
 {
     Caption = 'Audit File Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

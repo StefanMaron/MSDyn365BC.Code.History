@@ -26,12 +26,11 @@ codeunit 137264 "SCM Package Tracking Sales"
         DocType: Option " ","Order","Credit Memo";
         isInitialized: Boolean;
         PackageNumberNotDefinedErr: Label 'You must assign a package number for';
-        IncorrectConfirmDialogErr: Label 'Incorrect confirm dialog opened: ';
+        IncorrectConfirmDialogErr: Label 'Incorrect confirm dialog opened: %1', Comment = '%1 - Error message';
         FunctionCreateSpecMsg: Label 'This function create tracking specification from';
-        DoYouWantYoUpdMsg: Label 'Do you want to update';
         DoYouWantToUndoMsg: Label 'Do you really want to undo';
         TestSerialTxt: Label 'TestSerialNo0';
-        CannotAutoReservErr: Label 'Quantity %1 in line %2 cannot be reserved automatically.';
+        WrongQtyForItemErr: Label '%1 in the item tracking assigned to the document line for item %2 is currently %3. It must be %4.\\Check the assignment for serial number %5, lot number %6, package number %7.', Comment = '%1 - Qty. to Handle or Qty. to Invoice, %2 - Item No., %3 - actual value, %4 - expected value, %5 - Serial No., %6 - Lot No., %7 - Package No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -97,6 +96,7 @@ codeunit 137264 "SCM Package Tracking Sales"
     begin
         Initialize();
         InitScenario(Vendor, Customer, Item, Location, false, false, true);
+        QtyToReserve := 0;
 
         for i := 1 to ArrayLen(Qty) do begin
             Qty[i] := LibraryRandom.RandInt(10);
@@ -125,7 +125,7 @@ codeunit 137264 "SCM Package Tracking Sales"
 
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine, SerialNo[1], '', PackageNo[1], QtyToReserve,
           ReservationEntry."Reservation Status"::Reservation);
-        LibraryItemTracking.CheckInvtDocReservationEntry(InvtDocumentLine, SerialNo[1], '', PackageNo[1], QtyToReserve,
+        LibraryItemTracking.CheckInvtDocReservationEntry(InvtDocumentLine, SerialNo[1], '', PackageNo[1], 1,
           ReservationEntry."Reservation Status"::Reservation);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -212,8 +212,8 @@ codeunit 137264 "SCM Package Tracking Sales"
         i: Integer;
     begin
         Initialize();
-
         InitScenario(Vendor, Customer, Item, Location, false, true, true);
+        QtyToReserve := 0;
 
         for i := 1 to ArrayLen(Qty) do begin
             Qty[i] := LibraryRandom.RandInt(100);
@@ -328,7 +328,6 @@ codeunit 137264 "SCM Package Tracking Sales"
         InvtDocumentLine: Record "Invt. Document Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ItemTrackingSetup: Record "Item Tracking Setup";
-        InventorySetup: Record "Inventory Setup";
         PackageNo: array[3] of Code[50];
         SerialNo: array[20] of Code[20];
         LotNo: Code[50];
@@ -414,7 +413,6 @@ codeunit 137264 "SCM Package Tracking Sales"
         SerialNo: array[10] of Code[50];
         PurchaseQty: Decimal;
         SalesQty: Decimal;
-        i: Integer;
     begin
         Initialize();
         InitScenario(Vendor, Customer, Item, Location, false, false, true);
@@ -475,7 +473,6 @@ codeunit 137264 "SCM Package Tracking Sales"
         InvtDocumentLine: Record "Invt. Document Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ITemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         PackageNo: array[3] of Code[50];
         Qty: array[3] of Decimal;
         i: Integer;
@@ -590,11 +587,6 @@ codeunit 137264 "SCM Package Tracking Sales"
         ItemLedgerEntry: Record "Item Ledger Entry";
         PackageNo: array[3] of Code[50];
         PostingDate: Date;
-        TotalQty: array[2, 2] of Decimal;
-        PurchQty: array[2, 2] of Decimal;
-        SalesQty: array[2, 2] of Decimal;
-        i: Integer;
-        j: Integer;
     begin
         Initialize();
         InitComplexScenario(Vendor, Customer, Item, Location, false, false, true);
@@ -787,22 +779,22 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader, Item[2]."No.", 30, 5);
 
         for j := 1 to 2 do begin
-            SerialNo[j] := LibraryUtility.GenerateGUID + Format(j);
+            SerialNo[j] := LibraryUtility.GenerateGUID() + Format(j);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], SerialNo[j],
               LotNo, PackageNo[1], 1);
         end;
         for j := 1 to 2 do begin
-            SerialNo[j + 2] := LibraryUtility.GenerateGUID + Format(j + 2);
+            SerialNo[j + 2] := LibraryUtility.GenerateGUID() + Format(j + 2);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], SerialNo[j + 2],
               LotNo, PackageNo[2], 1);
         end;
         for j := 1 to 2 do begin
-            SerialNo[j + 4] := LibraryUtility.GenerateGUID + Format(j + 4);
+            SerialNo[j + 4] := LibraryUtility.GenerateGUID() + Format(j + 4);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], SerialNo[j + 4],
               LotNo, PackageNo[1], 1);
         end;
         for j := 1 to 3 do begin
-            SerialNo[j + 6] := LibraryUtility.GenerateGUID + Format(j + 6);
+            SerialNo[j + 6] := LibraryUtility.GenerateGUID() + Format(j + 6);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], SerialNo[j + 6],
               LotNo, PackageNo[3], 1);
         end;
@@ -1118,19 +1110,19 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryPurchase.CreatePurchaseLineWithUnitCost(PurchaseLine[2], PurchaseHeader[2], Item[2]."No.", 30, 5);
 
         for j := 1 to 2 do begin
-            SerialNo[j] := LibraryUtility.GenerateGUID + Format(j);
+            SerialNo[j] := LibraryUtility.GenerateGUID() + Format(j);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], SerialNo[j], LotNo, PackageNo[1], 1);
         end;
         for j := 1 to 2 do begin
-            SerialNo[j + 2] := LibraryUtility.GenerateGUID + Format(j + 2);
+            SerialNo[j + 2] := LibraryUtility.GenerateGUID() + Format(j + 2);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[1], SerialNo[j + 2], LotNo, PackageNo[2], 1);
         end;
         for j := 1 to 2 do begin
-            SerialNo[j + 4] := LibraryUtility.GenerateGUID + Format(j + 4);
+            SerialNo[j + 4] := LibraryUtility.GenerateGUID() + Format(j + 4);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], SerialNo[j + 4], LotNo, PackageNo[1], 1);
         end;
         for j := 1 to 3 do begin
-            SerialNo[j + 6] := LibraryUtility.GenerateGUID + Format(j + 6);
+            SerialNo[j + 6] := LibraryUtility.GenerateGUID() + Format(j + 6);
             LibraryItemTracking.CreatePurchOrderItemTracking(ReservationEntry, PurchaseLine[2], SerialNo[j + 6], LotNo, PackageNo[3], 1);
         end;
 
@@ -1147,32 +1139,28 @@ codeunit 137264 "SCM Package Tracking Sales"
         SalesLine[2].Validate("Planned Delivery Date", PostingDate);
         SalesLine[2].Modify();
 
-        for j := 1 to 2 do begin
+        for j := 1 to 2 do
             LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine[1], SerialNo[j],
               LotNo, PackageNo[1], 1);
-        end;
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine[1], SerialNo[3],
           LotNo, PackageNo[2], 1);
-        for j := 1 to 2 do begin
+        for j := 1 to 2 do
             LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine[2], SerialNo[j + 4],
               LotNo, PackageNo[1], 1);
-        end;
         LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine[2], SerialNo[7],
           LotNo, PackageNo[3], 1);
 
         SalesLine[1].AutoReserve();
         SalesLine[2].AutoReserve();
 
-        for j := 1 to 2 do begin
+        for j := 1 to 2 do
             LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine[1], SerialNo[j], LotNo, PackageNo[1], 1,
               ReservationEntry."Reservation Status"::Reservation);
-        end;
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine[1], SerialNo[3], LotNo, PackageNo[2], 1,
           ReservationEntry."Reservation Status"::Reservation);
-        for j := 1 to 2 do begin
+        for j := 1 to 2 do
             LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine[2], SerialNo[j + 4], LotNo, PackageNo[1], 1,
               ReservationEntry."Reservation Status"::Reservation);
-        end;
         LibraryItemTracking.CheckPurchReservationEntry(PurchaseLine[2], SerialNo[7], LotNo, PackageNo[3], 1,
           ReservationEntry."Reservation Status"::Reservation);
 
@@ -1472,10 +1460,10 @@ codeunit 137264 "SCM Package Tracking Sales"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PurchInvHeader: Record "Purch. Inv. Header";
-        CopyPurchaseDocument: Report "Copy Purchase Document";
         ReturnShipmentHeader: Record "Return Shipment Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        CopyPurchaseDocument: Report "Copy Purchase Document";
         SerialNo: array[10] of Code[50];
         LotNo: Code[50];
         PackageNo: array[3] of Code[50];
@@ -1537,20 +1525,17 @@ codeunit 137264 "SCM Package Tracking Sales"
         Location: Record Location;
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: Record "Package No. Information";
         PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         CopyPurchaseDocument: Report "Copy Purchase Document";
         SerialNo: array[10] of Code[50];
         LotNo: Code[50];
         PackageNo: array[3] of Code[50];
         QtyPO: Decimal;
-        QtyCM: Decimal;
-        ReturnShipmentHeader: Record "Return Shipment Header";
-        ItemLedgerEntry: Record "Item Ledger Entry";
-        PurchRcptHeader: Record "Purch. Rcpt. Header";
         j: Integer;
     begin
         Initialize();
@@ -1578,23 +1563,18 @@ codeunit 137264 "SCM Package Tracking Sales"
         PurchaseHeader.Find();
         PurchaseHeader.Validate(Correction, true);
         PurchaseHeader.Modify();
-        PurchaseLine.SetRange("No.", Item."No.");
-        PurchaseLine.FindFirst();
-        CreatePurchLineTracking(PurchaseLine, ReservationEntry, true, QtyPO, SerialNo, LotNo, PackageNo);
-        ReservationEntry.Validate("Appl.-to Item Entry", ItemLedgerEntry."Entry No.");
-        ReservationEntry.Modify();
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         FindLastReturnShipment(ReturnShipmentHeader, Vendor."No.");
-        for j := 1 to 2 do begin
+        for j := 1 to QtyPO do begin
             ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
             ItemLedgerEntry.SetRange("Document No.", ReturnShipmentHeader."No.");
             LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, SerialNo[j], LotNo, PackageNo[1], -1);
         end;
 
         FindLastPurchReceipt(PurchRcptHeader, Vendor."No.");
-        for j := 1 to 4 do begin
+        for j := 1 to QtyPO do begin
             ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
             ItemLedgerEntry.SetRange("Document No.", PurchRcptHeader."No.");
             LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, SerialNo[j], LotNo, PackageNo[1], 1);
@@ -1617,9 +1597,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         ReservationEntry: Record "Reservation Entry";
         PackageNoInfo: array[3] of Record "Package No. Information";
         ItemLedgerEntry: Record "Item Ledger Entry";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         PackageNo: array[3] of Code[50];
-        SerialNo: array[10] of Code[50];
         PostingDate: Date;
         i: Integer;
     begin
@@ -1685,7 +1663,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location.Code, '', '', PackageNo[3], 4);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1773,15 +1751,19 @@ codeunit 137264 "SCM Package Tracking Sales"
         SalesShipmentHeader.SetRange("Order No.", SalesOrderNo);
         SalesShipmentHeader.FindFirst();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+#pragma warning disable AA0210
         SalesShipmentLine.SetRange("No.", Item[1]."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+#pragma warning restore AA0210
         SalesShipmentLine.FindFirst();
         SalesShipmentLine.SetRecFilter();
         CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShipmentLine);
         SalesShipmentLine.Reset();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+#pragma warning disable AA0210        
         SalesShipmentLine.SetRange("No.", Item[2]."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
+#pragma warning restore AA0210        
         SalesShipmentLine.FindFirst();
         SalesShipmentLine.SetRecFilter();
         CODEUNIT.Run(CODEUNIT::"Undo Sales Shipment Line", SalesShipmentLine);
@@ -1795,7 +1777,7 @@ codeunit 137264 "SCM Package Tracking Sales"
         SalesShipmentLine.Reset();
         SalesShipmentHeader.Reset();
 
-        ItemChargeNo := LibraryInventory.CreateItemChargeNo;
+        ItemChargeNo := LibraryInventory.CreateItemChargeNo();
         LibrarySales.CreateSalesOrderWithLocation(SalesHeader, Customer."No.", Location.Code);
         LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::"Charge (Item)", ItemChargeNo, 1);
         SalesLine[1].Validate("Unit Price", 100);
@@ -1833,9 +1815,247 @@ codeunit 137264 "SCM Package Tracking Sales"
         ItemChargeAssgntSales[2].Validate("Unit Cost", 100);
         ItemChargeAssgntSales[2].Modify();
 
-        ItemChargeAssgntSCode.AssignItemCharges(SalesLine[1], 1, 1, ItemChargeAssgntSCode.AssignEquallyMenuText);
+        ItemChargeAssgntSCode.AssignItemCharges(SalesLine[1], 1, 1, ItemChargeAssgntSCode.AssignEquallyMenuText());
 
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPartialSalesOrderShippingWithPackage()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ReservationEntry: Record "Reservation Entry";
+        PackageNoInfo: Record "Package No. Information";
+        NoSeries: Codeunit "No. Series";
+        PackageNo: array[2] of Code[50];
+        i: Integer;
+    begin
+        // [SCENARIO 449039] Check partial sales order shipping with package number.
+        Initialize();
+
+        // [GIVEN] Create an item with item tracking code with package number tracking
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+        for i := 1 to ArrayLen(PackageNo) do begin
+            PackageNo[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
+        end;
+
+        // [GIVEN] Add two packages to inventory
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 20, '');
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', '', PackageNo[1], 10);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', '', PackageNo[2], 10);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+
+        // [GIVEN] Create a sales order with item tracking
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 15);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', '', PackageNo[1], 8);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', '', PackageNo[2], 7);
+
+        // [GIVEN] Decrease Qty. to Ship to 10
+        SalesLine.Validate("Qty. to Ship", 10);
+        SalesLine.Modify();
+        Commit();
+
+        // [WHEN] Post the sales order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Cannot post the sales order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 15, 10, '', '', PackageNo[2]));
+
+        // [GIVEN] Modify the quantity to handle of Package[2] to 2
+        ReservationEntry.Validate("Qty. to Handle (Base)", 2);
+        ReservationEntry.Modify(true);
+
+        // [WHEN] Post the sales order with package number and quantity to ship equal than the quantity to handle
+        SalesHeader.Find('='); // Refresh the record
+        SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
+        SalesHeader.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Validate the quantity posted
+        SalesLine.Find('='); // Refresh the record
+        SalesLine.TestField("Qty. Shipped (Base)", 10);
+
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', '', PackageNo[1], -8);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', '', PackageNo[2], -2);
+
+        // [WHEN] Post the remaining quantity
+        SalesHeader.Find('='); // Refresh the record
+        SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
+        SalesHeader.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Validate the quantity posted
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', '', PackageNo[1], -8);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', '', PackageNo[2], -5);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPartialSalesOrderShippingWithPackageAndLot()
+    var
+        Item: Record Item;
+        ItemJnlLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ReservationEntry: Record "Reservation Entry";
+        PackageNoInfo: Record "Package No. Information";
+        NoSeries: Codeunit "No. Series";
+        PackageNo: Code[50];
+        LotNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [SCENARIO 449039] Check partial sales order shipping with package number and lot number.
+        Initialize();
+
+        // [GIVEN] Create an item with item tracking code with package number and lot number tracking
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+        PackageNo := LibraryUtility.GenerateGUID();
+        LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo);
+        for i := 1 to ArrayLen(LotNo) do
+            LotNo[i] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Add three lots with package to inventory
+        LibraryInventory.CreateItemJnlLine(ItemJnlLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 10, '');
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[1], PackageNo, 4);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[2], PackageNo, 3);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJnlLine, '', LotNo[3], PackageNo, 3);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJnlLine);
+
+        // [GIVEN] Create a sales order with item tracking
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 10);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo[1], PackageNo, 4);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo[2], PackageNo, 3);
+        LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, '', LotNo[3], PackageNo, 3);
+
+        // [GIVEN] Decrease Qty. to Ship to 9
+        SalesLine.Validate("Qty. to Ship", 9);
+        SalesLine.Modify();
+        Commit();
+
+        // [WHEN] Post the sales order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Cannot post the sales order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 10, 9, '', LotNo[3], PackageNo));
+
+        // [GIVEN] Modify the quantity to handle of Package[2] to 2
+        ReservationEntry.Validate("Qty. to Handle (Base)", 2);
+        ReservationEntry.Modify(true);
+
+        // [WHEN] Post the sales order with package number and quantity to ship equal than the quantity to handle
+        SalesHeader.Find('='); // Refresh the record
+        SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
+        SalesHeader.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Validate the quantity posted
+        SalesLine.Find('='); // Refresh the record
+        SalesLine.TestField("Qty. Shipped (Base)", 9);
+
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', LotNo[1], PackageNo, -4);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', LotNo[2], PackageNo, -3);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', LotNo[3], PackageNo, -2);
+
+        // [WHEN] Post the remaining quantity
+        SalesHeader.Find('='); // Refresh the record
+        SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
+        SalesHeader.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Validate the quantity posted
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', '', LotNo[3], PackageNo, -1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckPartialSalesOrderShippingWithPackageAndSerialNo()
+    var
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemTrackingCode: Record "Item Tracking Code";
+        ReservationEntry: Record "Reservation Entry";
+        PackageNoInfo: Record "Package No. Information";
+        NoSeries: Codeunit "No. Series";
+        PackageNo: array[3] of Code[50];
+        SerialNo: array[3] of Code[50];
+        i: Integer;
+    begin
+        // [SCENARIO 449039] Check partial sales order shipping with package number and serial number.
+        Initialize();
+
+        // [GIVEN] Create an item with item tracking code with package number and serial number tracking
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false, true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+        for i := 1 to ArrayLen(PackageNo) do begin
+            PackageNo[i] := LibraryUtility.GenerateGUID();
+            SerialNo[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreatePackageNoInformation(PackageNoInfo, Item."No.", PackageNo[i]);
+        end;
+
+        // [GIVEN] Add three serial number with different packages to inventory
+        LibraryInventory.CreateItemJnlLine(ItemJournalLine, "Item Ledger Entry Type"::"Positive Adjmt.", WorkDate(), Item."No.", 3, '');
+        for i := 1 to ArrayLen(SerialNo) do
+            LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, SerialNo[i], '', PackageNo[i], 1);
+        LibraryInventory.PostItemJnlLineWithCheck(ItemJournalLine);
+
+        // [GIVEN] Create a sales order with item tracking
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 3);
+        for i := 1 to ArrayLen(SerialNo) do
+            LibraryItemTracking.CreateSalesOrderItemTracking(ReservationEntry, SalesLine, SerialNo[i], '', PackageNo[i], 1);
+
+        // [GIVEN] Decrease Qty. to Ship to 2
+        SalesLine.Validate("Qty. to Ship", 2);
+        SalesLine.Modify();
+        Commit();
+
+        // [WHEN] Post the sales order with package number and quantity to ship greater than the quantity to handle
+        asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Cannot post the sales order with package number and quantity to ship greater than the quantity to handle
+        Assert.ExpectedError(StrSubstNo(WrongQtyForItemErr,
+            ReservationEntry.FieldCaption("Qty. to Handle (Base)"), Item."No.", 3, 2, SerialNo[3], '', PackageNo[3]));
+
+        // [WHEN] Remove latest item tracking line
+        ReservationEntry.Delete(true);
+
+        // [WHEN] Post the sales order with package number and quantity to ship equal than the quantity to handle
+        SalesHeader.Find('='); // Refresh the record
+        SalesHeader."Shipping No." := NoSeries.GetNextNo(SalesHeader."Shipping No. Series", SalesHeader."Posting Date");
+        SalesHeader.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Valiate the quantity in the locations
+        for i := 1 to (ArrayLen(SerialNo) - 1) do begin
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+            LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, Item."No.", '', SerialNo[i], '', PackageNo[i], -1);
+        end;
     end;
 
     local procedure Initialize()
@@ -1864,20 +2084,18 @@ codeunit 137264 "SCM Package Tracking Sales"
 
     local procedure SetupInvtDocNosInInvSetup()
     var
-        InvSetup: Record "Inventory Setup";
+        InventorySetup: Record "Inventory Setup";
     begin
-        with InvSetup do begin
-            Get();
-            if "Invt. Receipt Nos." = '' then
-                Validate("Invt. Receipt Nos.", CreateNoSeries());
-            if "Posted Invt. Receipt Nos." = '' then
-                Validate("Posted Invt. Receipt Nos.", CreateNoSeries());
-            if "Invt. Shipment Nos." = '' then
-                Validate("Invt. Shipment Nos.", CreateNoSeries());
-            if "Posted Invt. Shipment Nos." = '' then
-                Validate("Posted Invt. Shipment Nos.", CreateNoSeries());
-            Modify(true);
-        end;
+        InventorySetup.Get();
+        if InventorySetup."Invt. Receipt Nos." = '' then
+            InventorySetup.Validate("Invt. Receipt Nos.", CreateNoSeries());
+        if InventorySetup."Posted Invt. Receipt Nos." = '' then
+            InventorySetup.Validate("Posted Invt. Receipt Nos.", CreateNoSeries());
+        if InventorySetup."Invt. Shipment Nos." = '' then
+            InventorySetup.Validate("Invt. Shipment Nos.", CreateNoSeries());
+        if InventorySetup."Posted Invt. Shipment Nos." = '' then
+            InventorySetup.Validate("Posted Invt. Shipment Nos.", CreateNoSeries());
+        InventorySetup.Modify(true);
     end;
 
     local procedure SetReturnShipmentOnCreditMemo()
@@ -1931,23 +2149,12 @@ codeunit 137264 "SCM Package Tracking Sales"
         LibraryInventory.CreateItemUnitOfMeasure(ItemUnitOfMeasure, Item[2]."No.", UnitOfMeasure.Code, 20);
     end;
 
-    local procedure CreateForeignVendor(var Vendor: Record Vendor)
-    begin
-        LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", 'EUR');
-        Vendor.Modify(true);
-    end;
-
     local procedure UpdateSerialNos(var SerialNo: array[10] of Code[50]; i: Integer)
     begin
         if i = 1 then
             SerialNo[i] := TestSerialTxt
         else
             SerialNo[i] := IncStr(SerialNo[i - 1]);
-    end;
-
-    local procedure WarehouseSetup()
-    begin
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VendorNo: Code[20]; PostingDate: Date; LocationCode: Code[10]; ItemNo: Code[20]; Qty: Decimal; UnitCost: Decimal)
@@ -2120,13 +2327,13 @@ codeunit 137264 "SCM Package Tracking Sales"
             ItemNo, '', LocationCode, '', CalcDate('<+1D>', WorkDate()), CalcDate('<+5D>', WorkDate()), 0, "Reservation Status"::Reservation);
     end;
 
-    local procedure CheckILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
+    local procedure CheckILEs(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
     begin
-        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
         LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, ItemNo, LocationCode, '', LotNo, PackageNo, Qty);
     end;
 
-    local procedure CheckILEsWithSerial(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: array[10] of Code[50]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
+    local procedure CheckILEsWithSerial(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; SerialNo: array[10] of Code[50]; LotNo: Code[50]; PackageNo: Code[50]; Qty: Decimal)
     var
         j: Integer;
         Sign: Integer;
@@ -2137,7 +2344,7 @@ codeunit 137264 "SCM Package Tracking Sales"
             Sign := -1;
 
         for j := 1 to Abs(Qty) do begin
-            ItemLedgerEntry.SetRange("Entry Type", EntryType);
+            ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntryType);
             LibraryItemTracking.CheckLastItemLedgerEntry(ItemLedgerEntry, ItemNo, LocationCode, SerialNo[j], LotNo, PackageNo, Sign * 1);
         end;
     end;
@@ -2152,26 +2359,6 @@ codeunit 137264 "SCM Package Tracking Sales"
     begin
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendNo);
         PurchRcptHeader.FindLast();
-    end;
-
-    local procedure ReserveFromInventory(var SalesLine: Record "Sales Line")
-    var
-        ReservMgt: Codeunit "Reservation Management";
-        AutoReserv: Boolean;
-    begin
-        SalesLine.SetRange(Reserve, SalesLine.Reserve::Optional, SalesLine.Reserve::Always);
-        if SalesLine.FindSet() then
-            repeat
-                ReservMgt.SetReservSource(SalesLine);
-                SalesLine.TestField("Shipment Date");
-                SalesLine.CalcFields("Reserved Qty. (Base)");
-                ReservMgt.AutoReserveToShip(
-                  AutoReserv, '', SalesLine."Shipment Date",
-                  SalesLine."Qty. to Ship" - SalesLine."Reserved Quantity",
-                  SalesLine."Qty. to Ship (Base)" - SalesLine."Reserved Qty. (Base)");
-                if not AutoReserv then
-                    Error(CannotAutoReservErr, SalesLine."Qty. to Ship (Base)", SalesLine."Line No.");
-            until SalesLine.Next() = 0;
     end;
 
     local procedure AllowInvtDocReservation(Allow: Boolean)
@@ -2189,11 +2376,11 @@ codeunit 137264 "SCM Package Tracking Sales"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines.FILTER.SetFilter("Package No.", LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines."Qty. to Invoice (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke();
+        ItemTrackingLines.FILTER.SetFilter("Package No.", LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines."Qty. to Invoice (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2201,7 +2388,7 @@ codeunit 137264 "SCM Package Tracking Sales"
     procedure HndlConfirmUndo(Question: Text[1024]; var Reply: Boolean)
     begin
         if StrPos(Question, DoYouWantToUndoMsg) = 0 then
-            Error(IncorrectConfirmDialogErr + Question);
+            Error(IncorrectConfirmDialogErr, Question);
         Reply := true;
     end;
 
@@ -2210,7 +2397,7 @@ codeunit 137264 "SCM Package Tracking Sales"
     procedure HndlConfirmTracking(Question: Text[1024]; var Reply: Boolean)
     begin
         if StrPos(Question, FunctionCreateSpecMsg) = 0 then
-            Error(IncorrectConfirmDialogErr + Question);
+            Error(IncorrectConfirmDialogErr, Question);
         Reply := true;
     end;
 }

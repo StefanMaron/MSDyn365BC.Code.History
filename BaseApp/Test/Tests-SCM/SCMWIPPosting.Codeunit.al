@@ -56,13 +56,13 @@ codeunit 137000 "SCM WIP Posting"
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create Parent & Child item.
-        ChildItemNo := CreateChildItem;
+        ChildItemNo := CreateChildItem();
 
         // Excercise.
         GLAccountNo := PostWIPEntry(CreateParentItem(ChildItemNo), ChildItemNo);
 
         // [THEN] Verify Inventory Amount in Post Inventory cost to GL report with GL Entry for parent item.
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         FindGLEntry(GLEntry, GLAccountNo);
         VerifyPostInvCostToGLReport(GLEntry."Document No.", -GLEntry.Amount);
     end;
@@ -81,14 +81,14 @@ codeunit 137000 "SCM WIP Posting"
         LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Create Parent & Child item.
-        ChildItemNo := CreateChildItem;
+        ChildItemNo := CreateChildItem();
         CreateParentItem(ChildItemNo);
 
         // Excercise.
         GLAccountNo := PostWIPEntry(ChildItemNo, ChildItemNo);
 
         // [THEN] Verify Inventory Amount in Post Inventory cost to GL report with GL Entry for child item.
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         FindGLEntry(GLEntry, GLAccountNo);
         VerifyPostInvCostToGLReport(GLEntry."Document No.", GLEntry.Amount);
     end;
@@ -197,9 +197,9 @@ codeunit 137000 "SCM WIP Posting"
 
     local procedure VerifyPostInvCostToGLReport(DocumentNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange('ItemValueEntryDocumentNo', DocumentNo);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('InvtAmt', Amount);
     end;
 
@@ -211,7 +211,7 @@ codeunit 137000 "SCM WIP Posting"
     begin
         PostInventoryCostToGL.PostMethod.SetValue(PostMethod::"per Entry"); // Post Method: per entry or per Posting Group.
         PostInventoryCostToGL.Post.SetValue(true);
-        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostInventoryCostToGL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

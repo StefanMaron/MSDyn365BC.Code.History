@@ -23,6 +23,7 @@ table 297 "Issued Reminder Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Issued Reminder List";
     LookupPageID = "Issued Reminder List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -297,6 +298,34 @@ table 297 "Issued Reminder Header"
             Caption = 'Format Region';
             TableRelation = "Language Selection"."Language Tag";
         }
+        field(55; "Email Text"; Blob)
+        {
+            Caption = 'Email Text';
+        }
+        field(56; "Sent For Current Level"; Boolean)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(57; "Last Email Sent Date Time"; DateTime)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(58; "Total Email Sent Count"; Integer)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(59; "Last Level Email Sent Count"; Integer)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(60; "Email Sent Level"; Integer)
+        {
+            DataClassification = CustomerContent;
+        }
+        field(61; "Failed Email Outbox Entry No."; BigInteger)
+        {
+            DataClassification = CustomerContent;
+        }
         field(163; "Company Bank Account Code"; Code[20])
         {
             Caption = 'Company Bank Account Code';
@@ -312,6 +341,11 @@ table 297 "Issued Reminder Header"
             begin
                 Rec.ShowDimensions();
             end;
+        }
+        field(500; "Reminder Automation Code"; Code[50])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Reminder Action Group"."Code";
         }
     }
 
@@ -385,6 +419,12 @@ table 297 "Issued Reminder Header"
         OnAfterPrintRecords(Rec, ShowRequestForm, SendAsEmail, HideDialog);
     end;
 
+    procedure ClearSentEmailFieldsOnLevelUpdate(var IssuedReminderHeader: Record "Issued Reminder Header")
+    begin
+        IssuedReminderHeader."Sent For Current Level" := false;
+        IssuedReminderHeader."Last Level Email Sent Count" := 0;
+    end;
+
     procedure Navigate()
     var
         NavigatePage: Page Navigate;
@@ -425,6 +465,37 @@ table 297 "Issued Reminder Header"
         exit(IssuedReminderLine."VAT Amount");
     end;
 
+    procedure CalculateTotalIncludingVAT(): Decimal
+    var
+        IssuedReminderLine: Record "Issued Reminder Line";
+        ReminderInterestAmount: Decimal;
+        NNC_InterestAmountTotal: Decimal;
+        NNC_VATAmountTotal: Decimal;
+        NNC_RemainingAmountTotal: Decimal;
+    begin
+        IssuedReminderLine.SetRange("Reminder No.", Rec."No.");
+        if IssuedReminderLine.IsEmpty() then
+            exit(0);
+
+        IssuedReminderLine.FindSet();
+        repeat
+            ReminderInterestAmount := 0;
+            case IssuedReminderLine.Type of
+                IssuedReminderLine.Type::"G/L Account":
+                    "Remaining Amount" := IssuedReminderLine.Amount;
+                IssuedReminderLine.Type::"Line Fee":
+                    "Remaining Amount" := IssuedReminderLine.Amount;
+                IssuedReminderLine.Type::"Customer Ledger Entry":
+                    ReminderInterestAmount := IssuedReminderLine.Amount;
+            end;
+
+            NNC_InterestAmountTotal += ReminderInterestAmount;
+            NNC_RemainingAmountTotal += IssuedReminderLine."Remaining Amount";
+            NNC_VATAmountTotal += IssuedReminderLine."VAT Amount";
+        until IssuedReminderLine.Next() = 0;
+        exit(NNC_RemainingAmountTotal + NNC_InterestAmountTotal + NNC_VATAmountTotal);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrintRecords(var IssuedReminderHeader: Record "Issued Reminder Header"; ShowRequestForm: Boolean; SendAsEmail: Boolean; HideDialog: Boolean)
     begin
@@ -446,6 +517,11 @@ table 297 "Issued Reminder Header"
           SelectionFilterManagement.GetSelectionFilter(RecRef, IssuedReminderHeader.FieldNo("No.")));
 
         REPORT.RunModal(REPORT::"Cancel Issued Reminders", true, false, IssuedReminderHeader);
+    end;
+
+    [IntegrationEvent(false, false)]
+    internal procedure OnGetReportParameters(var LogInteraction: Boolean; var ShowNotDueAmounts: Boolean; var ShowMIRLines: Boolean; ReportID: Integer; var Handled: Boolean)
+    begin
     end;
 }
 

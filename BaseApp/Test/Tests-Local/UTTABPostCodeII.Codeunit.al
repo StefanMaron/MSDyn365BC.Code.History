@@ -29,7 +29,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Purchase Quote Header, open Purchase Quote Page.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", CreatePurchaseHeader(PurchaseHeader."Document Type"));
 
         // Exercise: Set value on Ship-to Address field of Page - Purchase Quote.
@@ -55,7 +55,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Purchase Order Header, open Purchase Order Page.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", CreatePurchaseHeader(PurchaseHeader."Document Type"::Order));
 
         // Exercise: Set value on Ship-to Address field of Page - Purchase Order.
@@ -81,7 +81,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Purchase Invoice Header, open Purchase Invoice Page.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", CreatePurchaseHeader(PurchaseHeader."Document Type"::Invoice));
 
         // Exercise: Set value on Ship-to Address field of Page - Purchase Invoice.
@@ -107,7 +107,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Purchase Return Order Header, open Purchase Return Order Page.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", CreatePurchaseHeader(PurchaseHeader."Document Type"::"Return Order"));
 
         // Exercise: Set value on Ship-to Address field of Page - Purchase Return Order.
@@ -132,8 +132,8 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Customer.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        CustomerCard.OpenEdit;
-        CustomerCard.FILTER.SetFilter("No.", CreateCustomer);
+        CustomerCard.OpenEdit();
+        CustomerCard.FILTER.SetFilter("No.", CreateCustomer());
 
         // Exercise: Set value on Address field of Page - Customer Card.
         CustomerCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -158,9 +158,9 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Employee, open Employee Card.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        Employee."No." := LibraryUTUtility.GetNewCode;
+        Employee."No." := LibraryUTUtility.GetNewCode();
         Employee.Insert();
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
 
         // Exercise: Set value on Address field of Employee Card.
@@ -185,7 +185,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Union.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        Union.Code := LibraryUTUtility.GetNewCode10;
+        Union.Code := LibraryUTUtility.GetNewCode10();
         Union.Insert();
 
         // Exercise: Validate Address field of table - Union.
@@ -209,7 +209,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Work Center.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        WorkCenter."No." := LibraryUTUtility.GetNewCode;
+        WorkCenter."No." := LibraryUTUtility.GetNewCode();
         WorkCenter.Insert();
 
         // Exercise: Validate Address field on table - Work Center.
@@ -233,7 +233,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Machine Center.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - option Range 0 to 4, Random value for From Number.
-        MachineCenter."No." := LibraryUTUtility.GetNewCode;
+        MachineCenter."No." := LibraryUTUtility.GetNewCode();
         MachineCenter.Insert();
 
         // Exercise: Validate Address field of table - Machine Center.
@@ -280,8 +280,8 @@ codeunit 144020 "UT TAB Post Code - II"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 11406 Post Code Range.
 
         // Setup: Initialize Post Code Range.
-        PostCodeRange."Post Code" := LibraryUTUtility.GetNewCode;
-        PostCodeRange.City := LibraryUTUtility.GetNewCode;
+        PostCodeRange."Post Code" := LibraryUTUtility.GetNewCode();
+        PostCodeRange.City := LibraryUTUtility.GetNewCode();
 
         // Exercise: Validate OnInsert Trigger of table - Post Code Range.
         PostCodeRange.Insert(true);
@@ -738,9 +738,9 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Ship To Address, open Ship-to Address Page.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - Option Range 0 to 4, Random value for - From Number field.
-        ShipToAddress.Code := LibraryUTUtility.GetNewCode10;
+        ShipToAddress.Code := LibraryUTUtility.GetNewCode10();
         ShipToAddress.Insert();
-        ShipToAddressPage.OpenEdit;
+        ShipToAddressPage.OpenEdit();
         ShipToAddressPage.FILTER.SetFilter(Code, ShipToAddress.Code);
 
         // Exercise: Set value on Address field of Page - Ship-to Address.
@@ -766,9 +766,9 @@ codeunit 144020 "UT TAB Post Code - II"
 
         // Setup: Create Post Code Range and Alternative Address, open Alternative Address Card.
         CreatePostCodeRange(PostCodeRange, LibraryRandom.RandIntInRange(0, 4), LibraryRandom.RandInt(10));  // Type - Option Range 0 to 4, Random value for - From Number field.
-        AlternativeAddress.Code := LibraryUTUtility.GetNewCode10;
+        AlternativeAddress.Code := LibraryUTUtility.GetNewCode10();
         AlternativeAddress.Insert();
-        AlternativeAddressCard.OpenEdit;
+        AlternativeAddressCard.OpenEdit();
         AlternativeAddressCard.FILTER.SetFilter(Code, AlternativeAddress.Code);
 
         // Exercise: Set value on Address field of Page - Alternative Address Card.
@@ -783,7 +783,7 @@ codeunit 144020 "UT TAB Post Code - II"
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account"; AccountHolderPostCode: Code[20]; AccountHolderCity: Text[30])
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Account Holder Post Code" := AccountHolderPostCode;
         BankAccount."Account Holder City" := AccountHolderCity;
         BankAccount.Insert();
@@ -793,7 +793,7 @@ codeunit 144020 "UT TAB Post Code - II"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert(true);
         exit(Customer."No.");
     end;
@@ -802,7 +802,7 @@ codeunit 144020 "UT TAB Post Code - II"
     var
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
         exit(CustomerBankAccount.Code);
     end;
@@ -810,9 +810,9 @@ codeunit 144020 "UT TAB Post Code - II"
     local procedure CreatePostCode(var PostCode: Record "Post Code")
     begin
         PostCode.Code := Format(LibraryRandom.RandIntInRange(1000, 9999)) + ' ' + 'ZZ';  // Code should contain 4 digit following space and two upper case alphabet.
-        PostCode.City := LibraryUTUtility.GetNewCode;
+        PostCode.City := LibraryUTUtility.GetNewCode();
         PostCode."Search City" := PostCode.City;
-        PostCode."Country/Region Code" := LibraryUTUtility.GetNewCode10;
+        PostCode."Country/Region Code" := LibraryUTUtility.GetNewCode10();
         PostCode.Insert();
     end;
 
@@ -826,7 +826,7 @@ codeunit 144020 "UT TAB Post Code - II"
         PostCodeRange.Type := Type;
         PostCodeRange."From No." := FromNo;
         PostCodeRange."To No." := PostCodeRange."From No.";
-        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode;
+        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode();
         PostCodeRange.Insert();
     end;
 
@@ -834,9 +834,9 @@ codeunit 144020 "UT TAB Post Code - II"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
     end;
@@ -846,26 +846,26 @@ codeunit 144020 "UT TAB Post Code - II"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := DocumentType;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         exit(SalesHeader."No.");
     end;
 
     local procedure OpenBlanketSalesOrder(var BlanketSalesOrder: TestPage "Blanket Sales Order"; No: Code[20])
     begin
-        BlanketSalesOrder.OpenEdit;
+        BlanketSalesOrder.OpenEdit();
         BlanketSalesOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenCustomerBankAccountCard(var CustomerBankAccountCard: TestPage "Customer Bank Account Card")
     begin
-        CustomerBankAccountCard.OpenEdit;
-        CustomerBankAccountCard.FILTER.SetFilter(Code, CreateCustomerBankAccount);
+        CustomerBankAccountCard.OpenEdit();
+        CustomerBankAccountCard.FILTER.SetFilter(Code, CreateCustomerBankAccount());
     end;
 
     local procedure OpenSalesReturnOrder(var SalesReturnOrder: TestPage "Sales Return Order"; No: Code[20])
     begin
-        SalesReturnOrder.OpenEdit;
+        SalesReturnOrder.OpenEdit();
         SalesReturnOrder.FILTER.SetFilter("No.", No);
     end;
 }

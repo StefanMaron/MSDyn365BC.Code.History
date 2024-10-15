@@ -22,6 +22,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
         LibrarySales: Codeunit "Library - Sales";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryResource: Codeunit "Library - Resource";
@@ -58,7 +59,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
 
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
-          LibraryUtility.GetGlobalNoSeriesCode);
+          LibraryUtility.GetGlobalNoSeriesCode());
 
         SetupLocation(Location);
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
@@ -165,13 +166,6 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             until BOMComponent.Next() = 0;
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
-    end;
-
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure DimensionsChangeConfirmHandler(Question: Text[1024]; var Reply: Boolean)
@@ -196,7 +190,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.FindFirst();
-        AssemblyLine.Validate(Description, PadStr(LibraryUtility.GenerateGUID, 49, '.') + '!');
+        AssemblyLine.Validate(Description, PadStr(LibraryUtility.GenerateGUID(), 49, '.') + '!');
         AssemblyLine.Modify(true);
 
         TempAssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
@@ -251,14 +245,14 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     begin
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
-        Assert.IsTrue(PostedAssemblyHeader.FindFirst, 'Assembly order is not posted');
+        Assert.IsTrue(PostedAssemblyHeader.FindFirst(), 'Assembly order is not posted');
 
         Commit();
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(ShowDimensions);
         REPORT.Run(REPORT::"Posted Assembly Order", true, false, PostedAssemblyHeader);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyPrintoutPostedAOHeader(PostedAssemblyHeader, SalesOrderNo, ShowDimensions, Reversed);
         VerifyPrintoutPostedAOLines(PostedAssemblyHeader, ShowDimensions);
     end;
@@ -273,7 +267,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         i: Integer;
     begin
         LibraryReportDataset.SetRange('No_PostedAssemblyHeader', PostedAssemblyHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         if SalesOrderNo <> '' then begin
             PostedSalesShipmentHeader.SetRange("Order No.", SalesOrderNo);
@@ -297,7 +291,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             for i := 1 to 3 do
                 if ExpDimensionLine[i] <> '' then begin
                     LibraryReportDataset.AssertCurrentRowValueEquals('DimText', ExpDimensionLine[i]);
-                    LibraryReportDataset.GetNextRow;
+                    LibraryReportDataset.GetNextRow();
                 end;
     end;
 
@@ -321,7 +315,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
             LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, PostedAssemblyLine."Dimension Set ID");
             GetDimensionString(DimensionSetEntry, 75, ExpDimensionLine);
 
-            while LibraryReportDataset.GetNextRow do begin
+            while LibraryReportDataset.GetNextRow() do begin
                 LibraryReportDataset.AssertCurrentRowValueEquals('Type_PostedAssemblyLine', Format(PostedAssemblyLine.Type));
                 LibraryReportDataset.AssertCurrentRowValueEquals('No_PostedAssemblyLine', PostedAssemblyLine."No.");
                 LibraryReportDataset.AssertCurrentRowValueEquals('Description_PostedAssemblyLine', PostedAssemblyLine.Description);
@@ -400,6 +394,8 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Normal]
@@ -434,7 +430,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler,NothingPostedMessageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATS()
     var
@@ -468,10 +464,11 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         SalesOrderNo := SalesHeader."No.";
 
         VerifyPrintoutPostedAO(AssemblyHeaderNo, SalesOrderNo, false, false);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSShowDimensions()
     var
@@ -489,7 +486,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSUndo()
     var
@@ -505,7 +502,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
-        Assert.IsTrue(PostedAssemblyHeader.FindFirst, 'Assembly order is not posted');
+        Assert.IsTrue(PostedAssemblyHeader.FindFirst(), 'Assembly order is not posted');
 
         LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
         SalesOrderNo := '';
@@ -514,7 +511,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,PostedAssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutPostedATSLongOrders()
     var
@@ -541,7 +538,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutAssemblyComponentsATS()
     var
@@ -558,9 +555,10 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         REPORT.Run(REPORT::"Assembly Order", true, false, AssemblyHeader);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyComponentsReportAOHeader(AssemblyHeader);
         VerifyComponentsReportAOLines(AssemblyHeader);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -580,13 +578,13 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         REPORT.Run(REPORT::"Assembly Order", true, false, AssemblyHeader);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyComponentsReportAOHeader(AssemblyHeader);
         VerifyComponentsReportAOLines(AssemblyHeader);
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
+    [HandlerFunctions('ConfirmUpdateDimensionChange,AssemblyOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PrintoutAssemblyComponentsLongOrders()
     var
@@ -610,9 +608,10 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
         REPORT.Run(REPORT::"Assembly Order", true, false, AssemblyHeader);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyComponentsReportAOHeader(AssemblyHeader);
         VerifyComponentsReportAOLines(AssemblyHeader);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -639,7 +638,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesPickListReportHeader(SalesHeader);
         VerifySalesPickListReportLines(SalesHeader);
     end;
@@ -687,7 +686,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesPickListReportHeader(SalesHeader);
         VerifySalesPickListReportLines(SalesHeader);
     end;
@@ -726,7 +725,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
 
         VerifySalesPickListReportHeader(SalesHeader);
         VerifySalesPickListReportLines(SalesHeader);
@@ -784,7 +783,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         // VERIFY: Run report and verify
         Commit();
         REPORT.Run(REPORT::"Pick Instruction", true, false, SalesHeader);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifySalesPickListReportHeader(SalesHeader);
         VerifySalesPickListReportLines(SalesHeader);
     end;
@@ -823,7 +822,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
         ATOLink: Record "Assemble-to-Order Link";
     begin
         LibraryReportDataset.SetRange('No_AssemblyHeader', AssemblyHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
 
         if ATOLink.Get(AssemblyHeader."Document Type", AssemblyHeader."No.") then
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesDocNo', ATOLink."Document No.");
@@ -853,7 +852,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         repeat
             LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
             LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
             LibraryReportDataset.AssertCurrentRowValueEquals('Quantity_AssemblyLine', AssemblyLine.Quantity);
@@ -870,7 +869,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
     local procedure VerifySalesPickListReportHeader(var SalesHeader: Record "Sales Header")
     begin
         LibraryReportDataset.SetRange('No_SalesHeader', SalesHeader."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CustomerNo_SalesHeader', SalesHeader."Sell-to Customer No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('CustomerName_SalesHeader', SalesHeader."Sell-to Customer Name");
     end;
@@ -892,7 +891,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         repeat
             LibraryReportDataset.SetRange('LineNo_SalesLine', SalesLine."Line No.");
-            LibraryReportDataset.GetNextRow;
+            LibraryReportDataset.GetNextRow();
 
             LibraryReportDataset.AssertCurrentRowValueEquals('ItemNo_SalesLine', SalesLine."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('Description_SalesLine', SalesLine.Description);
@@ -914,7 +913,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
                 SetRange("Document Type", SalesLine."Document Type");
                 SetRange("Document No.", SalesLine."Document No.");
                 SetRange("Document Line No.", SalesLine."Line No.");
-                AsmExists := FindFirst and AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.");
+                AsmExists := FindFirst() and AssemblyHeader.Get("Assembly Document Type", "Assembly Document No.");
                 if AsmExists then begin
                     // verify the lines
                     AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
@@ -923,7 +922,7 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
                     repeat
                         LibraryReportDataset.SetRange('No_AssemblyLine', AssemblyLine."No.");
-                        LibraryReportDataset.GetNextRow;
+                        LibraryReportDataset.GetNextRow();
 
                         LibraryReportDataset.AssertCurrentRowValueEquals('Description_AssemblyLine', AssemblyLine.Description);
                         LibraryReportDataset.AssertCurrentRowValueEquals('QuantityPer_AssemblyLine', AssemblyLine."Quantity per");
@@ -953,21 +952,21 @@ codeunit 137311 "SCM Kitting - Printout Reports"
 
         PostedAssemblyOrder."No. of copies".SetValue(NoOfCopies);
         PostedAssemblyOrder."Show Dimensions".SetValue(ShowDimensions);
-        PostedAssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PostedAssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure AssemblyOrderRequestPageHandler(var AssemblyOrder: TestRequestPage "Assembly Order")
     begin
-        AssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AssemblyOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PickInstructionRequestPageHandler(var PickInstruction: TestRequestPage "Pick Instruction")
     begin
-        PickInstruction.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PickInstruction.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

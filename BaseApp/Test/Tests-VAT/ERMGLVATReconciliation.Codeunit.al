@@ -101,11 +101,11 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
         CreateVATEntriesGLEntriesWithLink(GLAccountNo, TransactionNo);
 
         // [GIVEN] The "VAT Entries" page is open
-        VATEntriesPage.OPENVIEW;
+        VATEntriesPage.OpenView();
 
         // [WHEN] The "Set G/L Account No." action is run and confirmed in the confirm dialog
         LibraryVariableStorage.Enqueue(true); // Yes - for ConfirmHandlerSetGLAccountNo
-        VATEntriesPage.SetGLAccountNo.INVOKE;
+        VATEntriesPage.SetGLAccountNo.Invoke();
 
         // [then] The G/L Account Number field is correctly set for all the test VAT Entries
         VATEntry.SetRange("Transaction No.", TransactionNo);

@@ -5,7 +5,9 @@ using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Comment;
 using Microsoft.CRM.Interaction;
 using Microsoft.CRM.Opportunity;
+#if not CLEAN24
 using Microsoft.CRM.Outlook;
+#endif
 using Microsoft.CRM.Profiling;
 using Microsoft.CRM.Reports;
 using Microsoft.CRM.Segment;
@@ -329,7 +331,7 @@ page 5052 "Contact List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Contact';
-                    Enabled = (Rec.Type <> Rec.Type::Company) AND (Rec."Company No." <> '');
+                    Enabled = (Rec.Type <> Rec.Type::Company) and (Rec."Company No." <> '');
                     Image = CoupledContactPerson;
                     ToolTip = 'Open the coupled Dataverse contact.';
 
@@ -345,7 +347,7 @@ page 5052 "Contact List"
                     AccessByPermission = TableData "CRM Integration Record" = IM;
                     ApplicationArea = Suite;
                     Caption = 'Synchronize';
-                    Enabled = (Rec.Type <> Rec.Type::Company) AND (Rec."Company No." <> '');
+                    Enabled = (Rec.Type <> Rec.Type::Company) and (Rec."Company No." <> '');
                     Image = Refresh;
                     ToolTip = 'Send or get updated data to or from Dataverse.';
 
@@ -369,7 +371,7 @@ page 5052 "Contact List"
                 group(Coupling)
                 {
                     Caption = 'Coupling', Comment = 'Coupling is a noun';
-                    Enabled = (Rec.Type <> Rec.Type::Company) AND (Rec."Company No." <> '');
+                    Enabled = (Rec.Type <> Rec.Type::Company) and (Rec."Company No." <> '');
                     Image = LinkAccount;
                     ToolTip = 'Create, change, or delete a coupling between the Business Central record and a Dataverse record.';
                     action(ManageCRMCoupling)
@@ -435,7 +437,7 @@ page 5052 "Contact List"
                     {
                         ApplicationArea = Suite;
                         Caption = 'Create Contact in Dataverse';
-                        Enabled = (Rec.Type <> Rec.Type::Company) AND (Rec."Company No." <> '');
+                        Enabled = (Rec.Type <> Rec.Type::Company) and (Rec."Company No." <> '');
                         Image = NewCustomer;
                         ToolTip = 'Create a contact in Dataverse that is linked to a contact in your company.';
 
@@ -507,7 +509,7 @@ page 5052 "Contact List"
                     RunObject = Page "Contact Segment List";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact No.", "Segment No.");
                     ToolTip = 'View the segments that are related to the contact.';
                 }
@@ -635,7 +637,7 @@ page 5052 "Contact List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -682,7 +684,7 @@ page 5052 "Contact List"
                     RunObject = Page "Opportunity List";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                  "Contact No." = field(filter("Lookup Contact No.")),
                                   Status = filter("Not Started" | "In Progress");
                     RunPageView = sorting("Contact Company No.", "Contact No.");
                     Scope = Repeater;
@@ -696,7 +698,7 @@ page 5052 "Contact List"
                     RunObject = Page "Postponed Interactions";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact Company No.", "Contact No.");
                     ToolTip = 'View postponed interactions for the contact.';
                 }
@@ -728,7 +730,7 @@ page 5052 "Contact List"
                     RunObject = Page "Opportunity List";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No.")),
+                                  "Contact No." = field(filter("Lookup Contact No.")),
                                   Status = filter(Won | Lost);
                     RunPageView = sorting("Contact Company No.", "Contact No.");
                     ToolTip = 'View the closed sales opportunities that are handled by salespeople for the contact. Opportunities must involve a contact and can be linked to campaigns.';
@@ -741,7 +743,7 @@ page 5052 "Contact List"
                     RunObject = Page "Interaction Log Entries";
                     RunPageLink = "Contact Company No." = field("Company No."),
                                   "Contact No." = filter(<> ''),
-                                  "Contact No." = field(FILTER("Lookup Contact No."));
+                                  "Contact No." = field(filter("Lookup Contact No."));
                     RunPageView = sorting("Contact Company No.", "Contact No.");
                     ShortCutKey = 'Ctrl+F7';
                     ToolTip = 'View a list of the interactions that you have logged, for example, when you create an interaction, print a cover sheet, a sales order, and so on.';
@@ -995,13 +997,17 @@ page 5052 "Contact List"
                     TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
+#if not CLEAN24
             action(SyncWithExchange)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Sync with Office 365';
                 Image = Refresh;
                 ToolTip = 'Synchronize with Office 365 based on last sync date and last modified date. All changes in Office 365 since the last sync date will be synchronized back.';
-
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
+                ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
                 trigger OnAction()
                 begin
                     SyncExchangeContacts(false);
@@ -1013,12 +1019,16 @@ page 5052 "Contact List"
                 Caption = 'Full Sync with Office 365';
                 Image = RefreshLines;
                 ToolTip = 'Synchronize, but ignore the last synchronized and last modified dates. All changes will be pushed to Office 365 and take all contacts from your Exchange folder and sync back.';
-
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
+                ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
                 trigger OnAction()
                 begin
                     SyncExchangeContacts(true);
                 end;
             }
+#endif
         }
         area(creation)
         {
@@ -1148,17 +1158,33 @@ page 5052 "Contact List"
                 Caption = 'Synchronize';
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
 
+#if not CLEAN24
                 group("Category_Office 365")
                 {
                     Caption = 'Office 365';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
+                    ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
 
                     actionref(SyncWithExchange_Promoted; SyncWithExchange)
                     {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '24.0';
+                        ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
+
                     }
                     actionref(FullSyncWithExchange_Promoted; FullSyncWithExchange)
                     {
+                        Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '24.0';
+                        ObsoleteReason = 'You can sync contacts from the Contact Sync. Setup page (accessible from the Exchange Sync. Setup page), by using the actions.';
+
                     }
                 }
+#endif
                 group(Category_Coupling)
                 {
                     Caption = 'Coupling';
@@ -1245,7 +1271,9 @@ page 5052 "Contact List"
         Rec.HasBusinessRelations(RelatedCustomerEnabled, RelatedVendorEnabled, RelatedBankEnabled, RelatedEmployeeEnabled)
     end;
 
+#if not CLEAN24
     [Scope('OnPrem')]
+    [Obsolete('Use O365SyncManagement.SyncExchangeContacts with the appropriate parameters instead.', '24.0')]
     procedure SyncExchangeContacts(FullSync: Boolean)
     var
         ExchangeSync: Record "Exchange Sync";
@@ -1258,6 +1286,7 @@ page 5052 "Contact List"
                 O365SyncManagement.SyncExchangeContacts(ExchangeSync, FullSync);
             end;
     end;
+#endif
 
     procedure GetSelectionFilter(): Text
     var

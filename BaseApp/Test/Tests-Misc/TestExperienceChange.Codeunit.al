@@ -28,14 +28,14 @@ codeunit 139005 "Test Experience Change"
         TestExperienceChange.SetOnGetEssentialExperienceAppAreasFired(false);
 
         // [Given] No experince is selected
-        ClearSelectedExperience;
+        ClearSelectedExperience();
 
         // [When] Select Essential Experience
         ApplicationAreaMgmt.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         // [Then] See OnGetEssentialExperienceAppAreasSubscriber and OnGetBasicExperienceAppAreasSubscriber
-        Assert.IsTrue(TestExperienceChange.IsOnGetBasicExperienceAppAreasFired, 'Event was not fired');
-        Assert.IsTrue(TestExperienceChange.IsOnGetEssentialExperienceAppAreasFired, 'Event was not fired');
+        Assert.IsTrue(TestExperienceChange.IsOnGetBasicExperienceAppAreasFired(), 'Event was not fired');
+        Assert.IsTrue(TestExperienceChange.IsOnGetEssentialExperienceAppAreasFired(), 'Event was not fired');
 
         // After test
         UnbindSubscription(TestExperienceChange);

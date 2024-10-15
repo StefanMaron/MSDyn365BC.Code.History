@@ -415,10 +415,10 @@ codeunit 137074 "SCM Capacity Requirements"
         FindWorkCenter(WorkCenter, Item."Routing No.");
         OpenWorkCenterLoadPage(WorkCenterLoad, WorkCenter."No.");
         FilterOnWorkCenterLoadPage(WorkCenterLoad, ProdOrderLine."Starting Date");
-        ProdOrderCapacityNeedPage.Trap;
+        ProdOrderCapacityNeedPage.Trap();
 
         // Exercise: Drilldown Allocated Quantity on Work Center Load Page and Open Prod Order Capacity Need Page.
-        WorkCenterLoad.MachineCenterLoadLines.AllocatedQty.DrillDown;
+        WorkCenterLoad.MachineCenterLoadLines.AllocatedQty.DrillDown();
 
         // Verify: Verify Allocated Time on Production Order Capacity Need Page.
         VerifyProdOrderCapacityNeed(
@@ -449,10 +449,10 @@ codeunit 137074 "SCM Capacity Requirements"
         FindRoutingLine(RoutingLine, Item."Routing No.", RoutingLine.Type::"Machine Center");
         OpenMachineCenterLoadPage(MachineCenterLoad, RoutingLine."No.");
         FilterOnMachineCenterLoadPage(MachineCenterLoad, ProdOrderLine."Starting Date");
-        ProdOrderCapacityNeedPage.Trap;
+        ProdOrderCapacityNeedPage.Trap();
 
         // Exercise: Drilldown Allocated Quantity on Machine Center Load Page and Open Prod Order Capacity Need Page.
-        MachineCenterLoad.MachineCLoadLines.AllocatedQty.DrillDown;
+        MachineCenterLoad.MachineCLoadLines.AllocatedQty.DrillDown();
 
         // Verify: Verify Allocated Time on Production Order Capacity Need Page.
         VerifyProdOrderCapacityNeed(
@@ -783,7 +783,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithSerialRoutingReorder(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 100, '', WorkDate());
 
         // [WHEN] Calculate regenerative plan backward for "I" Production Order
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -874,7 +874,7 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItemWithParallelRouting(Item, WorkCenterCode, Item."Reordering Policy"::"Lot-for-Lot", 0);
 
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", 100, '', WorkDate());
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", 100, '', WorkDate());
 
         // [WHEN] Calculate regenerative plan backward for "I" Production Order
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
@@ -4597,7 +4597,7 @@ codeunit 137074 "SCM Capacity Requirements"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -4806,7 +4806,7 @@ codeunit 137074 "SCM Capacity Requirements"
         RoutingLine: Record "Routing Line";
         ShopCalendarCode: Code[10];
     begin
-        ShopCalendarCode := CreateThreeShiftsShopCalendar;
+        ShopCalendarCode := CreateThreeShiftsShopCalendar();
         WorkCenterCode[1] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
         WorkCenterCode[2] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
@@ -4846,7 +4846,7 @@ codeunit 137074 "SCM Capacity Requirements"
         ShopCalendarCode: Code[10];
         i: Integer;
     begin
-        ShopCalendarCode := CreateThreeShiftsShopCalendar;
+        ShopCalendarCode := CreateThreeShiftsShopCalendar();
         for i := 1 to ArrayLen(WorkCenterCode) do
             WorkCenterCode[i] := CreateWorkCenterWithShopCalendar("Capacity Unit of Measure"::Hours, ShopCalendarCode, 100, 1, WorkDate());
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Parallel);
@@ -5023,7 +5023,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, SourceNo, Quantity);
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", DueDate);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -5033,7 +5033,7 @@ codeunit 137074 "SCM Capacity Requirements"
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, SourceNo, Quantity);
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Starting Date", StartingDate);
         ProductionOrder.Validate("Starting Time", StartingTime);
         ProductionOrder.Validate("Due Date", StartingDate + 1);
@@ -5166,8 +5166,8 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenterCard: TestPage "Work Center Card";
     begin
         OpenWorkCenterCard(WorkCenterCard, WorkCenterNo);
-        WorkCenterLoad.Trap;
-        WorkCenterCard."Lo&ad".Invoke;
+        WorkCenterLoad.Trap();
+        WorkCenterCard."Lo&ad".Invoke();
     end;
 
     local procedure OpenMachineCenterLoadPage(var MachineCenterLoad: TestPage "Machine Center Load"; MachineCenterNo: Code[20])
@@ -5175,19 +5175,19 @@ codeunit 137074 "SCM Capacity Requirements"
         MachineCenterCard: TestPage "Machine Center Card";
     begin
         OpenMachineCenterCard(MachineCenterCard, MachineCenterNo);
-        MachineCenterLoad.Trap;
-        MachineCenterCard."Lo&ad".Invoke;
+        MachineCenterLoad.Trap();
+        MachineCenterCard."Lo&ad".Invoke();
     end;
 
     local procedure OpenMachineCenterCard(var MachineCenterCard: TestPage "Machine Center Card"; No: Code[20])
     begin
-        MachineCenterCard.OpenEdit;
+        MachineCenterCard.OpenEdit();
         MachineCenterCard.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenWorkCenterCard(var WorkCenterCard: TestPage "Work Center Card"; No: Code[20])
     begin
-        WorkCenterCard.OpenEdit;
+        WorkCenterCard.OpenEdit();
         WorkCenterCard.FILTER.SetFilter("No.", No);
     end;
 
@@ -5859,18 +5859,18 @@ codeunit 137074 "SCM Capacity Requirements"
 
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
         BOMCostShares.FILTER.SetFilter("No.", ItemNo);
-        BOMCostShares.First;
-        Assert.AreEqual(Item."Standard Cost", BOMCostShares."Total Cost".AsDEcimal, StrSubstNo(TopItemTotalCostErr, ItemNo));
+        BOMCostShares.First();
+        Assert.AreEqual(Item."Standard Cost", BOMCostShares."Total Cost".AsDecimal(), StrSubstNo(TopItemTotalCostErr, ItemNo));
 
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
         BOMCostShares.FILTER.SetFilter("No.", RoutingLine."Work Center No.");
-        BOMCostShares.First;
+        BOMCostShares.First();
 
         Assert.AreEqual(ExpWarning, Format(BOMCostShares.HasWarning), StrSubstNo(WorkCenterWarningErr, RoutingLine."Work Center No."));
         Assert.AreEqual(
-          RoutingLine."Unit Cost per", BOMCostShares."Total Cost".AsDEcimal,
+          RoutingLine."Unit Cost per", BOMCostShares."Total Cost".AsDecimal(),
           StrSubstNo(WorkCenterTotalCostErr, RoutingLine."Work Center No."));
-        BOMCostShares.OK.Invoke;
+        BOMCostShares.OK().Invoke();
     end;
 
     [PageHandler]
@@ -5889,8 +5889,8 @@ codeunit 137074 "SCM Capacity Requirements"
 
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Machine Center"));
         BOMCostShares.FILTER.SetFilter("No.", MachineCenterNo);
-        BOMCostShares.First;
-        Assert.AreEqual(ExpectedQty, BOMCostShares."Qty. per Parent".AsDEcimal, BOMCostShareQtyErr);
+        BOMCostShares.First();
+        Assert.AreEqual(ExpectedQty, BOMCostShares."Qty. per Parent".AsDecimal(), BOMCostShareQtyErr);
     end;
 
     [PageHandler]
@@ -5901,13 +5901,13 @@ codeunit 137074 "SCM Capacity Requirements"
         WorkCenterNo: Text;
         ExpectedCapCost: Decimal;
     begin
-        WorkCenterNo := LibraryVariableStorage.DequeueText;
-        ExpectedCapCost := LibraryVariableStorage.DequeueDecimal;
+        WorkCenterNo := LibraryVariableStorage.DequeueText();
+        ExpectedCapCost := LibraryVariableStorage.DequeueDecimal();
 
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
         BOMCostShares.FILTER.SetFilter("No.", WorkCenterNo);
-        BOMCostShares.First;
-        Assert.AreEqual(ExpectedCapCost, BOMCostShares."Rolled-up Capacity Cost".AsDEcimal, BOMCostShareCapCostErr);
+        BOMCostShares.First();
+        Assert.AreEqual(ExpectedCapCost, BOMCostShares."Rolled-up Capacity Cost".AsDecimal(), BOMCostShareCapCostErr);
     end;
 
     [MessageHandler]

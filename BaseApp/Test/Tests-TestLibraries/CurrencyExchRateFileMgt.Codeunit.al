@@ -252,7 +252,7 @@ codeunit 134273 "Currency Exch. Rate File Mgt."
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     [Scope('OnPrem')]

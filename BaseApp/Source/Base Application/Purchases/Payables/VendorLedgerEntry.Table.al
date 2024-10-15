@@ -27,6 +27,7 @@ table 25 "Vendor Ledger Entry"
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
     LookupPageID = "Vendor Ledger Entries";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -643,7 +644,6 @@ table 25 "Vendor Ledger Entry"
 
             trigger OnValidate()
             var
-                TrMode: Record "Transaction Mode";
             begin
             end;
         }

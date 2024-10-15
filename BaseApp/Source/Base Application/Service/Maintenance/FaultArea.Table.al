@@ -4,6 +4,7 @@ table 5915 "Fault Area"
 {
     Caption = 'Fault Area';
     LookupPageID = "Fault Areas";
+    DataClassification = CustomerContent;
 
     fields
     {

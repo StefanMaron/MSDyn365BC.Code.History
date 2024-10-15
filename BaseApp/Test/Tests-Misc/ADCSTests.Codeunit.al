@@ -48,8 +48,8 @@ codeunit 139010 "ADCS Tests"
         WideIn: Text;
         WideOut: Text;
     begin
-        WideIn := HelloInputText;
-        WideOut := LoginOutputText;
+        WideIn := HelloInputText();
+        WideOut := LoginOutputText();
 
         ADCSWS.ProcessDocument(WideIn);
 
@@ -65,8 +65,8 @@ codeunit 139010 "ADCS Tests"
         WideOut: Text;
         TempLanguage: Integer;
     begin
-        WideIn := HelloInputText;
-        WideOut := LoginOutputText;
+        WideIn := HelloInputText();
+        WideOut := LoginOutputText();
 
         // Switch to German
         TempLanguage := GlobalLanguage;

@@ -55,7 +55,7 @@ codeunit 144013 "UT Cash Bank Giro"
         CreateSourceCodeSetup(SourceCodeSetup);
 
         // Exercise.
-        SourceCodeSetupPage.OpenEdit;
+        SourceCodeSetupPage.OpenEdit();
 
         // Verify: Verify Cash Journal and Bank Journal on Source Code Setup Page.
         SourceCodeSetupPage."Cash Journal".AssertEquals(SourceCodeSetup."Cash Journal");
@@ -76,7 +76,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Create Bank Account.
         Initialize();
-        BankAccountNo := CreateBankAccount;
+        BankAccountNo := CreateBankAccount();
 
         // Exercise.
         UpdateBankAccountNoOnCompanyInformation(BankAccountNo);
@@ -96,7 +96,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Find Bank Account.
         Initialize();
-        BankAccountNo := CharacterFilter(UpperCase(FindBankAccountNo), 'PG0123456789');  // Using Hard code value 'PG0123456789' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
+        BankAccountNo := CharacterFilter(UpperCase(FindBankAccountNo()), 'PG0123456789');  // Using Hard code value 'PG0123456789' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
     end;
 
@@ -126,7 +126,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Create Bank Account.
         Initialize();
-        CheckBankAccNoAccountNoWithLength(CopyStr('P' + CreateBankAccount, 1, 8));  // Using Hard code value 'P' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
+        CheckBankAccNoAccountNoWithLength(CopyStr('P' + CreateBankAccount(), 1, 8));  // Using Hard code value 'P' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Create Bank Account.
         Initialize();
-        BankAccountNo := CopyStr(CreateBankAccount, 1, 10);
+        BankAccountNo := CopyStr(CreateBankAccount(), 1, 10);
         LibraryVariableStorage.Enqueue(BankAccountNo);
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
     end;
@@ -157,7 +157,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Create Bank Account.
         Initialize();
-        BankAccountNo := CopyStr('PG0' + CreateBankAccount, 1, 12);  // Using Hard code value 'PGO' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
+        BankAccountNo := CopyStr('PG0' + CreateBankAccount(), 1, 12);  // Using Hard code value 'PGO' of Bank Account No for function CheckBankAccNo on Codeunit ID -11400 Local Functionality Mgt.
         LibraryVariableStorage.Enqueue(BankAccountNo);
         CheckBankAccNoAccountNoWithLength(BankAccountNo);
     end;
@@ -191,7 +191,7 @@ codeunit 144013 "UT Cash Bank Giro"
 
         // Setup: Create Bank Account.
         Initialize();
-        BankAccountNo := CopyStr(LibraryUTUtility.GetNewCode10 + CreateBankAccount, 1, 20);
+        BankAccountNo := CopyStr(LibraryUTUtility.GetNewCode10() + CreateBankAccount(), 1, 20);
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue BankAccountNo for MessageHandler.
 
         // Exercise.
@@ -319,7 +319,7 @@ codeunit 144013 "UT Cash Bank Giro"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Bank Account No." := Format(LibraryRandom.RandIntInRange(1800000000, 2000000000));
         BankAccount.Insert();
         exit(BankAccount."Bank Account No.");
@@ -329,15 +329,15 @@ codeunit 144013 "UT Cash Bank Giro"
     var
         SourceCode: Record "Source Code";
     begin
-        SourceCode.Code := LibraryUTUtility.GetNewCode10;
+        SourceCode.Code := LibraryUTUtility.GetNewCode10();
         SourceCode.Insert();
         exit(SourceCode.Code);
     end;
 
     local procedure CreateSourceCodeSetup(var SourceCodeSetup: Record "Source Code Setup")
     begin
-        SourceCodeSetup.Validate("Cash Journal", CreateSourceCode);
-        SourceCodeSetup.Validate("Bank Journal", CreateSourceCode);
+        SourceCodeSetup.Validate("Cash Journal", CreateSourceCode());
+        SourceCodeSetup.Validate("Bank Journal", CreateSourceCode());
         SourceCodeSetup.Modify();
     end;
 
@@ -372,7 +372,7 @@ codeunit 144013 "UT Cash Bank Giro"
     var
         CompanyInformationPage: TestPage "Company Information";
     begin
-        CompanyInformationPage.OpenEdit;
+        CompanyInformationPage.OpenEdit();
         CompanyInformationPage."Bank Account No.".AssertEquals(BankAccountNo);
         CompanyInformationPage.Close();
     end;

@@ -4,6 +4,8 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Bank.Payment;
 
+using System.Environment;
+
 page 11000005 "Payment History Card"
 {
     Caption = 'Payment History Card';
@@ -126,6 +128,7 @@ page 11000005 "Payment History Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the file name (including drive and path) of the exported payment history.';
+                    Visible = not IsSaaS;
                 }
                 field("Sent By"; Rec."Sent By")
                 {
@@ -259,6 +262,13 @@ page 11000005 "Payment History Card"
         }
     }
 
+    trigger OnOpenPage()
+    var
+        EnvironmentInformation: Codeunit "Environment Information";
+    begin
+        IsSaaS := EnvironmentInformation.IsSaaS();
+    end;
+
     trigger OnAfterGetRecord()
     begin
         "Payment history line".SetRange("Our Bank", Rec."Our Bank");
@@ -271,5 +281,6 @@ page 11000005 "Payment History Card"
         SentProtocol: Record "Export Protocol";
         "Payment history line": Record "Payment History Line";
         CurrencyCode: Code[10];
+        IsSaaS: Boolean;
 }
 

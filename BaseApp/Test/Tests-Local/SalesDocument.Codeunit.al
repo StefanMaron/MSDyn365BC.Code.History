@@ -46,7 +46,7 @@ codeunit 144542 "Sales Document"
         // Test Foreign Amount on Proposal Line after running Get Proposal Entries Report when Sales Invoice Posted with Currency.
 
         // Setup: Create and post Sales Invoice with Bank Account Code and Currency.
-        SalesLineAmount := CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithCurrency(CreateCurrencyWithRandomExchangeRate));
+        SalesLineAmount := CreateAndPostSalesInvoice(SalesHeader, CreateCustomerWithCurrency(CreateCurrencyWithRandomExchangeRate()));
 
         // Exercise: Run Get Proposal Entries Report.
         REPORT.Run(REPORT::"Get Proposal Entries");
@@ -125,7 +125,7 @@ codeunit 144542 "Sales Document"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateCurrency(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetAmountRoundingPrecision());
         Currency.Modify(true);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
         LibraryERM.CreateRandomExchangeRate(Currency.Code);
@@ -151,7 +151,7 @@ codeunit 144542 "Sales Document"
     procedure GetProposalEntriesRequestPageHandler(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
         GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate()));
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 
     [MessageHandler]

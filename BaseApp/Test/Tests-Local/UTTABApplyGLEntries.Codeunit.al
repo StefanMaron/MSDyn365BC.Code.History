@@ -44,11 +44,11 @@ codeunit 144001 "UT TAB Apply GL Entries"
         GeneralLedgerEntries: TestPage "General Ledger Entries";
     begin
         // Setup.
-        GeneralLedgerEntries.OpenEdit;
+        GeneralLedgerEntries.OpenEdit();
         GeneralLedgerEntries.FILTER.SetFilter("Entry No.", Format(CreateGLEntry(Open)));
 
         // Exercise.
-        asserterror GeneralLedgerEntries.ReverseTransaction.Invoke;
+        asserterror GeneralLedgerEntries.ReverseTransaction.Invoke();
 
         // Verify.
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
@@ -61,13 +61,13 @@ codeunit 144001 "UT TAB Apply GL Entries"
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
         GLEntry."Document Type" := GLEntry."Document Type"::Payment;
-        GLEntry."Source Code" := LibraryUTUtility.GetNewCode10;
+        GLEntry."Source Code" := LibraryUTUtility.GetNewCode10();
         GLEntry.Amount := LibraryRandom.RandDecInRange(100, 200, 2);
         GLEntry."Remaining Amount" := LibraryRandom.RandDec(10, 2);
         GLEntry.Open := Open;
-        GLEntry."Journal Batch Name" := LibraryUTUtility.GetNewCode10;
+        GLEntry."Journal Batch Name" := LibraryUTUtility.GetNewCode10();
         GLEntry."Transaction No." := GLEntry2."Transaction No." + 1;
         GLEntry.Insert();
         exit(GLEntry."Entry No.");

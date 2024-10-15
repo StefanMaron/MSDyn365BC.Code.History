@@ -1,6 +1,7 @@
 table 132515 "Table With Wrong Relation"
 {
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

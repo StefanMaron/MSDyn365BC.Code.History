@@ -94,15 +94,13 @@ codeunit 5750 "Whse.-Create Source Document"
     var
         Item: Record Item;
     begin
-        with WarehouseShipmentLine do begin
-            Item."No." := "Item No.";
-            Item.ItemSKUGet(Item, "Location Code", "Variant Code");
-            "Shelf No." := Item."Shelf No.";
-            OnBeforeWhseShptLineInsert(WarehouseShipmentLine);
-            Insert();
-            OnAfterWhseShptLineInsert(WarehouseShipmentLine);
-            CreateWhseItemTrackingLines();
-        end;
+        Item."No." := WarehouseShipmentLine."Item No.";
+        Item.ItemSKUGet(Item, WarehouseShipmentLine."Location Code", WarehouseShipmentLine."Variant Code");
+        WarehouseShipmentLine."Shelf No." := Item."Shelf No.";
+        OnBeforeWhseShptLineInsert(WarehouseShipmentLine);
+        WarehouseShipmentLine.Insert();
+        OnAfterWhseShptLineInsert(WarehouseShipmentLine);
+        WarehouseShipmentLine.CreateWhseItemTrackingLines();
 
         OnAfterCreateShptLine(WarehouseShipmentLine);
     end;
@@ -114,15 +112,14 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         IsHandled := false;
         OnBeforeSetQtysOnShptLine(WarehouseShipmentLine, Qty, QtyBase, IsHandled);
-        if not IsHandled then 
-	        with WarehouseShipmentLine do begin
-	            Quantity := Qty;
-	            "Qty. (Base)" := QtyBase;
-	            InitOutstandingQtys();
-	            CheckSourceDocLineQty();
-	            if Location.Get("Location Code") then
-	                CheckBin(0, 0);
-	        end;	
+        if not IsHandled then begin
+            WarehouseShipmentLine.Quantity := Qty;
+            WarehouseShipmentLine."Qty. (Base)" := QtyBase;
+            WarehouseShipmentLine.InitOutstandingQtys();
+            WarehouseShipmentLine.CheckSourceDocLineQty();
+            if Location.Get(WarehouseShipmentLine."Location Code") then
+                WarehouseShipmentLine.CheckBin(0, 0);
+        end;
 
         OnAfterSetQtysOnShptLine(WarehouseShipmentLine, Qty, QtyBase);
     end;
@@ -137,15 +134,13 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit;
 
-        with WarehouseReceiptLine do begin
-            Item."No." := "Item No.";
-            Item.ItemSKUGet(Item, "Location Code", "Variant Code");
-            "Shelf No." := Item."Shelf No.";
-            Status := GetLineStatus();
-            OnBeforeWhseReceiptLineInsert(WarehouseReceiptLine);
-            Insert();
-            OnAfterWhseReceiptLineInsert(WarehouseReceiptLine);
-        end;
+        Item."No." := WarehouseReceiptLine."Item No.";
+        Item.ItemSKUGet(Item, WarehouseReceiptLine."Location Code", WarehouseReceiptLine."Variant Code");
+        WarehouseReceiptLine."Shelf No." := Item."Shelf No.";
+        WarehouseReceiptLine.Status := WarehouseReceiptLine.GetLineStatus();
+        OnBeforeWhseReceiptLineInsert(WarehouseReceiptLine);
+        WarehouseReceiptLine.Insert();
+        OnAfterWhseReceiptLineInsert(WarehouseReceiptLine);
     end;
 
     internal procedure SetQtysOnRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; Qty: Decimal; QtyBase: Decimal)
@@ -157,11 +152,9 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit;
 
-        with WarehouseReceiptLine do begin
-            Quantity := Qty;
-            "Qty. (Base)" := QtyBase;
-            InitOutstandingQtys();
-        end;
+        WarehouseReceiptLine.Quantity := Qty;
+        WarehouseReceiptLine."Qty. (Base)" := QtyBase;
+        WarehouseReceiptLine.InitOutstandingQtys();
 
         OnAfterSetQtysOnRcptLine(WarehouseReceiptLine, Qty, QtyBase);
     end;
@@ -175,12 +168,10 @@ codeunit 5750 "Whse.-Create Source Document"
         if IsHandled then
             exit;
 
-        with WarehouseShipmentLine do begin
-            if WarehouseShipmentHeader."Zone Code" <> '' then
-                Validate("Zone Code", WarehouseShipmentHeader."Zone Code");
-            if WarehouseShipmentHeader."Bin Code" <> '' then
-                Validate("Bin Code", WarehouseShipmentHeader."Bin Code");
-        end;
+        if WarehouseShipmentHeader."Zone Code" <> '' then
+            WarehouseShipmentLine.Validate("Zone Code", WarehouseShipmentHeader."Zone Code");
+        if WarehouseShipmentHeader."Bin Code" <> '' then
+            WarehouseShipmentLine.Validate("Bin Code", WarehouseShipmentHeader."Bin Code");
     end;
 
     internal procedure UpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
@@ -190,16 +181,14 @@ codeunit 5750 "Whse.-Create Source Document"
         IsHandled := false;
         OnBeforeUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader, IsHandled);
         if not IsHandled then begin
-            with WarehouseReceiptLine do begin
-                if WarehouseReceiptHeader."Zone Code" <> '' then
-                    Validate("Zone Code", WarehouseReceiptHeader."Zone Code");
-                if WarehouseReceiptHeader."Bin Code" <> '' then
-                    Validate("Bin Code", WarehouseReceiptHeader."Bin Code");
-                if WarehouseReceiptHeader."Cross-Dock Zone Code" <> '' then
-                    Validate("Cross-Dock Zone Code", WarehouseReceiptHeader."Cross-Dock Zone Code");
-                if WarehouseReceiptHeader."Cross-Dock Bin Code" <> '' then
-                    Validate("Cross-Dock Bin Code", WarehouseReceiptHeader."Cross-Dock Bin Code");
-            end;
+            if WarehouseReceiptHeader."Zone Code" <> '' then
+                WarehouseReceiptLine.Validate("Zone Code", WarehouseReceiptHeader."Zone Code");
+            if WarehouseReceiptHeader."Bin Code" <> '' then
+                WarehouseReceiptLine.Validate("Bin Code", WarehouseReceiptHeader."Bin Code");
+            if WarehouseReceiptHeader."Cross-Dock Zone Code" <> '' then
+                WarehouseReceiptLine.Validate("Cross-Dock Zone Code", WarehouseReceiptHeader."Cross-Dock Zone Code");
+            if WarehouseReceiptHeader."Cross-Dock Bin Code" <> '' then
+                WarehouseReceiptLine.Validate("Cross-Dock Bin Code", WarehouseReceiptHeader."Cross-Dock Bin Code");
             OnAfterUpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
         end;
     end;
@@ -509,7 +498,7 @@ codeunit 5750 "Whse.-Create Source Document"
 
 #if not CLEAN23
     [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by same event in codeunit Purchases Warehouse Mgt.', '23.0')]
+    [Obsolete('Replaced by OnFromPurchLine2ShptLineOnBeforeCreateShptLine in codeunit Purchases Warehouse Mgt.', '23.0')]
     local procedure OnBeforeCreateShptLineFromPurchLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;

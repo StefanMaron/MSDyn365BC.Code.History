@@ -12,6 +12,7 @@ table 5357 "CRM Contract"
     Description = 'Agreement to provide customer service during a specified amount of time or number of cases.';
     ExternalName = 'contract';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -309,7 +310,7 @@ table 5357 "CRM Contract"
         }
         field(35; ContactIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(ContactId)));
+            CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(ContactId)));
             Caption = 'ContactIdName';
             ExternalAccess = Read;
             ExternalName = 'contactidname';
@@ -318,7 +319,7 @@ table 5357 "CRM Contract"
         }
         field(36; AccountIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Account".Name where(AccountId = field(AccountId)));
+            CalcFormula = lookup("CRM Account".Name where(AccountId = field(AccountId)));
             Caption = 'AccountIdName';
             ExternalAccess = Read;
             ExternalName = 'accountidname';
@@ -327,7 +328,7 @@ table 5357 "CRM Contract"
         }
         field(37; BillingContactIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Contact".FullName where(ContactId = field(BillingContactId)));
+            CalcFormula = lookup("CRM Contact".FullName where(ContactId = field(BillingContactId)));
             Caption = 'BillingContactIdName';
             ExternalAccess = Read;
             ExternalName = 'billingcontactidname';
@@ -336,7 +337,7 @@ table 5357 "CRM Contract"
         }
         field(38; BillingAccountIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Account".Name where(AccountId = field(BillingAccountId)));
+            CalcFormula = lookup("CRM Account".Name where(AccountId = field(BillingAccountId)));
             Caption = 'BillingAccountIdName';
             ExternalAccess = Read;
             ExternalName = 'billingaccountidname';
@@ -345,7 +346,7 @@ table 5357 "CRM Contract"
         }
         field(39; OriginatingContractName; Text[100])
         {
-            CalcFormula = Lookup("CRM Contract".Title where(ContractId = field(OriginatingContract)));
+            CalcFormula = lookup("CRM Contract".Title where(ContractId = field(OriginatingContract)));
             Caption = 'OriginatingContractName';
             ExternalAccess = Read;
             ExternalName = 'originatingcontractname';
@@ -354,7 +355,7 @@ table 5357 "CRM Contract"
         }
         field(40; BillToAddressName; Text[200])
         {
-            CalcFormula = Lookup("CRM Customeraddress".Name where(CustomerAddressId = field(BillToAddress)));
+            CalcFormula = lookup("CRM Customeraddress".Name where(CustomerAddressId = field(BillToAddress)));
             Caption = 'BillToAddressName';
             Description = 'Name of the address that is to be billed for the contract.';
             ExternalAccess = Read;
@@ -364,7 +365,7 @@ table 5357 "CRM Contract"
         }
         field(41; ServiceAddressName; Text[200])
         {
-            CalcFormula = Lookup("CRM Customeraddress".Name where(CustomerAddressId = field(ServiceAddress)));
+            CalcFormula = lookup("CRM Customeraddress".Name where(CustomerAddressId = field(ServiceAddress)));
             Caption = 'ServiceAddressName';
             ExternalAccess = Read;
             ExternalName = 'serviceaddressname';
@@ -381,7 +382,7 @@ table 5357 "CRM Contract"
         }
         field(43; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -390,7 +391,7 @@ table 5357 "CRM Contract"
         }
         field(44; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -518,7 +519,7 @@ table 5357 "CRM Contract"
         }
         field(59; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';
@@ -544,7 +545,7 @@ table 5357 "CRM Contract"
         }
         field(62; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -562,7 +563,7 @@ table 5357 "CRM Contract"
         }
         field(64; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

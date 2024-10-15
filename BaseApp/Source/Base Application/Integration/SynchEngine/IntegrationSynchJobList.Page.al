@@ -20,7 +20,7 @@ page 5338 "Integration Synch. Job List"
     PageType = List;
     SourceTable = "Integration Synch. Job";
     SourceTableView = sorting("Start Date/Time", ID)
-                      order(Descending);
+                      order(descending);
     UsageCategory = Lists;
 
     layout

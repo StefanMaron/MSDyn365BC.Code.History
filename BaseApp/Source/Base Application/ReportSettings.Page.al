@@ -55,7 +55,7 @@ page 1560 "Report Settings"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Assigned to';
-                    Enabled = NOT LastUsed;
+                    Enabled = not LastUsed;
                     TableRelation = User."User Name";
                     ToolTip = 'Specifies who can use the report settings. If the field is blank, the settings are available to all users.';
 
@@ -79,7 +79,7 @@ page 1560 "Report Settings"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Shared with all users';
-                    Enabled = NOT LastUsed;
+                    Enabled = not LastUsed;
                     ToolTip = 'Specifies whether the report settings are available to all users or only the user assigned to the settings.';
 
                     trigger OnValidate()
@@ -154,7 +154,7 @@ page 1560 "Report Settings"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit';
-                Enabled = NOT LastUsed;
+                Enabled = not LastUsed;
                 Image = Edit;
                 ToolTip = 'Change the options and filters that are defined for the selected report settings.';
 

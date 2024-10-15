@@ -678,8 +678,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Vendor, open Vendor Page.
         CreatePostCodeRange(PostCodeRange);
-        VendorCard.OpenEdit;
-        VendorCard.FILTER.SetFilter("No.", CreateVendor);
+        VendorCard.OpenEdit();
+        VendorCard.FILTER.SetFilter("No.", CreateVendor());
 
         // Exercise: Set value on Address field of Page - Vendor Card.
         VendorCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -751,7 +751,7 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range, open Company Information page.
         CreatePostCodeRange(PostCodeRange);
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // Exercise: Set value on Address field of Page - Company Information.
         CompanyInformation.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -775,7 +775,7 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range, open Company Information page.
         CreatePostCodeRange(PostCodeRange);
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         // Exercise: Set value on Ship-to Address field of Page - Company Information.
         CompanyInformation."Ship-to Address".SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -799,7 +799,7 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Bank Account, open Bank Account card.
         CreatePostCodeRange(PostCodeRange);
-        OpenBankAccountCard(BankAccountCard, CreateBankAccount);
+        OpenBankAccountCard(BankAccountCard, CreateBankAccount());
 
         // Exercise: Set value on Account Holder Address field of Page - Bank Account Card.
         BankAccountCard."Account Holder Address".SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -823,7 +823,7 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Bank Account, open Bank Account card.
         CreatePostCodeRange(PostCodeRange);
-        OpenBankAccountCard(BankAccountCard, CreateBankAccount);
+        OpenBankAccountCard(BankAccountCard, CreateBankAccount());
 
         // Exercise: Set value on Address field of Page - Bank Account Card.
         BankAccountCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -850,7 +850,7 @@ codeunit 144019 "UT TAB Post Code"
         CreatePostCodeRange(PostCodeRange);
         Contact.Init();
         Contact.Insert();
-        CompanyDetails.OpenEdit;
+        CompanyDetails.OpenEdit();
 
         // Exercise: Set value on Address field of Page - Company Details.
         CompanyDetails.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -874,8 +874,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Contact Alternative Address, open Contact Alternative Address Card.
         CreatePostCodeRange(PostCodeRange);
-        ContactAltAddressCard.OpenEdit;
-        ContactAltAddressCard.FILTER.SetFilter(Code, CreateContactAlternativeAddress);
+        ContactAltAddressCard.OpenEdit();
+        ContactAltAddressCard.FILTER.SetFilter(Code, CreateContactAlternativeAddress());
 
         // Exercise: Set value on Address field of Page - Contact Alt. Address Card.
         ContactAltAddressCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -899,8 +899,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Contact, open and Contact Card.
         CreatePostCodeRange(PostCodeRange);
-        ContactCard.OpenEdit;
-        ContactCard.FILTER.SetFilter("No.", CreateContact);
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", CreateContact());
 
         // Exercise: Set value on Address field of Page - Contact Card.
         ContactCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -925,9 +925,9 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Finance Charge Memo Header, open Finance Charge Memo page.
         CreatePostCodeRange(PostCodeRange);
-        FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode();
         FinanceChargeMemoHeader.Insert();
-        FinanceChargeMemo.OpenEdit;
+        FinanceChargeMemo.OpenEdit();
         FinanceChargeMemo.FILTER.SetFilter("No.", FinanceChargeMemoHeader."No.");
 
         // Exercise: Set value on Address field of Page - Finance Charge Memo.
@@ -952,8 +952,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Location, open Location Card.
         CreatePostCodeRange(PostCodeRange);
-        LocationCard.OpenEdit;
-        LocationCard.FILTER.SetFilter(Code, CreateLocation);
+        LocationCard.OpenEdit();
+        LocationCard.FILTER.SetFilter(Code, CreateLocation());
 
         // Exercise: Set value on Address field of Page - Location Card.
         LocationCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -977,8 +977,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Order Address, open Order Address page.
         CreatePostCodeRange(PostCodeRange);
-        OrderAddressPage.OpenEdit;
-        OrderAddressPage.FILTER.SetFilter(Code, CreateOrderAddress);
+        OrderAddressPage.OpenEdit();
+        OrderAddressPage.FILTER.SetFilter(Code, CreateOrderAddress());
 
         // Exercise: Set value on Address field of Page - Order Address.
         OrderAddressPage.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -1003,9 +1003,9 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Reminder Header, open Reminder page.
         CreatePostCodeRange(PostCodeRange);
-        ReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        ReminderHeader."No." := LibraryUTUtility.GetNewCode();
         ReminderHeader.Insert();
-        Reminder.OpenEdit;
+        Reminder.OpenEdit();
         Reminder.FILTER.SetFilter("No.", ReminderHeader."No.");
 
         // Exercise: Set value on Address field of Page - Reminder.
@@ -1030,7 +1030,7 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range, open Responsibility Center Card.
         CreatePostCodeRange(PostCodeRange);
-        ResponsibilityCenterCard.OpenEdit;
+        ResponsibilityCenterCard.OpenEdit();
 
         // Exercise: Set value on Address field of Page - Responsibility Center Card.
         ResponsibilityCenterCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -1054,8 +1054,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Resource, open Resource Card.
         CreatePostCodeRange(PostCodeRange);
-        ResourceCard.OpenEdit;
-        ResourceCard.FILTER.SetFilter("No.", CreateResource);
+        ResourceCard.OpenEdit();
+        ResourceCard.FILTER.SetFilter("No.", CreateResource());
 
         // Exercise: Set value on Address field of Page - Resource Card.
         ResourceCard.Address.SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -1079,8 +1079,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Transfer Header, open Transfer Order page.
         CreatePostCodeRange(PostCodeRange);
-        TransferOrder.OpenEdit;
-        TransferOrder.FILTER.SetFilter("No.", CreateTransferHeader);
+        TransferOrder.OpenEdit();
+        TransferOrder.FILTER.SetFilter("No.", CreateTransferHeader());
 
         // Exercise: Set value on Transfer-from Address field of Page -  Transfer Order.
         TransferOrder."Transfer-from Address".SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -1104,8 +1104,8 @@ codeunit 144019 "UT TAB Post Code"
 
         // Setup: Create Post Code Range and Transfer Header, open Transfer Order page.
         CreatePostCodeRange(PostCodeRange);
-        TransferOrder.OpenEdit;
-        TransferOrder.FILTER.SetFilter("No.", CreateTransferHeader);
+        TransferOrder.OpenEdit();
+        TransferOrder.FILTER.SetFilter("No.", CreateTransferHeader());
 
         // Exercise: Set value on Transfer-to Address field of Page -  Transfer Order.
         TransferOrder."Transfer-to Address".SetValue(DelChr(PostCodeRange."Post Code"));  // Removing blank value from Post Code.
@@ -1465,8 +1465,8 @@ codeunit 144019 "UT TAB Post Code"
     var
         ContactAltAddress: Record "Contact Alt. Address";
     begin
-        ContactAltAddress."Contact No." := CreateContact;
-        ContactAltAddress.Code := LibraryUTUtility.GetNewCode10;
+        ContactAltAddress."Contact No." := CreateContact();
+        ContactAltAddress.Code := LibraryUTUtility.GetNewCode10();
         ContactAltAddress.Insert();
         exit(ContactAltAddress.Code);
     end;
@@ -1475,7 +1475,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -1484,7 +1484,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         Contact: Record Contact;
     begin
-        Contact."No." := LibraryUTUtility.GetNewCode;
+        Contact."No." := LibraryUTUtility.GetNewCode();
         Contact.Insert();
         exit(Contact."No.");
     end;
@@ -1493,7 +1493,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code);
     end;
@@ -1502,8 +1502,8 @@ codeunit 144019 "UT TAB Post Code"
     var
         OrderAddress: Record "Order Address";
     begin
-        OrderAddress."Vendor No." := CreateVendor;
-        OrderAddress.Code := LibraryUTUtility.GetNewCode10;
+        OrderAddress."Vendor No." := CreateVendor();
+        OrderAddress.Code := LibraryUTUtility.GetNewCode10();
         OrderAddress.Insert();
         exit(OrderAddress.Code);
     end;
@@ -1528,7 +1528,7 @@ codeunit 144019 "UT TAB Post Code"
         PostCodeRange."Post Code" := PostCode.Code;
         PostCodeRange.City := PostCode.City;
         PostCodeRange.Type := PostCodeRangeType;
-        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode;
+        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode();
         PostCodeRange.Insert();
     end;
 
@@ -1536,9 +1536,9 @@ codeunit 144019 "UT TAB Post Code"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader."Document Type" := DocumentType;
-        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode;
+        PurchaseHeader."Buy-from Vendor No." := LibraryUTUtility.GetNewCode();
         PurchaseHeader.Insert();
         exit(PurchaseHeader."No.");
     end;
@@ -1547,7 +1547,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         Resource: Record Resource;
     begin
-        Resource."No." := LibraryUTUtility.GetNewCode;
+        Resource."No." := LibraryUTUtility.GetNewCode();
         Resource.Insert();
         exit(Resource."No.");
     end;
@@ -1557,7 +1557,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader."Document Type" := DocumentType;
-        ServiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceHeader.Insert();
         exit(ServiceHeader."No.");
     end;
@@ -1566,9 +1566,9 @@ codeunit 144019 "UT TAB Post Code"
     var
         TransferHeader: Record "Transfer Header";
     begin
-        TransferHeader."No." := LibraryUTUtility.GetNewCode;
-        TransferHeader."Transfer-from Code" := CreateLocation;
-        TransferHeader."Transfer-to Code" := CreateLocation;
+        TransferHeader."No." := LibraryUTUtility.GetNewCode();
+        TransferHeader."Transfer-from Code" := CreateLocation();
+        TransferHeader."Transfer-to Code" := CreateLocation();
         TransferHeader.Insert();
         exit(TransferHeader."No.");
     end;
@@ -1577,7 +1577,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert(true);
         exit(Vendor."No.");
     end;
@@ -1586,7 +1586,7 @@ codeunit 144019 "UT TAB Post Code"
     var
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert();
         exit(VendorBankAccount.Code);
     end;
@@ -1596,7 +1596,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader."Document Type" := Type;
-        SalesHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesHeader."No." := LibraryUTUtility.GetNewCode();
         SalesHeader.Insert();
         exit(SalesHeader."No.");
     end;
@@ -1616,98 +1616,98 @@ codeunit 144019 "UT TAB Post Code"
 
     local procedure OpenBankAccountCard(var BankAccountCard: TestPage "Bank Account Card"; No: Code[20])
     begin
-        BankAccountCard.OpenEdit;
+        BankAccountCard.OpenEdit();
         BankAccountCard.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenBlanketPurchaseOrder(var BlanketPurchaseOrder: TestPage "Blanket Purchase Order"; No: Code[20])
     begin
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseQuote(var PurchaseQuote: TestPage "Purchase Quote"; No: Code[20])
     begin
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseOrder(var PurchaseOrder: TestPage "Purchase Order"; No: Code[20])
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseInvoice(var PurchaseInvoice: TestPage "Purchase Invoice"; No: Code[20])
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseCreditMemo(var PurchaseCreditMemo: TestPage "Purchase Credit Memo"; No: Code[20])
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenPurchaseReturnOrder(var PurchaseReturnOrder: TestPage "Purchase Return Order"; No: Code[20])
     begin
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenSalesQuote(var SalesQuote: TestPage "Sales Quote"; No: Code[20])
     begin
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenSalesOrder(var SalesOrder: TestPage "Sales Order"; No: Code[20])
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenSalesInvoice(var SalesInvoice: TestPage "Sales Invoice"; No: Code[20])
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenSalesCreditMemo(var SalesCreditMemo: TestPage "Sales Credit Memo"; No: Code[20])
     begin
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenServiceQuote(var ServiceQuote: TestPage "Service Quote"; No: Code[20])
     begin
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenServiceOrder(var ServiceOrder: TestPage "Service Order"; No: Code[20])
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenServiceInvoice(var ServiceInvoice: TestPage "Service Invoice"; No: Code[20])
     begin
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenServiceCreditMemo(var ServiceCreditMemo: TestPage "Service Credit Memo"; No: Code[20])
     begin
-        ServiceCreditMemo.OpenEdit;
+        ServiceCreditMemo.OpenEdit();
         ServiceCreditMemo.FILTER.SetFilter("No.", No);
     end;
 
     local procedure OpenVendorBankAccountCard(var VendorBankAccountCard: TestPage "Vendor Bank Account Card")
     begin
-        VendorBankAccountCard.OpenEdit;
-        VendorBankAccountCard.FILTER.SetFilter(Code, CreateVendorBankAccount);
+        VendorBankAccountCard.OpenEdit();
+        VendorBankAccountCard.FILTER.SetFilter(Code, CreateVendorBankAccount());
     end;
 }
 

@@ -99,7 +99,6 @@ codeunit 144050 "UT TAB EVAT"
         DialogCap: Label 'Dialog';
         TestFieldCap: Label 'TestField';
         VatLengthErr: Label 'The VAT registration number must be 14 characters long.';
-        VatFirstTwoCharsErr: Label 'The first two characters of the VAT registration number must be ''NL''.';
         VatLastTwoCharsErr: Label 'The last two characters of the VAT Registration number must be digits, but not equal to ''''00''''.';
         VatMod11NotAllowedCharErr: Label 'The VAT registration number must have the format NLdddddddddBdd where d is a digit.';
         VatMod97NotAllowedCharErr: Label 'The VAT registration number for a natural person must have the format NLXXXXXXXXXXdd where d is a digit, and x can be a digit, an uppercase letter, ''+'', or ''*''.';
@@ -115,7 +114,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of this test is to validate Agent Contact Type Tax Payer, Agent Contact ID and
         // verify error code, actual error is "Agent Contact ID must be blank if VAT Contact Type and ICP Contact Type are Tax Payer." for Electronic Tax Declaration Setup Table.
-        AgentContactIDError(ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", LibraryUTUtility.GetNewCode10);
+        AgentContactIDError(ElecTaxDeclarationSetup."VAT Contact Type"::"Tax Payer", LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -127,7 +126,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of this test is to validate Agent Contact Type Agent, Agent Contact ID and
         // verify error code "Length of Agent Contact ID must be exactly 6 characters if VAT Contact Type or ICP Contact Type is Agent." for Electronic Tax Declaration Setup Table.
-        AgentContactIDError(ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10);
+        AgentContactIDError(ElecTaxDeclarationSetup."VAT Contact Type"::Agent, LibraryUTUtility.GetNewCode10());
     end;
 
     [Test]
@@ -169,7 +168,7 @@ codeunit 144050 "UT TAB EVAT"
         // Setup: Create Electronic Tax Delcaration Setup.
         Initialize();
         CreateElectronicTaxDeclarationSetup(ElecTaxDeclarationSetup, ElecTaxDeclarationSetup."VAT Contact Type"::Agent);
-        ElecTaxDeclarationSetup."Agent Contact ID" := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationSetup."Agent Contact ID" := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationSetup."Part of Fiscal Entity" := false;
 
         // Exercise.
@@ -578,7 +577,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of this test is to verify error "The entered VAT Registration number is not in agreement with the format specified for Country/Region Code NL.
         // The following formats are acceptable: NL#########B##, #########B##" when VAT Registration No. on Company Information is in different format.
-        CompanyInfoVATRegistrationNoError(CompanyInformation.FieldNo("VAT Registration No."), LibraryUTUtility.GetNewCode);
+        CompanyInfoVATRegistrationNoError(CompanyInformation.FieldNo("VAT Registration No."), LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -614,7 +613,7 @@ codeunit 144050 "UT TAB EVAT"
     begin
         // Purpose of this test is to verify error "The entered VAT Registration number is not in agreement with the format specified for Country/Region Code NL.
         // The following formats are acceptable: NL#########B##, #########B##" when  Fiscal Entity No. on Company Information is in different format.
-        CompanyInfoVATRegistrationNoError(CompanyInformation.FieldNo("Fiscal Entity No."), LibraryUTUtility.GetNewCode);
+        CompanyInfoVATRegistrationNoError(CompanyInformation.FieldNo("Fiscal Entity No."), LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -948,7 +947,6 @@ codeunit 144050 "UT TAB EVAT"
     [Test]
     procedure SetNotValidMod97Mod11VatOnCompanyInfoPage()
     var
-        CompanyInformation: Record "Company Information";
         CompanyInformationPage: TestPage "Company Information";
         VATRegNo: Text[20];
         ErrorText: Text;
@@ -989,7 +987,7 @@ codeunit 144050 "UT TAB EVAT"
         RecRef: RecordRef;
         FieldRef: FieldRef;
     begin
-        ElecTaxDeclVATCategory.Code := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclVATCategory.Code := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclVATCategory.Category := Category;
         RecRef.GetTable(ElecTaxDeclVATCategory);
         FieldRef := RecRef.Field(FieldNo);
@@ -1000,10 +998,10 @@ codeunit 144050 "UT TAB EVAT"
 
     local procedure CreateElectronicTaxDeclarationSetup(var ElecTaxDeclarationSetup: Record "Elec. Tax Declaration Setup"; VATContactType: Option)
     begin
-        ElecTaxDeclarationSetup."Primary Key" := LibraryUTUtility.GetNewCode10;
+        ElecTaxDeclarationSetup."Primary Key" := LibraryUTUtility.GetNewCode10();
         ElecTaxDeclarationSetup."VAT Contact Type" := VATContactType;
         ElecTaxDeclarationSetup.Insert();
-        CreateElectronicTaxDeclarationHeader;
+        CreateElectronicTaxDeclarationHeader();
     end;
 
     local procedure CreateElectronicTaxDeclarationHeader()
@@ -1011,7 +1009,7 @@ codeunit 144050 "UT TAB EVAT"
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
     begin
         ElecTaxDeclarationHeader."Declaration Type" := ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration";
-        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode;
+        ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode();
         ElecTaxDeclarationHeader.Status := ElecTaxDeclarationHeader.Status::Submitted;
         ElecTaxDeclarationHeader.Insert();
     end;

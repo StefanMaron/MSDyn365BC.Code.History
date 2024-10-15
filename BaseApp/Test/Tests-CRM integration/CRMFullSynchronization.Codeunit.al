@@ -29,7 +29,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Processing Order] [Status]
         // [SCENARIO] "SALESPEOPLE","CURRENCY","UNIT OF MEASURE" mapping records (Wave1) have blank Dependency filter
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = ' '
         CRMFullSynchReviewLine.Init();
@@ -38,7 +38,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert();
 
         // [WHEN] Generate CRM Full Synch Review Lines
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
 
         // [THEN] All lines have "Job Queue Entry Status" = ' '
         AllLinesCount := CRMFullSynchReviewLine.Count();
@@ -60,10 +60,10 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Processing Order]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         // [WHEN] Generate CRM Full Synch Review Lines
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
 
         // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT'
         VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
@@ -77,7 +77,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
-#if not CLEAN21
+#if not CLEAN23
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -94,10 +94,10 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Processing Order]
         // [GIVEN] Extended Prices are on.
         Initialize(true, false);
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
 
         // [WHEN] Generate CRM Full Synch Review Lines
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
 
         // [THEN] 'CUSTOMER' line, where "Dependency Filter" = 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT'
         VerifyDependencyFilter('CUSTOMER', 'SALESPEOPLE|CURRENCY|PAYMENT TERMS|SHIPMENT METHOD|SHIPPING AGENT');
@@ -143,7 +143,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'ITEM UOM');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'RESOURCE UOM'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'RESOURCE UOM');
-#if not CLEAN21
+#if not CLEAN23
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -166,7 +166,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Status]
         // [SCENARIO] "SALESPEOPLE" line in Status 'Ready' should not be updated
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'SALESPEOPLE' has "Dependency Filter" = 'CURRENCY', "Job Queue Entry Status" = 'Ready'
         CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'SALESPEOPLE';
@@ -176,7 +176,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert();
 
         // [WHEN] Generate CRM Full Synch Review Lines
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
 
         // [THEN] 'SALESPEOPLE' line is not changed, "Job Queue Entry Status" = 'Ready'
         CRMFullSynchReviewLine.Get('SALESPEOPLE');
@@ -198,14 +198,14 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'CURRENCY' line, where "Job Queue Entry Status" is ' '
         CRMFullSynchReviewLine.Init();
         CRMFullSynchReviewLine.Name := 'CURRENCY';
         CRMFullSynchReviewLine.Insert(true);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] Full Synch. Job Entry for 'CURRENCY' is created, "Job Queue Entry Status" = 'On Hold'
         CRMFullSynchReviewLine.TestField("Job Queue Entry ID", VerifyFullRunJobEntry('CURRENCY'));
@@ -226,7 +226,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] New currency 'X' and Customer 'A'
         Currency.DeleteAll();
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 3, 3));
@@ -243,7 +243,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] The 'CURRENCY' synch job is scheduled and executed
         Assert.IsTrue(FindFullSyncIntTableMapping('CURRENCY', IntegrationTableMapping), 'Full Synch. mapping is not created');
@@ -266,7 +266,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [THEN] Full Synch. Job Entry for 'CUSTOMER' is created
         VerifyFullRunJobEntry('CUSTOMER');
         // [THEN] "Full Synch." Integration Table Mapping for 'CURRENCY' has been deleted
-        Assert.IsFalse(IntegrationTableMapping.Find, 'Integration Table Mapping for CURRENCY should be deleted');
+        Assert.IsFalse(IntegrationTableMapping.Find(), 'Integration Table Mapping for CURRENCY should be deleted');
     end;
 
     [Test]
@@ -282,7 +282,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         BlankTableConfigTemplateCodes('CUSTOMER'); // to avoid cross country issues with currencies
 
         // [GIVEN] New Customer 'A'
@@ -299,7 +299,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] The 'CUSTOMER' synch job is scheduled and executed
         Assert.IsTrue(FindFullSyncIntTableMapping('CUSTOMER', IntegrationTableMapping), 'Full Synch. mapping is not created');
@@ -338,7 +338,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 2 New Customers, where "Salesperson Code" is not coupled
         Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
@@ -349,14 +349,14 @@ codeunit 139187 "CRM Full Synchronization"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
         CRMAccount.ModifyAll(Name, 'FAIL');
-        CRMAccount.ModifyAll(PrimaryContactId, CreateGuid); // to make both fail during synchronization
+        CRMAccount.ModifyAll(PrimaryContactId, CreateGuid()); // to make both fail during synchronization
         IntegrationFieldMapping.ModifyAll("Clear Value on Failed Sync", false);
         // [GIVEN] 'CUSTOMER' line, where "Dependency Filter" is blank
         CRMFullSynchReviewLine.Name := 'CUSTOMER';
         CRMFullSynchReviewLine.Insert(true);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] The 'CUSTOMER' synch job is scheduled and executed
         // [THEN] 'CUSTOMER' line gets "Job Queue Entry Status" = 'Finished', "Session ID" = 0, "Active Session" = 'No'
@@ -376,7 +376,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 2 New Customers: "A" and
         Customer[1].DeleteAll();
         Customer[2].DeleteAll();
@@ -394,7 +394,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] The 'CUSTOMER' synch job is scheduled and executed
         // [THEN] 'CUSTOMER' line gets "Session ID" = 0, "Active Session" = 'No'
@@ -406,7 +406,7 @@ codeunit 139187 "CRM Full Synchronization"
 
         CRMFullSynchReviewLine.Get('CUSTOMER');
         CRMFullSynchReviewLine.TestField("Session ID", 0);
-        Assert.IsFalse(CRMFullSynchReviewLine.IsActiveSession, 'Session should be inactive');
+        Assert.IsFalse(CRMFullSynchReviewLine.IsActiveSession(), 'Session should be inactive');
 
         CRMFullSynchReviewLine.TestField("To Int. Table Job Status", CRMFullSynchReviewLine."To Int. Table Job Status"::Error);
 
@@ -439,22 +439,6 @@ codeunit 139187 "CRM Full Synchronization"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T126_SynchJobAreAllRecordsFailed()
-    var
-        IntegrationSynchJob: Record "Integration Synch. Job";
-    begin
-        // [FEATURE] [UT]
-        IntegrationSynchJob.Init();
-        Assert.IsFalse(IntegrationSynchJob.AreAllRecordsFailed, 'all zeroes');
-        IntegrationSynchJob.Failed := 1;
-        Assert.IsTrue(IntegrationSynchJob.AreAllRecordsFailed, 'all zeroes, but Failed = 1');
-        IntegrationSynchJob.Inserted := 1;
-        Assert.IsFalse(IntegrationSynchJob.AreAllRecordsFailed, 'all zeroes, but Inserted = 1, Failed = 1');
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure T127_FullSynchJobInheritsFiltersAndProcessesNotCoupledRecs()
     var
@@ -466,15 +450,15 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UT] [Integration Synch. Job]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'SALESPEOPLE' mapping includes filters and is set to process coupled recs only
         IntegrationTableMapping.Get('SALESPEOPLE');
         IntegrationTableMapping.TestField("Synch. Only Coupled Records");
-        Assert.AreNotEqual('', IntegrationTableMapping.GetIntegrationTableFilter, 'IntegrationTableFilter should not be blank.');
+        Assert.AreNotEqual('', IntegrationTableMapping.GetIntegrationTableFilter(), 'IntegrationTableFilter should not be blank.');
         SalespersonPurchaser.SetFilter("E-Mail", '<>%1', '');
         IntegrationTableMapping.SetTableFilter(SalespersonPurchaser.GetView());
         IntegrationTableMapping.Modify();
-        Assert.AreNotEqual('', IntegrationTableMapping.GetTableFilter, 'TableFilter should not be blank.');
+        Assert.AreNotEqual('', IntegrationTableMapping.GetTableFilter(), 'TableFilter should not be blank.');
 
         // [WHEN] EnqueueFullSyncJob() for 'SALESPEOPLE'
         JobQueueEntry.Get(CRMIntegrationManagement.EnqueueFullSyncJob(IntegrationTableMapping.Name));
@@ -486,10 +470,10 @@ codeunit 139187 "CRM Full Synchronization"
         FullIntegrationTableMapping.TestField("Full Sync is Running");
         FullIntegrationTableMapping.TestField("Synch. Only Coupled Records", false);
         // [THEN] Table filters are equal
-        Assert.AreEqual(IntegrationTableMapping.GetTableFilter, FullIntegrationTableMapping.GetTableFilter, 'Table Filter');
+        Assert.AreEqual(IntegrationTableMapping.GetTableFilter(), FullIntegrationTableMapping.GetTableFilter(), 'Table Filter');
         Assert.AreEqual(
-          IntegrationTableMapping.GetIntegrationTableFilter,
-          FullIntegrationTableMapping.GetIntegrationTableFilter, 'Integration Table Filter');
+          IntegrationTableMapping.GetIntegrationTableFilter(),
+          FullIntegrationTableMapping.GetIntegrationTableFilter(), 'Integration Table Filter');
     end;
 
     [Test]
@@ -507,7 +491,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Integration Synch. Job]
         // [SCENARIO] Original CRM Job Queue Entry gets 'On Hold' while the full synch. job is being executed
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibraryCRMIntegration.CreateContact(Contact);
 
         // [GIVEN] Original 'CONTACT' Job Queue Entry
@@ -517,7 +501,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Name := 'CONTACT';
         CRMFullSynchReviewLine.Insert();
         // [WHEN] Run 'CUSTOMER' full synch. job
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
         FindFullSyncIntTableMapping('CONTACT', IntegrationTableMapping);
         BindSubscription(CRMFullSynchronization); // to catch "In Process" Status
         JobQueueEntryID :=
@@ -545,23 +529,23 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UI] [Suite]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Application Area is 'Suite'
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Open "CRM Connection Setup" page
-        CRMConnectionSetupPage.OpenEdit;
+        CRMConnectionSetupPage.OpenEdit();
         // [WHEN] Run action "Full Sync."
-        CRMFullSynchReview.Trap;
-        CRMConnectionSetupPage.StartInitialSynchAction.Invoke;
+        CRMFullSynchReview.Trap();
+        CRMConnectionSetupPage.StartInitialSynchAction.Invoke();
         // [THEN] "CRM Full Synch Review" page is open, not editable, "Dependency Filter" is hidden.
-        Assert.IsFalse(CRMFullSynchReview.Name.Editable, 'Name should be not editable');
-        Assert.IsFalse(CRMFullSynchReview.Direction.Editable, 'Direction should be not editable');
-        Assert.IsFalse(CRMFullSynchReview."Job Queue Entry Status".Editable, 'Job Queue Entry Status should be not editable');
+        Assert.IsFalse(CRMFullSynchReview.Name.Editable(), 'Name should be not editable');
+        Assert.IsFalse(CRMFullSynchReview.Direction.Editable(), 'Direction should be not editable');
+        Assert.IsFalse(CRMFullSynchReview."Job Queue Entry Status".Editable(), 'Job Queue Entry Status should be not editable');
         Assert.IsFalse(
-          CRMFullSynchReview."To Int. Table Job Status".Editable, 'To Int. Table Job Status should be not editable');
+          CRMFullSynchReview."To Int. Table Job Status".Editable(), 'To Int. Table Job Status should be not editable');
         Assert.IsFalse(
-          CRMFullSynchReview."From Int. Table Job Status".Editable, 'From Int. Table Job Status should be not editable');
-        asserterror Assert.IsFalse(CRMFullSynchReview."Dependency Filter".Visible, '');
+          CRMFullSynchReview."From Int. Table Job Status".Editable(), 'From Int. Table Job Status should be not editable');
+        asserterror Assert.IsFalse(CRMFullSynchReview."Dependency Filter".Visible(), '');
     end;
 
     [Test]
@@ -578,7 +562,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UI]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] There are 15 CRM Itegration table mappings
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
@@ -593,12 +577,12 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
-        CRMFullSynchReview.OpenEdit;
+        CRMFullSynchReview.OpenEdit();
         Assert.RecordCount(CRMFullSynchReviewLine, MapCount);
         // [THEN] "CRM Full Synch Review" page contains 15 Integartion Mapping data: Name, Direction.
-        CRMFullSynchReview.Last;
-        LastMapName := CRMFullSynchReview.Name.Value;
-        CRMFullSynchReview.First;
+        CRMFullSynchReview.Last();
+        LastMapName := CRMFullSynchReview.Name.Value();
+        CRMFullSynchReview.First();
         // [THEN] Job Status controls are blank
         Assert.AreEqual(' ', CRMFullSynchReview."Job Queue Entry Status".Value, 'Job Queue Entry Status');
         Assert.AreEqual(' ', CRMFullSynchReview."To Int. Table Job Status".Value, 'To Int. Table Job Status');
@@ -609,7 +593,7 @@ codeunit 139187 "CRM Full Synchronization"
               IntegrationTableMapping.Get(CRMFullSynchReview.Name.Value()),
               StrSubstNo('Failed to find a (%1) map: %2', I, CRMFullSynchReview.Name));
             Assert.AreEqual(
-              IntegrationTableMapping.Direction, CRMFullSynchReview.Direction.AsInteger,
+              IntegrationTableMapping.Direction, CRMFullSynchReview.Direction.AsInteger(),
               StrSubstNo('Wrong Direction for %1', CRMFullSynchReview.Name));
             I += 1;
             CRMFullSynchReview.Next();
@@ -631,11 +615,11 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [UI]
         // [GIVEN] "CRM Full Synch Review Line" table is empty.
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] There are 12 CRM Itegration table mappings
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         // [GIVEN] Open and close "CRM Full Synch Review"
-        CRMFullSynchReview.OpenEdit;
+        CRMFullSynchReview.OpenEdit();
         CRMFullSynchReview.Close();
         // [GIVEN] "CRM Full Synch Review Line" table contains 12 records.
         Assert.TableIsNotEmpty(DATABASE::"CRM Full Synch. Review Line");
@@ -645,7 +629,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Delete();
 
         // [WHEN] Open "CRM Full Synch Review" again
-        CRMFullSynchReview.OpenEdit;
+        CRMFullSynchReview.OpenEdit();
         // [THEN] "CRM Full Synch Review Line" table contains 12 records.
         Assert.RecordCount(CRMFullSynchReviewLine, MapCount);
     end;
@@ -696,9 +680,9 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Status] [UT]
         // [GIVEN] Extended Prices are on
         Initialize(true, false);
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','PLHEADER-PRICE', 'PAYMENT TERMS', 'SHIPMENT METHOD', 'SHIPPING AGENT' are 'Finished'
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('PLHEADER-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
@@ -708,7 +692,7 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
 
         // [WHEN] Run "Start"
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] Lines 'PLLINE-PRODPRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
         CRMFullSynchReviewLine.SetFilter(Name, 'PLLINE-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
@@ -735,12 +719,12 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UI] [Status]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
 
         // [WHEN] Run "Start" and confirm
-        CRMFullSynchReviewPage.Start.Invoke;
+        CRMFullSynchReviewPage.Start.Invoke();
 
         // [THEN] Lines, where is blank "Dependency Filter", get "Job Queue Entry Status" = 'On Hold'
         AllCounter := CRMFullSynchReviewLine.Count();
@@ -767,9 +751,9 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UT]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'SALESPEOPLE' and 'CURRENCY' are 'Finished', 'UNIT OF MEASURE' is 'In Process'
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
@@ -780,9 +764,9 @@ codeunit 139187 "CRM Full Synchronization"
         Finished := 2;
 
         // [WHEN] Run "Start"
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
-#if not CLEAN21
+#if not CLEAN23
         // [THEN] Lines 'CUSTPRCGRP-PRICE' and 'CUSTOMER' get "Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER|VENDOR');
@@ -814,16 +798,16 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UT]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] 'UNIT OF MEASURE','CURRENCY','ITEM-PRODUCT','CUSTPRCGRP-PRICE' are 'Finished'
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('ITEM-PRODUCT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('UNIT OF MEASURE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('PAYMENT TERMS', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-#if not CLEAN21
+#if not CLEAN23
         SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         Finished := 7;
 #else
@@ -831,9 +815,9 @@ codeunit 139187 "CRM Full Synchronization"
 #endif
 
         // [WHEN] Run "Start"
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
-#if not CLEAN21
+#if not CLEAN23
         // [THEN] Lines 'CUSTPRCGRP-PRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'SALESPRC-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
@@ -864,12 +848,12 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [UI] [Status]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
 
         // [WHEN] Run "Start" and do NOT confirm
-        CRMFullSynchReviewPage.Start.Invoke;
+        CRMFullSynchReviewPage.Start.Invoke();
 
         // [THEN] All lines still have <blank> "Job Queue Entry Status"
         AllCounter := CRMFullSynchReviewLine.Count();
@@ -890,7 +874,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UI]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Application Area is 'Suite'
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Job Queue Entries: "A", "B", "C"
@@ -902,10 +886,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [GIVEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine);
         // [WHEN] Drilldown on "Job Queue Entry Status"
-        CRMFullSynchReviewPage."Job Queue Entry Status".DrillDown;
+        CRMFullSynchReviewPage."Job Queue Entry Status".DrillDown();
 
         // [THEN] Job Queue Log Entries Page is open, where "B" is the only record
         // verified by JobQueueLogEntriesHandler
@@ -923,7 +907,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UI]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Application Area is 'Suite'
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Three Integration Synch. Jobs: "A", "B", "C"
@@ -935,10 +919,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [GIVEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine);
         // [WHEN] Drilldown on "To Int. Table Job Status"
-        CRMFullSynchReviewPage."To Int. Table Job Status".DrillDown;
+        CRMFullSynchReviewPage."To Int. Table Job Status".DrillDown();
 
         // [THEN] Job Queue Log Entries Page is open, where "B" is the only record
         // verified by IntegrationSynchJobListHandler
@@ -956,7 +940,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Status] [UI]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] Application Area is 'Suite'
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Three Integration Synch. Jobs: "A", "B", "C"
@@ -968,10 +952,10 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Insert(true);
 
         // [GIVEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine);
         // [WHEN] Drilldown on "From Int. Table Job Status"
-        CRMFullSynchReviewPage."From Int. Table Job Status".DrillDown;
+        CRMFullSynchReviewPage."From Int. Table Job Status".DrillDown();
 
         // [THEN] Job Queue Log Entries Page is open, where "B" is the only record
         // verified by IntegrationSynchJobListHandler
@@ -988,11 +972,11 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Session] [UI]
         // [SCENARIO] Action Start is disabled if any "In Process" line has an active session
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] 'CUSTOMER' line is "In Process" and "Session ID" points to an active session
         CRMFullSynchReviewLine[1].Name := 'CUSTOMER';
-        CRMFullSynchReviewLine[1]."Session ID" := SessionId;
+        CRMFullSynchReviewLine[1]."Session ID" := SessionId();
         CRMFullSynchReviewLine[1]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[1]."Job Queue Entry Status"::"In Process";
         CRMFullSynchReviewLine[1].Insert();
@@ -1004,15 +988,15 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine[2].Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
         // [THEN] "Start" action is disabled
-        Assert.IsFalse(CRMFullSynchReviewPage.Start.Enabled, 'Start action should be disabled');
+        Assert.IsFalse(CRMFullSynchReviewPage.Start.Enabled(), 'Start action should be disabled');
         // [THEN] 'CUSTOMER' line, where "Active Session" is 'Yes'
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine[1]);
-        Assert.IsTrue(CRMFullSynchReviewPage.ActiveSession.AsBoolean, 'Active Session for CUSTOMER');
+        Assert.IsTrue(CRMFullSynchReviewPage.ActiveSession.AsBoolean(), 'Active Session for CUSTOMER');
         // [THEN] 'CURRENCY' line, where "Active Session" is 'No'
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine[2]);
-        Assert.IsFalse(CRMFullSynchReviewPage.ActiveSession.AsBoolean, 'Active Session for CURRENCY');
+        Assert.IsFalse(CRMFullSynchReviewPage.ActiveSession.AsBoolean(), 'Active Session for CURRENCY');
     end;
 
     [Test]
@@ -1026,7 +1010,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Session] [UI]
         // [SCENARIO] Action Start is enabled if no "In Process" lines have an active session
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] 'CUSTOMER' line is "In Process", but "Session ID" points to an inactive session
         CRMFullSynchReviewLine[1].Name := 'CUSTOMER';
@@ -1036,7 +1020,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine[1].Insert();
         // [GIVEN] 'CURRENCY' line is "Finished" and "Session ID" points to an active session
         CRMFullSynchReviewLine[2].Name := 'CURRENCY';
-        CRMFullSynchReviewLine[2]."Session ID" := SessionId;
+        CRMFullSynchReviewLine[2]."Session ID" := SessionId();
         CRMFullSynchReviewLine[2]."Job Queue Entry Status" :=
           CRMFullSynchReviewLine[2]."Job Queue Entry Status"::Finished;
         CRMFullSynchReviewLine[2].Insert();
@@ -1048,16 +1032,16 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine[3].Insert();
 
         // [WHEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
 
         // [THEN] "Start" action is enabled
-        Assert.IsTrue(CRMFullSynchReviewPage.Start.Enabled, 'Start action should be enabled');
+        Assert.IsTrue(CRMFullSynchReviewPage.Start.Enabled(), 'Start action should be enabled');
         // [THEN] 'CUSTOMER' line, where "Active Session" is 'No'
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine[1]);
-        Assert.IsFalse(CRMFullSynchReviewPage.ActiveSession.AsBoolean, 'Active Session for CUSTOMER');
+        Assert.IsFalse(CRMFullSynchReviewPage.ActiveSession.AsBoolean(), 'Active Session for CUSTOMER');
         // [THEN] 'CURRENCY' line, where "Active Session" is 'Yes'
         CRMFullSynchReviewPage.GotoRecord(CRMFullSynchReviewLine[2]);
-        Assert.IsTrue(CRMFullSynchReviewPage.ActiveSession.AsBoolean, 'Active Session for CURRENCY');
+        Assert.IsTrue(CRMFullSynchReviewPage.ActiveSession.AsBoolean(), 'Active Session for CURRENCY');
     end;
 
     [Test]
@@ -1071,9 +1055,9 @@ codeunit 139187 "CRM Full Synchronization"
         // [FEATURE] [Status] [UI]
         // [SCENARIO] Action Start is disabled if no lines in initial <blank> status
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] All lines are in different states, but no one, where "Status" = <blank>
-        CRMFullSynchReviewLine.Generate;
+        CRMFullSynchReviewLine.Generate();
         CRMFullSynchReviewLine.ModifyAll(
           "Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('CURRENCY', CRMFullSynchReviewLine."Job Queue Entry Status"::Ready);
@@ -1082,10 +1066,10 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('SALESPEOPLE', CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold");
 
         // [WHEN] Open "CRM Full Synch Review"
-        CRMFullSynchReviewPage.OpenEdit;
+        CRMFullSynchReviewPage.OpenEdit();
 
         // [THEN] "Start" action is disabled
-        Assert.IsFalse(CRMFullSynchReviewPage.Start.Enabled, 'Start action should be disabled');
+        Assert.IsFalse(CRMFullSynchReviewPage.Start.Enabled(), 'Start action should be disabled');
     end;
 
     [Test]
@@ -1099,7 +1083,7 @@ codeunit 139187 "CRM Full Synchronization"
     begin
         // [FEATURE] [Integration Table Mapping]
         Initialize();
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
         // [GIVEN] New Customer "A", where "Modified On" = 'X'
         Customer.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
@@ -1113,7 +1097,7 @@ codeunit 139187 "CRM Full Synchronization"
         IntegrationTableMapping.TestField("Synch. Modified On Filter", 0DT);
 
         // [WHEN] Start the full synchronization
-        CRMFullSynchReviewLine.Start;
+        CRMFullSynchReviewLine.Start();
 
         // [THEN] The 'CUSTOMER' synch job is scheduled and executed
         VerifyCustomerJobIsFinished(CRMFullSynchReviewLine."To Int. Table Job Status"::Success);
@@ -1144,8 +1128,8 @@ codeunit 139187 "CRM Full Synchronization"
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
         CRMFullSynchReviewLine.DeleteAll();
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
@@ -1155,13 +1139,13 @@ codeunit 139187 "CRM Full Synchronization"
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
-        LibraryCRMIntegration.CreateCRMOrganization;
+        LibraryCRMIntegration.CreateCRMOrganization();
         CRMOrganization.FindFirst();
         CRMConnectionSetup.BaseCurrencyId := CRMOrganization.BaseCurrencyId;
         CRMConnectionSetup.Modify();
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
-        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
+        LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask();
     end;
 
     local procedure BlankTableConfigTemplateCodes(MapName: Code[20])
@@ -1257,7 +1241,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine.Get('CUSTOMER');
         CRMFullSynchReviewLine.TestField("Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         CRMFullSynchReviewLine.TestField("Session ID", 0);
-        Assert.IsFalse(CRMFullSynchReviewLine.IsActiveSession, 'Session should be inactive');
+        Assert.IsFalse(CRMFullSynchReviewLine.IsActiveSession(), 'Session should be inactive');
 
         CRMFullSynchReviewLine.TestField("To Int. Table Job Status", ExpectedJobStatus);
         CRMFullSynchReviewLine.TestField("From Int. Table Job Status", ExpectedJobStatus);
@@ -1290,7 +1274,7 @@ codeunit 139187 "CRM Full Synchronization"
             Get(MapName);
             Assert.IsFalse(IsNullGuid("Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
             TestField("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
-            Assert.IsTrue(IsActiveSession, 'Session should be active');
+            Assert.IsTrue(IsActiveSession(), 'Session should be active');
 
             Assert.IsFalse(IsNullGuid("To Int. Table Job ID"), 'To Int. Table Job ID is null.');
             TestField("To Int. Table Job Status", "To Int. Table Job Status"::"In Process");
@@ -1341,9 +1325,9 @@ codeunit 139187 "CRM Full Synchronization"
     [Scope('OnPrem')]
     procedure IntegrationSynchJobListHandler(var IntegrationSynchJobList: TestPage "Integration Synch. Job List")
     begin
-        Assert.IsTrue(IntegrationSynchJobList.First, 'IntegrationSynchJobList.FIRST');
+        Assert.IsTrue(IntegrationSynchJobList.First(), 'IntegrationSynchJobList.FIRST');
         IntegrationSynchJobList.Modified.AssertEquals('2');
-        Assert.IsTrue(IntegrationSynchJobList.Last, 'IntegrationSynchJobList.LAST');
+        Assert.IsTrue(IntegrationSynchJobList.Last(), 'IntegrationSynchJobList.LAST');
         IntegrationSynchJobList.Modified.AssertEquals('2');
     end;
 
@@ -1351,9 +1335,9 @@ codeunit 139187 "CRM Full Synchronization"
     [Scope('OnPrem')]
     procedure JobQueueLogEntriesHandler(var JobQueueLogEntriesPage: TestPage "Job Queue Log Entries")
     begin
-        Assert.IsTrue(JobQueueLogEntriesPage.First, 'JobQueueLogEntriesPage.FIRST');
+        Assert.IsTrue(JobQueueLogEntriesPage.First(), 'JobQueueLogEntriesPage.FIRST');
         JobQueueLogEntriesPage.Description.AssertEquals('2');
-        Assert.IsTrue(JobQueueLogEntriesPage.Last, 'JobQueueLogEntriesPage.LAST');
+        Assert.IsTrue(JobQueueLogEntriesPage.Last(), 'JobQueueLogEntriesPage.LAST');
         JobQueueLogEntriesPage.Description.AssertEquals('2');
     end;
 
@@ -1400,7 +1384,7 @@ codeunit 139187 "CRM Full Synchronization"
             Get('CUSTOMER');
             Assert.IsFalse(IsNullGuid("Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
             TestField("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
-            Assert.IsTrue(IsActiveSession, 'Session should be active');
+            Assert.IsTrue(IsActiveSession(), 'Session should be active');
 
             Assert.IsFalse(IsNullGuid("To Int. Table Job ID"), 'To Int. Table Job ID is null.');
             if CRMAccount.Name = 'FAIL' then

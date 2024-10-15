@@ -55,10 +55,8 @@ report 11408 "Receive Response Messages"
 
                 Window.Update(1, WindowStatusRequestingMsg);
                 Request := Request.getStatussenProcesRequest();
-                with Request do begin
-                    kenmerk := "Elec. Tax Declaration Header"."Message ID";
-                    autorisatieAdres := 'http://geenausp.nl'
-                end;
+                Request.kenmerk := "Elec. Tax Declaration Header"."Message ID";
+                Request.autorisatieAdres := 'http://geenausp.nl';
 
                 if ElecTaxDeclarationSetup."Use Certificate Setup" then
                     ElecTaxDeclarationMgt.InitCertificatesWithPassword(ClientCertificateBase64, DotNet_SecureString, ServiceCertificateBase64);
@@ -81,47 +79,45 @@ report 11408 "Receive Response Messages"
                 while StatusResultatQueue.Count > 0 do begin
                     StatusResultat := StatusResultatQueue.Dequeue();
                     if StatusResultat.statuscode <> '-1' then begin
-                        with ElecTaxDeclResponseMsg do begin
-                            Init();
-                            "No." := NextNo;
-                            NextNo += 1;
-                            "Declaration Type" := "Elec. Tax Declaration Header"."Declaration Type";
-                            "Declaration No." := "Elec. Tax Declaration Header"."No.";
-                            Subject := CopyStr(StatusResultat.statusomschrijving, 1, MaxStrLen(Subject));
-                            "Status Code" := CopyStr(StatusResultat.statuscode, 1, MaxStrLen("Status Code"));
+                        ElecTaxDeclResponseMsg.Init();
+                        ElecTaxDeclResponseMsg."No." := NextNo;
+                        NextNo += 1;
+                        ElecTaxDeclResponseMsg."Declaration Type" := "Elec. Tax Declaration Header"."Declaration Type";
+                        ElecTaxDeclResponseMsg."Declaration No." := "Elec. Tax Declaration Header"."No.";
+                        ElecTaxDeclResponseMsg.Subject := CopyStr(StatusResultat.statusomschrijving, 1, MaxStrLen(ElecTaxDeclResponseMsg.Subject));
+                        ElecTaxDeclResponseMsg."Status Code" := CopyStr(StatusResultat.statuscode, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Code"));
 
-                            FoundXmlContent := false;
-                            Message.CreateOutStream(MessageBLOB);
+                        FoundXmlContent := false;
+                        ElecTaxDeclResponseMsg.Message.CreateOutStream(MessageBLOB);
 
-                            StatusErrorDescription := StatusResultat.statusFoutcode.foutbeschrijving;
-                            if StatusErrorDescription <> '' then
-                                if StatusErrorDescription[1] = '<' then begin
-                                    MessageBLOB.WriteText(StatusErrorDescription);
-                                    FoundXmlContent := true;
-                                end;
-
-                            StatusDetails := StatusResultat.statusdetails;
-                            if StatusDetails <> '' then
-                                if StatusDetails[1] = '<' then begin
-                                    MessageBLOB.WriteText(StatusDetails);
-                                    FoundXmlContent := true;
-                                end;
-
-                            if FoundXmlContent then begin
-                                "Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen("Status Description"));
-                                Session.LogMessage('0000CJH', ReceiveResponseSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
-                            end else begin
-                                Session.LogMessage('0000CJI', ReceiveResponseErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
-                                if StatusErrorDescription <> '' then
-                                    "Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen("Status Description"))
-                                else
-                                    "Status Description" := CopyStr(StatusDetails, 1, MaxStrLen("Status Description"));
+                        StatusErrorDescription := StatusResultat.statusFoutcode.foutbeschrijving;
+                        if StatusErrorDescription <> '' then
+                            if StatusErrorDescription[1] = '<' then begin
+                                MessageBLOB.WriteText(StatusErrorDescription);
+                                FoundXmlContent := true;
                             end;
 
-                            "Date Sent" := Format(StatusResultat.tijdstempelStatus);
-                            Status := Status::Received;
-                            Insert(true);
+                        StatusDetails := StatusResultat.statusdetails;
+                        if StatusDetails <> '' then
+                            if StatusDetails[1] = '<' then begin
+                                MessageBLOB.WriteText(StatusDetails);
+                                FoundXmlContent := true;
+                            end;
+
+                        if FoundXmlContent then begin
+                            ElecTaxDeclResponseMsg."Status Description" := CopyStr(BlobContentStatusMsg, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
+                            Session.LogMessage('0000CJH', ReceiveResponseSuccessMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
+                        end else begin
+                            Session.LogMessage('0000CJI', ReceiveResponseErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
+                            if StatusErrorDescription <> '' then
+                                ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusErrorDescription, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"))
+                            else
+                                ElecTaxDeclResponseMsg."Status Description" := CopyStr(StatusDetails, 1, MaxStrLen(ElecTaxDeclResponseMsg."Status Description"));
                         end;
+
+                        ElecTaxDeclResponseMsg."Date Sent" := Format(StatusResultat.tijdstempelStatus);
+                        ElecTaxDeclResponseMsg.Status := ElecTaxDeclResponseMsg.Status::Received;
+                        ElecTaxDeclResponseMsg.Insert(true);
                     end else begin
                         Session.LogMessage('0000CEJ', UnknownStatusCodeErr, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', DigipoortTok);
                         Error(StatusResultat.statusFoutcode.foutbeschrijving);

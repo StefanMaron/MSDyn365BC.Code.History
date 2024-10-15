@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +19,7 @@ table 11000003 "Detail Line"
     Caption = 'Detail Line';
     DrillDownPageID = "Detail Lines";
     LookupPageID = "Detail Lines";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -357,7 +358,6 @@ table 11000003 "Detail Line"
         Text1000000: Label '%1 cannot be renamed';
         Text1000001: Label '%1 %2 vendor no. %3';
         Text1000002: Label '%1 %2 customer no. %3';
-        Text1000003: Label 'The sign does not correspond with the outstanding entry.';
         Text1000004: Label 'The outstanding amount is exceeded by %1.';
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         AmountValidate: Boolean;

@@ -8,6 +8,7 @@ table 99000773 Family
     DataCaptionFields = "No.", Description;
     DrillDownPageID = "Family List";
     LookupPageID = "Family List";
+    DataClassification = CustomerContent;
 
     fields
     {

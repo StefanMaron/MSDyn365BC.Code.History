@@ -410,34 +410,32 @@ codeunit 5335 "Integration Table Synch."
         SynchDirection: Option;
         IsHandled: Boolean;
     begin
-        with CurrentIntegrationTableMapping do begin
-            ErrorMessage := '';
-            OnDetermineSynchDirection(CurrentIntegrationTableMapping, TableID, ErrorMessage, IsHandled);
-            if IsHandled then
-                exit(ErrorMessage = '');
+        ErrorMessage := '';
+        OnDetermineSynchDirection(CurrentIntegrationTableMapping, TableID, ErrorMessage, IsHandled);
+        if IsHandled then
+            exit(ErrorMessage = '');
 
-            case TableID of
-                "Table ID":
-                    SynchDirection := Direction::ToIntegrationTable;
-                "Integration Table ID":
-                    SynchDirection := Direction::FromIntegrationTable;
-                else begin
-                    ErrorMessage := UnableToDetectSynchDirectionErr;
-                    exit(false);
-                end;
-            end;
-
-            if not (Direction in [SynchDirection, Direction::Bidirectional]) then begin
-                DummyIntegrationTableMapping.Direction := SynchDirection;
-                ErrorMessage :=
-                  StrSubstNo(
-                    MappingDoesNotAllowDirectionErr, TableCaption(), Name,
-                    DummyIntegrationTableMapping.Direction);
+        case TableID of
+            CurrentIntegrationTableMapping."Table ID":
+                SynchDirection := CurrentIntegrationTableMapping.Direction::ToIntegrationTable;
+            CurrentIntegrationTableMapping."Integration Table ID":
+                SynchDirection := CurrentIntegrationTableMapping.Direction::FromIntegrationTable;
+            else begin
+                ErrorMessage := UnableToDetectSynchDirectionErr;
                 exit(false);
             end;
-
-            Direction := SynchDirection;
         end;
+
+        if not (CurrentIntegrationTableMapping.Direction in [SynchDirection, CurrentIntegrationTableMapping.Direction::Bidirectional]) then begin
+            DummyIntegrationTableMapping.Direction := SynchDirection;
+            ErrorMessage :=
+              StrSubstNo(
+                MappingDoesNotAllowDirectionErr, CurrentIntegrationTableMapping.TableCaption(), CurrentIntegrationTableMapping.Name,
+                DummyIntegrationTableMapping.Direction);
+            exit(false);
+        end;
+
+        CurrentIntegrationTableMapping.Direction := SynchDirection;
         exit(true);
     end;
 
@@ -452,12 +450,10 @@ codeunit 5335 "Integration Table Synch."
 
     local procedure FinishIntegrationSynchJob(FinalMessage: Text)
     begin
-        with CurrentIntegrationSynchJob do begin
-            if FinalMessage <> '' then
-                Message := CopyStr(FinalMessage, 1, MaxStrLen(Message));
-            "Finish Date/Time" := CurrentDateTime;
-            Modify(true);
-        end;
+        if FinalMessage <> '' then
+            CurrentIntegrationSynchJob.Message := CopyStr(FinalMessage, 1, MaxStrLen(CurrentIntegrationSynchJob.Message));
+        CurrentIntegrationSynchJob."Finish Date/Time" := CurrentDateTime;
+        CurrentIntegrationSynchJob.Modify(true);
         Commit();
     end;
 
@@ -482,36 +478,34 @@ codeunit 5335 "Integration Table Synch."
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        with IntegrationFieldMapping do begin
-            SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
-            SetFilter(Direction, '%1|%2', SynchDirection, Direction::Bidirectional);
-            SetFilter(Status, '<>%1', Status::Disabled);
-            if IsEmpty() then
-                Error(
-                  IntegrationTableMappingHasNoMappedFieldsErr, TableCaption(),
-                  FieldCaption("Integration Table Mapping Name"), IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetFilter(Direction, '%1|%2', SynchDirection, IntegrationFieldMapping.Direction::Bidirectional);
+        IntegrationFieldMapping.SetFilter(Status, '<>%1', IntegrationFieldMapping.Status::Disabled);
+        if IntegrationFieldMapping.IsEmpty() then
+            Error(
+              IntegrationTableMappingHasNoMappedFieldsErr, IntegrationFieldMapping.TableCaption(),
+              IntegrationFieldMapping.FieldCaption("Integration Table Mapping Name"), IntegrationTableMapping.Name);
 
-            TempIntegrationFieldMapping.DeleteAll();
-            FindSet();
-            repeat
-                TempIntegrationFieldMapping.Init();
-                TempIntegrationFieldMapping."No." := "No.";
-                TempIntegrationFieldMapping."Integration Table Mapping Name" := "Integration Table Mapping Name";
-                TempIntegrationFieldMapping."Constant Value" := "Constant Value";
-                TempIntegrationFieldMapping."Not Null" := "Not Null";
-                if SynchDirection = IntegrationTableMapping.Direction::ToIntegrationTable then begin
-                    TempIntegrationFieldMapping."Source Field No." := "Field No.";
-                    TempIntegrationFieldMapping."Destination Field No." := "Integration Table Field No.";
-                    TempIntegrationFieldMapping."Validate Destination Field" := "Validate Integration Table Fld";
-                end else begin
-                    TempIntegrationFieldMapping."Source Field No." := "Integration Table Field No.";
-                    TempIntegrationFieldMapping."Destination Field No." := "Field No.";
-                    TempIntegrationFieldMapping."Validate Destination Field" := "Validate Field";
-                end;
-                TempIntegrationFieldMapping.Bidirectional := Direction = Direction::Bidirectional;
-                TempIntegrationFieldMapping.Insert();
-            until Next() = 0;
-        end;
+        TempIntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.FindSet();
+        repeat
+            TempIntegrationFieldMapping.Init();
+            TempIntegrationFieldMapping."No." := IntegrationFieldMapping."No.";
+            TempIntegrationFieldMapping."Integration Table Mapping Name" := IntegrationFieldMapping."Integration Table Mapping Name";
+            TempIntegrationFieldMapping."Constant Value" := IntegrationFieldMapping."Constant Value";
+            TempIntegrationFieldMapping."Not Null" := IntegrationFieldMapping."Not Null";
+            if SynchDirection = IntegrationTableMapping.Direction::ToIntegrationTable then begin
+                TempIntegrationFieldMapping."Source Field No." := IntegrationFieldMapping."Field No.";
+                TempIntegrationFieldMapping."Destination Field No." := IntegrationFieldMapping."Integration Table Field No.";
+                TempIntegrationFieldMapping."Validate Destination Field" := IntegrationFieldMapping."Validate Integration Table Fld";
+            end else begin
+                TempIntegrationFieldMapping."Source Field No." := IntegrationFieldMapping."Integration Table Field No.";
+                TempIntegrationFieldMapping."Destination Field No." := IntegrationFieldMapping."Field No.";
+                TempIntegrationFieldMapping."Validate Destination Field" := IntegrationFieldMapping."Validate Field";
+            end;
+            TempIntegrationFieldMapping.Bidirectional := IntegrationFieldMapping.Direction = IntegrationFieldMapping.Direction::Bidirectional;
+            TempIntegrationFieldMapping.Insert();
+        until IntegrationFieldMapping.Next() = 0;
     end;
 
     procedure LogSynchError(var SourceRecordRef: RecordRef; var DestinationRecordRef: RecordRef; ErrorMessage: Text): Guid
@@ -546,41 +540,38 @@ codeunit 5335 "Integration Table Synch."
     begin
         if Counter = 0 then
             exit;
-        with CurrentIntegrationSynchJob do begin
-            case SynchAction of
-                SynchActionType::Insert:
-                    Inserted += Counter;
-                SynchActionType::Modify, SynchActionType::ForceModify:
-                    Modified += Counter;
-                SynchActionType::IgnoreUnchanged:
-                    Unchanged += Counter;
-                SynchActionType::Skip:
-                    Skipped += Counter;
-                SynchActionType::Fail:
-                    Failed += Counter;
-                SynchActionType::Delete:
-                    Deleted += Counter;
-                SynchActionType::Uncouple:
-                    Uncoupled += Counter;
-                SynchActionType::Couple:
-                    Coupled += Counter;
-                else
-                    exit
-            end;
-            Modify();
-            Commit();
+        case SynchAction of
+            SynchActionType::Insert:
+                CurrentIntegrationSynchJob.Inserted += Counter;
+            SynchActionType::Modify, SynchActionType::ForceModify:
+                CurrentIntegrationSynchJob.Modified += Counter;
+            SynchActionType::IgnoreUnchanged:
+                CurrentIntegrationSynchJob.Unchanged += Counter;
+            SynchActionType::Skip:
+                CurrentIntegrationSynchJob.Skipped += Counter;
+            SynchActionType::Fail:
+                CurrentIntegrationSynchJob.Failed += Counter;
+            SynchActionType::Delete:
+                CurrentIntegrationSynchJob.Deleted += Counter;
+            SynchActionType::Uncouple:
+                CurrentIntegrationSynchJob.Uncoupled += Counter;
+            SynchActionType::Couple:
+                CurrentIntegrationSynchJob.Coupled += Counter;
+            else
+                exit
         end;
+        CurrentIntegrationSynchJob.Modify();
+        Commit();
     end;
 
     local procedure DoesSourceMatchMapping(SourceTableID: Integer): Boolean
     begin
-        with CurrentIntegrationTableMapping do
-            case Direction of
-                Direction::ToIntegrationTable:
-                    exit(SourceTableID = "Table ID");
-                Direction::FromIntegrationTable:
-                    exit(SourceTableID = "Integration Table ID");
-            end;
+        case CurrentIntegrationTableMapping.Direction of
+            CurrentIntegrationTableMapping.Direction::ToIntegrationTable:
+                exit(SourceTableID = CurrentIntegrationTableMapping."Table ID");
+            CurrentIntegrationTableMapping.Direction::FromIntegrationTable:
+                exit(SourceTableID = CurrentIntegrationTableMapping."Integration Table ID");
+        end;
     end;
 
     local procedure IsRecordSkipped(RecRef: RecordRef; DirectionToIntTable: Boolean): Boolean

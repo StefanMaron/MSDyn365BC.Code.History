@@ -482,7 +482,11 @@ codeunit 11000000 "Process Proposal Lines"
     var
         TranMode: Record "Transaction Mode";
         OurBnk: Record "Bank Account";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
         DimManagement: Codeunit DimensionManagement;
     begin
         Clear(PaymentHistory);
@@ -490,7 +494,18 @@ codeunit 11000000 "Process Proposal Lines"
         TranMode.TestField("Run No. Series");
 
         PaymentHistory."Our Bank" := ProposalLine."Our Bank No.";
-        NoSeriesManagement.InitSeries(TranMode."Run No. Series", '', Today, PaymentHistory."Run No.", PaymentHistory."No. Series");
+#if not CLEAN24
+        NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(TranMode."Run No. Series", '', Today(), PaymentHistory."Run No.", PaymentHistory."No. Series", IsHandled);
+        if not IsHandled then begin
+#endif
+            PaymentHistory."No. Series" := TranMode."Run No. Series";
+            PaymentHistory."Run No." := NoSeries.GetNextNo(PaymentHistory."No. Series", Today());
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(PaymentHistory."No. Series", TranMode."Run No. Series", Today(), PaymentHistory."Run No.");
+        end;
+#endif
+
+
         PaymentHistory.Init();
 
         PaymentHistory.Status := PaymentHistory.Status::New;

@@ -12,10 +12,11 @@ using Microsoft.Purchases.Document;
 
 page 1001 "Job Task Lines Subform"
 {
-    Caption = 'Job Task Lines Subform';
+    Caption = 'Project Task Lines Subform';
     DataCaptionFields = "Job No.";
     PageType = ListPart;
     SaveValues = true;
+    CardPageId = "Job Task Card";
     SourceTable = "Job Task";
 
     layout
@@ -32,7 +33,7 @@ page 1001 "Job Task Lines Subform"
                     ApplicationArea = Basic, Suite, Jobs;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Job Task No."; Rec."Job Task No.")
@@ -40,14 +41,14 @@ page 1001 "Job Task Lines Subform"
                     ApplicationArea = Basic, Suite, Jobs;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     Style = Strong;
                     StyleExpr = StyleIsStrong;
-                    ToolTip = 'Specifies a description of the job task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the job planning line.';
+                    ToolTip = 'Specifies a description of the project task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the project planning line.';
                 }
                 field("Job Task Type"; Rec."Job Task Type")
                 {
@@ -63,107 +64,134 @@ page 1001 "Job Task Lines Subform"
                 field(Totaling; Rec.Totaling)
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies an interval or a list of job task numbers.';
+                    ToolTip = 'Specifies an interval or a list of project task numbers.';
                     Visible = false;
+                }
+                field("Sell-to Customer No."; Rec."Sell-to Customer No.")
+                {
+                    ApplicationArea = Jobs;
+                    Caption = 'Customer No.';
+                    ToolTip = 'Specifies the number of the customer who will receive the products and be billed by default for the project task.';
+                    Visible = PerTaskBillingFieldsVisible;
+                    Editable = PostingTypeRow;
+                }
+                field("Bill-to Customer No."; Rec."Bill-to Customer No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the number of the customer who pays for the project task.';
+                    Visible = PerTaskBillingFieldsVisible;
+                    Editable = PostingTypeRow;
                 }
                 field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the job posting group of the task.';
+                    ToolTip = 'Specifies the project posting group of the task.';
+                    Visible = false;
+                }
+                field("Location Code"; Rec."Location Code")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the location code of the task.';
+                    Visible = false;
+                }
+                field("Bin Code"; Rec."Bin Code")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies a bin code for specific location of the task.';
                     Visible = false;
                 }
                 field("WIP-Total"; Rec."WIP-Total")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the job tasks you want to group together when calculating Work In Process (WIP) and Recognition.';
+                    ToolTip = 'Specifies the project tasks you want to group together when calculating Work In Process (WIP) and Recognition.';
                     Visible = false;
                 }
                 field("WIP Method"; Rec."WIP Method")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the name of the Work in Process calculation method that is associated with a job. The value in this field comes from the WIP method specified on the job card.';
+                    ToolTip = 'Specifies the name of the Work in Process calculation method that is associated with a project. The value in this field comes from the WIP method specified on the project card.';
                     Visible = false;
                 }
                 field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    ToolTip = 'Specifies the start date for the job task. The date is based on the date on the related job planning line.';
+                    ToolTip = 'Specifies the start date for the project task. The date is based on the date on the related project planning line.';
                 }
                 field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    ToolTip = 'Specifies the end date for the job task. The date is based on the date on the related job planning line.';
+                    ToolTip = 'Specifies the end date for the project task. The date is based on the date on the related project planning line.';
                 }
                 field("Schedule (Total Cost)"; Rec."Schedule (Total Cost)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     Caption = 'Budget (Total Cost)';
-                    ToolTip = 'Specifies, in the local currency, the total budgeted cost for the job task during the time period in the Planning Date Filter field.';
+                    ToolTip = 'Specifies, in the local currency, the total budgeted cost for the project task during the time period in the Planning Date Filter field.';
                 }
                 field("Schedule (Total Price)"; Rec."Schedule (Total Price)")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Budget (Total Price)';
-                    ToolTip = 'Specifies, in local currency, the total budgeted price for the job task during the time period in the Planning Date Filter field.';
+                    ToolTip = 'Specifies, in local currency, the total budgeted price for the project task during the time period in the Planning Date Filter field.';
                     Visible = false;
                 }
                 field("Usage (Total Cost)"; Rec."Usage (Total Cost)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    ToolTip = 'Specifies, in local currency, the total cost of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
+                    ToolTip = 'Specifies, in local currency, the total cost of the usage of items, resources and general ledger expenses posted on the project task during the time period in the Posting Date Filter field.';
                 }
                 field("Usage (Total Price)"; Rec."Usage (Total Price)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies, in the local currency, the total price of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
+                    ToolTip = 'Specifies, in the local currency, the total price of the usage of items, resources and general ledger expenses posted on the project task during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Total Cost)"; Rec."Contract (Total Cost)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies, in local currency, the total billable cost for the job task during the time period in the Planning Date Filter field.';
+                    ToolTip = 'Specifies, in local currency, the total billable cost for the project task during the time period in the Planning Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Total Price)"; Rec."Contract (Total Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    ToolTip = 'Specifies, in the local currency, the total billable price for the job task during the time period in the Planning Date Filter field.';
+                    ToolTip = 'Specifies, in the local currency, the total billable price for the project task during the time period in the Planning Date Filter field.';
                 }
                 field("Contract (Invoiced Cost)"; Rec."Contract (Invoiced Cost)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies, in the local currency, the total billable cost for the job task that has been invoiced during the time period in the Posting Date Filter field.';
+                    ToolTip = 'Specifies, in the local currency, the total billable cost for the project task that has been invoiced during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
                 field("Contract (Invoiced Price)"; Rec."Contract (Invoiced Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
-                    ToolTip = 'Specifies, in the local currency, the total billable price for the job task that has been invoiced during the time period in the Posting Date Filter field.';
+                    ToolTip = 'Specifies, in the local currency, the total billable price for the project task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
                 field("Remaining (Total Cost)"; Rec."Remaining (Total Cost)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the remaining total cost (LCY) as the sum of costs from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
+                    ToolTip = 'Specifies the remaining total cost (LCY) as the sum of costs from project planning lines associated with the project task. The calculation occurs when you have specified that there is a usage link between the project ledger and the project planning lines.';
                     Visible = false;
                 }
                 field("Remaining (Total Price)"; Rec."Remaining (Total Price)")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the remaining total price (LCY) as the sum of prices from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
+                    ToolTip = 'Specifies the remaining total price (LCY) as the sum of prices from project planning lines associated with the project task. The calculation occurs when you have specified that there is a usage link between the project ledger and the project planning lines.';
                     Visible = false;
                 }
                 field("EAC (Total Cost)"; Rec.CalcEACTotalCost())
                 {
                     ApplicationArea = Suite;
                     Caption = 'EAC (Total Cost)';
-                    ToolTip = 'Specifies the estimate at completion (EAC) total cost for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Cost) field is calculated as follows: Usage (Total Cost) + Remaining (Total Cost).';
+                    ToolTip = 'Specifies the estimate at completion (EAC) total cost for a project task line. If the Apply Usage Link check box on the project is selected, then the EAC (Total Cost) field is calculated as follows: Usage (Total Cost) + Remaining (Total Cost).';
                     Visible = false;
                 }
                 field("EAC (Total Price)"; Rec.CalcEACTotalPrice())
                 {
                     ApplicationArea = Suite;
                     Caption = 'EAC (Total Price)';
-                    ToolTip = 'Specifies the estimate at completion (EAC) total price for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Price) field is calculated as follows: Usage (Total Price) + Remaining (Total Price).';
+                    ToolTip = 'Specifies the estimate at completion (EAC) total price for a project task line. If the Apply Usage Link check box on the project is selected, then the EAC (Total Price) field is calculated as follows: Usage (Total Price) + Remaining (Total Price).';
                     Visible = false;
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
@@ -178,11 +206,25 @@ page 1001 "Job Task Lines Subform"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Jobs;
+                    Visible = PerTaskBillingFieldsVisible;
+                    Editable = PerTaskBillingFieldsVisible;
+                    Tooltip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Jobs;
+                    Visible = PerTaskBillingFieldsVisible;
+                    Editable = PerTaskBillingFieldsVisible;
+                    Tooltip = 'Specifies the customer''s reference. The content will be printed on sales documents.';
+                }
                 field("Outstanding Orders"; Rec."Outstanding Orders")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the sum of outstanding orders, in local currency, for this job task. The value of the Outstanding Amount (LCY) field is used for entries in the Purchase Line table of document type Order to calculate and update the contents of this field.';
+                    ToolTip = 'Specifies the sum of outstanding orders, in local currency, for this project task. The value of the Outstanding Amount (LCY) field is used for entries in the Purchase Line table of document type Order to calculate and update the contents of this field.';
                     Visible = false;
 
                     trigger OnDrillDown()
@@ -235,15 +277,15 @@ page 1001 "Job Task Lines Subform"
                 Caption = 'Line';
                 group("&Job")
                 {
-                    Caption = '&Job';
+                    Caption = '&Project';
                     Image = Job;
                     action(JobPlanningLines)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job &Planning Lines';
+                        Caption = 'Project &Planning Lines';
                         Image = JobLines;
                         Scope = Repeater;
-                        ToolTip = 'View all planning lines for the job. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a job (budget) or you can specify what you actually agreed with your customer that he should pay for the job (billable).';
+                        ToolTip = 'View all planning lines for the project. You use this window to plan what items, resources, and general ledger expenses that you expect to use on a project (budget) or you can specify what you actually agreed with your customer that he should pay for the project (billable).';
 
                         trigger OnAction()
                         var
@@ -312,7 +354,7 @@ page 1001 "Job Task Lines Subform"
                         Caption = 'Create &Sales Invoice';
                         Ellipsis = true;
                         Image = JobSalesInvoice;
-                        ToolTip = 'Use a batch job to help you create sales invoices for the involved job tasks.';
+                        ToolTip = 'Use a batch job to help you create sales invoices for the involved project tasks.';
 
                         trigger OnAction()
                         var
@@ -336,9 +378,7 @@ page 1001 "Job Task Lines Subform"
                         ApplicationArea = Jobs;
                         Caption = 'Sales &Invoices/Credit Memos';
                         Image = GetSourceDoc;
-                        Promoted = true;
-                        PromotedCategory = Process;
-                        ToolTip = 'View sales invoices or sales credit memos that are related to the selected job task.';
+                        ToolTip = 'View sales invoices or sales credit memos that are related to the selected project task.';
 
                         trigger OnAction()
                         var
@@ -356,14 +396,14 @@ page 1001 "Job Task Lines Subform"
                     action("Job Ledger E&ntries")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Job Ledger E&ntries';
+                        Caption = 'Project Ledger E&ntries';
                         Image = JobLedger;
                         RunObject = Page "Job Ledger Entries";
                         RunPageLink = "Job No." = field("Job No."),
                                       "Job Task No." = field("Job Task No.");
                         RunPageView = sorting("Job No.", "Job Task No.");
                         ShortCutKey = 'Ctrl+F7';
-                        ToolTip = 'View the job ledger entries.';
+                        ToolTip = 'View the project ledger entries.';
                     }
                 }
                 group("F&unctions")
@@ -376,8 +416,6 @@ page 1001 "Job Task Lines Subform"
                         Caption = 'Split &Planning Lines';
                         Ellipsis = true;
                         Image = Splitlines;
-                        Promoted = true;
-                        PromotedCategory = Process;
                         ToolTip = 'Split planning lines of type Budget and Billable into two separate planning lines: Budget and Billable.';
 
                         trigger OnAction()
@@ -403,7 +441,7 @@ page 1001 "Job Task Lines Subform"
                         Caption = 'Change &Dates';
                         Ellipsis = true;
                         Image = ChangeDate;
-                        ToolTip = 'Use a batch job to help you move planning lines on a job from one date interval to another.';
+                        ToolTip = 'Use a batch job to help you move planning lines on a project from one date interval to another.';
 
                         trigger OnAction()
                         var
@@ -425,10 +463,10 @@ page 1001 "Job Task Lines Subform"
                     action("<Action7>")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'I&ndent Job Tasks';
+                        Caption = 'I&ndent Project Tasks';
                         Image = Indent;
                         RunObject = Codeunit "Job Task-Indent";
-                        ToolTip = 'Move the selected lines in one position to show that the tasks are subcategories of other tasks. Job tasks that are totaled are the ones that lie between one pair of corresponding Begin-Total and End-Total job tasks.';
+                        ToolTip = 'Move the selected lines in one position to show that the tasks are subcategories of other tasks. Project tasks that are totaled are the ones that lie between one pair of corresponding Begin-Total and End-Total project tasks.';
                     }
                     group("&Copy")
                     {
@@ -437,12 +475,10 @@ page 1001 "Job Task Lines Subform"
                         action("Copy Job Planning Lines &from...")
                         {
                             ApplicationArea = Jobs;
-                            Caption = 'Copy Job Planning Lines &from...';
+                            Caption = 'Copy Project Planning Lines &from...';
                             Ellipsis = true;
                             Image = CopyToTask;
-                            Promoted = true;
-                            PromotedCategory = Process;
-                            ToolTip = 'Use a batch job to help you copy planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
+                            ToolTip = 'Use a batch job to help you copy planning lines from one project task to another. You can copy from a project task within the project you are working with or from a project task linked to a different project.';
 
                             trigger OnAction()
                             var
@@ -456,12 +492,10 @@ page 1001 "Job Task Lines Subform"
                         action("Copy Job Planning Lines &to...")
                         {
                             ApplicationArea = Jobs;
-                            Caption = 'Copy Job Planning Lines &to...';
+                            Caption = 'Copy Project Planning Lines &to...';
                             Ellipsis = true;
                             Image = CopyFromTask;
-                            Promoted = true;
-                            PromotedCategory = Process;
-                            ToolTip = 'Use a batch job to help you copy planning lines from one job task to another. You can copy from a job task within the job you are working with or from a job task linked to a different job.';
+                            ToolTip = 'Use a batch job to help you copy planning lines from one project task to another. You can copy from a project task within the project you are working with or from a project task linked to a different project.';
 
                             trigger OnAction()
                             var
@@ -483,7 +517,7 @@ page 1001 "Job Task Lines Subform"
                             Caption = '&Calculate WIP';
                             Ellipsis = true;
                             Image = CalculateWIP;
-                            ToolTip = 'Run the Job Calculate WIP batch job.';
+                            ToolTip = 'Run the Project Calculate WIP batch job.';
 
                             trigger OnAction()
                             var
@@ -502,7 +536,7 @@ page 1001 "Job Task Lines Subform"
                             Ellipsis = true;
                             Image = PostOrder;
                             ShortCutKey = 'F9';
-                            ToolTip = 'Run the Job Post WIP to G/L batch job.';
+                            ToolTip = 'Run the Project Post WIP to G/L batch job.';
 
                             trigger OnAction()
                             var
@@ -524,17 +558,38 @@ page 1001 "Job Task Lines Subform"
     begin
         DescriptionIndent := Rec.Indentation;
         StyleIsStrong := Rec."Job Task Type" <> "Job Task Type"::Posting;
+        PostingTypeRow := Rec."Job Task Type" = "Job Task Type"::Posting;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.ClearTempDim();
         StyleIsStrong := Rec."Job Task Type" <> "Job Task Type"::Posting;
+        PostingTypeRow := Rec."Job Task Type" = "Job Task Type"::Posting;
     end;
 
     var
         DescriptionIndent: Integer;
         StyleIsStrong: Boolean;
+        PerTaskBillingFieldsVisible: Boolean;
+        PostingTypeRow: Boolean;
+#if not CLEAN24
+        RefreshCustomerControl: Boolean;
+#endif
+
+    procedure SetPerTaskBillingFieldsVisible(Visible: Boolean)
+    begin
+        PerTaskBillingFieldsVisible := Visible;
+        CurrPage.Update(false);
+    end;
+
+#if not CLEAN24
+    [Obsolete('Procedure is not used.', '24.0')]
+    procedure SetRefreshCustomerControl(Refresh: Boolean)
+    begin
+        RefreshCustomerControl := Refresh;
+    end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnActionJobPlanningLines(var JobTask: Record "Job Task"; var IsHandled: Boolean);

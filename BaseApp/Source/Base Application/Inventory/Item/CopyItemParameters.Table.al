@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Item;
 table 728 "Copy Item Parameters"
 {
     Caption = 'Copy Item Parameters';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -7,6 +7,7 @@ namespace Microsoft.Bank.Payment;
 table 11000009 "Payment History Export Buffer"
 {
     Caption = 'Payment History Export Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

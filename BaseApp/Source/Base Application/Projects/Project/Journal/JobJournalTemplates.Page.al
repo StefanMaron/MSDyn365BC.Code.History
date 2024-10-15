@@ -4,8 +4,9 @@ using System.Reflection;
 
 page 200 "Job Journal Templates"
 {
+    AdditionalSearchTerms = 'Job Journal Templates';
     ApplicationArea = Jobs;
-    Caption = 'Job Journal Templates';
+    Caption = 'Project Journal Templates';
     PageType = List;
     SourceTable = "Job Journal Template";
     UsageCategory = Administration;
@@ -25,7 +26,7 @@ page 200 "Job Journal Templates"
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies a description of the job journal template for easy identification.';
+                    ToolTip = 'Specifies a description of the project journal template for easy identification.';
                 }
                 field("No. Series"; Rec."No. Series")
                 {
@@ -101,7 +102,7 @@ page 200 "Job Journal Templates"
                 {
                     ApplicationArea = Jobs;
                     DrillDown = false;
-                    ToolTip = 'Specifies the name of the posting report that is printed when you print the job journal.';
+                    ToolTip = 'Specifies the name of the posting report that is printed when you print the project journal.';
                     Visible = false;
                 }
                 field("Force Posting Report"; Rec."Force Posting Report")

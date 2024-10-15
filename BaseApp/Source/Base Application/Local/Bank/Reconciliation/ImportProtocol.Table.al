@@ -10,6 +10,7 @@ using System.Reflection;
 table 11000007 "Import Protocol"
 {
     Caption = 'Import Protocol';
+    DataClassification = CustomerContent;
 
     fields
     {

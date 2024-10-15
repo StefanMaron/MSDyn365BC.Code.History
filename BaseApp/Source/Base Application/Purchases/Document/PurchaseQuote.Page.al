@@ -303,8 +303,8 @@ page 49 "Purchase Quote"
             part(PurchLines; "Purchase Quote Subform")
             {
                 ApplicationArea = Suite;
-                Editable = PurchaseLinesAvailable;
-                Enabled = PurchaseLinesAvailable;
+                Editable = IsPurchaseLinesEditable;
+                Enabled = IsPurchaseLinesEditable;
                 SubPageLink = "Document No." = field("No.");
                 UpdatePropagation = Both;
             }
@@ -469,7 +469,7 @@ page 49 "Purchase Quote"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Ship-to';
-                            HideValue = NOT ShowShippingOptionsWithLocation AND (ShipToOptions = ShipToOptions::Location);
+                            HideValue = not ShowShippingOptionsWithLocation and (ShipToOptions = ShipToOptions::Location);
                             OptionCaption = 'Default (Company Address),Location,Custom Address';
                             ToolTip = 'Specifies the address that the products on the purchase document are shipped to. Default (Company Address): The same as the company address specified in the Company Information window. Location: One of the company''s location addresses. Custom Address: Any ship-to address that you specify in the fields below.';
 
@@ -594,7 +594,7 @@ page 49 "Purchase Quote"
                     group(Control67)
                     {
                         ShowCaption = false;
-                        Visible = NOT (PayToOptions = PayToOptions::"Default (Vendor)");
+                        Visible = not (PayToOptions = PayToOptions::"Default (Vendor)");
                         field("Pay-to Name"; Rec."Pay-to Name")
                         {
                             ApplicationArea = Basic, Suite;
@@ -1240,7 +1240,7 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = NOT OpenApprovalEntriesExist AND CanRequestApprovalForFlow;
+                    Enabled = not OpenApprovalEntriesExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval of the document.';
 
@@ -1256,7 +1256,7 @@ page 49 "Purchase Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -1542,7 +1542,7 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
-        PurchaseLinesAvailable: Boolean;
+        IsPurchaseLinesEditable: Boolean;
         IsJournalTemplateNameVisible: Boolean;
         IsPaymentMethodCodeVisible: Boolean;
 
@@ -1581,9 +1581,9 @@ page 49 "Purchase Quote"
 
     local procedure SetPurchaseLinesAvailability()
     begin
-        PurchaseLinesAvailable := Rec."Buy-from Vendor No." <> '';
+        IsPurchaseLinesEditable := Rec.PurchaseLinesEditable();
 
-        OnAfterSetPurchaseLinesAvailability(Rec, PurchaseLinesAvailable);
+        OnAfterSetPurchaseLinesAvailability(Rec, IsPurchaseLinesEditable);
     end;
 
     local procedure ApproveCalcInvDisc()

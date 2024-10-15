@@ -437,7 +437,7 @@ report 99001043 "Exchange Production BOM Item"
     begin
         IsHandled := false;
         OnBeforeCheckParameters(StartingDate, FromBOMType, FromBOMNo, ToBOMType, ToBOMNo, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if StartingDate = 0D then

@@ -32,12 +32,12 @@ codeunit 139149 "Test XML Transformation"
 
         // [GIVEN] Incoming XML document InStream
         TempBlobXML.CreateOutStream(XMLOutStream, TEXTENCODING::UTF8);
-        XMLOutStream.WriteText(CreateIncomingPersonsXMLText);
+        XMLOutStream.WriteText(CreateIncomingPersonsXMLText());
         TempBlobXML.CreateInStream(XMLInStream);
 
         // [GIVEN] XSLT stylesheet InStream
         TempBlobXSLT.CreateOutStream(XSLTOutStream, TEXTENCODING::UTF8);
-        XSLTOutStream.WriteText(CreateTransformationSchemaPersonsText);
+        XSLTOutStream.WriteText(CreateTransformationSchemaPersonsText());
         TempBlobXSLT.CreateInStream(XSLTInStream);
 
         // [WHEN] Function TransformXML is being run
@@ -66,12 +66,12 @@ codeunit 139149 "Test XML Transformation"
 
         // [GIVEN] Broken incoming XML document InStream
         TempBlobXML.CreateOutStream(XMLOutStream, TEXTENCODING::UTF8);
-        XMLOutStream.WriteText(CreateBrokenXMLText);
+        XMLOutStream.WriteText(CreateBrokenXMLText());
         TempBlobXML.CreateInStream(XMLInStream);
 
         // [GIVEN] XSLT stylesheet InStream
         TempBlobXSLT.CreateOutStream(XSLTOutStream, TEXTENCODING::UTF8);
-        XSLTOutStream.WriteText(CreateTransformationSchemaPersonsText);
+        XSLTOutStream.WriteText(CreateTransformationSchemaPersonsText());
         TempBlobXSLT.CreateInStream(XSLTInStream);
 
         // [WHEN] Function TransformXML is being run
@@ -98,12 +98,12 @@ codeunit 139149 "Test XML Transformation"
 
         // [GIVEN] Incoming XML document InStream
         TempBlobXML.CreateOutStream(XMLOutStream, TEXTENCODING::UTF8);
-        XMLOutStream.WriteText(CreateIncomingPersonsXMLText);
+        XMLOutStream.WriteText(CreateIncomingPersonsXMLText());
         TempBlobXML.CreateInStream(XMLInStream);
 
         // [GIVEN] Broken XSLT stylesheet InStream
         TempBlobXSLT.CreateOutStream(XSLTOutStream, TEXTENCODING::UTF8);
-        XSLTOutStream.WriteText(CreateBrokenXMLText);
+        XSLTOutStream.WriteText(CreateBrokenXMLText());
         TempBlobXSLT.CreateInStream(XSLTInStream);
 
         // [WHEN] Function TransformXML is being run
@@ -161,10 +161,10 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 227334] XML file can be transformed to another XML using XSLT stylesheet
 
         // [GIVEN] Incoming XML document text
-        XMLText := CreateIncomingPersonsXMLText;
+        XMLText := CreateIncomingPersonsXMLText();
 
         // [GIVEN] XSLT stylesheet text
-        TransformationSchema := CreateTransformationSchemaPersonsText;
+        TransformationSchema := CreateTransformationSchemaPersonsText();
 
         // [WHEN] Function TransformXMLText is being run
         TransformedXMLText := XMLDOMMgt.TransformXMLText(XMLText, TransformationSchema);
@@ -186,10 +186,10 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 227334] Broken XML text transformation leads to error
 
         // [GIVEN] Broken XML document text
-        XMLText := CreateBrokenXMLText;
+        XMLText := CreateBrokenXMLText();
 
         // [GIVEN] XSLT stylesheet text
-        TransformationSchema := CreateTransformationSchemaPersonsText;
+        TransformationSchema := CreateTransformationSchemaPersonsText();
 
         // [WHEN] Function TransformXMLText is being run
         asserterror XMLDOMMgt.TransformXMLText(XMLText, TransformationSchema);
@@ -209,10 +209,10 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 227334] Broken XSL text transformation leads to error
 
         // [GIVEN] Incoming XML document text
-        XMLText := CreateIncomingPersonsXMLText;
+        XMLText := CreateIncomingPersonsXMLText();
 
         // [GIVEN] Broken XSLT stylesheet text
-        TransformationSchema := CreateBrokenXMLText;
+        TransformationSchema := CreateBrokenXMLText();
 
         // [WHEN] Function TransformXMLText is being run
         asserterror XMLDOMMgt.TransformXMLText(XMLText, TransformationSchema);
@@ -232,13 +232,13 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 229439] "On-line-string" XML can be formatted with new lines and identation with function TryFormatXML
 
         // [GIVEN] "On-line-string" XML
-        XMLText := CreateOneLineXMLText;
+        XMLText := CreateOneLineXMLText();
 
         // [WHEN] XMLDOMMgt.TryFormatXML is being run
         Assert.IsTrue(XMLDOMMgt.TryFormatXML(XMLText, FormattedXMLText), FunctionCallFailedErr);
 
         // [THEN] XML text contains new lines and identation
-        VerifyXMLText(FormattedXMLText, CreateExpectedFormattedXMLText);
+        VerifyXMLText(FormattedXMLText, CreateExpectedFormattedXMLText());
     end;
 
     [Test]
@@ -252,7 +252,7 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 229439] Try to format broken XML leads to error
 
         // [GIVEN] Broken XML
-        XMLText := CreateBrokenXMLText;
+        XMLText := CreateBrokenXMLText();
 
         // [WHEN] XMLDOMMgt.TryFormatXML is being run
         Assert.IsFalse(XMLDOMMgt.TryFormatXML(XMLText, FormattedXMLText), FunctionCallNotFailedErr);
@@ -272,13 +272,13 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 229439] XML containing namespaces can be transformed to simplified form - without namespaces
 
         // [GIVEN] XML text with namespaces
-        XMLText := CreateXMLWithNamespacesText;
+        XMLText := CreateXMLWithNamespacesText();
 
         // [WHEN] Function XMLDOMMgt.RemoveNameSpaces is being run
         SimplifiedXMLText := XMLDOMMgt.RemoveNamespaces(XMLText);
 
         // [THEN] Resulted XML does not contain namespaces
-        VerifyXMLText(SimplifiedXMLText, CreateExpectedSimplifiedXMLText);
+        VerifyXMLText(SimplifiedXMLText, CreateExpectedSimplifiedXMLText());
     end;
 
     [Test]
@@ -291,7 +291,7 @@ codeunit 139149 "Test XML Transformation"
         // [SCENARIO 229439] Removing namespaces from broken XML leads to error
 
         // [GIVEN] Broken XML
-        XMLText := CreateBrokenXMLText;
+        XMLText := CreateBrokenXMLText();
 
         // [WHEN] Function XMLDOMMgt.RemoveNameSpaces is being run
         asserterror XMLDOMMgt.RemoveNamespaces(XMLText);
@@ -410,7 +410,7 @@ codeunit 139149 "Test XML Transformation"
         XMLDOMMgt: Codeunit "XML DOM Management";
         XMLText: Text;
     begin
-        XMLText := CreateOneLineXMLText;
+        XMLText := CreateOneLineXMLText();
         XMLDOMMgt.LoadXMLDocumentFromText(XMLText, XmlDocument);
     end;
 

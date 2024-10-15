@@ -37,7 +37,7 @@ codeunit 133769 "Daily Report Tests"
     procedure TestDayBookVATEntry()
     begin
         // [FEATURE] [VAT]
-        InitReports;
+        InitReports();
         REPORT.Run(REPORT::"Day Book VAT Entry");
     end;
 
@@ -47,7 +47,7 @@ codeunit 133769 "Daily Report Tests"
     procedure TestDayBookCustLedgerEntry()
     begin
         // [FEATURE] [Sales]
-        InitReports;
+        InitReports();
         REPORT.Run(REPORT::"Day Book Cust. Ledger Entry");
     end;
 
@@ -57,7 +57,7 @@ codeunit 133769 "Daily Report Tests"
     procedure TestDayBookVendorLedgerEntry()
     begin
         // [FEATURE] [Purchase]
-        InitReports;
+        InitReports();
         REPORT.Run(REPORT::"Day Book Vendor Ledger Entry");
     end;
 
@@ -71,7 +71,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO] Validate OnAfterGetRecord Trigger for VAT Entry Type - Purchase with Vendor of Report 2500 - Day Book VAT Entry.
-        DayBookVATEntryReport(VATEntry.Type::Purchase, CreateVendor);
+        DayBookVATEntryReport(VATEntry.Type::Purchase, CreateVendor());
     end;
 
     [Test]
@@ -84,7 +84,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO] Validate OnAfterGetRecord Trigger for VAT Entry Type - Sale with Customer of Report 2500 - Day Book VAT Entry.
-        DayBookVATEntryReport(VATEntry.Type::Sale, CreateCustomer);
+        DayBookVATEntryReport(VATEntry.Type::Sale, CreateCustomer());
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO] Validate OnAfterGetRecord Trigger for VAT Entry Type - Sale without Customer of Report 2500 - Day Book VAT Entry.
-        DayBookVATEntryReport(VATEntry.Type::Sale, LibraryUTUtility.GetNewCode);
+        DayBookVATEntryReport(VATEntry.Type::Sale, LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         // [FEATURE] [VAT]
         // [SCENARIO] Validate OnAfterGetRecord Trigger for VAT Entry Type - Purchase without Vendor of Report 2500 - Day Book VAT Entry.
-        DayBookVATEntryReport(VATEntry.Type::Purchase, LibraryUTUtility.GetNewCode);
+        DayBookVATEntryReport(VATEntry.Type::Purchase, LibraryUTUtility.GetNewCode());
     end;
 
     [Test]
@@ -141,7 +141,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Setup: Create Customer Ledger Entry and VAT Entry.
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         CreateCustomerLedgerEntry(CustLedgerEntry, false);  // Print Customer Ledger Details, Print G/L Entry Details - FALSE on DayBookCustLedgerEntryRequestPageHandler.
         CreateVATEntry(VATEntry, CustLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
 
@@ -150,7 +150,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Verify: Verify Customer Ledger Entry Filters, VAT Amount and VAT Base on Report Day Book Customer Ledger Entry.
         GeneralLedgerSetup.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'CustLedgFilter',
           StrSubstNo(
@@ -176,7 +176,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Setup: Create Customer Ledger Entry, VAT Entry and Detailed Customer Ledger Entry.
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         CreateCustomerLedgerEntry(CustLedgerEntry, true);  // Print Customer Ledger Details, Print G/L Entry Details - TRUE on DayBookCustLedgerEntryRequestPageHandler.
         CreateVATEntry(VATEntry, CustLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.", CustLedgerEntry."Transaction No.");
@@ -186,7 +186,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Verify: Verify Actual Amount, Payment Discount Given (LCY), Amount (LCY), VAT Amount and VAT Base on Report Day Book Customer Ledger Entry.
         CustLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           ActualAmountCapTxt, CustLedgerEntry."Amount (LCY)" + CustLedgerEntry."Pmt. Disc. Given (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('PmtDiscGiven', -CustLedgerEntry."Pmt. Disc. Given (LCY)");
@@ -210,8 +210,8 @@ codeunit 133769 "Daily Report Tests"
 
         // Setup: Create Vendor Ledger Entry and VAT Entry.
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
-        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, false, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - FALSE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
+        DeleteObjectOptionsIfNeeded();
+        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode(), false, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - FALSE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
         CreateVATEntry(VATEntry, VendorLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
 
         // Exercise.
@@ -219,7 +219,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Verify: Verify Vendor Ledger Entry Filters, VAT Amount and VAT Base on Report Day Book Vendor Ledger Entry.
         GeneralLedgerSetup.Get();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           'VendLedgFilter',
           StrSubstNo(
@@ -245,8 +245,8 @@ codeunit 133769 "Daily Report Tests"
 
         // Setup: Create Vendor Ledger Entry, VAT Entry and Detailed Vendor Ledger Entry.
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
-        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, true, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - TRUE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
+        DeleteObjectOptionsIfNeeded();
+        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode(), true, 0, VendorLedgerEntry."Document Type"::Invoice);  // Print Vender Ledger Details - TRUE on DayBookVendorLedgerEntryRequestPageHandler and using 0 for Amount to Apply.
         CreateVATEntry(VATEntry, VendorLedgerEntry."Transaction No.", VATEntry.Type::" ", LibraryRandom.RandDec(10, 2), '', '', '');
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry."Entry No.", VendorLedgerEntry."Transaction No.");
 
@@ -255,7 +255,7 @@ codeunit 133769 "Daily Report Tests"
 
         // Verify: Verify Actual Amount, Payment Discount Received (LCY), Amount (LCY), VAT Amount and VAT Base on Report Day Book Vendor Ledger Entry.
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           ActualAmountCapTxt, VendorLedgerEntry."Amount (LCY)" + VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)");
         LibraryReportDataset.AssertElementWithValueExists('PmtDiscRcd', -VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)");
@@ -300,12 +300,12 @@ codeunit 133769 "Daily Report Tests"
         REPORT.Run(REPORT::"Day Book VAT Entry");
 
         // [THEN] "Sell-to/Buy-from Name" values are "CUST", "VEND", "CUST".
-        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText);
+        LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText());
         Assert.AreEqual(Customer.Name, LibraryXMLRead.GetNodeValueAtIndex('SellToBuyFromName', 0), 'Wrond first line');
         Assert.AreEqual(Vendor.Name, LibraryXMLRead.GetNodeValueAtIndex('SellToBuyFromName', 1), 'Wrong second line');
         Assert.AreEqual(Customer.Name, LibraryXMLRead.GetNodeValueAtIndex('SellToBuyFromName', 2), 'Wrong third line');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -358,7 +358,7 @@ codeunit 133769 "Daily Report Tests"
         // [GIVEN] Vendor Ledger Entry with VAT Entries
         LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded();
-        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode, false, 0, VendorLedgerEntry."Document Type"::Invoice);
+        CreateVendorLedgerEntry(VendorLedgerEntry, '', LibraryUTUtility.GetNewCode(), false, 0, VendorLedgerEntry."Document Type"::Invoice);
 
         // [GIVEN] VAT Entries for document with Tax Area has two Tax Jusrisdicions and 2 lines with Amounts = 1000 and 1500.
         // [GIVEN] Entries for "TJ1": 1. "TaxGroup1" with Base1 = 1000, Amount = 2; 2. "TaxGroup2" with Base2 = 1500 Amount = 3;
@@ -388,7 +388,7 @@ codeunit 133769 "Daily Report Tests"
         SalesSetup.Modify(true);
 
         isInitialized := true;
-        Commit
+        Commit();
     end;
 
     local procedure FomatFileName(ReportCaption: Text) ReportFileName: Text
@@ -426,7 +426,7 @@ codeunit 133769 "Daily Report Tests"
     begin
         // Setup.
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         CreateVATEntry(VATEntry, 0, Type, LibraryRandom.RandDec(10, 2), '', '', BillToPayToNo);  // Taken random for Base and blank for VATProdPostingGroup and VATBusPostingGroup.
         LibraryVariableStorage.Enqueue(VATEntry."Document No.");  // Enqueue for DayBookVATEntryRequestPageHandler.
 
@@ -441,7 +441,7 @@ codeunit 133769 "Daily Report Tests"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -453,8 +453,8 @@ codeunit 133769 "Daily Report Tests"
         CustomerPostingGroupCode: Code[20];
     begin
         CustomerPostingGroupCode := CreateVATAndCustomerPostingSetup(VATPostingSetup);
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer."Reminder Terms Code" := CreateReminderTerms;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer."Reminder Terms Code" := CreateReminderTerms();
         Customer."Customer Posting Group" := CustomerPostingGroupCode;
         Customer."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         Customer.Insert();
@@ -470,7 +470,7 @@ codeunit 133769 "Daily Report Tests"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Positive := true;
         CustLedgerEntry."Due Date" := WorkDate();
@@ -535,7 +535,7 @@ codeunit 133769 "Daily Report Tests"
         VATEntry.Type := Type;
         VATEntry."Transaction No." := TransactionNo;
         VATEntry."Bill-to/Pay-to No." := BillToPayToNo;
-        VATEntry."Document No." := LibraryUTUtility.GetNewCode;
+        VATEntry."Document No." := LibraryUTUtility.GetNewCode();
         VATEntry."VAT Bus. Posting Group" := VATBusPostingSetup;
         VATEntry."VAT Prod. Posting Group" := VATProdPostingSetup;
         VATEntry.Base := Base;
@@ -588,7 +588,7 @@ codeunit 133769 "Daily Report Tests"
 
     local procedure VerifyValuesOnReport(ElementName: Text; ElementName2: Text; ExpectedValue: Variant; ExpectedValue2: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ElementName, ExpectedValue);
         LibraryReportDataset.AssertElementWithValueExists(ElementName2, ExpectedValue2);
     end;
@@ -603,7 +603,7 @@ codeunit 133769 "Daily Report Tests"
     var
         ReminderTerms: Record "Reminder Terms";
     begin
-        ReminderTerms.Code := LibraryUTUtility.GetNewCode10;
+        ReminderTerms.Code := LibraryUTUtility.GetNewCode10();
         ReminderTerms.Insert();
         CreateReminderLevel(ReminderTerms.Code);
         exit(ReminderTerms.Code);
@@ -615,9 +615,9 @@ codeunit 133769 "Daily Report Tests"
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Document No." := LibraryUTUtility.GetNewCode;
-        GLEntry."Transaction No." := SelectGLEntryTransactionNo;
+        GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Document No." := LibraryUTUtility.GetNewCode();
+        GLEntry."Transaction No." := SelectGLEntryTransactionNo();
         GLEntry.Insert();
     end;
 
@@ -632,7 +632,7 @@ codeunit 133769 "Daily Report Tests"
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Applies-to ID" := AppliesToID;
         VendorLedgerEntry."Amount to Apply" := AmountToApply;
-        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode;
+        VendorLedgerEntry."External Document No." := LibraryUTUtility.GetNewCode();
         VendorLedgerEntry."Document Type" := DocumentType;
         VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         VendorLedgerEntry.Open := true;
@@ -642,8 +642,8 @@ codeunit 133769 "Daily Report Tests"
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10;
-        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUTUtility.GetNewCode10();
+        VATPostingSetup."VAT Prod. Posting Group" := CreateVATProductPostingGroup();
         VATPostingSetup.Insert();
     end;
 
@@ -653,7 +653,7 @@ codeunit 133769 "Daily Report Tests"
         GLAccountNo: Code[20];
     begin
         GLAccountNo := CreateGLAccount(VATProdPostingGroup);
-        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        CustomerPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         CustomerPostingGroup."Additional Fee Account" := GLAccountNo;
         CustomerPostingGroup."Interest Account" := GLAccountNo;
         CustomerPostingGroup.Insert();
@@ -684,7 +684,7 @@ codeunit 133769 "Daily Report Tests"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         VATProductPostingGroup.Insert();
         exit(VATProductPostingGroup.Code);
     end;
@@ -693,7 +693,7 @@ codeunit 133769 "Daily Report Tests"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."VAT Prod. Posting Group" := VATProdPostingGroup;
         GLAccount."Gen. Prod. Posting Group" := CreateGeneralPostingSetup(VATProdPostingGroup);
         GLAccount.Insert();
@@ -713,7 +713,7 @@ codeunit 133769 "Daily Report Tests"
     var
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
+        GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10();
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := DefVATProdPostingGroup;
         GenProductPostingGroup.Insert();
         exit(GenProductPostingGroup.Code);
@@ -760,7 +760,7 @@ codeunit 133769 "Daily Report Tests"
         DayBookVendorLedgerEntry.PrintGLEntryDetails.SetValue(PrintVendLedgerDetails);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Vendor No.", VendorNo);
         DayBookVendorLedgerEntry.ReqVendLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
-        DayBookVendorLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DayBookVendorLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -777,7 +777,7 @@ codeunit 133769 "Daily Report Tests"
         DayBookCustLedgerEntry.PrintGLEntryDetails.SetValue(PrintCustLedgerDetails);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Customer No.", CustomerNo);
         DayBookCustLedgerEntry.ReqCustLedgEntry.SetFilter("Posting Date", Format(WorkDate()));
-        DayBookCustLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DayBookCustLedgerEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -789,7 +789,7 @@ codeunit 133769 "Daily Report Tests"
         LibraryVariableStorage.Dequeue(DocumentNo);
         DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", Format(WorkDate()));
         DayBookVATEntry.ReqVATEntry.SetFilter("Document No.", DocumentNo);
-        DayBookVATEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        DayBookVATEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -798,10 +798,10 @@ codeunit 133769 "Daily Report Tests"
     var
         FileName: Text;
     begin
-        DayBookVATEntry.ReqVATEntry.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", LibraryVariableStorage.DequeueText);
-        FileName := LibraryReportDataset.GetFileName;
-        DayBookVATEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
+        DayBookVATEntry.ReqVATEntry.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        DayBookVATEntry.ReqVATEntry.SetFilter("Posting Date", LibraryVariableStorage.DequeueText());
+        FileName := LibraryReportDataset.GetFileName();
+        DayBookVATEntry.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
         LibraryVariableStorage.Enqueue(FileName);
     end;
 }

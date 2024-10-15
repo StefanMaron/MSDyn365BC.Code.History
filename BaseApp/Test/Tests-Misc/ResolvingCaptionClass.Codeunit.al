@@ -7,8 +7,6 @@ codeunit 138695 "Resolving Caption Class"
     var
         Assert: Codeunit Assert;
         LibraryDimension: Codeunit "Library - Dimension";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
 
 

@@ -17,7 +17,6 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         AmountMismatchErr: Label '%1 field must be %2 in %3 table for %4 field %5.';
-        ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
     [Scope('OnPrem')]
@@ -289,7 +288,7 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandIntInRange(500, 1000));
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), -LibraryRandom.RandIntInRange(500, 1000));
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -307,7 +306,7 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         LibraryPurchase: Codeunit "Library - Purchase";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("Currency Code", CreateCurrency);
+        Vendor.Validate("Currency Code", CreateCurrency());
         Vendor.Modify();
         exit(Vendor."No.");
     end;
@@ -323,13 +322,13 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
     local procedure FindCurrencyExchRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure UpdateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRateAmount: Decimal)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate(
           "Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + ExchRateAmount);
         CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
@@ -344,7 +343,7 @@ codeunit 134881 "ERM Exch. Rate Adjmt. Vendor"
         Currency.Get(CurrencyCode);
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField("Ledger Entry Amount", true);
         DetailedVendorLedgEntry.CalcSums("Amount (LCY)");
         Assert.AreNearlyEqual(

@@ -205,7 +205,7 @@ codeunit 144021 "UT COD Post Code"
         PostCode: Record "Post Code";
     begin
         PostCode.Code := Format(LibraryRandom.RandIntInRange(1000, 9999)) + ' ' + 'ZZ';  // Code should contain 4 digit following space, two upper case alphabet.
-        PostCode.City := LibraryUTUtility.GetNewCode;
+        PostCode.City := LibraryUTUtility.GetNewCode();
         PostCode.Insert();
 
         PostCodeRange."Post Code" := PostCode.Code;
@@ -213,7 +213,7 @@ codeunit 144021 "UT COD Post Code"
         PostCodeRange.Type := Type;
         PostCodeRange."From No." := FromNo;
         PostCodeRange."To No." := PostCodeRange."From No." + LibraryRandom.RandInt(10);
-        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode;
+        PostCodeRange."Street Name" := LibraryUTUtility.GetNewCode();
         PostCodeRange.Insert();
     end;
 

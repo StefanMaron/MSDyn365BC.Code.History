@@ -277,7 +277,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostEmployeeExpenseAndGetEntriesOnTelebankProposal(
           true, '', CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, StrSubstNo(ErrorTxt, CompanyInformation.FieldCaption(IBAN)));  // IBAN as blank. SEPAAllowed as True.
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, StrSubstNo(ErrorTxt, CompanyInformation.FieldCaption(IBAN)));  // IBAN as blank. SEPAAllowed as True.
     end;
 
     [Test]
@@ -296,7 +296,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostEmployeeExpenseAndGetEntriesOnTelebankProposal(
           false, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, SepaTxt);  // SEPAAllowed as False.
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, SepaTxt);  // SEPAAllowed as False.
     end;
 
     [Test]
@@ -315,7 +315,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostEmployeeExpenseAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, '', CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, StrSubstNo(
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, StrSubstNo(
             ErrorTxt, CompanyInformation.FieldCaption("SWIFT Code")));  // SWIFT Code as blank. SEPAAllowed as True.
     end;
 
@@ -337,7 +337,7 @@ codeunit 144037 "ERM Telebank"
           true, CompanyInformation.IBAN,
           CopyStr(CompanyInformation."SWIFT Code" + CompanyInformation."SWIFT Code", 1, MaxStrLen(CompanyInformation."SWIFT Code")),
           CompanyInformation."Country/Region Code", CompanyInformation.City,
-          GetCheckID, TransactionMode.Order::Debit, SWIFTCodeTxt);   // Large value of SWIFT Code required.
+          GetCheckID(), TransactionMode.Order::Debit, SWIFTCodeTxt);   // Large value of SWIFT Code required.
     end;
 
     [Test]
@@ -356,7 +356,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, '', CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code", CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, StrSubstNo(ErrorTxt, CompanyInformation.FieldCaption(IBAN)));  // IBAN as blank. SEPAAllowed as True.
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, StrSubstNo(ErrorTxt, CompanyInformation.FieldCaption(IBAN)));  // IBAN as blank. SEPAAllowed as True.
     end;
 
     [Test]
@@ -375,7 +375,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, '', CompanyInformation."Country/Region Code", CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, StrSubstNo(
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, StrSubstNo(
             ErrorTxt, CompanyInformation.FieldCaption("SWIFT Code")));  // SWIFT Code as blank. SEPAAllowed as True.
     end;
 
@@ -396,7 +396,7 @@ codeunit 144037 "ERM Telebank"
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code" + CompanyInformation."SWIFT Code",
           CompanyInformation."Country/Region Code", CompanyInformation."Country/Region Code", CompanyInformation.City,
-          GetCheckID, TransactionMode.Order::Debit, SWIFTCodeTxt);   // Large value of SWIFT Code required.
+          GetCheckID(), TransactionMode.Order::Debit, SWIFTCodeTxt);   // Large value of SWIFT Code required.
     end;
 
     [Test]
@@ -415,7 +415,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           false, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", '', CompanyInformation."Country/Region Code",
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit,
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit,
           CompanyInformation.FieldCaption("Bank Account No."));  // Country/Region as blank. SEPAAllowed as False.
     end;
 
@@ -435,7 +435,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           false, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, SepaTxt);  // SEPAAllowed as False.
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, SepaTxt);  // SEPAAllowed as False.
     end;
 
     [Test]
@@ -455,7 +455,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code", '',
-          CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit, BankAccount.FieldCaption("Acc. Hold. Country/Region Code"));  // Acc. Hold Country/Region as blank.
+          CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit, BankAccount.FieldCaption("Acc. Hold. Country/Region Code"));  // Acc. Hold Country/Region as blank.
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", '', GetCheckID, TransactionMode.Order::Debit,
+          CompanyInformation."Country/Region Code", '', GetCheckID(), TransactionMode.Order::Debit,
           BankAccount.FieldCaption("Account Holder City"));  // Acc. Hold City as blank.
     end;
 
@@ -515,7 +515,7 @@ codeunit 144037 "ERM Telebank"
         // Exercise and Verify.
         PostPurchaseInvAndGetEntriesOnTelebankProposal(
           true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Credit,
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Credit,
           StrSubstNo(ErrorTxt, BankAccount.FieldCaption(Amount)));  // SEPAAllowed as True.
     end;
 
@@ -531,7 +531,7 @@ codeunit 144037 "ERM Telebank"
         // Setup.
         Initialize();
         CompanyInformation.Get();
-        UpdateGeneralLedgerSetup(CreateCurrency);
+        UpdateGeneralLedgerSetup(CreateCurrency());
 
         // Exercise and Verify.
         asserterror PostPurchaseInvAndGetEntriesOnTelebankProposal(
@@ -632,7 +632,7 @@ codeunit 144037 "ERM Telebank"
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize();
         CompanyInformation.Get();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UpdateGeneralLedgerSetup(CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLine(VendorBankAccount, CompanyInformation, CurrencyCode);
@@ -642,7 +642,7 @@ codeunit 144037 "ERM Telebank"
           CurrencyCode);
 
         // Exercise: Run Process on Telebank Proposal Page.
-        TelebankProposal.Process.Invoke;
+        TelebankProposal.Process.Invoke();
 
         // Verify: Verify Error on Code Unit No. 11000010 - Check SEPA ISO20022.
         VerifyProposalLineErrorMesage(VendorBankAccount."Bank Account No.", VendorBankAccount."Vendor No.", ErrorMessage);
@@ -719,7 +719,7 @@ codeunit 144037 "ERM Telebank"
     begin
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CompanyInformation.Get();
         UpdateGeneralLedgerSetup(CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
@@ -730,7 +730,7 @@ codeunit 144037 "ERM Telebank"
           CurrencyCode);
 
         // Exercise: Run Check on Telebank Proposal Page.
-        TelebankProposal.Check.Invoke;
+        TelebankProposal.Check.Invoke();
 
         // Verify: Verify Error on Code Unit No. 11000010 - Check SEPA ISO20022.
         VerifyProposalLineErrorMesage(VendorBankAccount."Bank Account No.", VendorBankAccount."Vendor No.", ErrorMessage);
@@ -798,7 +798,7 @@ codeunit 144037 "ERM Telebank"
         DeleteDetailLine(ProposalDetailLine, VendorBankAccount."Vendor No.");
 
         // Exercise: Call action Update Description on on Proposal Detail Line page.
-        ProposalDetailLine.UpdateDescriptions.Invoke;
+        ProposalDetailLine.UpdateDescriptions.Invoke();
 
         // Verify: Verify Description on Proposal Detail Line page.
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -828,7 +828,7 @@ codeunit 144037 "ERM Telebank"
         // Setup: Create Bank Account, Create and post Purchase Invoice and  Get Entries on Telebank Proposal Page.
         Initialize();
         CompanyInformation.Get();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UpdateGeneralLedgerSetup(CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLine(VendorBankAccount, CompanyInformation, CurrencyCode);
@@ -839,7 +839,7 @@ codeunit 144037 "ERM Telebank"
         TelebankProposal."Transaction Date".SetValue(Format(CalcDate('<1M>', WorkDate())));
 
         // Exercise: Run Process on Telebank Proposal Page.
-        TelebankProposal.Process.Invoke;
+        TelebankProposal.Process.Invoke();
 
         // Verify: Verify Transaction Date on Detail Line.
         DetailLine.SetRange("Account No.", VendorBankAccount."Vendor No.");
@@ -892,7 +892,7 @@ codeunit 144037 "ERM Telebank"
         Initialize();
         InitProposalLineWithDiffCountryRegionCodes(ProposalLine);
 
-        SetGLSetupEmptyLocalCurrency;
+        SetGLSetupEmptyLocalCurrency();
 
         // Exercise: Run codeunit for check.
         CODEUNIT.Run(CODEUNIT::"Check SEPA ISO20022", ProposalLine);
@@ -919,7 +919,7 @@ codeunit 144037 "ERM Telebank"
         // Setup: Create Bank Account, Create and post Invoice and Get Telebank Proposal Entries.
         Initialize();
         CompanyInformation.Get();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UpdateGeneralLedgerSetup(CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLineWithAccountType(AccountType, CompanyInformation, CurrencyCode, BankAccountNo, AccountNo);
@@ -937,7 +937,7 @@ codeunit 144037 "ERM Telebank"
             SetRange("Account Type", "Account Type"::Vendor);
             SetRange("Account No.", AccountNo);
             FindFirst();
-            Assert.AreEqual(ExDocNoMaxLength, GetUnstrRemitInfo, WrongValueReturnedErr);
+            Assert.AreEqual(ExDocNoMaxLength, GetUnstrRemitInfo(), WrongValueReturnedErr);
         end;
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
@@ -1319,7 +1319,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Telebank");
         LibraryVariableStorage.Clear();
-        UpdateSWIFTCodeOnCompanyInformation;
+        UpdateSWIFTCodeOnCompanyInformation();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
         if IsInitialized then
@@ -1405,10 +1405,10 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryNLLocalization.CreateTransactionMode(TransactionMode, AccountType);
         TransactionMode.Validate(Order, Order);
-        TransactionMode.Validate("Our Bank", CreateBankAccount);
+        TransactionMode.Validate("Our Bank", CreateBankAccount());
         TransactionMode.Validate("Export Protocol", CreateAndUpdateExportProtocol(CheckID));
-        TransactionMode.Validate("Identification No. Series", LibraryUtility.GetGlobalNoSeriesCode);
-        TransactionMode.Validate("Run No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        TransactionMode.Validate("Identification No. Series", LibraryUtility.GetGlobalNoSeriesCode());
+        TransactionMode.Validate("Run No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         if AccountType = AccountType::Employee then
             TransactionMode.Validate("Partner Type", TransactionMode."Partner Type"::" ");
         TransactionMode.Modify(true);
@@ -1421,7 +1421,7 @@ codeunit 144037 "ERM Telebank"
         LibraryVariableStorage.Enqueue(WorkDate());
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         REPORT.Run(REPORT::"Get Proposal Entries", true, false, VendorLedgerEntry);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure RunReportGetProposalEntriesWithCurrencyDateOnVendor(VendorNo: Code[20]; CurrencyDate: Date)
@@ -1464,8 +1464,8 @@ codeunit 144037 "ERM Telebank"
         LibraryERM.CreateSourceCode(SourceCode);
         with TransactionMode do begin
             Get(AccountType, TransactionModeCode);
-            Validate("Acc. No. Pmt./Rcpt. in Process", CreateBalanceSheetGLAccount);
-            Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Acc. No. Pmt./Rcpt. in Process", CreateBalanceSheetGLAccount());
+            Validate("Posting No. Series", LibraryUtility.GetGlobalNoSeriesCode());
             Validate("Source Code", SourceCode.Code);
             Modify(true);
         end;
@@ -1507,7 +1507,7 @@ codeunit 144037 "ERM Telebank"
         TransactionMode: Record "Transaction Mode";
         BankAccount: Record "Bank Account";
     begin
-        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer, GetCheckID, TransactionMode.Order::Credit);
+        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer, GetCheckID(), TransactionMode.Order::Credit);
 
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Transaction Mode Code", TransactionMode.Code);
@@ -1531,7 +1531,7 @@ codeunit 144037 "ERM Telebank"
         TransactionMode: Record "Transaction Mode";
         BankAccount: Record "Bank Account";
     begin
-        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Vendor, GetCheckID, TransactionMode.Order::Debit);
+        CreateAndUpdateTransactionMode(TransactionMode, TransactionMode."Account Type"::Vendor, GetCheckID(), TransactionMode.Order::Debit);
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Transaction Mode Code", TransactionMode.Code);
@@ -1628,7 +1628,7 @@ codeunit 144037 "ERM Telebank"
         DetailLine.SetRange("Account No.", AccountNo);
         DetailLine.FindFirst();
         DetailLine.Delete(true);
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
         ProposalDetailLine.FILTER.SetFilter("Account No.", AccountNo);
     end;
 
@@ -1640,9 +1640,9 @@ codeunit 144037 "ERM Telebank"
     local procedure GetEntriesOnTelebankProposal(var TelebankProposal: TestPage "Telebank Proposal"; BankAccFilter: Code[30])
     begin
         Commit();  // Commit Required.
-        TelebankProposal.OpenEdit;
+        TelebankProposal.OpenEdit();
         TelebankProposal.BankAccFilter.SetValue(BankAccFilter);
-        TelebankProposal.GetEntries.Invoke;
+        TelebankProposal.GetEntries.Invoke();
     end;
 
     local procedure LookupFromPaymentHistoryCard(AccountType: Option)
@@ -1657,7 +1657,7 @@ codeunit 144037 "ERM Telebank"
         // Update Freely Transferable Maximum, Proposal Line and Transaction Mode. Run Process on Telebank Proposal Page.
         Initialize();
         CompanyInformation.Get();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UpdateGeneralLedgerSetup(CurrencyCode);
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
         SetupForProposalLineWithAccountType(AccountType, CompanyInformation, CurrencyCode, BankAccountNo, AccountNo);
@@ -1670,12 +1670,12 @@ codeunit 144037 "ERM Telebank"
         // Exercise: Call action Card on Payment History Card page.
         // Verify: Verify Vendor Card/Customer Card Page openned correctly.
         LibraryVariableStorage.Enqueue(AccountNo); // Enqueue value for VendorNoOnVendorCardPageHandler/ CustomerNoOnCustomerCardPageHandler
-        PaymentHistoryCard.Subform.Card.Invoke; // Call action Card.
+        PaymentHistoryCard.Subform.Card.Invoke(); // Call action Card.
 
         // Exercise: Call action Ledger Entries on Payment History Card page.
         // Verify: Verify Vendor Ledger Entries/ Customer Ledger Entries Page openned correctly.
         LibraryVariableStorage.Enqueue(AccountNo); // Enqueue value for VendorNoOnVendorLedgerEntriesPageHandler/ CustomerNoOnCustomerLedgerEntriesPageHandler
-        PaymentHistoryCard.Subform.LedgerEntries.Invoke; // Call action Ledger Entries.
+        PaymentHistoryCard.Subform.LedgerEntries.Invoke(); // Call action Ledger Entries.
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
@@ -1685,14 +1685,14 @@ codeunit 144037 "ERM Telebank"
 
     local procedure OpenProposalDetailLine(var ProposalDetailLine: TestPage "Proposal Detail Line"; AccountNo: Code[20])
     begin
-        ProposalDetailLine.OpenEdit;
+        ProposalDetailLine.OpenEdit();
         ProposalDetailLine.FILTER.SetFilter("Account No.", AccountNo);
-        ProposalDetailLine.Control2."Serial No. (Entry)".Lookup;
+        ProposalDetailLine.Control2."Serial No. (Entry)".Lookup();
     end;
 
     local procedure OpenPaymentHistoryCard(var PaymentHistoryCard: TestPage "Payment History Card"; OurBank: Code[20])
     begin
-        PaymentHistoryCard.OpenEdit;
+        PaymentHistoryCard.OpenEdit();
         PaymentHistoryCard.FILTER.SetFilter("Our Bank", OurBank);
     end;
 
@@ -1810,7 +1810,7 @@ codeunit 144037 "ERM Telebank"
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);  // Currency Code as blank.
         PostPurchaseInvoiceWithVendorBankAccount(
           VendorBankAccount, true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit);
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit);
         LibraryVariableStorage.Enqueue(VendorBankAccount."Vendor No.");  // Enqueue for GetProposalEntriesRequestPageHandler.
     end;
 
@@ -1821,7 +1821,7 @@ codeunit 144037 "ERM Telebank"
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         PostSalesInvoiceWithCustomerBankAccount(
           CustomerBankAccount, true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Credit);
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Credit);
         LibraryVariableStorage.Enqueue(CustomerBankAccount."Customer No."); // Enqueue for GetProposalEntriesRequestPageHandler.
     end;
 
@@ -1832,7 +1832,7 @@ codeunit 144037 "ERM Telebank"
         LibraryNLLocalization.CreateFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         PostEmployeeExpenseWithEmployee(
           Employee, true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit);
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit);
         LibraryVariableStorage.Enqueue(Employee."No."); // Enqueue for GetProposalEntriesRequestPageHandler.
     end;
 
@@ -1846,7 +1846,7 @@ codeunit 144037 "ERM Telebank"
         UpdateProposalLine(
           ProposalLine, BankAccountNo, AccountNo, ProposalLine."Nature of the Payment"::Goods, CurrencyCode);
         UpdateTransactionModeForPaymInProcess(ProposalLine."Account Type", ProposalLine."Transaction Mode");
-        TelebankProposal.Process.Invoke; // Call action Process.
+        TelebankProposal.Process.Invoke(); // Call action Process.
         TelebankProposal.Close();
     end;
 
@@ -1858,7 +1858,7 @@ codeunit 144037 "ERM Telebank"
         CompanyInformation.Get();
         PostPurchaseInvoiceWithVendorBankAccount(
           VendorBankAccount, true, CompanyInformation.IBAN, CompanyInformation."SWIFT Code", CompanyInformation."Country/Region Code",
-          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID, TransactionMode.Order::Debit);
+          CompanyInformation."Country/Region Code", CompanyInformation.City, GetCheckID(), TransactionMode.Order::Debit);
         UpdateBankAccount(VendorBankAccount."Bank Account No.", FIELDNO, FieldValue);
     end;
 
@@ -2205,7 +2205,7 @@ codeunit 144037 "ERM Telebank"
         LibraryVariableStorage.Dequeue(VendorNo);
         GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using Random Value for Day.
         GetProposalEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2217,7 +2217,7 @@ codeunit 144037 "ERM Telebank"
         LibraryVariableStorage.Dequeue(EmployeeNo);
         GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using Random Value for Day.
         GetProposalEntries."Employee Ledger Entry".SetFilter("Employee No.", EmployeeNo);
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2245,7 +2245,7 @@ codeunit 144037 "ERM Telebank"
     [Scope('OnPrem')]
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2256,7 +2256,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         VendorLedgerEntries."Vendor No.".AssertEquals(VendorNo);
-        VendorLedgerEntries.OK.Invoke;
+        VendorLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2267,7 +2267,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
         VendorCard."No.".AssertEquals(VendorNo);
-        VendorCard.OK.Invoke;
+        VendorCard.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2278,7 +2278,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerLedgerEntries."Customer No.".AssertEquals(CustomerNo);
-        CustomerLedgerEntries.OK.Invoke;
+        CustomerLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2289,7 +2289,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(CustomerNo);
         CustomerCard."No.".AssertEquals(CustomerNo);
-        CustomerCard.OK.Invoke;
+        CustomerCard.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2300,7 +2300,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(EmployeeNo);
         EmployeeLedgerEntries."Employee No.".AssertEquals(EmployeeNo);
-        EmployeeLedgerEntries.OK.Invoke;
+        EmployeeLedgerEntries.OK().Invoke();
     end;
 
     [PageHandler]
@@ -2311,7 +2311,7 @@ codeunit 144037 "ERM Telebank"
     begin
         LibraryVariableStorage.Dequeue(EmployeeNo);
         EmployeeCard."No.".AssertEquals(EmployeeNo);
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -2425,8 +2425,8 @@ codeunit 144037 "ERM Telebank"
     [Scope('OnPrem')]
     procedure GetProposalEntriesRequestPageHandlerSetValueDate(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
-        GetProposalEntries.CurrencyDate.SetValue(LibraryVariableStorage.DequeueDate);
-        GetProposalEntries.OK.Invoke;
+        GetProposalEntries.CurrencyDate.SetValue(LibraryVariableStorage.DequeueDate());
+        GetProposalEntries.OK().Invoke();
     end;
 }
 

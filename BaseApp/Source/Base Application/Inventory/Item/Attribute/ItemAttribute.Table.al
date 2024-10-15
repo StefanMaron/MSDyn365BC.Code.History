@@ -7,6 +7,7 @@ table 7500 "Item Attribute"
     Caption = 'Item Attribute';
     DataCaptionFields = Name;
     LookupPageID = "Item Attributes";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -8,6 +8,7 @@ table 205 "Resource Unit of Measure"
 {
     Caption = 'Resource Unit of Measure';
     LookupPageID = "Resource Units of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {

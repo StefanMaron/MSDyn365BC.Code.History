@@ -11,6 +11,7 @@ using System.Security.Encryption;
 table 11408 "Elec. Tax Declaration Setup"
 {
     Caption = 'Elec. Tax Declaration Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

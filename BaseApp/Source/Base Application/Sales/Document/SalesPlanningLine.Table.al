@@ -10,6 +10,7 @@ table 99000800 "Sales Planning Line"
 {
     Caption = 'Sales Planning Line';
     DataCaptionFields = "Sales Order No.";
+    DataClassification = CustomerContent;
 
     fields
     {

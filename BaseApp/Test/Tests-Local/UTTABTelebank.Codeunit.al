@@ -95,7 +95,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Employee;
-        PaymentHistoryLine."Account No." := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        PaymentHistoryLine."Account No." := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
 
         DocumentNo[1] := InsertEmplLedgEntry(EmplLedgEntry, PaymentHistoryLine);
         DocumentNo[2] := InsertEmplLedgEntry(EmplLedgEntry, PaymentHistoryLine);
@@ -151,7 +151,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         PaymentHistoryLine.Init();
         PaymentHistoryLine."Account Type" := PaymentHistoryLine."Account Type"::Employee;
-        PaymentHistoryLine."Account No." := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        PaymentHistoryLine."Account No." := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
 
         InsertEmplLedgEntry(EmplLedgEntry, PaymentHistoryLine);
 
@@ -675,9 +675,9 @@ codeunit 144055 "UT TAB Telebank"
 
         PaymentHistory.Init();
         PaymentHistory."Export Protocol" := ExportProtocol.Code;
-        PaymentHistory."File on Disk" := LibraryUTUtility.GetNewCode;
+        PaymentHistory."File on Disk" := LibraryUTUtility.GetNewCode();
         PaymentHistory."Sent On" := Today;
-        PaymentHistory."Sent By" := LibraryUTUtility.GetNewCode;
+        PaymentHistory."Sent By" := LibraryUTUtility.GetNewCode();
         PaymentHistory."Day Serial Nr." := 2;
         PaymentHistory.Status := PaymentHistory.Status::Transmitted;
         PaymentHistory.Insert();
@@ -706,9 +706,9 @@ codeunit 144055 "UT TAB Telebank"
 
         PaymentHistory.Init();
         PaymentHistory."Export Protocol" := ExportProtocol.Code;
-        PaymentHistory."File on Disk" := LibraryUTUtility.GetNewCode;
+        PaymentHistory."File on Disk" := LibraryUTUtility.GetNewCode();
         PaymentHistory."Sent On" := Today - 1;
-        PaymentHistory."Sent By" := LibraryUTUtility.GetNewCode;
+        PaymentHistory."Sent By" := LibraryUTUtility.GetNewCode();
         PaymentHistory.Status := PaymentHistory.Status::Transmitted;
         PaymentHistory.Insert();
         OldPaymentHistory := PaymentHistory;
@@ -787,7 +787,7 @@ codeunit 144055 "UT TAB Telebank"
         TransactionMode: Record "Transaction Mode";
     begin
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Customer);
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Preferred Bank Account Code" := CreateCustomerBankAccount(Customer."No.");
         Customer."Transaction Mode Code" := TransactionMode.Code;
         Customer.Insert();
@@ -798,7 +798,7 @@ codeunit 144055 "UT TAB Telebank"
         CustomerBankAccount: Record "Customer Bank Account";
     begin
         CustomerBankAccount."Customer No." := CustomerNo;
-        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        CustomerBankAccount.Code := LibraryUTUtility.GetNewCode10();
         CustomerBankAccount.Insert();
         exit(CustomerBankAccount.Code);
     end;
@@ -822,7 +822,7 @@ codeunit 144055 "UT TAB Telebank"
     var
         ExportProtocol: Record "Export Protocol";
     begin
-        ExportProtocol.Code := LibraryUTUtility.GetNewCode;
+        ExportProtocol.Code := LibraryUTUtility.GetNewCode();
         ExportProtocol."Check ID" := CODEUNIT::"Check BBV";
         ExportProtocol."Export ID" := REPORT::"Export BBV";
         ExportProtocol."Docket ID" := REPORT::Docket;
@@ -841,8 +841,8 @@ codeunit 144055 "UT TAB Telebank"
     local procedure CreatePaymentHistory(var PaymentHistory: Record "Payment History")
     begin
         PaymentHistory.Init();
-        PaymentHistory."Our Bank" := PadStr('', 10, '0') + LibraryUTUtility.GetNewCode10;
-        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode10;
+        PaymentHistory."Our Bank" := PadStr('', 10, '0') + LibraryUTUtility.GetNewCode10();
+        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode10();
         PaymentHistory.Insert();
     end;
 
@@ -850,7 +850,7 @@ codeunit 144055 "UT TAB Telebank"
     var
         PaymentHistoryLine: Record "Payment History Line";
     begin
-        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode10;
+        PaymentHistory."Run No." := LibraryUTUtility.GetNewCode10();
         PaymentHistory.Insert();
         CreatePaymentHistoryLinesWithExportErrors(PaymentHistory, PaymentHistoryLine);
 
@@ -888,19 +888,19 @@ codeunit 144055 "UT TAB Telebank"
     local procedure CreateServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")
     begin
         ServiceContractHeader."Contract Type" := ServiceContractHeader."Contract Type"::Quote;
-        ServiceContractHeader."Contract No." := LibraryUTUtility.GetNewCode;
+        ServiceContractHeader."Contract No." := LibraryUTUtility.GetNewCode();
         ServiceContractHeader.Insert();
     end;
 
     local procedure CreateServiceCrMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     begin
-        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceCrMemoHeader.Insert();
     end;
 
     local procedure CreateServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header")
     begin
-        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        ServiceInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         ServiceInvoiceHeader.Insert();
     end;
 
@@ -909,13 +909,13 @@ codeunit 144055 "UT TAB Telebank"
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         PaymentTerms.Insert();
-        PaymentMethod.Code := LibraryUTUtility.GetNewCode10;
+        PaymentMethod.Code := LibraryUTUtility.GetNewCode10();
         PaymentMethod.Insert();
         TransactionMode."Account Type" := AccountType;
-        TransactionMode.Code := LibraryUTUtility.GetNewCode;
-        TransactionMode."Export Protocol" := CreateExportProtocol;
+        TransactionMode.Code := LibraryUTUtility.GetNewCode();
+        TransactionMode."Export Protocol" := CreateExportProtocol();
         TransactionMode."Payment Terms Code" := PaymentTerms.Code;
         TransactionMode."Payment Method Code" := PaymentMethod.Code;
         TransactionMode.Insert();
@@ -926,7 +926,7 @@ codeunit 144055 "UT TAB Telebank"
         TransactionMode: Record "Transaction Mode";
     begin
         CreateTransactionMode(TransactionMode, TransactionMode."Account Type"::Vendor);
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor."Preferred Bank Account Code" := CreateVendorBankAccount(Vendor."No.");
         Vendor."Transaction Mode Code" := TransactionMode.Code;
         Vendor.Insert();
@@ -937,7 +937,7 @@ codeunit 144055 "UT TAB Telebank"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBankAccount."Vendor No." := VendorNo;
-        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10;
+        VendorBankAccount.Code := LibraryUTUtility.GetNewCode10();
         VendorBankAccount.Insert();
         exit(VendorBankAccount.Code);
     end;
@@ -946,7 +946,7 @@ codeunit 144055 "UT TAB Telebank"
     begin
         with ExportProtocol do begin
             Init();
-            Code := LibraryUTUtility.GetNewCode;
+            Code := LibraryUTUtility.GetNewCode();
             "Default File Names" := DefaultFileNames;
             Insert();
         end;
@@ -986,7 +986,7 @@ codeunit 144055 "UT TAB Telebank"
             Validate(
               "Document No.", LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
             Validate("External Document No.", LibraryUtility.GenerateRandomText(MaxStrLen("External Document No.")));  // Unused but required for vendor posting.
-            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode);  // Unused but required for AU, NZ builds
+            Validate("Source Code", LibraryERM.FindGeneralJournalSourceCode());  // Unused but required for AU, NZ builds
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             if "Account Type" = "Account Type"::Customer then
                 GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale)

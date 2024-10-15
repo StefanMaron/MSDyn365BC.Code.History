@@ -28,12 +28,12 @@ codeunit 136304 "Job Performance WIP"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         Initialized: Boolean;
-        EntryNotReversedErr: Label 'Job WIP entry has not been reversed.';
+        EntryNotReversedErr: Label 'Project WIP entry has not been reversed.';
         TotalAmountErr: Label 'Total Amount should be 0 for account: %1';
         AccountType: Option "WIP Costs Account","WIP Invoiced Sales Account";
-        TotalWIPCostAmountErr: Label 'Total WIP Cost Amount should be 0 because Job is in Completed status';
+        TotalWIPCostAmountErr: Label 'Total WIP Cost Amount should be 0 because Project is in Completed status';
         QtyErr: Label 'Quantity is not correct in %1';
-        JobWIPEntryGLAccountErr: Label 'Wrong Job WIP Entry record''s count';
+        JobWIPEntryGLAccountErr: Label 'Wrong Project WIP Entry record''s count';
         EndingDateNotEmptyErr: Label 'Ending Date is not empty.';
 
     [Test]
@@ -417,7 +417,7 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: create job schedule
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // totaling task
         CreateJobTaskWIPTotal(JobTask, Job, JobTask."Job Task Type"::Total);
@@ -464,7 +464,7 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: create job schedule
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // totaling task
         CreateJobTaskWIPTotal(JobTask, Job, JobTask."Job Task Type"::Total);
@@ -510,7 +510,7 @@ codeunit 136304 "Job Performance WIP"
         repeat
             // Setup: create schedule and contract for job task.
             LibraryJob.CreateJobTask(Job, JobTask);
-            PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+            PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
             // totaling task
             CreateJobTaskWIPTotal(JobTask, Job, JobTask."Job Task Type"::Total);
@@ -537,7 +537,7 @@ codeunit 136304 "Job Performance WIP"
         VerifyJobWIP(Job, JobWIPMethod);
 
         // Verify: WIP impact on GL
-        DeltaAssert.Assert
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -566,11 +566,11 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: create and plan first job task
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // Setup: create and plan excluded job task
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Excluded);
         JobTask.Modify(true);
 
@@ -579,7 +579,7 @@ codeunit 136304 "Job Performance WIP"
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         JobTask.Modify(true);
 
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // Setup: execute job
         JobTask.Reset();
@@ -623,11 +623,11 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: create and plan first job task
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // Setup: create and plan excluded job task
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Excluded);
         JobTask.Modify(true);
 
@@ -635,7 +635,7 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate("WIP-Total", JobTask."WIP-Total"::Total);
         JobTask.Modify(true);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // Setup: execute job
         JobTask.Reset();
@@ -718,10 +718,10 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: invoice (creating two job ledger entries with different dimensions)
         CreateMockJobLedgerEntry(JobPlanningLine, 1 / 5, JobLedgerEntry);
-        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet);
+        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet());
 
         CreateMockJobLedgerEntry(JobPlanningLine, 2 / 5, JobLedgerEntry);
-        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet);
+        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet());
 
         // Exercise
         CalculateWIP(Job);
@@ -767,8 +767,8 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask."Job Posting Group" := CreateJobPostingGroup(JobPostingGroup);
         JobTask.Modify(true);
-        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType, JobPlanningLine);
-        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType, JobPlanningLine);
+        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType(), JobPlanningLine);
+        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType(), JobPlanningLine);
         // invoice
         CreateMockJobLedgerEntry(JobPlanningLine, 0.2, JobLedgerEntry);
 
@@ -776,8 +776,8 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask."Job Posting Group" := CreateJobPostingGroup(JobPostingGroup);
         JobTask.Modify(true);
-        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType, JobPlanningLine);
-        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType, JobPlanningLine);
+        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType(), JobPlanningLine);
+        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType(), JobPlanningLine);
         // invoice
         CreateMockJobLedgerEntry(JobPlanningLine, 0.2, JobLedgerEntry);
 
@@ -826,9 +826,9 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // for item, resource, and gl
-        ScheduleJobTask(JobTask, ItemScheduleAmount, LibraryJob.ItemType, ItemJobPlanningLine);
-        ScheduleJobTask(JobTask, ResourceScheduleAmount, LibraryJob.ResourceType, ResourceJobPlanningLine);
-        ScheduleJobTask(JobTask, GLScheduleAmount, LibraryJob.GLAccountType, GLJobPlanningLine);
+        ScheduleJobTask(JobTask, ItemScheduleAmount, LibraryJob.ItemType(), ItemJobPlanningLine);
+        ScheduleJobTask(JobTask, ResourceScheduleAmount, LibraryJob.ResourceType(), ResourceJobPlanningLine);
+        ScheduleJobTask(JobTask, GLScheduleAmount, LibraryJob.GLAccountType(), GLJobPlanningLine);
 
         // Setup: Use a fraction of each of them
         FilterJobTaskByType(JobTask, Job."No.");
@@ -889,14 +889,14 @@ codeunit 136304 "Job Performance WIP"
         LibraryJob.CreateJobTask(Job, JobTask);
 
         // invoice
-        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType, JobPlanningLine);
+        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType(), JobPlanningLine);
         CreateMockJobLedgerEntry(JobPlanningLine, InvoiceFraction, JobLedgerEntry);
-        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet);
+        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet());
 
         // use
-        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType, JobPlanningLine);
+        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType(), JobPlanningLine);
         CreateMockJobLedgerEntry(JobPlanningLine, UsageFraction, JobLedgerEntry);
-        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet);
+        AttachDimension2JobLedgerEntry(JobLedgerEntry, CreateDimensionSet());
 
         // Exercise
         CalculateWIP(Job);
@@ -1129,7 +1129,7 @@ codeunit 136304 "Job Performance WIP"
         Initialize();
         CreateJobAndPostJobJournal(Job, JobTask, Job."WIP Posting Method"::"Per Job Ledger Entry");
         Job.Get(Job."No.");
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(Job.Status::Completed);
         JobCard.Close();
@@ -1560,7 +1560,7 @@ codeunit 136304 "Job Performance WIP"
         Job.Validate("WIP Method", '');
         Job.Modify(true);
 
-        Job.RecalculateJobWIP;
+        Job.RecalculateJobWIP();
 
         JobWIPEntry.SetRange("Job No.", Job."No.");
         Assert.RecordIsEmpty(JobWIPEntry);
@@ -1588,7 +1588,7 @@ codeunit 136304 "Job Performance WIP"
           Job, JobTask, JobPlanningLine, JobWIPMethod."Recognized Costs"::"Cost Value",
           JobWIPMethod."Recognized Sales"::"Percentage of Completion", Job."WIP Posting Method"::"Per Job");
 
-        Job.RecalculateJobWIP;
+        Job.RecalculateJobWIP();
 
         JobWIPGLEntry.SetRange("Job No.", Job."No.");
         Assert.RecordIsNotEmpty(JobWIPGLEntry);
@@ -1864,7 +1864,7 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: create job schedule
         LibraryJob.CreateJobTask(Job, JobTask);
-        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType);
+        PlanJobTask(JobTask, ScheduleAmount, ContractAmount, LibraryJob.ResourceType());
 
         // totaling task
         CreateJobTaskWIPTotal(JobTask, Job, JobTask."Job Task Type"::Total);
@@ -1887,7 +1887,7 @@ codeunit 136304 "Job Performance WIP"
         VerifyJobWIP(Job, JobWIPMethod);
 
         // Verify: WIP impact on GL
-        DeltaAssert.Assert
+        DeltaAssert.Assert();
     end;
 
     local procedure SalesAppliedWithPOCScenario(var Job: Record Job; var InvoicedAmount: Decimal; Factor: Decimal)
@@ -1910,8 +1910,8 @@ codeunit 136304 "Job Performance WIP"
         UsedCostAmount := ScheduleCostAmount / LibraryRandom.RandIntInRange(3, 10);
         CostFactor := UsedCostAmount / ScheduleCostAmount;
         InvoicedAmount :=
-          Round(CostFactor * ContractPriceAmount * Factor, LibraryERM.GetAmountRoundingPrecision);
-        PlanJobTaskWithPrice(JobTask, ScheduleCostAmount, 0, 0, ContractPriceAmount, LibraryJob.ResourceType);
+          Round(CostFactor * ContractPriceAmount * Factor, LibraryERM.GetAmountRoundingPrecision());
+        PlanJobTaskWithPrice(JobTask, ScheduleCostAmount, 0, 0, ContractPriceAmount, LibraryJob.ResourceType());
 
         FilterJobTaskByType(JobTask, Job."No.");
         UseJobTasks(JobTask, CostFactor);
@@ -1928,12 +1928,12 @@ codeunit 136304 "Job Performance WIP"
 
     local procedure CreateJobJournalLine(JobTask: Record "Job Task"; var JobJournalLine: Record "Job Journal Line")
     begin
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobJournalLine);
         JobJournalLine.Validate("Unit Cost", LibraryRandom.RandInt(10));  // Taking Radom as value is not important.
         JobJournalLine.Modify(true);
     end;
 
-    local procedure CreateJobWIPMethod(CostsRecognition: Option; SalesRecognition: Option; var JobWIPMethod: Record "Job WIP Method")
+    local procedure CreateJobWIPMethod(CostsRecognition: Enum "Job WIP Recognized Costs Type"; SalesRecognition: Enum "Job WIP Recognized Sales Type"; var JobWIPMethod: Record "Job WIP Method")
     begin
         Clear(JobWIPMethod);
         JobWIPMethod.SetFilter(Code, Prefix + '*');
@@ -1984,7 +1984,7 @@ codeunit 136304 "Job Performance WIP"
         Job.Modify(true);
     end;
 
-    local procedure CreateJobTaskWIPTotal(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Option)
+    local procedure CreateJobTaskWIPTotal(var JobTask: Record "Job Task"; Job: Record Job; JobTaskType: Enum "Job Task Type")
     begin
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate("Job Task Type", JobTaskType);
@@ -1998,7 +1998,7 @@ codeunit 136304 "Job Performance WIP"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));  // Used Random value for Quantity.
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(10));  // Used Random value for Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));  // Used Random value for Direct Unit Cost.
         PurchaseLine.Validate("Job No.", JobTask."Job No.");
         PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
@@ -2023,7 +2023,7 @@ codeunit 136304 "Job Performance WIP"
         end;
     end;
 
-    local procedure CreateJobAndPostJobJournalWithJobTaskAndPlanning(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; CostsRecognition: Option; SalesRecognition: Option; WIPPostingMethod: Option)
+    local procedure CreateJobAndPostJobJournalWithJobTaskAndPlanning(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; CostsRecognition: Enum "Job WIP Recognized Costs Type"; SalesRecognition: Enum "Job WIP Recognized Sales Type"; WIPPostingMethod: Option)
     var
         JobJournalLine: Record "Job Journal Line";
         JobWIPMethod: Record "Job WIP Method";
@@ -2058,7 +2058,7 @@ codeunit 136304 "Job Performance WIP"
     var
         JobJournalLine: Record "Job Journal Line";
     begin
-        LibraryJob.CreateJobJournalLineForType(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobJournalLine);
+        LibraryJob.CreateJobJournalLineForType(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobJournalLine);
         JobJournalLine.Validate(Quantity, 1);
         JobJournalLine.Validate("Unit Cost", Amount);
         JobJournalLine.Modify(true);
@@ -2073,8 +2073,8 @@ codeunit 136304 "Job Performance WIP"
 
         // Setup: plan job task
         LibraryJob.CreateJobTask(Job, JobTask);
-        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType, JobPlanningLine);
-        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType, JobPlanningLine);
+        ScheduleJobTask(JobTask, ScheduleAmount, LibraryJob.ResourceType(), JobPlanningLine);
+        ContractJobTask(JobTask, ContractAmount, LibraryJob.ResourceType(), JobPlanningLine);
     end;
 
     local procedure PlanJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; ContractAmount: Decimal; Type: Enum "Job Planning Line Type")
@@ -2088,7 +2088,7 @@ codeunit 136304 "Job Performance WIP"
     local procedure ScheduleJobTask(JobTask: Record "Job Task"; ScheduleAmount: Decimal; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // schedule
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := ScheduleAmount;
         JobPlanningLine."Line Amount (LCY)" := 1.1 * ScheduleAmount;
         JobPlanningLine.Modify();
@@ -2097,7 +2097,7 @@ codeunit 136304 "Job Performance WIP"
     local procedure ContractJobTask(JobTask: Record "Job Task"; ContractAmount: Decimal; ConsumableType: Enum "Job Planning Line Type"; var JobPlanningLine: Record "Job Planning Line")
     begin
         // contract
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract, ConsumableType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeContract(), ConsumableType, JobTask, JobPlanningLine);
         JobPlanningLine."Total Cost (LCY)" := 0.8 * ContractAmount;
         JobPlanningLine."Line Amount (LCY)" := ContractAmount;
         JobPlanningLine.Modify();
@@ -2108,9 +2108,9 @@ codeunit 136304 "Job Performance WIP"
         JobPlanningLine: Record "Job Planning Line";
     begin
         CreateJobPlanningLineWithPrice(
-          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule, ConsumableType, JobTask, ScheduleCostAmount, SchedulePriceAmount, ScheduleCostAmount);
+          JobPlanningLine, LibraryJob.PlanningLineTypeSchedule(), ConsumableType, JobTask, ScheduleCostAmount, SchedulePriceAmount, ScheduleCostAmount);
         CreateJobPlanningLineWithPrice(
-          JobPlanningLine, LibraryJob.PlanningLineTypeContract, ConsumableType, JobTask, ContractCostAmount, ContractPriceAmount, ContractPriceAmount)
+          JobPlanningLine, LibraryJob.PlanningLineTypeContract(), ConsumableType, JobTask, ContractCostAmount, ContractPriceAmount, ContractPriceAmount)
     end;
 
     local procedure CreateJobPlanningLineWithPrice(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; ConsumableType: Enum "Job Planning Line Type"; JobTask: Record "Job Task"; TotalCost: Decimal; TotalPrice: Decimal; LineAmount: Decimal)
@@ -2175,13 +2175,13 @@ codeunit 136304 "Job Performance WIP"
             Type := JobPlanningLine.Type;
             "No." := JobPlanningLine."No.";
             case JobPlanningLine."Line Type" of
-                LibraryJob.PlanningLineTypeSchedule:
+                LibraryJob.PlanningLineTypeSchedule():
                     begin
                         "Entry Type" := "Entry Type"::Usage;
                         "Total Cost (LCY)" := Fraction * JobPlanningLine."Total Cost (LCY)";
                         "Line Amount (LCY)" := Fraction * JobPlanningLine."Line Amount (LCY)"
                     end;
-                LibraryJob.PlanningLineTypeContract:
+                LibraryJob.PlanningLineTypeContract():
                     begin
                         "Entry Type" := "Entry Type"::Sale;
                         "Total Cost (LCY)" := -Fraction * JobPlanningLine."Total Cost (LCY)";
@@ -2281,14 +2281,14 @@ codeunit 136304 "Job Performance WIP"
     local procedure UpdateJobPostingGroup(var JobPostingGroup: Record "Job Posting Group")
     begin
         with JobPostingGroup do begin
-            Validate("WIP Costs Account", CreateGLAccount);
-            Validate("WIP Invoiced Sales Account", CreateGLAccount);
-            Validate("WIP Accrued Sales Account", CreateGLAccount);
-            Validate("Job Costs Applied Account", CreateGLAccount);
-            Validate("Job Sales Applied Account", CreateGLAccount);
-            Validate("Resource Costs Applied Account", CreateGLAccount);
-            Validate("Recognized Costs Account", CreateGLAccount);
-            Validate("Recognized Sales Account", CreateGLAccount);
+            Validate("WIP Costs Account", CreateGLAccount());
+            Validate("WIP Invoiced Sales Account", CreateGLAccount());
+            Validate("WIP Accrued Sales Account", CreateGLAccount());
+            Validate("Job Costs Applied Account", CreateGLAccount());
+            Validate("Job Sales Applied Account", CreateGLAccount());
+            Validate("Resource Costs Applied Account", CreateGLAccount());
+            Validate("Recognized Costs Account", CreateGLAccount());
+            Validate("Recognized Sales Account", CreateGLAccount());
             Modify(true);
         end;
     end;
@@ -2299,7 +2299,7 @@ codeunit 136304 "Job Performance WIP"
         JobCard: TestPage "Job Card";
     begin
         Job.Get(JobNo);
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(Job.Status::Completed);
         JobCard.Close();
@@ -2319,9 +2319,9 @@ codeunit 136304 "Job Performance WIP"
 
         Job.SetRange("No.", Job."No.");
         JobCalculateWIP.SetTableView(Job);
-        JobCalculateWIP.InitializeRequest;
+        JobCalculateWIP.InitializeRequest();
         JobCalculateWIP.UseRequestPage(false);
-        JobCalculateWIP.RunModal
+        JobCalculateWIP.RunModal();
     end;
 
     local procedure CreateJobPostingGroupEmptyAccounts(var JobPostingGroup: Record "Job Posting Group")
@@ -2368,19 +2368,19 @@ codeunit 136304 "Job Performance WIP"
     begin
         with JobPostingGroup do begin
             Get(JobPostingGroupCode);
-            Validate("Job Sales Adjustment Account", CreateGLAccount);
-            Validate("Job Sales Applied Account", CreateGLAccount);
-            Validate("Job Costs Applied Account", CreateGLAccount);
-            Validate("Recognized Costs Account", CreateGLAccount);
-            Validate("Item Costs Applied Account", CreateGLAccount);
-            Validate("Job Costs Adjustment Account", CreateGLAccount);
-            Validate("WIP Accrued Costs Account", CreateGLAccount);
-            Validate("WIP Accrued Sales Account", CreateGLAccount);
-            Validate("Recognized Sales Account", CreateGLAccount);
-            Validate("Resource Costs Applied Account", CreateGLAccount);
-            Validate("G/L Costs Applied Account", CreateGLAccount);
-            Validate("WIP Costs Account", CreateGLAccount);
-            Validate("WIP Invoiced Sales Account", CreateGLAccount);
+            Validate("Job Sales Adjustment Account", CreateGLAccount());
+            Validate("Job Sales Applied Account", CreateGLAccount());
+            Validate("Job Costs Applied Account", CreateGLAccount());
+            Validate("Recognized Costs Account", CreateGLAccount());
+            Validate("Item Costs Applied Account", CreateGLAccount());
+            Validate("Job Costs Adjustment Account", CreateGLAccount());
+            Validate("WIP Accrued Costs Account", CreateGLAccount());
+            Validate("WIP Accrued Sales Account", CreateGLAccount());
+            Validate("Recognized Sales Account", CreateGLAccount());
+            Validate("Resource Costs Applied Account", CreateGLAccount());
+            Validate("G/L Costs Applied Account", CreateGLAccount());
+            Validate("WIP Costs Account", CreateGLAccount());
+            Validate("WIP Invoiced Sales Account", CreateGLAccount());
             Modify(true);
         end;
     end;
@@ -2411,17 +2411,17 @@ codeunit 136304 "Job Performance WIP"
         JobTask.FindSet();
         repeat
             Assert.AreNearlyEqual(UsageTotalCost(JobTask) - TotalRecogCostGL(JobTask), WIPCostAmount(JobTask),
-              GetRoundingPrecision, 'WIP cost amounts do not match');
+              GetRoundingPrecision(), 'WIP cost amounts do not match');
             Assert.AreNearlyEqual(TotalRecogSalesGL(JobTask) - ContractInvoicedPrice(JobTask), WIPSalesAmount(JobTask),
-              GetRoundingPrecision, 'WIP sales amounts do not match')
+              GetRoundingPrecision(), 'WIP sales amounts do not match')
         until JobTask.Next() = 0;
 
         // verify cost and sales recognition for the job
         Job.CalcFields("Recog. Costs Amount", "Recog. Sales Amount", "Recog. Costs G/L Amount", "Recog. Sales G/L Amount");
         RecogCosts := RecogCostsAmount(Job);
         RecogSales := RecogSalesAmount(Job);
-        Assert.AreNearlyEqual(RecogCosts, Job."Recog. Costs G/L Amount", GetRoundingPrecision, Job.FieldCaption("Recog. Costs G/L Amount"));
-        Assert.AreNearlyEqual(RecogSales, Job."Recog. Sales G/L Amount", GetRoundingPrecision, Job.FieldCaption("Recog. Sales G/L Amount"))
+        Assert.AreNearlyEqual(RecogCosts, Job."Recog. Costs G/L Amount", GetRoundingPrecision(), Job.FieldCaption("Recog. Costs G/L Amount"));
+        Assert.AreNearlyEqual(RecogSales, Job."Recog. Sales G/L Amount", GetRoundingPrecision(), Job.FieldCaption("Recog. Sales G/L Amount"))
     end;
 
     local procedure VerifyJobWIPTotal(JobWIPTotal: Record "Job WIP Total"; JobWIPMethod: Record "Job WIP Method")
@@ -2456,7 +2456,7 @@ codeunit 136304 "Job Performance WIP"
 
         DeltaAssert.Run();
         DeltaAssert.Init();
-        DeltaAssert.SetTolerance(GetRoundingPrecision);
+        DeltaAssert.SetTolerance(GetRoundingPrecision());
 
         JobPostingGroup.Get(Job."Job Posting Group");
         GetTotalJobTaskForJob(Job, TotalJobTask);
@@ -2487,7 +2487,7 @@ codeunit 136304 "Job Performance WIP"
     begin
         with GLAccount do begin
             Get(AccountNo);
-            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition, FieldNo(Balance), Delta)
+            DeltaAssert.AddWatch(DATABASE::"G/L Account", GetPosition(), FieldNo(Balance), Delta)
         end
     end;
 
@@ -2768,10 +2768,10 @@ codeunit 136304 "Job Performance WIP"
         JobTask.SetFilter("WIP-Total", '<>%1', JobTask."WIP-Total"::" ");
         if JobTask.FindLast() then begin
             JobTask.SetRange("WIP-Total");
-            JobTask.Next
+            JobTask.Next();
         end else begin
             JobTask.SetRange("WIP-Total");
-            JobTask.FindFirst
+            JobTask.FindFirst();
         end;
 
         // Sum all posting task lines in the range.
@@ -2795,7 +2795,7 @@ codeunit 136304 "Job Performance WIP"
         JobTask.SetRange("Job No.", JobTask."Job No.");
         if JobTask."WIP-Total" <> JobTask."WIP-Total"::Total then
             repeat
-                Steps := JobTask.Next
+                Steps := JobTask.Next();
             until (JobTask."WIP-Total" <> JobTask."WIP-Total"::" ") or (Steps = 0);
 
         if JobTask."WIP-Total" = JobTask."WIP-Total"::" " then
@@ -2857,7 +2857,7 @@ codeunit 136304 "Job Performance WIP"
         JobPostingGroup: Record "Job Posting Group";
     begin
         JobPostingGroup.Get(Code);
-        JobPostingGroup.Validate("Item Costs Applied Account", CreateGLAccount);
+        JobPostingGroup.Validate("Item Costs Applied Account", CreateGLAccount());
         JobPostingGroup.Modify(true);
     end;
 
@@ -2897,7 +2897,7 @@ codeunit 136304 "Job Performance WIP"
 
             repeat
                 TotalAmount += Amount;
-            until Next = 0;
+            until Next() = 0;
         end;
 
         Assert.AreEqual(0, TotalAmount, StrSubstNo(TotalAmountErr, AccountType));
@@ -2981,14 +2981,14 @@ codeunit 136304 "Job Performance WIP"
     [Scope('OnPrem')]
     procedure JobTransferToSalesInvoiceRequestPageHandler(var JobTransferToSalesInvoice: TestRequestPage "Job Transfer to Sales Invoice")
     begin
-        JobTransferToSalesInvoice.OK.Invoke;
+        JobTransferToSalesInvoice.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure JobPostWIPtoGLRequestPageHandler(var JobPostWIPtoGL: TestRequestPage "Job Post WIP to G/L")
     begin
-        JobPostWIPtoGL.OK.Invoke;
+        JobPostWIPtoGL.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -3032,14 +3032,14 @@ codeunit 136304 "Job Performance WIP"
     [Scope('OnPrem')]
     procedure JobWipEntriesHandler(var JobWIPEntries: TestPage "Job WIP Entries")
     begin
-        JobWIPEntries.OK.Invoke;
+        JobWIPEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

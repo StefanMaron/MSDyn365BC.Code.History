@@ -58,7 +58,7 @@ codeunit 144004 "UT REP Audit"
     procedure OnValidateStartDateExcludeBeginBalanceUnchecked()
     begin
         // Purpose of the test is to validate OnValidate trigger for report ID 11412 - Tax Authority - Audit File report for Start Date as begining date of fiscal year.
-        ExcludeBeginBalanceOnAuditFileReport(GetFiscalYearStartDate, false);  // Required Start Date as current year begining date.
+        ExcludeBeginBalanceOnAuditFileReport(GetFiscalYearStartDate(), false);  // Required Start Date as current year begining date.
     end;
 
     local procedure ExcludeBeginBalanceOnAuditFileReport(StartDate: Date; ExcludeBeginBalance: Boolean)
@@ -103,7 +103,7 @@ codeunit 144004 "UT REP Audit"
     begin
         // Purpose of the test is to validate OnPreReport trigger for report ID 11412 - Tax Authority - Audit File report with start date out of current fiscal year.
         REPORT.Run(REPORT::"Create Fiscal Year"); // Create previous fiscal year.
-        OnPreReportAuditFileRepError(CalcDate('<1D>', GetFiscalYearStartDate), Today);  // Required Start Date as date out of fiscal year.
+        OnPreReportAuditFileRepError(CalcDate('<1D>', GetFiscalYearStartDate()), Today);  // Required Start Date as date out of fiscal year.
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 144004 "UT REP Audit"
     procedure OnPreReportAuditFileStartDateInAccountPeriodError()
     begin
         // Purpose of the test is to validate OnPreReport trigger for report ID 11412 - Tax Authority - Audit File report with start date beyond Accounting Period setup.
-        OnPreReportAuditFileRepError(CalcDate('<-1D>', GetFiscalYearStartDate), Today);  // Required Start Date as out of year date.
+        OnPreReportAuditFileRepError(CalcDate('<-1D>', GetFiscalYearStartDate()), Today);  // Required Start Date as out of year date.
     end;
 
     local procedure OnPreReportAuditFileRepError(StartDate: Date; EndDate: Date)
@@ -205,10 +205,10 @@ codeunit 144004 "UT REP Audit"
     [Scope('OnPrem')]
     procedure CreateFiscalYearRequestPageHandler(var CreateFiscalYear: TestRequestPage "Create Fiscal Year")
     begin
-        CreateFiscalYear.StartingDate.SetValue(CalcDate('<-1Y>', GetFiscalYearStartDate));  // Required previous year date.
+        CreateFiscalYear.StartingDate.SetValue(CalcDate('<-1Y>', GetFiscalYearStartDate()));  // Required previous year date.
         CreateFiscalYear.NoOfPeriods.SetValue(12);
         CreateFiscalYear.PeriodLength.SetValue('<1M>');
-        CreateFiscalYear.OK.Invoke;
+        CreateFiscalYear.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -239,14 +239,14 @@ codeunit 144004 "UT REP Audit"
         TaxAuthorityAuditFile.StartDate.SetValue(StartDate);  // Start Date.
         TaxAuthorityAuditFile.EndDate.SetValue(EndDate);  // End Date.
         TaxAuthorityAuditFile.ExcludeBalance.AssertEquals(ExcludeBalance);
-        TaxAuthorityAuditFile.OK.Invoke;
+        TaxAuthorityAuditFile.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure TaxAuthorityAuditFileCancelReqestPageHandler(var TaxAuthorityAuditFile: TestRequestPage "Tax Authority - Audit File")
     begin
-        TaxAuthorityAuditFile.Cancel.Invoke;
+        TaxAuthorityAuditFile.Cancel().Invoke();
     end;
 }
 

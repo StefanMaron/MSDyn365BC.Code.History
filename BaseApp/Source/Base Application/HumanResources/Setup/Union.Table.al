@@ -9,6 +9,7 @@ table 5209 Union
     Caption = 'Union';
     DrillDownPageID = Unions;
     LookupPageID = Unions;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -115,11 +116,24 @@ table 5209 Union
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN24
         field(13; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(13; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(14; "Country/Region Code"; Code[10])
         {
             Caption = 'Country/Region Code';

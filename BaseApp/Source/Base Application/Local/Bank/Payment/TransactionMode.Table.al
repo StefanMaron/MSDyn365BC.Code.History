@@ -18,6 +18,7 @@ table 11000004 "Transaction Mode"
 {
     Caption = 'Transaction Mode';
     LookupPageID = "Transaction Mode List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -240,7 +241,7 @@ table 11000004 "Transaction Mode"
     [Scope('OnPrem')]
     procedure CheckTransModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Option " ",Company,Person): Boolean
     begin
-        exit(CheckTransactionModePartnerType(AccountType, TransactionModeCode, PartnerType));
+        exit(CheckTransactionModePartnerType(AccountType, TransactionModeCode, Enum::"Partner Type".FromInteger(PartnerType)));
     end;
 
     procedure CheckTransactionModePartnerType(AccountType: Option Customer,Vendor,Employee; TransactionModeCode: Code[20]; PartnerType: Enum "Partner Type"): Boolean

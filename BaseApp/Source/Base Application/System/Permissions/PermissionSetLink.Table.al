@@ -6,6 +6,7 @@ table 9802 "Permission Set Link"
     DataPerCompany = false;
     Permissions = TableData "Permission Set Link" = rmd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

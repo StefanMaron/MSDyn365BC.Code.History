@@ -185,7 +185,7 @@ codeunit 144005 "ERM Tax Authority"
         Initialize();
 
         // [GIVEN] Use random posting date and clear all entries before posting to avoid clashes
-        PostingDate := GetPostingDate;
+        PostingDate := GetPostingDate();
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.DeleteAll();
         DocumentNo := CreateAndPostSalesOrder(PostingDate);
@@ -223,7 +223,7 @@ codeunit 144005 "ERM Tax Authority"
 
         // [GIVEN] Create and post Gen Jouranl and reverse.
         FindGLEntry(
-          GLEntry, CreateLedgerEntry(GenJournalBatch, GetPostingDate), false);
+          GLEntry, CreateLedgerEntry(GenJournalBatch, GetPostingDate()), false);
         LibraryVariableStorage.Enqueue(ReverseEntriesQst);  // Enqueue for ConfirmHandler.
         ReverseTransaction(GLEntry."Transaction No.");
 
@@ -294,24 +294,24 @@ codeunit 144005 "ERM Tax Authority"
 
         // [GIVEN] Posted Sales Order.
         UpdateLCYCodeGLSetup(GeneralLedgerSetup);
-        CreateAndPostSalesOrder(GetPostingDate);
+        CreateAndPostSalesOrder(GetPostingDate());
         Commit();
 
         // [WHEN] Run Tax Authority - Audit File report.
-        EnqueueValuesForRequestPage(GetPostingDate, false);
+        EnqueueValuesForRequestPage(GetPostingDate(), false);
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
         TaxAuthorityAuditFile.Run();
 
         // [THEN] Verify start/end date, Currency code, software name and version, Date format in generated Audit file are according to the length prescribed by the tax authorities.
         LibraryXPathXMLReader.Initialize(FileName, XAFNameSpaceTxt);
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/startDate', Format(GetPostingDate, 0, DateFormatTxt));
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/endDate', Format(GetPostingDate, 0, DateFormatTxt));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/startDate', Format(GetPostingDate(), 0, DateFormatTxt));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/endDate', Format(GetPostingDate(), 0, DateFormatTxt));
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/curCode', CopyStr(GeneralLedgerSetup."LCY Code", 1, 3));
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/dateCreated', Format(Today, 0, DateFormatTxt));
         LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/softwareDesc', 'Microsoft Dynamics NAV');
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/softwareVersion', CopyStr(ApplicationSystemConstants.ApplicationVersion, 1, 20));
-        LibraryXPathXMLReader.VerifyNodeValueByXPath('//transactions/journal/transaction/trDt', Format(GetPostingDate, 0, DateFormatTxt));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//auditfile/header/softwareVersion', CopyStr(ApplicationSystemConstants.ApplicationVersion(), 1, 20));
+        LibraryXPathXMLReader.VerifyNodeValueByXPath('//transactions/journal/transaction/trDt', Format(GetPostingDate(), 0, DateFormatTxt));
     end;
 
     [Test]
@@ -332,7 +332,7 @@ codeunit 144005 "ERM Tax Authority"
         Commit();
 
         // [WHEN] Run Tax Authority - Audit File report.
-        EnqueueValuesForRequestPage(GetPostingDate, false);
+        EnqueueValuesForRequestPage(GetPostingDate(), false);
         FileName := FileManagement.ServerTempFileName('xaf');
         TaxAuthorityAuditFile.SetFileName(FileName);
         TaxAuthorityAuditFile.Run();
@@ -767,9 +767,9 @@ codeunit 144005 "ERM Tax Authority"
         GenJournalBatch: Record "Gen. Journal Batch";
         TaxAuthorityAuditFile: Report "Tax Authority - Audit File";
     begin
-        CreateLedgerEntry(GenJournalBatch, CalcDate('<-1D>', GetPostingDate)); // necessary to create Balance at Date
-        CreateLedgerEntry(GenJournalBatch, GetPostingDate);
-        EnqueueValuesForRequestPage(GetPostingDate, ExcludeBalance);  // Enqueue values for TaxAuthorityAuditFileRequestPageHandler.
+        CreateLedgerEntry(GenJournalBatch, CalcDate('<-1D>', GetPostingDate())); // necessary to create Balance at Date
+        CreateLedgerEntry(GenJournalBatch, GetPostingDate());
+        EnqueueValuesForRequestPage(GetPostingDate(), ExcludeBalance);  // Enqueue values for TaxAuthorityAuditFileRequestPageHandler.
 
         // Exercise.
         TaxAuthorityAuditFile.SetFileName(FileName);
@@ -825,7 +825,7 @@ codeunit 144005 "ERM Tax Authority"
         SelectAndClearGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount, LibraryRandom.RandDec(1000, 2));  // Using Random for Amount.
+          GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(), LibraryRandom.RandDec(1000, 2));  // Using Random for Amount.
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Modify(true);
         DocumentNo := GenJournalLine."Document No.";
@@ -1079,8 +1079,6 @@ codeunit 144005 "ERM Tax Authority"
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    var
-        Message: Variant;
     begin
         Reply := true;
     end;
@@ -1107,7 +1105,7 @@ codeunit 144005 "ERM Tax Authority"
         CreateFiscalYear.StartingDate.SetValue(CalcDate('<-1Y>', LibraryFiscalYear.GetFirstPostingDate(true)));  // Required prevoius year Start Date.
         CreateFiscalYear.NoOfPeriods.SetValue(12);
         CreateFiscalYear.PeriodLength.SetValue('<1M>');
-        CreateFiscalYear.OK.Invoke;
+        CreateFiscalYear.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1128,7 +1126,7 @@ codeunit 144005 "ERM Tax Authority"
         CloseIncomeStatement.GenJournalBatch.SetValue(GenJournalBatch);
         CloseIncomeStatement.RetainedEarningsAcc.SetValue(RetainedEarningsAcc);
         CloseIncomeStatement.PostingDescription.SetValue('Opening Entries');  // Used hard coded value as needed for verification in Audit File.
-        CloseIncomeStatement.OK.Invoke;
+        CloseIncomeStatement.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1143,7 +1141,7 @@ codeunit 144005 "ERM Tax Authority"
         TaxAuthorityAuditFile.StartDate.SetValue(StartEndDate);
         TaxAuthorityAuditFile.EndDate.SetValue(StartEndDate);
         TaxAuthorityAuditFile.ExcludeBalance.SetValue(ExcludeBalance);
-        TaxAuthorityAuditFile.OK.Invoke;
+        TaxAuthorityAuditFile.OK().Invoke();
     end;
 }
 

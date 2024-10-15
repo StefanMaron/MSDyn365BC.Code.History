@@ -63,7 +63,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     begin
         // Purpose of this test is to verify error for blank Current Period(CP) Starting Date.
         Initialize();
-        ExportFinancialDataToXML(0D, WorkDate(), WorkDate, WorkDate());  // 0D for Current Period(CP) Starting Date.
+        ExportFinancialDataToXML(0D, WorkDate(), WorkDate(), WorkDate());  // 0D for Current Period(CP) Starting Date.
     end;
 
     [Test]
@@ -96,7 +96,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     begin
         // Purpose of this test is to verify error for blank Comparative Period Ending Date when Starting Date is filled in.
         Initialize();
-        ExportFinancialDataToXML(WorkDate(), WorkDate(), WorkDate, 0D);  // 0D for Comparative Period Ending Date.
+        ExportFinancialDataToXML(WorkDate(), WorkDate(), WorkDate(), 0D);  // 0D for Comparative Period Ending Date.
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
         Initialize();
         ExportFinancialDataToXML(
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()), WorkDate(),
-          WorkDate, WorkDate());  // Added random days to WORKDATE for Starting Date.
+          WorkDate(), WorkDate());  // Added random days to WORKDATE for Starting Date.
     end;
 
     [Test]
@@ -121,8 +121,8 @@ codeunit 144042 "UT REP XBRLIMPORT"
         // Purpose of this test is to verify error when Comparative Period Ending Date is before Starting Date.
         Initialize();
         ExportFinancialDataToXML(
-          WorkDate, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()),
-          WorkDate);  // Added random days to WORKDATE for Comparative Starting Date.
+          WorkDate(), WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()),
+          WorkDate());  // Added random days to WORKDATE for Comparative Starting Date.
     end;
 
     [Test]
@@ -134,8 +134,8 @@ codeunit 144042 "UT REP XBRLIMPORT"
         // Purpose of this test is to verify error when Current Period(CP) Starting Date and Ending Date do not belong to the same fiscal year.
         Initialize();
         ExportFinancialDataToXML(
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', WorkDate()), WorkDate(), WorkDate,
-          WorkDate);  // Subtracted random years from WORKDATE for different fiscal years.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', WorkDate()), WorkDate(), WorkDate(),
+          WorkDate());  // Subtracted random years from WORKDATE for different fiscal years.
     end;
 
     [Test]
@@ -147,8 +147,8 @@ codeunit 144042 "UT REP XBRLIMPORT"
         // Purpose of this test is to verify error when Comparative Period Starting Date and Ending Date do not belong to the same fiscal year.
         Initialize();
         ExportFinancialDataToXML(
-          WorkDate, WorkDate(), CalcDate('<-1Y>', WorkDate()),
-          WorkDate);  // Subtracted 1 years from WORKDATE for different fiscal years.
+          WorkDate(), WorkDate(), CalcDate('<-1Y>', WorkDate()),
+          WorkDate());  // Subtracted 1 years from WORKDATE for different fiscal years.
     end;
 
     [Test]
@@ -163,11 +163,11 @@ codeunit 144042 "UT REP XBRLIMPORT"
         Initialize();
         AccountingPeriod.FindFirst();
         ExportFinancialDataToXML(
-          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"), WorkDate(), WorkDate,
-          WorkDate);  // Subtracted random years from Accounting Period Starting Date.
+          CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"), WorkDate(), WorkDate(),
+          WorkDate());  // Subtracted random years from Accounting Period Starting Date.
 
         // Exercise and Verify.
-        RunAndVerifyExportFinancialDataToXML;
+        RunAndVerifyExportFinancialDataToXML();
     end;
 
     [Test]
@@ -182,11 +182,11 @@ codeunit 144042 "UT REP XBRLIMPORT"
         Initialize();
         AccountingPeriod.FindFirst();
         ExportFinancialDataToXML(
-          WorkDate, WorkDate(), CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"),
-          WorkDate);  // Subtracted random years from Accounting Period Starting Date.
+          WorkDate(), WorkDate(), CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'Y>', AccountingPeriod."Starting Date"),
+          WorkDate());  // Subtracted random years from Accounting Period Starting Date.
 
         // Exercise and Verify.
-        RunAndVerifyExportFinancialDataToXML;
+        RunAndVerifyExportFinancialDataToXML();
     end;
 
     [Test]
@@ -196,7 +196,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnAfterGetRecordGLAccountExportFinancialDataToXML()
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord Trigger of Report 11420 - Export Financial Data to XML.
-        RunReportAndVerifyXMLData(CreateGLBudgetName, WorkDate());
+        RunReportAndVerifyXMLData(CreateGLBudgetName(), WorkDate());
     end;
 
     [Test]
@@ -206,7 +206,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     procedure OnPreDataItemGLAccount2ExportFinancialDataToXML()
     begin
         // Purpose of the test is to validate GL Account 2 - OnPreDataItem Trigger of Report 11420 - Export Financial Data to XML.
-        RunReportAndVerifyXMLData(CreateGLBudgetName, 0D);  // 0D for Starting Date.
+        RunReportAndVerifyXMLData(CreateGLBudgetName(), 0D);  // 0D for Starting Date.
     end;
 
     [Test]
@@ -249,7 +249,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode10;
+        GLAccount."No." := LibraryUTUtility.GetNewCode10();
         GLAccount."Account Type" := GLAccount."Account Type"::Posting;
         GLAccount.Insert();
         exit(GLAccount."No.");
@@ -261,9 +261,9 @@ codeunit 144042 "UT REP XBRLIMPORT"
     begin
         // Setup.
         Initialize();
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
         EnqueueValuesForExportFinancialDataToXML(
-          GLAccountNo, GLBudgetName, WorkDate(), WorkDate, StartingDate, StartingDate);
+          GLAccountNo, GLBudgetName, WorkDate(), WorkDate(), StartingDate, StartingDate);
 
         // Exercise.
         ExportFinancialDataToXML.SetFileName(FileName);
@@ -274,7 +274,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
     var
         GLBudgetName: Record "G/L Budget Name";
     begin
-        GLBudgetName.Name := LibraryUTUtility.GetNewCode10;
+        GLBudgetName.Name := LibraryUTUtility.GetNewCode10();
         GLBudgetName.Insert();
         exit(GLBudgetName.Name);
     end;
@@ -296,7 +296,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
         EnqueueValuesForExportFinancialDataToXML('', '', StartingDateCurrent, EndingDateCurrent, StartingDate, EndingDate);  // GL Account No and GL Budget name as blank.
 
         // Exercise and Verify.
-        RunAndVerifyExportFinancialDataToXML;
+        RunAndVerifyExportFinancialDataToXML();
     end;
 
     local procedure RunAndVerifyExportFinancialDataToXML()
@@ -326,7 +326,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
         ExportFinancialDataToXML."G/L Account".SetFilter("No.", No);
         ExportFinancialDataToXML.StartingDate_CurrentPeriod.SetValue(StartingDateCurrentPeriod);
         ExportFinancialDataToXML.EndingDate_CurrentPeriod.SetValue(EndingDateCurrentPeriod);
-        ExportFinancialDataToXML.BudgetNameOptional.SetValue(CreateGLBudgetName);
+        ExportFinancialDataToXML.BudgetNameOptional.SetValue(CreateGLBudgetName());
         ExportFinancialDataToXML.BudgetName.SetValue(BudgetName);
     end;
 
@@ -342,7 +342,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
         LibraryVariableStorage.Dequeue(EndingDateComparativePeriod);
         ExportFinancialDataToXML.EndingDate_ComparativePeriod.SetValue(EndingDateComparativePeriod);
         ExportFinancialDataToXML.StartingDate_ComparativePeriod.SetValue(StartingDateComparativePeriod);
-        ExportFinancialDataToXML.OK.Invoke;
+        ExportFinancialDataToXML.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -357,7 +357,7 @@ codeunit 144042 "UT REP XBRLIMPORT"
         LibraryVariableStorage.Dequeue(EndingDateComparativePeriod);
         ExportFinancialDataToXML.StartingDate_ComparativePeriod.SetValue(StartingDateComparativePeriod);
         ExportFinancialDataToXML.EndingDate_ComparativePeriod.SetValue(EndingDateComparativePeriod);
-        ExportFinancialDataToXML.OK.Invoke;
+        ExportFinancialDataToXML.OK().Invoke();
     end;
 }
 

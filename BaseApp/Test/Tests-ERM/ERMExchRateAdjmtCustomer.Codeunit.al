@@ -12,7 +12,6 @@
     var
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
-        LibraryDimension: Codeunit "Library - Dimension";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -66,7 +65,7 @@
         // Setup: Modify Exchange Rate and Run Adjust Exchange Rate Batch after Create and Post General Journal Line for Customer.
         Initialize();
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2), -LibraryRandom.RandInt(50));
         RunExchRateAdjustment(GenJournalLine."Currency Code", WorkDate());
         Amount :=
@@ -616,7 +615,7 @@
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), 2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
@@ -655,7 +654,7 @@
         // [GIVEN] Sales Invoice with Amount = 39008 posted with exch.rate = 1,0887
         ExchRateAmt := LibraryRandom.RandDec(10, 2);
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), -2 * ExchRateAmt);
 
         // [GIVEN] Exch. rates is changed to 1,0541 and adjustment completed.
@@ -698,7 +697,7 @@
         Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
         ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
         k := 0.1;
@@ -750,7 +749,7 @@
         Initialize();
 
         // [GIVEN] Sales Invoice with Amount = 4000, Amount LCY = 4720 is posted with exch.rate = 1.18
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         FindCurrencyExchRate(CurrencyExchangeRate, Currency.Code);
         ExchRateAmt := CurrencyExchangeRate."Relational Exch. Rate Amount";
         k := 0.1;
@@ -797,7 +796,6 @@
         StartingDate2: Date;
         CurrencyCode: Code[10];
         AdjDocNo: Code[20];
-        DimSetID: array[2] of Integer;
         LastGLEntryNo: Integer;
     begin
         // [FEATURE] [Reverse] [Sales]
@@ -878,7 +876,7 @@
     begin
         // Setup: Modify Exchange Rate after Create and Post General Journal Line for Customer.
         CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency),
+          GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()),
           GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2), ExchRateAmt);
         FindCurrencyExchRate(CurrencyExchangeRate, GenJournalLine."Currency Code");
         Amount :=
@@ -926,7 +924,7 @@
     local procedure CreateCurrencyAndExchRates(FirstStartingDate: Date; RelExchRateAmount: Decimal) CurrencyCode: Code[10]
     begin
         // Create Currency with different exchange Rate and Starting Date. Take Random for Relational Exchange Rate Amount.
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         DeleteExistingExchangeRates(CurrencyCode);
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, WorkDate(), RelExchRateAmount);
         CreateExchangeRateWithFixExchRateAmount(CurrencyCode, FirstStartingDate, 2 * RelExchRateAmount);
@@ -1243,26 +1241,26 @@
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
-        CustomerLedgerEntries.OpenView;
+        CustomerLedgerEntries.OpenView();
         CustomerLedgerEntries.FILTER.SetFilter("Customer No.", CustomerNo);
         CustomerLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         if SetHandler then
-            CustomerLedgerEntries.UnapplyEntries.Invoke
+            CustomerLedgerEntries.UnapplyEntries.Invoke()
         else
-            CustomerLedgerEntries."Apply Entries".Invoke;
+            CustomerLedgerEntries."Apply Entries".Invoke();
     end;
 
     local procedure OpenVendorLedgerEntries(VendorNo: Code[20]; DocumentNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
-        VendorLedgerEntries.OpenView;
+        VendorLedgerEntries.OpenView();
         VendorLedgerEntries.FILTER.SetFilter("Vendor No.", VendorNo);
         VendorLedgerEntries.FILTER.SetFilter("Document No.", DocumentNo);
         if SetHandler then
-            VendorLedgerEntries.UnapplyEntries.Invoke
+            VendorLedgerEntries.UnapplyEntries.Invoke()
         else
-            VendorLedgerEntries.ActionApplyEntries.Invoke;
+            VendorLedgerEntries.ActionApplyEntries.Invoke();
     end;
 
     local procedure RunExchRateAdjustment("Code": Code[10]; EndDate: Date)
@@ -1417,16 +1415,16 @@
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Post Application".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Post Application".Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.ActionPostApplication.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.ActionPostApplication.Invoke();
     end;
 
     [ConfirmHandler]
@@ -1441,7 +1439,7 @@
     procedure PostApplicationPageHandler(var PostApplication: TestPage "Post Application")
     begin
         PostApplication.PostingDate.SetValue(Format(PostingDate));
-        PostApplication.OK.Invoke;
+        PostApplication.OK().Invoke();
     end;
 
     [MessageHandler]

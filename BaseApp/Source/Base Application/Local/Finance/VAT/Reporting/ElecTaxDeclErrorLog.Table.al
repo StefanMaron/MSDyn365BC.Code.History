@@ -9,6 +9,7 @@ table 11412 "Elec. Tax Decl. Error Log"
     Caption = 'Elec. Tax Decl. Error Log';
     DrillDownPageID = "Elec. Tax Decl. Error Log";
     LookupPageID = "Elec. Tax Decl. Error Log";
+    DataClassification = CustomerContent;
 
     fields
     {

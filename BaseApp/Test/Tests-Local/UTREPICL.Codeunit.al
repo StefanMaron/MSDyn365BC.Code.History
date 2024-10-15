@@ -50,7 +50,7 @@ codeunit 144011 "UT REP ICL"
 
         // Setup.
         Initialize();
-        UpdateVATRegistrationNoOnCompanyInformation;
+        UpdateVATRegistrationNoOnCompanyInformation();
         CreateVATEntryWithEU3PartyTrade(VATEntry, false);  // EU3PartyTrade as False.
         EnqueueValuesForRequestPage(VATEntry."Bill-to/Pay-to No.", false);  // ShowAmount as False.
 
@@ -58,7 +58,7 @@ codeunit 144011 "UT REP ICL"
         REPORT.Run(REPORT::"VAT- VIES Decl. Tax Auth NL");  // Opens VATVIESDeclTaxAuthNLReqPageHandler.
 
         // Verify: Verify value of ErrorText_Number_ on Report (VAT- VIES Decl. Tax Auth NL).
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_', Format(VATRegistrationErr));
     end;
 
@@ -189,7 +189,7 @@ codeunit 144011 "UT REP ICL"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -199,7 +199,7 @@ codeunit 144011 "UT REP ICL"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer."Country/Region Code" := CompanyInformation."Country/Region Code";
         Customer."VAT Registration No." := CompanyInformation."VAT Registration No.";
         Customer.Insert();
@@ -250,8 +250,8 @@ codeunit 144011 "UT REP ICL"
     local procedure ModifyGeneralLedgerSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup."LCY Code" := LibraryUTUtility.GetNewCode10;
-        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrency;
+        GeneralLedgerSetup."LCY Code" := LibraryUTUtility.GetNewCode10();
+        GeneralLedgerSetup."Additional Reporting Currency" := CreateCurrency();
         GeneralLedgerSetup.Modify();
     end;
 
@@ -261,7 +261,7 @@ codeunit 144011 "UT REP ICL"
         REPORT.Run(REPORT::"VAT- VIES Decl. Tax Auth NL");  // Opens VATVIESDeclTaxAuthNLReqPageHandler.
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption1, Value1);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
     end;
@@ -286,7 +286,7 @@ codeunit 144011 "UT REP ICL"
         LibraryVariableStorage.Dequeue(ShowAmtInAddReportingCurrency);
         VATVIESDeclTaxAuthNL."VAT Entry".SetFilter("Bill-to/Pay-to No.", BillToPayToNo);
         VATVIESDeclTaxAuthNL.ShowAmtInAddReportingCurrency.SetValue(ShowAmtInAddReportingCurrency);
-        VATVIESDeclTaxAuthNL.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATVIESDeclTaxAuthNL.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

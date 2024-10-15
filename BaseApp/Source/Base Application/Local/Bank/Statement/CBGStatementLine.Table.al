@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -34,6 +34,7 @@ table 11401 "CBG Statement Line"
                   TableData "Vendor Ledger Entry" = rm,
                   TableData "Employee Ledger Entry" = rimd,
                   TableData "Data Exch. Field" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -1404,24 +1405,25 @@ table 11401 "CBG Statement Line"
     var
         CBGStatLine: Record "CBG Statement Line";
         JournalTemplate: Record "Gen. Journal Template";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
-        with CBGStatLine do begin
-            CBGStatLine := Rec;
-            JournalTemplate.Get("Journal Template Name");
-            JournalTemplate.TestField("No. Series");
-            if NoSeriesMgt.SelectSeries(JournalTemplate."No. Series", OldCBGStatementLine."No. Series", "No. Series") then begin
-                NoSeriesMgt.SetSeries("Document No.");
-                Rec := CBGStatLine;
-                exit(true);
-            end;
+        CBGStatLine := Rec;
+        JournalTemplate.Get(CBGStatLine."Journal Template Name");
+        JournalTemplate.TestField("No. Series");
+        if NoSeries.LookupRelatedNoSeries(JournalTemplate."No. Series", OldCBGStatementLine."No. Series", CBGStatLine."No. Series") then begin
+            CBGStatLine."Document No." := NoSeries.GetNextNo(CBGStatLine."No. Series");
+            Rec := CBGStatLine;
+            exit(true);
         end;
     end;
 
     procedure GenerateDocumentNo()
     var
         JournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1431,7 +1433,18 @@ table 11401 "CBG Statement Line"
 
         TestField("Journal Template Name");
         JournalTemplate.Get("Journal Template Name");
-        NoSeriesMgt.InitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series");
+#if not CLEAN24
+        NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(JournalTemplate."No. Series", xRec."No. Series", Date, "Document No.", "No. Series", IsHandled);
+        if not IsHandled then begin
+#endif
+            "No. Series" := JournalTemplate."No. Series";
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "Document No." := NoSeries.GetNextNo("No. Series", Date);
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", JournalTemplate."No. Series", Date, "Document No.");
+        end;
+#endif
     end;
 
     local procedure GetCurrency()
@@ -1722,7 +1735,6 @@ table 11401 "CBG Statement Line"
         DecimalBeforeComma: Decimal;
         DecimalAfterComma: Decimal;
         CommaPosition: Integer;
-        DecimalVar: Variant;
     begin
         DecimalText := GetText(String, Position, Length);
 

@@ -13,6 +13,7 @@ table 1504 "Workflow Step Instance"
                   TableData "Workflow Rule" = rd,
                   TableData "Workflow Step Instance Archive" = rimd;
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

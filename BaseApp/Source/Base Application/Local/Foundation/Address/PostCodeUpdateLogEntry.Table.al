@@ -9,6 +9,7 @@ table 11407 "Post Code Update Log Entry"
     Caption = 'Post Code Update Log Entry';
     DrillDownPageID = "Post Code Updates";
     LookupPageID = "Post Code Updates";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -9,6 +9,7 @@ table 11406 "Post Code Range"
     Caption = 'Post Code Range';
     DrillDownPageID = "Post Code Ranges";
     LookupPageID = "Post Code Ranges";
+    DataClassification = CustomerContent;
 
     fields
     {

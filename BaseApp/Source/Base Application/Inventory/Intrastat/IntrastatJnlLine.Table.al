@@ -36,6 +36,7 @@ table 263 "Intrastat Jnl. Line"
     ObsoleteTag = '25.0';
 #endif
     ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
+    DataClassification = CustomerContent;
 
     fields
     {

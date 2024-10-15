@@ -3,6 +3,7 @@
 table 1229 "Payment Export Remittance Text"
 {
     Caption = 'Payment Export Remittance Text';
+    DataClassification = CustomerContent;
 
     fields
     {

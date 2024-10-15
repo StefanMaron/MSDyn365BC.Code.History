@@ -46,7 +46,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
-        AssignNoSeries;
+        AssignNoSeries();
 
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservations Data Driven");
@@ -91,7 +91,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         Assert.IsTrue(StrLen(Log) = 0, Format(ErrorCount) + ' error(s):' + Log);
 
         // Tear Down
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -736,33 +736,33 @@ codeunit 137017 "SCM Reservations Data Driven"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         InventorySetup.Get();
-        InventorySetup."Transfer Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        InventorySetup."Inventory Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        InventorySetup."Inventory Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        InventorySetup."Posted Transfer Shpt. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        InventorySetup."Transfer Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        InventorySetup."Inventory Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        InventorySetup."Inventory Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        InventorySetup."Posted Transfer Shpt. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         InventorySetup.Modify(true);
 
         WarehouseSetup.Get();
-        WarehouseSetup."Whse. Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseSetup."Whse. Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseSetup."Whse. Internal Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup."Whse. Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup."Whse. Put-away Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup."Whse. Internal Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseSetup.Modify(true);
 
         ManufacturingSetup.Get();
-        ManufacturingSetup."Released Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        ManufacturingSetup."Production BOM Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        ManufacturingSetup."Released Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        ManufacturingSetup."Production BOM Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         ManufacturingSetup.Modify(true);
 
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        PurchasesPayablesSetup."Posted Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Receipt Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         PurchasesPayablesSetup.Modify(true);
     end;
 

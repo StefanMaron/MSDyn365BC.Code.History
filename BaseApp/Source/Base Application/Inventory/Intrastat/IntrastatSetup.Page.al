@@ -78,26 +78,6 @@ page 328 "Intrastat Setup"
             group("Default Transactions")
             {
                 Caption = 'Default Transactions';
-#if not CLEAN21
-                field("Default Transaction Type"; Rec."Default Trans. - Purchase")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the default transaction type for regular sales shipments and service shipments, and purchase receipts.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-                    ObsoleteReason = 'Replaced by Default Transaction Specification';
-                }
-                field("Default Trans. Type - Returns"; Rec."Default Trans. - Return")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the default transaction type for sales returns and service returns, and purchase returns';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '21.0';
-                    ObsoleteReason = 'Replaced by Default Transaction Specification';
-                }
-#endif
                 field("Default Trans. Spec. Code"; Rec."Default Trans. Spec. Code")
                 {
                     ApplicationArea = BasicEU;

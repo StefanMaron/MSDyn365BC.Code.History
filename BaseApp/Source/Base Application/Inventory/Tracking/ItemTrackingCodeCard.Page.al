@@ -279,7 +279,6 @@ page 6512 "Item Tracking Code Card"
             group("Package Tracking")
             {
                 Caption = 'Package Tracking';
-                Visible = PackageTrackingVisible;
 
                 group(Control84)
                 {
@@ -466,19 +465,10 @@ page 6512 "Item Tracking Code Card"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
     end;
 
     var
         StrictExpirationPostingEditable: Boolean;
         ManExpirDateEntryReqdEditable: Boolean;
-        PackageTrackingVisible: Boolean;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
-    end;
 }
 

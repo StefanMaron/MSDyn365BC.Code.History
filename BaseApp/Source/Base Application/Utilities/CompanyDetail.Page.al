@@ -127,24 +127,6 @@ page 1156 "Company Detail"
                 {
                     ApplicationArea = All;
                 }
-#if not CLEAN21
-                part(PowerBIPartOne; "Power BI Report Spinner Part")
-                {
-                    ApplicationArea = All;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart1';
-                    Visible = false;
-                    ObsoleteTag = '21.0';
-                }
-                part(PowerBIPartTwo; "Power BI Report Spinner Part")
-                {
-                    ApplicationArea = All;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart2';
-                    Visible = false;
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Purchase)
             {
@@ -438,12 +420,6 @@ page 1156 "Company Detail"
         CalculatePurchCues();
         CalculateSalesCues();
         CalculateUserTasksCues();
-
-#if not CLEAN21
-        // Set up context for power bi part pages.
-        CurrPage.PowerBIPartOne.Page.SetContext(PowerBiPartOneIdTxt);
-        CurrPage.PowerBIPartTwo.Page.SetContext(PowerBiPartTwoIdTxt);
-#endif
 
         CurrPage.PowerBIEmbeddedReportPart1.Page.SetPageContext(PowerBiPartOneIdTxt);
         CurrPage.PowerBIEmbeddedReportPart2.Page.SetPageContext(PowerBiPartTwoIdTxt);

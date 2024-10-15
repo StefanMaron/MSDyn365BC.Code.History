@@ -17,12 +17,12 @@ using Microsoft.Purchases.Analysis;
 using Microsoft.Purchases.Document;
 using Microsoft.Foundation.Task;
 using Microsoft.Purchases.History;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Vendor;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.RoleCenters;
 #endif
 using Microsoft.Sales.Document;
@@ -446,7 +446,7 @@ page 9007 "Purchasing Agent Role Center"
                                     Recurring = const(false));
                 ToolTip = 'Calculate a supply plan to fulfill item demand with purchases or transfers.';
             }
-#if not CLEAN21
+#if not CLEAN23
             action("Pur&chase Prices")
             {
                 ApplicationArea = Basic, Suite;

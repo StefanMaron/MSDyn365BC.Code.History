@@ -12,7 +12,7 @@ page 1161 "Purchase Documents Due Today"
     ShowFilter = false;
     SourceTable = "Vendor Ledger Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

@@ -112,7 +112,7 @@ using Microsoft.Purchases.Setup;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -311,6 +311,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Dimension Value" = RIMD,
                   tabledata "Direct Debit Collection" = D,
                   tabledata "Direct Debit Collection Entry" = D,
+                  tabledata "Dispute Status" = RIMD,
                   tabledata "Doc. Exch. Service Setup" = RIMD,
                   tabledata "Duplicate Search String Setup" = D,
                   tabledata "Dynamic Request Page Entity" = RIMD,
@@ -321,7 +322,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Exch. Rate Adjmt. Ledg. Entry" = d,
                   tabledata "Exchange Folder" = D,
                   tabledata "Exchange Service Setup" = RIMD,
+#if not CLEAN24
                   tabledata "Exp. Phys. Invt. Tracking" = RIMD,
+#endif
+                  tabledata "Exp. Invt. Order Tracking" = RIMD,
                   tabledata "FA Setup" = Rimd,
                   tabledata "Filed Contract Line" = RD,
                   tabledata "Fin. Charge Comment Line" = D,
@@ -345,7 +349,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "General Posting Setup" = RIMD,
                   tabledata "Human Resources Setup" = Rimd,
                   tabledata "IC Setup" = RIMD,
-                  tabledata "Inc. Doc. Attachment Overview" = RIMD,
                   tabledata "Incoming Document" = RIMD,
                   tabledata "Incoming Document Approver" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
@@ -395,6 +398,9 @@ permissionset 191 "D365 SETUP"
                   tabledata "Line Fee Note on Report Hist." = imd,
                   tabledata "Logged Segment" = d,
                   tabledata "Lot No. Information" = RIMD,
+                  tabledata "Man. Integration Field Mapping" = RIMD,
+                  tabledata "Man. Integration Table Mapping" = RIMD,
+                  tabledata "Man. Int. Field Mapping" = RIMD,
                   tabledata Manufacturer = RIMD,
                   tabledata "Marketing Setup" = RImD,
                   tabledata "Memoized Result" = D,
@@ -403,9 +409,6 @@ permissionset 191 "D365 SETUP"
                   tabledata "No. Series Relationship" = RIMD,
                   tabledata "Nonstock Item Setup" = RIMD,
                   tabledata "Notification Entry" = RimD,
-#if not CLEAN21
-                  tabledata "O365 Document Sent History" = RmD,
-#endif
                   tabledata "OCR Service Setup" = RIMD,
                   tabledata "Office Add-in Setup" = RIMD,
                   tabledata "Online Map Parameter Setup" = RIMD,
@@ -434,7 +437,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Phys. Invt. Order Line" = RIMD,
                   tabledata "Phys. Invt. Record Header" = RIMD,
                   tabledata "Phys. Invt. Record Line" = RIMD,
+#if not CLEAN24
                   tabledata "Phys. Invt. Tracking" = RIMD,
+#endif
+                  tabledata "Invt. Order Tracking" = RIMD,
                   tabledata "Planning Assignment" = D,
                   tabledata "Planning Component" = D,
                   tabledata "Positive Pay Entry" = D,
@@ -457,7 +463,10 @@ permissionset 191 "D365 SETUP"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Profile Questionnaire Line" = D,
+#if not CLEAN24
                   tabledata "Pstd. Exp. Phys. Invt. Track" = RIMD,
+#endif
+                  tabledata "Pstd.Exp.Invt.Order.Tracking" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Hdr" = RIMD,
                   tabledata "Pstd. Phys. Invt. Order Line" = RIMD,
                   tabledata "Pstd. Phys. Invt. Record Hdr" = RIMD,
@@ -480,11 +489,21 @@ permissionset 191 "D365 SETUP"
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Registered Whse. Activity Hdr." = d,
                   tabledata "Registered Whse. Activity Line" = d,
+                  tabledata "Reminder Attachment Text" = RIMD,
                   tabledata "Reminder Comment Line" = D,
+                  tabledata "Reminder Email Text" = RIMD,
                   tabledata "Reminder Header" = D,
                   tabledata "Reminder Level" = IMD,
                   tabledata "Reminder Line" = D,
                   tabledata "Reminder Terms" = RIMD,
+                  tabledata "Reminder Action Group" = RIMD,
+                  tabledata "Reminder Action" = RIMD,
+                  tabledata "Create Reminders Setup" = RIMD,
+                  tabledata "Issue Reminders Setup" = RIMD,
+                  tabledata "Send Reminders Setup" = RIMD,
+                  tabledata "Reminder Automation Error" = RIMD,
+                  tabledata "Reminder Action Group Log" = RIMD,
+                  tabledata "Reminder Action Log" = RIMD,
                   tabledata "Reminder Text" = IMD,
                   tabledata "Reminder/Fin. Charge Entry" = d,
                   tabledata "Req. Wksh. Template" = RIMD,
@@ -492,7 +511,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Requisition Wksh. Name" = RIMD,
                   tabledata "Res. Journal Line" = D,
                   tabledata "Reservation Entry" = RimD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = D,
                   tabledata "Resource Price" = D,
 #endif
@@ -516,12 +535,12 @@ permissionset 191 "D365 SETUP"
                   tabledata "Sales Invoice Line" = Rd,
                   tabledata "Sales Line" = RmD,
                   tabledata "Sales Line Archive" = RmD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = IM,
 #endif
                   tabledata "Sales Planning Line" = d,
                   tabledata "Sales Prepayment %" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price Worksheet" = RIMD,
 #endif
                   tabledata "Sales Shipment Header" = RD,
@@ -612,6 +631,7 @@ permissionset 191 "D365 SETUP"
                   tabledata "Warehouse Activity Header" = D,
                   tabledata "Warehouse Activity Line" = D,
                   tabledata "Warehouse Comment Line" = D,
+                  tabledata "Warehouse Reason Code" = IMD,
                   tabledata "Warehouse Register" = D,
                   tabledata "Warehouse Request" = D,
                   tabledata "Warehouse Setup" = RID,

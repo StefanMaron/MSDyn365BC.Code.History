@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -252,7 +252,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
         strData := StrSubstNo('UNB+UNOA:2+%1:ZZ+%2:55+', GetSenderID(), 'INGBNL2A') +
           GetYYMMDD(WorkDate(), false) + ':' + GetTimeString() + '+' + GetSequenceNo();
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -262,7 +262,7 @@ report 11000009 "Export PAYMUL"
     begin
         SegmentCounter := SegmentCounter + 1;
         strData := StrSubstNo('UNH+%1+PAYMUL:D:96A:UN:171001', MessageIdentifier);
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -271,7 +271,7 @@ report 11000009 "Export PAYMUL"
     begin
         SegmentCounter := SegmentCounter + 1;
         strData := StrSubstNo('BGM+452+%1+9', "Payment History"."Run No.");
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -283,7 +283,7 @@ report 11000009 "Export PAYMUL"
             strData := 'DTM+137:' + GetYYMMDD(DateToUse, true) + GetTimeString() + ':203'
         else
             strData := 'DTM+203:' + GetYYMMDD(DateToUse, true) + ':102';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -297,7 +297,7 @@ report 11000009 "Export PAYMUL"
             CnvStr("Payment History"."Account Holder Address"),
             CnvStr("Payment History"."Account Holder City"),
             CnvStr("Payment History"."Acc. Hold. Country/Region Code"));
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -309,7 +309,7 @@ report 11000009 "Export PAYMUL"
         LINCounter := LINCounter + 1;
 
         strData := 'LIN+1';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -320,7 +320,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := StrSubstNo('RFF+AFO:%1', "Payment History Line"."Description 1");
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -331,7 +331,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'BUS+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -341,7 +341,7 @@ report 11000009 "Export PAYMUL"
     begin
         SegmentCounter := SegmentCounter + 1;
         strData := 'FCA+14';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -352,7 +352,7 @@ report 11000009 "Export PAYMUL"
         strData := 'MOA+9:' + MakeAmountText(Amount);
         strData := strData + ':' + GetCurrencyCode();
 
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -366,7 +366,7 @@ report 11000009 "Export PAYMUL"
             CnvStr(Name),
             CnvStr(Place),
             CnvStr(Country));
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -385,7 +385,7 @@ report 11000009 "Export PAYMUL"
             25,// Code List Qualifier
             17,// SWIFT indicator
             CnvStr(Country));
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -400,7 +400,7 @@ report 11000009 "Export PAYMUL"
                 CnvStr("Payment History Line"."Account Holder Address"),
                 CnvStr("Payment History Line"."Account Holder City"),
                 CnvStr("Payment History Line"."Acc. Hold. Country/Region Code"));
-            Write(strData, StrLen(strData), '<', '', false);
+            Write(strData, false);
 
             EndOfLine();
         end;
@@ -412,7 +412,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'GIS+61';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -423,7 +423,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'PRC+11';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -434,7 +434,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := StrSubstNo('FTX+REG+++%1', Concerns);
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -448,7 +448,7 @@ report 11000009 "Export PAYMUL"
             CnvStr("Payment History Line"."Description 2"),
             CnvStr("Payment History Line"."Description 3"),
             CnvStr("Payment History Line"."Description 4"));
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -459,7 +459,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'PRC+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -470,7 +470,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := StrSubstNo('SEQ++%1', Paymenthistorylinecounter);
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -481,7 +481,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'DOC+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -492,7 +492,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'CUX+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -503,7 +503,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'AJT+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -514,7 +514,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'DLI+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -525,7 +525,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := 'PIA+';
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -536,7 +536,7 @@ report 11000009 "Export PAYMUL"
         SegmentCounter := SegmentCounter + 1;
 
         strData := StrSubstNo('CNT+%1:%2', TotalNumberOfMessages, LINCounter);
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
 
         EndOfLine();
     end;
@@ -546,7 +546,7 @@ report 11000009 "Export PAYMUL"
     begin
         // This one must NOT be counted!
         strData := StrSubstNo('UNT+%1+%2', SegmentCounter, MessageIdentifier);
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
@@ -555,11 +555,11 @@ report 11000009 "Export PAYMUL"
     begin
         // This one must NOT be counted!
         strData := StrSubstNo('UNZ+1+%1', GetSequenceNo());
-        Write(strData, StrLen(strData), '<', '', false);
+        Write(strData, false);
         EndOfLine();
     end;
 
-    local procedure Write(Text: Text[250]; Numberpos: Integer; Align: Code[1]; "Filling character": Text[1]; LineTransition: Boolean)
+    local procedure Write(Text: Text[250]; LineTransition: Boolean)
     begin
         Text := UpperCase(Text);
         Curfile.Write(Text);
@@ -632,12 +632,12 @@ report 11000009 "Export PAYMUL"
         exit(strYear + strMonth + strDay);
     end;
 
-    local procedure GetTimeString() TimeStr: Code[10]
+    local procedure GetTimeString(): Code[10]
     begin
         exit(CharacterFilter(Format(Time, 5), '0123456789'));
     end;
 
-    local procedure GetSenderID() SenderID: Code[35]
+    local procedure GetSenderID(): Code[35]
     begin
         exit('CLIENTIDENTIFICATION');
     end;
@@ -677,7 +677,7 @@ report 11000009 "Export PAYMUL"
         end;
     end;
 
-    local procedure CharacterFilter(Text: Text[250]; "Filter": Text[250]) Res: Text[250]
+    local procedure CharacterFilter(Text: Text[250]; "Filter": Text[250]): Text[250]
     begin
         exit(DelChr(Text, '=', DelChr(Text, '=', Filter)));
     end;

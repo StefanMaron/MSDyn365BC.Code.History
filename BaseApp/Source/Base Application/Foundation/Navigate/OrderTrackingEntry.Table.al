@@ -5,6 +5,7 @@ using Microsoft.Inventory.Item;
 table 99000799 "Order Tracking Entry"
 {
     Caption = 'Order Tracking Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

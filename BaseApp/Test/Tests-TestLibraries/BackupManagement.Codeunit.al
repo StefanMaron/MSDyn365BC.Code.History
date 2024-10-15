@@ -20,7 +20,7 @@ codeunit 130011 "Backup Management"
         if Confirm(Question) then begin
             Bool := IsEnabled;
             SetEnabled(true);
-            DefaultFixture;
+            DefaultFixture();
             SetEnabled(Bool)
         end
     end;
@@ -59,7 +59,7 @@ codeunit 130011 "Backup Management"
         Initialize();
 
         IsRestoring := true;
-        BackupStorage.RestoreTaintedTables(BackupNameToNo(DefaultFixtureName), true);
+        BackupStorage.RestoreTaintedTables(BackupNameToNo(DefaultFixtureName()), true);
         IsRestoring := false;
     end;
 
@@ -69,18 +69,17 @@ codeunit 130011 "Backup Management"
         // Backup the tables within the filter as a shared fixture to a reserved backup.
 
         Initialize();
-        BackupRegister[2] := SharedFixtureName;
+        BackupRegister[2] := SharedFixtureName();
 
         // Set shared fixture name and filter
         SharedFixtureFilter := Filter;
 
         TempTableMetadata.SetFilter(ID, SharedFixtureFilter);
-        if TempTableMetadata.FindSet() then begin
+        if TempTableMetadata.FindSet() then
             repeat
                 DeleteTableFromBackupNo(2, TempTableMetadata.ID);
-                BackupTable(SharedFixtureName, TempTableMetadata.ID)
-            until TempTableMetadata.Next() = 0
-        end
+                BackupTable(SharedFixtureName(), TempTableMetadata.ID)
+            until TempTableMetadata.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -89,7 +88,7 @@ codeunit 130011 "Backup Management"
         // Restore the tables from the shared fixture
 
         // If no shared fixture backup has been created: exit
-        if SharedFixtureName = '' then
+        if SharedFixtureName() = '' then
             exit;
 
         TempTableMetadata.SetFilter(ID, SharedFixtureFilter);
@@ -153,7 +152,7 @@ codeunit 130011 "Backup Management"
             until TempTableMetadata.Next() = 0;
         ProgressDialog.Close();
 
-        BackupStorage.SetWorkDate
+        BackupStorage.SetWorkDate();
     end;
 
     [Scope('OnPrem')]
@@ -200,9 +199,8 @@ codeunit 130011 "Backup Management"
     begin
         // Delete all backups (including persistent backups).
         // never delete the default and shared fixture backups
-        for i := 3 to MaxBackups do begin
+        for i := 3 to MaxBackups() do
             DeleteBackupNo(i);
-        end
     end;
 
     [Scope('OnPrem')]
@@ -259,7 +257,7 @@ codeunit 130011 "Backup Management"
     var
         i: Integer;
     begin
-        for i := 1 to MaxBackups do
+        for i := 1 to MaxBackups() do
             if BackupRegister[i] = Backup then
                 exit(i);
 
@@ -274,10 +272,10 @@ codeunit 130011 "Backup Management"
         if Backup = '' then
             Error(EmptyStringNotValid);
 
-        if Backup = DefaultFixtureName then
+        if Backup = DefaultFixtureName() then
             Result := 1
         else
-            Result := GetAvailableBackupNo;
+            Result := GetAvailableBackupNo();
         BackupRegister[Result] := Backup;
     end;
 
@@ -286,16 +284,16 @@ codeunit 130011 "Backup Management"
         i: Integer;
     begin
         // First two elements are reserved for the default and shared fixture backups
-        for i := 3 to MaxBackups do
+        for i := 3 to MaxBackups() do
             if BackupRegister[i] = '' then
                 exit(i);
 
-        Error(TooManyBackups, MaxBackups - 2)
+        Error(TooManyBackups, MaxBackups() - 2)
     end;
 
     local procedure BackupNoExists(BackupNo: Integer): Boolean
     begin
-        if not (BackupNo in [1 .. MaxBackups]) then
+        if not (BackupNo in [1 .. MaxBackups()]) then
             exit(false);
 
         exit(BackupRegister[BackupNo] <> '')
@@ -309,16 +307,16 @@ codeunit 130011 "Backup Management"
         if Initialized then
             exit;
 
-        TableMetadata.SetFilter(ID, TableFilter);
+        TableMetadata.SetFilter(ID, TableFilter());
         TableMetadata.SetRange(DataIsExternal, false);
         TableMetadata.SetFilter(ObsoleteState, '<>%1', TableMetadata.ObsoleteState::Removed);
         TableMetadata.FindSet();
         repeat
             TempTableMetadata.Copy(TableMetadata);
-            TempTableMetadata.Insert
+            TempTableMetadata.Insert();
         until TableMetadata.Next() = 0;
 
-        InitBackup(DefaultFixtureName);
+        InitBackup(DefaultFixtureName());
 
         Initialized := true
     end;
@@ -351,7 +349,7 @@ codeunit 130011 "Backup Management"
         UnbindSubscription(BackupSubscriber);
         if Enabled then begin
             BindSubscription(BackupSubscriber);
-            CheckSubscribtionToCOD1;
+            CheckSubscribtionToCOD1();
         end;
 
         IsEnabled := Enabled;
@@ -377,7 +375,7 @@ codeunit 130011 "Backup Management"
                 // open a record ref to the table
                 RecRef.Open(TableMetadata.ID);
                 RecRef.DeleteAll();
-                RecRef.Close
+                RecRef.Close();
             until TableMetadata.Next() = 0
     end;
 
@@ -387,7 +385,7 @@ codeunit 130011 "Backup Management"
         ActiveSession: Record "Active Session";
     begin
         if DatabaseName = '' then begin
-            ActiveSession.Get(ServiceInstanceId, SessionId);
+            ActiveSession.Get(ServiceInstanceId(), SessionId());
             DatabaseName := ActiveSession."Database Name";
         end;
 
@@ -422,15 +420,15 @@ codeunit 130011 "Backup Management"
         if IsRestoring or not IsEnabled then
             exit;
 
-        if not BackupExists(DefaultFixtureName) then
+        if not BackupExists(DefaultFixtureName()) then
             Initialize();
 
-        BackupNo := BackupNameToNo(DefaultFixtureName);
+        BackupNo := BackupNameToNo(DefaultFixtureName());
 
         if BackupStorage.BackupTableIsTainted(BackupNo, TableID) then
             exit;
 
-        BackupTable(DefaultFixtureName, TableID);
+        BackupTable(DefaultFixtureName(), TableID);
 
         BackupStorage.TaintTable(BackupNo, TableID, false);
     end;
@@ -438,9 +436,9 @@ codeunit 130011 "Backup Management"
     [Scope('OnPrem')]
     procedure CheckSubscribtionToCOD1()
     begin
-        if not IsSubscribedToCOD1TableTriggerSetup then
+        if not IsSubscribedToCOD1TableTriggerSetup() then
             Error(IsNotSubscribedToCOD1Err);
-        if not IsSubscribedToCOD1OnDatabaseEvents then
+        if not IsSubscribedToCOD1OnDatabaseEvents() then
             Error(IsNotSubscribedToCOD1OnDatabaseEventsErr);
     end;
 
@@ -448,29 +446,25 @@ codeunit 130011 "Backup Management"
     var
         EventSubscription: Record "Event Subscription";
     begin
-        with EventSubscription do begin
-            SetRange("Subscriber Codeunit ID", CODEUNIT::"Backup Management");
-            SetRange("Subscriber Instance", 'Static-Automatic');
-            SetRange("Publisher Object Type", "Publisher Object Type"::Codeunit);
-            SetRange("Publisher Object ID", CODEUNIT::GlobalTriggerManagement);
-            SetFilter("Published Function", 'OnAfterGetDatabaseTableTriggerSetup');
-            exit(not IsEmpty);
-        end;
+        EventSubscription.SetRange("Subscriber Codeunit ID", CODEUNIT::"Backup Management");
+        EventSubscription.SetRange("Subscriber Instance", 'Static-Automatic');
+        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Codeunit);
+        EventSubscription.SetRange("Publisher Object ID", CODEUNIT::GlobalTriggerManagement);
+        EventSubscription.SetFilter("Published Function", 'OnAfterGetDatabaseTableTriggerSetup');
+        exit(not EventSubscription.IsEmpty);
     end;
 
     local procedure IsSubscribedToCOD1OnDatabaseEvents(): Boolean
     var
         EventSubscription: Record "Event Subscription";
     begin
-        with EventSubscription do begin
-            SetRange("Publisher Object Type", "Publisher Object Type"::Codeunit);
-            SetRange("Publisher Object ID", CODEUNIT::GlobalTriggerManagement);
-            SetRange("Subscriber Codeunit ID", CODEUNIT::"Backup Subscriber");
-            SetRange("Subscriber Instance", 'Manual');
-            SetRange("Active Manual Instances", 1);
-            SetFilter("Published Function", 'OnAfterOnDatabase*');
-            exit(Count = 4);
-        end;
+        EventSubscription.SetRange("Publisher Object Type", EventSubscription."Publisher Object Type"::Codeunit);
+        EventSubscription.SetRange("Publisher Object ID", CODEUNIT::GlobalTriggerManagement);
+        EventSubscription.SetRange("Subscriber Codeunit ID", CODEUNIT::"Backup Subscriber");
+        EventSubscription.SetRange("Subscriber Instance", 'Manual');
+        EventSubscription.SetRange("Active Manual Instances", 1);
+        EventSubscription.SetFilter("Published Function", 'OnAfterOnDatabase*');
+        exit(EventSubscription.Count = 4);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"GlobalTriggerManagement", 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]

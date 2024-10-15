@@ -50,7 +50,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := '';
         BankAcc.Modify();
-        asserterror GenJnlLineTemplate.ImportBankStatement;
+        asserterror GenJnlLineTemplate.ImportBankStatement();
     end;
 
     [Test]
@@ -80,7 +80,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := '';
         BankAcc.Modify();
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         // No Errors
@@ -113,7 +113,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify: In confirm handler.
     end;
@@ -147,7 +147,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.Modify();
 
         // Exercise
-        asserterror GenJnlLineTemplate.ImportBankStatement;
+        asserterror GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         Assert.ExpectedError(DiffCurrQst);
@@ -179,7 +179,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         PrepareImportedDataValidation(TempExpdGenJnlLine, GenJnlLineTemplate, FileCurrencyCode);
@@ -211,7 +211,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
-        asserterror GenJnlLineTemplate.ImportBankStatement;
+        asserterror GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         Assert.ExpectedErrorCode('Dialog');
@@ -240,7 +240,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         CreateGenJnlTemplateForGLAccountImport(GenJnlLineTemplate, 'SEPA CAMT');
 
         // Exercise
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         PrepareImportedDataValidation(TempExpdGenJnlLine, GenJnlLineTemplate, '');
@@ -273,7 +273,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.Get(GenJnlLineTemplate."Bal. Account No.");
         BankAcc.IBAN := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
-        asserterror GenJnlLineTemplate.ImportBankStatement;
+        asserterror GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         Assert.ExpectedError(MissingIBANInDataErr);
@@ -306,7 +306,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.IBAN := IBANTxt;
         BankAcc.Modify();
 
-        asserterror GenJnlLineTemplate.ImportBankStatement;
+        asserterror GenJnlLineTemplate.ImportBankStatement();
         Assert.ExpectedError(MultiStatementErr);
     end;
 
@@ -338,7 +338,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.IBAN := IBANTxt;
         BankAcc.Modify();
 
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         PrepareImportedDataValidation(TempExpdGenJnlLine, GenJnlLineTemplate, '');
@@ -377,7 +377,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         BankAcc.IBAN := IBANTxt;
         BankAcc.Modify();
 
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
         DataExch.FindLast();
         EntryNo := DataExch."Entry No.";
@@ -402,7 +402,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Setup
         SetupGenJnlLineForImport(GenJnlLine);
-        GenJnlLine.ImportBankStatement;
+        GenJnlLine.ImportBankStatement();
 
         // Exercise.
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -410,7 +410,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         GenJnlLine.DeleteAll(true);
 
         // Verify.
-        VerifyDataExchFieldIsDeleted(GetLastDataExch);
+        VerifyDataExchFieldIsDeleted(GetLastDataExch());
     end;
 
     [Test]
@@ -424,9 +424,9 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Setup
         SetupGenJnlLineForImport(GenJnlLine);
-        GenJnlLine.ImportBankStatement;
-        EntryNo := GetLastDataExch;
-        GenJnlLine.ImportBankStatement;
+        GenJnlLine.ImportBankStatement();
+        EntryNo := GetLastDataExch();
+        GenJnlLine.ImportBankStatement();
 
         // Exercise.
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -435,7 +435,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Verify.
         VerifyDataExchFieldIsDeleted(EntryNo);
-        VerifyDataExchFieldIsDeleted(GetLastDataExch);
+        VerifyDataExchFieldIsDeleted(GetLastDataExch());
     end;
 
     [Test]
@@ -449,9 +449,9 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
-        GenJnlLine.ImportBankStatement;
-        EntryNo := GetLastDataExch;
-        GenJnlLine.ImportBankStatement;
+        GenJnlLine.ImportBankStatement();
+        EntryNo := GetLastDataExch();
+        GenJnlLine.ImportBankStatement();
 
         // Exercise.
         GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
@@ -461,7 +461,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Verify.
         VerifyDataExchFieldIsDeleted(EntryNo);
-        VerifyDataExchFieldIsKept(GetLastDataExch);
+        VerifyDataExchFieldIsKept(GetLastDataExch());
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
-        GenJnlLine.ImportBankStatement;
+        GenJnlLine.ImportBankStatement();
 
         // Exercise.
         LibraryERM.FindGLAccount(GLAccount);
@@ -486,7 +486,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Verify.
-        VerifyDataExchFieldIsDeleted(GetLastDataExch);
+        VerifyDataExchFieldIsDeleted(GetLastDataExch());
     end;
 
     [Test]
@@ -501,9 +501,9 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Setup.
         SetupGenJnlLineForImport(GenJnlLine);
-        GenJnlLine.ImportBankStatement;
-        EntryNo := GetLastDataExch;
-        GenJnlLine.ImportBankStatement;
+        GenJnlLine.ImportBankStatement();
+        EntryNo := GetLastDataExch();
+        GenJnlLine.ImportBankStatement();
 
         // Exercise.
         LibraryERM.FindGLAccount(GLAccount);
@@ -515,7 +515,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
 
         // Verify.
         VerifyDataExchFieldIsDeleted(EntryNo);
-        VerifyDataExchFieldIsDeleted(GetLastDataExch);
+        VerifyDataExchFieldIsDeleted(GetLastDataExch());
     end;
 
     [Normal]
@@ -829,7 +829,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure ConvertEncoding(TempBlobSource: Codeunit "Temp Blob"; var TempBlobDestination: Codeunit "Temp Blob"; Encoding: DotNet Encoding)

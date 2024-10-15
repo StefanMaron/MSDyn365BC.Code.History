@@ -76,7 +76,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // setup
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
         SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
 
         // exercise
@@ -85,7 +85,7 @@ codeunit 144101 "Test SEPA CT v03"
         // verify
         VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, true, NoOfDocuments, LibraryERM.GetLCYCode());
         VerifyStandardEuroSEPAFields('.' + CopyStr(VendorBankAccount."Account Holder Address", 2), FormatIBAN(VendorBankAccount.IBAN));
-        VerifyGrouping;
+        VerifyGrouping();
     end;
 
     [Test]
@@ -106,9 +106,9 @@ codeunit 144101 "Test SEPA CT v03"
 
         // setup
         EmployeeName := LibraryUtility.GenerateRandomAlphabeticText(10, 0);
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
         SetUpTransactionModeForEmployee(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
-        NoOfDocuments := GenerateNoOfDocuments;
+        NoOfDocuments := GenerateNoOfDocuments();
         for i := 1 to NoOfDocuments do begin
             CreateEmployeeWithBankAccount(Employee, BankAccount, EmployeeName);
             TotalAmount += CreateAndPostEmployeeExpense(Employee);
@@ -120,7 +120,7 @@ codeunit 144101 "Test SEPA CT v03"
         // verify
         VerifySEPACreditTransferFileForEmployee(FileName, TotalAmount, Employee, true, NoOfDocuments);
         VerifyStandardEuroSEPAFields('.' + CopyStr(Employee.Address, 2), FormatIBAN(Employee.IBAN));
-        VerifyGrouping;
+        VerifyGrouping();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // [GIVEN] Export protocol with "SEPA CT pain.001.001.03" xml port
-        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
 
         // [GIVEN] Vendor entry for export
         SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
@@ -149,7 +149,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] Xml file is exported with namespace 'xmlns:xsi=http://www.w3.org/2001/XMLSchemainstance'
         FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, false, NoOfDocuments, LibraryERM.GetLCYCode());
-        VerifyGrouping;
+        VerifyGrouping();
     end;
 
     [Test]
@@ -169,10 +169,10 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // [GIVEN]
-        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
         EmployeeName := LibraryUtility.GenerateRandomAlphabeticText(10, 0);
         SetUpTransactionModeForEmployee(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
-        NoOfDocuments := GenerateNoOfDocuments;
+        NoOfDocuments := GenerateNoOfDocuments();
         for i := 1 to NoOfDocuments do begin
             CreateEmployeeWithBankAccount(Employee, BankAccount, EmployeeName);
             TotalAmount += CreateAndPostEmployeeExpense(Employee);
@@ -184,7 +184,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN]
         FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
         VerifySEPACreditTransferFileForEmployee(FileName, TotalAmount, Employee, false, NoOfDocuments);
-        VerifyGrouping;
+        VerifyGrouping();
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // setup
-        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
         SetUpTransactionMode(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
         CreateVendorWithBankAccount(Vendor, BankAccount, '');
         CreateAndPostPurchInvoice(Vendor."No.", false);
@@ -242,7 +242,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // setup
-        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
         SetUpTransactionMode(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
         CreateVendorWithBankAccount(Vendor, BankAccount, '');
         CreateAndPostPurchInvoice(Vendor."No.", false);
@@ -284,7 +284,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // Setup
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
         CreateSEPABankAccount(BankAccount, '');
         SetUpTransactionMode(BankAccount."No.", ExportProtocolCode);
         CreateVendorWithBankAccount(Vendor, BankAccount, '');
@@ -380,7 +380,7 @@ codeunit 144101 "Test SEPA CT v03"
 
             VendLedgEntry.Next();
         end;
-        ActualInfo := PaymentHistoryLine.GetUnstrRemitInfo;
+        ActualInfo := PaymentHistoryLine.GetUnstrRemitInfo();
         DetailLine.SetRange("Our Bank", '');
         DetailLine.DeleteAll();
 
@@ -401,7 +401,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryLine."Description 1" := LibraryUtility.GenerateGUID();
         Assert.AreEqual(
           PaymentHistoryLine."Description 1",
-          PaymentHistoryLine.GetUnstrRemitInfo,
+          PaymentHistoryLine.GetUnstrRemitInfo(),
           PaymentHistoryLine.FieldName("Description 1"));
     end;
 
@@ -420,14 +420,14 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // setup
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
         SetUpTransactionMode(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
         CreateVendorWithBankAccount(Vendor, BankAccount, '');
         TotalAmount := CreateAndPostPurchInvoice(Vendor."No.", true);
         FileName := GetEntriesAndExportSEPAReport(BankAccount."No.", ExportProtocolCode);
 
         // verify
-        VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, GetEuroCurrencyCode);
+        VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, GetEuroCurrencyCode());
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice for Vendor with Vendor Bank Account
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
         SetUpTransactionMode(CreateSEPABankAccount(BankAccount, ''), ExportProtocolCode);
         CreateVendorWithBankAccount(Vendor, BankAccount, '');
         CreateAndPostPurchInvoice(Vendor."No.", true);
@@ -700,7 +700,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // [THEN] Exported XML contains "CtrlSum" = "1000.10"
         PaymentHistory.Find();
-        XMLReadHelper.Initialize(PaymentHistory."File on Disk", GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(PaymentHistory."File on Disk", GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:GrpHdr/ns:CtrlSum', '1000.10');
     end;
 
@@ -717,7 +717,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Payment History Line with Amount = 1000.1
         CreatePaymentHistory(PaymentHistory, REPORT::"SEPA ISO20022 Pain 008.001.02");
         MockPaymentHistoryLine(PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, 1000.1);
-        PaymentHistoryLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
+        PaymentHistoryLine.Validate("Account No.", LibrarySales.CreateCustomerNo());
         PaymentHistoryLine.Validate("Sequence Type", PaymentHistoryLine."Sequence Type"::FNAL);
         PaymentHistoryLine.Modify(true);
 
@@ -756,7 +756,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Exported Payment History for "H2"
         LibraryVariableStorage.Enqueue(RunNo);
         Commit();
-        PaymentHistory.ExportToPaymentFile;
+        PaymentHistory.ExportToPaymentFile();
 
         // [GIVEN] Stan selected Run No = 1 on report Export BTL91-ABN AMRO request page
         // Selection is done in BTL91ExportRequestPageHandler
@@ -765,7 +765,7 @@ codeunit 144101 "Test SEPA CT v03"
         // Action is done in BTL91ExportRequestPageHandler
 
         // [THEN] Message "No BTL91 data has been exported..." appears
-        Assert.AreEqual(NoDataExportedMsg, CopyStr(LibraryVariableStorage.DequeueText, 1, StrLen(NoDataExportedMsg)), '');
+        Assert.AreEqual(NoDataExportedMsg, CopyStr(LibraryVariableStorage.DequeueText(), 1, StrLen(NoDataExportedMsg)), '');
 
         // [THEN] Payment History "H1" has Status = New
         PaymentHistory.Get(OurBank, RunNo);
@@ -799,7 +799,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Exported Payment History for "H2"
         LibraryVariableStorage.Enqueue(RunNo);
         Commit();
-        PaymentHistory.ExportToPaymentFile;
+        PaymentHistory.ExportToPaymentFile();
 
         // [GIVEN] Stan selected Run No = 1 on report Export BTL91-ABN AMRO request page
         // Selection is done in BTL91ExportRequestPageHandler
@@ -808,7 +808,7 @@ codeunit 144101 "Test SEPA CT v03"
         // Action is done in BTL91ExportRequestPageHandler
 
         // [THEN] Message "BTL91 data has been exported..." appears
-        Assert.AreEqual(DataExportedMsg, CopyStr(LibraryVariableStorage.DequeueText, 1, StrLen(DataExportedMsg)), '');
+        Assert.AreEqual(DataExportedMsg, CopyStr(LibraryVariableStorage.DequeueText(), 1, StrLen(DataExportedMsg)), '');
 
         // [THEN] Payment History "H1" has Status = Transmitted
         PaymentHistory.Get(OurBank, RunNo);
@@ -832,7 +832,7 @@ codeunit 144101 "Test SEPA CT v03"
         Initialize();
 
         // [GIVEN] Export protocol for "SEPA ISO20022 Pain 01.01.03"
-        ExportProtocolCode := FindStandardEuroSEPAExportProtocol;
+        ExportProtocolCode := FindStandardEuroSEPAExportProtocol();
 
         // [GIVEN] Payment Line "A" with "Transaction Date" = 01.01 and Amount = 100
         // [GIVEN] Payment Line "B" with "Transaction Date" = 01.01 and Amount = 200
@@ -871,7 +871,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, '', '');
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), '', '');
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
@@ -908,7 +908,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, '', '');
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), '', '');
         UpdateTransactionMode(TransactionMode."Account Type"::Vendor, BankAccountNo, true);
 
         // [WHEN] Export payment for the generated proposal for the given vendor
@@ -935,7 +935,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
         // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "USD", vendor currrency = ""
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
@@ -943,7 +943,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with a default currency code = "", total amount including vat = 1000 EUR (2000 USD)
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, '');
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, '');
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
@@ -952,7 +952,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [THEN] There is no node "PmtInf.CdtTrfTxInf.Cdtr.PstlAdr.AdrLine"
         // [THEN] Vendor Bank Account's "Bank Account No." is exported into CdtrAcct/Id/Othr/Id (TFS 311461)
         // [THEN] (TFS 363009) Payment is exported in the original document currency and amount 1000 "EUR" (regardless of bank currency)
-        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode, CurrencyCode);
+        VerifyGenericPaymentXML(VendorBankAccount, FileName, TotalAmount, GetEuroCurrencyCode(), CurrencyCode);
         // [THEN] Payment History Line has Currency Code = 'USD' (TFS 309218)
         VerifyPmtHistoryLineCurrencyCode(BankAccountNo, CurrencyCode);
     end;
@@ -974,7 +974,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
         // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "", vendor currrency = "USD"
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
@@ -982,7 +982,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with currency code = "USD", total amount including vat = 1000 USD (2000 EUR)
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, '', CurrencyCode);
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), '', CurrencyCode);
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
@@ -1011,7 +1011,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
         // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "USD", vendor currrency = "USD"
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
@@ -1019,7 +1019,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with currency code = "USD", total amount including vat = 1000 USD
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, CurrencyCode);
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, CurrencyCode);
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
@@ -1048,8 +1048,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Euro", "Currency Euro" = "",
         // [SCENARIO 294684] "LCY Code" = "EUR", bank currency = "USD", vendor currrency = "GBP"
         Initialize();
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        InvCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        InvCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Euro", "Currency Euro" = "", "LCY Code" = "EUR"
@@ -1057,7 +1057,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with currency code = "GBP", total amount including vat = 1000 GBP (2000 USD)
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-        DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, InvCurrencyCode);
+        DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, InvCurrencyCode);
 
         // [WHEN] Export payment for the generated proposal for the given vendor
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
@@ -1087,8 +1087,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "", vendor currrency = ""
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1125,8 +1125,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "EUR", vendor currrency = ""
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1164,8 +1164,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "", vendor currrency = "EUR"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1203,8 +1203,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "EUR", vendor currrency = "EUR"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1242,8 +1242,8 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "EUR", vendor currrency = "EUR", "Transaction Mode".WorldPayment = TRUE
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup, "Transaction Mode".WorldPayment = TRUE
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1280,9 +1280,9 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "USD", vendor currrency = ""
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1321,9 +1321,9 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "", vendor currrency = "USD"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1362,9 +1362,9 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "USD", vendor currrency = "USD"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1402,9 +1402,9 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "EUR", vendor currrency = "USD"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1443,9 +1443,9 @@ codeunit 144101 "Test SEPA CT v03"
         // [SCENARIO 294684] Generic payment SEPA export in case of GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR",
         // [SCENARIO 294684] "LCY Code" = "GBP", bank currency = "USD", vendor currrency = "EUR"
         Initialize();
-        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
-        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        EuroCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        LclCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
+        USDCurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] Generic payment SEPA export protocol setup
         // [GIVEN] GLSetup."Local Curency" = "Other", "Currency Euro" = "EUR", "LCY Code" = "GBP"
@@ -1498,7 +1498,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
         // [THEN] XML has "ChrgBr" = "DEBT"
-        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         VerifyChargeBearerValue('DEBT');
     end;
 
@@ -1536,7 +1536,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
         // [THEN] XML has "ChrgBr" = "CRED"
-        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         VerifyChargeBearerValue('CRED');
     end;
 
@@ -1574,7 +1574,7 @@ codeunit 144101 "Test SEPA CT v03"
         BindSubscription(TestSepaCtV03);
 
         // [GIVEN] Export protocol with "SEPA CT pain.001.001.03" xml port
-        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol;
+        ExportProtocolCode := FindXMLPortEuroSEPAExportProtocol();
 
         // [GIVEN] Vendor entry for export
         SetupForExport(BankAccount, VendorBankAccount, ExportProtocolCode, TotalAmount, NoOfDocuments);
@@ -1584,7 +1584,7 @@ codeunit 144101 "Test SEPA CT v03"
 
         // [THEN] Xml file is exported with InstrPrty = NORM
         FileName := CreateXMLFileFromCreditTransferRegisterExportedFile(BankAccount."No.");
-        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeCountWithValueByXPath('//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:PmtTpInf/ns:InstrPrty', 'NORM', 2);
 
         UnbindSubscription(TestSepaCtV03);
@@ -1703,7 +1703,7 @@ codeunit 144101 "Test SEPA CT v03"
         // [GIVEN] Posted purchase invoice with a default currency code = ""
         PrepareGenericSEPAScenario(
           VendorBankAccount, BankAccountNo, ExportProtocolCode, TotalAmount,
-          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID, CurrencyCode, '');
+          DummyGLSetup."Local Currency"::Euro, '', LibraryUtility.GenerateGUID(), CurrencyCode, '');
         VendorBankAccount."Bank Account No." := '';
         VendorBankAccount.Modify();
 
@@ -1711,7 +1711,7 @@ codeunit 144101 "Test SEPA CT v03"
         FileName := GetEntriesAndExportSEPAReport(BankAccountNo, ExportProtocolCode);
 
         // [THEN] Vendor Bank Account's IBAN is exported into CdtrAcct/Id/IBAN
-        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(FileName, GetSEPACTNameSpace());
         XMLReadHelper.VerifyNodeValueByXPath(
           '//ns:Document/ns:CstmrCdtTrfInitn/ns:PmtInf/ns:CdtTrfTxInf/ns:CdtrAcct/ns:Id/ns:IBAN', FormatIBAN(VendorBankAccount.IBAN));
     end;
@@ -1727,7 +1727,7 @@ codeunit 144101 "Test SEPA CT v03"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test SEPA CT v03");
 
-        CreateExportProtocols;
+        CreateExportProtocols();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Link Doc. Date To Posting Date", true);
@@ -1762,7 +1762,7 @@ codeunit 144101 "Test SEPA CT v03"
         Vendor: Record Vendor;
         BankAccount: Record "Bank Account";
     begin
-        ExportProtocolCode := FindGenericPaymentSEPAExportProtocol;
+        ExportProtocolCode := FindGenericPaymentSEPAExportProtocol();
         UpdateGLSetupCurrency(LocalCurrency, CurrencyEuro, LCYCode);
         SetUpTransactionModeDomesticForeign(
           CreateSEPABankAccount(BankAccount, BankCurrencyCode), ExportProtocolCode, TransactionCostDomestic, TransactionCostForeign);
@@ -1836,7 +1836,7 @@ codeunit 144101 "Test SEPA CT v03"
         if RoundedTotal then
             SetItemZeroVAT(Item, Vendor."VAT Bus. Posting Group"); // To make Doc. Amount Incl. VAT values without decimal part
         LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", 1);
-        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(GetMaxDocumentAmount div 10, GetMaxDocumentAmount) div 2); // -VAT%
+        PurchLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(GetMaxDocumentAmount() div 10, GetMaxDocumentAmount()) div 2); // -VAT%
         PurchLine.Modify(true);
         PurchHeader.Validate("Doc. Amount Incl. VAT", PurchLine."Outstanding Amount");
         PurchHeader.Modify(true);
@@ -1876,10 +1876,10 @@ codeunit 144101 "Test SEPA CT v03"
 
         CreateExportProtocol(
           CODEUNIT::"Check SEPA ISO20022", REPORT::Docket, ExportProtocol."Export Object Type"::Report,
-          REPORT::"SEPA ISO20022 Pain 01.01.03", TemporaryPath + 'SEPACTrep_' + LibraryUtility.GenerateGUID + '.xml');
+          REPORT::"SEPA ISO20022 Pain 01.01.03", TemporaryPath + 'SEPACTrep_' + LibraryUtility.GenerateGUID() + '.xml');
 
         ExportProtocol.Get('GENERIC SEPA');
-        ExportProtocol.Validate("Default File Names", TemporaryPath + 'GenSEPA_' + LibraryUtility.GenerateGUID + '.xml');
+        ExportProtocol.Validate("Default File Names", TemporaryPath + 'GenSEPA_' + LibraryUtility.GenerateGUID() + '.xml');
         ExportProtocol.Modify(true);
     end;
 
@@ -1906,7 +1906,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         exit(CreateExportProtocol(
             0, 0, DummyExportProtocol."Export Object Type"::Report, ExportProtocolReportID,
-            TemporaryPath + LibraryUtility.GenerateGUID + '.xml'));
+            TemporaryPath + LibraryUtility.GenerateGUID() + '.xml'));
     end;
 
     local procedure CreateFreelyTransferableMax(CountryRegionCode: Code[10]; CurrencyCode: Code[10])
@@ -1918,7 +1918,7 @@ codeunit 144101 "Test SEPA CT v03"
                 Init();
                 Validate("Country/Region Code", CountryRegionCode);
                 Validate("Currency Code", CurrencyCode);
-                Validate(Amount, GetMaxNoOfDocuments * GetMaxDocumentAmount);
+                Validate(Amount, GetMaxNoOfDocuments() * GetMaxDocumentAmount());
                 Insert(true);
             end;
     end;
@@ -1989,7 +1989,7 @@ codeunit 144101 "Test SEPA CT v03"
         ExportProtocolCode :=
           CreateExportProtocol(
             0, 0, ExportProtocol."Export Object Type"::Report,
-            ExportProtocolReportID, TemporaryPath + LibraryUtility.GenerateGUID + '.xml');
+            ExportProtocolReportID, TemporaryPath + LibraryUtility.GenerateGUID() + '.xml');
         PaymentHistory."Export Protocol" := ExportProtocolCode;
         PaymentHistory.Modify();
     end;
@@ -2025,7 +2025,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         with PaymentHistory do begin
             Init();
-            "Our Bank" := LibraryERM.CreateBankAccountNo;
+            "Our Bank" := LibraryERM.CreateBankAccountNo();
             "Run No." := LibraryUtility.GenerateGUID();
             Insert();
         end;
@@ -2050,7 +2050,7 @@ codeunit 144101 "Test SEPA CT v03"
             "Line No." := LibraryUtility.GetNewRecNo(PaymentHistoryLine, FieldNo("Line No."));
             Status := NewStatus;
             Amount := NewAmount;
-            "Direct Debit Mandate ID" := MockSEPADirectDebitMandate;
+            "Direct Debit Mandate ID" := MockSEPADirectDebitMandate();
             Insert();
         end;
     end;
@@ -2059,7 +2059,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         MockPaymentHistoryLine(
           PaymentHistoryLine, PaymentHistory, PaymentHistoryLine.Status::New, LibraryRandom.RandDecInRange(100, 200, 2));
-        PaymentHistoryLine.Validate("Account No.", LibrarySales.CreateCustomerNo);
+        PaymentHistoryLine.Validate("Account No.", LibrarySales.CreateCustomerNo());
         PaymentHistoryLine.Modify(true);
     end;
 
@@ -2105,7 +2105,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
         PaymentHistory.SetRange(Export, true);
         PaymentHistory.FindFirst();
-        PaymentHistory.ExportToPaymentFile;
+        PaymentHistory.ExportToPaymentFile();
 
         PaymentHistory.SetRange(Export, false);
         PaymentHistory.Find();
@@ -2176,7 +2176,7 @@ codeunit 144101 "Test SEPA CT v03"
 
     local procedure GenerateNoOfDocuments(): Integer
     begin
-        exit(LibraryRandom.RandIntInRange(3, GetMaxNoOfDocuments)); // min = 3 for verify grouping
+        exit(LibraryRandom.RandIntInRange(3, GetMaxNoOfDocuments())); // min = 3 for verify grouping
     end;
 
     local procedure GetMaxNoOfDocuments(): Integer
@@ -2222,7 +2222,7 @@ codeunit 144101 "Test SEPA CT v03"
         ProposalLine.SetRange("Our Bank No.", BankAccountNo);
         ProposalLine.FindLast();
         ProcessProposalLines.Run(ProposalLine);
-        ProcessProposalLines.ProcessProposallines;
+        ProcessProposalLines.ProcessProposallines();
     end;
 
     local procedure CreateSEPABankAccount(var BankAccount: Record "Bank Account"; CurrencyCode: Code[10]): Code[20]
@@ -2234,13 +2234,13 @@ codeunit 144101 "Test SEPA CT v03"
         NoSeries: Record "No. Series";
         CountryRegionCode: Code[10];
     begin
-        CountryRegionCode := SetUpCountrySEPAAllowed;
+        CountryRegionCode := SetUpCountrySEPAAllowed();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("SWIFT Code", Format(LibraryRandom.RandInt(1000000000))); // SWIFTCode
         BankAccount.Validate("Country/Region Code", CountryRegionCode);
         BankAccount.Validate("Currency Code", CurrencyCode);
         CreateFreelyTransferableMax(CountryRegionCode, CurrencyCode);
-        BankAccount.Validate(Balance, GetMaxNoOfDocuments * GetMaxDocumentAmount); // Balance must be positive
+        BankAccount.Validate(Balance, GetMaxNoOfDocuments() * GetMaxDocumentAmount()); // Balance must be positive
         BankAccount.Validate(IBAN, 'GB 12 CPBK 08929965044991'); // hard coded due to IBAN validation
         BankAccount.Validate("Bank Account No.",
           LibraryUtility.GenerateRandomCode(BankAccount.FieldNo("Bank Account No."), DATABASE::"Bank Account"));
@@ -2323,13 +2323,13 @@ codeunit 144101 "Test SEPA CT v03"
         TransactionMode.Validate("Account Type", TransactionMode."Account Type"::Vendor);
         TransactionMode.Validate("Export Protocol", ExportProtocolCode);
         TransactionMode.Validate("Our Bank", BankAccountCode);
-        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode);
-        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
         LibraryERM.FindGLAccount(GLAccount);
         TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", GLAccount."No.");
         SourceCode.Next(LibraryRandom.RandInt(SourceCode.Count));
         TransactionMode.Validate("Source Code", SourceCode.Code);
-        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode());
         TransactionMode.Insert(true);
     end;
 
@@ -2367,13 +2367,13 @@ codeunit 144101 "Test SEPA CT v03"
         TransactionMode.Validate("Account Type", TransactionMode."Account Type"::Employee);
         TransactionMode.Validate("Export Protocol", ExportProtocolCode);
         TransactionMode.Validate("Our Bank", BankAccountCode);
-        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode);
-        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Run No. Series", LibraryERM.CreateNoSeriesCode());
+        TransactionMode.Validate("Identification No. Series", LibraryERM.CreateNoSeriesCode());
         LibraryERM.FindGLAccount(GLAccount);
         TransactionMode.Validate("Acc. No. Pmt./Rcpt. in Process", GLAccount."No.");
         SourceCode.Next(LibraryRandom.RandInt(SourceCode.Count));
         TransactionMode.Validate("Source Code", SourceCode.Code);
-        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode);
+        TransactionMode.Validate("Posting No. Series", LibraryERM.CreateNoSeriesCode());
         TransactionMode.Insert(true);
     end;
 
@@ -2449,7 +2449,7 @@ codeunit 144101 "Test SEPA CT v03"
         // XMLReadHelper.ValidateXMLFileAgainstXSD(ExportFileName,
         // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',FORMAT(XSDSchemaPathTxt));
 
-        NameSpace := GetSEPACTNameSpace;
+        NameSpace := GetSEPACTNameSpace();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
 
         Assert.AreEqual(
@@ -2494,7 +2494,7 @@ codeunit 144101 "Test SEPA CT v03"
         // XMLReadHelper.ValidateXMLFileAgainstXSD(ExportFileName,
         // 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03',FORMAT(XSDSchemaPathTxt));
 
-        NameSpace := GetSEPACTNameSpace;
+        NameSpace := GetSEPACTNameSpace();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
 
         XMLReadHelper.GetNodeByXPath('//ns:Document', Node);
@@ -2527,7 +2527,7 @@ codeunit 144101 "Test SEPA CT v03"
     var
         NameSpace: Text;
     begin
-        NameSpace := GetSEPACTNameSpace;
+        NameSpace := GetSEPACTNameSpace();
         XMLReadHelper.Initialize(ExportFileName, NameSpace);
 
         XMLReadHelper.VerifyNodeValueByXPath(
@@ -2542,7 +2542,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryLine: Record "Payment History Line";
         i: Integer;
     begin
-        XMLReadHelper.Initialize(ExportFileName, GetSEPACTNameSpace);
+        XMLReadHelper.Initialize(ExportFileName, GetSEPACTNameSpace());
         FindPaymentHistoryToExport(PaymentHistory, BankAccountNo, ExportProtocolCode);
         PaymentHistoryLine.SetCurrentKey(Date, "Sequence Type");
         PaymentHistoryLine.SetRange("Our Bank", PaymentHistory."Our Bank");
@@ -2639,7 +2639,7 @@ codeunit 144101 "Test SEPA CT v03"
     begin
         VerifySEPACreditTransferFile(FileName, TotalAmount, VendorBankAccount, TRUE, 1, BankAccCurrency);
         VerifyStandardEuroSEPAFields('.' + COPYSTR(VendorBankAccount."Account Holder Address", 2), FormatIBAN(VendorBankAccount.IBAN));
-        VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, GetEuroCurrencyCode);
+        VerifySEPACreditTransferFileCtrlSumInstdAmtRound(FileName, TotalAmount, GetEuroCurrencyCode());
     end;
 
     local procedure VerifyGenericPaymentXML(VendorBankAccount: Record "Vendor Bank Account"; FileName: Text; TotalAmount: Decimal; PmtCurrencyCode: Code[10]; BankAccCurrency: Code[10])
@@ -2687,7 +2687,7 @@ codeunit 144101 "Test SEPA CT v03"
         PaymentHistoryLine.SetRange("Run No.", PaymentHistory."Run No.");
         PaymentHistoryLine.FindFirst();
 
-        PaymentHistoryCard.OpenView;
+        PaymentHistoryCard.OpenView();
         PaymentHistoryCard.GotoRecord(PaymentHistory);
         PaymentHistoryCard."Payment File Errors"."Error Text".AssertEquals(
           StrSubstNo(BlankIBANErr, PaymentHistoryLine.Bank));
@@ -2698,15 +2698,15 @@ codeunit 144101 "Test SEPA CT v03"
     [Scope('OnPrem')]
     procedure SEPAExportReqPageHandler(var SEPAISO20022Pain010103: TestRequestPage "SEPA ISO20022 Pain 01.01.03")
     begin
-        SEPAISO20022Pain010103.OK.Invoke;
+        SEPAISO20022Pain010103.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BTL91ExportRequestPageHandler(var ExportBTL91ABNAMRO: TestRequestPage "Export BTL91-ABN AMRO")
     begin
-        ExportBTL91ABNAMRO."Payment History".SetFilter("Run No.", LibraryVariableStorage.DequeueText);
-        ExportBTL91ABNAMRO.OK.Invoke;
+        ExportBTL91ABNAMRO."Payment History".SetFilter("Run No.", LibraryVariableStorage.DequeueText());
+        ExportBTL91ABNAMRO.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"SEPA CT-Fill Export Buffer", 'OnFillExportBufferOnBeforeValidateNormalSEPAInstructionPriority', '', false, false)]

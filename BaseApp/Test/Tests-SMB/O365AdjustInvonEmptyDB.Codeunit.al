@@ -36,12 +36,12 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
 
         CreateNumberOfItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := LibraryRandom.RandDecInRange(20, 30, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -64,12 +64,12 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
 
         CreateNumberOfItem(Item);
 
-        ItemCard.OpenEdit;
+        ItemCard.OpenEdit();
         ItemCard.GotoRecord(Item);
 
         NewInventory := -LibraryRandom.RandDecInRange(20, 30, 2);
         LibraryVariableStorage.Enqueue(NewInventory);
-        ItemCard.AdjustInventory.Invoke;
+        ItemCard.AdjustInventory.Invoke();
 
         ValidateNewInventory(Item, NewInventory);
     end;
@@ -86,7 +86,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Adjust Inv. on Empty DB");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         isInitialized := true;
@@ -108,7 +108,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
     begin
         AdjustInventory.NewInventory.Value := Format(NewInventory);
         Commit();
-        AdjustInventory.OK.Invoke;
+        AdjustInventory.OK().Invoke();
 
         exit(NewInventory)
     end;
@@ -125,7 +125,7 @@ codeunit 138031 "O365 Adjust Inv. on Empty DB"
     var
         NewInventory: Decimal;
     begin
-        NewInventory := LibraryVariableStorage.DequeueDecimal;
+        NewInventory := LibraryVariableStorage.DequeueDecimal();
         UpdateInventoryField(AdjustInventory, NewInventory);
     end;
 }

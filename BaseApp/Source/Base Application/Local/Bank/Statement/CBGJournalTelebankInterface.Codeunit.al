@@ -32,42 +32,40 @@ codeunit 11000002 "CBG Journal Telebank Interface"
         UseAdjustedAmount: Boolean;
     begin
         OnBeforeInsertPaymentHistory(CBGStatement);
-        with CBGStatement do begin
-            TestField(Type, Type::"Bank/Giro");
-            TestField("Account Type", "Account Type"::"Bank Account");
+        CBGStatement.TestField(Type, CBGStatement.Type::"Bank/Giro");
+        CBGStatement.TestField("Account Type", CBGStatement."Account Type"::"Bank Account");
 
-            PaymHist.SetCurrentKey("Our Bank", Status);
-            PaymHist.Ascending(false);
-            PaymHist.SetRange("Our Bank", "Account No.");
-            PaymHist.SetRange(Status, PaymHist.Status::Transmitted);
-            PaymHist.SetFilter("Remaining Amount", '<>%1', 0);
+        PaymHist.SetCurrentKey("Our Bank", Status);
+        PaymHist.Ascending(false);
+        PaymHist.SetRange("Our Bank", CBGStatement."Account No.");
+        PaymHist.SetRange(Status, PaymHist.Status::Transmitted);
+        PaymHist.SetFilter("Remaining Amount", '<>%1', 0);
 
-            PaymHistOverview.SetTableView(PaymHist);
-            PaymHistOverview.LookupMode(true);
-            PaymHistOverview.Editable(false);
-            if PaymHistOverview.RunModal() = ACTION::LookupOK then begin
-                PaymHistOverview.GetRecord(PaymHist);
-                PaymentHistLine.SetCurrentKey("Our Bank", Status);
-                PaymentHistLine.SetRange("Our Bank", PaymHist."Our Bank");
-                PaymentHistLine.SetRange("Run No.", PaymHist."Run No.");
-                PaymentHistLine.SetFilter(Status, '%1|%2',
-                  PaymentHistLine.Status::Transmitted,
-                  PaymentHistLine.Status::"Request for Cancellation");
-                if PaymentHistLine.Find('-') then begin
-                    CBGStatementLine.SetRange("Journal Template Name", "Journal Template Name");
-                    CBGStatementLine.SetRange("No.", "No.");
-                    repeat
-                        if CBGStatementLine.FindLast() then
-                            CBGStatementLine."Line No." := CBGStatementLine."Line No." + 10000
-                        else begin
-                            CBGStatementLine."Line No." := 10000;
-                            CBGStatementLine."Journal Template Name" := "Journal Template Name";
-                            CBGStatementLine."No." := "No.";
-                        end;
-                        CheckConfirmPaymentHistoryAmount(PaymentHistLine, LineAmount, IsConfirmHandled, UseAdjustedAmount);
-                        InsertCBGStatementLine(CBGStatementLine, CBGStatement, PaymentHistLine, UseAdjustedAmount, LineAmount);
-                    until PaymentHistLine.Next() = 0;
-                end;
+        PaymHistOverview.SetTableView(PaymHist);
+        PaymHistOverview.LookupMode(true);
+        PaymHistOverview.Editable(false);
+        if PaymHistOverview.RunModal() = ACTION::LookupOK then begin
+            PaymHistOverview.GetRecord(PaymHist);
+            PaymentHistLine.SetCurrentKey("Our Bank", Status);
+            PaymentHistLine.SetRange("Our Bank", PaymHist."Our Bank");
+            PaymentHistLine.SetRange("Run No.", PaymHist."Run No.");
+            PaymentHistLine.SetFilter(Status, '%1|%2',
+              PaymentHistLine.Status::Transmitted,
+              PaymentHistLine.Status::"Request for Cancellation");
+            if PaymentHistLine.Find('-') then begin
+                CBGStatementLine.SetRange("Journal Template Name", CBGStatement."Journal Template Name");
+                CBGStatementLine.SetRange("No.", CBGStatement."No.");
+                repeat
+                    if CBGStatementLine.FindLast() then
+                        CBGStatementLine."Line No." := CBGStatementLine."Line No." + 10000
+                    else begin
+                        CBGStatementLine."Line No." := 10000;
+                        CBGStatementLine."Journal Template Name" := CBGStatement."Journal Template Name";
+                        CBGStatementLine."No." := CBGStatement."No.";
+                    end;
+                    CheckConfirmPaymentHistoryAmount(PaymentHistLine, LineAmount, IsConfirmHandled, UseAdjustedAmount);
+                    InsertCBGStatementLine(CBGStatementLine, CBGStatement, PaymentHistLine, UseAdjustedAmount, LineAmount);
+                until PaymentHistLine.Next() = 0;
             end;
         end;
     end;

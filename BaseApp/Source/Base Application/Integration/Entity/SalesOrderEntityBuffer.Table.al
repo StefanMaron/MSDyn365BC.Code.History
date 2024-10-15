@@ -20,6 +20,7 @@ table 5495 "Sales Order Entity Buffer"
 {
     Caption = 'Sales Order Entity Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

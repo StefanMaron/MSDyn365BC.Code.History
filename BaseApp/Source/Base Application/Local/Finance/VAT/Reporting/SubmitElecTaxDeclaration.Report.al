@@ -90,25 +90,19 @@ report 11405 "Submit Elec. Tax Declaration"
 
                 UseVATRegNo := CompanyInfo.GetVATIdentificationNo(ElecTaxDeclarationSetup."Part of Fiscal Entity");
 
-                with Identity do begin
-                    nummer := UseVATRegNo;
-                    type := 'Fi';
-                end;
+                Identity.nummer := UseVATRegNo;
+                Identity.type := 'Fi';
 
-                with Content do begin
-                    mimeType := 'application/xml';
-                    bestandsnaam := StrSubstNo('%1.xbrl', "Elec. Tax Declaration Header".GetDocType());
-                    inhoud := UTF8Encoding.GetBytes(XMLDoc.InnerXml);
-                end;
+                Content.mimeType := 'application/xml';
+                Content.bestandsnaam := StrSubstNo('%1.xbrl', "Elec. Tax Declaration Header".GetDocType());
+                Content.inhoud := UTF8Encoding.GetBytes(XMLDoc.InnerXml);
 
-                with Request do begin
-                    berichtsoort := "Elec. Tax Declaration Header".GetDocType();
-                    aanleverkenmerk := "Our Reference";
-                    identiteitBelanghebbende := Identity;
-                    rolBelanghebbende := 'Bedrijf';
-                    berichtInhoud := Content;
-                    autorisatieAdres := 'http://geenausp.nl'
-                end;
+                Request.berichtsoort := "Elec. Tax Declaration Header".GetDocType();
+                Request.aanleverkenmerk := "Our Reference";
+                Request.identiteitBelanghebbende := Identity;
+                Request.rolBelanghebbende := 'Bedrijf';
+                Request.berichtInhoud := Content;
+                Request.autorisatieAdres := 'http://geenausp.nl';
 
                 Window.Update(1, WindowStatusSendMsg);
 
@@ -326,18 +320,14 @@ report 11405 "Submit Elec. Tax Declaration"
     var
         ElecTaxDeclarationLine: Record "Elec. Tax Declaration Line";
     begin
-        with ElecTaxDeclarationLine do begin
-            SetRange("Declaration Type", TargetElecTaxDeclarationLine."Declaration Type");
-            SetRange("Declaration No.", TargetElecTaxDeclarationLine."Declaration No.");
-            if FindSet() then
-                repeat
-                    if StrPos(Name, ':') <> 0 then begin
-                        if TargetNamespace = CopyStr(Name, StrPos(Name, ':') + 1, StrLen(Name) - StrPos(Name, ':'))
-                        then
-                            exit(Data);
-                    end;
-                until (Next() = 0) or (TargetElecTaxDeclarationLine."Line No." = "Line No.");
-        end;
+        ElecTaxDeclarationLine.SetRange("Declaration Type", TargetElecTaxDeclarationLine."Declaration Type");
+        ElecTaxDeclarationLine.SetRange("Declaration No.", TargetElecTaxDeclarationLine."Declaration No.");
+        if ElecTaxDeclarationLine.FindSet() then
+            repeat
+                if StrPos(ElecTaxDeclarationLine.Name, ':') <> 0 then
+                    if TargetNamespace = CopyStr(ElecTaxDeclarationLine.Name, StrPos(ElecTaxDeclarationLine.Name, ':') + 1, StrLen(ElecTaxDeclarationLine.Name) - StrPos(ElecTaxDeclarationLine.Name, ':')) then
+                        exit(ElecTaxDeclarationLine.Data);
+            until (ElecTaxDeclarationLine.Next() = 0) or (TargetElecTaxDeclarationLine."Line No." = ElecTaxDeclarationLine."Line No.");
     end;
 
     [Scope('OnPrem')]
