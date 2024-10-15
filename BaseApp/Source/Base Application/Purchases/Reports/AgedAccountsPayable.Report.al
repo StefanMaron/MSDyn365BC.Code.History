@@ -489,37 +489,37 @@ report 322 "Aged Accounts Payable"
             }
             column(TempCurrency2Code; TempCurrency2.Code)
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt6RemAmtLCY5; AgedVendorLedgEntry[6]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt1RemAmtLCY1; AgedVendorLedgEntry[1]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt2RemAmtLCY2; AgedVendorLedgEntry[2]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt3RemAmtLCY3; AgedVendorLedgEntry[3]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt4RemAmtLCY4; AgedVendorLedgEntry[4]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(AgedVendLedgEnt5RemAmtLCY5; AgedVendorLedgEntry[5]."Remaining Amount")
             {
-                AutoFormatExpression = CurrencyCode;
+                AutoFormatExpression = TempCurrency2.Code;
                 AutoFormatType = 1;
             }
             column(CurrencySpecificationCaption; CurrencySpecificationCaptionLbl)
