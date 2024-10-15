@@ -1316,7 +1316,7 @@ codeunit 139048 "SMB Office Pages"
     procedure OfficeMgmtAttachDocument()
     begin
         AttachFile(OfficeHostType.OutlookItemRead, false);
-        AttachFile(OfficeHostType.OutlookItemEdit, true);
+        AttachFile(OfficeHostType.OutlookItemEdit, false);
         AttachFile(OfficeHostType.OutlookTaskPane, false);
         AttachFile(OfficeHostType.OutlookHyperlink, false);
     end;

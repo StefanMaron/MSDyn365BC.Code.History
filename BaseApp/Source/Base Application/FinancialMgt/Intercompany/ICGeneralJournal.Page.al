@@ -539,6 +539,11 @@ page 610 "IC General Journal"
                               "Journal Batch Name" = FIELD("Journal Batch Name"),
                               "Line No." = FIELD("Line No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -929,6 +934,8 @@ page 610 "IC General Journal"
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         UpdateBalance();
         EnableApplyEntriesAction();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
     end;
 
@@ -943,6 +950,11 @@ page 610 "IC General Journal"
         BalanceVisible := true;
         GeneralLedgerSetup.Get();
         SetJobQueueVisibility();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
