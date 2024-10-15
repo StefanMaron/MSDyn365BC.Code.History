@@ -9,6 +9,7 @@ using Microsoft.CRM.Task;
 table 5061 "Rlshp. Mgt. Comment Line"
 {
     Caption = 'Rlshp. Mgt. Comment Line';
+    DataClassification = CustomerContent;
     DrillDownPageID = "Rlshp. Mgt. Comment List";
     LookupPageID = "Rlshp. Mgt. Comment List";
 

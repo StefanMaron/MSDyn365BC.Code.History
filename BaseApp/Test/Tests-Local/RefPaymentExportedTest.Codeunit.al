@@ -91,11 +91,11 @@
             Validate("Entry No.", VendorLedgerEntry."Entry No.");
 
             // Test global functions
-            UpdateLines;
-            Assert.IsFalse(ExistsNotTransferred, 'ExistsNotTransferred should return FALSE');
+            UpdateLines();
+            Assert.IsFalse(ExistsNotTransferred(), 'ExistsNotTransferred should return FALSE');
             SetUsePaymentDisc(true);
-            Assert.AreEqual(GetLastLineNo, 0, 'No lines expected');
-            MarkAffiliatedAsTransferred;
+            Assert.AreEqual(GetLastLineNo(), 0, 'No lines expected');
+            MarkAffiliatedAsTransferred();
         end;
     end;
 }

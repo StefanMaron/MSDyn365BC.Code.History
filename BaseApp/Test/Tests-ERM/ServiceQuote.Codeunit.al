@@ -244,16 +244,16 @@ codeunit 136115 "Service Quote"
         Initialize();
         CreateCustomerWithDiscount(CustInvoiceDisc);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, CustInvoiceDisc.Code);
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, '');
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), '');
         InputUnitPriceInServiceLine(ServiceLine, CustInvoiceDisc."Minimum Amount");
 
         // 2. Exercise: Run Calculate Invoice Discount.
         Clear(ServiceLines);
-        ServiceLines.OpenView;
+        ServiceLines.OpenView();
         ServiceLines.FILTER.SetFilter("Document Type", Format(ServiceLine."Document Type"));
         ServiceLines.FILTER.SetFilter("Document No.", ServiceLine."Document No.");
-        ServiceLines.First;
-        ServiceLines."Calculate Invoice Discount".Invoke;
+        ServiceLines.First();
+        ServiceLines."Calculate Invoice Discount".Invoke();
 
         // 3. Verify: Verify Unit Price on Service Quote.
         VerifyUnitPrice(ServiceLine, CustInvoiceDisc."Service Charge");
@@ -270,10 +270,10 @@ codeunit 136115 "Service Quote"
 
         Initialize();
         // [GIVEN] Service Quote with "Posting Date" = "01.01". Work Date = "10.01"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo());
         ServiceHeader.Validate("Posting Date", ServiceHeader."Posting Date" + 1);
         ServiceHeader.Modify(true);
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, '');
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), '');
 
         // [WHEN] Make Service Order from Service Quote
         LibraryService.CreateOrderFromQuote(ServiceHeader);
@@ -300,10 +300,10 @@ codeunit 136115 "Service Quote"
 
         // [GIVEN] Service quote.
         LibraryService.CreateServiceHeader(
-          ServiceHeaderQuote, ServiceHeaderQuote."Document Type"::Quote, LibrarySales.CreateCustomerNo);
+          ServiceHeaderQuote, ServiceHeaderQuote."Document Type"::Quote, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Location Code is set to "L" on service quote page.
-        ServiceQuote.OpenEdit;
+        ServiceQuote.OpenEdit();
         ServiceQuote.GotoRecord(ServiceHeaderQuote);
         ServiceQuote."Location Code".SetValue(Location.Code);
         ServiceQuote.Close();
@@ -375,7 +375,7 @@ codeunit 136115 "Service Quote"
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, Type, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, ServiceItem."No.");
+        CreateServiceLineWithItem(ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), ServiceItem."No.");
     end;
 
     local procedure CreateServiceItemWithComponent(var ServiceItem: Record "Service Item"): Code[20]

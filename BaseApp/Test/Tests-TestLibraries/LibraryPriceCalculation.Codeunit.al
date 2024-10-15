@@ -16,50 +16,44 @@ codeunit 130510 "Library - Price Calculation"
 
     procedure AddSetup(var PriceCalculationSetup: Record "Price Calculation Setup"; NewMethod: Enum "Price Calculation Method"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; NewImplementation: Enum "Price Calculation Handler"; NewDefault: Boolean): Code[100];
     begin
-        with PriceCalculationSetup do begin
-            Init();
-            Method := NewMethod;
-            Type := PriceType;
-            "Asset Type" := AssetType;
-            Implementation := NewImplementation;
-            Default := NewDefault;
-            Enabled := true;
-            Insert(true);
-            exit(Code)
-        end;
+        PriceCalculationSetup.Init();
+        PriceCalculationSetup.Method := NewMethod;
+        PriceCalculationSetup.Type := PriceType;
+        PriceCalculationSetup."Asset Type" := AssetType;
+        PriceCalculationSetup.Implementation := NewImplementation;
+        PriceCalculationSetup.Default := NewDefault;
+        PriceCalculationSetup.Enabled := true;
+        PriceCalculationSetup.Insert(true);
+        exit(PriceCalculationSetup.Code)
     end;
 
     procedure AddDtldSetup(var DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; AssetNo: code[20]; SourceGroup: Enum "Price Source Group"; SourceNo: Code[20])
     begin
-        with DtldPriceCalculationSetup do begin
-            if IsTemporary then
-                "Line No." += 1
-            else
-                "Line No." := 0;
-            Type := PriceType;
-            "Asset Type" := AssetType;
-            "Asset No." := AssetNo;
-            Validate("Source Group", SourceGroup);
-            "Source No." := SourceNo;
-            Enabled := true;
-            Insert(true);
-        end;
+        if DtldPriceCalculationSetup.IsTemporary then
+            DtldPriceCalculationSetup."Line No." += 1
+        else
+            DtldPriceCalculationSetup."Line No." := 0;
+        DtldPriceCalculationSetup.Type := PriceType;
+        DtldPriceCalculationSetup."Asset Type" := AssetType;
+        DtldPriceCalculationSetup."Asset No." := AssetNo;
+        DtldPriceCalculationSetup.Validate("Source Group", SourceGroup);
+        DtldPriceCalculationSetup."Source No." := SourceNo;
+        DtldPriceCalculationSetup.Enabled := true;
+        DtldPriceCalculationSetup.Insert(true);
     end;
 
     procedure AddDtldSetup(var DtldPriceCalculationSetup: Record "Dtld. Price Calculation Setup"; SetupCode: Code[100]; AssetNo: code[20]; SourceGroup: Enum "Price Source Group"; SourceNo: Code[20])
     begin
-        with DtldPriceCalculationSetup do begin
-            if IsTemporary then
-                "Line No." += 1
-            else
-                "Line No." := 0;
-            Validate("Setup Code", SetupCode);
-            "Asset No." := AssetNo;
-            Validate("Source Group", SourceGroup);
-            "Source No." := SourceNo;
-            Enabled := true;
-            Insert(true);
-        end;
+        if DtldPriceCalculationSetup.IsTemporary then
+            DtldPriceCalculationSetup."Line No." += 1
+        else
+            DtldPriceCalculationSetup."Line No." := 0;
+        DtldPriceCalculationSetup.Validate("Setup Code", SetupCode);
+        DtldPriceCalculationSetup."Asset No." := AssetNo;
+        DtldPriceCalculationSetup.Validate("Source Group", SourceGroup);
+        DtldPriceCalculationSetup."Source No." := SourceNo;
+        DtldPriceCalculationSetup.Enabled := true;
+        DtldPriceCalculationSetup.Insert(true);
     end;
 
     procedure DisableSetup(var PriceCalculationSetup: Record "Price Calculation Setup")

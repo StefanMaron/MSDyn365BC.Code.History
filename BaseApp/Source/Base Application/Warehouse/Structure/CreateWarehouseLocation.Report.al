@@ -166,80 +166,78 @@ report 5756 "Create Warehouse Location"
 
         LastLineNo := 0;
 
-        with ItemLedgEntry do begin
-            SetCurrentKey(
-              "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
+        ItemLedgEntry.SetCurrentKey(
+            "Item No.", "Location Code", Open, "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
 
-            Location.Get(LocCode);
-            Location.TestField("Adjustment Bin Code", '');
-            CheckWhseDocs();
+        Location.Get(LocCode);
+        Location.TestField("Adjustment Bin Code", '');
+        CheckWhseDocs();
 
-            Bin.Get(LocCode, AdjBinCode);
+        Bin.Get(LocCode, AdjBinCode);
 
-            if Find('-') then begin
+        if ItemLedgEntry.Find('-') then begin
+            if not HideValidationDialog then begin
+                Window.Open(StrSubstNo(Text020, ItemLedgEntry."Location Code") + Text003);
+                i := 1;
+                CountItemLedgEntries := ItemLedgEntry.Count;
+            end;
+
+            repeat
                 if not HideValidationDialog then begin
-                    Window.Open(StrSubstNo(Text020, "Location Code") + Text003);
-                    i := 1;
-                    CountItemLedgEntries := Count;
+                    Window.Update(100, i);
+                    Window.Update(102, Round(i / CountItemLedgEntries * 10000, 1));
                 end;
 
-                repeat
-                    if not HideValidationDialog then begin
-                        Window.Update(100, i);
-                        Window.Update(102, Round(i / CountItemLedgEntries * 10000, 1));
-                    end;
+                ItemLedgEntry.SetRange("Item No.", ItemLedgEntry."Item No.");
+                if ItemLedgEntry.Find('-') then begin
+                    ItemLedgEntry.SetRange("Location Code", LocCode);
+                    ItemLedgEntry.SetRange(Open, true);
+                    if ItemLedgEntry.Find('-') then
+                        repeat
+                            ItemLedgEntry.SetRange("Variant Code", ItemLedgEntry."Variant Code");
+                            if ItemLedgEntry.Find('-') then
+                                repeat
+                                    ItemLedgEntry.SetRange("Unit of Measure Code", ItemLedgEntry."Unit of Measure Code");
+                                    if ItemLedgEntry.Find('-') then
+                                        repeat
+                                            ItemLedgEntry.SetRange("Lot No.", ItemLedgEntry."Lot No.");
+                                            if ItemLedgEntry.Find('-') then
+                                                repeat
+                                                    ItemLedgEntry.SetRange("Package No.", ItemLedgEntry."Package No.");
+                                                    if ItemLedgEntry.Find('-') then
+                                                        repeat
+                                                            ItemLedgEntry.SetRange("Serial No.", ItemLedgEntry."Serial No.");
+                                                            ItemLedgEntry.CalcSums(ItemLedgEntry."Remaining Quantity");
+                                                            if ItemLedgEntry."Remaining Quantity" < 0 then
+                                                                Error(
+                                                                  StrSubstNo(Text005, BuildErrorText()) +
+                                                                  StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId()));
+                                                            if ItemLedgEntry."Remaining Quantity" > 0 then
+                                                                CreateWhseJnlLine();
+                                                            ItemLedgEntry.Find('+');
+                                                            ItemLedgEntry.SetRange("Serial No.");
+                                                        until ItemLedgEntry.Next() = 0;
+                                                    ItemLedgEntry.Find('+');
+                                                    ItemLedgEntry.SetRange("Package No.");
+                                                until ItemLedgEntry.Next() = 0;
+                                            ItemLedgEntry.Find('+');
+                                            ItemLedgEntry.SetRange("Lot No.");
+                                        until ItemLedgEntry.Next() = 0;
+                                    ItemLedgEntry.Find('+');
+                                    ItemLedgEntry.SetRange("Unit of Measure Code")
+                                until ItemLedgEntry.Next() = 0;
+                            ItemLedgEntry.Find('+');
+                            ItemLedgEntry.SetRange("Variant Code");
+                        until ItemLedgEntry.Next() = 0;
+                end;
 
-                    SetRange("Item No.", "Item No.");
-                    if Find('-') then begin
-                        SetRange("Location Code", LocCode);
-                        SetRange(Open, true);
-                        if Find('-') then
-                            repeat
-                                SetRange("Variant Code", "Variant Code");
-                                if Find('-') then
-                                    repeat
-                                        SetRange("Unit of Measure Code", "Unit of Measure Code");
-                                        if Find('-') then
-                                            repeat
-                                                SetRange("Lot No.", "Lot No.");
-                                                if Find('-') then
-                                                    repeat
-                                                        SetRange("Package No.", "Package No.");
-                                                        if Find('-') then
-                                                            repeat
-                                                                SetRange("Serial No.", "Serial No.");
-                                                                CalcSums("Remaining Quantity");
-                                                                if "Remaining Quantity" < 0 then
-                                                                    Error(
-                                                                      StrSubstNo(Text005, BuildErrorText()) +
-                                                                      StrSubstNo(Text009, ItemsWithNegativeInventory.ObjectId()));
-                                                                if "Remaining Quantity" > 0 then
-                                                                    CreateWhseJnlLine();
-                                                                Find('+');
-                                                                SetRange("Serial No.");
-                                                            until Next() = 0;
-                                                        Find('+');
-                                                        SetRange("Package No.");
-                                                    until Next() = 0;
-                                                Find('+');
-                                                SetRange("Lot No.");
-                                            until Next() = 0;
-                                        Find('+');
-                                        SetRange("Unit of Measure Code")
-                                    until Next() = 0;
-                                Find('+');
-                                SetRange("Variant Code");
-                            until Next() = 0;
-                    end;
-
-                    SetRange(Open);
-                    SetRange("Location Code");
-                    Find('+');
-                    if not HideValidationDialog then
-                        i := i + Count;
-                    SetRange("Item No.");
-                until Next() = 0;
-            end;
+                ItemLedgEntry.SetRange(Open);
+                ItemLedgEntry.SetRange("Location Code");
+                ItemLedgEntry.Find('+');
+                if not HideValidationDialog then
+                    i := i + ItemLedgEntry.Count;
+                ItemLedgEntry.SetRange("Item No.");
+            until ItemLedgEntry.Next() = 0;
         end;
     end;
 
@@ -328,36 +326,34 @@ report 5756 "Create Warehouse Location"
     begin
         LastLineNo := LastLineNo + 10000;
 
-        with ItemLedgEntry do begin
-            TempWhseJnlLine.Init();
-            TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Positive Adjmt.";
-            TempWhseJnlLine."Line No." := LastLineNo;
-            TempWhseJnlLine."Location Code" := "Location Code";
-            TempWhseJnlLine."Registering Date" := Today;
-            TempWhseJnlLine."Item No." := "Item No.";
-            TempWhseJnlLine.Quantity := Round("Remaining Quantity" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            TempWhseJnlLine."Qty. (Base)" := "Remaining Quantity";
-            TempWhseJnlLine."Qty. (Absolute)" := Round(Abs("Remaining Quantity") / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            TempWhseJnlLine."Qty. (Absolute, Base)" := Abs("Remaining Quantity");
-            TempWhseJnlLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(TempWhseJnlLine."User ID"));
-            TempWhseJnlLine."Variant Code" := "Variant Code";
-            if "Unit of Measure Code" = '' then begin
-                Item.Get("Item No.");
-                "Unit of Measure Code" := Item."Base Unit of Measure";
-            end;
-            TempWhseJnlLine."Unit of Measure Code" := "Unit of Measure Code";
-            TempWhseJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            TempWhseJnlLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
-            TempWhseJnlLine.Validate("Zone Code", Bin."Zone Code");
-            TempWhseJnlLine."Bin Code" := AdjBinCode;
-            TempWhseJnlLine."To Bin Code" := AdjBinCode;
-            GetItemUnitOfMeasure("Item No.", "Unit of Measure Code");
-            TempWhseJnlLine.Cubage := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
-            TempWhseJnlLine.Weight := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
-            OnCreateWhseJnlLineOnBeforeCheck(TempWhseJnlLine, ItemLedgEntry);
-            WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
-            TempWhseJnlLine.Insert();
+        TempWhseJnlLine.Init();
+        TempWhseJnlLine."Entry Type" := TempWhseJnlLine."Entry Type"::"Positive Adjmt.";
+        TempWhseJnlLine."Line No." := LastLineNo;
+        TempWhseJnlLine."Location Code" := ItemLedgEntry."Location Code";
+        TempWhseJnlLine."Registering Date" := Today;
+        TempWhseJnlLine."Item No." := ItemLedgEntry."Item No.";
+        TempWhseJnlLine.Quantity := Round(ItemLedgEntry."Remaining Quantity" / ItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        TempWhseJnlLine."Qty. (Base)" := ItemLedgEntry."Remaining Quantity";
+        TempWhseJnlLine."Qty. (Absolute)" := Round(Abs(ItemLedgEntry."Remaining Quantity") / ItemLedgEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        TempWhseJnlLine."Qty. (Absolute, Base)" := Abs(ItemLedgEntry."Remaining Quantity");
+        TempWhseJnlLine."User ID" := CopyStr(UserId(), 1, MaxStrLen(TempWhseJnlLine."User ID"));
+        TempWhseJnlLine."Variant Code" := ItemLedgEntry."Variant Code";
+        if ItemLedgEntry."Unit of Measure Code" = '' then begin
+            Item.Get(ItemLedgEntry."Item No.");
+            ItemLedgEntry."Unit of Measure Code" := Item."Base Unit of Measure";
         end;
+        TempWhseJnlLine."Unit of Measure Code" := ItemLedgEntry."Unit of Measure Code";
+        TempWhseJnlLine."Qty. per Unit of Measure" := ItemLedgEntry."Qty. per Unit of Measure";
+        TempWhseJnlLine.CopyTrackingFromItemLedgEntry(ItemLedgEntry);
+        TempWhseJnlLine.Validate("Zone Code", Bin."Zone Code");
+        TempWhseJnlLine."Bin Code" := AdjBinCode;
+        TempWhseJnlLine."To Bin Code" := AdjBinCode;
+        GetItemUnitOfMeasure(ItemLedgEntry."Item No.", ItemLedgEntry."Unit of Measure Code");
+        TempWhseJnlLine.Cubage := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Cubage;
+        TempWhseJnlLine.Weight := TempWhseJnlLine."Qty. (Absolute)" * ItemUnitOfMeasure.Weight;
+        OnCreateWhseJnlLineOnBeforeCheck(TempWhseJnlLine, ItemLedgEntry);
+        WMSMgt.CheckWhseJnlLine(TempWhseJnlLine, 0, 0, false);
+        TempWhseJnlLine.Insert();
     end;
 
     local procedure GetItemUnitOfMeasure(ItemNo: Code[20]; UOMCode: Code[10])
@@ -373,26 +369,24 @@ report 5756 "Create Warehouse Location"
     var
         ErrorText: Text;
     begin
-        with ItemLedgEntry do begin
+        ErrorText :=
+            StrSubstNo(
+                PrimaryFieldsTxt, ItemLedgEntry.FieldCaption("Location Code"), ItemLedgEntry."Location Code", ItemLedgEntry.FieldCaption("Item No."), ItemLedgEntry."Item No.");
+        if ItemLedgEntry."Variant Code" <> '' then
             ErrorText :=
-                StrSubstNo(
-                    PrimaryFieldsTxt, FieldCaption("Location Code"), "Location Code", FieldCaption("Item No."), "Item No.");
-            if "Variant Code" <> '' then
-                ErrorText :=
-                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Variant Code"), "Variant Code");
-            if "Unit of Measure Code" <> '' then
-                ErrorText :=
-                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Unit of Measure Code"), "Unit of Measure Code");
-            if "Lot No." <> '' then
-                ErrorText :=
-                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Lot No."), "Lot No.");
-            if "Serial No." <> '' then
-                ErrorText :=
-                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Serial No."), "Serial No.");
-            if "Package No." <> '' then
-                ErrorText :=
-                    StrSubstNo(AdditionalFieldsTxt, ErrorText, FieldCaption("Package No."), "Package No.");
-        end;
+                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Variant Code"), ItemLedgEntry."Variant Code");
+        if ItemLedgEntry."Unit of Measure Code" <> '' then
+            ErrorText :=
+                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Unit of Measure Code"), ItemLedgEntry."Unit of Measure Code");
+        if ItemLedgEntry."Lot No." <> '' then
+            ErrorText :=
+                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Lot No."), ItemLedgEntry."Lot No.");
+        if ItemLedgEntry."Serial No." <> '' then
+            ErrorText :=
+                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Serial No."), ItemLedgEntry."Serial No.");
+        if ItemLedgEntry."Package No." <> '' then
+            ErrorText :=
+                StrSubstNo(AdditionalFieldsTxt, ErrorText, ItemLedgEntry.FieldCaption("Package No."), ItemLedgEntry."Package No.");
         exit(ErrorText);
     end;
 

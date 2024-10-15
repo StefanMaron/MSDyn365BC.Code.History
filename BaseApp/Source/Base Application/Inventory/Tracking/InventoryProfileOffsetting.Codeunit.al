@@ -86,6 +86,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Text008: Label '%1: The %2 %3 is before the work date %4.';
         Text009: Label '%1: The %2 of %3 %4 is %5.';
         Text010: Label 'The projected inventory %1 is higher than the overflow level %2 on %3.';
+        LocationMandatoryTxt: Label 'Location is mandatory.';
+        MissingStockkeepingUnitTxt: Label 'Missing stockkeeping unit.';
+        MinimalSupplyPlannedTxt: Label '%1: %2 The item is planned to cover the exact demand.', Comment = '%1: Attention, %2: Reason';
         PlanToDate: Date;
         OverflowLevel: Decimal;
         ExceedROPqty: Decimal;
@@ -344,7 +347,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 OnTransProdOrderCompToProfileOnBeforeProcessLine(ProdOrderComp, ShouldProcess);
                 if ShouldProcess then begin
                     ReqLine.SetRefFilter(
-                      ReqLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status,
+                      ReqLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
                       ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst() then begin
@@ -398,7 +401,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             repeat
                 if AsmLine."Due Date" <> 0D then begin
                     ReqLine.SetRefFilter(
-                      ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type", AsmLine."Document No.", 0);
+                      ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type".AsInteger(), AsmLine."Document No.", 0);
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst() then
                         InsertAsmLineToProfile(InventoryProfile, AsmLine, 1);
@@ -409,7 +412,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             repeat
                 if AsmLine."Due Date" <> 0D then begin
                     ReqLine.SetRefFilter(
-                        ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type", AsmLine."Document No.", 0);
+                        ReqLine."Ref. Order Type"::Assembly, AsmLine."Document Type".AsInteger(), AsmLine."Document No.", 0);
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst() then begin
                         AsmHeader.Get(AsmLine."Document Type", AsmLine."Document No.");
@@ -675,7 +678,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ForecastEntry: Record "Production Forecast Entry";
         ForecastEntry2: Record "Production Forecast Entry";
         NextForecast: Record "Production Forecast Entry";
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TotalForecastQty: Decimal;
         ReplenishmentLocation: Code[10];
         ForecastExist: Boolean;
@@ -874,30 +877,28 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit;
 
         InventoryProfile.Reset();
-        with BlanketSalesLine do begin
-            SetCurrentKey("Document Type", "Document No.", Type, "No.");
-            SetRange("Document Type", "Document Type"::"Blanket Order");
-            SetRange(Type, Type::Item);
-            SetRange("No.", Item."No.");
-            Item.CopyFilter("Location Filter", "Location Code");
-            Item.CopyFilter("Variant Filter", "Variant Code");
-            SetFilter("Outstanding Qty. (Base)", '<>0');
-            SetFilter("Shipment Date", '>%1&<=%2', 0D, ToDate);
-            OnBeforeBlanketOrderConsumpFind(BlanketSalesLine);
-            if Find('-') then
-                repeat
-                    QtyReleased := CalcInventoryProfileRemainingQty(InventoryProfile, "Document No.", "Line No.");
-                    if "Quantity (Base)" <> "Qty. to Asm. to Order (Base)" then
-                        if "Outstanding Qty. (Base)" - "Qty. to Asm. to Order (Base)" > QtyReleased then begin
-                            InventoryProfile.Init();
-                            InventoryProfile."Line No." := NextLineNo();
-                            InventoryProfile.TransferFromSalesLine(BlanketSalesLine, TempItemTrkgEntry);
-                            InventoryProfile."Untracked Quantity" := "Outstanding Qty. (Base)" - QtyReleased;
-                            InventoryProfile."Remaining Quantity (Base)" := InventoryProfile."Untracked Quantity";
-                            InventoryProfile.Insert();
-                        end;
-                until Next() = 0;
-        end;
+        BlanketSalesLine.SetCurrentKey("Document Type", "Document No.", Type, "No.");
+        BlanketSalesLine.SetRange("Document Type", BlanketSalesLine."Document Type"::"Blanket Order");
+        BlanketSalesLine.SetRange(Type, BlanketSalesLine.Type::Item);
+        BlanketSalesLine.SetRange("No.", Item."No.");
+        Item.CopyFilter("Location Filter", BlanketSalesLine."Location Code");
+        Item.CopyFilter("Variant Filter", BlanketSalesLine."Variant Code");
+        BlanketSalesLine.SetFilter("Outstanding Qty. (Base)", '<>0');
+        BlanketSalesLine.SetFilter("Shipment Date", '>%1&<=%2', 0D, ToDate);
+        OnBeforeBlanketOrderConsumpFind(BlanketSalesLine);
+        if BlanketSalesLine.Find('-') then
+            repeat
+                QtyReleased := CalcInventoryProfileRemainingQty(InventoryProfile, BlanketSalesLine."Document No.", BlanketSalesLine."Line No.");
+                if BlanketSalesLine."Quantity (Base)" <> BlanketSalesLine."Qty. to Asm. to Order (Base)" then
+                    if BlanketSalesLine."Outstanding Qty. (Base)" - BlanketSalesLine."Qty. to Asm. to Order (Base)" > QtyReleased then begin
+                        InventoryProfile.Init();
+                        InventoryProfile."Line No." := NextLineNo();
+                        InventoryProfile.TransferFromSalesLine(BlanketSalesLine, TempItemTrkgEntry);
+                        InventoryProfile."Untracked Quantity" := BlanketSalesLine."Outstanding Qty. (Base)" - QtyReleased;
+                        InventoryProfile."Remaining Quantity (Base)" := InventoryProfile."Untracked Quantity";
+                        InventoryProfile.Insert();
+                    end;
+            until BlanketSalesLine.Next() = 0;
     end;
 
     procedure CheckForecastExist(var ForecastEntry: Record "Production Forecast Entry"; OrderDate: Date; ToDate: Date): Boolean
@@ -1112,16 +1113,15 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if IsHandled then
             exit;
 
-        with TempSKU do
-            if not Find('=') then begin
-                PlanningGetParameters.SetLotForLot();
-                PlanningGetParameters.AtSKU(SKU2, "Item No.", "Variant Code", "Location Code");
-                TempSKU := SKU2;
-                if "Reordering Policy" <> "Reordering Policy"::" " then begin
-                    OnBeforeTempSKUInsert(TempSKU, PlanningGetParameters);
-                    Insert();
-                end;
+        if not TempSKU.Find('=') then begin
+            PlanningGetParameters.SetLotForLot();
+            PlanningGetParameters.AtSKU(SKU2, TempSKU."Item No.", TempSKU."Variant Code", TempSKU."Location Code");
+            TempSKU := SKU2;
+            if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then begin
+                OnBeforeTempSKUInsert(TempSKU, PlanningGetParameters);
+                TempSKU.Insert();
             end;
+        end;
     end;
 
     local procedure FindNextSKU(var InventoryProfile: Record "Inventory Profile"): Boolean
@@ -1157,35 +1157,33 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         ActionMsgEntry.SetCurrentKey("Reservation Entry");
 
-        with ReservEntry do begin
-            Reset();
-            SetCurrentKey("Item No.", "Variant Code", "Location Code");
-            SetRange("Item No.", SKU."Item No.");
-            SetRange("Variant Code", SKU."Variant Code");
-            SetRange("Location Code", SKU."Location Code");
-            SetFilter("Reservation Status", '<>%1', "Reservation Status"::Prospect);
-            if Find('-') then
-                repeat
-                    Item.Get("Item No.");
-                    if not IsTrkgForSpecialOrderOrDropShpt(ReservEntry) then begin
-                        if ShouldDeleteReservEntry(ReservEntry, ToDate) then begin
-                            ResEntryWasDeleted := true;
-                            if ("Source Type" = Database::"Item Ledger Entry") and
-                               ("Reservation Status" = "Reservation Status"::Tracking)
-                            then
-                                if ReservEntry1.Get("Entry No.", not Positive) then
-                                    ReservEntry1.Delete();
-                            Delete();
-                        end else
-                            ResEntryWasDeleted := CloseTracking(ReservEntry, SupplyInventoryProfile, ToDate);
+        ReservEntry.Reset();
+        ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code");
+        ReservEntry.SetRange("Item No.", SKU."Item No.");
+        ReservEntry.SetRange("Variant Code", SKU."Variant Code");
+        ReservEntry.SetRange("Location Code", SKU."Location Code");
+        ReservEntry.SetFilter(ReservEntry."Reservation Status", '<>%1', ReservEntry."Reservation Status"::Prospect);
+        if ReservEntry.Find('-') then
+            repeat
+                Item.Get(ReservEntry."Item No.");
+                if not IsTrkgForSpecialOrderOrDropShpt(ReservEntry) then begin
+                    if ShouldDeleteReservEntry(ReservEntry, ToDate) then begin
+                        ResEntryWasDeleted := true;
+                        if (ReservEntry."Source Type" = Database::"Item Ledger Entry") and
+                           (ReservEntry."Reservation Status" = ReservEntry."Reservation Status"::Tracking)
+                        then
+                            if ReservEntry1.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
+                                ReservEntry1.Delete();
+                        ReservEntry.Delete();
+                    end else
+                        ResEntryWasDeleted := CloseTracking(ReservEntry, SupplyInventoryProfile, ToDate);
 
-                        if ResEntryWasDeleted then begin
-                            ActionMsgEntry.SetRange("Reservation Entry", "Entry No.");
-                            ActionMsgEntry.DeleteAll();
-                        end;
+                    if ResEntryWasDeleted then begin
+                        ActionMsgEntry.SetRange("Reservation Entry", ReservEntry."Entry No.");
+                        ActionMsgEntry.DeleteAll();
                     end;
-                until Next() = 0;
-        end;
+                end;
+            until ReservEntry.Next() = 0;
     end;
 
     local procedure ShouldDeleteReservEntry(ReservEntry: Record "Reservation Entry"; ToDate: Date): Boolean
@@ -1199,15 +1197,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit(false);
 
         Item.Get(ReservEntry."Item No.");
-        with ReservEntry do
-            DeleteCondition :=
-              (("Reservation Status" <> "Reservation Status"::Reservation) and
-               ("Expected Receipt Date" <= ToDate) and
-               ("Shipment Date" <= ToDate)) or
-              ((Binding = Binding::"Order-to-Order") and ("Shipment Date" <= ToDate) and
-               (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Stock") and
-               (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
-               (not IsReservedForProdComponent));
+        DeleteCondition :=
+            ((ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Reservation) and
+            (ReservEntry."Expected Receipt Date" <= ToDate) and
+            (ReservEntry."Shipment Date" <= ToDate)) or
+            ((ReservEntry.Binding = ReservEntry.Binding::"Order-to-Order") and (ReservEntry."Shipment Date" <= ToDate) and
+            (Item."Manufacturing Policy" = Item."Manufacturing Policy"::"Make-to-Stock") and
+            (Item."Replenishment System" = Item."Replenishment System"::"Prod. Order") and
+            (not IsReservedForProdComponent));
 
         OnAfterShouldDeleteReservEntry(ReservEntry, ToDate, DeleteCondition, CurrTemplateName, CurrWorksheetName);
         exit(DeleteCondition);
@@ -1225,7 +1222,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit;
 
         RequisitionLine.SetRefFilter(
-          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status,
+          RequisitionLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
           ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
         RequisitionLine.SetRange("Operation No.", '');
 
@@ -1237,13 +1234,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         Supply2: Record "Inventory Profile";
     begin
         Supply2.Copy(Supply);
-        with Supply do begin
-            SetRange(IsSupply);
-            SetRange("Source Type", Database::"Item Ledger Entry");
-            SetFilter(Binding, '<>%1', Supply2.Binding::"Order-to-Order");
-            DeleteAll();
-            Copy(Supply2);
-        end;
+        Supply.SetRange(IsSupply);
+        Supply.SetRange("Source Type", Database::"Item Ledger Entry");
+        Supply.SetFilter(Binding, '<>%1', Supply2.Binding::"Order-to-Order");
+        Supply.DeleteAll();
+        Supply.Copy(Supply2);
     end;
 
     local procedure UnfoldItemTracking(var ParentInvProfile: Record "Inventory Profile"; var ChildInvProfile: Record "Inventory Profile")
@@ -1382,7 +1377,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then
                             SupplyInvtProfile.FieldError("Action Message");
                         MaintainPlanningLine(SupplyInvtProfile, DemandInvtProfile, PlanningLineStage::Exploded, ScheduleDirection::Backward)
-                    end else begin
+                    end else
                         // Evaluate excess supply
                         if TempSKU."Include Inventory" then begin
                             // Release the remaining Untracked Quantity
@@ -1394,7 +1389,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             SetAttributePriority(SupplyInvtProfile);
                         end else
                             SupplyInvtProfile."Untracked Quantity" := 0;
-                    end;
+
                     // Ensure that the directly allocated quantity will not be part of Projected Inventory
                     if SupplyInvtProfile."Untracked Quantity" <> 0 then begin
                         UpdateQty(SupplyInvtProfile, SupplyInvtProfile."Untracked Quantity");
@@ -1533,7 +1528,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                             LastAvailableInventory -= DemandInvtProfile."Untracked Quantity";
                         end;
                         DemandInvtProfile.Modify();
-                        DemandExists := DemandInvtProfile.Next <> 0;
+                        DemandExists := DemandInvtProfile.Next() <> 0;
                     end;
 
                     OnBeforePrePlanDateSupplyProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists);
@@ -1547,7 +1542,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         SupplyInvtProfile."Planning Flexibility" := SupplyInvtProfile."Planning Flexibility"::None;
                         OnPlanItemOnBeforeSupplyInvtProfileModify(SupplyInvtProfile);
                         SupplyInvtProfile.Modify();
-                        SupplyExists := SupplyInvtProfile.Next <> 0;
+                        SupplyExists := SupplyInvtProfile.Next() <> 0;
                     end;
                     OnAfterPrePlanDateSupplyProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists, TempSKU, TempTrkgReservEntry, ReqLine);
 
@@ -1988,12 +1983,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
             CreateSupplyForward(
               SupplyInvtProfile, DemandInvtProfile, TempReminderInvtProfile,
               LatestBucketStartDate, LastProjectedInventory, NewSupplyHasTakenOver, SupplyInvtProfile."Due Date");
-            if NewSupplyHasTakenOver then begin
+            if NewSupplyHasTakenOver then
                 if DemandExists then
                     NextState := NextState::MatchDates
                 else
                     NextState := NextState::CloseSupply;
-            end;
         end;
 
         if not NewSupplyHasTakenOver then
@@ -2275,34 +2269,32 @@ codeunit 99000854 "Inventory Profile Offsetting"
         IsHandled: Boolean;
         Result: Boolean;
     begin
-        with InventoryProfileSupply do begin
-            if ReduceQty > "Untracked Quantity" then
-                ReduceQty := "Untracked Quantity";
-            if "Min. Quantity" > "Remaining Quantity (Base)" - ReduceQty then
-                ReduceQty := "Remaining Quantity (Base)" - "Min. Quantity";
+        if ReduceQty > InventoryProfileSupply."Untracked Quantity" then
+            ReduceQty := InventoryProfileSupply."Untracked Quantity";
+        if InventoryProfileSupply."Min. Quantity" > InventoryProfileSupply."Remaining Quantity (Base)" - ReduceQty then
+            ReduceQty := InventoryProfileSupply."Remaining Quantity (Base)" - InventoryProfileSupply."Min. Quantity";
 
-            // Ensure leaving enough untracked qty. to cover the safety stock
-            TrackedQty := "Remaining Quantity (Base)" - "Untracked Quantity";
-            if TrackedQty + "Safety Stock Quantity" > "Remaining Quantity (Base)" - ReduceQty then
-                ReduceQty := "Remaining Quantity (Base)" - (TrackedQty + "Safety Stock Quantity");
+        // Ensure leaving enough untracked qty. to cover the safety stock
+        TrackedQty := InventoryProfileSupply."Remaining Quantity (Base)" - InventoryProfileSupply."Untracked Quantity";
+        if TrackedQty + InventoryProfileSupply."Safety Stock Quantity" > InventoryProfileSupply."Remaining Quantity (Base)" - ReduceQty then
+            ReduceQty := InventoryProfileSupply."Remaining Quantity (Base)" - (TrackedQty + InventoryProfileSupply."Safety Stock Quantity");
 
-            // Planning Transparency
-            if (ReduceQty <= DampenerQty) and ("Planning Level Code" = 0) then
-                exit(false);
+        // Planning Transparency
+        if (ReduceQty <= DampenerQty) and (InventoryProfileSupply."Planning Level Code" = 0) then
+            exit(false);
 
-            if ("Planning Flexibility" = "Planning Flexibility"::None) or
-               ((ReduceQty <= DampenerQty) and
-                ("Planning Level Code" = 0))
-            then
-                exit(false);
+        if (InventoryProfileSupply."Planning Flexibility" = InventoryProfileSupply."Planning Flexibility"::None) or
+           ((ReduceQty <= DampenerQty) and
+            (InventoryProfileSupply."Planning Level Code" = 0))
+        then
+            exit(false);
 
-            IsHandled := false;
-            OnAfterCanDecreaseSupply(InventoryProfileSupply, ReduceQty, DampenerQty, Result, IsHandled);
-            if IsHandled then
-                exit(Result);
+        IsHandled := false;
+        OnAfterCanDecreaseSupply(InventoryProfileSupply, ReduceQty, DampenerQty, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
 
-            exit(true);
-        end;
+        exit(true);
     end;
 
     local procedure CreateSupply(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"; ProjectedInventory: Decimal; IsExceptionOrder: Boolean; RespectPlanningParm: Boolean)
@@ -2653,18 +2645,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TypeHelper: Codeunit "Type Helper";
         PickedQty: Decimal;
     begin
-        with TrkgReservEntry do begin
-            if not TrackingExists() then
-                exit;
+        if not TrkgReservEntry.TrackingExists() then
+            exit;
 
-            "Qty. to Handle (Base)" := "Quantity (Base)";
-            "Qty. to Invoice (Base)" := "Quantity (Base)";
+        TrkgReservEntry."Qty. to Handle (Base)" := TrkgReservEntry."Quantity (Base)";
+        TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Quantity (Base)";
 
-            PickedQty := WarehouseAvailabilityMgt.CalcQtyRegisteredPick(TrkgReservEntry);
-            if PickedQty > 0 then begin
-                "Qty. to Handle (Base)" := TypeHelper.Maximum(-PickedQty, "Quantity (Base)");
-                "Qty. to Invoice (Base)" := "Qty. to Handle (Base)";
-            end;
+        PickedQty := WarehouseAvailabilityMgt.CalcQtyRegisteredPick(TrkgReservEntry);
+        if PickedQty > 0 then begin
+            TrkgReservEntry."Qty. to Handle (Base)" := TypeHelper.Maximum(-PickedQty, TrkgReservEntry."Quantity (Base)");
+            TrkgReservEntry."Qty. to Invoice (Base)" := TrkgReservEntry."Qty. to Handle (Base)";
         end;
 
         OnAfterSetQtyToHandle(TrkgReservEntry);
@@ -2719,82 +2709,94 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if (NewPhase = NewPhase::"Line Created") or
            (SupplyInvtProfile."Planning Line Phase" < SupplyInvtProfile."Planning Line Phase"::"Line Created")
         then
-            if SupplyInvtProfile."Planning Line No." = 0 then
-                with ReqLine do begin
-                    BlockDynamicTracking(true);
-                    if FindLast() then
-                        PlanLineNo := "Line No." + 10000
-                    else
-                        PlanLineNo := 10000;
+            if SupplyInvtProfile."Planning Line No." = 0 then begin
+                ReqLine.BlockDynamicTracking(true);
+                if ReqLine.FindLast() then
+                    PlanLineNo := ReqLine."Line No." + 10000
+                else
+                    PlanLineNo := 10000;
 
-                    OnMaintainPlanningLineOnAfterCalcPlanLineNo(ReqLine, PlanLineNo);
+                OnMaintainPlanningLineOnAfterCalcPlanLineNo(ReqLine, PlanLineNo);
 
-                    Init();
-                    "Worksheet Template Name" := CurrTemplateName;
-                    "Journal Batch Name" := CurrWorksheetName;
-                    "Line No." := PlanLineNo;
-                    Type := Type::Item;
-                    "No." := SupplyInvtProfile."Item No.";
-                    "Variant Code" := SupplyInvtProfile."Variant Code";
-                    "Location Code" := SupplyInvtProfile."Location Code";
-                    "Bin Code" := SupplyInvtProfile."Bin Code";
-                    "Planning Line Origin" := "Planning Line Origin"::Planning;
-                    SetPriceCalculationMethod(ReqLine);
-                    OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU);
-                    if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then begin
-                        "Order Date" := SupplyInvtProfile."Due Date";
-                        "Planning Level" := SupplyInvtProfile."Planning Level Code";
-                        case TempSKU."Replenishment System" of
-                            TempSKU."Replenishment System"::Purchase:
-                                "Ref. Order Type" := "Ref. Order Type"::Purchase;
-                            TempSKU."Replenishment System"::"Prod. Order":
-                                begin
-                                    "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-                                    if "Planning Level" > 0 then begin
-                                        "Ref. Order Status" := SupplyInvtProfile."Primary Order Status";
-                                        "Ref. Order No." := SupplyInvtProfile."Primary Order No.";
-                                    end;
+                ReqLine.Init();
+                ReqLine."Worksheet Template Name" := CurrTemplateName;
+                ReqLine."Journal Batch Name" := CurrWorksheetName;
+                ReqLine."Line No." := PlanLineNo;
+                ReqLine.Type := ReqLine.Type::Item;
+                ReqLine."No." := SupplyInvtProfile."Item No.";
+                ReqLine."Variant Code" := SupplyInvtProfile."Variant Code";
+                ReqLine."Location Code" := SupplyInvtProfile."Location Code";
+                ReqLine."Bin Code" := SupplyInvtProfile."Bin Code";
+                ReqLine."Planning Line Origin" := ReqLine."Planning Line Origin"::Planning;
+                SetPriceCalculationMethod(ReqLine);
+                OnMaintainPlanningLineOnAfterPopulateReqLineFields(ReqLine, SupplyInvtProfile, DemandInvtProfile, NewPhase, Direction, TempSKU);
+                if SupplyInvtProfile."Action Message" = SupplyInvtProfile."Action Message"::New then begin
+                    ReqLine."Order Date" := SupplyInvtProfile."Due Date";
+                    ReqLine."Planning Level" := SupplyInvtProfile."Planning Level Code";
+                    case TempSKU."Replenishment System" of
+                        TempSKU."Replenishment System"::Purchase:
+                            ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Purchase;
+                        TempSKU."Replenishment System"::"Prod. Order":
+                            begin
+                                ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::"Prod. Order";
+                                if ReqLine."Planning Level" > 0 then begin
+                                    ReqLine."Ref. Order Status" := SupplyInvtProfile."Primary Order Status";
+                                    ReqLine."Ref. Order No." := SupplyInvtProfile."Primary Order No.";
                                 end;
-                            TempSKU."Replenishment System"::Assembly:
-                                "Ref. Order Type" := "Ref. Order Type"::Assembly;
-                            TempSKU."Replenishment System"::Transfer:
-                                "Ref. Order Type" := "Ref. Order Type"::Transfer;
-                        end;
-                        OnMaintainPlanningLineOnBeforeValidateNo(ReqLine, SupplyInvtProfile, TempSKU);
-                        Validate("No.");
-                        ValidateUOMFromInventoryProfile(ReqLine, SupplyInvtProfile);
-                        "Starting Time" := ManufacturingSetup."Normal Starting Time";
-                        "Ending Time" := ManufacturingSetup."Normal Ending Time";
-                        OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(ReqLine, SupplyInvtProfile, TempSKU);
-                    end else
-                        case SupplyInvtProfile."Source Type" of
-                            Database::"Purchase Line":
-                                SetPurchase(PurchaseLine, SupplyInvtProfile);
-                            Database::"Prod. Order Line":
-                                SetProdOrder(ProdOrderLine, SupplyInvtProfile);
-                            Database::"Assembly Header":
-                                SetAssembly(AsmHeader, SupplyInvtProfile);
-                            Database::"Transfer Line":
-                                SetTransfer(TransLine, SupplyInvtProfile);
-                        end;
+                            end;
+                        TempSKU."Replenishment System"::Assembly:
+                            ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Assembly;
+                        TempSKU."Replenishment System"::Transfer:
+                            ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Transfer;
+                    end;
+                    OnMaintainPlanningLineOnBeforeValidateNo(ReqLine, SupplyInvtProfile, TempSKU);
+                    ReqLine.Validate(ReqLine."No.");
+                    ValidateUOMFromInventoryProfile(ReqLine, SupplyInvtProfile);
+                    ReqLine."Starting Time" := ManufacturingSetup."Normal Starting Time";
+                    ReqLine."Ending Time" := ManufacturingSetup."Normal Ending Time";
+                    OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(ReqLine, SupplyInvtProfile, TempSKU);
+                end else
+                    case SupplyInvtProfile."Source Type" of
+                        Database::"Purchase Line":
+                            SetPurchase(PurchaseLine, SupplyInvtProfile);
+                        Database::"Prod. Order Line":
+                            SetProdOrder(ProdOrderLine, SupplyInvtProfile);
+                        Database::"Assembly Header":
+                            SetAssembly(AsmHeader, SupplyInvtProfile);
+                        Database::"Transfer Line":
+                            SetTransfer(TransLine, SupplyInvtProfile);
+                    end;
 
-                    if ReqLine."Ref. Order Type" <> ReqLine."Ref. Order Type"::"Prod. Order" then
-                        ReqLine."Low-Level Code" := 0;
+                if ReqLine."Ref. Order Type" <> ReqLine."Ref. Order Type"::"Prod. Order" then
+                    ReqLine."Low-Level Code" := 0;
 
-                    OnMaintainPlanningLineOnBeforeAdjustPlanLine(ReqLine, SupplyInvtProfile, TempSKU);
-                    AdjustPlanLine(SupplyInvtProfile);
-                    "Accept Action Message" := true;
-                    "Routing Reference No." := "Line No.";
-                    UpdateDatetime();
-                    "MPS Order" := SupplyInvtProfile."MPS Order";
-                    OnMaintainPlanningLineOnBeforeReqLineInsert(
-                      ReqLine, SupplyInvtProfile, PlanToDate, CurrForecast, NewPhase, Direction, DemandInvtProfile, ExcludeForecastBefore);
-                    Insert();
-                    OnMaintainPlanningLineOnAfterReqLineInsert(ReqLine);
-                    SupplyInvtProfile."Planning Line No." := "Line No.";
-                    if NewPhase = NewPhase::"Line Created" then
-                        SupplyInvtProfile."Planning Line Phase" := SupplyInvtProfile."Planning Line Phase"::"Line Created";
-                end else begin
+                OnMaintainPlanningLineOnBeforeAdjustPlanLine(ReqLine, SupplyInvtProfile, TempSKU);
+                AdjustPlanLine(SupplyInvtProfile);
+                ReqLine."Accept Action Message" := true;
+                ReqLine."Routing Reference No." := ReqLine."Line No.";
+                ReqLine.UpdateDatetime();
+                ReqLine."MPS Order" := SupplyInvtProfile."MPS Order";
+
+                if TempSKU."Plan Minimal Supply" then begin
+                    DummyInventoryProfileTrackBuffer."Warning Level" := DummyInventoryProfileTrackBuffer."Warning Level"::Attention;
+                    if TempSKU."Location Code" = '' then
+                        PlanningTransparency.LogWarning(
+                          0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                          StrSubstNo(MinimalSupplyPlannedTxt, DummyInventoryProfileTrackBuffer."Warning Level", LocationMandatoryTxt))
+                    else
+                        PlanningTransparency.LogWarning(
+                           0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                           StrSubstNo(MinimalSupplyPlannedTxt, DummyInventoryProfileTrackBuffer."Warning Level", MissingStockkeepingUnitTxt));
+                end;
+
+                OnMaintainPlanningLineOnBeforeReqLineInsert(
+                  ReqLine, SupplyInvtProfile, PlanToDate, CurrForecast, NewPhase, Direction, DemandInvtProfile, ExcludeForecastBefore);
+                ReqLine.Insert();
+                OnMaintainPlanningLineOnAfterReqLineInsert(ReqLine);
+                SupplyInvtProfile."Planning Line No." := ReqLine."Line No.";
+                if NewPhase = NewPhase::"Line Created" then
+                    SupplyInvtProfile."Planning Line Phase" := SupplyInvtProfile."Planning Line Phase"::"Line Created";
+            end else begin
                 if SupplyInvtProfile."Planning Line No." <> ReqLine."Line No." then
                     ReqLine.Get(CurrTemplateName, CurrWorksheetName, SupplyInvtProfile."Planning Line No.");
                 ReqLine.BlockDynamicTracking(true);
@@ -2970,17 +2972,15 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         RemQty := 0;
 
-        with InventoryProfile do begin
-            SetRange("Source Type", Database::"Sales Line");
-            SetRange("Source Order Status", SalesLine."Document Type"::Order);
-            SetRange("Ref. Blanket Order No.", DocumentNo);
-            if FindSet() then
-                repeat
-                    SalesLine.Get(SalesLine."Document Type"::Order, "Source ID", "Source Ref. No.");
-                    if (SalesLine."Blanket Order No." = DocumentNo) and (SalesLine."Blanket Order Line No." = LineNo) then
-                        RemQty += "Remaining Quantity (Base)";
-                until Next() = 0;
-        end;
+        InventoryProfile.SetRange("Source Type", Database::"Sales Line");
+        InventoryProfile.SetRange("Source Order Status", SalesLine."Document Type"::Order);
+        InventoryProfile.SetRange("Ref. Blanket Order No.", DocumentNo);
+        if InventoryProfile.FindSet() then
+            repeat
+                SalesLine.Get(SalesLine."Document Type"::Order, InventoryProfile."Source ID", InventoryProfile."Source Ref. No.");
+                if (SalesLine."Blanket Order No." = DocumentNo) and (SalesLine."Blanket Order Line No." = LineNo) then
+                    RemQty += InventoryProfile."Remaining Quantity (Base)";
+            until InventoryProfile.Next() = 0;
     end;
 
     procedure CalcReorderQty(NeededQty: Decimal; ProjectedInventory: Decimal; SupplyLineNo: Integer) QtyToOrder: Decimal
@@ -3103,48 +3103,46 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         OnBeforeAdjustPlanLine(ReqLine, SupplyInventoryProfile);
 
-        with SupplyInventoryProfile do begin
-            ReqLine."Action Message" := "Action Message";
-            ReqLine.BlockDynamicTracking(true);
-            if "Action Message" in
-               ["Action Message"::New,
-                "Action Message"::"Change Qty.",
-                "Action Message"::Reschedule,
-                "Action Message"::"Resched. & Chg. Qty.",
-                "Action Message"::Cancel]
-            then begin
-                if "Qty. per Unit of Measure" = 0 then
-                    "Qty. per Unit of Measure" := 1;
-                UpdateReqLineQuantity(SupplyInventoryProfile);
-                UpdateReqLineOriginalQuantity(SupplyInventoryProfile);
-                ReqLine."Net Quantity (Base)" :=
-                  (ReqLine."Remaining Quantity" - ReqLine."Original Quantity") *
-                  ReqLine."Qty. per Unit of Measure";
-                OnAdjustPlanLineAfterValidateQuantity(ReqLine, SupplyInventoryProfile);
-            end;
-            UpdateOriginalDueDate(SupplyInventoryProfile);
-            ReqLine."Due Date" := "Due Date";
-            if "Planning Level Code" = 0 then begin
-                ReqLine."Ending Date" :=
-                  LeadTimeMgt.PlannedEndingDate(
-                    "Item No.", "Location Code", "Variant Code", "Due Date", '', ReqLine."Ref. Order Type");
-                if not IsSKUSetUpForReorderPointPlanning(TempSKU) then
-                    if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                        if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
-                            ReqLine."Ending Time" := "Due Time";
-            end else begin
-                ReqLine."Ending Date" := "Due Date";
-                ReqLine."Ending Time" := "Due Time";
-            end;
-            if (ReqLine."Starting Date" = 0D) or
-               (ReqLine."Starting Date" > ReqLine."Ending Date")
-            then
-                ReqLine."Starting Date" := ReqLine."Ending Date";
-            if (ReqLine."Starting Date" = ReqLine."Ending Date") and
-               (ReqLine."Ending Time" < ReqLine."Starting Time")
-            then
-                ReqLine."Ending Time" := ReqLine."Starting Time";
+        ReqLine."Action Message" := SupplyInventoryProfile."Action Message";
+        ReqLine.BlockDynamicTracking(true);
+        if SupplyInventoryProfile."Action Message" in
+           [SupplyInventoryProfile."Action Message"::New,
+            SupplyInventoryProfile."Action Message"::"Change Qty.",
+            SupplyInventoryProfile."Action Message"::Reschedule,
+            SupplyInventoryProfile."Action Message"::"Resched. & Chg. Qty.",
+            SupplyInventoryProfile."Action Message"::Cancel]
+        then begin
+            if SupplyInventoryProfile."Qty. per Unit of Measure" = 0 then
+                SupplyInventoryProfile."Qty. per Unit of Measure" := 1;
+            UpdateReqLineQuantity(SupplyInventoryProfile);
+            UpdateReqLineOriginalQuantity(SupplyInventoryProfile);
+            ReqLine."Net Quantity (Base)" :=
+              (ReqLine."Remaining Quantity" - ReqLine."Original Quantity") *
+              ReqLine."Qty. per Unit of Measure";
+            OnAdjustPlanLineAfterValidateQuantity(ReqLine, SupplyInventoryProfile);
         end;
+        UpdateOriginalDueDate(SupplyInventoryProfile);
+        ReqLine."Due Date" := SupplyInventoryProfile."Due Date";
+        if SupplyInventoryProfile."Planning Level Code" = 0 then begin
+            ReqLine."Ending Date" :=
+              LeadTimeMgt.PlannedEndingDate(
+                SupplyInventoryProfile."Item No.", SupplyInventoryProfile."Location Code", SupplyInventoryProfile."Variant Code", SupplyInventoryProfile."Due Date", '', ReqLine."Ref. Order Type");
+            if not IsSKUSetUpForReorderPointPlanning(TempSKU) then
+                if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                    if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                        ReqLine."Ending Time" := SupplyInventoryProfile."Due Time";
+        end else begin
+            ReqLine."Ending Date" := SupplyInventoryProfile."Due Date";
+            ReqLine."Ending Time" := SupplyInventoryProfile."Due Time";
+        end;
+        if (ReqLine."Starting Date" = 0D) or
+           (ReqLine."Starting Date" > ReqLine."Ending Date")
+        then
+            ReqLine."Starting Date" := ReqLine."Ending Date";
+        if (ReqLine."Starting Date" = ReqLine."Ending Date") and
+           (ReqLine."Ending Time" < ReqLine."Starting Time")
+        then
+            ReqLine."Ending Time" := ReqLine."Starting Time";
 
         OnAfterAdjustPlanLine(ReqLine, SupplyInventoryProfile);
     end;
@@ -3207,19 +3205,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
         PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
         PlanningRtngLine.DeleteAll();
 
-        with ProdOrderCapNeed do begin
-            SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
-            SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            SetRange("Worksheet Line No.", ReqLine."Line No.");
-            DeleteAll();
-            Reset();
-            SetCurrentKey(Status, "Prod. Order No.", Active);
-            SetRange(Status, ReqLine."Ref. Order Status");
-            SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
-            SetRange(Active, true);
-            ModifyAll(Active, false);
-        end
+        ProdOrderCapNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
+        ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        ProdOrderCapNeed.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        ProdOrderCapNeed.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        ProdOrderCapNeed.DeleteAll();
+        ProdOrderCapNeed.Reset();
+        ProdOrderCapNeed.SetCurrentKey(Status, "Prod. Order No.", Active);
+        ProdOrderCapNeed.SetRange(Status, ReqLine."Ref. Order Status");
+        ProdOrderCapNeed.SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
+        ProdOrderCapNeed.SetRange(Active, true);
+        ProdOrderCapNeed.ModifyAll(Active, false);
     end;
 
     local procedure SynchronizeTransferProfiles(var InventoryProfile: Record "Inventory Profile"; var TransferReqLine: Record "Requisition Line")
@@ -3238,37 +3234,33 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     procedure TransferReqLineToInvProfiles(var InventoryProfile: Record "Inventory Profile"; var TransferReqLine: Record "Requisition Line")
     begin
-        with InventoryProfile do begin
-            TestField("Location Code", TransferReqLine."Transfer-from Code");
+        InventoryProfile.TestField("Location Code", TransferReqLine."Transfer-from Code");
 
-            "Min. Quantity" := "Remaining Quantity (Base)";
-            "Original Quantity" := TransferReqLine."Original Quantity";
-            Quantity := TransferReqLine.Quantity;
-            "Remaining Quantity" := TransferReqLine.Quantity;
-            "Quantity (Base)" := TransferReqLine."Quantity (Base)";
-            "Remaining Quantity (Base)" := TransferReqLine."Quantity (Base)";
-            "Untracked Quantity" := TransferReqLine."Quantity (Base)";
-            "Unit of Measure Code" := TransferReqLine."Unit of Measure Code";
-            "Qty. per Unit of Measure" := TransferReqLine."Qty. per Unit of Measure";
-            "Due Date" := TransferReqLine."Transfer Shipment Date";
-        end;
+        InventoryProfile."Min. Quantity" := InventoryProfile."Remaining Quantity (Base)";
+        InventoryProfile."Original Quantity" := TransferReqLine."Original Quantity";
+        InventoryProfile.Quantity := TransferReqLine.Quantity;
+        InventoryProfile."Remaining Quantity" := TransferReqLine.Quantity;
+        InventoryProfile."Quantity (Base)" := TransferReqLine."Quantity (Base)";
+        InventoryProfile."Remaining Quantity (Base)" := TransferReqLine."Quantity (Base)";
+        InventoryProfile."Untracked Quantity" := TransferReqLine."Quantity (Base)";
+        InventoryProfile."Unit of Measure Code" := TransferReqLine."Unit of Measure Code";
+        InventoryProfile."Qty. per Unit of Measure" := TransferReqLine."Qty. per Unit of Measure";
+        InventoryProfile."Due Date" := TransferReqLine."Transfer Shipment Date";
     end;
 
     local procedure SyncTransferDemandWithReqLine(var InventoryProfile: Record "Inventory Profile"; LocationCode: Code[10])
     var
         TransferReqLine: Record "Requisition Line";
     begin
-        with TransferReqLine do begin
-            SetRange("Ref. Order Type", "Ref. Order Type"::Transfer);
-            SetRange("Ref. Order No.", InventoryProfile."Source ID");
-            SetRange("Ref. Line No.", InventoryProfile."Source Ref. No.");
-            SetRange("Transfer-from Code", InventoryProfile."Location Code");
-            SetRange("Location Code", LocationCode);
-            SetFilter("Action Message", '<>%1', "Action Message"::New);
-            OnSyncTransferDemandWithReqLineOnAfterSetFilters(TransferReqLine, InventoryProfile, LocationCode, CurrTemplateName, CurrWorksheetName);
-            if FindFirst() then
-                TransferReqLineToInvProfiles(InventoryProfile, TransferReqLine);
-        end;
+        TransferReqLine.SetRange("Ref. Order Type", TransferReqLine."Ref. Order Type"::Transfer);
+        TransferReqLine.SetRange("Ref. Order No.", InventoryProfile."Source ID");
+        TransferReqLine.SetRange("Ref. Line No.", InventoryProfile."Source Ref. No.");
+        TransferReqLine.SetRange("Transfer-from Code", InventoryProfile."Location Code");
+        TransferReqLine.SetRange("Location Code", LocationCode);
+        TransferReqLine.SetFilter("Action Message", '<>%1', TransferReqLine."Action Message"::New);
+        OnSyncTransferDemandWithReqLineOnAfterSetFilters(TransferReqLine, InventoryProfile, LocationCode, CurrTemplateName, CurrWorksheetName);
+        if TransferReqLine.FindFirst() then
+            TransferReqLineToInvProfiles(InventoryProfile, TransferReqLine);
     end;
 
     local procedure GetTransferSisterProfile(CurrInvProfile: Record "Inventory Profile"; var SisterInvProfile: Record "Inventory Profile") InvtProfileFound: Boolean
@@ -3321,58 +3313,55 @@ codeunit 99000854 "Inventory Profile Offsetting"
             exit;
 
         TransferReqLine.TestField("Ref. Order Type", TransferReqLine."Ref. Order Type"::Transfer);
-        with TransferReqLine do begin
-            OK := Location.Get("Transfer-from Code");
-            if PlanningResiliency and not OK then
-                if SKU.Get("Location Code", "No.", "Variant Code") then
-                    ReqLine.SetResiliencyError(
-                      StrSubstNo(
-                        Text003, SKU.FieldCaption("Transfer-from Code"), SKU.TableCaption(),
-                        SKU."Location Code", SKU."Item No.", SKU."Variant Code"),
-                      Database::"Stockkeeping Unit", SKU.GetPosition());
-            if not OK then
-                Location.Get("Transfer-from Code");
-            OutboundWhseTime := Location."Outbound Whse. Handling Time";
-
-            Location.Get("Location Code");
-            InboundWhseTime := Location."Inbound Whse. Handling Time";
-
-            OK := TransferRoute.Get("Transfer-from Code", "Location Code");
-            if PlanningResiliency and not OK then
+        OK := Location.Get(TransferReqLine."Transfer-from Code");
+        if PlanningResiliency and not OK then
+            if SKU.Get(TransferReqLine."Location Code", TransferReqLine."No.", TransferReqLine."Variant Code") then
                 ReqLine.SetResiliencyError(
                   StrSubstNo(
-                    Text002, TransferRoute.TableCaption(),
-                    "Transfer-from Code", "Location Code"),
-                  Database::"Transfer Route", '');
-            if not OK then
-                TransferRoute.Get("Transfer-from Code", "Location Code");
+                    Text003, SKU.FieldCaption("Transfer-from Code"), SKU.TableCaption(),
+                    SKU."Location Code", SKU."Item No.", SKU."Variant Code"),
+                  Database::"Stockkeeping Unit", SKU.GetPosition());
+        if not OK then
+            Location.Get(TransferReqLine."Transfer-from Code");
+        OutboundWhseTime := Location."Outbound Whse. Handling Time";
 
-            if ShippingAgentServices.Get(TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code") then
-                ShippingTime := ShippingAgentServices."Shipping Time"
-            else
-                Evaluate(ShippingTime, '');
+        Location.Get(TransferReqLine."Location Code");
+        InboundWhseTime := Location."Inbound Whse. Handling Time";
 
-            // The calculation will run through the following steps:
-            // ShipmentDate <- PlannedShipmentDate <- PlannedReceiptDate <- ReceiptDate
+        OK := TransferRoute.Get(TransferReqLine."Transfer-from Code", TransferReqLine."Location Code");
+        if PlanningResiliency and not OK then
+            ReqLine.SetResiliencyError(
+              StrSubstNo(
+                Text002, TransferRoute.TableCaption(),
+                TransferReqLine."Transfer-from Code", TransferReqLine."Location Code"),
+              Database::"Transfer Route", '');
+        if not OK then
+            TransferRoute.Get(TransferReqLine."Transfer-from Code", TransferReqLine."Location Code");
 
-            // Calc Planned Receipt Date (Ending Date) backward from ReceiptDate
-            TransferRoute.CalcPlanReceiptDateBackward(
-              "Ending Date", "Due Date", InboundWhseTime,
-              "Location Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
+        if ShippingAgentServices.Get(TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code") then
+            ShippingTime := ShippingAgentServices."Shipping Time"
+        else
+            Evaluate(ShippingTime, '');
 
-            // Calc Planned Shipment Date (Starting Date) backward from Planned ReceiptDate (Ending Date)
-            TransferRoute.CalcPlanShipmentDateBackward(
-              "Starting Date", "Ending Date", ShippingTime,
-              "Transfer-from Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
+        // The calculation will run through the following steps:
+        // ShipmentDate <- PlannedShipmentDate <- PlannedReceiptDate <- ReceiptDate
+        // Calc Planned Receipt Date (Ending Date) backward from ReceiptDate
+        TransferRoute.CalcPlanReceiptDateBackward(
+          TransferReqLine."Ending Date", TransferReqLine."Due Date", InboundWhseTime,
+          TransferReqLine."Location Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
 
-            // Calc Shipment Date backward from Planned Shipment Date (Starting Date)
-            TransferRoute.CalcShipmentDateBackward(
-              "Transfer Shipment Date", "Starting Date", OutboundWhseTime, "Transfer-from Code");
+        // Calc Planned Shipment Date (Starting Date) backward from Planned ReceiptDate (Ending Date)
+        TransferRoute.CalcPlanShipmentDateBackward(
+          TransferReqLine."Starting Date", TransferReqLine."Ending Date", ShippingTime,
+          TransferReqLine."Transfer-from Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
 
-            UpdateDatetime();
-            OnAdjustTransferDatesOnBeforeTransferReqLineModify(TransferReqLine);
-            Modify();
-        end;
+        // Calc Shipment Date backward from Planned Shipment Date (Starting Date)
+        TransferRoute.CalcShipmentDateBackward(
+          TransferReqLine."Transfer Shipment Date", TransferReqLine."Starting Date", OutboundWhseTime, TransferReqLine."Transfer-from Code");
+
+        TransferReqLine.UpdateDatetime();
+        OnAdjustTransferDatesOnBeforeTransferReqLineModify(TransferReqLine);
+        TransferReqLine.Modify();
     end;
 
     local procedure InsertTempTransferSKU(var TransLine: Record "Transfer Line")
@@ -3400,28 +3389,26 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SKU: Record "Stockkeeping Unit";
     begin
         SKU.Copy(TempSKU);
-        with TempTransferSKU do begin
-            Reset();
-            if Find('-') then
-                repeat
-                    TempSKU.Reset();
-                    if TempSKU.Get("Location Code", "Item No.", "Variant Code") then
-                        if TempSKU."Transfer-from Code" = '' then begin
-                            TempSKU.SetRange("Location Code", "Transfer-from Code");
-                            TempSKU.SetRange("Item No.", "Item No.");
-                            TempSKU.SetRange("Variant Code", "Variant Code");
-                            if not TempSKU.Find('-') then
-                                "Transfer-Level Code" := -1
-                            else
-                                "Transfer-Level Code" := TempSKU."Transfer-Level Code" - 1;
-                            TempSKU.Get("Location Code", "Item No.", "Variant Code");
-                            TempSKU."Transfer-from Code" := "Transfer-from Code";
-                            TempSKU."Transfer-Level Code" := "Transfer-Level Code";
-                            TempSKU.Modify();
-                            TempSKU.UpdateTempSKUTransferLevels(TempSKU, TempSKU, TempSKU."Transfer-from Code");
-                        end;
-                until Next() = 0;
-        end;
+        TempTransferSKU.Reset();
+        if TempTransferSKU.Find('-') then
+            repeat
+                TempSKU.Reset();
+                if TempSKU.Get(TempTransferSKU."Location Code", TempTransferSKU."Item No.", TempTransferSKU."Variant Code") then
+                    if TempSKU."Transfer-from Code" = '' then begin
+                        TempSKU.SetRange("Location Code", TempTransferSKU."Transfer-from Code");
+                        TempSKU.SetRange("Item No.", TempTransferSKU."Item No.");
+                        TempSKU.SetRange("Variant Code", TempTransferSKU."Variant Code");
+                        if not TempSKU.Find('-') then
+                            TempTransferSKU."Transfer-Level Code" := -1
+                        else
+                            TempTransferSKU."Transfer-Level Code" := TempSKU."Transfer-Level Code" - 1;
+                        TempSKU.Get(TempTransferSKU."Location Code", TempTransferSKU."Item No.", TempTransferSKU."Variant Code");
+                        TempSKU."Transfer-from Code" := TempTransferSKU."Transfer-from Code";
+                        TempSKU."Transfer-Level Code" := TempTransferSKU."Transfer-Level Code";
+                        TempSKU.Modify();
+                        TempSKU.UpdateTempSKUTransferLevels(TempSKU, TempSKU, TempSKU."Transfer-from Code");
+                    end;
+            until TempTransferSKU.Next() = 0;
         TempSKU.Copy(SKU);
     end;
 
@@ -3586,13 +3573,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
         // Apply a minimum quantity to the existing orders to protect the
         // remaining valid surplus from being reduced in the common balancing act
 
-        with SupplyInvtProfile do begin
-            if FindSet(true) then
-                repeat
-                    "Min. Quantity" := "Remaining Quantity (Base)";
-                    Modify;
-                until Next() = 0;
-        end;
+        if SupplyInvtProfile.FindSet(true) then
+            repeat
+                SupplyInvtProfile."Min. Quantity" := SupplyInvtProfile."Remaining Quantity (Base)";
+                SupplyInvtProfile.Modify();
+            until SupplyInvtProfile.Next() = 0;
     end;
 
     local procedure ChkInitialOverflow(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"; OverflowLevel: Decimal; InventoryLevel: Decimal; FromDate: Date; ToDate: Date)
@@ -3824,13 +3809,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         xInventoryProfile.Copy(InventoryProfile);
 
-        with InventoryProfile do begin
-            if SKU."Maximum Order Quantity" > 0 then
-                if Find('-') then
-                    repeat
-                        CheckUpdateInventoryProfileMaxQuantity(InventoryProfile, SKU);
-                    until Next() = 0;
-        end;
+        if SKU."Maximum Order Quantity" > 0 then
+            if InventoryProfile.Find('-') then
+                repeat
+                    CheckUpdateInventoryProfileMaxQuantity(InventoryProfile, SKU);
+                until InventoryProfile.Next() = 0;
         InventoryProfile.Copy(xInventoryProfile);
         if InventoryProfile.Get(InventoryProfile."Line No.") then;
     end;
@@ -3839,14 +3822,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         OnBeforeCheckUpdateInventoryProfileMaxQuantity(InventoryProfile, SKU);
 
-        with InventoryProfile do
-            if (SKU."Maximum Order Quantity" > "Max. Quantity") and
-               ("Quantity (Base)" > 0) and
-               ("Max. Quantity" = 0)
+        if (SKU."Maximum Order Quantity" > InventoryProfile."Max. Quantity") and
+               (InventoryProfile."Quantity (Base)" > 0) and
+               (InventoryProfile."Max. Quantity" = 0)
             then begin
-                "Max. Quantity" := SKU."Maximum Order Quantity";
-                Modify();
-            end;
+            InventoryProfile."Max. Quantity" := SKU."Maximum Order Quantity";
+            InventoryProfile.Modify();
+        end;
     end;
 
     procedure CreateSupplyForward(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; var TempReminderInvtProfile: Record "Inventory Profile" temporary; AtDate: Date; ProjectedInventory: Decimal; var NewSupplyHasTakenOver: Boolean; CurrDueDate: Date)
@@ -4104,11 +4086,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure UpdateQty(var InvProfile: Record "Inventory Profile"; Qty: Decimal)
     begin
-        with InvProfile do begin
-            "Untracked Quantity" := Qty;
-            "Quantity (Base)" := "Untracked Quantity";
-            "Remaining Quantity (Base)" := "Quantity (Base)";
-        end;
+        InvProfile."Untracked Quantity" := Qty;
+        InvProfile."Quantity (Base)" := InvProfile."Untracked Quantity";
+        InvProfile."Remaining Quantity (Base)" := InvProfile."Quantity (Base)";
     end;
 
     local procedure TransferAttributes(var ToInvProfile: Record "Inventory Profile"; var FromInvProfile: Record "Inventory Profile")
@@ -4199,111 +4179,128 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure SetPriority(var InvProfile: Record "Inventory Profile"; IsReorderPointPlanning: Boolean; ToDate: Date)
     begin
-        with InvProfile do begin
-            if IsSupply then begin
-                if "Due Date" > ToDate then
-                    "Planning Flexibility" := "Planning Flexibility"::None;
+        if InvProfile.IsSupply then begin
+            if InvProfile."Due Date" > ToDate then
+                InvProfile."Planning Flexibility" := InvProfile."Planning Flexibility"::None;
 
-                if IsReorderPointPlanning and (Binding <> Binding::"Order-to-Order") and
-                   ("Planning Flexibility" <> "Planning Flexibility"::None)
-                then
-                    "Planning Flexibility" := "Planning Flexibility"::"Reduce Only";
+            if IsReorderPointPlanning and (InvProfile.Binding <> InvProfile.Binding::"Order-to-Order") and
+               (InvProfile."Planning Flexibility" <> InvProfile."Planning Flexibility"::None)
+            then
+                InvProfile."Planning Flexibility" := InvProfile."Planning Flexibility"::"Reduce Only";
 
-                case "Source Type" of
-                    Database::"Item Ledger Entry":
-                        "Order Priority" := 100;
-                    Database::"Sales Line":
-                        case "Source Order Status" of // Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order
-                            5:
-                                "Order Priority" := 200; // Return Order
-                            1:
-                                "Order Priority" := 200; // Negative Sales Order
-                        end;
-                    Database::"Job Planning Line":
-                        "Order Priority" := 230;
-                    Database::"Transfer Line",
-                    Database::"Requisition Line",
-                    Database::"Planning Component":
-                        "Order Priority" := 300;
-                    Database::"Assembly Header":
-                        "Order Priority" := 320;
-                    Database::"Prod. Order Line":
-                        case "Source Order Status" of // Simulated,Planned,Firm Planned,Released,Finished
-                            3:
-                                "Order Priority" := 400; // Released
-                            2:
-                                "Order Priority" := 410; // Firm Planned
-                            1:
-                                "Order Priority" := 420; // Planned
-                        end;
-                    Database::"Purchase Line":
-                        "Order Priority" := 500;
-                    Database::"Prod. Order Component":
-                        case "Source Order Status" of // Simulated,Planned,Firm Planned,Released,Finished
-                            3:
-                                "Order Priority" := 600; // Released
-                            2:
-                                "Order Priority" := 610; // Firm Planned
-                            1:
-                                "Order Priority" := 620; // Planned
-                        end;
-                end;
-            end else  // Demand
-                case "Source Type" of
-                    Database::"Item Ledger Entry":
-                        "Order Priority" := 100;
-                    Database::"Purchase Line":
-                        "Order Priority" := 200;
-                    Database::"Sales Line":
-                        case "Source Order Status" of // Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order
-                            1:
-                                "Order Priority" := 300; // Order
-                            4:
-                                "Order Priority" := 700; // Blanket Order
-                            5:
-                                "Order Priority" := 300; // Negative Return Order
-                        end;
-                    Database::"Service Line":
-                        "Order Priority" := 400;
-                    Database::"Job Planning Line":
-                        "Order Priority" := 450;
-                    Database::"Assembly Line":
-                        "Order Priority" := 470;
-                    Database::"Prod. Order Component":
-                        case "Source Order Status" of // Simulated,Planned,Firm Planned,Released,Finished
-                            3:
-                                "Order Priority" := 500; // Released
-                            2:
-                                "Order Priority" := 510; // Firm Planned
-                            1:
-                                "Order Priority" := 520; // Planned
-                        end;
-                    Database::"Transfer Line",
-                    Database::"Requisition Line",
-                    Database::"Planning Component":
-                        "Order Priority" := 600;
-                    Database::"Production Forecast Entry":
-                        "Order Priority" := 800;
-                end;
+            case InvProfile."Source Type" of
+                Database::"Item Ledger Entry":
+                    InvProfile."Order Priority" := 100;
+                Database::"Sales Line":
+                    case InvProfile."Source Order Status" of
+                        // Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order
+                        5:
+                            InvProfile."Order Priority" := 200;
+                        // Return Order
+                        1:
+                            InvProfile."Order Priority" := 200;
+                    // Negative Sales Order
+                    end;
+                Database::"Job Planning Line":
+                    InvProfile."Order Priority" := 230;
+                Database::"Transfer Line",
+                Database::"Requisition Line",
+                Database::"Planning Component":
+                    InvProfile."Order Priority" := 300;
+                Database::"Assembly Header":
+                    InvProfile."Order Priority" := 320;
+                Database::"Prod. Order Line":
+                    case InvProfile."Source Order Status" of
+                        // Simulated,Planned,Firm Planned,Released,Finished
+                        3:
+                            InvProfile."Order Priority" := 400;
+                        // Released
+                        2:
+                            InvProfile."Order Priority" := 410;
+                        // Firm Planned
+                        1:
+                            InvProfile."Order Priority" := 420;
+                    // Planned
+                    end;
+                Database::"Purchase Line":
+                    InvProfile."Order Priority" := 500;
+                Database::"Prod. Order Component":
+                    case InvProfile."Source Order Status" of
+                        // Simulated,Planned,Firm Planned,Released,Finished
+                        3:
+                            InvProfile."Order Priority" := 600;
+                        // Released
+                        2:
+                            InvProfile."Order Priority" := 610;
+                        // Firm Planned
+                        1:
+                            InvProfile."Order Priority" := 620;
+                    // Planned
+                    end;
+            end;
+        end else
+            // Demand
+            case InvProfile."Source Type" of
+                Database::"Item Ledger Entry":
+                    InvProfile."Order Priority" := 100;
+                Database::"Purchase Line":
+                    InvProfile."Order Priority" := 200;
+                Database::"Sales Line":
+                    case InvProfile."Source Order Status" of
+                        // Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order
+                        1:
+                            InvProfile."Order Priority" := 300;
+                        // Order
+                        4:
+                            InvProfile."Order Priority" := 700;
+                        // Blanket Order
+                        5:
+                            InvProfile."Order Priority" := 300;
+                    // Negative Return Order
+                    end;
+                Database::"Service Line":
+                    InvProfile."Order Priority" := 400;
+                Database::"Job Planning Line":
+                    InvProfile."Order Priority" := 450;
+                Database::"Assembly Line":
+                    InvProfile."Order Priority" := 470;
+                Database::"Prod. Order Component":
+                    case InvProfile."Source Order Status" of
+                        // Simulated,Planned,Firm Planned,Released,Finished
+                        3:
+                            InvProfile."Order Priority" := 500;
+                        // Released
+                        2:
+                            InvProfile."Order Priority" := 510;
+                        // Firm Planned
+                        1:
+                            InvProfile."Order Priority" := 520;
+                    // Planned
+                    end;
+                Database::"Transfer Line",
+                Database::"Requisition Line",
+                Database::"Planning Component":
+                    InvProfile."Order Priority" := 600;
+                Database::"Production Forecast Entry":
+                    InvProfile."Order Priority" := 800;
+            end;
 
-            OnAfterSetOrderPriority(InvProfile);
+        OnAfterSetOrderPriority(InvProfile);
 
-            TestField("Order Priority");
+        InvProfile.TestField(InvProfile."Order Priority");
+        // Inflexible supply must be handled before all other supply and is therefore grouped
+        // together with inventory in group 100:
+        if InvProfile.IsSupply and (InvProfile."Source Type" <> Database::"Item Ledger Entry") then
+            if InvProfile."Planning Flexibility" <> InvProfile."Planning Flexibility"::Unlimited then
+                InvProfile."Order Priority" := 100 + (InvProfile."Order Priority" / 10);
 
-            // Inflexible supply must be handled before all other supply and is therefore grouped
-            // together with inventory in group 100:
-            if IsSupply and ("Source Type" <> Database::"Item Ledger Entry") then
-                if "Planning Flexibility" <> "Planning Flexibility"::Unlimited then
-                    "Order Priority" := 100 + ("Order Priority" / 10);
+        if InvProfile."Planning Flexibility" = InvProfile."Planning Flexibility"::Unlimited then
+            if InvProfile.ActiveInWarehouse() then
+                InvProfile."Order Priority" -= 1;
 
-            if "Planning Flexibility" = "Planning Flexibility"::Unlimited then
-                if ActiveInWarehouse() then
-                    "Order Priority" -= 1;
+        SetAttributePriority(InvProfile);
 
-            SetAttributePriority(InvProfile);
-
-            Modify();
-        end;
+        InvProfile.Modify();
     end;
 
     local procedure SetAttributePriority(var InvProfile: Record "Inventory Profile")
@@ -4311,34 +4308,31 @@ codeunit 99000854 "Inventory Profile Offsetting"
         HandleLot: Boolean;
         HandleSN: Boolean;
     begin
-        with InvProfile do begin
-            HandleSN := ("Serial No." <> '') and SpecificSNTracking;
-            HandleLot := ("Lot No." <> '') and SpecificLotTracking;
+        HandleSN := (InvProfile."Serial No." <> '') and SpecificSNTracking;
+        HandleLot := (InvProfile."Lot No." <> '') and SpecificLotTracking;
 
-            if HandleSN then begin
-                if HandleLot then
-                    if Binding = Binding::"Order-to-Order" then
-                        "Attribute Priority" := 1
-                    else
-                        "Attribute Priority" := 4
+        if HandleSN then begin
+            if HandleLot then
+                if InvProfile.Binding = InvProfile.Binding::"Order-to-Order" then
+                    InvProfile."Attribute Priority" := 1
                 else
-                    if Binding = Binding::"Order-to-Order" then
-                        "Attribute Priority" := 2
-                    else
-                        "Attribute Priority" := 5;
-            end else begin
-                if HandleLot then
-                    if Binding = Binding::"Order-to-Order" then
-                        "Attribute Priority" := 3
-                    else
-                        "Attribute Priority" := 6
+                    InvProfile."Attribute Priority" := 4
+            else
+                if InvProfile.Binding = InvProfile.Binding::"Order-to-Order" then
+                    InvProfile."Attribute Priority" := 2
                 else
-                    if Binding = Binding::"Order-to-Order" then
-                        "Attribute Priority" := 7
-                    else
-                        "Attribute Priority" := 8;
-            end;
-        end;
+                    InvProfile."Attribute Priority" := 5;
+        end else
+            if HandleLot then
+                if InvProfile.Binding = InvProfile.Binding::"Order-to-Order" then
+                    InvProfile."Attribute Priority" := 3
+                else
+                    InvProfile."Attribute Priority" := 6
+            else
+                if InvProfile.Binding = InvProfile.Binding::"Order-to-Order" then
+                    InvProfile."Attribute Priority" := 7
+                else
+                    InvProfile."Attribute Priority" := 8;
     end;
 
     local procedure UpdatePriorities(var InvProfile: Record "Inventory Profile"; IsReorderPointPlanning: Boolean; ToDate: Date)
@@ -4507,85 +4501,83 @@ codeunit 99000854 "Inventory Profile Offsetting"
         AcceptActionMsg: Boolean;
         IsHandled: Boolean;
     begin
-        with ReqLine do begin
-            ReqWkshTempl.Get(CurrTemplateName);
-            if ReqWkshTempl.Type <> ReqWkshTempl.Type::Planning then
-                exit;
-            SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.");
-            SetRange("Worksheet Template Name", CurrTemplateName);
-            SetRange("Journal Batch Name", CurrWorksheetName);
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            DummyInventoryProfileTrackBuffer."Warning Level" := DummyInventoryProfileTrackBuffer."Warning Level"::Attention;
+        ReqWkshTempl.Get(CurrTemplateName);
+        if ReqWkshTempl.Type <> ReqWkshTempl.Type::Planning then
+            exit;
+        ReqLine.SetCurrentKey("Worksheet Template Name", "Journal Batch Name", Type, "No.");
+        ReqLine.SetRange("Worksheet Template Name", CurrTemplateName);
+        ReqLine.SetRange("Journal Batch Name", CurrWorksheetName);
+        ReqLine.SetRange(Type, ReqLine.Type::Item);
+        ReqLine.SetRange("No.", ItemNo);
+        DummyInventoryProfileTrackBuffer."Warning Level" := DummyInventoryProfileTrackBuffer."Warning Level"::Attention;
 
-            if FindSet(true) then
-                repeat
-                    AcceptActionMsg := "Starting Date" >= WorkDate();
-                    if not AcceptActionMsg then
-                        PlanningTransparency.LogWarning(0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                          StrSubstNo(Text008, DummyInventoryProfileTrackBuffer."Warning Level", FieldCaption("Starting Date"),
-                            "Starting Date", WorkDate()));
+        if ReqLine.FindSet(true) then
+            repeat
+                AcceptActionMsg := ReqLine."Starting Date" >= WorkDate();
+                if not AcceptActionMsg then
+                    PlanningTransparency.LogWarning(0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                      StrSubstNo(Text008, DummyInventoryProfileTrackBuffer."Warning Level", ReqLine.FieldCaption(ReqLine."Starting Date"),
+                        ReqLine."Starting Date", WorkDate()));
 
-                    if "Action Message" <> "Action Message"::New then
-                        case "Ref. Order Type" of
-                            "Ref. Order Type"::Purchase:
-                                if (PurchHeader.Get(PurchHeader."Document Type"::Order, "Ref. Order No.") and
-                                    (PurchHeader.Status = PurchHeader.Status::Released))
-                                then begin
-                                    AcceptActionMsg := false;
-                                    PlanningTransparency.LogWarning(
-                                      0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                      StrSubstNo(Text009,
-                                        DummyInventoryProfileTrackBuffer."Warning Level", PurchHeader.FieldCaption(Status), "Ref. Order Type",
-                                        "Ref. Order No.", PurchHeader.Status));
-                                end;
-                            "Ref. Order Type"::"Prod. Order":
-                                if "Ref. Order Status" = ProdOrder.Status::Released.AsInteger() then begin
-                                    AcceptActionMsg := false;
-                                    PlanningTransparency.LogWarning(
-                                      0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                      StrSubstNo(Text009,
-                                        DummyInventoryProfileTrackBuffer."Warning Level", ProdOrder.FieldCaption(Status), "Ref. Order Type",
-                                        "Ref. Order No.", "Ref. Order Status"));
-                                end;
-                            "Ref. Order Type"::Assembly:
-                                if AsmHeader.Get("Ref. Order Status", "Ref. Order No.") and
-                                   (AsmHeader.Status = AsmHeader.Status::Released)
-                                then begin
-                                    AcceptActionMsg := false;
-                                    PlanningTransparency.LogWarning(
-                                      0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                      StrSubstNo(Text009,
-                                        DummyInventoryProfileTrackBuffer."Warning Level", AsmHeader.FieldCaption(Status), "Ref. Order Type",
-                                        "Ref. Order No.", AsmHeader.Status));
-                                end;
-                            "Ref. Order Type"::Transfer:
-                                begin
-                                    IsHandled := false;
-                                    OnSetAcceptActionOnCaseRefOrderTypeTransfer(ReqLine, AcceptActionMsg, IsHandled);
-                                    if not IsHandled then
-                                        if (TransHeader.Get("Ref. Order No.") and (TransHeader.Status = TransHeader.Status::Released)) then begin
-                                            AcceptActionMsg := false;
-                                            PlanningTransparency.LogWarning(
-                                                0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                                StrSubstNo(Text009,
-                                                DummyInventoryProfileTrackBuffer."Warning Level", TransHeader.FieldCaption(Status), "Ref. Order Type",
-                                                "Ref. Order No.", TransHeader.Status));
-                                        end;
-                                end;
-                        end;
-
-                    OnSetAcceptActionOnBeforeAcceptActionMsg(ReqLine, AcceptActionMsg);
-
-                    if AcceptActionMsg then
-                        AcceptActionMsg := PlanningTransparency.ReqLineWarningLevel(ReqLine) = 0;
-
-                    if not AcceptActionMsg then begin
-                        "Accept Action Message" := false;
-                        Modify;
+                if ReqLine."Action Message" <> ReqLine."Action Message"::New then
+                    case ReqLine."Ref. Order Type" of
+                        ReqLine."Ref. Order Type"::Purchase:
+                            if (PurchHeader.Get(PurchHeader."Document Type"::Order, ReqLine."Ref. Order No.") and
+                                (PurchHeader.Status = PurchHeader.Status::Released))
+                            then begin
+                                AcceptActionMsg := false;
+                                PlanningTransparency.LogWarning(
+                                  0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                                  StrSubstNo(Text009,
+                                    DummyInventoryProfileTrackBuffer."Warning Level", PurchHeader.FieldCaption(Status), ReqLine."Ref. Order Type",
+                                    ReqLine."Ref. Order No.", PurchHeader.Status));
+                            end;
+                        ReqLine."Ref. Order Type"::"Prod. Order":
+                            if ReqLine."Ref. Order Status" = ProdOrder.Status::Released.AsInteger() then begin
+                                AcceptActionMsg := false;
+                                PlanningTransparency.LogWarning(
+                                  0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                                  StrSubstNo(Text009,
+                                    DummyInventoryProfileTrackBuffer."Warning Level", ProdOrder.FieldCaption(Status), ReqLine."Ref. Order Type",
+                                    ReqLine."Ref. Order No.", ReqLine."Ref. Order Status"));
+                            end;
+                        ReqLine."Ref. Order Type"::Assembly:
+                            if AsmHeader.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.") and
+                               (AsmHeader.Status = AsmHeader.Status::Released)
+                            then begin
+                                AcceptActionMsg := false;
+                                PlanningTransparency.LogWarning(
+                                  0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                                  StrSubstNo(Text009,
+                                    DummyInventoryProfileTrackBuffer."Warning Level", AsmHeader.FieldCaption(Status), ReqLine."Ref. Order Type",
+                                    ReqLine."Ref. Order No.", AsmHeader.Status));
+                            end;
+                        ReqLine."Ref. Order Type"::Transfer:
+                            begin
+                                IsHandled := false;
+                                OnSetAcceptActionOnCaseRefOrderTypeTransfer(ReqLine, AcceptActionMsg, IsHandled);
+                                if not IsHandled then
+                                    if (TransHeader.Get(ReqLine."Ref. Order No.") and (TransHeader.Status = TransHeader.Status::Released)) then begin
+                                        AcceptActionMsg := false;
+                                        PlanningTransparency.LogWarning(
+                                            0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                                            StrSubstNo(Text009,
+                                            DummyInventoryProfileTrackBuffer."Warning Level", TransHeader.FieldCaption(Status), ReqLine."Ref. Order Type",
+                                            ReqLine."Ref. Order No.", TransHeader.Status));
+                                    end;
+                            end;
                     end;
-                until Next() = 0;
-        end;
+
+                OnSetAcceptActionOnBeforeAcceptActionMsg(ReqLine, AcceptActionMsg);
+
+                if AcceptActionMsg then
+                    AcceptActionMsg := PlanningTransparency.ReqLineWarningLevel(ReqLine) = 0;
+
+                if not AcceptActionMsg then begin
+                    ReqLine."Accept Action Message" := false;
+                    ReqLine.Modify();
+                end;
+            until ReqLine.Next() = 0;
     end;
 
     procedure GetRouting(var ReqLine: Record "Requisition Line")
@@ -4595,40 +4587,38 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ProdOrderLine: Record "Prod. Order Line";
         VersionMgt: Codeunit VersionManagement;
     begin
-        with ReqLine do begin
-            if Quantity <= 0 then
-                exit;
+        if ReqLine.Quantity <= 0 then
+            exit;
 
-            if ("Action Message" = "Action Message"::New) or
-               ("Ref. Order Type" = "Ref. Order Type"::Purchase)
-            then begin
-                if "Routing No." <> '' then
-                    Validate("Routing Version Code",
-                      VersionMgt.GetRtngVersion("Routing No.", "Due Date", true));
-                Clear(PlngLnMgt);
-                if PlanningResiliency then
-                    PlngLnMgt.SetResiliencyOn("Worksheet Template Name", "Journal Batch Name", "No.");
-                OnGetRoutingOnAfterSetResiliencyOn(ReqLine);
-            end else
-                if "Ref. Order Type" = "Ref. Order Type"::"Prod. Order" then begin
-                    ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-                    ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
-                    ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-                    ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
-                    ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-                    DisableRelations();
-                    if ProdOrderRoutingLine.Find('-') then
-                        repeat
-                            PlanRoutingLine.Init();
-                            PlanRoutingLine."Worksheet Template Name" := "Worksheet Template Name";
-                            PlanRoutingLine."Worksheet Batch Name" := "Journal Batch Name";
-                            PlanRoutingLine."Worksheet Line No." := "Line No.";
-                            PlanRoutingLine.TransferFromProdOrderRouting(ProdOrderRoutingLine);
-                            PlanRoutingLine.Insert();
-                        until ProdOrderRoutingLine.Next() = 0;
-                    OnAfterGetRoutingFromProdOrder(ReqLine);
-                end;
-        end;
+        if (ReqLine."Action Message" = ReqLine."Action Message"::New) or
+           (ReqLine."Ref. Order Type" = ReqLine."Ref. Order Type"::Purchase)
+        then begin
+            if ReqLine."Routing No." <> '' then
+                ReqLine.Validate(ReqLine."Routing Version Code",
+                  VersionMgt.GetRtngVersion(ReqLine."Routing No.", ReqLine."Due Date", true));
+            Clear(PlngLnMgt);
+            if PlanningResiliency then
+                PlngLnMgt.SetResiliencyOn(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", ReqLine."No.");
+            OnGetRoutingOnAfterSetResiliencyOn(ReqLine);
+        end else
+            if ReqLine."Ref. Order Type" = ReqLine."Ref. Order Type"::"Prod. Order" then begin
+                ProdOrderLine.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+                ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
+                ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+                ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
+                ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
+                DisableRelations();
+                if ProdOrderRoutingLine.Find('-') then
+                    repeat
+                        PlanRoutingLine.Init();
+                        PlanRoutingLine."Worksheet Template Name" := ReqLine."Worksheet Template Name";
+                        PlanRoutingLine."Worksheet Batch Name" := ReqLine."Journal Batch Name";
+                        PlanRoutingLine."Worksheet Line No." := ReqLine."Line No.";
+                        PlanRoutingLine.TransferFromProdOrderRouting(ProdOrderRoutingLine);
+                        PlanRoutingLine.Insert();
+                    until ProdOrderRoutingLine.Next() = 0;
+                OnAfterGetRoutingFromProdOrder(ReqLine);
+            end;
     end;
 
     procedure GetComponents(var ReqLine: Record "Requisition Line")
@@ -4638,58 +4628,54 @@ codeunit 99000854 "Inventory Profile Offsetting"
         AsmLine: Record "Assembly Line";
         VersionMgt: Codeunit VersionManagement;
     begin
-        with ReqLine do begin
-            BlockDynamicTracking(true);
-            Clear(PlngLnMgt);
-            if PlanningResiliency then
-                PlngLnMgt.SetResiliencyOn("Worksheet Template Name", "Journal Batch Name", "No.");
-            PlngLnMgt.BlockDynamicTracking(true);
-            if "Action Message" = "Action Message"::New then begin
-                if "Production BOM No." <> '' then
-                    Validate("Production BOM Version Code",
-                      VersionMgt.GetBOMVersion("Production BOM No.", "Due Date", true));
-            end else
-                case "Ref. Order Type" of
-                    "Ref. Order Type"::"Prod. Order":
-                        begin
-                            ProdOrderComp.SetRange(Status, "Ref. Order Status");
-                            ProdOrderComp.SetRange("Prod. Order No.", "Ref. Order No.");
-                            ProdOrderComp.SetRange("Prod. Order Line No.", "Ref. Line No.");
-                            if ProdOrderComp.Find('-') then
-                                repeat
-                                    PlanComponent.InitFromRequisitionLine(ReqLine);
-                                    PlanComponent.TransferFromComponent(ProdOrderComp);
-                                    InsertPlanningComponent(PlanComponent);
-                                until ProdOrderComp.Next() = 0;
-                        end;
-                    "Ref. Order Type"::Assembly:
-                        begin
-                            AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
-                            AsmLine.SetRange("Document No.", "Ref. Order No.");
-                            AsmLine.SetRange(Type, AsmLine.Type::Item);
-                            if AsmLine.Find('-') then
-                                repeat
-                                    PlanComponent.InitFromRequisitionLine(ReqLine);
-                                    PlanComponent.TransferFromAsmLine(AsmLine);
-                                    InsertPlanningComponent(PlanComponent);
-                                until AsmLine.Next() = 0;
-                        end;
-                end;
-        end;
+        ReqLine.BlockDynamicTracking(true);
+        Clear(PlngLnMgt);
+        if PlanningResiliency then
+            PlngLnMgt.SetResiliencyOn(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", ReqLine."No.");
+        PlngLnMgt.BlockDynamicTracking(true);
+        if ReqLine."Action Message" = ReqLine."Action Message"::New then begin
+            if ReqLine."Production BOM No." <> '' then
+                ReqLine.Validate("Production BOM Version Code",
+                  VersionMgt.GetBOMVersion(ReqLine."Production BOM No.", ReqLine."Due Date", true));
+        end else
+            case ReqLine."Ref. Order Type" of
+                ReqLine."Ref. Order Type"::"Prod. Order":
+                    begin
+                        ProdOrderComp.SetRange(Status, ReqLine."Ref. Order Status");
+                        ProdOrderComp.SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
+                        ProdOrderComp.SetRange("Prod. Order Line No.", ReqLine."Ref. Line No.");
+                        if ProdOrderComp.Find('-') then
+                            repeat
+                                PlanComponent.InitFromRequisitionLine(ReqLine);
+                                PlanComponent.TransferFromComponent(ProdOrderComp);
+                                InsertPlanningComponent(PlanComponent);
+                            until ProdOrderComp.Next() = 0;
+                    end;
+                ReqLine."Ref. Order Type"::Assembly:
+                    begin
+                        AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
+                        AsmLine.SetRange("Document No.", ReqLine."Ref. Order No.");
+                        AsmLine.SetRange(Type, AsmLine.Type::Item);
+                        if AsmLine.Find('-') then
+                            repeat
+                                PlanComponent.InitFromRequisitionLine(ReqLine);
+                                PlanComponent.TransferFromAsmLine(AsmLine);
+                                InsertPlanningComponent(PlanComponent);
+                            until AsmLine.Next() = 0;
+                    end;
+            end;
         OnAfterGetComponents(ReqLine);
     end;
 
     procedure Recalculate(var ReqLine: Record "Requisition Line"; Direction: Option Forward,Backward; RefreshRouting: Boolean)
     begin
-        with ReqLine do begin
-            PlngLnMgt.Calculate(
-              ReqLine, Direction, RefreshRouting,
-              ("Action Message" = "Action Message"::New) and
-              ("Ref. Order Type" in ["Ref. Order Type"::"Prod. Order", "Ref. Order Type"::Assembly]), -1);
-            OnAfterRecalculateReqLine(ReqLine);
-            if "Action Message" = "Action Message"::New then
-                PlngLnMgt.GetPlanningCompList(TempPlanningCompList);
-        end;
+        PlngLnMgt.Calculate(
+            ReqLine, Direction, RefreshRouting,
+            (ReqLine."Action Message" = ReqLine."Action Message"::New) and
+            (ReqLine."Ref. Order Type" in [ReqLine."Ref. Order Type"::"Prod. Order", ReqLine."Ref. Order Type"::Assembly]), -1);
+        OnAfterRecalculateReqLine(ReqLine);
+        if ReqLine."Action Message" = ReqLine."Action Message"::New then
+            PlngLnMgt.GetPlanningCompList(TempPlanningCompList);
     end;
 
     procedure GetPlanningCompList(var PlanningCompList: Record "Planning Component" temporary)
@@ -4744,33 +4730,31 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
         Closed: Boolean;
     begin
-        with ReservEntry do begin
-            if "Reservation Status" <> "Reservation Status"::Tracking then
-                exit(false);
+        if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Tracking then
+            exit(false);
 
-            xSupplyInventoryProfile.Copy(SupplyInventoryProfile);
-            Closed := false;
+        xSupplyInventoryProfile.Copy(SupplyInventoryProfile);
+        Closed := false;
 
-            if ("Expected Receipt Date" <= ToDate) and
-               ("Shipment Date" > ToDate)
-            then begin
-                // tracking exists with demand in future
-                SupplyInventoryProfile.SetCurrentKey(
-                  "Source Type", "Source Order Status", "Source ID", "Source Batch Name", "Source Ref. No.", "Source Prod. Order Line", IsSupply,
-                  "Due Date");
-                SupplyInventoryProfile.SetRange("Source Type", "Source Type");
-                SupplyInventoryProfile.SetRange("Source Order Status", "Source Subtype");
-                SupplyInventoryProfile.SetRange("Source ID", "Source ID");
-                SupplyInventoryProfile.SetRange("Source Batch Name", "Source Batch Name");
-                SupplyInventoryProfile.SetRange("Source Ref. No.", "Source Ref. No.");
-                SupplyInventoryProfile.SetRange("Source Prod. Order Line", "Source Prod. Order Line");
-                SupplyInventoryProfile.SetRange("Due Date", 0D, ToDate);
+        if (ReservEntry."Expected Receipt Date" <= ToDate) and
+           (ReservEntry."Shipment Date" > ToDate)
+        then begin
+            // tracking exists with demand in future
+            SupplyInventoryProfile.SetCurrentKey(
+              "Source Type", "Source Order Status", "Source ID", "Source Batch Name", "Source Ref. No.", "Source Prod. Order Line", IsSupply,
+              "Due Date");
+            SupplyInventoryProfile.SetRange("Source Type", ReservEntry."Source Type");
+            SupplyInventoryProfile.SetRange("Source Order Status", ReservEntry."Source Subtype");
+            SupplyInventoryProfile.SetRange("Source ID", ReservEntry."Source ID");
+            SupplyInventoryProfile.SetRange("Source Batch Name", ReservEntry."Source Batch Name");
+            SupplyInventoryProfile.SetRange("Source Ref. No.", ReservEntry."Source Ref. No.");
+            SupplyInventoryProfile.SetRange("Source Prod. Order Line", ReservEntry."Source Prod. Order Line");
+            SupplyInventoryProfile.SetRange("Due Date", 0D, ToDate);
 
-                if not SupplyInventoryProfile.IsEmpty() then begin
-                    // demand is either deleted as well or will get Surplus status
-                    ReservationEngineMgt.CloseReservEntry(ReservEntry, false, false);
-                    Closed := true;
-                end;
+            if not SupplyInventoryProfile.IsEmpty() then begin
+                // demand is either deleted as well or will get Surplus status
+                ReservationEngineMgt.CloseReservEntry(ReservEntry, false, false);
+                Closed := true;
             end;
         end;
 
@@ -4871,30 +4855,26 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         RemQty: Decimal;
     begin
-        with InventoryProfile do begin
-            if "Source Type" = Database::"Item Ledger Entry" then
-                exit;
+        if InventoryProfile."Source Type" = Database::"Item Ledger Entry" then
+            exit;
 
-            if "Remaining Quantity (Base)" >= TempSKU."Maximum Order Quantity" then begin
-                RemQty := "Remaining Quantity (Base)";
-                "Remaining Quantity (Base)" := TempSKU."Maximum Order Quantity";
-                if not ("Action Message" in ["Action Message"::New, "Action Message"::Reschedule]) then
-                    "Original Quantity" := "Quantity (Base)";
-            end;
-            if "Untracked Quantity" >= TempSKU."Maximum Order Quantity" then
-                "Untracked Quantity" := "Untracked Quantity" - RemQty + "Remaining Quantity (Base)";
+        if InventoryProfile."Remaining Quantity (Base)" >= TempSKU."Maximum Order Quantity" then begin
+            RemQty := InventoryProfile."Remaining Quantity (Base)";
+            InventoryProfile."Remaining Quantity (Base)" := TempSKU."Maximum Order Quantity";
+            if not (InventoryProfile."Action Message" in [InventoryProfile."Action Message"::New, InventoryProfile."Action Message"::Reschedule]) then
+                InventoryProfile."Original Quantity" := InventoryProfile."Quantity (Base)";
         end;
+        if InventoryProfile."Untracked Quantity" >= TempSKU."Maximum Order Quantity" then
+            InventoryProfile."Untracked Quantity" := InventoryProfile."Untracked Quantity" - RemQty + InventoryProfile."Remaining Quantity (Base)";
     end;
 
     local procedure CheckItemInventoryExists(var InventoryProfile: Record "Inventory Profile") ItemInventoryExists: Boolean
     begin
-        with InventoryProfile do begin
-            SetRange("Source Type", Database::"Item Ledger Entry");
-            SetFilter(Binding, '<>%1', Binding::"Order-to-Order");
-            ItemInventoryExists := not IsEmpty();
-            SetRange("Source Type");
-            SetRange(Binding);
-        end;
+        InventoryProfile.SetRange("Source Type", Database::"Item Ledger Entry");
+        InventoryProfile.SetFilter(Binding, '<>%1', InventoryProfile.Binding::"Order-to-Order");
+        ItemInventoryExists := not InventoryProfile.IsEmpty();
+        InventoryProfile.SetRange("Source Type");
+        InventoryProfile.SetRange(Binding);
     end;
 
     local procedure ApplyUntrackedQuantityToItemInventory(SupplyExists: Boolean; ItemInventoryExists: Boolean; DemandForAdditionalProfile: Boolean): Boolean
@@ -4910,16 +4890,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         ItemTrackingSetup: Record "Item Tracking Setup";
     begin
-        with TempItemTrkgEntry do begin
-            SetSourceFilter(
-              ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
-            ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
-            SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
-            OnUpdateAppliedItemEntryOnBeforeFindApplEntry(TempItemTrkgEntry, ReservEntry);
-            if FindFirst() then begin
-                ReservEntry."Appl.-from Item Entry" := "Appl.-from Item Entry";
-                ReservEntry."Appl.-to Item Entry" := "Appl.-to Item Entry";
-            end;
+        TempItemTrkgEntry.SetSourceFilter(
+            ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
+        ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
+        TempItemTrkgEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+        OnUpdateAppliedItemEntryOnBeforeFindApplEntry(TempItemTrkgEntry, ReservEntry);
+        if TempItemTrkgEntry.FindFirst() then begin
+            ReservEntry."Appl.-from Item Entry" := TempItemTrkgEntry."Appl.-from Item Entry";
+            ReservEntry."Appl.-to Item Entry" := TempItemTrkgEntry."Appl.-to Item Entry";
         end;
 
         OnAfterUpdateAppliedItemEntry(ReservEntry, TempItemTrkgEntry);
@@ -4941,7 +4919,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         IsHandled := false;
         OnBeforeCheckPlanSKU(SKU, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit(false);
 
         if (CurrWorksheetType = CurrWorksheetType::Requisition) and
@@ -4973,37 +4951,35 @@ codeunit 99000854 "Inventory Profile Offsetting"
     begin
         xToInventoryProfile.CopyFilters(FromInventoryProfile);
         xFromInventoryProfile.CopyFilters(ToInventoryProfile);
-        with FromInventoryProfile do begin
-            SetRange("Attribute Priority", 1, 7);
-            SetRange("Planning Level Code", 0);
-            if FindSet() then begin
-                repeat
-                    ToInventoryProfile.SetRange(Binding, Binding);
-                    ToInventoryProfile.SetRange("Primary Order Status", "Primary Order Status");
-                    ToInventoryProfile.SetRange("Primary Order No.", "Primary Order No.");
-                    ToInventoryProfile.SetRange("Primary Order Line", "Primary Order Line");
-                    ToInventoryProfile.SetTrackingFilter(FromInventoryProfile);
-                    OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(ToInventoryProfile, FromInventoryProfile);
-                    if ToInventoryProfile.FindSet() then
-                        repeat
-                            UntrackedQty += ToInventoryProfile."Untracked Quantity";
-                        until ToInventoryProfile.Next() = 0;
-                    UntrackedQty -= "Untracked Quantity";
-                until Next() = 0;
-                if (UntrackedQty = 0) and (SKU."Reordering Policy" = SKU."Reordering Policy"::"Lot-for-Lot") then begin
-                    SetRange("Attribute Priority", 8);
-                    CalcSums("Untracked Quantity");
-                    if "Untracked Quantity" = 0 then begin
-                        CopyFilters(xToInventoryProfile);
-                        ToInventoryProfile.CopyFilters(xFromInventoryProfile);
-                        exit(true);
-                    end;
+        FromInventoryProfile.SetRange(FromInventoryProfile."Attribute Priority", 1, 7);
+        FromInventoryProfile.SetRange(FromInventoryProfile."Planning Level Code", 0);
+        if FromInventoryProfile.FindSet() then begin
+            repeat
+                ToInventoryProfile.SetRange(Binding, FromInventoryProfile.Binding);
+                ToInventoryProfile.SetRange("Primary Order Status", FromInventoryProfile."Primary Order Status");
+                ToInventoryProfile.SetRange("Primary Order No.", FromInventoryProfile."Primary Order No.");
+                ToInventoryProfile.SetRange("Primary Order Line", FromInventoryProfile."Primary Order Line");
+                ToInventoryProfile.SetTrackingFilter(FromInventoryProfile);
+                OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(ToInventoryProfile, FromInventoryProfile);
+                if ToInventoryProfile.FindSet() then
+                    repeat
+                        UntrackedQty += ToInventoryProfile."Untracked Quantity";
+                    until ToInventoryProfile.Next() = 0;
+                UntrackedQty -= FromInventoryProfile."Untracked Quantity";
+            until FromInventoryProfile.Next() = 0;
+            if (UntrackedQty = 0) and (SKU."Reordering Policy" = SKU."Reordering Policy"::"Lot-for-Lot") then begin
+                FromInventoryProfile.SetRange(FromInventoryProfile."Attribute Priority", 8);
+                FromInventoryProfile.CalcSums(FromInventoryProfile."Untracked Quantity");
+                if FromInventoryProfile."Untracked Quantity" = 0 then begin
+                    FromInventoryProfile.CopyFilters(xToInventoryProfile);
+                    ToInventoryProfile.CopyFilters(xFromInventoryProfile);
+                    exit(true);
                 end;
             end;
-            CopyFilters(xToInventoryProfile);
-            ToInventoryProfile.CopyFilters(xFromInventoryProfile);
-            exit(false);
         end;
+        FromInventoryProfile.CopyFilters(xToInventoryProfile);
+        ToInventoryProfile.CopyFilters(xFromInventoryProfile);
+        exit(false);
     end;
 
     local procedure ReservedForProdComponent(ReservationEntry: Record "Reservation Entry"): Boolean
@@ -5018,16 +4994,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         InsertedReservEntry: Record "Reservation Entry";
     begin
-        with InsertedReservEntry do begin
-            SetRange("Source ID", FromTrkgReservEntry."Source ID");
-            SetRange("Source Ref. No.", FromTrkgReservEntry."Source Ref. No.");
-            SetRange("Source Type", FromTrkgReservEntry."Source Type");
-            SetRange("Source Subtype", FromTrkgReservEntry."Source Subtype");
-            SetRange("Source Batch Name", FromTrkgReservEntry."Source Batch Name");
-            SetRange("Source Prod. Order Line", FromTrkgReservEntry."Source Prod. Order Line");
-            SetRange("Reservation Status", FromTrkgReservEntry."Reservation Status");
-            exit(IsEmpty);
-        end;
+        InsertedReservEntry.SetRange("Source ID", FromTrkgReservEntry."Source ID");
+        InsertedReservEntry.SetRange("Source Ref. No.", FromTrkgReservEntry."Source Ref. No.");
+        InsertedReservEntry.SetRange("Source Type", FromTrkgReservEntry."Source Type");
+        InsertedReservEntry.SetRange("Source Subtype", FromTrkgReservEntry."Source Subtype");
+        InsertedReservEntry.SetRange("Source Batch Name", FromTrkgReservEntry."Source Batch Name");
+        InsertedReservEntry.SetRange("Source Prod. Order Line", FromTrkgReservEntry."Source Prod. Order Line");
+        InsertedReservEntry.SetRange("Reservation Status", FromTrkgReservEntry."Reservation Status");
+        exit(InsertedReservEntry.IsEmpty);
     end;
 
     local procedure CloseInventoryProfile(var ClosedInvtProfile: Record "Inventory Profile"; var OpenInvtProfile: Record "Inventory Profile"; ActionMessage: Enum "Action Message Type")
@@ -5096,65 +5070,57 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     procedure ForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
     begin
-        with InventoryProfile do begin
-            Init();
-            "Line No." := NextLineNo();
-            "Source Type" := Database::"Production Forecast Entry";
-            "Planning Flexibility" := "Planning Flexibility"::None;
-            "Qty. per Unit of Measure" := 1;
-            "MPS Order" := true;
-            "Source ID" := ProductionForecastEntry."Production Forecast Name";
-            "Item No." := ItemNo;
-            if ManufacturingSetup."Use Forecast on Locations" then
-                "Location Code" := ProductionForecastEntry."Location Code"
-            else
-                "Location Code" := LocationCode;
-            if ManufacturingSetup."Use Forecast on Variants" then
-                "Variant Code" := ProductionForecastEntry."Variant Code"
-            else
-                "Variant Code" := '';
-            "Remaining Quantity (Base)" := TotalForecastQty;
-            "Untracked Quantity" := TotalForecastQty;
-        end;
+        InventoryProfile.Init();
+        InventoryProfile."Line No." := NextLineNo();
+        InventoryProfile."Source Type" := Database::"Production Forecast Entry";
+        InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
+        InventoryProfile."Qty. per Unit of Measure" := 1;
+        InventoryProfile."MPS Order" := true;
+        InventoryProfile."Source ID" := ProductionForecastEntry."Production Forecast Name";
+        InventoryProfile."Item No." := ItemNo;
+        if ManufacturingSetup."Use Forecast on Locations" then
+            InventoryProfile."Location Code" := ProductionForecastEntry."Location Code"
+        else
+            InventoryProfile."Location Code" := LocationCode;
+        if ManufacturingSetup."Use Forecast on Variants" then
+            InventoryProfile."Variant Code" := ProductionForecastEntry."Variant Code"
+        else
+            InventoryProfile."Variant Code" := '';
+        InventoryProfile."Remaining Quantity (Base)" := TotalForecastQty;
+        InventoryProfile."Untracked Quantity" := TotalForecastQty;
         OnAfterForecastInitDemand(InventoryProfile, ProductionForecastEntry, ItemNo, LocationCode, TotalForecastQty);
     end;
 
     local procedure SetPurchase(var PurchaseLine: Record "Purchase Line"; var InventoryProfile: Record "Inventory Profile")
     begin
-        with ReqLine do begin
-            "Ref. Order Type" := "Ref. Order Type"::Purchase;
-            "Ref. Order No." := InventoryProfile."Source ID";
-            "Ref. Line No." := InventoryProfile."Source Ref. No.";
-            PurchaseLine.Get(PurchaseLine."Document Type"::Order, "Ref. Order No.", "Ref. Line No.");
-            TransferFromPurchaseLine(PurchaseLine);
-        end;
+        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Purchase;
+        ReqLine."Ref. Order No." := InventoryProfile."Source ID";
+        ReqLine."Ref. Line No." := InventoryProfile."Source Ref. No.";
+        PurchaseLine.Get(PurchaseLine."Document Type"::Order, ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+        ReqLine.TransferFromPurchaseLine(PurchaseLine);
 
         OnAfterSetPurchase(PurchaseLine, ReqLine, InventoryProfile);
     end;
 
     local procedure SetProdOrder(var ProdOrderLine: Record "Prod. Order Line"; var InventoryProfile: Record "Inventory Profile")
     begin
-        with ReqLine do begin
-            "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-            "Ref. Order Status" := InventoryProfile."Source Order Status";
-            "Ref. Order No." := InventoryProfile."Source ID";
-            "Ref. Line No." := InventoryProfile."Source Prod. Order Line";
-            ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-            TransferFromProdOrderLine(ProdOrderLine);
-        end;
+        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::"Prod. Order";
+        ReqLine."Ref. Order Status" := InventoryProfile."Source Order Status";
+        ReqLine."Ref. Order No." := InventoryProfile."Source ID";
+        ReqLine."Ref. Line No." := InventoryProfile."Source Prod. Order Line";
+        ProdOrderLine.Get(ReqLine."Ref. Order Status", ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+        ReqLine.TransferFromProdOrderLine(ProdOrderLine);
 
         OnAfterSetProdOrder(ReqLine, ProdOrderLine, InventoryProfile);
     end;
 
     local procedure SetAssembly(var AsmHeader: Record "Assembly Header"; var InventoryProfile: Record "Inventory Profile")
     begin
-        with ReqLine do begin
-            "Ref. Order Type" := "Ref. Order Type"::Assembly;
-            "Ref. Order No." := InventoryProfile."Source ID";
-            "Ref. Line No." := 0;
-            AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.");
-            TransferFromAsmHeader(AsmHeader);
-        end;
+        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Assembly;
+        ReqLine."Ref. Order No." := InventoryProfile."Source ID";
+        ReqLine."Ref. Line No." := 0;
+        AsmHeader.Get(AsmHeader."Document Type"::Order, ReqLine."Ref. Order No.");
+        ReqLine.TransferFromAsmHeader(AsmHeader);
     end;
 
     local procedure SetTransfer(var TransLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
@@ -5241,7 +5207,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure GetPrevAvailDateFromCompanyCalendar(InitialDate: Date): Date
     var
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
     begin
         if InitialDate = 0D then
             exit(InitialDate);

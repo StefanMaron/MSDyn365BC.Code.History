@@ -24,8 +24,8 @@ codeunit 131305 "Library - ERM Country Data"
         if VATPostingSetup.FindSet() then
             repeat
                 if (VATPostingSetup."Sales VAT Account" = '') or (VATPostingSetup."Purchase VAT Account" = '') then begin
-                    VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount);
-                    VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount);
+                    VATPostingSetup.Validate("Sales VAT Account", CreateGLAccount());
+                    VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccount());
                     VATPostingSetup.Modify(true);
                 end;
             until VATPostingSetup.Next() = 0;
@@ -132,7 +132,7 @@ codeunit 131305 "Library - ERM Country Data"
         Modified: Boolean;
     begin
         // Registration No in Sales Invoice
-        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode();
         SalesSetup.Get();
 
         if SalesSetup."Reference Nos." <> NoSeriesCode then begin
@@ -307,7 +307,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();

@@ -4,6 +4,7 @@ table 5916 "Symptom Code"
 {
     Caption = 'Symptom Code';
     LookupPageID = "Symptom Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -126,7 +126,7 @@ report 5802 "Inventory Valuation - WIP"
                     LastWIP := 0;
 
                     if (CountRecord = LengthRecord) and IsNotWIP() then begin
-                        ValueEntryOnPostDataItem("Value Entry");
+                        ValueEntryOnPostDataItem();
 
                         AtLastDate := NcValueOfWIP + NcValueOfMatConsump + NcValueOfCap + NcValueOfOutput;
                         LastOutput := NcValueOfOutput;
@@ -209,7 +209,7 @@ report 5802 "Inventory Valuation - WIP"
                         ValueOfCostPstdToGL := 0;
 
                         if CountRecord = LengthRecord then begin
-                            ValueEntryOnPostDataItem("Value Entry");
+                            ValueEntryOnPostDataItem();
                             ValueOfCostPstdToGL := NcValueOfCostPstdToGL;
 
                             AtLastDate := NcValueOfWIP + NcValueOfMatConsump + NcValueOfCap + NcValueOfOutput;
@@ -244,7 +244,7 @@ report 5802 "Inventory Valuation - WIP"
 
                 trigger OnPostDataItem()
                 begin
-                    ValueEntryOnPostDataItem("Value Entry");
+                    ValueEntryOnPostDataItem();
                 end;
 
                 trigger OnPreDataItem()
@@ -391,36 +391,32 @@ report 5802 "Inventory Valuation - WIP"
         TotalCaptionLbl: Label 'Total';
         EntryFound: Boolean;
 
-    local procedure ValueEntryOnPostDataItem(ValueEntry: Record "Value Entry")
+    local procedure ValueEntryOnPostDataItem()
     begin
-        with ValueEntry do
-            if (NcValueOfExpOutPut2 + NcValueOfExpOutPut1) = 0 then begin // if prod. order is invoiced
-                NcValueOfOutput := NcValueOfOutput - NcValueOfRevalCostAct; // take out revalued differnce
-                NcValueOfCostPstdToGL := NcValueOfCostPstdToGL - NcValueOfRevalCostPstd; // take out Cost posted to G/L
-            end;
+        if (NcValueOfExpOutPut2 + NcValueOfExpOutPut1) = 0 then begin // if prod. order is invoiced
+            NcValueOfOutput := NcValueOfOutput - NcValueOfRevalCostAct; // take out revalued differnce
+            NcValueOfCostPstdToGL := NcValueOfCostPstdToGL - NcValueOfRevalCostPstd; // take out Cost posted to G/L
+        end;
     end;
 
     local procedure IsNotWIP(): Boolean
     begin
-        with "Value Entry" do begin
-            if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then
-                exit(not ("Entry Type" in ["Entry Type"::"Direct Cost",
-                                           "Entry Type"::Revaluation]));
+        if "Value Entry"."Item Ledger Entry Type" = "Value Entry"."Item Ledger Entry Type"::Output then
+            exit(not ("Value Entry"."Entry Type" in ["Value Entry"."Entry Type"::"Direct Cost",
+                                       "Value Entry"."Entry Type"::Revaluation]));
 
-            exit("Expected Cost");
-        end;
+        exit("Value Entry"."Expected Cost");
     end;
 
     local procedure IsProductionCost(ValueEntry: Record "Value Entry"): Boolean
     var
         ILE: Record "Item Ledger Entry";
     begin
-        with ValueEntry do
-            if ("Entry Type" = "Entry Type"::Revaluation) and ("Item Ledger Entry Type" = "Item Ledger Entry Type"::Consumption) then begin
-                ILE.Get("Item Ledger Entry No.");
-                if ILE.Positive then
-                    exit(false)
-            end;
+        if (ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation) and (ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Consumption) then begin
+            ILE.Get(ValueEntry."Item Ledger Entry No.");
+            if ILE.Positive then
+                exit(false)
+        end;
 
         exit(true);
     end;
@@ -432,13 +428,11 @@ report 5802 "Inventory Valuation - WIP"
         if "Production Order".Status <> "Production Order".Status::Finished then
             exit(false);
 
-        with InvtAdjmtEntryOrder do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", "Production Order"."No.");
-            SetRange("Completely Invoiced", false);
-            if not IsEmpty() then
-                exit(false);
-        end;
+        InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
+        InvtAdjmtEntryOrder.SetRange("Order No.", "Production Order"."No.");
+        InvtAdjmtEntryOrder.SetRange("Completely Invoiced", false);
+        if not InvtAdjmtEntryOrder.IsEmpty() then
+            exit(false);
 
         exit(not ValueEntryExist("Production Order", StartDate, 99991231D));
     end;
@@ -453,12 +447,10 @@ report 5802 "Inventory Valuation - WIP"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProductionOrder."No.");
-            SetRange("Posting Date", StartDate, EndDate);
-            exit(not IsEmpty);
-        end;
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProductionOrder."No.");
+        ValueEntry.SetRange("Posting Date", StartDate, EndDate);
+        exit(not ValueEntry.IsEmpty);
     end;
 }
 

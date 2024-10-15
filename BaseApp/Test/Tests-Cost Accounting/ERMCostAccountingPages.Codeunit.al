@@ -28,7 +28,6 @@
         EmptyFiltersError: Label '%1 or %2 must not be blank.', Comment = '%1=fieldcaption Cost Center,%2=fieldcaption Cost Object';
         InvalidColumnIndex: Label 'The ColumnNo param is outside the permitted range.';
         WrongCaptionError: Label 'The caption for column no. %1 is wrong.';
-        PreviousSetNotFoundError: Label 'The previous column set could not be found.';
         NextSetNotAvailableError: Label 'The next set could not be initialized.';
         CostJournalBatchName: Code[10];
         CostJnlLineError: Label '%1 must exist.';
@@ -55,13 +54,13 @@
     begin
         Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingSetup;
+        LibraryLowerPermissions.SetCostAccountingSetup();
         CostAccSetup.Get();
 
         CostAccSetupPage.OpenEdit();
         CostAccSetupPage."Cost Center Dimension".AssertEquals(CostAccSetup."Cost Center Dimension");
         Assert.IsFalse(
-          CostAccSetupPage."Cost Center Dimension".Editable, StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Center Dimension")));
+          CostAccSetupPage."Cost Center Dimension".Editable(), StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Center Dimension")));
 
         CostAccSetupPage.Close();
     end;
@@ -75,13 +74,13 @@
     begin
         Initialize();
 
-        LibraryLowerPermissions.SetCostAccountingSetup;
+        LibraryLowerPermissions.SetCostAccountingSetup();
         CostAccSetup.Get();
 
         CostAccSetupPage.OpenEdit();
         CostAccSetupPage."Cost Object Dimension".AssertEquals(CostAccSetup."Cost Object Dimension");
         Assert.IsFalse(
-          CostAccSetupPage."Cost Object Dimension".Editable, StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Object Dimension")));
+          CostAccSetupPage."Cost Object Dimension".Editable(), StrSubstNo(NotEditable, CostAccSetup.FieldCaption("Cost Object Dimension")));
 
         CostAccSetupPage.Close();
     end;
@@ -95,10 +94,10 @@
         Initialize();
 
         LibraryLowerPermissions.SetCostAccountingView();
-        CostAllocationSourcesPage.OpenView;
+        CostAllocationSourcesPage.OpenView();
 
-        Assert.IsTrue(CostAllocationSourcesPage.Allocations.Enabled, Enabled);
-        Assert.IsTrue(CostAllocationSourcesPage.Allocations.Visible, Visible);
+        Assert.IsTrue(CostAllocationSourcesPage.Allocations.Enabled(), Enabled);
+        Assert.IsTrue(CostAllocationSourcesPage.Allocations.Visible(), Visible);
 
         CostAllocationSourcesPage.Close();
     end;
@@ -113,12 +112,12 @@
         Initialize();
 
         LibraryLowerPermissions.SetCostAccountingView();
-        CostAllocationSourcesPage.OpenView;
+        CostAllocationSourcesPage.OpenView();
 
-        Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Enabled, Enabled);
-        Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Visible, Visible);
+        Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Enabled(), Enabled);
+        Assert.IsTrue(CostAllocationSourcesPage."&Calculate Allocation Keys".Visible(), Visible);
 
-        CostAllocationSourcesPage."&Calculate Allocation Keys".Invoke;
+        CostAllocationSourcesPage."&Calculate Allocation Keys".Invoke();
         CostAllocationSourcesPage.Close();
     end;
 
@@ -131,10 +130,10 @@
         Initialize();
 
         LibraryLowerPermissions.SetCostAccountingView();
-        CostBudgetNamesPage.OpenView;
+        CostBudgetNamesPage.OpenView();
 
-        Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Enabled, Enabled);
-        Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Visible, Visible);
+        Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Enabled(), Enabled);
+        Assert.IsTrue(CostBudgetNamesPage."Transfer Budget to Actual".Visible(), Visible);
 
         CostBudgetNamesPage.Close();
     end;
@@ -148,10 +147,10 @@
         Initialize();
 
         LibraryLowerPermissions.SetCostAccountingView();
-        CostRegisterPage.OpenView;
+        CostRegisterPage.OpenView();
 
-        Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Enabled, Enabled);
-        Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Visible, Visible);
+        Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Enabled(), Enabled);
+        Assert.IsTrue(CostRegisterPage."&Delete Old Cost Entries".Visible(), Visible);
 
         CostRegisterPage.Close();
     end;
@@ -214,7 +213,7 @@
         Assert.ExpectedError(ViewAsError);
 
         // Tear-down
-        CostBudgetByCostCenterPage.OK.Invoke;
+        CostBudgetByCostCenterPage.OK().Invoke();
     end;
 
     [Test]
@@ -303,7 +302,7 @@
           OpenCostBudgetByCostObjectPage(CostBudgetByCostObjectPage, Format("Analysis Amount Type"::"Balance at Date"), Format("Analysis Period Type"::Day), '');
         VerifyFiltersOnCostBudgetByCostObjectMatrixPage(CostBudgetByCostObjectPage, StrSubstNo('''''..%1', ExpectedDate));
 
-        CostBudgetByCostObjectPage.OK.Invoke;
+        CostBudgetByCostObjectPage.OK().Invoke();
     end;
 
     [Test]
@@ -325,7 +324,7 @@
         Assert.ExpectedError(ViewAsError);
 
         // Tear-down
-        CostBudgetByCostObjectPage.OK.Invoke;
+        CostBudgetByCostObjectPage.OK().Invoke();
     end;
 
     [Test]
@@ -417,7 +416,7 @@
 
         VerifyFiltersOnCostBudgetPerPeriodMatrixPage(CostBudgetPerPeriodPage, StrSubstNo('''''..%1', CalcDate('<11D>', WorkDate()))); // 12 matrix columns
 
-        CostBudgetPerPeriodPage.OK.Invoke;
+        CostBudgetPerPeriodPage.OK().Invoke();
     end;
 
     [Test]
@@ -439,7 +438,7 @@
         Assert.ExpectedError(ViewAsError);
 
         // Tear-down
-        CostBudgetPerPeriodPage.OK.Invoke;
+        CostBudgetPerPeriodPage.OK().Invoke();
     end;
 
     [Test]
@@ -461,7 +460,7 @@
           StrSubstNo(EmptyFiltersError, CostBudgetPerPeriodPage.CostCenterFilter.Caption, CostBudgetPerPeriodPage.CostObjectFilter.Caption));
 
         // Tear-down
-        CostBudgetPerPeriodPage.OK.Invoke;
+        CostBudgetPerPeriodPage.OK().Invoke();
     end;
 
     [Test]
@@ -521,7 +520,7 @@
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
         // we need at least 24 cost objects
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostObjectPage.OpenEdit();
@@ -530,7 +529,7 @@
         CostObject.FindSet();
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next();
         end;
         CostBudgetByCostObjectPage.Close();
     end;
@@ -546,7 +545,7 @@
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
-        CostBudgetByCostObjectPage.PreviousSet.Invoke;
+        CostBudgetByCostObjectPage.PreviousSet.Invoke();
         CostBudgetByCostObjectPage.Close();
     end;
 
@@ -561,12 +560,12 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostObjectPage.OpenEdit();
-        CostBudgetByCostObjectPage.NextColumn.Invoke;
-        CostBudgetByCostObjectPage.PreviousSet.Invoke;
+        CostBudgetByCostObjectPage.NextColumn.Invoke();
+        CostBudgetByCostObjectPage.PreviousSet.Invoke();
         CostBudgetByCostObjectPage.Close();
     end;
 
@@ -582,23 +581,23 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
-        CostBudgetByCostObjectPage.NextSet.Invoke;
+        CostBudgetByCostObjectPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 12, CostObject);
         // get the previous set:
-        CostBudgetByCostObjectPage.PreviousSet.Invoke;
+        CostBudgetByCostObjectPage.PreviousSet.Invoke();
         CostObject.Next(-12);
         // verify the full set
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next();
         end;
-        CostBudgetByCostObjectPage.Close
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -613,23 +612,23 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
-        CostBudgetByCostObjectPage.NextSet.Invoke;
+        CostBudgetByCostObjectPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 12, CostObject);
         // get the previous Column:
-        CostBudgetByCostObjectPage.PreviousColumn.Invoke;
+        CostBudgetByCostObjectPage.PreviousColumn.Invoke();
         CostObject.Next(-1);
         // verify the full set
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next();
         end;
-        CostBudgetByCostObjectPage.Close
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -644,21 +643,21 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
-        CostBudgetByCostObjectPage.NextSet.Invoke;
+        CostBudgetByCostObjectPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 12, CostObject);
         CostObject.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next()
         end;
-        CostBudgetByCostObjectPage.Close
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -675,7 +674,7 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
@@ -686,21 +685,21 @@
         NoOfSets := CostObject.Count div 12;
         NoInLastSet := CostObject.Count mod 12;
         for i := 1 to NoOfSets do begin
-            CostBudgetByCostObjectPage.NextSet.Invoke;
+            CostBudgetByCostObjectPage.NextSet.Invoke();
             CostObject.Next(12)
         end;
         // verify the full set
         for i := 1 to NoInLastSet do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next();
         end;
         // Verify the rest of the columns is blank
         if NoInLastSet <> 0 then
             for i := NoInLastSet + 1 to 12 do begin
                 VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, ' ');
-                CostObject.Next
+                CostObject.Next();
             end;
-        CostBudgetByCostObjectPage.Close
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -715,21 +714,21 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostObjects;
+        CheckCreateCostObjects();
 
         LibraryLowerPermissions.SetCostAccountingEdit();
         CostBudgetByCostObjectPage.OpenEdit();
         // get the next set
-        CostBudgetByCostObjectPage.NextColumn.Invoke;
+        CostBudgetByCostObjectPage.NextColumn.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostObjectCaptionOffset(CostBudgetByCostObjectPage, 1, CostObject);
         CostObject.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostObjectCaption(CostBudgetByCostObjectPage, i, CostObject.Code);
-            CostObject.Next
+            CostObject.Next();
         end;
-        CostBudgetByCostObjectPage.Close
+        CostBudgetByCostObjectPage.Close();
     end;
 
     [Test]
@@ -841,7 +840,7 @@
     begin
         Initialize();
         // we need at least 24 cost objects
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
@@ -850,7 +849,7 @@
         CostCenter.FindSet();
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
         CostBudgetByCostCenterPage.Close();
     end;
@@ -866,7 +865,7 @@
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
-        CostBudgetByCostCenterPage.PreviousSet.Invoke;
+        CostBudgetByCostCenterPage.PreviousSet.Invoke();
         CostBudgetByCostCenterPage.Close();
     end;
 
@@ -878,12 +877,12 @@
     begin
         // [SCENARIO 414679] No error when previous set exists and step is less than MaximumSetLength
         Initialize();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
-        CostBudgetByCostCenterPage.NextColumn.Invoke;
-        CostBudgetByCostCenterPage.PreviousSet.Invoke;
+        CostBudgetByCostCenterPage.NextColumn.Invoke();
+        CostBudgetByCostCenterPage.PreviousSet.Invoke();
         CostBudgetByCostCenterPage.Close();
     end;
 
@@ -899,23 +898,23 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
-        CostBudgetByCostCenterPage.NextSet.Invoke;
+        CostBudgetByCostCenterPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 12, CostCenter);
         // get the previous set:
-        CostBudgetByCostCenterPage.PreviousSet.Invoke;
+        CostBudgetByCostCenterPage.PreviousSet.Invoke();
         CostCenter.Next(-12);
         // verify the full set
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
-        CostBudgetByCostCenterPage.Close
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -930,23 +929,23 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
-        CostBudgetByCostCenterPage.NextSet.Invoke;
+        CostBudgetByCostCenterPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 12, CostCenter);
         // get the previous Column:
-        CostBudgetByCostCenterPage.PreviousColumn.Invoke;
+        CostBudgetByCostCenterPage.PreviousColumn.Invoke();
         CostCenter.Next(-1);
         // verify the full set
         for i := 1 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
-        CostBudgetByCostCenterPage.Close
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -961,21 +960,21 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
-        CostBudgetByCostCenterPage.NextSet.Invoke;
+        CostBudgetByCostCenterPage.NextSet.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 12, CostCenter);
         CostCenter.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
-        CostBudgetByCostCenterPage.Close
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -989,7 +988,7 @@
         NoInLastSet: Integer;
     begin
         Initialize();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
@@ -1000,21 +999,21 @@
         NoOfSets := CostCenter.Count div 12;
         NoInLastSet := CostCenter.Count mod 12;
         for i := 1 to NoOfSets do begin
-            CostBudgetByCostCenterPage.NextSet.Invoke;
+            CostBudgetByCostCenterPage.NextSet.Invoke();
             CostCenter.Next(12)
         end;
         // verify the full set
         for i := 1 to NoInLastSet do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
         // Verify the rest of the columns is blank
         if NoInLastSet <> 0 then
             for i := NoInLastSet + 1 to 12 do begin
                 VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, ' ');
-                CostCenter.Next
+                CostCenter.Next();
             end;
-        CostBudgetByCostCenterPage.Close
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1029,21 +1028,21 @@
 
         LibraryLowerPermissions.SetO365Setup();
         LibraryLowerPermissions.AddCostAccountingEdit();
-        CheckCreateCostCenters;
+        CheckCreateCostCenters();
 
         LibraryLowerPermissions.SetCostAccountingView();
         CostBudgetByCostCenterPage.OpenEdit();
         // get the next set
-        CostBudgetByCostCenterPage.NextColumn.Invoke;
+        CostBudgetByCostCenterPage.NextColumn.Invoke();
         // verify that the current set is the next one (check just 1 column)
         VerifyCostBudgetByCostCenterCaptionOffset(CostBudgetByCostCenterPage, 1, CostCenter);
         CostCenter.Next();
         // verify the full set
         for i := 2 to 12 do begin
             VerifyCostBudgetByCostCenterCaption(CostBudgetByCostCenterPage, i, CostCenter.Code);
-            CostCenter.Next
+            CostCenter.Next();
         end;
-        CostBudgetByCostCenterPage.Close
+        CostBudgetByCostCenterPage.Close();
     end;
 
     [Test]
@@ -1278,7 +1277,7 @@
               CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '', '', ''));
 
         // [WHEN] Press "Next Period" on "Cost Type Balance/Budget" page
-        CostTypeBalanceBudgetPage.NextPeriod.Invoke;
+        CostTypeBalanceBudgetPage.NextPeriod.Invoke();
 
         // [THEN] "Date Filter" is "01.02.2017..28.02.2017" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
@@ -1308,7 +1307,7 @@
               CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Month), '', '', ''));
 
         // [WHEN] Press "Previous Period" on "Cost Type Balance/Budget" page
-        CostTypeBalanceBudgetPage.PreviousPeriod.Invoke;
+        CostTypeBalanceBudgetPage.PreviousPeriod.Invoke();
 
         // [THEN] "Date Filter" is "01.12.2016..31.12.2016" on "Cost Type Balance/Budget" page
         CostTypeBalanceBudgetPage.DateFilter.AssertEquals(
@@ -1406,7 +1405,7 @@
         CostTypeBalanceBudgetPage.OpenEdit();
 
         // Exercise:
-        CostTypeBalanceBudgetPage.CostCenterFilter.Lookup;
+        CostTypeBalanceBudgetPage.CostCenterFilter.Lookup();
 
         // Verify:
         CostTypeBalanceBudgetPage.CostCenterFilter.AssertEquals(CostCenterFilter);
@@ -1429,7 +1428,7 @@
         CostTypeBalanceBudgetPage.OpenEdit();
 
         // Exercise:
-        CostTypeBalanceBudgetPage.CostObjectFilter.Lookup;
+        CostTypeBalanceBudgetPage.CostObjectFilter.Lookup();
 
         // Verify:
         CostTypeBalanceBudgetPage.CostObjectFilter.AssertEquals(CostObjectFilter);
@@ -1450,7 +1449,7 @@
           OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise:
-        CostTypeBalanceBudgetPage.NextPeriod.Invoke;
+        CostTypeBalanceBudgetPage.NextPeriod.Invoke();
 
         // Verify:
         Assert.AreEqual(Format(CalcDate('<1D>', ExpectedDate)), CostTypeBalanceBudgetPage.FILTER.GetFilter("Date Filter"), DateFilterError);
@@ -1474,7 +1473,7 @@
           OpenCostTypeBalanceBudgetPage(CostTypeBalanceBudgetPage, Format("Analysis Amount Type"::"Net Change"), Format("Analysis Period Type"::Day), '', '', '');
 
         // Exercise:
-        CostTypeBalanceBudgetPage.PreviousPeriod.Invoke;
+        CostTypeBalanceBudgetPage.PreviousPeriod.Invoke();
 
         // Verify:
         Assert.AreEqual(
@@ -1598,7 +1597,7 @@
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
         LibraryLowerPermissions.SetCostAccountingEdit();
-        CostTypeBalanceBudgetPage.OpenView;
+        CostTypeBalanceBudgetPage.OpenView();
         CostObjectCode := CopyStr(LibraryUtility.GenerateRandomCode(CostObject.FieldNo(Code), DATABASE::"Cost Object"),
             1, LibraryUtility.GetFieldLength(DATABASE::"Cost Object", CostObject.FieldNo(Code)));
         CostTypeBalanceBudgetPage.CostObjectFilter.SetValue(CostObjectCode);
@@ -2008,7 +2007,7 @@
         LibraryLowerPermissions.SetCostAccountingView();
         CostJournalBatchName := CostJournalBatch.Name;
         CostJournalPage.OpenEdit();
-        CostJournalPage.CostJnlBatchName.Lookup;
+        CostJournalPage.CostJnlBatchName.Lookup();
 
         // Verify: Verify that OnLookup of CostJnlBatchName field on Cost Journal Page works correctly.
         CostJournalPage.CostJnlBatchName.AssertEquals(CostJournalBatchName);
@@ -2386,7 +2385,7 @@
         // Exercise: Filter the created Cost Type on Chart of Cost Type and invoke Corresponding G/L Account Action for that Cost Type.
         ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.FILTER.SetFilter("No.", CostType."No.");
-        ChartOfCostTypePage.CorrespondingGLAccounts.Invoke;
+        ChartOfCostTypePage.CorrespondingGLAccounts.Invoke();
 
         // Verify: To check G/L Account exist on Chart of Accounts for Cost Type with single G/L Account.
         ChartOfCostTypePage."G/L Account Range".AssertEquals(GLAccountNo);
@@ -2416,7 +2415,7 @@
         // Exercise: Filter the created Cost Type on Chart of Cost Type and invoke Corresponding G/L Account Action for that Cost Type.
         ChartOfCostTypePage.OpenEdit();
         ChartOfCostTypePage.FILTER.SetFilter("No.", CostType."No.");
-        ChartOfCostTypePage.CorrespondingGLAccounts.Invoke;
+        ChartOfCostTypePage.CorrespondingGLAccounts.Invoke();
 
         // Verify: To check no G/L account exist on Chart of Accounts for Cost Type without G/L Account.
         ChartOfCostTypePage."G/L Account Range".AssertEquals(GLAccountNo);
@@ -2452,7 +2451,7 @@
         LibraryLowerPermissions.AddO365BusFull();
         // Exercise: Invoking Get Cost Types form Chart of Accounts Action and set filters on Chart of Cost Type Page.
         ChartOfCostTypePage.OpenEdit();
-        ChartOfCostTypePage.GetCostTypesFromChartOfAccounts.Invoke;
+        ChartOfCostTypePage.GetCostTypesFromChartOfAccounts.Invoke();
         ChartOfCostTypePage.FILTER.SetFilter("No.", GLAccount."No.");
 
         LibraryLowerPermissions.SetCostAccountingView();
@@ -2494,7 +2493,7 @@
         ActionFilter := ActionFilter::Verify;
 
         // Verify: Verify that the cost budget entry page opens up with correct filters on drilldown. Verification has been done in handler MFHandlerCostBudgetEntries.
-        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown;
+        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown();
 
         // Tear Down.
         CostBudgetPerPeriodPage.Close();
@@ -2526,12 +2525,12 @@
         CostTypeNo := CostType."No.";
         CostObjectFilter := CostObject.Code;
         SetFiltersOnCostBudgetPerPeriodPage(CostBudgetPerPeriodPage, CostBudgetName.Name);
-        EntryNo := GetNextEntryNo;
-        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown;
+        EntryNo := GetNextEntryNo();
+        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown();
         ActionFilter := ActionFilter::Verify;
 
         // Verify: Verify that the record has been inserted on the cost budget entry page. Verification has been done in handler MFHandlerCostBudgetEntries.
-        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown;
+        CostBudgetPerPeriodPage.MatrixForm.Column1.DrillDown();
 
         // Tear Down.
         CostBudgetPerPeriodPage.Close();
@@ -2566,12 +2565,12 @@
         // Exercise: Update Cost type and invoke register Cost Type in Chart Of Accounts Action On Chart Of Cost Type Page.
         UpdateCostType(CostType, Type::"Cost Type", GLAccount."No.");
 
-        ChartOfAccountsPage.OpenView;
+        ChartOfAccountsPage.OpenView();
         ChartOfAccountsPage.FILTER.SetFilter("No.", GLAccount."No.");
 
-        LibraryLowerPermissions.SetO365BusFull;
-        ChartOfCostTypePage.OpenView;
-        ChartOfCostTypePage.RegCostTypeInChartOfCostType.Invoke;
+        LibraryLowerPermissions.SetO365BusFull();
+        ChartOfCostTypePage.OpenView();
+        ChartOfCostTypePage.RegCostTypeInChartOfCostType.Invoke();
         // Verify: To check that after invoking Action item 'Register Cost Types In Chart Of Accounts' Cost Type No. gets in G/L Account.
         ChartOfAccountsPage."Cost Type No.".AssertEquals(CostType."No.");
 
@@ -2588,8 +2587,6 @@
         CostAllocationPage: TestPage "Cost Allocation";
         CostAllocationTargetCardPage: TestPage "Cost Allocation Target Card";
         TypeOfId: Option "Auto Generated",Custom;
-        Base: Option Static,"G/L Entries","G/L Budget Entries","Cost Type Entries","Cost Budget Entries",,,,,"No of Employees",,"Items Sold (Qty.)","Items Purchased (Qty.)","Items Sold (Amount)","Items Purchased (Amount)";
-        AllocationType: Option "All Costs","Percent per Share","Amount per Share";
     begin
         // Test whether the Cost Allocation Card is opening for that particular Cost Allocation.
 
@@ -2601,14 +2598,14 @@
         LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateAllocSource(CostAllocationSource, TypeOfId::"Auto Generated");
         LibraryCostAccounting.CreateAllocTarget(
-          CostAllocationTarget, CostAllocationSource, LibraryRandom.RandDec(1000, 2), Base::Static, AllocationType::"All Costs");
+          CostAllocationTarget, CostAllocationSource, LibraryRandom.RandDec(1000, 2), "Cost Allocation Target Base"::Static, "Cost Allocation Target Type"::"All Costs");
 
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: Filter created Cost Allocation on Cost Allocation Page and Invoke the Cost Allocation Target Card Action.
         CostAllocationPage.OpenEdit();
         CostAllocationPage.FILTER.SetFilter(ID, CostAllocationSource.ID);
-        CostAllocationTargetCardPage.Trap;
-        CostAllocationPage.AllocTarget.AllocationTargetCard.Invoke;
+        CostAllocationTargetCardPage.Trap();
+        CostAllocationPage.AllocTarget.AllocationTargetCard.Invoke();
 
         // Verify: Check whether ID On Cost Allocation Target Card is equal to the ID on Cost Allocation Page
         CostAllocationPage.AllocTarget."Target Cost Type".AssertEquals(CostAllocationTargetCardPage."Target Cost Type");
@@ -2649,10 +2646,10 @@
 
         LibraryLowerPermissions.SetCostAccountingView();
         // Exercise: To open Cost Allocation Source page set filter and then invoke Page Chart of Cost Types.
-        CostAllocationSourcePage.OpenView;
+        CostAllocationSourcePage.OpenView();
         CostAllocationSourcePage.FILTER.SetFilter(ID, CostAllocationSource.ID);
-        ChartOfCostTypePage.Trap;
-        CostAllocationSourcePage.PageChartOfCostTypes.Invoke;
+        ChartOfCostTypePage.Trap();
+        CostAllocationSourcePage.PageChartOfCostTypes.Invoke();
 
         // Verify that Corresponding Cost Types for an Allocation Source are Displayed.
         CostAllocationSource.TestField("Cost Type Range", ChartOfCostTypePage.FILTER.GetFilter("No."));
@@ -2773,14 +2770,14 @@
         // Verify flowfilters are transfered when opening "G/L Balance" from "Chart Of Accounts" page
         GlobalDimensionCodeValue[1] := GetGlobalDimensionCodeValue(1);
         GlobalDimensionCodeValue[2] := GetGlobalDimensionCodeValue(2);
-        BusinessUnitFilterValue := GetBusinessUnitFilterValue;
+        BusinessUnitFilterValue := GetBusinessUnitFilterValue();
 
-        ChartOfAccounts.OpenView;
+        ChartOfAccounts.OpenView();
         ChartOfAccounts.FILTER.SetFilter("Global Dimension 1 Filter", GlobalDimensionCodeValue[1]);
         ChartOfAccounts.FILTER.SetFilter("Global Dimension 2 Filter", GlobalDimensionCodeValue[2]);
         ChartOfAccounts.FILTER.SetFilter("Business Unit Filter", BusinessUnitFilterValue);
-        GLBalance.Trap;
-        ChartOfAccounts."G/L &Balance".Invoke;
+        GLBalance.Trap();
+        ChartOfAccounts."G/L &Balance".Invoke();
 
         LibraryLowerPermissions.SetCostAccountingView();
         Assert.AreEqual(GlobalDimensionCodeValue[1], GLBalance.FILTER.GetFilter("Global Dimension 1 Filter"), WrongFlowFilterValueErr);
@@ -2808,16 +2805,16 @@
         // Verify flowfilters are transfered when opening "G/L Balance/Budget" from "Chart Of Accounts" page
         GlobalDimensionCodeValue[1] := GetGlobalDimensionCodeValue(1);
         GlobalDimensionCodeValue[2] := GetGlobalDimensionCodeValue(2);
-        BusinessUnitFilterValue := GetBusinessUnitFilterValue;
-        BudgetFilterValue := GetBudgetFilterValue;
+        BusinessUnitFilterValue := GetBusinessUnitFilterValue();
+        BudgetFilterValue := GetBudgetFilterValue();
 
-        ChartOfAccounts.OpenView;
+        ChartOfAccounts.OpenView();
         ChartOfAccounts.FILTER.SetFilter("Global Dimension 1 Filter", GlobalDimensionCodeValue[1]);
         ChartOfAccounts.FILTER.SetFilter("Global Dimension 2 Filter", GlobalDimensionCodeValue[2]);
         ChartOfAccounts.FILTER.SetFilter("Business Unit Filter", BusinessUnitFilterValue);
         ChartOfAccounts.FILTER.SetFilter("Budget Filter", BudgetFilterValue);
-        GLBalanceBudget.Trap;
-        ChartOfAccounts."G/L Balance/B&udget".Invoke;
+        GLBalanceBudget.Trap();
+        ChartOfAccounts."G/L Balance/B&udget".Invoke();
 
         Assert.AreEqual(
           GlobalDimensionCodeValue[1], GLBalanceBudget.FILTER.GetFilter("Global Dimension 1 Filter"), WrongFlowFilterValueErr);
@@ -2833,7 +2830,7 @@
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Accounting - Pages");
-        InitializeGlobalVariables;
+        InitializeGlobalVariables();
     end;
 
     local procedure InitializeGlobalVariables()
@@ -2910,29 +2907,29 @@
     begin
         case ColumnNo of
             1:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column1.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column1.Value();
             2:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column2.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column2.Value();
             3:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column3.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column3.Value();
             4:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column4.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column4.Value();
             5:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column5.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column5.Value();
             6:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column6.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column6.Value();
             7:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column7.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column7.Value();
             8:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column8.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column8.Value();
             9:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column9.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column9.Value();
             10:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column10.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column10.Value();
             11:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column11.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column11.Value();
             12:
-                Value := CostBudgetPerPeriodPage.MatrixForm.Column12.Value;
+                Value := CostBudgetPerPeriodPage.MatrixForm.Column12.Value();
             else
                 Error(InvalidColumnIndex)
         end;
@@ -2942,29 +2939,29 @@
     begin
         case ColumnNo of
             1:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column1.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column1.Value();
             2:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column2.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column2.Value();
             3:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column3.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column3.Value();
             4:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column4.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column4.Value();
             5:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column5.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column5.Value();
             6:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column6.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column6.Value();
             7:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column7.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column7.Value();
             8:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column8.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column8.Value();
             9:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column9.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column9.Value();
             10:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column10.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column10.Value();
             11:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column11.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column11.Value();
             12:
-                Value := CostBudgetByCostCenterPage.MatrixForm.Column12.Value;
+                Value := CostBudgetByCostCenterPage.MatrixForm.Column12.Value();
             else
                 Error(InvalidColumnIndex)
         end;
@@ -2974,29 +2971,29 @@
     begin
         case ColumnNo of
             1:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column1.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column1.Value();
             2:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column2.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column2.Value();
             3:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column3.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column3.Value();
             4:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column4.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column4.Value();
             5:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column5.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column5.Value();
             6:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column6.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column6.Value();
             7:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column7.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column7.Value();
             8:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column8.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column8.Value();
             9:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column9.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column9.Value();
             10:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column10.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column10.Value();
             11:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column11.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column11.Value();
             12:
-                Value := CostBudgetByCostObjectPage.MatrixForm.Column12.Value;
+                Value := CostBudgetByCostObjectPage.MatrixForm.Column12.Value();
             else
                 Error(InvalidColumnIndex)
         end;
@@ -3129,13 +3126,13 @@
     begin
         case ActionItem of
             ActionItem::"Previous Set":
-                CostBudgetPerPeriodPage.PreviousSet.Invoke;
+                CostBudgetPerPeriodPage.PreviousSet.Invoke();
             ActionItem::"Previous Column":
-                CostBudgetPerPeriodPage.PreviousColumn.Invoke;
+                CostBudgetPerPeriodPage.PreviousColumn.Invoke();
             ActionItem::"Next Column":
-                CostBudgetPerPeriodPage.NextColumn.Invoke;
+                CostBudgetPerPeriodPage.NextColumn.Invoke();
             ActionItem::"Next Set":
-                CostBudgetPerPeriodPage.NextSet.Invoke;
+                CostBudgetPerPeriodPage.NextSet.Invoke();
         end;
     end;
 
@@ -3491,8 +3488,6 @@
     local procedure VerifyCostBudgetPerPeriodMatrixPage(var CostBudgetPerPeriodPage: TestPage "Cost Budget per Period"; CostBudgetName: Code[10]; CostBudgetEntry: Record "Cost Budget Entry"; Amount: Text)
     var
         CostType: Record "Cost Type";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
         CostBudgetAmount: Text;
     begin
         SetFieldsOnCostBudgetPerPeriodPage(
@@ -3511,9 +3506,9 @@
     begin
         CostType.Get(CostJournalPage."Cost Type No.".Value());
         CostJournalPage.Next();
-        CostJournalPage.Previous;
+        CostJournalPage.Previous();
         Assert.AreEqual(
-          WorkDate, CostJournalPage."Posting Date".AsDate, StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
+          WorkDate(), CostJournalPage."Posting Date".AsDate(), StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
         Assert.AreEqual(
           CostJournalPage.Balance.Value, CostJournalPage.Amount.Value, StrSubstNo(ExpectedValueDifferent, CostJournalPage.Balance.Caption));
         Assert.AreEqual(
@@ -3529,12 +3524,12 @@
     begin
         CostType.Get(CostJournalPage."Cost Type No.".Value());
         CostJournalPage.Next();
-        CostJournalPage.Previous;
+        CostJournalPage.Previous();
         Assert.AreEqual(
-          WorkDate, CostJournalPage."Posting Date".AsDate, StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
-        Assert.AreEqual(CostJournalPage.Balance.AsDEcimal, 0, StrSubstNo(ExpectedValueDifferent, CostJournalPage.Balance.Caption));
+          WorkDate(), CostJournalPage."Posting Date".AsDate(), StrSubstNo(PostingDateError, CostJournalPage."Posting Date".Caption));
+        Assert.AreEqual(CostJournalPage.Balance.AsDecimal(), 0, StrSubstNo(ExpectedValueDifferent, CostJournalPage.Balance.Caption));
         Assert.AreEqual(
-          CostJournalPage.TotalBalance.AsDEcimal, 0, StrSubstNo(ExpectedValueDifferent, CostJournalPage.TotalBalance.Caption));
+          CostJournalPage.TotalBalance.AsDecimal(), 0, StrSubstNo(ExpectedValueDifferent, CostJournalPage.TotalBalance.Caption));
         Assert.AreEqual(
           CostJournalPage.CostTypeName.Value, CostType.Name, StrSubstNo(ExpectedValueDifferent, CostJournalPage.CostTypeName.Caption));
         Assert.AreEqual(
@@ -3631,29 +3626,29 @@
     begin
         case ColumnNo of
             1:
-                Value := CostTypeBalancePage.MatrixForm.Column1.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column1.Value();
             2:
-                Value := CostTypeBalancePage.MatrixForm.Column2.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column2.Value();
             3:
-                Value := CostTypeBalancePage.MatrixForm.Column3.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column3.Value();
             4:
-                Value := CostTypeBalancePage.MatrixForm.Column4.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column4.Value();
             5:
-                Value := CostTypeBalancePage.MatrixForm.Column5.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column5.Value();
             6:
-                Value := CostTypeBalancePage.MatrixForm.Column6.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column6.Value();
             7:
-                Value := CostTypeBalancePage.MatrixForm.Column7.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column7.Value();
             8:
-                Value := CostTypeBalancePage.MatrixForm.Column8.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column8.Value();
             9:
-                Value := CostTypeBalancePage.MatrixForm.Column9.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column9.Value();
             10:
-                Value := CostTypeBalancePage.MatrixForm.Column10.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column10.Value();
             11:
-                Value := CostTypeBalancePage.MatrixForm.Column11.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column11.Value();
             12:
-                Value := CostTypeBalancePage.MatrixForm.Column12.Value;
+                Value := CostTypeBalancePage.MatrixForm.Column12.Value();
             else
                 Error(InvalidColumnIndex)
         end;
@@ -3735,13 +3730,13 @@
     begin
         case ActionItem of
             ActionItem::"Previous Set":
-                CostTypeBalancePage.PreviousSet.Invoke;
+                CostTypeBalancePage.PreviousSet.Invoke();
             ActionItem::"Previous Column":
-                CostTypeBalancePage.PreviousColumn.Invoke;
+                CostTypeBalancePage.PreviousColumn.Invoke();
             ActionItem::"Next Column":
-                CostTypeBalancePage.NextColumn.Invoke;
+                CostTypeBalancePage.NextColumn.Invoke();
             ActionItem::"Next Set":
-                CostTypeBalancePage.NextSet.Invoke;
+                CostTypeBalancePage.NextSet.Invoke();
         end;
     end;
 
@@ -3824,7 +3819,7 @@
     procedure MFHandlerChartOfCostCenters(var ChartOfCostCenters: TestPage "Chart of Cost Centers")
     begin
         ChartOfCostCenters.FILTER.SetFilter(Code, CostCenterFilter);
-        ChartOfCostCenters.OK.Invoke;
+        ChartOfCostCenters.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3832,7 +3827,7 @@
     procedure MFHandlerChartOfCostObjects(var ChartOfCostObjects: TestPage "Chart of Cost Objects")
     begin
         ChartOfCostObjects.FILTER.SetFilter(Code, CostObjectFilter);
-        ChartOfCostObjects.OK.Invoke;
+        ChartOfCostObjects.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3840,7 +3835,7 @@
     procedure CostJournalBatchPageHandler(var CostJournalBatches: TestPage "Cost Journal Batches")
     begin
         CostJournalBatches.FILTER.SetFilter(Name, CostJournalBatchName);
-        CostJournalBatches.OK.Invoke;
+        CostJournalBatches.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -3860,16 +3855,16 @@
     [Scope('OnPrem')]
     procedure MFHandlerChartOfCostAccountOk(var ChartOfAccounts: TestPage "Chart of Accounts")
     begin
-        GLAccountNo := ChartOfAccounts."No.".Value;
-        ChartOfAccounts.OK.Invoke;
+        GLAccountNo := ChartOfAccounts."No.".Value();
+        ChartOfAccounts.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure MFHandlerChartOfCostAccountCancel(var ChartOfAccounts: TestPage "Chart of Accounts")
     begin
-        GLAccountNo := ChartOfAccounts."No.".Value;
-        ChartOfAccounts.Cancel.Invoke;
+        GLAccountNo := ChartOfAccounts."No.".Value();
+        ChartOfAccounts.Cancel().Invoke();
     end;
 
     [ModalPageHandler]
@@ -3889,7 +3884,7 @@
                     CostBudgetEntries."Entry No.".AssertEquals(EntryNo);
                 end;
         end;
-        CostBudgetEntries.OK.Invoke;
+        CostBudgetEntries.OK().Invoke();
     end;
 }
 

@@ -33,7 +33,7 @@ codeunit 144018 "PAYDISC Test"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"PAYDISC Test");
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         GeneralLedgerSetup.Get();
@@ -238,7 +238,7 @@ codeunit 144018 "PAYDISC Test"
         Amount := LibraryRandom.RandDec(1000, 2);
         CreateAndPostGenJournalLine(GenJournalLine, Customer."No.", CurrencyCode, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine2, Customer."No.", CurrencyCode, GenJournalLine2."Document Type"::Invoice, Amount,
-          WorkDate);
+          WorkDate());
         CreateAndPostGenJournalLine(GenJournalLine3, Customer."No.", CurrencyCode, GenJournalLine3."Document Type"::Payment,
           -Amount * 2, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
 
@@ -623,7 +623,7 @@ codeunit 144018 "PAYDISC Test"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
 
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJournalBatch.Modify(true);
     end;
 

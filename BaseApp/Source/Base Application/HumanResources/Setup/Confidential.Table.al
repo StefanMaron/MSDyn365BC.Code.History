@@ -4,6 +4,7 @@ table 5215 Confidential
 {
     Caption = 'Confidential';
     LookupPageID = Confidential;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -42,8 +42,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Totals and Inv.Disc.Purch");
         LibraryVariableStorage.Clear();
         LibraryApplicationArea.EnableFoundationSetup();
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
 
         PurchasesSetup.Get();
         PurchasesSetup."Ext. Doc. No. Mandatory" := false;
@@ -54,11 +54,11 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Totals and Inv.Disc.Purch");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         InventorySetup.Get();
-        ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
+        ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode();
         if InventorySetup."Item Nos." <> ItemNoSeries then
             InventorySetup.Validate("Item Nos.", ItemNoSeries);
         InventorySetup."Automatic Cost Posting" := false;
@@ -78,7 +78,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
             DATABASE::"Warehouse Entry":
                 WarehouseEntry.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -101,8 +101,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseInvoice);
 
         CheckTotals(
-          ItemQuantity * Item."Last Direct Cost", true, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal, PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal);
+          ItemQuantity * Item."Last Direct Cost", true, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(), PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     [Test]
@@ -125,7 +125,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvokeCalcInvoiceDiscountOnInvoice(PurchaseInvoice);
         CheckInvoiceDiscountTypePercentage(DiscPct, ItemQuantity * Item."Last Direct Cost", PurchaseInvoice, true, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -159,7 +159,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvokeCalcInvoiceDiscountOnInvoice(PurchaseInvoice);
         CheckInvoiceDiscountTypePercentage(DiscPct, TotalAmount, PurchaseInvoice, true, '');
 
-        NewLineAmount := Round(PurchaseInvoice.PurchLines."Line Amount".AsDEcimal / 100 * DiscPct, 1);
+        NewLineAmount := Round(PurchaseInvoice.PurchLines."Line Amount".AsDecimal() / 100 * DiscPct, 1);
         PurchaseInvoice.PurchLines."Line Amount".SetValue(NewLineAmount);
         InvokeCalcInvoiceDiscountOnInvoice(PurchaseInvoice);
         CheckInvoiceDiscountTypePercentage(DiscPct, NewLineAmount, PurchaseInvoice, true, '');
@@ -178,7 +178,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -202,27 +202,27 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         ItemQuantity := ItemQuantity * 2;
         PurchaseInvoice.PurchLines.Quantity.SetValue(ItemQuantity);
         TotalAmount := ItemQuantity * Item."Last Direct Cost";
-        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Discounts should not be equal after lines update');
 
         PurchaseInvoice.PurchLines."Direct Unit Cost".SetValue(2 * Item."Last Direct Cost");
         TotalAmount := 2 * TotalAmount;
-        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Discounts should not be equal after lines update');
 
-        PurchaseInvoice.PurchLines."Line Amount".SetValue(PurchaseInvoice.PurchLines."Line Amount".AsDEcimal);
-        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+        PurchaseInvoice.PurchLines."Line Amount".SetValue(PurchaseInvoice.PurchLines."Line Amount".AsDecimal());
+        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Discounts should not be equal after lines update');
 
         PurchaseInvoice.PurchLines."Line Discount %".SetValue('0');
-        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Discounts should not be equal after lines update');
 
         CreateItem(Item2, Item."Last Direct Cost" / 2);
 
         TotalAmount := Item2."Last Direct Cost" * ItemQuantity;
         PurchaseInvoice.PurchLines."No.".SetValue(Item2."No.");
-        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+        Assert.AreNotEqual(InvoiceDiscountAmount, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Discounts should not be equal after lines update');
 
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
@@ -255,7 +255,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := Item."Last Direct Cost" * ItemQuantity * NumberOfLines;
         CheckInvoiceDiscountTypePercentage(DiscPct, TotalAmount, PurchaseInvoice, true, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -282,7 +282,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
         CheckInvoiceDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, PurchaseInvoice, true, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -300,14 +300,14 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
 
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToConfirmDialog;
+        AnswerYesToConfirmDialog();
         PurchaseInvoice."VAT Bus. Posting Group".SetValue(
           LibrarySmallBusiness.FindVATBusPostingGroupZeroVAT(Item."VAT Prod. Posting Group"));
 
@@ -339,7 +339,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
@@ -371,7 +371,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
 
@@ -401,7 +401,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseInvoice."Buy-from Vendor Name".SetValue(NewVendor.Name);
 
@@ -433,7 +433,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseInvoice."Pay-to Name".SetValue(NewVendor.Name);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
@@ -465,7 +465,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
         PurchaseInvoice."Pay-to Name".SetValue(NewVendor.Name);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
@@ -495,8 +495,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToConfirmDialog;
-        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -528,8 +528,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         OpenPurchaseInvoice(PurchaseHeader, PurchaseInvoice);
 
-        AnswerYesToConfirmDialog;
-        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode);
+        AnswerYesToConfirmDialog();
+        PurchaseInvoice."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -564,11 +564,11 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryVariableStorage.Enqueue(OpenPostedInvMsg);
         LibraryVariableStorage.Enqueue(false);
 
-        PostedPurchaseInvoice.Trap;
-        LibrarySales.EnableConfirmOnPostingDoc;
-        PurchaseInvoice.Post.Invoke;
+        PostedPurchaseInvoice.Trap();
+        LibrarySales.EnableConfirmOnPostingDoc();
+        PurchaseInvoice.Post.Invoke();
 
-        PostedPurchaseInvoice.Last;
+        PostedPurchaseInvoice.Last();
         TotalAmount := Item."Last Direct Cost" * ItemQuantity;
         CheckPostedInvoiceDiscountAmountAndTotals(InvoiceDiscountAmount, TotalAmount, PostedPurchaseInvoice, true, '');
     end;
@@ -595,15 +595,15 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateInvoiceWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         PurchCalcDiscByType.ApplyDefaultInvoiceDiscount(0, PurchaseHeader);
 
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
         LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader);
 
         PurchInvHeader.SetFilter("Pre-Assigned No.", PurchaseHeader."No.");
-        Assert.IsTrue(PurchInvHeader.FindFirst, 'Posted Invoice was not found');
+        Assert.IsTrue(PurchInvHeader.FindFirst(), 'Posted Invoice was not found');
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
 
         TotalAmount := NumberOfLines * ItemQuantity * Item."Last Direct Cost";
@@ -632,8 +632,8 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateCreditMemoWithOneLineThroughTestPage(Vendor, Item, ItemQuantity, PurchaseCreditMemo);
 
         CheckTotals(
-          ItemQuantity * Item."Unit Cost", true, PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal, PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal);
+          ItemQuantity * Item."Unit Cost", true, PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(), PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     [Test]
@@ -675,7 +675,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         Initialize();
         ClearTable(DATABASE::"Warehouse Entry");
 
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryApplicationArea.EnableFoundationSetupForCurrentCompany();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
@@ -700,7 +700,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvokeCalcInvoiceDiscountOnCreditMemo(PurchaseCreditMemo);
         CheckCreditMemoDiscountTypePercentage(DiscPct, TotalAmount, PurchaseCreditMemo, true, '');
 
-        NewLineAmount := Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDEcimal / 100 * DiscPct, 1);
+        NewLineAmount := Round(PurchaseCreditMemo.PurchLines."Line Amount".AsDecimal() / 100 * DiscPct, 1);
         PurchaseCreditMemo.PurchLines."Line Amount".SetValue(NewLineAmount);
         InvokeCalcInvoiceDiscountOnCreditMemo(PurchaseCreditMemo);
         CheckCreditMemoDiscountTypePercentage(DiscPct, NewLineAmount, PurchaseCreditMemo, true, '');
@@ -735,7 +735,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvoiceDiscountAmount: Decimal;
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryApplicationArea.EnableFoundationSetupForCurrentCompany();
 
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Vendor, InvoiceDiscountAmount);
@@ -782,7 +782,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(PurchaseLine);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -809,7 +809,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := Item."Unit Cost" * ItemQuantity * NumberOfLines;
         CheckCreditMemoDiscountTypePercentage(DiscPct, TotalAmount, PurchaseCreditMemo, true, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -836,7 +836,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := NumberOfLines * ItemQuantity * Item."Unit Cost";
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, PurchaseCreditMemo, true, '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -854,7 +854,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount: Decimal;
     begin
         Initialize();
-        LibraryApplicationArea.EnableVATSetup;
+        LibraryApplicationArea.EnableVATSetup();
 
         SetupDataForDiscountTypePct(Item, ItemQuantity, Vendor, DiscPct);
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
@@ -952,7 +952,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateCreditMemoWithRandomNumberOfLines(PurchaseHeader, Item, Vendor, ItemQuantity, NumberOfLines);
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        AnswerYesToAllConfirmDialogs;
+        AnswerYesToAllConfirmDialogs();
 
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(NewVendor.Name);
 
@@ -1045,7 +1045,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode);
+        PurchaseCreditMemo."Currency Code".SetValue(GetDifferentCurrencyCode());
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
@@ -1080,9 +1080,9 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader);
         OpenPurchaseCreditMemo(PurchaseHeader, PurchaseCreditMemo);
 
-        CurrencyCode := GetDifferentCurrencyCode;
+        CurrencyCode := GetDifferentCurrencyCode();
         PurchaseCreditMemo."Currency Code".SetValue(CurrencyCode);
-        Assert.AreEqual(0, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal, 'Invoice discount not set to 0');
+        Assert.AreEqual(0, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(), 'Invoice discount not set to 0');
 
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindLast();
@@ -1116,17 +1116,17 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateItem(Item, LibraryRandom.RandDec(100, 2));
         CreateInvoceWithOneLineThroughTestPage(Vendor, Item, LibraryRandom.RandInt(10), PurchaseInvoice);
 
-        Assert.IsTrue(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable, FieldShouldBeEditableTxt);
-        Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable, FieldShouldBeEditableTxt);
+        Assert.IsTrue(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable(), FieldShouldBeEditableTxt);
+        Assert.IsTrue(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable(), FieldShouldBeEditableTxt);
 
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, PurchaseInvoice."No.".Value());
         PurchaseInvoice.Close();
 
-        PurchaseInvoice.OpenView;
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
 
-        Assert.IsFalse(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable, FieldShouldNotBeEditableTxt);
-        Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable, FieldShouldNotBeEditableTxt);
+        Assert.IsFalse(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".Editable(), FieldShouldNotBeEditableTxt);
+        Assert.IsFalse(PurchaseInvoice.PurchLines.InvoiceDiscountAmount.Editable(), FieldShouldNotBeEditableTxt);
         PurchaseInvoice.Close();
     end;
 
@@ -1223,7 +1223,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateVendor(Vendor);
         CreatePurchHeaderWithDocTypeAndNumberOfLines(
           PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::Order);
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
@@ -1260,7 +1260,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateVendor(Vendor);
         CreatePurchHeaderWithDocTypeAndNumberOfLines(
           PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::Quote);
-        PurchaseQuote.OpenEdit;
+        PurchaseQuote.OpenEdit();
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
@@ -1297,7 +1297,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateVendor(Vendor);
         CreatePurchHeaderWithDocTypeAndNumberOfLines(
           PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::"Blanket Order");
-        BlanketPurchaseOrder.OpenEdit;
+        BlanketPurchaseOrder.OpenEdit();
         BlanketPurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
@@ -1327,7 +1327,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Pay-to IC Partner Code" is changed on Purchase Return Order "Pay-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
         Initialize();
-        LibraryApplicationArea.EnableReturnOrderSetup;
+        LibraryApplicationArea.EnableReturnOrderSetup();
 
         // [GIVEN] Purchase Return Order "PC01" with Purchase Lines created for Vendor "V01" and no discount
         ItemUnitCost := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1335,7 +1335,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         CreateVendor(Vendor);
         CreatePurchHeaderWithDocTypeAndNumberOfLines(
           PurchaseHeader, Item, Vendor, 1, 1, PurchaseHeader."Document Type"::"Return Order");
-        PurchaseReturnOrder.OpenEdit;
+        PurchaseReturnOrder.OpenEdit();
         PurchaseReturnOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
 
         // [GIVEN] Vendor "V02" with "IC Partner Code" = "ICP01"
@@ -1396,15 +1396,15 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := TotalAmountWithoutDiscount - DiscAmt;
 
         Assert.AreEqual(
-          DiscPct, Round(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal, 0.01),
+          DiscPct, Round(PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(), 0.01),
           'Vendor Discount Percentage was not set to correct value');
         Assert.AreEqual(
-          DiscAmt, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+          DiscAmt, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Vendor Invoice Discount Amount was not set to correct value');
 
         CheckTotals(
-          TotalAmount, VATApplied, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal, PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(), PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckInvoiceDiscountTypeAmount(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; PurchaseInvoice: TestPage "Purchase Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1417,16 +1417,16 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvDiscPct := Round(InvoiceDiscAmt * 100 / TotalAmountWithoutDiscount, 0.00001);
 
         Assert.AreEqual(
-          InvDiscPct, PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+          InvDiscPct, PurchaseInvoice.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           'Vendor Discount Percentage was not set to the correct value');
         Assert.AreEqual(
-          InvoiceDiscAmt, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDEcimal,
+          InvoiceDiscAmt, PurchaseInvoice.PurchLines.InvoiceDiscountAmount.AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
-          TotalAmount, VATApplied, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDEcimal, PurchaseInvoice.PurchLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, PurchaseInvoice.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseInvoice.PurchLines."Total Amount Excl. VAT".AsDecimal(), PurchaseInvoice.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckCreditMemoDiscountTypePercentage(DiscPct: Decimal; TotalAmountWithoutDiscount: Decimal; PurchaseCreditMemo: TestPage "Purchase Credit Memo"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1442,17 +1442,17 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         TotalAmount := TotalAmountWithoutDiscount - DiscAmt;
 
         Assert.AreEqual(
-          DiscPct, Round(PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal, 0.01),
+          DiscPct, Round(PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(), 0.01),
           'Vendor Discount Percentage was not set to correct value');
         Assert.AreEqual(
-          DiscAmt, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
+          DiscAmt, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
           'Vendor Invoice Discount Amount was not set to correct value');
 
         CheckTotals(
           TotalAmount, VATApplied,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal);
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckCreditMemoDiscountTypeAmount(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; PurchaseCreditMemo: TestPage "Purchase Credit Memo"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1465,18 +1465,18 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         InvDiscPct := Round(InvoiceDiscAmt * 100 / TotalAmountWithoutDiscount, 0.00001);
 
         Assert.AreEqual(
-          InvDiscPct, PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDEcimal,
+          InvDiscPct, PurchaseCreditMemo.PurchLines."Invoice Disc. Pct.".AsDecimal(),
           'Invoice Discount Percentage should be zero for Invoice Discount Type Amount');
         Assert.AreEqual(
-          InvoiceDiscAmt, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDEcimal,
+          InvoiceDiscAmt, PurchaseCreditMemo.PurchLines."Invoice Discount Amount".AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
           TotalAmount, VATApplied,
-          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDEcimal,
-          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDEcimal);
+          PurchaseCreditMemo.PurchLines."Total Amount Incl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total Amount Excl. VAT".AsDecimal(),
+          PurchaseCreditMemo.PurchLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckPostedInvoiceDiscountAmountAndTotals(InvoiceDiscAmt: Decimal; TotalAmountWithoutDiscount: Decimal; PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; VATApplied: Boolean; CurrencyCode: Code[10])
@@ -1487,14 +1487,14 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         RoundAmount(InvoiceDiscAmt, CurrencyCode);
 
         Assert.AreEqual(
-          InvoiceDiscAmt, PostedPurchaseInvoice.PurchInvLines."Invoice Discount Amount".AsDEcimal,
+          InvoiceDiscAmt, PostedPurchaseInvoice.PurchInvLines."Invoice Discount Amount".AsDecimal(),
           'Invoice Discount Amount was not set to correct value');
 
         TotalAmount := TotalAmountWithoutDiscount - InvoiceDiscAmt;
         CheckTotals(
-          TotalAmount, VATApplied, PostedPurchaseInvoice.PurchInvLines."Total Amount Incl. VAT".AsDEcimal,
-          PostedPurchaseInvoice.PurchInvLines."Total Amount Excl. VAT".AsDEcimal,
-          PostedPurchaseInvoice.PurchInvLines."Total VAT Amount".AsDEcimal);
+          TotalAmount, VATApplied, PostedPurchaseInvoice.PurchInvLines."Total Amount Incl. VAT".AsDecimal(),
+          PostedPurchaseInvoice.PurchInvLines."Total Amount Excl. VAT".AsDecimal(),
+          PostedPurchaseInvoice.PurchInvLines."Total VAT Amount".AsDecimal());
     end;
 
     local procedure CheckTotals(ExpectedAmountExclVAT: Decimal; VATApplied: Boolean; ActualAmountInclVAT: Decimal; ActualAmountExclVAT: Decimal; ActualVATAmount: Decimal)
@@ -1530,7 +1530,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseInvoice."Message Type".SetValue(RefPurchaseHeader."Message Type"::Message);
         PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID());
 
-        PurchaseInvoice.PurchLines.First;
+        PurchaseInvoice.PurchLines.First();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(ItemQuantity);
         UpdateInvoiceLine(PurchaseInvoice);
@@ -1541,7 +1541,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         PurchaseCreditMemo.OpenNew();
         PurchaseCreditMemo."Buy-from Vendor Name".SetValue(Vendor.Name);
 
-        PurchaseCreditMemo.PurchLines.First;
+        PurchaseCreditMemo.PurchLines.First();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(ItemQuantity);
         UpdateCreditMemoLine(PurchaseCreditMemo);
@@ -1552,7 +1552,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryVariableStorage.Enqueue(CalcDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseInvoice.CalculateInvoiceDiscount.Invoke;
+        PurchaseInvoice.CalculateInvoiceDiscount.Invoke();
     end;
 
     local procedure InvokeCalcInvoiceDiscountOnCreditMemo(var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
@@ -1560,7 +1560,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
         LibraryVariableStorage.Enqueue(CalcDiscountQst);
         LibraryVariableStorage.Enqueue(true);
 
-        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke;
+        PurchaseCreditMemo.CalculateInvoiceDiscount.Invoke();
     end;
 
     local procedure UpdateInvoiceLine(var PurchaseInvoice: TestPage "Purchase Invoice")
@@ -1577,13 +1577,13 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
 
     local procedure OpenPurchaseInvoice(PurchaseHeader: Record "Purchase Header"; var PurchaseInvoice: TestPage "Purchase Invoice")
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
     end;
 
     local procedure OpenPurchaseCreditMemo(PurchaseHeader: Record "Purchase Header"; var PurchaseCreditMemo: TestPage "Purchase Credit Memo")
     begin
-        PurchaseCreditMemo.OpenEdit;
+        PurchaseCreditMemo.OpenEdit();
         PurchaseCreditMemo.GotoRecord(PurchaseHeader);
     end;
 
@@ -1633,7 +1633,7 @@ codeunit 138024 "O365 Totals and Inv.Disc.Purch"
             Currency.FindFirst();
             Amount := Round(Amount, Currency."Amount Rounding Precision");
         end else
-            Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision);
+            Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision());
     end;
 
     local procedure SetupDataForDiscountTypePct(var Item: Record Item; var ItemQuantity: Decimal; var Vendor: Record Vendor; var DiscPct: Decimal)

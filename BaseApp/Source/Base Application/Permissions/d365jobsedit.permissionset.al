@@ -6,9 +6,10 @@ using Microsoft.Projects.RoleCenters;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -21,7 +22,7 @@ using Microsoft.Finance.VAT.Reporting;
 permissionset 9886 "D365 JOBS, EDIT"
 {
     Assignable = true;
-    Caption = 'Dynamics 365 Create Jobs';
+    Caption = 'Dynamics 365 Create Projects';
 
     IncludedPermissionSets = "D365 JOBS, VIEW",
                              "D365 JOBS, SETUP";
@@ -29,9 +30,10 @@ permissionset 9886 "D365 JOBS, EDIT"
     Permissions = tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata Job = IMD,
+                  tabledata "Job Archive" = IMD,
                   tabledata "Job Cue" = IMD,
                   tabledata "Job Entry No." = IMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = IMD,
                   tabledata "Job Item Price" = IMD,
 #endif
@@ -41,12 +43,14 @@ permissionset 9886 "D365 JOBS, EDIT"
                   tabledata "Job Ledger Entry" = imd,
                   tabledata "Job Planning Line - Calendar" = IMD,
                   tabledata "Job Planning Line" = IMD,
+                  tabledata "Job Planning Line Archive" = IMD,
                   tabledata "Job Planning Line Invoice" = IMD,
                   tabledata "Job Register" = imd,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = IMD,
 #endif
                   tabledata "Job Task" = IMD,
+                  tabledata "Job Task Archive" = IMD,
                   tabledata "Job Task Dimension" = IMD,
                   tabledata "Job Usage Link" = IMD,
                   tabledata "Job WIP Entry" = IMD,

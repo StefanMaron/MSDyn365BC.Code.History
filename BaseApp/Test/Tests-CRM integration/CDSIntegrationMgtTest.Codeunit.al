@@ -1221,6 +1221,70 @@ codeunit 139195 "CDS Integration Mgt Test"
         VerifyJobQueueEntriesInactivityTimeoutPeriod(30, 1440, ' SALESPEOPLE - Dataverse synchronization job.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ManIntTableMappingEmptyIntegrationMappingName()
+    var
+        CDSNewManIntTableWizard: TestPage "CDS New Man. Int. Table Wizard";
+    begin
+        // [SCENARIO] Give error when Integration Mapping Name is empty
+        Initialize();
+        // [GIVEN] Manual Integration Table Mapping Wizard is opened
+        CDSNewManIntTableWizard.OpenEdit();
+
+        // [WHEN] Integration Mapping Name is empty
+        CDSNewManIntTableWizard.Name.SetValue('');
+
+        // [THEN] Error message is shown on Next
+        asserterror CDSNewManIntTableWizard.ActionNext.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ManIntTableMappingEmptyIntegrationTableID()
+    var
+        CDSNewManIntTableWizard: TestPage "CDS New Man. Int. Table Wizard";
+    begin
+        // [SCENARIO] Give error when Integration TableId is empty
+        Initialize();
+        // [GIVEN] Manual Integration Table Mapping Wizard is opened and filled
+        CDSNewManIntTableWizard.OpenEdit();
+        CDSNewManIntTableWizard.Name.SetValue('TEST');
+        CDSNewManIntTableWizard.ActionNext.Invoke();
+        CDSNewManIntTableWizard.TableId.SetValue('Customer');
+        CDSNewManIntTableWizard.IntegrationTableUID.SetValue('');
+        CDSNewManIntTableWizard.IntTblModifiedOnId.SetValue('');
+
+        // [WHEN] Integration TableId is empty
+        CDSNewManIntTableWizard.IntegrationTableID.SetValue('');
+
+        // [THEN] Error message is shown on Next
+        asserterror CDSNewManIntTableWizard.ActionNext.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ManIntTableMappingEmptyTableId()
+    var
+        CDSNewManIntTableWizard: TestPage "CDS New Man. Int. Table Wizard";
+    begin
+        // [SCENARIO] Give error when Integration Mapping Int TableId is empty
+        Initialize();
+        // [GIVEN] Manual Integration Table Mapping Wizard is opened and filled
+        CDSNewManIntTableWizard.OpenEdit();
+        CDSNewManIntTableWizard.Name.SetValue('TEST');
+        CDSNewManIntTableWizard.ActionNext.Invoke();
+        CDSNewManIntTableWizard.IntegrationTableID.SetValue('Dataverse Contact');
+        CDSNewManIntTableWizard.IntegrationTableUID.SetValue('1');
+        CDSNewManIntTableWizard.IntTblModifiedOnId.SetValue('59');
+
+        // [WHEN] TableId is empty
+        CDSNewManIntTableWizard.TableId.SetValue('');
+
+        // [THEN] Error message is shown on Next
+        asserterror CDSNewManIntTableWizard.ActionNext.Invoke();
+    end;
+
     local procedure Initialize()
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";

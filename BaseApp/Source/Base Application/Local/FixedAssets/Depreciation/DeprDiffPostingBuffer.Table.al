@@ -8,6 +8,7 @@ namespace Microsoft.FixedAssets.Depreciation;
 table 13401 "Depr. Diff. Posting Buffer"
 {
     Caption = 'Depr. Diff. Posting Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

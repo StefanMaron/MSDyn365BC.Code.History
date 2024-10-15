@@ -38,7 +38,7 @@ codeunit 144000 TestIntrastatForCustoms
         asserterror IntrastatFileSetup.Get();
 
         // Exercise
-        IntrastatFileSetupPage.OpenEdit;
+        IntrastatFileSetupPage.OpenEdit();
         IntrastatFileSetupPage.Close();
 
         // Verify
@@ -62,7 +62,7 @@ codeunit 144000 TestIntrastatForCustoms
         IntrastatFileSetup.Insert();
 
         // Exercise
-        IntrastatFileSetupPage.OpenEdit;
+        IntrastatFileSetupPage.OpenEdit();
         IntrastatFileSetupPage.Close();
 
         // Verify
@@ -163,7 +163,7 @@ codeunit 144000 TestIntrastatForCustoms
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
-        LibraryERMCountryData.CreateTransportMethodTableData;
+        LibraryERMCountryData.CreateTransportMethodTableData();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::TestIntrastatForCustoms);
     end;
@@ -288,14 +288,14 @@ codeunit 144000 TestIntrastatForCustoms
 
     local procedure VerifyQuantity2FieldIsOnIntrastatForm(Quantity: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('Quantity2_IntraJnlLine', Quantity);
     end;
 
     local procedure VerifyIntrastatChecklistReportCountryRegionCodes(CountryIntrastatCode: Code[10]; CountryName: Text[50]; CountryOfOriginCode: Code[10]; CountryOfOriginName: Text[50])
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('CountryIntrastatCode', CountryIntrastatCode);
         LibraryReportDataset.AssertCurrentRowValueEquals('CountryName', CountryName);
         LibraryReportDataset.AssertCurrentRowValueEquals('CountryRegionOfOriginIntrastatCode', CountryOfOriginCode);
@@ -306,14 +306,14 @@ codeunit 144000 TestIntrastatForCustoms
     [Scope('OnPrem')]
     procedure IntrastatChecklistRPH(var IntrastatChecklist: TestRequestPage "Intrastat - Checklist")
     begin
-        IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatChecklist.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ReportHandlerIntrastatForm(var IntrastatForm: TestRequestPage "Intrastat - Form")
     begin
-        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatForm.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

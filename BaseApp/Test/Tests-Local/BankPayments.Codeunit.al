@@ -161,7 +161,7 @@ codeunit 144002 "Bank Payments"
         RefPaymentExported."Vendor Account" := ''; // Inject an error
         RefPaymentExported.Modify();
 
-        asserterror RefPaymentExported.ExportToFile;
+        asserterror RefPaymentExported.ExportToFile();
         // Verify. Error message is about File Export Errors
         Assert.ExpectedError(FileExportHasErrorsErr);
     end;
@@ -340,11 +340,11 @@ codeunit 144002 "Bank Payments"
             "Country/Region Code" := CountryCode;
             Validate("Post Code", FindPostCode(CountryCode));
             "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Bank Account");
-            "Bank Account No." := CreateGLAccount;
+            "Bank Account No." := CreateGLAccount();
             "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Bank Account");
             Validate(IBAN, IBANCode);
             "Payment Export Format" := PmtExpFormat;
-            "Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+            "Credit Transfer Msg. Nos." := LibraryUtility.GetGlobalNoSeriesCode();
             Modify(true);
             exit("No.");
         end
@@ -382,7 +382,7 @@ codeunit 144002 "Bank Payments"
             Validate("Post Code", FindPostCode(CountryCode));
             "Business Identity Code" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Business Identity Code"), DATABASE::Vendor);
-            "Our Account No." := CreateGLAccount;
+            "Our Account No." := CreateGLAccount();
             Priority := VendorPriority;
             "Preferred Bank Account Code" := CreateVendorBankAccount("No.", CountryCode, IBANCode, SEPAPayment);
             Modify(true);
@@ -403,7 +403,7 @@ codeunit 144002 "Bank Payments"
             "Country/Region Code" := CountryCode;
             "Post Code" := FindPostCode(CountryCode);
             "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account");
-            "Bank Account No." := CreateGLAccount;
+            "Bank Account No." := CreateGLAccount();
             "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Vendor Bank Account");
             IBAN := IBANCode;
             "SEPA Payment" := SEPAPayment;
@@ -442,7 +442,7 @@ codeunit 144002 "Bank Payments"
         end;
     end;
 
-    local procedure CreateReferancePaymentExportLines(BankAccountNo: Code[20]; VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header") PostedDocNo: Code[20]
+    local procedure CreateReferancePaymentExportLines(BankAccountNo: Code[20]; VendorNo: Code[20]; var PurchaseHeader: Record "Purchase Header"): Code[20]
     var
         RefPmtExp: Record "Ref. Payment - Exported";
         SuggestBankPayments: Report "Suggest Bank Payments";
@@ -476,7 +476,7 @@ codeunit 144002 "Bank Payments"
         RequestPage."Payment Account".SetValue(BankAccountNo);
         RequestPage.Vendor.SetFilter("No.", VendorNo);
         RequestPage.Vendor.SetFilter("Payment Method Code", Vendor."Payment Method Code");
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     local procedure VerifySuggestedVendorPaymentsWithInvoiceMessage(VendorNo: Code[20]; DocNo: Code[20]; InvoiceMessage: Text)

@@ -145,7 +145,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         PreCount := GenJournalLine.Count();
         SuggestEmployeePayment(
           GenJournalBatch, '',
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         PostCount := GenJournalLine.Count();
@@ -165,7 +165,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         SuggestEmployeePayment(
           GenJournalBatch, '',
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJournalLine."Bank Payment Type", false);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJournalLine."Bank Payment Type", false);
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         RecordCountAfterResuggest := GenJournalLine.Count();
@@ -233,7 +233,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         ExpenseNo := GenJournalLine."Document No.";
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", GenJournalLine."Document Type"::Payment,
-          ExpenseAmount * LibraryUtility.GenerateRandomFraction);
+          ExpenseAmount * LibraryUtility.GenerateRandomFraction());
         ApplyGenJnlLineEntryToExpense(GenJournalLine, ExpenseNo);
 
         ApplyGenJnlLineEntryToExpense(GenJournalLine, ExpenseNo);
@@ -297,7 +297,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     begin
         // Setup: Create & Post General Journal Lines.
         Initialize();
-        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGeneralJournalWithAccountTypeGLAccount(GenJournalLine, GLAccountNo);
         UpdateGenJournalLine(GenJournalLine, EmployeeNo);
@@ -323,7 +323,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GLAccountNo: Code[20];
     begin
         // 1. Setup: Create and Post General Journal Lines.
-        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         LibraryVariableStorage.Enqueue(EmployeeNo);
         LibraryVariableStorage.Enqueue(GLAccountNo);
@@ -503,7 +503,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         // [WHEN] Run Suggest Employee Payments with "Summarize Per Employee" option
         SuggestEmployeePayment(
           GenJnlBatch, GenJnlLine."Account No.",
-          GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, GenJnlLine."Bank Payment Type"::"Computer Check", true);
+          GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), GenJnlLine."Bank Payment Type"::"Computer Check", true);
 
         // [THEN] General Journal Line is created with "Dimension Set ID" = "X", "Global Dimension 1 Code" = "A", "Global Dimension 2 Code" = "B"
         VerifyGenJnlLineDimSetID(GenJnlBatch, EmployeeNo, DimSetID);
@@ -581,7 +581,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Initialize();
 
         // [GIVEN] Posted journal with type <blank> for Employee A for Amount = -100
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
         CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
         EmployeeNo := GenJournalLine."Account No.";
 
@@ -617,7 +617,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         Initialize();
 
         // [GIVEN] Posted journal with type <blank> for Employee A with Amount = -100
-        BankAccountNo := LibraryERM.CreateBankAccountNo;
+        BankAccountNo := LibraryERM.CreateBankAccountNo();
         CreateAndPostGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::" ");
         EmployeeNo := GenJournalLine."Account No.";
 
@@ -656,16 +656,16 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Payments);
 
         // [GIVEN] Ran page Create Employee Payment, set Batch Name and pushed OK
-        CreateEmployeePayment.OpenEdit;
+        CreateEmployeePayment.OpenEdit();
         CreateEmployeePayment."Batch Name".SetValue(GenJournalBatch.Name);
         CreateEmployeePayment."Starting Document No.".SetValue(LibraryRandom.RandInt(100));
-        CreateEmployeePayment.OK.Invoke;
+        CreateEmployeePayment.OK().Invoke();
 
         // [GIVEN] Deleted Gen Journal Batch
         GenJournalBatch.Delete();
 
         // [WHEN] Run page Create Employee Payment
-        CreateEmployeePayment.OpenEdit;
+        CreateEmployeePayment.OpenEdit();
 
         // [THEN] Page Create Employee Payment shows Batch Name = Blank
         Assert.AreEqual('', Format(CreateEmployeePayment."Batch Name"), '');
@@ -688,7 +688,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalTemplate.DeleteAll();
 
         // [WHEN] Run page Create Employee Payment
-        CreateEmployeePayment.OpenEdit;
+        CreateEmployeePayment.OpenEdit();
 
         // [THEN] Page Create Employee Payment shows Batch Name = Blank
         Assert.AreEqual('', Format(CreateEmployeePayment."Batch Name"), '');
@@ -719,11 +719,11 @@ codeunit 134116 "ERM Suggest Employee Payment"
 
         // [GIVEN] Gen. Journal line in Batch "B" with "Document No." equal to 100
         CreateGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, WorkDate(), LibraryHumanResource.CreateEmployeeNo,
+          GenJournalLine, GenJournalBatch, WorkDate(), LibraryHumanResource.CreateEmployeeNo(),
           GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(10));
 
         // [WHEN] On Create Employee Payment page "Batch name" is set to "B"
-        CreateEmployeePayment.OpenEdit;
+        CreateEmployeePayment.OpenEdit();
         CreateEmployeePayment."Batch Name".SetValue(GenJournalBatch.Name);
 
         // [THEN] "Starting Document No." is equal to 101
@@ -1018,7 +1018,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         DocumentNo := GenJournalLine."Document No.";
 
         CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, WorkDate(), Employee."No.", DocumentType, GenJournalLine.Amount * 2);
-        UpdateOnHoldOnGenJournalLine(GenJournalLine, GetOnHold);
+        UpdateOnHoldOnGenJournalLine(GenJournalLine, GetOnHold());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1044,7 +1044,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -1080,7 +1080,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount;
+        EmployeeNo := LibraryHumanResource.CreateEmployeeNoWithBankAccount();
         GLSetup.Get();
         DimSetID :=
           LibraryDimension.CreateDimSet(
@@ -1096,7 +1096,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         NoSeries: Record "No. Series";
     begin
-        NoSeries.Get(LibraryERM.CreateNoSeriesCode);
+        NoSeries.Get(LibraryERM.CreateNoSeriesCode());
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
         NoSeriesLine.FindFirst();
         NoSeriesLine."Starting No." := StartingNo;
@@ -1301,7 +1301,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDecInRange(10, 1000, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDecInRange(10, 1000, 2));
         LibraryHumanResource.CreateEmployeeWithBankAccount(Employee);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Employee);
         GenJournalLine.Validate("Bal. Account No.", Employee."No.");
@@ -1415,7 +1415,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
             SetRange("Employee No.", EmployeeNo);
             FindFirst();
             CalcFields(Amount, "Remaining Amount");
-            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision,
+            Assert.AreNearlyEqual(Amount2, Amount, LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(ValidateErrorErr, FieldCaption(Amount), Amount2, TableCaption(), FieldCaption("Entry No."), "Entry No."));
             TestField("Remaining Amount", RemainingAmount);
             TestField(Open, Open2);
@@ -1522,47 +1522,47 @@ codeunit 134116 "ERM Suggest Employee Payment"
     [Scope('OnPrem')]
     procedure SuggestEmployeePaymentsWithDimensionRequestPageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
     begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.SummarizePerEmployee.SetValue(true);
-        SuggestEmployeePayments.SummarizePerDimText.AssistEdit;
+        SuggestEmployeePayments.SummarizePerDimText.AssistEdit();
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestEmployeePayments.OK.Invoke;
+        SuggestEmployeePayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestEmployeePaymentsWithDimensionAndBalAccRequestPageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
     begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.SummarizePerEmployee.SetValue(true);
-        SuggestEmployeePayments.SummarizePerDimText.AssistEdit;
+        SuggestEmployeePayments.SummarizePerDimText.AssistEdit();
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestEmployeePayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestEmployeePayments.OK.Invoke;
+        SuggestEmployeePayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestEmployeePayments.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectDimensionHandlerOnSuggesEmployeePayment(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
-        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText);
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText());
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectNoDimensionHandlerOnSuggesEmployeePayment(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
-        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText);
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.FILTER.SetFilter(Code, GetDimensionFilterText());
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1575,9 +1575,9 @@ codeunit 134116 "ERM Suggest Employee Payment"
         GeneralLedgerSetup.Get();
         DimensionSelectionBuffer.SetRange(Code, GeneralLedgerSetup."Shortcut Dimension 1 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         DimensionSelectionMultiple.Selected.SetValue(true);
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     local procedure SetupGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1597,12 +1597,12 @@ codeunit 134116 "ERM Suggest Employee Payment"
     [Scope('OnPrem')]
     procedure SuggestEmployeePaymentsWithoutBalAccountRequestPageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
     begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.SummarizePerEmployee.SetValue(false);
-        SuggestEmployeePayments.SummarizePerDimText.AssistEdit;
+        SuggestEmployeePayments.SummarizePerDimText.AssistEdit();
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
         SuggestEmployeePayments.BalAccountNo.SetValue('');
-        SuggestEmployeePayments.OK.Invoke;
+        SuggestEmployeePayments.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1617,21 +1617,21 @@ codeunit 134116 "ERM Suggest Employee Payment"
           Code, '%1|%2', GeneralLedgerSetup."Shortcut Dimension 1 Code", GeneralLedgerSetup."Shortcut Dimension 2 Code");
         DimensionSelectionMultiple.FILTER.SetFilter(Code, DimensionSelectionBuffer.GetFilter(Code));
         DimensionSelectionMultiple.FILTER.SetFilter(Selected, 'yes');
-        DimensionSelectionMultiple.First;
+        DimensionSelectionMultiple.First();
         repeat
             DimensionSelectionMultiple.Selected.SetValue(false);
         until not DimensionSelectionMultiple.Next();
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestEmployeePaymentsWithAvailableAmtRequestPageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
     begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SuggestEmployeePayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal);
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestEmployeePayments."Available Amount (LCY)".SetValue(LibraryVariableStorage.DequeueDecimal());
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
-        SuggestEmployeePayments.OK.Invoke;
+        SuggestEmployeePayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1640,24 +1640,24 @@ codeunit 134116 "ERM Suggest Employee Payment"
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        GenJournalBatch.Get(LibraryVariableStorage.DequeueText, LibraryVariableStorage.DequeueText);
+        GenJournalBatch.Get(LibraryVariableStorage.DequeueText(), LibraryVariableStorage.DequeueText());
 
         SuggestEmployeePayments.PostingDate.AssertEquals(WorkDate());
         SuggestEmployeePayments.BalAccountType.AssertEquals(GenJournalBatch."Bal. Account Type");
         SuggestEmployeePayments.BalAccountNo.AssertEquals(GenJournalBatch."Bal. Account No.");
-        SuggestEmployeePayments.Cancel.Invoke;
+        SuggestEmployeePayments.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SuggestEmployeePaymentsRequestWithBnkPmtTypePageHandler(var SuggestEmployeePayments: TestRequestPage "Suggest Employee Payments")
     begin
-        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        SuggestEmployeePayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger);
-        SuggestEmployeePayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText);
-        SuggestEmployeePayments.BankPaymentType.SetValue(LibraryVariableStorage.DequeueInteger);
+        SuggestEmployeePayments.Employee.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        SuggestEmployeePayments.BalAccountType.SetValue(LibraryVariableStorage.DequeueInteger());
+        SuggestEmployeePayments.BalAccountNo.SetValue(LibraryVariableStorage.DequeueText());
+        SuggestEmployeePayments.BankPaymentType.SetValue(LibraryVariableStorage.DequeueInteger());
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));  // Setting a Random Document No., value is not important.
-        SuggestEmployeePayments.OK.Invoke;
+        SuggestEmployeePayments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1669,7 +1669,7 @@ codeunit 134116 "ERM Suggest Employee Payment"
         SuggestEmployeePayments.StartingDocumentNo.SetValue(LibraryVariableStorage.DequeueText());
         SuggestEmployeePayments.SummarizePerEmployee.SetValue(LibraryVariableStorage.DequeueBoolean());
         SuggestEmployeePayments.NewDocNoPerLine.SetValue(LibraryVariableStorage.DequeueBoolean());
-        SuggestEmployeePayments.OK.Invoke();
+        SuggestEmployeePayments.OK().Invoke();
     end;
 }
 

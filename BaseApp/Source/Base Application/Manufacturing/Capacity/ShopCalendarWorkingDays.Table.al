@@ -6,6 +6,7 @@ table 99000752 "Shop Calendar Working Days"
 {
     Caption = 'Shop Calendar Working Days';
     DataCaptionFields = "Shop Calendar Code";
+    DataClassification = CustomerContent;
 
     fields
     {

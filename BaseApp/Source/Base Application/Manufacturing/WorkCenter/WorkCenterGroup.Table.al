@@ -11,6 +11,7 @@ table 99000756 "Work Center Group"
     DrillDownPageID = "Work Center Groups";
     LookupPageID = "Work Center Groups";
     Permissions = TableData "Prod. Order Capacity Need" = r;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -36,7 +37,7 @@ table 99000756 "Work Center Group"
         }
         field(22; "Capacity (Total)"; Decimal)
         {
-            CalcFormula = Sum("Calendar Entry"."Capacity (Total)" where("Capacity Type" = const("Work Center"),
+            CalcFormula = sum("Calendar Entry"."Capacity (Total)" where("Capacity Type" = const("Work Center"),
                                                                          "Work Center Group Code" = field(Code),
                                                                          "Work Shift Code" = field("Work Shift Filter"),
                                                                          Date = field("Date Filter")));
@@ -47,7 +48,7 @@ table 99000756 "Work Center Group"
         }
         field(23; "Capacity (Effective)"; Decimal)
         {
-            CalcFormula = Sum("Calendar Entry"."Capacity (Effective)" where("Capacity Type" = const("Work Center"),
+            CalcFormula = sum("Calendar Entry"."Capacity (Effective)" where("Capacity Type" = const("Work Center"),
                                                                              "Work Center Group Code" = field(Code),
                                                                              "Work Shift Code" = field("Work Shift Filter"),
                                                                              Date = field("Date Filter")));
@@ -58,7 +59,7 @@ table 99000756 "Work Center Group"
         }
         field(24; "Prod. Order Need (Qty.)"; Decimal)
         {
-            CalcFormula = Sum("Prod. Order Capacity Need"."Allocated Time" where(Status = field("Prod. Order Status Filter"),
+            CalcFormula = sum("Prod. Order Capacity Need"."Allocated Time" where(Status = field("Prod. Order Status Filter"),
                                                                                   "Work Center Group Code" = field(Code),
                                                                                   Date = field("Date Filter"),
                                                                                   "Requested Only" = const(false)));

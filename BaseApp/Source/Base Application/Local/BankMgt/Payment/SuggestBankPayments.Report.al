@@ -311,19 +311,17 @@ report 32000003 "Suggest Bank Payments"
 
         if PayableVendLedgEntry.FindSet() then
             repeat
-                with RefPmtLines do begin
-                    "No." := NextEntryNo;
-                    SetUsePaymentDisc(UsePaymentDisc);
-                    SetUsePaymentDiscTolerance(UsePmtDiscTolerance);
-                    "Payment Account" := SelectedAccount;
-                    "Vendor No." := PayableVendLedgEntry."Vendor No.";
-                    "Entry No." := PayableVendLedgEntry."Vendor Ledg. Entry No.";
-                    if not ExistsNotTransferred() then begin
-                        Validate("Entry No.", PayableVendLedgEntry."Vendor Ledg. Entry No.");
-                        if "Entry No." <> 0 then begin
-                            Insert();
-                            NextEntryNo := NextEntryNo + 1;
-                        end;
+                RefPmtLines."No." := NextEntryNo;
+                RefPmtLines.SetUsePaymentDisc(UsePaymentDisc);
+                RefPmtLines.SetUsePaymentDiscTolerance(UsePmtDiscTolerance);
+                RefPmtLines."Payment Account" := SelectedAccount;
+                RefPmtLines."Vendor No." := PayableVendLedgEntry."Vendor No.";
+                RefPmtLines."Entry No." := PayableVendLedgEntry."Vendor Ledg. Entry No.";
+                if not RefPmtLines.ExistsNotTransferred() then begin
+                    RefPmtLines.Validate("Entry No.", PayableVendLedgEntry."Vendor Ledg. Entry No.");
+                    if RefPmtLines."Entry No." <> 0 then begin
+                        RefPmtLines.Insert();
+                        NextEntryNo := NextEntryNo + 1;
                     end;
                 end;
             until PayableVendLedgEntry.Next() = 0;

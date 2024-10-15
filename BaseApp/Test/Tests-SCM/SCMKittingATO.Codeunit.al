@@ -22,16 +22,21 @@ codeunit 137096 "SCM Kitting - ATO"
         LibrarySales: Codeunit "Library - Sales";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN23
         LibraryResource: Codeunit "Library - Resource";
+#endif
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
+#if not CLEAN23
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
+#endif
         GenProdPostingGr: Code[20];
         AsmInvtPostingGr: Code[20];
         CompInvtPostingGr: Code[20];
@@ -91,7 +96,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        GlobalSetup;
+        GlobalSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Assembly Setup");
@@ -104,10 +109,10 @@ codeunit 137096 "SCM Kitting - ATO"
 
     local procedure GlobalSetup()
     begin
-        SetupAssembly;
+        SetupAssembly();
         LibraryInventory.ItemJournalSetup(ItemJournalTemplate, ItemJournalBatch);
-        SetupManufacturingSetup;
-        SetupSalesAndReceivablesSetup;
+        SetupManufacturingSetup();
+        SetupSalesAndReceivablesSetup();
         SetupLocation(LocationBlue, false);
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
     end;
@@ -119,17 +124,17 @@ codeunit 137096 "SCM Kitting - ATO"
         UpdateAssemblySetup('');
 
         SalesSetup.Get();
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
-        LibraryPurchase.SetOrderNoSeriesInSetup;
+        LibraryPurchase.SetOrderNoSeriesInSetup();
     end;
 
     local procedure UpdateAssemblySetup(DefaultLocationCode: Code[10])
@@ -138,10 +143,10 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         with AssemblySetup do begin
             Get();
-            Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-            Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Posted Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Assembly Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+            Validate("Blanket Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             Validate("Default Location for Orders", DefaultLocationCode);
             Validate("Stockout Warning", true);
             Modify(true);
@@ -324,8 +329,8 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         CreateAssembledItem(
           AssembledItem, "Assembly Policy"::"Assemble-to-Order", 2, 0, 0, 1, AssembledItem."Costing Method"::FIFO);
-        AssembledItem.Validate("Item Tracking Code", FindItemTrackingLikeSNALL);
-        AssembledItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        AssembledItem.Validate("Item Tracking Code", FindItemTrackingLikeSNALL());
+        AssembledItem.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         AssembledItem.Modify(true);
     end;
 
@@ -372,7 +377,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         FindAssemblyHeader(
           AssemblyHeader, AssemblyHeader."Document Type"::Order, AssemblyItem, '', LocationCode,
-          WorkDate, AssemblyItem."Base Unit of Measure", OrderQty);
+          WorkDate(), AssemblyItem."Base Unit of Measure", OrderQty);
 
         PostCompInventory(AssemblyHeader, true);
         AssignSNItemTracking(AssemblyHeader, OrderQty);
@@ -444,22 +449,22 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
         Commit();
-        AssemblyOrderPage.OpenEdit;
+        AssemblyOrderPage.OpenEdit();
         AssemblyOrderPage.FILTER.SetFilter("No.", AssemblyHeader."No.");
         AssemblyOrderPage.GotoRecord(AssemblyHeader);
 
         LibraryVariableStorage.Enqueue(ItemTrackingAction::AssignSerialNo);
         LibraryVariableStorage.Enqueue(OrderQty);
-        AssemblyOrderPage."Item Tracking Lines".Invoke;
+        AssemblyOrderPage."Item Tracking Lines".Invoke();
 
         repeat
             if AssemblyOrderPage.Lines.Type.Value = ItemMsg then begin
                 LibraryVariableStorage.Enqueue(ItemTrackingAction::SelectEntries);
-                AssemblyOrderPage.Lines."Item Tracking Lines".Invoke;
+                AssemblyOrderPage.Lines."Item Tracking Lines".Invoke();
             end;
         until not AssemblyOrderPage.Lines.Next();
 
-        AssemblyOrderPage.OK.Invoke;
+        AssemblyOrderPage.OK().Invoke();
     end;
 
     local procedure GetLeadTimesItemOrSKU(var LeadTimeCalculation: DateFormula; var SafetyLeadTime: DateFormula; ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10])
@@ -502,7 +507,7 @@ codeunit 137096 "SCM Kitting - ATO"
         exit(UnitCost);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure GetRollupPrice(AssemblyHeader: Record "Assembly Header") Price: Decimal
     var
         AssemblyLine: Record "Assembly Line";
@@ -521,7 +526,7 @@ codeunit 137096 "SCM Kitting - ATO"
                     Type::Resource:
                         Price += Quantity * GetResourcePrice("No.");
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 #endif
@@ -775,15 +780,15 @@ codeunit 137096 "SCM Kitting - ATO"
             SetRange("Parent Item No.", ParentItemNo);
             SetRange(Type, Type::Item);
             FindSet();
-            ItemTrackingCode := FindItemTrackingLikeSNALL;
+            ItemTrackingCode := FindItemTrackingLikeSNALL();
             repeat
                 Item.Get("No.");
                 Item.Validate("Item Tracking Code", ItemTrackingCode);
-                Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+                Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
                 Item.Modify(true);
                 ItemBuf := Item;
                 ItemBuf.Insert();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -945,13 +950,6 @@ codeunit 137096 "SCM Kitting - ATO"
                       CalcDate('<-' + Format(AssemblyLine."Lead-Time Offset") + '>', StartingDate), AssemblyLine."Due Date",
                       StrSubstNo(WrongDateOnAssemblyMsg, AssemblyLine.FieldCaption("Due Date"), AssemblyLine.TableCaption(), AssemblyLine."No."));
         until AssemblyLine.Next() = 0;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AssemblyAvailabilityFormHandler(var AvailPage: TestPage "Assembly Availability")
-    begin
-        AvailPage.Yes.Invoke;
     end;
 
     [ConfirmHandler]
@@ -1170,10 +1168,10 @@ codeunit 137096 "SCM Kitting - ATO"
         AddInvNonDirectLocAllComponent(AssemblyHeader, 100);
 
         // Personalize ATO Lines.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
         SalesOrder.GotoRecord(SalesHeader);
-        SalesOrder.SalesLines.AssembleToOrderLines.Invoke;
+        SalesOrder.SalesLines.AssembleToOrderLines.Invoke();
 
         // Add ATO line in page handler.
 
@@ -1211,7 +1209,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATODeleteSOLCheckReserv()
-    var
     begin
         Initialize();
         TCXATODeleteAO('', "Sales Document Type"::Order, DeleteOption::"Delete SOL", AssertOption::Reservation);
@@ -1900,8 +1897,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATSCheckNoAO()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Orders);
@@ -1910,8 +1905,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATSCheckNoReserv()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::Reservation);
@@ -1920,8 +1913,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATSCheckNoHardLink()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Stock", '', AssertOption::"Hard link");
@@ -1930,8 +1921,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATONegativeNoAO()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Orders);
@@ -1940,8 +1929,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATONegativeNoReserv()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::Reservation);
@@ -1950,8 +1937,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Test]
     [Scope('OnPrem')]
     procedure ATONegativeNoHardLink()
-    var
-        Item: Record Item;
     begin
         Initialize();
         TCxATSNoATO("Assembly Policy"::"Assemble-to-Order", '', AssertOption::"Hard link");
@@ -1972,8 +1957,8 @@ codeunit 137096 "SCM Kitting - ATO"
         // TC128 and TC141 from the TDS - see Documentation
 
         NoOfAssemblyOrders := CountAssemblyOrders(AssemblyHeader."Document Type"::Order);
-        NoOfResEntries := CountReservationEntries;
-        NoOfHardLinkEntries := CountHardLinkEntries;
+        NoOfResEntries := CountReservationEntries();
+        NoOfHardLinkEntries := CountHardLinkEntries();
 
         CreateAssembledItem(Item, AssemblyPolicy, LibraryRandom.RandInt(10),
           LibraryRandom.RandInt(10), LibraryRandom.RandInt(10), LibraryRandom.RandInt(1000),
@@ -1994,7 +1979,7 @@ codeunit 137096 "SCM Kitting - ATO"
                 Assert.AreEqual(NoOfAssemblyOrders, CountAssemblyOrders(AssemblyHeader."Document Type"::Order), NoAsmOrderCreateMsg);
             // Assert no new reservation entries
             AssertOption::Reservation:
-                Assert.AreEqual(NoOfResEntries, CountReservationEntries, NoReservEntryCreateMsg);
+                Assert.AreEqual(NoOfResEntries, CountReservationEntries(), NoReservEntryCreateMsg);
             // Assert hard link entry
             AssertOption::"Hard link":
                 Assert.AreEqual(NoOfHardLinkEntries, NoOfHardLinkEntries, NoHardLinkCreateMsg);
@@ -2575,7 +2560,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // [GIVEN] Assembly Order for Parent Item
         LibraryAssembly.CreateAssemblyHeader(
-          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ParentItem."No.", Location.Code, LibraryRandom.RandInt(9), '');
+          AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime(), ParentItem."No.", Location.Code, LibraryRandom.RandInt(9), '');
         LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ComponentItem."No.",
           ComponentItem."Base Unit of Measure", LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');
 
@@ -2775,7 +2760,7 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,SendNotificationHandler')]
+    [HandlerFunctions('SendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ATOBatchPostAO()
     begin
@@ -2820,8 +2805,11 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyHeaderATO.Get(AssemblyHeaderATO."Document Type", AssemblyHeaderATO."No.");
         Assert.AreEqual(0, AssemblyHeaderATO."Assembled Quantity", NoQtyPostedMsg);
         // [THEN] Notification about errors during posting
-        Clear(AssemblyHeader);
+
         LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeaderATO.RecordId);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeaderRegular.RecordId);
+        Clear(AssemblyHeader);
     end;
 
     [Test]
@@ -2860,7 +2848,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // Add enough inventory for comp
         AddInvNonDirectLocAllComponent(AssemblyHeader, 100);
 
-        AssemblyHeader.UpdateUnitCost;
+        AssemblyHeader.UpdateUnitCost();
 
         // Exercise - post SOs
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3218,8 +3206,8 @@ codeunit 137096 "SCM Kitting - ATO"
         AddInventoryNonDirectLocation(RegularItem."No.", LocationCode, '', 3 * OrderQty);
         AddInventoryNonDirectLocation(ItemATS."No.", LocationCode, '', 3 * OrderQty);
 
-        AssemblyHeader1.UpdateUnitCost;
-        AssemblyHeader2.UpdateUnitCost;
+        AssemblyHeader1.UpdateUnitCost();
+        AssemblyHeader2.UpdateUnitCost();
 
         // Exercise - batch post SOs
         Clear(SalesHeader);
@@ -3284,13 +3272,6 @@ codeunit 137096 "SCM Kitting - ATO"
         LibraryAssembly.VerifyCapEntriesATO(TempAssemblyLine, AssemblyHeader);
     end;
 
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes; // always confirm
-    end;
-
     [Test]
     [Scope('OnPrem')]
     procedure ATOMixVerifyEntries()
@@ -3333,7 +3314,6 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityFormHandler')]
     [Scope('OnPrem')]
     procedure AOVerifyDates()
     begin
@@ -3360,6 +3340,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // Verify
         AssertDatesOnAsmOrder(AssemblyHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -3411,39 +3392,30 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityFormHandler')]
     [Scope('OnPrem')]
     procedure AOVerifyDatesWithVariantSKU()
-    var
-        CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
         Initialize();
-        TCVerifyDatesWithSKU('', CreatePerOption::Variant);
+        TCVerifyDatesWithSKU('', "SKU Creation Method"::Variant);
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityFormHandler')]
     [Scope('OnPrem')]
     procedure AOVerifyDatesWithLocationSKU()
-    var
-        CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
         Initialize();
-        TCVerifyDatesWithSKU(LocationBlue.Code, CreatePerOption::Location);
+        TCVerifyDatesWithSKU(LocationBlue.Code, "SKU Creation Method"::Location);
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityFormHandler')]
     [Scope('OnPrem')]
     procedure AOVerifyDatesWithLocAndVariantSKU()
-    var
-        CreatePerOption: Option Location,Variant,"Location & Variant";
     begin
         Initialize();
-        TCVerifyDatesWithSKU(LocationBlue.Code, CreatePerOption::"Location & Variant");
+        TCVerifyDatesWithSKU(LocationBlue.Code, "SKU Creation Method"::"Location & Variant");
     end;
 
-    local procedure TCVerifyDatesWithSKU(LocationCode: Code[10]; CreatePerOption: Option Location,Variant,"Location & Variant")
+    local procedure TCVerifyDatesWithSKU(LocationCode: Code[10]; CreatePerOption: Enum "SKU Creation Method")
     var
         Item: Record Item;
         ItemVariant: Record "Item Variant";
@@ -3470,6 +3442,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // Verify
         AssertDatesOnAsmOrder(AssemblyHeader);
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -3512,7 +3485,6 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Enum "Sales Document Type";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -3545,7 +3517,6 @@ codeunit 137096 "SCM Kitting - ATO"
         Item: Record Item;
         SalesLine: Record "Sales Line";
         AssemblyHeader: Record "Assembly Header";
-        SalesDocumentType: Enum "Sales Document Type";
         QtyToAssembleToOrder: Integer;
         OrderQty: Integer;
     begin
@@ -3570,7 +3541,7 @@ codeunit 137096 "SCM Kitting - ATO"
           StrSubstNo(WrongUnitValueMsg, SalesLine.FieldCaption("Unit Cost")));
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -3953,7 +3924,7 @@ codeunit 137096 "SCM Kitting - ATO"
                 Assert.AreEqual(
                   "Quantity (Base)" - "Consumed Quantity (Base)",
                   "Remaining Quantity (Base)", FieldName("Remaining Quantity (Base)"));
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -4261,7 +4232,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderQty: Decimal;
     begin
         Initialize();
-        LocationCode := SetupBinLocationInAssemblySetup;
+        LocationCode := SetupBinLocationInAssemblySetup();
         CreateATOItemWithSNTracking(AssembledItem);
         SetupSNTrackingAndDefaultBinContent(LocationCode, AssembledItem);
 
@@ -4271,7 +4242,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
         VerifyWhseEntriesOfAssembly(OrderNo, OrderQty);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -4290,7 +4261,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // Setup.
         Initialize();
-        LocationCode := SetupBinLocationInAssemblySetup;
+        LocationCode := SetupBinLocationInAssemblySetup();
         SetupBinsForLocation(LocationCode, BinCodes);
         SetupToAssemblyBin(LocationCode, BinCodes[ArrayLen(BinCodes)]);
 
@@ -4322,8 +4293,8 @@ codeunit 137096 "SCM Kitting - ATO"
         // [FEATURE] [Assembly] [Assembly to Order] [Sales Order]
         // [SCENARIO 378720] Validating "Sell-to Customer No." in Sales Header should not lead to duplicating Assembly Orders
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
 
         // [GIVEN] Assembled Item
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Order", LibraryRandom.RandInt(10),
@@ -4331,7 +4302,7 @@ codeunit 137096 "SCM Kitting - ATO"
           Item."Costing Method"::FIFO);
 
         // [GIVEN] Sales Header for Customer "C1" with two lines
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sales Line "L1" with "Line No." = "N1" and Assembly Order for that line
         CreateSalesLineWithLineNo(SalesHeader, Item."No.", LibraryRandom.RandIntInRange(5001, 10000));
@@ -4340,7 +4311,7 @@ codeunit 137096 "SCM Kitting - ATO"
         CreateSalesLineWithLineNo(SalesHeader, Item."No.", LibraryRandom.RandInt(5000));
 
         // [WHEN] Set "Sell-to Customer No." on Sales Header to "C2"
-        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
 
         // [THEN] No additional Assembly Orders are created
         AssemblyHeader.SetRange("Item No.", Item."No.");
@@ -4387,7 +4358,7 @@ codeunit 137096 "SCM Kitting - ATO"
         // Add inventory for components to allow posting.
         FindAssemblyHeader(
           AssemblyHeader, AssemblyHeader."Document Type"::Order, AssembledItem, '', '',
-          WorkDate, AssembledItem."Base Unit of Measure", OrderQty);
+          WorkDate(), AssembledItem."Base Unit of Measure", OrderQty);
         LibraryAssembly.AddCompInventory(AssemblyHeader, WorkDate(), LibraryRandom.RandDecInRange(5, 10, 2));
 
         LibrarySales.PostSalesDocument(SalesHeader, true, false); // Post sales order as Ship.
@@ -4411,13 +4382,13 @@ codeunit 137096 "SCM Kitting - ATO"
         QtyToConsume := LibraryRandom.RandInt(100);
         AddInventoryNonDirectLocation(Item."No.", '', '', QtyToConsume);
 
-        AssembleToOrderLines.Last;
+        AssembleToOrderLines.Last();
         AssembleToOrderLines.Type.SetValue(AssemblyLine.Type::Item);
         AssembleToOrderLines."No.".SetValue(Item."No.");
         AssembleToOrderLines.Quantity.SetValue(QtyToConsume);
 
-        AssembleToOrderLines.ShowWarning.Invoke;
-        AssembleToOrderLines.OK.Invoke;
+        AssembleToOrderLines.ShowWarning.Invoke();
+        AssembleToOrderLines.OK().Invoke();
     end;
 
     local procedure FindAssemblyLine(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
@@ -4448,7 +4419,7 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,ModalPageHandler')]
+    [HandlerFunctions('MsgHandler')]
     [Scope('OnPrem')]
     procedure UpdatedQtyInAssemblyHeaderPropagatesToLines()
     var
@@ -4485,6 +4456,8 @@ codeunit 137096 "SCM Kitting - ATO"
         FindAssemblyLine(AssemblyHeader, AssemblyLine);
         Assert.AreNearlyEqual(
           AssemblyLine."Quantity to Consume", TotalQty, GLSetup."Amount Rounding Precision", GreaterQtysPropagatedMsg);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -4514,7 +4487,7 @@ codeunit 137096 "SCM Kitting - ATO"
         DueDate := AssemblyHeader."Due Date";
 
         // [WHEN] Create second line with Shipment Date "SD2" < Requested Delivery Date.
-        AddSalesOrderLineOnPage(SalesHeader, AssembledItem."No.", WorkDate - DaysBack);
+        AddSalesOrderLineOnPage(SalesHeader, AssembledItem."No.", WorkDate() - DaysBack);
 
         // [THEN] Created successfully, Assembly Order has "Due Date" = "SD1".
         AssemblyHeader.Find();
@@ -4524,7 +4497,7 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,AssemblyAvailabilityFormHandler,ReservationHander')]
+    [HandlerFunctions('MsgHandler,ReservationHander')]
     [Scope('OnPrem')]
     procedure AssemblyOrderValidateDueDateFailsOnConflictingReservationDate()
     var
@@ -4549,19 +4522,21 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesLine.ShowReservation();
 
         // Date must be changed in a page, as validation relies on CurrFieldNo
-        AssemblyOrder.OpenEdit;
+        AssemblyOrder.OpenEdit();
         AssemblyOrder.GotoRecord(AssemblyHeader);
 
         // [WHEN] Change "Due Date" in assembly order
-        asserterror AssemblyOrder."Due Date".SetValue(AssemblyOrder."Due Date".AsDate + 1);
+        asserterror AssemblyOrder."Due Date".SetValue(AssemblyOrder."Due Date".AsDate() + 1);
 
         // [THEN] Validation error: "The change leads to a date conflict with existing reservations"
         Assert.ExpectedErrorCode(TestValidationErrorTok);
         Assert.ExpectedError(ReservationConflictErr);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
-    [HandlerFunctions('MsgHandler,AssemblyAvailabilityFormHandler')]
+    [HandlerFunctions('MsgHandler')]
     [Scope('OnPrem')]
     procedure AssemblyOrderDueDateNotChangedWhenValidatingUnrelatedSalesOrder()
     var
@@ -4582,7 +4557,7 @@ codeunit 137096 "SCM Kitting - ATO"
         LibrarySales.CreateCustomer(Customer);
         CreateAssembledItem(Item, "Assembly Policy"::"Assemble-to-Stock", 1, 0, 0, 1, Item."Costing Method"::Standard);
 
-        // [GIVEN] Create sales order "SO1" for item "I" and set "Qty. to Assemble to Order" to create a linked assembly order. Set requested delivery date to WORKDATE + 1 week
+        // [GIVEN] Create sales order "SO1" for item "I" and set "Qty. to Assemble to Order" to create a linked assembly order. Set requested delivery date to WorkDate() + 1 week
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.Validate("Requested Delivery Date", CalcDate('<1W>', WorkDate()));
         SalesHeader.Modify(true);
@@ -4593,7 +4568,7 @@ codeunit 137096 "SCM Kitting - ATO"
         OrderShipmentDate := SalesHeader."Shipment Date";
         FindLinkedAssemblyOrder(AssemblyHeader, SalesHeader."Document Type", SalesHeader."No.");
 
-        // [GIVEN] Create sales order "SO2" with the same item and set requested delivery date = WORKDATE + 4 weeks
+        // [GIVEN] Create sales order "SO2" with the same item and set requested delivery date = WorkDate() + 4 weeks
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         SalesHeader.Validate("Requested Delivery Date", CalcDate('<4W>', WorkDate()));
         SalesHeader.Modify(true);
@@ -4601,13 +4576,15 @@ codeunit 137096 "SCM Kitting - ATO"
         SetQtyToAssembleToOrder(SalesLine, SalesLine.Quantity);
 
         // [WHEN] Change shipment date on order "SO2"
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.GotoRecord(SalesHeader);
         SalesOrder.SalesLines."Shipment Date".SetValue(SalesLine."Shipment Date" - 1);
 
         // [THEN] Due date on the assembly order linked to "SO1" has not changed
         AssemblyHeader.Find();
         AssemblyHeader.TestField("Due Date", OrderShipmentDate);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -4641,7 +4618,7 @@ codeunit 137096 "SCM Kitting - ATO"
 
         // [WHEN] Run preview posting of the sales order.
         Commit();
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror SalesPostYesNo.Preview(SalesHeader);
 
         // [THEN] Empty error is thrown.
@@ -4874,14 +4851,14 @@ codeunit 137096 "SCM Kitting - ATO"
         with SalesHeader do begin
             LibrarySales.CreateSalesHeader(SalesHeader, "Document Type"::Order, '');
             Validate("Location Code", LocationBlue.Code);
-            Validate("Requested Delivery Date", WorkDate - DaysBack);
-            Validate("Promised Delivery Date", WorkDate - DaysBack);
+            Validate("Requested Delivery Date", WorkDate() - DaysBack);
+            Validate("Promised Delivery Date", WorkDate() - DaysBack);
             Modify(true);
         end;
 
         with SalesLine do begin
             LibrarySales.CreateSalesLineWithShipmentDate(
-              SalesLine, SalesHeader, Type::Item, ItemNo, WorkDate - (DaysBack - 1),
+              SalesLine, SalesHeader, Type::Item, ItemNo, WorkDate() - (DaysBack - 1),
               LibraryRandom.RandIntInRange(100, 1000));
             SetQtyToAssembleToOrder(SalesLine, Quantity);
         end;
@@ -4893,10 +4870,10 @@ codeunit 137096 "SCM Kitting - ATO"
         SalesLine: Record "Sales Line";
         SalesOrderPage: TestPage "Sales Order";
     begin
-        SalesOrderPage.Trap;
-        SalesOrderPage.OpenEdit;
+        SalesOrderPage.Trap();
+        SalesOrderPage.OpenEdit();
         SalesOrderPage.GotoRecord(SalesHeader);
-        SalesOrderPage.SalesLines.New;
+        SalesOrderPage.SalesLines.New();
         SalesOrderPage.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesOrderPage.SalesLines."No.".SetValue(ItemNo);
         SalesOrderPage.SalesLines."Shipment Date".SetValue(ShipmentDate);
@@ -4912,7 +4889,7 @@ codeunit 137096 "SCM Kitting - ATO"
         ChangeCostAndPriceOnCompList(Item."No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateSalesAndResourcePricesOnCompList(ItemNo: Code[20])
     var
         BOMComponent: Record "BOM Component";
@@ -4931,7 +4908,7 @@ codeunit 137096 "SCM Kitting - ATO"
                     Type::Resource:
                         CreateResourcePrice("No.");
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
@@ -4981,9 +4958,9 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyOrders: TestPage "Assembly Orders";
         i: Integer;
     begin
-        AssemblyOrders.Trap;
+        AssemblyOrders.Trap();
         AssembleToOrderLink.ShowAsmOrders(SalesHeader);
-        AssemblyOrders.First;
+        AssemblyOrders.First();
         i := 1;
         while AssemblyOrders.Next() do
             i += 1;
@@ -5082,7 +5059,7 @@ codeunit 137096 "SCM Kitting - ATO"
                 TestField("Quantity per", TempQuoteAssemblyLine."Quantity per");
                 TestField(Quantity, TempQuoteAssemblyLine.Quantity);
                 TestField("Remaining Quantity", TempQuoteAssemblyLine."Remaining Quantity");
-            until (Next = 0) and (TempQuoteAssemblyLine.Next() = 0);
+            until (Next() = 0) and (TempQuoteAssemblyLine.Next() = 0);
     end;
 
     [ConfirmHandler]
@@ -5096,13 +5073,6 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure MsgHandler(Message: Text[1024])
     begin
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure ModalPageHandler(var AssemblyAvailabilityPage: Page "Assembly Availability"; var Response: Action)
-    begin
-        Response := ACTION::Yes;     // Ignore not enough qty in inventory
     end;
 
     [Test]
@@ -5129,11 +5099,11 @@ codeunit 137096 "SCM Kitting - ATO"
         SetQtyToAssembleToOrder(SalesLine, OrderQty);
 
         // open Sales Quote
-        SalesQuote.OpenEdit;
+        SalesQuote.OpenEdit();
         SalesQuote.GotoRecord(SalesHeader);
 
-        SalesQuote.SalesLines.Last;
-        SalesQuote.SalesLines."Qty. to Assemble to Order".DrillDown;
+        SalesQuote.SalesLines.Last();
+        SalesQuote.SalesLines."Qty. to Assemble to Order".DrillDown();
     end;
 
     [ModalPageHandler]
@@ -5145,7 +5115,7 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         LibraryInventory.CreateItem(Item);
 
-        AssembleToOrderLines.Last;
+        AssembleToOrderLines.Last();
         AssembleToOrderLines.Type.SetValue(AssemblyLine.Type::Item);
         AssembleToOrderLines."No.".SetValue(Item."No.");
         AssembleToOrderLines."Quantity per".SetValue(LibraryRandom.RandInt(100));
@@ -5276,11 +5246,11 @@ codeunit 137096 "SCM Kitting - ATO"
         AssemblyHeader.Find();
         AssemblyHeader.TestField("Assembled Quantity", 2);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
-    [HandlerFunctions('AssemblyAvailabilityFormHandler,ItemTrackingLinesHandler,EnterQtyHandler,MsgHandler')]
+    [HandlerFunctions('ItemTrackingLinesHandler,EnterQtyHandler,MsgHandler')]
     [Scope('OnPrem')]
     procedure PostingAssembleWithReservedItemForPartiallyTrackedSalesLine()
     var
@@ -5323,7 +5293,9 @@ codeunit 137096 "SCM Kitting - ATO"
         Item.CalcFields(Inventory);
         Item.TestField(Inventory, 5);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -5373,7 +5345,7 @@ codeunit 137096 "SCM Kitting - ATO"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,MsgHandler,AssemblyAvailabilityFormHandler')]
+    [HandlerFunctions('ConfirmHandler,MsgHandler')]
     [Scope('OnPrem')]
     procedure VerifyVariantCodeClearedWhenSelectingNewItemOnAssemblyOrder()
     var
@@ -5405,6 +5377,8 @@ codeunit 137096 "SCM Kitting - ATO"
         // [VERIFY] Verify: Changing Item No. on Assembly Order Page cleared the existing Variant Code
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyOrderNo);
         Assert.AreEqual('', AssemblyHeader."Variant Code", StrSubstNo(FieldMustBeEmptyErr, AssemblyHeader.FieldCaption("Variant Code")));
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(AssemblyHeader.RecordId);
     end;
 
     [Test]
@@ -5510,13 +5484,13 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        case LibraryVariableStorage.DequeueInteger of
+        case LibraryVariableStorage.DequeueInteger() of
             ItemTrackingAction::AssignSerialNo:
-                ItemTrackingLines."Assign Serial No.".Invoke;
+                ItemTrackingLines."Assign Serial No.".Invoke();
             ItemTrackingAction::SelectEntries:
-                ItemTrackingLines."Select Entries".Invoke;
+                ItemTrackingLines."Select Entries".Invoke();
         end;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5527,14 +5501,14 @@ codeunit 137096 "SCM Kitting - ATO"
     begin
         LibraryVariableStorage.Dequeue(Qty);
         EnterQuantity.QtyToCreate.Value := Format(Qty);
-        EnterQuantity.OK.Invoke;
+        EnterQuantity.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingSummaryHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
     begin
-        ItemTrackingSummary.OK.Invoke;
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -5542,7 +5516,7 @@ codeunit 137096 "SCM Kitting - ATO"
     procedure ItemListModalPageHandler(var ItemList: TestPage "Item List")
     begin
         ItemList.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        ItemList.OK.Invoke();
+        ItemList.OK().Invoke();
     end;
 
     [StrMenuHandler]
@@ -5556,7 +5530,7 @@ codeunit 137096 "SCM Kitting - ATO"
     [Scope('OnPrem')]
     procedure ReservationHander(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
+        Reservation."Auto Reserve".Invoke();
     end;
 
     [RecallNotificationHandler]

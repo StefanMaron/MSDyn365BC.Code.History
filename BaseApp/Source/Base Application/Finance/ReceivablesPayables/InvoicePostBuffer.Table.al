@@ -42,12 +42,13 @@ table 49 "Invoice Post. Buffer"
     ObsoleteReason = 'This table will be replaced by table Invoice Posting Buffer in new Invoice Posting implementation.';
 #if CLEAN23
     ObsoleteState = Removed;
-    ObsoleteTag = '23.0';
+    ObsoleteTag = '26.0';
 #else
     ObsoleteState = Pending;
     ObsoleteTag = '20.0';
 #endif
 #pragma warning restore AS0074
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -78,7 +79,7 @@ table 49 "Invoice Post. Buffer"
         }
         field(6; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             DataClassification = SystemMetadata;
             TableRelation = Job;
         }

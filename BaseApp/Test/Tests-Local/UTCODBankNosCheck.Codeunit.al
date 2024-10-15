@@ -168,7 +168,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         // This test is not created for functionality, but for documentation. In FI it should not be possible to NOT generate a
         // Reference No. and it wwould require that one could post with BilltoCustomer =='' and with resulting Invoice No. == ''
         // Setup
-        SetRefNoToInvoicePlusCustomer;
+        SetRefNoToInvoicePlusCustomer();
         PostingNo := '';
         BillToCustomer := '';
         // Exercise
@@ -185,7 +185,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         BillToCustomer: Code[20];
     begin
         // Setup: RefNo adds a checkdigit, so below will exceed 20 chars
-        SetRefNoToInvoicePlusCustomer;
+        SetRefNoToInvoicePlusCustomer();
         PostingNo := Format(1000000000 + LibraryRandom.RandInt(999999999));
         BillToCustomer := Format(1000000000 + LibraryRandom.RandInt(999999999));
         // Exercise
@@ -205,7 +205,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         // [SCENARIO 300042] Numeric part is taken to Reference No from not numeric numbers
 
         // [GIVEN] Posting No. of the invoice = 'AB12345678'
-        SetRefNoToInvoicePlusCustomer;
+        SetRefNoToInvoicePlusCustomer();
         PostingNo := 'AB12345678';
         BillToCustomer := '123456789';
 
@@ -227,7 +227,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         ExpectedRefNo: Text[20];
     begin
         // Setup
-        SetRefNoToInvoicePlusCustomer;
+        SetRefNoToInvoicePlusCustomer();
         PostingNo := '1010';
         BillToCustomer := '1010';
         // Exercise
@@ -290,7 +290,7 @@ codeunit 144006 "UT COD Bank Nos Check"
         BillToCustomer: Code[20];
     begin
         // Setup
-        SetRefNoToNothing;
+        SetRefNoToNothing();
         PostingNo := '1010';
         BillToCustomer := '1010';
         // Exercise

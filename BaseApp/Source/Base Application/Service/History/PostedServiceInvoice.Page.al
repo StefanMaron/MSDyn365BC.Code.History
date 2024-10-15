@@ -6,6 +6,7 @@ using Microsoft.Finance.Currency;
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Service.Comment;
 using Microsoft.Service.Document;
 
@@ -168,6 +169,12 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
+                field("Quote No."; Rec."Quote No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the number of the service quote document if a quote was used to start the service process.';
+                }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = Service;
@@ -180,6 +187,13 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the number of the service document from which the posted invoice was created.';
+                }
+                field("External Document No."; Rec."External Document No.")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the external document number that is entered on the service header that this line was posted from.';
                 }
                 field("Salesperson Code"; Rec."Salesperson Code")
                 {
@@ -494,6 +508,13 @@ page 5978 "Posted Service Invoice"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Invoice Header"),
+                              "No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -551,6 +572,23 @@ page 5978 "Posted Service Invoice"
                         CurrPage.SaveRecord();
                     end;
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("Service Document Lo&g")
                 {
                     ApplicationArea = Service;
@@ -606,6 +644,22 @@ page 5978 "Posted Service Invoice"
                 begin
                     CurrPage.SetSelectionFilter(ServiceInvHeader);
                     ServiceInvHeader.PrintRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Service;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    ServiceInvoiceHeader: Record "Service Invoice Header";
+                begin
+                    ServiceInvoiceHeader := Rec;
+                    ServiceInvoiceHeader.SetRecFilter();
+                    Rec.PrintToDocumentAttachment(ServiceInvoiceHeader);
                 end;
             }
             action("&Navigate")
@@ -670,6 +724,9 @@ page 5978 "Posted Service Invoice"
                 actionref("&Print_Promoted"; "&Print")
                 {
                 }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
                 actionref(SendCustom_Promoted; SendCustom)
                 {
                 }
@@ -685,6 +742,9 @@ page 5978 "Posted Service Invoice"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
                 actionref("Service Document Lo&g_Promoted"; "Service Document Lo&g")

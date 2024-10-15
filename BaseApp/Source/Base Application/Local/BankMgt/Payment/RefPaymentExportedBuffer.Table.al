@@ -12,6 +12,7 @@ using Microsoft.Purchases.Vendor;
 table 32000004 "Ref. Payment - Exported Buffer"
 {
     Caption = 'Ref. Payment - Exported Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

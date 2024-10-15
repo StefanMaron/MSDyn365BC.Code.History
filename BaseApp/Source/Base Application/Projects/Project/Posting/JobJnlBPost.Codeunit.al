@@ -27,45 +27,43 @@ codeunit 1023 "Job Jnl.-B.Post"
 
     local procedure "Code"()
     begin
-        with JobJnlBatch do begin
-            JobJnlTemplate.Get("Journal Template Name");
-            JobJnlTemplate.TestField("Force Posting Report", false);
+        JobJnlTemplate.Get(JobJnlBatch."Journal Template Name");
+        JobJnlTemplate.TestField("Force Posting Report", false);
 
-            IsHandled := false;
-            OnCodeOnBeforeConfirm(IsHandled, JobJnlBatch, JobJnlTemplate);
-            if not IsHandled then
-                if not Confirm(Text000) then
-                    exit;
+        IsHandled := false;
+        OnCodeOnBeforeConfirm(IsHandled, JobJnlBatch, JobJnlTemplate);
+        if not IsHandled then
+            if not Confirm(Text000) then
+                exit;
 
-            Find('-');
-            repeat
-                JobJnlLine."Journal Template Name" := "Journal Template Name";
-                JobJnlLine."Journal Batch Name" := Name;
-                JobJnlLine."Line No." := 1;
-                OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
-                Clear(JobJnlPostbatch);
-                if JobJnlPostbatch.Run(JobJnlLine) then
-                    Mark(false)
-                else begin
-                    Mark(true);
-                    JnlWithErrors := true;
-                end;
-            until Next() = 0;
-
-            if not JnlWithErrors then
-                Message(Text001)
-            else
-                Message(
-                  Text002 +
-                  Text003);
-
-            if not Find('=><') then begin
-                Reset();
-                FilterGroup(2);
-                SetRange("Journal Template Name", "Journal Template Name");
-                FilterGroup(0);
-                Name := '';
+        JobJnlBatch.Find('-');
+        repeat
+            JobJnlLine."Journal Template Name" := JobJnlBatch."Journal Template Name";
+            JobJnlLine."Journal Batch Name" := JobJnlBatch.Name;
+            JobJnlLine."Line No." := 1;
+            OnCodeOnBeforeJobJnlPostBatchRun(JobJnlLine, JobJnlBatch);
+            Clear(JobJnlPostbatch);
+            if JobJnlPostbatch.Run(JobJnlLine) then
+                JobJnlBatch.Mark(false)
+            else begin
+                JobJnlBatch.Mark(true);
+                JnlWithErrors := true;
             end;
+        until JobJnlBatch.Next() = 0;
+
+        if not JnlWithErrors then
+            Message(Text001)
+        else
+            Message(
+                Text002 +
+                Text003);
+
+        if not JobJnlBatch.Find('=><') then begin
+            JobJnlBatch.Reset();
+            JobJnlBatch.FilterGroup(2);
+            JobJnlBatch.SetRange("Journal Template Name", JobJnlBatch."Journal Template Name");
+            JobJnlBatch.FilterGroup(0);
+            JobJnlBatch.Name := '';
         end;
     end;
 

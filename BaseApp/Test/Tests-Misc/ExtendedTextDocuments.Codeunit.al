@@ -67,7 +67,7 @@ codeunit 137410 "Extended Text Documents"
         if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
             TransferExtendedText.InsertSalesExtText(SalesLine);
 
-        SalesOrder.Trap;
+        SalesOrder.Trap();
 
         // Exercise: Create Sales Order form Sales Quote.
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
@@ -126,7 +126,7 @@ codeunit 137410 "Extended Text Documents"
         LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), "Costing Method"::FIFO, 0);
 
         // [GIVEN] Blanket Sales Order for Items "I1" and "I2", in which "Qty. to Ship" for "I1" = 0.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Blanket Order", LibrarySales.CreateCustomerNo());
         CreateSalesLineWithExtText(SalesHeader, NotShippedItem."No.", LibraryRandom.RandInt(10), 0);
         CreateSalesLineWithExtText(
           SalesHeader, ShippedItem."No.", LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5));
@@ -215,7 +215,7 @@ codeunit 137410 "Extended Text Documents"
         LibraryPatterns.MAKEItemWithExtendedText(ShippedItem, LibraryUtility.GenerateRandomText(30), "Costing Method"::FIFO, 0);
 
         // [GIVEN] Blanket Purchase Order for Items "I1" and "I2", in which "Qty. to Receive" for "I1" = 0.
-        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
         CreatePurchLineWithExtText(PurchHeader, NotShippedItem."No.", LibraryRandom.RandInt(10), 0);
         CreatePurchLineWithExtText(
           PurchHeader, ShippedItem."No.", LibraryRandom.RandIntInRange(5, 10), LibraryRandom.RandInt(5));
@@ -248,7 +248,7 @@ codeunit 137410 "Extended Text Documents"
         CreateExtendedText(ExtendedTextHeader);
 
         // [GIVEN] Finance Charge Memo "F" with void type line with extended text "No."
-        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo);
+        LibraryERM.CreateFinanceChargeMemoHeader(FinanceChargeMemoHeader, LibrarySales.CreateCustomerNo());
         LibraryERM.CreateFinanceChargeMemoLine(FinanceChargeMemoLine, FinanceChargeMemoHeader."No.", FinanceChargeMemoLine.Type::" ");
         FinanceChargeMemoLine.Validate("No.", ExtendedTextHeader."No.");
         FinanceChargeMemoLine.Modify(true);
@@ -257,7 +257,7 @@ codeunit 137410 "Extended Text Documents"
         ExtendedTextHeader.Modify(true);
 
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
-        InsertedCode := CommitAndStartNewTransaction;
+        InsertedCode := CommitAndStartNewTransaction();
 
         TransferExtendedText.FinChrgMemoCheckIfAnyExtText(FinanceChargeMemoLine, true);
 
@@ -292,7 +292,7 @@ codeunit 137410 "Extended Text Documents"
         ExtendedTextHeader.Modify(true);
 
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
-        InsertedCode := CommitAndStartNewTransaction;
+        InsertedCode := CommitAndStartNewTransaction();
 
         TransferExtendedText.PurchCheckIfAnyExtText(PurchaseLine, true);
 
@@ -329,7 +329,7 @@ codeunit 137410 "Extended Text Documents"
         ExtendedTextHeader.Modify(true);
 
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
-        InsertedCode := CommitAndStartNewTransaction;
+        InsertedCode := CommitAndStartNewTransaction();
 
         TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, true);
 
@@ -364,7 +364,7 @@ codeunit 137410 "Extended Text Documents"
         ExtendedTextHeader.Modify(true);
 
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
-        InsertedCode := CommitAndStartNewTransaction;
+        InsertedCode := CommitAndStartNewTransaction();
 
         TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, true);
 
@@ -392,14 +392,14 @@ codeunit 137410 "Extended Text Documents"
         CreateExtendedText(ExtendedTextHeader);
 
         // [GIVEN]  Service credit memo "S" with void type line with extended text "No."
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::" ", ExtendedTextHeader."No.");
 
         ExtendedTextHeader.Validate("Service Credit Memo", true);
         ExtendedTextHeader.Modify(true);
 
         // [GIVEN] Table "Area" is updated - a record "R" is inserted
-        InsertedCode := CommitAndStartNewTransaction;
+        InsertedCode := CommitAndStartNewTransaction();
 
         TransferExtendedText.ServCheckIfAnyExtText(ServiceLine, true);
 

@@ -30,7 +30,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [Table Subscriber] [Customer]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         SourceRecordRef.Open(DATABASE::"CRM Account");
         DestinationRecordRef.Open(DATABASE::Customer);
@@ -153,7 +153,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [Table Subscriber] [Contact]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         SourceRecordRef.Open(DATABASE::"CRM Contact");
         DestinationRecordRef.Open(DATABASE::Contact);
@@ -260,7 +260,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [FEATURE] [Table Subscriber] [Salesperson]
         Initialize();
 
-        LibraryCRMIntegration.RegisterTestTableConnection;
+        LibraryCRMIntegration.RegisterTestTableConnection();
         // [GIVEN] Valid setup
         // [GIVEN] A new SalesPerson record
         // [WHEN] Executing before insert step
@@ -306,8 +306,8 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [FEATURE] [Table Subscriber] [Salesperson]
         Initialize();
 
-        LibraryCRMIntegration.RegisterTestTableConnection;
-        DefaultCRMTransactionCurrencyId := LibraryCRMIntegration.GetGLSetupCRMTransactionCurrencyID;
+        LibraryCRMIntegration.RegisterTestTableConnection();
+        DefaultCRMTransactionCurrencyId := LibraryCRMIntegration.GetGLSetupCRMTransactionCurrencyID();
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         // [GIVEN] Valid setup
@@ -324,7 +324,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [GIVEN] A change in the owner
         // [WHEN] Executing after transfer
         // [THEN] The owner is updated
-        ResetDefaultCRMSetupConfiguration; // Create all maps including the salespeople map
+        ResetDefaultCRMSetupConfiguration(); // Create all maps including the salespeople map
         AdditionalFieldsWereModified := false;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
@@ -377,11 +377,11 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] A mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
         IntegrationTableMapping.SetRange("Integration Table ID", DATABASE::"CRM Systemuser");
-        Assert.IsTrue(IntegrationTableMapping.FindFirst, 'Expected a mapping between salespeople and CRM Systemusers');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Expected a mapping between salespeople and CRM Systemusers');
 
         // [GIVEN] CRM User coupled to Salesperson
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -417,12 +417,12 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         // [GIVEN] No mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
         IntegrationTableMapping.SetRange("Integration Table ID", DATABASE::"CRM Systemuser");
         IntegrationTableMapping.DeleteAll(true);
-        Assert.IsFalse(IntegrationTableMapping.FindFirst, 'Did not expect a mapping between salespeople and CRM Systemusers');
+        Assert.IsFalse(IntegrationTableMapping.FindFirst(), 'Did not expect a mapping between salespeople and CRM Systemusers');
 
         // [GIVEN] CRM User coupled to Salesperson
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -464,12 +464,12 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] A mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
         IntegrationTableMapping.SetRange("Integration Table ID", DATABASE::"CRM Systemuser");
-        Assert.IsTrue(IntegrationTableMapping.FindFirst, 'Expected a mapping between salespeople and CRM Systemusers');
+        Assert.IsTrue(IntegrationTableMapping.FindFirst(), 'Expected a mapping between salespeople and CRM Systemusers');
 
         // [GIVEN] CRM User coupled to Salesperson
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
@@ -503,7 +503,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     begin
         // [FEATURE] [CRM Synch. Helper] [Salesperson]
         Initialize();
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] No mapping exists for salespeople - CRM systemusers
         IntegrationTableMapping.SetRange("Table ID", DATABASE::"Salesperson/Purchaser");
@@ -529,8 +529,8 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
     end;
 
     local procedure ResetDefaultCRMSetupConfiguration()

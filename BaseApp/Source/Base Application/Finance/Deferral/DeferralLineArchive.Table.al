@@ -3,6 +3,7 @@ namespace Microsoft.Finance.Deferral;
 table 5128 "Deferral Line Archive"
 {
     Caption = 'Deferral Line Archive';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -632,7 +632,7 @@ page 6631 "Sales Return Order Subform"
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     ToolTip = 'Specifies the deferral template that governs how revenue earned with this sales document is deferred to the different accounting periods when the good or service was delivered.';
                     Visible = false;
 
@@ -646,7 +646,7 @@ page 6631 "Sales Return Order Subform"
                 field("Returns Deferral Start Date"; Rec."Returns Deferral Start Date")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     ToolTip = 'Specifies the starting date of the returns deferral period.';
                     Visible = false;
                 }
@@ -1418,11 +1418,12 @@ page 6631 "Sales Return Order Subform"
 
     procedure ShowDocumentLineTracking()
     var
-        DocumentLineTracking: Page "Document Line Tracking";
+        DocumentLineTrackingPage: Page "Document Line Tracking";
     begin
-        Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(8, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal();
+        Clear(DocumentLineTrackingPage);
+        DocumentLineTrackingPage.SetSourceDoc(
+            "Document Line Source Type"::"Sales Return Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+        DocumentLineTrackingpage.RunModal();
     end;
 
     procedure NoOnAfterValidate()

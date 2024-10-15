@@ -91,7 +91,7 @@
         SourceIDs: List of [Guid];
         InStream: InStream;
         VariableVariant: Variant;
-        Content, BodyContent : Text;
+        Content: Text;
         Name: Text;
     begin
         // [SCENARIO] An email can be sent where the email body is given as a stream
@@ -148,7 +148,7 @@
         SourceIDs: List of [Guid];
         InStream: InStream;
         VariableVariant: Variant;
-        Content, BodyContent : Text;
+        Content: Text;
         Name: Text;
     begin
         // [SCENARIO] An email can be sent where the email body is given as a stream
@@ -250,7 +250,6 @@
         JobQueueEntry: Record "Job Queue Entry";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         TestClientTypeMgtSubscriber: Codeunit "Test Client Type Subscriber";
-        LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
         ConnectorMock: Codeunit "Connector Mock";
         IndexCustomer: Integer;
         IndexSalesInvoice: Integer;
@@ -739,8 +738,6 @@
     end;
 
     local procedure SetVatRegistrationNoToCustomer(var Customer: Record Customer)
-    var
-        CountryRegion: Record "Country/Region";
     begin
         Customer."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(Customer."Country/Region Code");
         Customer.Modify(true);

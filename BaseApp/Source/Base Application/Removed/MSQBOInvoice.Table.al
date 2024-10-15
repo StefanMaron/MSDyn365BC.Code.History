@@ -5,6 +5,7 @@ table 7822 "MS-QBO Invoice"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

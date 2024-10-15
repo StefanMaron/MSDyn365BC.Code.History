@@ -28,13 +28,17 @@ page 5649 "Total Value Insured"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies a description of the fixed asset.';
                 }
+#pragma warning disable AA0100
                 field("FASetup.""Insurance Depr. Book"""; FASetup."Insurance Depr. Book")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'Insurance Depr. Book';
                     ToolTip = 'Specifies the depreciation book code that is specified in the Fixed Asset Setup window.';
                 }
+#pragma warning disable AA0100
                 field("FADeprBook.""Acquisition Cost"""; FADeprBook."Acquisition Cost")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'Acquisition Cost';

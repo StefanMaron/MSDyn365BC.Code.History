@@ -22,8 +22,8 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         FCYCode: Code[10];
         AddFeeDueDate: Date;
         RefNoNoSeriesCode: Code[20];
-	
-	[Test]	
+
+    [Test]
     [HandlerFunctions('RHServiceInvoice')]
     [Scope('OnPrem')]
     procedure PrintServiceInvoiceWithAddFeePerLine()
@@ -228,7 +228,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         CustomerPostingGroup.FindFirst();
         CustomerPostingGroup.ModifyAll("Add. Fee per Line Account", CustomerPostingGroup."Additional Fee Account");
 
-        FCYCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        FCYCode := LibraryERM.CreateCurrencyWithRandomExchRates();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Reminder - Line Fee on Reports");
     end;
 
@@ -385,7 +385,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 1000, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 1000, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
@@ -401,7 +401,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(1, 1000, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDecInRange(1, 1000, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true)); // Ship, Invoice
@@ -416,11 +416,10 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);
-
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true); // Ship, Consume, Invoice
 
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
@@ -438,7 +437,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Validate("Currency Code", CurrencyCode);
         ServiceHeader.Modify(true);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         ServiceLine.Modify(true);
@@ -504,7 +503,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
         end;
 
         // expected result
-        if LanguageCode <> Language.GetUserLanguageCode then begin
+        if LanguageCode <> Language.GetUserLanguageCode() then begin
             ReminderTermsTranslation.Get(ReminderTerms.Code, LanguageCode);
             TextOnReportExpected := ReminderTermsTranslation."Note About Line Fee on Report"
         end else
@@ -514,7 +513,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
             CurrencyCode, AddFeeDueDate, Format(MarginalPerc, 0, 9));
 
         if LevelNo = 1 then
-            LibraryReportDataset.LoadDataSetFile;
+            LibraryReportDataset.LoadDataSetFile();
 
         if AddFeePerLine > 0 then
             LibraryReportDataset.AssertElementWithValueExists('LineFeeCaptionLbl', ElementExpectedValue)
@@ -527,7 +526,7 @@ codeunit 134993 "Reminder - Line Fee on Reports"
     procedure RHServiceInvoice(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
         ServiceInvoice.DisplayAdditionalFeeNote.SetValue(true);
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
 

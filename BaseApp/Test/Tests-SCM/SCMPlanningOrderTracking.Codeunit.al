@@ -535,11 +535,11 @@ codeunit 137075 "SCM Planning Order Tracking"
         // [GIVEN] Create a Sales Order (Special order)
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateSpecialOrder(SalesHeader, SalesLine, Item, Location.Code, '', 1,// Qty 1
-          WorkDate, LibraryRandom.RandDec(10, 2));
+          WorkDate(), LibraryRandom.RandDec(10, 2));
 
         // [GIVEN] Create a purchase order to supply Item for the previous Sales Order
         CreatePurchaseOrderForCustomer(PurchaseHeader, PurchaseLine, Item, Location.Code, '', 1,// Qty 1
-          WorkDate, LibraryRandom.RandDec(5, 2), SalesHeader."Sell-to Customer No.");
+          WorkDate(), LibraryRandom.RandDec(5, 2), SalesHeader."Sell-to Customer No.");
 
         // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
         LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
@@ -621,14 +621,14 @@ codeunit 137075 "SCM Planning Order Tracking"
         Initialize();
         CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
         CreateTransferOrder(TransferLine, Item."No.", LocationBlue.Code, LocationSilver.Code);
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate + LibraryRandom.RandInt(20));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate() + LibraryRandom.RandInt(20));
         Assert.IsTrue(
           FindRequisitionLine(RequisitionLine, RequisitionLine."Action Message"::Cancel, Item."No.", LocationSilver.Code),
           StrSubstNo(ReqLineShouldExistErr, LocationSilver.Code)); // Check Cancel Action Message Req. Line for Location Silver exists
 
         // [WHEN] Calculate Plan for Requisition Worksheet with new Req. Worksheet Name for Location Blue
         Item.SetRange("Location Filter", LocationBlue.Code); // Set Location filter as Blue
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate + LibraryRandom.RandInt(20));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate(), WorkDate() + LibraryRandom.RandInt(20));
         RequisitionLine.Reset();
         FilterRequisitionLine(RequisitionLine, Item."No.", LocationBlue.Code);
 
@@ -655,7 +655,7 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [WHEN] Calculate Regenerative Change Plan for Planning Worksheet for Parent Item and Child Item.
         CalcRegenPlanForPlanWkshWithMultipleItems(
-          Item."No.", ChildItem."No.", WorkDate - LibraryRandom.RandInt(10), GetRequiredDate(10, 30, WorkDate(), 1));
+          Item."No.", ChildItem."No.", WorkDate() - LibraryRandom.RandInt(10), GetRequiredDate(10, 30, WorkDate(), 1));
 
         // [THEN] Verify Reserved Quantity on Prod. Order Component Line.
         VerifyReservedQuantityOnProdOrderComponent(ProductionOrder."No.", ChildItem."No.");
@@ -769,7 +769,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         // [SCENARIO 348770] Order Tracking page should show no entries for Posted Sales Shipment with Item tracking
         Initialize();
-        MockReservationEntries;
+        MockReservationEntries();
 
         // [GIVEN] Item "I" with Serial No. Item tracking
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
@@ -797,19 +797,19 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         LibraryVariableStorage.Enqueue(ControlOptions::Sale);
         LibraryVariableStorage.Enqueue(SerialNo);
-        SalesLine.OpenItemTrackingLines;
+        SalesLine.OpenItemTrackingLines();
         PostedSalesShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
         SalesShipmentHeader.Get(PostedSalesShipmentNo);
-        PostedSalesShipment.OpenView;
+        PostedSalesShipment.OpenView();
         PostedSalesShipment.GotoRecord(SalesShipmentHeader);
-        PostedSalesShipment.SalesShipmLines.First;
+        PostedSalesShipment.SalesShipmLines.First();
 
         // [WHEN] Order tracking is invoked from Posted Sales Shipment
         LibraryVariableStorage.Enqueue(NoTrackingLines);
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(Item."No.");
-        PostedSalesShipment.SalesShipmLines."Order Tra&cking".Invoke; // Order Tracking action
+        PostedSalesShipment.SalesShipmLines."Order Tra&cking".Invoke(); // Order Tracking action
 
         // [THEN] Order Tracking page is opened with no lines (checked in OrderTrackingWithNoLinesModalPageHandler handler)
     end;
@@ -830,7 +830,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         // [SCENARIO 348770] Order Tracking page should show correct entries for Posted Purchase Receipt with Item tracking
         Initialize();
-        MockReservationEntries;
+        MockReservationEntries();
 
         // [GIVEN] Item "I" with Serial No. Item tracking
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Standard, LibraryRandom.RandDec(10, 2));
@@ -846,19 +846,19 @@ codeunit 137075 "SCM Planning Order Tracking"
 
         // [GIVEN] From Item tracking lines (Purchase Order), add a SN to the item, then post receipt
         LibraryVariableStorage.Enqueue(ControlOptions::Purchase);
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         LibraryVariableStorage.Dequeue(SerialNo);
         PostedPurchaseReceiptNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Order Tracking form is opened from posted Purchase Receipt
         PurchRcptHeader.Get(PostedPurchaseReceiptNo);
-        PostedPurchaseReceipt.OpenView;
+        PostedPurchaseReceipt.OpenView();
         PostedPurchaseReceipt.GotoRecord(PurchRcptHeader);
-        PostedPurchaseReceipt.PurchReceiptLines.First;
+        PostedPurchaseReceipt.PurchReceiptLines.First();
         LibraryVariableStorage.Enqueue(0);
         LibraryVariableStorage.Enqueue(2);
         LibraryVariableStorage.Enqueue(Item."No.");
-        PostedPurchaseReceipt.PurchReceiptLines.OrderTracking.Invoke; // Order Tracking action
+        PostedPurchaseReceipt.PurchReceiptLines.OrderTracking.Invoke(); // Order Tracking action
         // [THEN] Order Tracking page is opened with 2 lines for Item "I" and quantity = 1(checked in OrderTrackingWithLinesModalPageHandler handler)
     end;
 
@@ -873,7 +873,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ReservationEntry.DeleteAll();
         LibraryVariableStorage.Clear();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -884,10 +884,10 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         NoSeriesSetup();
-        ItemJournalSetup;
-        OutputJournalSetup;
-        ConsumptionJournalSetup;
-        CreateLocationSetup;
+        ItemJournalSetup();
+        OutputJournalSetup();
+        ConsumptionJournalSetup();
+        CreateLocationSetup();
 
         isInitialized := true;
         Commit();
@@ -913,12 +913,12 @@ codeunit 137075 "SCM Planning Order Tracking"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -926,7 +926,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalTemplate.Modify(true);
 
         ItemJournalBatch.Init();
@@ -991,7 +991,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
         Item.Validate("Reordering Policy", ReorderingPolicy);
-        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         Item.Modify(true);
     end;
 
@@ -1285,10 +1285,10 @@ codeunit 137075 "SCM Planning Order Tracking"
         SelectRequisitionTemplate(ReqWkshTemplate, ReqWkshTemplate.Type::Planning);
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         Commit();  // Required for Test.
-        PlanningWorksheet.OpenEdit;
+        PlanningWorksheet.OpenEdit();
         PlanningWorksheet.CurrentWkshBatchName.SetValue(RequisitionWkshName.Name);
-        PlanningWorksheet.CalculateRegenerativePlan.Invoke;  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
-        PlanningWorksheet.OK.Invoke;
+        PlanningWorksheet.CalculateRegenerativePlan.Invoke();  // Open report on Handler CalculatePlanPlanWkshRequestPageHandler.
+        PlanningWorksheet.OK().Invoke();
     end;
 
     local procedure CreateStockkeepingUnitForMaximumQtyItem(var Item: Record Item; var ItemVariant: Record "Item Variant"; LocationCode: Code[10])
@@ -1339,7 +1339,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         LibraryManufacturing.CreateProductionOrder(
           ProductionOrder, ProductionOrder.Status::"Firm Planned", ProductionOrder."Source Type"::Item, ItemNo, Qty);
-        ProductionOrder.SetUpdateEndDate;
+        ProductionOrder.SetUpdateEndDate();
         ProductionOrder.Validate("Due Date", DueDate);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, false, true, false);
@@ -1486,7 +1486,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     begin
         SelectRequisitionLine(RequisitionLine, ItemNo);
         SelectPlanningComponent(PlanningComponent, RequisitionLine."Worksheet Template Name", RequisitionLine."Journal Batch Name");
-        OrderTracking.Trap;
+        OrderTracking.Trap();
         OrderTracking2.SetPlanningComponent(PlanningComponent);
         OrderTracking2.Run();
         OrderTracking."Untracked Quantity".AssertEquals(PlanningComponent."Expected Quantity");
@@ -1517,7 +1517,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         OrderTracking: TestPage "Order Tracking";
         OrderTracking2: Page "Order Tracking";
     begin
-        OrderTracking.Trap;
+        OrderTracking.Trap();
         OrderTracking2.SetReqLine(RequisitionLine);
         OrderTracking2.Run();
         OrderTracking."Untracked Quantity".AssertEquals(UntrackedQuantity);
@@ -1602,7 +1602,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         ReservationEntry."Item No." := ItemNo;
         ReservationEntry.Quantity := Quantity;
         ReservationEntry."Quantity (Base)" := Quantity;
-        ReservationEntry.Insert;
+        ReservationEntry.Insert();
     end;
 
     [RequestPageHandler]
@@ -1619,15 +1619,15 @@ codeunit 137075 "SCM Planning Order Tracking"
         CalculatePlanPlanWksh.MPS.SetValue(true);
         CalculatePlanPlanWksh.StartingDate.SetValue(WorkDate());
         CalculatePlanPlanWksh.EndingDate.SetValue(GetRequiredDate(10, 50, WorkDate(), 1));
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLinePageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1664,22 +1664,22 @@ codeunit 137075 "SCM Planning Order Tracking"
         case Option of
             ControlOptions::Purchase:
                 begin
-                    ItemTrackingLines."Assign Serial No.".Invoke;
-                    SerialNo := ItemTrackingLines."Serial No.".Value;
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    SerialNo := ItemTrackingLines."Serial No.".Value();
                     LibraryVariableStorage.Enqueue(SerialNo);
-                    ItemTrackingLines.OK.Invoke;
+                    ItemTrackingLines.OK().Invoke();
                 end;
             ControlOptions::Sale:
                 begin
                     LibraryVariableStorage.Dequeue(SerialNo);
                     ItemTrackingLines."Serial No.".SetValue(SerialNo);
                     ItemTrackingLines."Quantity (Base)".SetValue(1);
-                    ItemTrackingLines.OK.Invoke;
+                    ItemTrackingLines.OK().Invoke();
                 end;
             ControlOptions::Verification:
                 begin
                     LibraryVariableStorage.Dequeue(OriginalSerialNo);
-                    SerialNo := ItemTrackingLines."Serial No.".Value;
+                    SerialNo := ItemTrackingLines."Serial No.".Value();
                     Assert.AreEqual(OriginalSerialNo, SerialNo, 'Serial no has been deleted');
                 end;
             else
@@ -1691,16 +1691,16 @@ codeunit 137075 "SCM Planning Order Tracking"
     [Scope('OnPrem')]
     procedure ItemTrackingLinesLotNoModalPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
-        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure EnterQtyToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1708,7 +1708,7 @@ codeunit 137075 "SCM Planning Order Tracking"
     procedure EnterQtyToCreateWithLotNoPageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
         EnterQuantityToCreate.CreateNewLotNo.SetValue(true);
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1718,7 +1718,7 @@ codeunit 137075 "SCM Planning Order Tracking"
         OrderTracking."Untracked Quantity".AssertEquals(LibraryVariableStorage.PeekDecimal(2)); // Untracked Quantity
         OrderTracking."Total Quantity".AssertEquals(LibraryVariableStorage.PeekDecimal(3)); // Quantity
         OrderTracking.CurrItemNo.AssertEquals(LibraryVariableStorage.PeekText(4));
-        Assert.IsFalse(OrderTracking.First, 'Order tracking line should not exist');
+        Assert.IsFalse(OrderTracking.First(), 'Order tracking line should not exist');
     end;
 
     [ModalPageHandler]
@@ -1727,14 +1727,14 @@ codeunit 137075 "SCM Planning Order Tracking"
     var
         ItemNo: Text;
     begin
-        OrderTracking."Untracked Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal); // Untracked Quantity
-        OrderTracking."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal); // Quantity
-        ItemNo := LibraryVariableStorage.DequeueText;
+        OrderTracking."Untracked Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal()); // Untracked Quantity
+        OrderTracking."Total Quantity".AssertEquals(LibraryVariableStorage.DequeueDecimal()); // Quantity
+        ItemNo := LibraryVariableStorage.DequeueText();
         // Check 2 lines in Order tracking page with Item "I" exist
         OrderTracking.CurrItemNo.AssertEquals(ItemNo);
-        Assert.IsTrue(OrderTracking.First, OrderTrackingLineShouldExistErr);
+        Assert.IsTrue(OrderTracking.First(), OrderTrackingLineShouldExistErr);
         OrderTracking."Item No.".AssertEquals(ItemNo);
-        Assert.IsTrue(OrderTracking.Next, OrderTrackingLineShouldExistErr);
+        Assert.IsTrue(OrderTracking.Next(), OrderTrackingLineShouldExistErr);
         OrderTracking."Item No.".AssertEquals(ItemNo);
     end;
 }

@@ -18,7 +18,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
-        TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
     [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
@@ -36,16 +35,16 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Purchase Invoice With Item Charges is Created, Posted, and Cancelled
         PostedPurchaseCreditMemoNo := CreatePostAndCancelPurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -64,16 +63,16 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with External Accountant Plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Purchase Invoice With Item Charges is Created, Posted, and Cancelled
         PostedPurchaseCreditMemoNo := CreatePostAndCancelPurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -95,46 +94,46 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Purchase Invoice With Item Charges is Created
         asserterror CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
         // [THEN] An error is thrown
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PurchaseInvoiceNo := CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Purchase Invoice With Item Charges is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, true);
         // [THEN] A permission error is thrown
         ErrorMessagesPage.Close();
         // Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Posted Purchase Invoice With Item Charges is Cancelled
         asserterror CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, true);
         // [THEN] An error is thrown
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PostedPurchaseCreditMemoNo := CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, false);
         Commit();
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [THEN] All the verifications pass
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -153,16 +152,16 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Purchase Invoice With Item Charges is Created, Posted, and Cancelled
         PostedPurchaseCreditMemoNo := CreatePostAndCancelPurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -184,48 +183,48 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] An item charge
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Purchase Invoice With Item Charges is Created
         asserterror CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
         // [THEN] An error is thrown
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         PurchaseInvoiceNo := CreatePurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Purchase Invoice With Item Charges is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, true);
         // [THEN] A permission error is thrown
         ErrorMessagesPage.Close();
         // Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         PostedPurchaseInvoiceNo := PostPurchaseInvoiceWithItemCharges(PurchaseInvoiceNo, false);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Posted Purchase Invoice With Item Charges is Cancelled
         asserterror CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, true);
         // [THEN] An error is thrown
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         PostedPurchaseCreditMemoNo := CancelPurchaseInvoiceWithItemCharges(PostedPurchaseInvoiceNo, false);
         Commit();
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [THEN] All the verifications pass
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -244,16 +243,16 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A user with Device ISV Embedded Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Purchase Invoice With Item Charges is Created, Posted, and Cancelled
         PostedPurchaseCreditMemoNo := CreatePostAndCancelPurchaseInvoiceWithItemCharges(VendorNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyVendorLedgerEntries(PostedPurchaseCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -273,18 +272,18 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Sales Invoice With Item Charges is Created, Posted, and Cancelled
         PostedSalesCreditMemoNo := CreatePostAndCancelSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -304,18 +303,18 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with External Accountant Plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Sales Invoice With Item Charges is Created, Posted, and Cancelled
         PostedSalesCreditMemoNo := CreatePostAndCancelSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -338,48 +337,48 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] An item charge
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Sales Invoice With Item Charges is Created
         asserterror SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         // [THEN] No permission error is thrown
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Sales Invoice With Item Charges is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostSalesInvoiceWithItemCharges(SalesInvoiceNo, true);
         // [THEN] A permission error is thrown
         ErrorMessagesPage.Close();
         // Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] A Posted Sales Invoice With Item Charges is Cancelled
         asserterror CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         PostedSalesCreditMemoNo := CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, false);
         Commit();
 
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [THEN] All the verifications pass
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -399,18 +398,18 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Business Manager Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Sales Invoice With Item Charges is Created, Posted, and Cancelled
         PostedSalesCreditMemoNo := CreatePostAndCancelSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -433,50 +432,50 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] An item charge
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Sales Invoice With Item Charges is Created
         asserterror SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         SalesInvoiceNo := CreateSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
         // [THEN] No permission error is thrown
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Sales Invoice With Item Charges is Posted
-        ErrorMessagesPage.Trap;
+        ErrorMessagesPage.Trap();
         PostSalesInvoiceWithItemCharges(SalesInvoiceNo, true);
         // [THEN] A permission error is thrown
         ErrorMessagesPage.Close();
         // Assert.ExpectedMessage(TeamMemberErr, ErrorMessagesPage.Description.Value);
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         PostedSalesInvoiceNo := PostSalesInvoiceWithItemCharges(SalesInvoiceNo, false);
         Commit();
 
         // [GIVEN] A user with Team Member Plan
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] A Posted Sales Invoice With Item Charges is Cancelled
         asserterror CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, true);
         // [THEN] A permission error is thrown
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         PostedSalesCreditMemoNo := CancelSalesInvoiceWithItemCharges(PostedSalesInvoiceNo, false);
         Commit();
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [THEN] All the verifications pass
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -496,18 +495,18 @@ codeunit 135406 "Item Charges Plan-based E2E"
         // [GIVEN] An item
         ItemNo := CreateItemFromVendor(VendorNo);
         // [GIVEN] A customer
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         // [GIVEN] A user with Device ISV Embedded Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [WHEN] An Item Charge is created
-        ItemChargeNo := CreateItemCharge;
+        ItemChargeNo := CreateItemCharge();
         // [WHEN] A Sales Invoice With Item Charges is Created, Posted, and Cancelled
         PostedSalesCreditMemoNo := CreatePostAndCancelSalesInvoiceWithItemCharges(CustomerNo, ItemNo, ItemChargeNo);
 
         // [THEN] All the verifications pass and no error is thrown
         VerifyCustLedgerEntries(PostedSalesCreditMemoNo);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -519,7 +518,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         LibraryVariableStorage.Clear();
 
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
@@ -530,8 +529,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        EnableReceiptAndShipmentOnInvoice;
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        EnableReceiptAndShipmentOnInvoice();
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         LibraryERMCountryData.CreateVATData();
@@ -585,14 +584,14 @@ codeunit 135406 "Item Charges Plan-based E2E"
           PurchaseInvoice, Format(PurchaseLine.Type::"Charge (Item)"), ItemChargeNo, LibraryRandom.RandIntInRange(1, 10),
           LibraryRandom.RandDecInRange(1, 1000, 2));
 
-        PurchaseInvoice.PurchLines.ItemChargeAssignment.Invoke;
-        PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoice.PurchLines.ItemChargeAssignment.Invoke();
+        PurchaseInvoiceNo := PurchaseInvoice."No.".Value();
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure CreatePurchaseInvoiceLine(var PurchaseInvoice: TestPage "Purchase Invoice"; Type: Text; No: Code[20]; Quantity: Integer; DirectUnitCost: Decimal)
     begin
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Type);
         PurchaseInvoice.PurchLines."No.".SetValue(No);
         PurchaseInvoice.PurchLines.Quantity.SetValue(Quantity);
@@ -604,22 +603,22 @@ codeunit 135406 "Item Charges Plan-based E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoKey(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
         if not ExpectedFailure then
-            PostedPurchaseInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedPurchaseInvoiceNo));
+            PostedPurchaseInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedPurchaseInvoiceNo));
     end;
 
     local procedure CancelPurchaseInvoiceWithItemCharges(PostedInvoiceNo: Code[20]; ExpectedFailure: Boolean) PostedPurchaseCreditMemoNo: Code[20]
     var
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
     begin
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoKey(PostedInvoiceNo);
-        PostedPurchaseInvoice.CancelInvoice.Invoke;
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
         if not ExpectedFailure then
-            PostedPurchaseCreditMemoNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedPurchaseCreditMemoNo));
+            PostedPurchaseCreditMemoNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedPurchaseCreditMemoNo));
     end;
 
     local procedure CreatePostAndCancelSalesInvoiceWithItemCharges(CustomerNo: Code[20]; ItemNo: Code[20]; ItemChargeNo: Code[20]) PostedSalesCreditMemoNo: Code[20]
@@ -647,14 +646,14 @@ codeunit 135406 "Item Charges Plan-based E2E"
           SalesInvoice, Format(SalesLine.Type::"Charge (Item)"), ItemChargeNo, LibraryRandom.RandIntInRange(1, 10),
           LibraryRandom.RandDecInRange(1, 1000, 2));
 
-        SalesInvoice.SalesLines."Item Charge &Assignment".Invoke; // ITEM CHARGE ASSIGNMENT
-        SalesInvoiceNo := SalesInvoice."No.".Value;
-        SalesInvoice.OK.Invoke;
+        SalesInvoice.SalesLines."Item Charge &Assignment".Invoke(); // ITEM CHARGE ASSIGNMENT
+        SalesInvoiceNo := SalesInvoice."No.".Value();
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure CreateSalesInvoiceLine(var SalesInvoice: TestPage "Sales Invoice"; Type: Text; No: Code[20]; Quantity: Integer; UnitPrice: Decimal)
     begin
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(Type);
         SalesInvoice.SalesLines."No.".SetValue(No);
         SalesInvoice.SalesLines.Quantity.SetValue(Quantity);
@@ -666,22 +665,22 @@ codeunit 135406 "Item Charges Plan-based E2E"
         SalesHeader: Record "Sales Header";
         SalesInvoice: TestPage "Sales Invoice";
     begin
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, SalesInvoiceNo);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
         if not ExpectedFailure then
-            PostedSalesInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedSalesInvoiceNo));
+            PostedSalesInvoiceNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedSalesInvoiceNo));
     end;
 
     local procedure CancelSalesInvoiceWithItemCharges(PostedInvoiceNo: Code[20]; ExpectedFailure: Boolean) PostedSalesCreditMemoNo: Code[20]
     var
         PostedSalesInvoice: TestPage "Posted Sales Invoice";
     begin
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoKey(PostedInvoiceNo);
-        PostedSalesInvoice.CancelInvoice.Invoke;
+        PostedSalesInvoice.CancelInvoice.Invoke();
         if not ExpectedFailure then
-            PostedSalesCreditMemoNo := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(PostedSalesCreditMemoNo));
+            PostedSalesCreditMemoNo := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(PostedSalesCreditMemoNo));
     end;
 
     local procedure VerifyVendorLedgerEntries(PostedCreditMemoNo: Code[20])
@@ -691,11 +690,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         TotalAmount: Decimal;
         LineAmount: Decimal;
     begin
-        DetailedVendorLedgEntries.OpenView;
+        DetailedVendorLedgEntries.OpenView();
         DetailedVendorLedgEntries.FILTER.SetFilter("Entry Type", Format(DetailedVendorLedgEntry."Entry Type"::Application));
         DetailedVendorLedgEntries.FILTER.SetFilter("Document Type", Format(DetailedVendorLedgEntry."Document Type"::"Credit Memo"));
         DetailedVendorLedgEntries.FILTER.SetFilter("Document No.", PostedCreditMemoNo);
-        Assert.IsTrue(DetailedVendorLedgEntries.First, 'No Vendor Ledger Entries Found');
+        Assert.IsTrue(DetailedVendorLedgEntries.First(), 'No Vendor Ledger Entries Found');
         repeat
             Assert.IsTrue(Evaluate(LineAmount, DetailedVendorLedgEntries.Amount.Value), 'Evaluate Failed On Amount');
             TotalAmount += LineAmount;
@@ -711,11 +710,11 @@ codeunit 135406 "Item Charges Plan-based E2E"
         TotalAmount: Decimal;
         LineAmount: Decimal;
     begin
-        DetailedCustLedgEntries.OpenView;
+        DetailedCustLedgEntries.OpenView();
         DetailedCustLedgEntries.FILTER.SetFilter("Entry Type", Format(DetailedCustLedgEntry."Entry Type"::Application));
         DetailedCustLedgEntries.FILTER.SetFilter("Document Type", Format(DetailedCustLedgEntry."Document Type"::"Credit Memo"));
         DetailedCustLedgEntries.FILTER.SetFilter("Document No.", PostedCreditMemoNo);
-        Assert.IsTrue(DetailedCustLedgEntries.First, 'No Vendor Ledger Entries Found');
+        Assert.IsTrue(DetailedCustLedgEntries.First(), 'No Vendor Ledger Entries Found');
         repeat
             Assert.IsTrue(Evaluate(LineAmount, DetailedCustLedgEntries.Amount.Value), 'Evaluate Failed On Amount');
             TotalAmount += LineAmount;
@@ -728,8 +727,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentPurchModalPageHandler(var ItemChargeAssignmentPurch: TestPage "Item Charge Assignment (Purch)")
     begin
-        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentPurch.OK.Invoke;
+        ItemChargeAssignmentPurch.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentPurch.OK().Invoke();
     end;
 
     [PageHandler]
@@ -752,8 +751,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
     [Scope('OnPrem')]
     procedure ItemChargeAssignmentSalesModalPageHandler(var ItemChargeAssignmentSales: TestPage "Item Charge Assignment (Sales)")
     begin
-        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke;
-        ItemChargeAssignmentSales.OK.Invoke;
+        ItemChargeAssignmentSales.SuggestItemChargeAssignment.Invoke();
+        ItemChargeAssignmentSales.OK().Invoke();
     end;
 
     [PageHandler]
@@ -774,7 +773,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
     local procedure CreateItemFromVendor(var VendorNo: Code[20]) ItemNo: Code[20]
     begin
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         ItemNo := CreateItem(VendorNo);
     end;
 
@@ -787,8 +786,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(VendorName);
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -800,8 +799,8 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
     end;
 
     local procedure CreateItem(VendorNo: Code[20]) ItemNo: Code[20]
@@ -823,12 +822,12 @@ codeunit 135406 "Item Charges Plan-based E2E"
         ItemCard."Unit Cost".SetValue(UnitCost);
         ItemCard."Vendor No.".SetValue(VendorNo);
         ItemCard."Gen. Prod. Posting Group".SetValue(GeneralPostingSetup."Gen. Prod. Posting Group");
-        if ApplicationAreaMgmtFacade.IsVATEnabled then begin
+        if ApplicationAreaMgmtFacade.IsVATEnabled() then begin
             LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
             ItemCard."VAT Prod. Posting Group".SetValue(VATPostingSetup."VAT Prod. Posting Group");
         end;
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
     end;
 
     local procedure CreateItemCharge() ItemChargeNo: Code[20]
@@ -844,14 +843,14 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryERM.FindGeneralPostingSetupInvtBase(GeneralPostingSetup);
         LibraryERM.FindZeroVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
 
-        ItemCharges.OpenEdit;
-        ItemCharges.New;
+        ItemCharges.OpenEdit();
+        ItemCharges.New();
         ItemCharges."No.".SetValue(ItemChargeNo);
         ItemCharges.Description.SetValue(Description);
         ItemCharges."Gen. Prod. Posting Group".SetValue(GeneralPostingSetup."Gen. Prod. Posting Group");
-        if ApplicationAreaMgmtFacade.IsVATEnabled then
+        if ApplicationAreaMgmtFacade.IsVATEnabled() then
             ItemCharges."VAT Prod. Posting Group".SetValue(VATPostingSetup."VAT Prod. Posting Group");
-        ItemCharges.OK.Invoke;
+        ItemCharges.OK().Invoke();
     end;
 
     [ModalPageHandler]

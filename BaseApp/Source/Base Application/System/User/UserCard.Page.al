@@ -299,6 +299,7 @@ page 9807 "User Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'User Permission Sets';
                 SubPageLink = "User Security ID" = field("User Security ID");
+                Visible = PermissionsVisible;
                 AboutTitle = 'Assigning permissions';
                 AboutText = 'You add or remove permissions by updating the lines here. If you leave the **Company** field blank on a line, the assignment applies to all companies.';
             }
@@ -307,7 +308,7 @@ page 9807 "User Card"
                 Caption = 'Licenses';
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "User Security ID" = field("User Security ID");
-                Visible = IsSaaS;
+                Visible = IsSaaS and PermissionsVisible;
             }
         }
         area(factboxes)
@@ -384,7 +385,7 @@ page 9807 "User Card"
                         EditWebServiceID();
                     end;
                 }
-                Action(RemoveWSAccessKey)
+                action(RemoveWSAccessKey)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Clear Web Service Access Key';
@@ -509,6 +510,8 @@ page 9807 "User Card"
         AzureADGraph: Codeunit "Azure AD Graph";
         IsGraphUserAccountEnabled: Boolean;
     begin
+        SetPermissionsVisibility();
+
         WindowsUserName := IdentityManagement.UserName(Rec."Windows Security ID");
 
         Rec.TestField("User Name");
@@ -585,7 +588,6 @@ page 9807 "User Card"
 #if not CLEAN23
         MyNotification: Record "My Notifications";
 #endif
-        SecurityGroupMemberBuffer: Record "Security Group Member Buffer";
         EnvironmentInfo: Codeunit "Environment Information";
 #if not CLEAN23
         UserManagement: Codeunit "User Management";
@@ -607,9 +609,6 @@ page 9807 "User Card"
 
         OnPremAskFirstUserToCreateSuper();
 
-        // Set "User Security Groups" to refresh as part of "Inherited Permission Sets" refresh (to avoid fetching security group memberships twice).
-        CurrPage."User Security Groups".Page.GetSourceRecord(SecurityGroupMemberBuffer);
-        CurrPage."Inherited Permission Sets".Page.SetRecordToRefresh(SecurityGroupMemberBuffer);
 #if not CLEAN23
         Usermanagement.BasicAuthDepricationNotificationDefault(false);
         if MyNotification.IsEnabled(UserManagement.BasicAuthDepricationNotificationId()) then
@@ -665,9 +664,21 @@ page 9807 "User Card"
         ReadWebServiceKeyForUserTxt: Label 'Read web service key for user %1', Locked = true;
         NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
         NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
+        PermissionsVisible: Boolean;
 #if not CLEAN22
         LegacyUserGroupsVisible: Boolean;
 #endif
+
+    local procedure SetPermissionsVisibility(): Boolean
+    var
+        UserPermissions: Codeunit "User Permissions";
+        CanManageUsersOnTenant: Boolean;
+        IsOwnUser: Boolean;
+    begin
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        IsOwnUser := Rec."User Security ID" = UserSecurityId();
+        PermissionsVisible := CanManageUsersOnTenant or IsOwnUser;
+    end;
 
     local procedure ValidateSid()
     var
@@ -767,22 +778,23 @@ page 9807 "User Card"
         end;
     end;
 
+    [NonDebuggable]
     local procedure EditNavPassword()
     var
         PasswordDialogManagement: Codeunit "Password Dialog Management";
-        Password: Text;
+        LocalPassword: SecretText;
     begin
         Rec.TestField("User Name");
 
         CurrPage.SaveRecord();
         Commit();
 
-        Password := PasswordDialogManagement.OpenPasswordDialog();
+        LocalPassword := PasswordDialogManagement.OpenSecretPasswordDialog();
 
-        if Password = '' then
+        if LocalPassword.IsEmpty() then
             exit;
 
-        SetUserPassword(Rec."User Security ID", Password);
+        SetUserPassword(Rec."User Security ID", LocalPassword.Unwrap());
         CurrPage.Update(false);
     end;
 
@@ -877,7 +889,6 @@ page 9807 "User Card"
                 Rec."Windows Security ID" := UserSID;
                 ValidateSid();
                 SetUserName();
-                CurrPage."Inherited Permission Sets".Page.Refresh(); // "User Security Groups" part is updated as part of this refresh as well
             end else
                 Error(Text001Err, WindowsUserName);
         end;

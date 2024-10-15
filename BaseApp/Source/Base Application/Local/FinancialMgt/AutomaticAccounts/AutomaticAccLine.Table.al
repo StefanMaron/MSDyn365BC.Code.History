@@ -21,6 +21,7 @@ table 11204 "Automatic Acc. Line"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

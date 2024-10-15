@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Setup;
 table 5068 Salutation
 {
     Caption = 'Salutation';
+    DataClassification = CustomerContent;
     LookupPageID = Salutations;
 
     fields

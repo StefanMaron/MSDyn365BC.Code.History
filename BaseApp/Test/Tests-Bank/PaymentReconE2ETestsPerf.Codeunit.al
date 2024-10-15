@@ -121,36 +121,36 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         WriteCAMTFooter(OutStream);
 
         // Exercise
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
 
         // Measure Import
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8);
-        ToImport := CodeCoverageMgt.ApplicationHits - NoOfHits;
+        ToImport := CodeCoverageMgt.ApplicationHits() - NoOfHits;
 
         // Measure Open Pmt Jnl
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
-        ToOpenPmtJnl := CodeCoverageMgt.ApplicationHits - NoOfHits;
+        ToOpenPmtJnl := CodeCoverageMgt.ApplicationHits() - NoOfHits;
 
         // Measure Apply Automatically
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
         ApplyAutomatically(PmtReconJnl);
-        ToAutoApply := CodeCoverageMgt.ApplicationHits - NoOfHits;
+        ToAutoApply := CodeCoverageMgt.ApplicationHits() - NoOfHits;
 
         // Measure Manual Apply
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
         ApplyManually(PmtReconJnl, CustLedgEntry, NoOfSales);
-        ToManuallyApply := CodeCoverageMgt.ApplicationHits - NoOfHits;
+        ToManuallyApply := CodeCoverageMgt.ApplicationHits() - NoOfHits;
 
         VerifyPrePost(BankAccRecon, PmtReconJnl);
 
         // Measure Post
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
-        PmtReconJnl.Post.Invoke;
-        ToPost := CodeCoverageMgt.ApplicationHits - NoOfHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
+        PmtReconJnl.Post.Invoke();
+        ToPost := CodeCoverageMgt.ApplicationHits() - NoOfHits;
 
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         j := 0;
         for i := 1 to NoOfSales do begin
@@ -172,13 +172,12 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     var
         BankAcc: Record "Bank Account";
         BankStmtFormat: Code[20];
-        TotalLinesAmount: Decimal;
     begin
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAcc);
         LibraryERM.CreateBankAccReconciliation(BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
         SetupSourceMock(BankStmtFormat, TempBlobUTF8);
-        BankAccRecon.ImportBankStatement;
+        BankAccRecon.ImportBankStatement();
 
         BankAccRecon.CalcFields("Total Transaction Amount");
         UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccRecon."Total Transaction Amount");
@@ -188,16 +187,16 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     var
         PmtReconciliationJournals: TestPage "Pmt. Reconciliation Journals";
     begin
-        PmtReconciliationJournals.OpenView;
+        PmtReconciliationJournals.OpenView();
         PmtReconciliationJournals.GotoRecord(BankAccRecon);
-        PmtReconJnl.Trap;
-        PmtReconciliationJournals.EditJournal.Invoke;
+        PmtReconJnl.Trap();
+        PmtReconciliationJournals.EditJournal.Invoke();
     end;
 
     local procedure ApplyAutomatically(var PmtReconJnl: TestPage "Payment Reconciliation Journal")
     begin
-        PmtReconJnl.ApplyAutomatically.Invoke;
-        PmtReconJnl.First;
+        PmtReconJnl.ApplyAutomatically.Invoke();
+        PmtReconJnl.First();
     end;
 
     local procedure ApplyManually(var PmtReconJnl: TestPage "Payment Reconciliation Journal"; var CustLedgEntry: array[36] of Record "Cust. Ledger Entry"; NoOfSales: Integer)
@@ -207,7 +206,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         for j := 0 to NoOfSales - 1 do begin
             GlobalCustLedgEntry := CustLedgEntry[j * NoOfSales + 1];
             GlobalPmtReconJnl := PmtReconJnl;
-            GlobalPmtReconJnl.ApplyEntries.Invoke;
+            GlobalPmtReconJnl.ApplyEntries.Invoke();
             PmtReconJnl := GlobalPmtReconJnl;
             PmtReconJnl.Next();
         end;
@@ -281,9 +280,9 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
-        PmtReconJnl.First;
+        PmtReconJnl.First();
         repeat
-            PmtReconJnl."Statement Amount".AssertEquals(PmtReconJnl."Applied Amount".AsDEcimal);
+            PmtReconJnl."Statement Amount".AssertEquals(PmtReconJnl."Applied Amount".AsDecimal());
             PmtReconJnl.Difference.AssertEquals(0);
         until not PmtReconJnl.Next();
 
@@ -334,7 +333,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
                         Validate("Payment Disc. Credit Acc.", GLAcc."No.");
                         Modify(true);
                     end;
-                until Next = 0;
+                until Next() = 0;
     end;
 
     local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
@@ -359,7 +358,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        UpdateCustPostingGrp;
+        UpdateCustPostingGrp();
         Commit();
     end;
 
@@ -385,22 +384,22 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     begin
         with PmtAppln do begin
             // Remove Entry is not the same customer
-            if AppliedAmount.AsDEcimal <> 0 then
+            if AppliedAmount.AsDecimal() <> 0 then
                 if "Account No.".Value <> GlobalCustLedgEntry."Customer No." then begin
                     Applied.SetValue(false);
-                    Next;
+                    Next();
                 end;
 
             // Go to the first and check that it is the customer and scroll down to find the entry
-            if Applied.AsBoolean then begin
-                RelatedPartyOpenEntries.Invoke;
-                while Next and (TotalRemainingAmount.AsDEcimal <> 0) do begin
+            if Applied.AsBoolean() then begin
+                RelatedPartyOpenEntries.Invoke();
+                while Next() and (TotalRemainingAmount.AsDecimal() <> 0) do begin
                     Applied.SetValue(true);
                     RemainingAmountAfterPosting.AssertEquals(0);
                 end;
             end;
 
-            OK.Invoke;
+            OK().Invoke();
         end;
     end;
 
@@ -408,7 +407,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 }
 

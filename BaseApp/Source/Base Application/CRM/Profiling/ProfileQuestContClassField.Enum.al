@@ -1,6 +1,8 @@
 namespace Microsoft.CRM.Profiling;
 
+#pragma warning disable AL0659
 enum 5084 "Profile Quest. Cont. Class. Field"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

@@ -5,7 +5,6 @@
 
 namespace Microsoft.Bank.Payment;
 
-using Microsoft.Bank.DirectDebit;
 using Microsoft.Bank.Reports;
 using Microsoft.Purchases.Setup;
 using System.Telemetry;
@@ -257,7 +256,6 @@ page 32000006 "Bank Payments to send"
 
                     trigger OnAction()
                     var
-                        RefPaymentExported: Record "Ref. Payment - Exported";
                     begin
                         FeatureTelemetry.LogUptake('1000HO0', FIBankTok, Enum::"Feature Uptake Status"::"Used");
                         Rec.ExportToFile();
@@ -340,7 +338,6 @@ page 32000006 "Bank Payments to send"
         TotalAmountLCY: Decimal;
         Text001: Label 'Do you want to create the payment file?';
         Text002: Label 'Do you want to combine foreign payments?';
-        CreateSEPAFile: Report "Export SEPA Payment File";
         Text003: Label 'Do you want to combine SEPA payments?';
         FIBankTok: Label 'FI Electronic Banking', Locked = true;
         PaymentType: Option Domestic,Foreign,SEPA;

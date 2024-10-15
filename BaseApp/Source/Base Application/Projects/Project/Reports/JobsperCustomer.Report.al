@@ -10,10 +10,11 @@ using Microsoft.Utilities;
 
 report 1012 "Jobs per Customer"
 {
+    AdditionalSearchTerms = 'Jobs per Customer';
     DefaultLayout = RDLC;
     RDLCLayout = './Projects/Project/Reports/JobsperCustomer.rdlc';
     ApplicationArea = Jobs;
-    Caption = 'Jobs per Customer';
+    Caption = 'Projects per Customer';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -174,10 +175,10 @@ report 1012 "Jobs per Customer"
         JobFilter: Text;
         Amt: array[8] of Decimal;
         TotalForTxt: Label 'Total for';
-        JobsperCustCaptionLbl: Label 'Jobs per Customer';
+        JobsperCustCaptionLbl: Label 'Projects per Customer';
         PageCaptionLbl: Label 'Page';
         AllAmtAreInLCYCaptionLbl: Label 'All amounts are in LCY';
-        JobNoCaptionLbl: Label 'Job No.';
+        JobNoCaptionLbl: Label 'Project No.';
         EndingDateCaptionLbl: Label 'Ending Date';
         ScheduleLineAmtCaptionLbl: Label 'Budget Line Amount';
         UsageLineAmtCaptionLbl: Label 'Usage Line Amount';

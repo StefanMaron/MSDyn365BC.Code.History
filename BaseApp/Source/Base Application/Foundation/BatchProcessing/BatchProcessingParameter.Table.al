@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.BatchProcessing;
 table 52 "Batch Processing Parameter"
 {
     Caption = 'Batch Processing Parameter';
+    DataClassification = CustomerContent;
 
     fields
     {

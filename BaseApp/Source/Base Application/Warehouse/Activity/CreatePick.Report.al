@@ -82,10 +82,10 @@ report 5754 "Create Pick"
             begin
                 Clear(CreatePick);
                 CreatePickParameters."Assigned ID" := AssignedID;
-                CreatePickParameters."Sorting Method" := SortPick;
+                CreatePickParameters."Sorting Method" := SortActivity;
                 CreatePickParameters."Max No. of Lines" := MaxNoOfLines;
                 CreatePickParameters."Max No. of Source Doc." := MaxNoOfSourceDoc;
-                CreatePickParameters."Do Not Fill Qty. to Handle" := DoNotFillQtytoHandle;
+                CreatePickParameters."Do Not Fill Qty. to Handle" := DoNotFillQtytoHandleReq;
                 CreatePickParameters."Breakbulk Filter" := BreakbulkFilter;
                 CreatePickParameters."Per Bin" := PerBin;
                 CreatePickParameters."Per Zone" := PerZone;
@@ -199,7 +199,7 @@ report 5754 "Create Pick"
                                 WhseEmployee.Get(AssignedID, LocationCode);
                         end;
                     }
-                    field(SortPick; SortPick)
+                    field(SortPick; SortActivity)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Sorting Method for Pick Lines';
@@ -212,7 +212,7 @@ report 5754 "Create Pick"
                         Caption = 'Set Breakbulk Filter';
                         ToolTip = 'Specifies if you do not want to view the intermediate breakbulk pick lines, when a larger unit of measure is converted to a smaller unit of measure and completely picked.';
                     }
-                    field(DoNotFillQtytoHandle; DoNotFillQtytoHandle)
+                    field(DoNotFillQtytoHandle; DoNotFillQtytoHandleReq)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Do Not Fill Qty. to Handle';
@@ -237,10 +237,10 @@ report 5754 "Create Pick"
             if LocationCode <> '' then begin
                 Location.Get(LocationCode);
                 if Location."Use ADCS" then
-                    DoNotFillQtytoHandle := true;
+                    DoNotFillQtytoHandleReq := true;
             end;
 
-            OnAfterOnOpenPage(DoNotFillQtytoHandle);
+            OnAfterOnOpenPage(DoNotFillQtytoHandleReq);
         end;
     }
 
@@ -265,7 +265,6 @@ report 5754 "Create Pick"
         MaxNoOfLines: Integer;
         MaxNoOfSourceDoc: Integer;
         TempNo: Integer;
-        SortPick: Enum "Whse. Activity Sorting Method";
         PerDestination: Boolean;
         PerItem: Boolean;
         PerZone: Boolean;
@@ -273,7 +272,6 @@ report 5754 "Create Pick"
         PerWhseDoc: Boolean;
         PerDate: Boolean;
         PrintPick: Boolean;
-        DoNotFillQtytoHandle: Boolean;
         Text003: Label 'You can create a Pick only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
         BreakbulkFilter: Boolean;
 
@@ -286,6 +284,8 @@ report 5754 "Create Pick"
     protected var
         PickWhseWkshLine: Record "Whse. Worksheet Line";
         CreatePick: Codeunit "Create Pick";
+        DoNotFillQtytoHandleReq: Boolean;
+        SortActivity: Enum "Whse. Activity Sorting Method";
 
     local procedure CreateTempLine()
     var
@@ -375,10 +375,10 @@ report 5754 "Create Pick"
             CreatePick.SetCalledFromWksh(true);
 
             OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine);
-            with PickWhseWkshLine do
-                CreatePick.CreateTempLine("Location Code", "Item No.", "Variant Code",
-                  "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure",
-                  "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
+            CreatePick.CreateTempLine(
+                PickWhseWkshLine."Location Code", PickWhseWkshLine."Item No.", PickWhseWkshLine."Variant Code",
+                PickWhseWkshLine."Unit of Measure Code", '', PickWhseWkshLine."To Bin Code", PickWhseWkshLine."Qty. per Unit of Measure",
+                PickWhseWkshLine."Qty. Rounding Precision", PickWhseWkshLine."Qty. Rounding Precision (Base)", PickQty, PickQtyBase);
 
             TotalQtyPickedBase := CreatePick.GetActualQtyPickedBase();
 
@@ -416,7 +416,7 @@ report 5754 "Create Pick"
         PickWhseActivHeader.SetRange("No.", FirstSetPickNo, LastPickNo);
         PickWhseActivHeader.Find('-');
         repeat
-            if SortPick <> SortPick::None then
+            if SortActivity <> SortActivity::None then
                 PickWhseActivHeader.SortWhseDoc();
             Commit();
             if PrintPick then begin
@@ -435,9 +435,9 @@ report 5754 "Create Pick"
         PickWhseWkshLine.CopyFilters(PickWhseWkshLine2);
         LocationCode := PickWhseWkshLine2."Location Code";
 
-        SortingMethod := SortPick;
+        SortingMethod := SortActivity.AsInteger();
         OnAfterSetWkshPickLine(PickWhseWkshLine2, SortingMethod);
-        SortPick := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
+        SortActivity := "Whse. Activity Sorting Method".FromInteger(SortingMethod);
     end;
 
     procedure GetResultMessage() ReturnValue: Boolean
@@ -465,7 +465,7 @@ report 5754 "Create Pick"
         AssignedID := AssignedID2;
         MaxNoOfLines := MaxNoOfLines2;
         MaxNoOfSourceDoc := MaxNoOfSourceDoc2;
-        SortPick := SortPick2;
+        SortActivity := SortPick2;
         PerDestination := PerDestination2;
         PerItem := PerItem2;
         PerZone := PerZone2;
@@ -473,7 +473,7 @@ report 5754 "Create Pick"
         PerWhseDoc := PerWhseDoc2;
         PerDate := PerDate2;
         PrintPick := PrintPick2;
-        DoNotFillQtytoHandle := DoNotFillQtytoHandle2;
+        DoNotFillQtytoHandleReq := DoNotFillQtytoHandle2;
         BreakbulkFilter := BreakbulkFilter2;
     end;
 

@@ -39,7 +39,7 @@ codeunit 99000889 AvailabilityManagement
 
         Text000: Label 'Sales Order';
         Text002: Label 'Service Order';
-        Text003: Label 'Job Order';
+        Text003: Label 'Project Order';
         Text001: Label 'The Check-Avail. Period Calc. field cannot be empty in the Company Information card.';
 
     procedure GetCaption(): Text
@@ -108,40 +108,38 @@ codeunit 99000889 AvailabilityManagement
         LineItem: Record Item;
         ItemVariant: Record "Item Variant";
     begin
-        with OrderPromisingLine do begin
-            "Unavailable Quantity (Base)" := UnavailableQty;
-            if "Unavailable Quantity (Base)" > 0 then begin
-                "Required Quantity (Base)" := "Unavailable Quantity (Base)";
-                GetCompanyInfo();
-                if Format(CompanyInfo."Check-Avail. Period Calc.") <> '' then
-                    "Unavailable Quantity (Base)" := -CalcAvailableQty(OrderPromisingLine)
-                else
-                    Error(Text001);
-                if InvtSetup."Location Mandatory" then
-                    TestField("Location Code");
-                LineItem.SetLoadFields("Variant Mandatory if Exists");
-                if LineItem.Get(OrderPromisingLine."Item No.") then
-                    if LineItem.IsVariantMandatory() then begin
-                        OrderPromisingLine.TestField("Variant Code");
-                        ItemVariant.SetLoadFields(Blocked);
-                        ItemVariant.Get(Item."No.", OrderPromisingLine."Variant Code");
-                        ItemVariant.TestField(Blocked, false);
-                    end;
-                if "Unavailable Quantity (Base)" < 0 then
-                    "Unavailable Quantity (Base)" := 0;
-                if "Unavailable Quantity (Base)" > "Required Quantity (Base)" then
-                    "Unavailable Quantity (Base)" := "Required Quantity (Base)";
-            end else
-                "Unavailable Quantity (Base)" := 0;
-            if "Qty. per Unit of Measure" = 0 then
-                "Qty. per Unit of Measure" := 1;
-            "Unavailable Quantity" :=
-              Round("Unavailable Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            "Required Quantity" :=
-              Round("Required Quantity (Base)" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-            OnBeforeOrderPromisingLineInsert(OrderPromisingLine);
-            Insert();
-        end;
+        OrderPromisingLine."Unavailable Quantity (Base)" := UnavailableQty;
+        if OrderPromisingLine."Unavailable Quantity (Base)" > 0 then begin
+            OrderPromisingLine."Required Quantity (Base)" := OrderPromisingLine."Unavailable Quantity (Base)";
+            GetCompanyInfo();
+            if Format(CompanyInfo."Check-Avail. Period Calc.") <> '' then
+                OrderPromisingLine."Unavailable Quantity (Base)" := -CalcAvailableQty(OrderPromisingLine)
+            else
+                Error(Text001);
+            if InvtSetup."Location Mandatory" then
+                OrderPromisingLine.TestField("Location Code");
+            LineItem.SetLoadFields("Variant Mandatory if Exists");
+            if LineItem.Get(OrderPromisingLine."Item No.") then
+                if LineItem.IsVariantMandatory() then begin
+                    OrderPromisingLine.TestField("Variant Code");
+                    ItemVariant.SetLoadFields(Blocked);
+                    ItemVariant.Get(Item."No.", OrderPromisingLine."Variant Code");
+                    ItemVariant.TestField(Blocked, false);
+                end;
+            if OrderPromisingLine."Unavailable Quantity (Base)" < 0 then
+                OrderPromisingLine."Unavailable Quantity (Base)" := 0;
+            if OrderPromisingLine."Unavailable Quantity (Base)" > OrderPromisingLine."Required Quantity (Base)" then
+                OrderPromisingLine."Unavailable Quantity (Base)" := OrderPromisingLine."Required Quantity (Base)";
+        end else
+            OrderPromisingLine."Unavailable Quantity (Base)" := 0;
+        if OrderPromisingLine."Qty. per Unit of Measure" = 0 then
+            OrderPromisingLine."Qty. per Unit of Measure" := 1;
+        OrderPromisingLine."Unavailable Quantity" :=
+          Round(OrderPromisingLine."Unavailable Quantity (Base)" / OrderPromisingLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        OrderPromisingLine."Required Quantity" :=
+          Round(OrderPromisingLine."Required Quantity (Base)" / OrderPromisingLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        OnBeforeOrderPromisingLineInsert(OrderPromisingLine);
+        OrderPromisingLine.Insert();
     end;
 
     procedure CalcAvailableQty(var OrderPromisingLine: Record "Order Promising Line"): Decimal
@@ -192,105 +190,101 @@ codeunit 99000889 AvailabilityManagement
             exit;
 
         LastValidLine := 1;
-        with OrderPromisingLine do begin
-            if Find('-') then
-                repeat
-                    case "Source Type" of
-                        "Source Type"::Sales:
-                            begin
-                                Clear("Earliest Shipment Date");
-                                Clear("Planned Delivery Date");
-                                SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.");
-                                SalesLine2.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := SalesLine2."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(SalesLine2."Document No.", SalesLine2."Line No.", 0, false);
-                                SalesLine2.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - SalesLine2."Reserved Quantity";
-                                FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromiseDate(
-                                    "Item No.", "Variant Code", "Location Code",
-                                    "Original Shipment Date",
-                                    "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
-                                    OrderPromisingID, "Source Line No.",
-                                    LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
-                                    CompanyInfo."Check-Avail. Period Calc.");
-                                if FeasibleDate <> "Original Shipment Date" then
-                                    Validate("Earliest Shipment Date", FeasibleDate)
-                                else
-                                    Validate("Earliest Shipment Date", "Original Shipment Date");
-                            end;
-                        "Source Type"::"Service Order":
-                            begin
-                                Clear("Earliest Shipment Date");
-                                Clear("Planned Delivery Date");
-                                ServLine2.Get("Source Subtype", "Source ID", "Source Line No.");
-                                ServLine2.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := ServLine2."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(ServLine2."Document No.", ServLine2."Line No.", 0, false);
-                                ServLine2.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - ServLine2."Reserved Quantity";
-                                FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromiseDate(
-                                    "Item No.", "Variant Code", "Location Code",
-                                    "Original Shipment Date",
-                                    "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
-                                    OrderPromisingID, "Source Line No.",
-                                    LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
-                                    CompanyInfo."Check-Avail. Period Calc.");
-                                if FeasibleDate <> "Original Shipment Date" then
-                                    Validate("Earliest Shipment Date", FeasibleDate)
-                                else
-                                    Validate("Earliest Shipment Date", "Original Shipment Date");
-                            end;
-                        "Source Type"::Job:
-                            begin
-                                Clear("Earliest Shipment Date");
-                                Clear("Planned Delivery Date");
-                                JobPlanningLine2.Reset();
-                                JobPlanningLine2.SetRange(Status, "Source Subtype");
-                                JobPlanningLine2.SetRange("Job No.", "Source ID");
-                                JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
-                                JobPlanningLine2.FindFirst();
-                                JobPlanningLine2.CalcFields("Reserved Quantity");
-                                QtyReservedTotal := JobPlanningLine2."Reserved Quantity";
-                                CapableToPromise.RemoveReqLines(JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", 0, false);
-                                JobPlanningLine2.CalcFields("Reserved Quantity");
-                                OldCTPQty := QtyReservedTotal - JobPlanningLine2."Reserved Quantity";
-                                FeasibleDate :=
-                                  CapableToPromise.CalcCapableToPromiseDate(
-                                    "Item No.", "Variant Code", "Location Code",
-                                    "Original Shipment Date",
-                                    "Unavailable Quantity" + OldCTPQty, "Unit of Measure Code",
-                                    OrderPromisingID, "Source Line No.",
-                                    LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
-                                    CompanyInfo."Check-Avail. Period Calc.");
-                                if FeasibleDate <> "Original Shipment Date" then
-                                    Validate("Earliest Shipment Date", FeasibleDate)
-                                else
-                                    Validate("Earliest Shipment Date", "Original Shipment Date");
-                            end;
-                    end;
-                    OnAfterCaseCalcCapableToPromise(OrderPromisingLine, CompanyInfo, OrderPromisingID, LastValidLine);
-                    Modify();
-                    CreateReservations(OrderPromisingLine);
-                until Next() = 0;
+        if OrderPromisingLine.Find('-') then
+            repeat
+                case OrderPromisingLine."Source Type" of
+                    OrderPromisingLine."Source Type"::Sales:
+                        begin
+                            Clear(OrderPromisingLine."Earliest Shipment Date");
+                            Clear(OrderPromisingLine."Planned Delivery Date");
+                            SalesLine2.Get(OrderPromisingLine."Source Subtype", OrderPromisingLine."Source ID", OrderPromisingLine."Source Line No.");
+                            SalesLine2.CalcFields("Reserved Quantity");
+                            QtyReservedTotal := SalesLine2."Reserved Quantity";
+                            CapableToPromise.RemoveReqLines(SalesLine2."Document No.", SalesLine2."Line No.", 0, false);
+                            SalesLine2.CalcFields("Reserved Quantity");
+                            OldCTPQty := QtyReservedTotal - SalesLine2."Reserved Quantity";
+                            FeasibleDate :=
+                              CapableToPromise.CalcCapableToPromiseDate(
+                                OrderPromisingLine."Item No.", OrderPromisingLine."Variant Code", OrderPromisingLine."Location Code",
+                                OrderPromisingLine."Original Shipment Date",
+                                OrderPromisingLine."Unavailable Quantity" + OldCTPQty, OrderPromisingLine."Unit of Measure Code",
+                                OrderPromisingID, OrderPromisingLine."Source Line No.",
+                                LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
+                                CompanyInfo."Check-Avail. Period Calc.");
+                            if FeasibleDate <> OrderPromisingLine."Original Shipment Date" then
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", FeasibleDate)
+                            else
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", OrderPromisingLine."Original Shipment Date");
+                        end;
+                    OrderPromisingLine."Source Type"::"Service Order":
+                        begin
+                            Clear(OrderPromisingLine."Earliest Shipment Date");
+                            Clear(OrderPromisingLine."Planned Delivery Date");
+                            ServLine2.Get(OrderPromisingLine."Source Subtype", OrderPromisingLine."Source ID", OrderPromisingLine."Source Line No.");
+                            ServLine2.CalcFields("Reserved Quantity");
+                            QtyReservedTotal := ServLine2."Reserved Quantity";
+                            CapableToPromise.RemoveReqLines(ServLine2."Document No.", ServLine2."Line No.", 0, false);
+                            ServLine2.CalcFields("Reserved Quantity");
+                            OldCTPQty := QtyReservedTotal - ServLine2."Reserved Quantity";
+                            FeasibleDate :=
+                              CapableToPromise.CalcCapableToPromiseDate(
+                                OrderPromisingLine."Item No.", OrderPromisingLine."Variant Code", OrderPromisingLine."Location Code",
+                                OrderPromisingLine."Original Shipment Date",
+                                OrderPromisingLine."Unavailable Quantity" + OldCTPQty, OrderPromisingLine."Unit of Measure Code",
+                                OrderPromisingID, OrderPromisingLine."Source Line No.",
+                                LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
+                                CompanyInfo."Check-Avail. Period Calc.");
+                            if FeasibleDate <> OrderPromisingLine."Original Shipment Date" then
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", FeasibleDate)
+                            else
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", OrderPromisingLine."Original Shipment Date");
+                        end;
+                    OrderPromisingLine."Source Type"::Job:
+                        begin
+                            Clear(OrderPromisingLine."Earliest Shipment Date");
+                            Clear(OrderPromisingLine."Planned Delivery Date");
+                            JobPlanningLine2.Reset();
+                            JobPlanningLine2.SetRange(Status, OrderPromisingLine."Source Subtype");
+                            JobPlanningLine2.SetRange("Job No.", OrderPromisingLine."Source ID");
+                            JobPlanningLine2.SetRange("Job Contract Entry No.", OrderPromisingLine."Source Line No.");
+                            JobPlanningLine2.FindFirst();
+                            JobPlanningLine2.CalcFields("Reserved Quantity");
+                            QtyReservedTotal := JobPlanningLine2."Reserved Quantity";
+                            CapableToPromise.RemoveReqLines(JobPlanningLine2."Job No.", JobPlanningLine2."Job Contract Entry No.", 0, false);
+                            JobPlanningLine2.CalcFields("Reserved Quantity");
+                            OldCTPQty := QtyReservedTotal - JobPlanningLine2."Reserved Quantity";
+                            FeasibleDate :=
+                              CapableToPromise.CalcCapableToPromiseDate(
+                                OrderPromisingLine."Item No.", OrderPromisingLine."Variant Code", OrderPromisingLine."Location Code",
+                                OrderPromisingLine."Original Shipment Date",
+                                OrderPromisingLine."Unavailable Quantity" + OldCTPQty, OrderPromisingLine."Unit of Measure Code",
+                                OrderPromisingID, OrderPromisingLine."Source Line No.",
+                                LastValidLine, CompanyInfo."Check-Avail. Time Bucket",
+                                CompanyInfo."Check-Avail. Period Calc.");
+                            if FeasibleDate <> OrderPromisingLine."Original Shipment Date" then
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", FeasibleDate)
+                            else
+                                OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", OrderPromisingLine."Original Shipment Date");
+                        end;
+                end;
+                OnAfterCaseCalcCapableToPromise(OrderPromisingLine, CompanyInfo, OrderPromisingID, LastValidLine);
+                OrderPromisingLine.Modify();
+                CreateReservations(OrderPromisingLine);
+            until OrderPromisingLine.Next() = 0;
 
-            CapableToPromise.ReassignRefOrderNos(OrderPromisingID);
-        end;
+        CapableToPromise.ReassignRefOrderNos(OrderPromisingID);
     end;
 
     procedure CalcAvailableToPromise(var OrderPromisingLine: Record "Order Promising Line")
     begin
         GetCompanyInfo();
-        with OrderPromisingLine do begin
-            SetCurrentKey("Requested Shipment Date");
-            if Find('-') then
-                repeat
-                    Clear("Earliest Shipment Date");
-                    Clear("Planned Delivery Date");
-                    CalcAvailableToPromiseLine(OrderPromisingLine);
-                until Next() = 0;
-        end;
+        OrderPromisingLine.SetCurrentKey(OrderPromisingLine."Requested Shipment Date");
+        if OrderPromisingLine.Find('-') then
+            repeat
+                Clear(OrderPromisingLine."Earliest Shipment Date");
+                Clear(OrderPromisingLine."Planned Delivery Date");
+                CalcAvailableToPromiseLine(OrderPromisingLine);
+            until OrderPromisingLine.Next() = 0;
     end;
 
     local procedure CalcAvailableToPromiseLine(var OrderPromisingLine: Record "Order Promising Line")
@@ -301,51 +295,49 @@ codeunit 99000889 AvailabilityManagement
         AvailQty: Decimal;
         FeasibleDateFound: Boolean;
     begin
-        with OrderPromisingLine do begin
-            if Item."No." <> "Item no." then
-                Item.Get("Item No.");
-            Item.SetRange("Variant Filter", "Variant Code");
-            Item.SetRange("Location Filter", "Location Code");
-            OnCalcAvailableToPromiseLineOnAfterSetFilters(Item, OrderPromisingLine);
-            case "Source Type" of
-                "Source Type"::Sales,
-                "Source Type"::"Service Order",
-                "Source Type"::Job:
-                    begin
-                        if "Requested Shipment Date" <> 0D then
-                            NeededDate := "Requested Shipment Date"
-                        else
-                            NeededDate := WorkDate();
-                        AvailToPromise.SetOriginalShipmentDate(OrderPromisingLine);
+        if Item."No." <> OrderPromisingLine."Item no." then
+            Item.Get(OrderPromisingLine."Item No.");
+        Item.SetRange("Variant Filter", OrderPromisingLine."Variant Code");
+        Item.SetRange("Location Filter", OrderPromisingLine."Location Code");
+        OnCalcAvailableToPromiseLineOnAfterSetFilters(Item, OrderPromisingLine);
+        case OrderPromisingLine."Source Type" of
+            OrderPromisingLine."Source Type"::Sales,
+            OrderPromisingLine."Source Type"::"Service Order",
+            OrderPromisingLine."Source Type"::Job:
+                begin
+                    if OrderPromisingLine."Requested Shipment Date" <> 0D then
+                        NeededDate := OrderPromisingLine."Requested Shipment Date"
+                    else
+                        NeededDate := WorkDate();
+                    AvailToPromise.SetOriginalShipmentDate(OrderPromisingLine);
 
-                        FeasibleDateFound := false;
-                        if "Source Type" = "Source Type"::Sales then
-                            if SourceSalesLine.Get("Source Subtype", "Source ID", "Source Line No.") then
-                                if SourceSalesLine."Special Order" then begin
-                                    FeasibleDate := GetExpectedReceiptDateFromSpecialOrder(SourceSalesLine);
-                                    FeasibleDateFound := true;
-                                end;
-
-                        if not FeasibleDateFound then
-                            if "Required Quantity" = 0 then begin
-                                FeasibleDate := "Original Shipment Date";
+                    FeasibleDateFound := false;
+                    if OrderPromisingLine."Source Type" = OrderPromisingLine."Source Type"::Sales then
+                        if SourceSalesLine.Get(OrderPromisingLine."Source Subtype", OrderPromisingLine."Source ID", OrderPromisingLine."Source Line No.") then
+                            if SourceSalesLine."Special Order" then begin
+                                FeasibleDate := GetExpectedReceiptDateFromSpecialOrder(SourceSalesLine);
                                 FeasibleDateFound := true;
                             end;
 
-                        if not FeasibleDateFound then
-                            FeasibleDate := AvailToPromise.CalcEarliestAvailabilityDate(
-                                Item, Quantity, NeededDate, Quantity, "Original Shipment Date", AvailQty,
-                                CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
+                    if not FeasibleDateFound then
+                        if OrderPromisingLine."Required Quantity" = 0 then begin
+                            FeasibleDate := OrderPromisingLine."Original Shipment Date";
+                            FeasibleDateFound := true;
+                        end;
 
-                        if (FeasibleDate <> 0D) and (FeasibleDate < "Requested Shipment Date") then
-                            if GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine) <> 0D then
-                                FeasibleDate := "Requested Shipment Date";
-                        Validate("Earliest Shipment Date", FeasibleDate);
-                    end;
-            end;
-            OnCalcAvailableToPromiseLineOnBeforeModify(OrderPromisingLine);
-            Modify();
+                    if not FeasibleDateFound then
+                        FeasibleDate := AvailToPromise.CalcEarliestAvailabilityDate(
+                            Item, OrderPromisingLine.Quantity, NeededDate, OrderPromisingLine.Quantity, OrderPromisingLine."Original Shipment Date", AvailQty,
+                            CompanyInfo."Check-Avail. Time Bucket", CompanyInfo."Check-Avail. Period Calc.");
+
+                    if (FeasibleDate <> 0D) and (FeasibleDate < OrderPromisingLine."Requested Shipment Date") then
+                        if GetRequestedDeliveryDateFromOrderPromisingLineSource(OrderPromisingLine) <> 0D then
+                            FeasibleDate := OrderPromisingLine."Requested Shipment Date";
+                    OrderPromisingLine.Validate(OrderPromisingLine."Earliest Shipment Date", FeasibleDate);
+                end;
         end;
+        OnCalcAvailableToPromiseLineOnBeforeModify(OrderPromisingLine);
+        OrderPromisingLine.Modify();
     end;
 
     local procedure GetExpectedReceiptDateFromSpecialOrder(SalesLine: Record "Sales Line"): Date
@@ -365,23 +357,22 @@ codeunit 99000889 AvailabilityManagement
         ServiceLine2: Record "Service Line";
         JobPlanningLine2: Record "Job Planning Line";
     begin
-        with OrderPromisingLine do
-            case "Source Type" of
-                "Source Type"::Sales:
-                    if SalesLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(SalesLine2."Requested Delivery Date");
-                "Source Type"::"Service Order":
-                    if ServiceLine2.Get("Source Subtype", "Source ID", "Source Line No.") then
-                        exit(ServiceLine2."Requested Delivery Date");
-                "Source Type"::Job:
-                    begin
-                        JobPlanningLine2.SetRange(Status, "Source Subtype");
-                        JobPlanningLine2.SetRange("Job No.", "Source ID");
-                        JobPlanningLine2.SetRange("Job Contract Entry No.", "Source Line No.");
-                        if JobPlanningLine2.FindFirst() then
-                            exit(JobPlanningLine2."Requested Delivery Date");
-                    end;
-            end;
+        case OrderPromisingLine."Source Type" of
+            OrderPromisingLine."Source Type"::Sales:
+                if SalesLine2.Get(OrderPromisingLine."Source Subtype", OrderPromisingLine."Source ID", OrderPromisingLine."Source Line No.") then
+                    exit(SalesLine2."Requested Delivery Date");
+            OrderPromisingLine."Source Type"::"Service Order":
+                if ServiceLine2.Get(OrderPromisingLine."Source Subtype", OrderPromisingLine."Source ID", OrderPromisingLine."Source Line No.") then
+                    exit(ServiceLine2."Requested Delivery Date");
+            OrderPromisingLine."Source Type"::Job:
+                begin
+                    JobPlanningLine2.SetRange(Status, OrderPromisingLine."Source Subtype");
+                    JobPlanningLine2.SetRange("Job No.", OrderPromisingLine."Source ID");
+                    JobPlanningLine2.SetRange("Job Contract Entry No.", OrderPromisingLine."Source Line No.");
+                    if JobPlanningLine2.FindFirst() then
+                        exit(JobPlanningLine2."Requested Delivery Date");
+                end;
+        end;
         exit(0D);
     end;
 

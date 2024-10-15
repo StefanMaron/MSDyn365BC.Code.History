@@ -6,6 +6,7 @@ table 8629 "Config. Field Map"
 {
     Caption = 'Config. Field Mapping';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

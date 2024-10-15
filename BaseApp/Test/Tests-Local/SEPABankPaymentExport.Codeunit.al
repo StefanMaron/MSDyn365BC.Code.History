@@ -46,7 +46,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         RefPaymentExported.SetRange("Applied Payments", false);
         RefPaymentExported.SetRange("SEPA Payment", true);
         RefPaymentExported.FindFirst();
-        RefPaymentExported.ExportToFile;
+        RefPaymentExported.ExportToFile();
 
         // Verify
         // No erros occur!
@@ -82,7 +82,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         // [WHEN] Run Process SEPA payments report
         BindSubscription(SEPABankPaymentExport);
         RefPaymentExported.FindFirst();
-        RefPaymentExported.ExportToFile;
+        RefPaymentExported.ExportToFile();
         // RequestPage handled by RPHSuggestBankPayments handler
 
         // [THEN] The report runs with no errors
@@ -167,8 +167,8 @@ codeunit 144026 "SEPA Bank Payment Export"
             "Country/Region Code" := CountryCode;
             Validate("Post Code", FindPostCode(CountryCode));
             "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Bank Account");
-            "Bank Account No." := CreateGLAccount;
-            "Bank Acc. Posting Group" := CreateBankAccountPostingGroup;
+            "Bank Account No." := CreateGLAccount();
+            "Bank Acc. Posting Group" := CreateBankAccountPostingGroup();
             "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Bank Account");
             Validate(IBAN, IBANCode);
             "Payment Export Format" := PmtExpFormat;
@@ -204,7 +204,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         with BankAccountPostingGroup do begin
             Init();
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Bank Account Posting Group");
-            "G/L Account No." := CreateGLAccount;
+            "G/L Account No." := CreateGLAccount();
             Insert();
             exit(Code);
         end;
@@ -252,7 +252,7 @@ codeunit 144026 "SEPA Bank Payment Export"
             Validate("Post Code", FindPostCode(CountryCode));
             "Business Identity Code" :=
               LibraryUtility.GenerateRandomCode(FieldNo("Business Identity Code"), DATABASE::Vendor);
-            "Our Account No." := CreateGLAccount;
+            "Our Account No." := CreateGLAccount();
             Priority := VendorPriority;
             "Preferred Bank Account Code" := CreateVendorBankAccount("No.", CountryCode, IBANCode, SEPAPayment);
             Modify(true);
@@ -273,7 +273,7 @@ codeunit 144026 "SEPA Bank Payment Export"
             "Country/Region Code" := CountryCode;
             "Post Code" := FindPostCode(CountryCode);
             "Bank Branch No." := LibraryUtility.GenerateRandomCode(FieldNo("Bank Branch No."), DATABASE::"Vendor Bank Account");
-            "Bank Account No." := CreateGLAccount;
+            "Bank Account No." := CreateGLAccount();
             "Transit No." := LibraryUtility.GenerateRandomCode(FieldNo("Transit No."), DATABASE::"Vendor Bank Account");
             IBAN := IBANCode;
             "SEPA Payment" := SEPAPayment;
@@ -363,7 +363,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         RequestPage."Payment Account".SetValue(BankAccountNo);
         RequestPage.Vendor.SetFilter("No.", VendorNo);
         RequestPage.Vendor.SetFilter("Payment Method Code", Vendor."Payment Method Code");
-        RequestPage.OK.Invoke;
+        RequestPage.OK().Invoke();
     end;
 
     [MessageHandler]

@@ -48,7 +48,7 @@ using Microsoft.Pricing.Worksheet;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Inventory.Requisition;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Sales.History;
@@ -142,7 +142,7 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Requisition Line" = Rim,
                   tabledata "Reservation Entry" = Rimd,
                   tabledata Resource = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif
@@ -158,11 +158,11 @@ permissionset 8651 "Recievables Documents - Edit"
                   tabledata "Sales Invoice Line" = R,
                   tabledata "Sales Line" = RIMD,
                   tabledata "Sales Line Archive" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Line Discount" = R,
 #endif
                   tabledata "Sales Planning Line" = Rimd,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,

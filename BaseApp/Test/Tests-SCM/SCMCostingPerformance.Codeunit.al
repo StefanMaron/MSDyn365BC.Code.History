@@ -37,7 +37,7 @@ codeunit 133504 "SCM Costing Performance"
         if isInitialized then
             exit;
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
@@ -57,16 +57,16 @@ codeunit 133504 "SCM Costing Performance"
         SmallNoOfSales: Integer;
     begin
         // Workitem VSTF-301226
-        if not CodeCoverageMgt.Running then
-            CodeCoverageMgt.StartApplicationCoverage;
+        if not CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StartApplicationCoverage();
 
         Initialize();
         SmallNoOfSales := LibraryRandom.RandIntInRange(2, 3);
         DurationSmallNo := PurchaseOnceManySales(SmallNoOfSales);
         DurationLargeNo := PurchaseOnceManySales(SmallNoOfSales * 4);
 
-        if CodeCoverageMgt.Running then
-            CodeCoverageMgt.StopApplicationCoverage;
+        if CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StopApplicationCoverage();
 
         // The adjusting should have the same duration.
         Assert.AreNearlyEqual(DurationSmallNo, DurationLargeNo, 0.2 * DurationSmallNo,
@@ -149,16 +149,16 @@ codeunit 133504 "SCM Costing Performance"
     begin
         // Workitem VSTF-268387
         Initialize();
-        if not CodeCoverageMgt.Running then
-            CodeCoverageMgt.StartApplicationCoverage;
+        if not CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StartApplicationCoverage();
 
         CreateItem(Item, "Costing Method"::FIFO);
         LinesWithOneSKU := PostItemJournalLineWithSKU(Item);
         LinesWithTwoSKU := PostItemJournalLineWithSKU(Item);
         LinesWithThreeSKU := PostItemJournalLineWithSKU(Item);
 
-        if CodeCoverageMgt.Running then
-            CodeCoverageMgt.StopApplicationCoverage;
+        if CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StopApplicationCoverage();
 
         // There should be the same code covered with and without SKU.
         Assert.AreEqual(2, LinesWithOneSKU, 'GetInvtSetup should only be hit twice.');
@@ -186,13 +186,13 @@ codeunit 133504 "SCM Costing Performance"
 
         CreateProductionOrder(ProdOrderLine, ItemQty);
 
-        if not CodeCoverageMgt.Running then
-            CodeCoverageMgt.StartApplicationCoverage;
+        if not CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StartApplicationCoverage();
         NoOfHitsSmall := PostPurchWithConsumptionAndAdjust(ProdOrderLine, ItemQty, NoOfConsumtionsSmall);
         NoOfHitsMedium := PostPurchWithConsumptionAndAdjust(ProdOrderLine, ItemQty, NoOfConsumtionsMedium);
         NoOfHitsLarge := PostPurchWithConsumptionAndAdjust(ProdOrderLine, ItemQty, NoOfConsumtionsLarge);
-        if CodeCoverageMgt.Running then
-            CodeCoverageMgt.StopApplicationCoverage;
+        if CodeCoverageMgt.Running() then
+            CodeCoverageMgt.StopApplicationCoverage();
 
         VerifyLinearComputationalComplexity(NoOfConsumtionsSmall, NoOfConsumtionsMedium, NoOfConsumtionsLarge,
           NoOfHitsSmall, NoOfHitsMedium, NoOfHitsLarge);
@@ -229,10 +229,10 @@ codeunit 133504 "SCM Costing Performance"
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location[1].Code, '', 1);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
-        CodeCoverageMgt.StartApplicationCoverage;
-        NoOfHitsSmall := CodeCoverageMgt.ApplicationHits;
+        CodeCoverageMgt.StartApplicationCoverage();
+        NoOfHitsSmall := CodeCoverageMgt.ApplicationHits();
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        NoOfHitsSmall := CodeCoverageMgt.ApplicationHits - NoOfHitsSmall;
+        NoOfHitsSmall := CodeCoverageMgt.ApplicationHits() - NoOfHitsSmall;
 
         // [GIVEN] Create two more SKU's for item "I"
         LibraryWarehouse.CreateLocation(Location[2]);
@@ -245,10 +245,10 @@ codeunit 133504 "SCM Costing Performance"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Run cost adjustment
-        NoOfHitsLarge := CodeCoverageMgt.ApplicationHits;
+        NoOfHitsLarge := CodeCoverageMgt.ApplicationHits();
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
-        NoOfHitsLarge := CodeCoverageMgt.ApplicationHits - NoOfHitsLarge;
-        CodeCoverageMgt.StopApplicationCoverage;
+        NoOfHitsLarge := CodeCoverageMgt.ApplicationHits() - NoOfHitsLarge;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Cost adjustment routine demonstrates the same performance for 1 SKU and 3 SKUs
         Assert.IsTrue(LibraryCalcComplexity.IsConstant(NoOfHitsSmall, NoOfHitsLarge), NotConstantCCErr);
@@ -293,15 +293,15 @@ codeunit 133504 "SCM Costing Performance"
             LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
 
             if jj = PurchaseQty - 1 then
-                NoOfLinesHIt := CodeCoverageMgt.ApplicationHits;
+                NoOfLinesHIt := CodeCoverageMgt.ApplicationHits();
             LibraryCosting.AdjustCostItemEntries(Item."No.", '');
             if jj = PurchaseQty - 1 then
-                NoOfLinesHIt := CodeCoverageMgt.ApplicationHits - NoOfLinesHIt;
+                NoOfLinesHIt := CodeCoverageMgt.ApplicationHits() - NoOfLinesHIt;
 
             ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntry."Entry No.");
             ItemApplnEntry.SetFilter("Outbound Item Entry No.", '<> %1', 0);
             ItemApplnEntry.SetRange("Outbound Entry is Updated", false);
-            Assert.IsTrue(not ItemApplnEntry.FindFirst,
+            Assert.IsTrue(not ItemApplnEntry.FindFirst(),
               StrSubstNo('Item Application Entries with inbound %1 and "Outbound Entry is Updated" == FALSE NOT EMPTY',
                 ItemLedgEntry."Entry No."));
         end;
@@ -334,10 +334,10 @@ codeunit 133504 "SCM Costing Performance"
             LibraryPatterns.POSTConsumption(
               ProdOrderLine, Item, '', '', Quantity / NoOfConsumptions, WorkDate(), Item."Unit Cost" + LibraryRandom.RandDecInRange(20, 30, 2));
 
-        NoOfHits := CodeCoverageMgt.ApplicationHits;
+        NoOfHits := CodeCoverageMgt.ApplicationHits();
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
-        exit(CodeCoverageMgt.ApplicationHits - NoOfHits);
+        exit(CodeCoverageMgt.ApplicationHits() - NoOfHits);
     end;
 
     local procedure CreateProductionOrder(var ProdOrderLine: Record "Prod. Order Line"; Quantity: Decimal)
@@ -637,7 +637,7 @@ codeunit 133504 "SCM Costing Performance"
     var
         CodeCover: Record "Code Coverage";
     begin
-        CodeCoverageMgt.Refresh;
+        CodeCoverageMgt.Refresh();
         CodeCover.SetRange("Line Type", CodeCover."Line Type"::Code);
         CodeCover.SetRange("Object Type", ObjectType);
         CodeCover.SetRange("Object ID", ObjectID);

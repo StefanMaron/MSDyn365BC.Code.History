@@ -13,14 +13,15 @@ codeunit 139460 "User Access in SaaS Tests"
         Assert: Codeunit Assert;
         PermissionManager: Codeunit "Permission Manager";
         UserEuropeDcst1FullTok: Label 'EUROPE\DCST1';
-        UserEuropeDcst2ExternalTok: Label 'EUROPE\DCST2';
         ErrorKeyNotSetErr: Label 'WebServiceKey has not been set.';
         LibraryPermissions: Codeunit "Library - Permissions";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
         WsNeverExpiresToenter: Boolean;
         WsExpirationDateToEnter: DateTime;
         WsInvokeCancelToEnter: Boolean;
+#if not CLEAN22
         UserGroupO365FullAccessTxt: Label 'D365 FULL ACCESS';
+#endif
         NewUsersCannotLoginQst: Label 'You have not specified a user group that will be assigned automatically to new users. If users are not assigned a user group, they cannot sign in. \\Do you want to continue?';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
 
@@ -266,7 +267,7 @@ codeunit 139460 "User Access in SaaS Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] The an extension attempts to add a new user through the code
-        asserterror CreateUserWithLicenseType(CreateGuid, DummyUser."License Type"::"Limited User");
+        asserterror CreateUserWithLicenseType(CreateGuid(), DummyUser."License Type"::"Limited User");
 
         // [THEN] The user cannot be created
         Assert.ExpectedError('are supported in the online environment.');
@@ -319,7 +320,7 @@ codeunit 139460 "User Access in SaaS Tests"
             if UserName = UserId() then
                 User.Validate("User Security ID", UserSecurityId())
             else
-                User.Validate("User Security ID", CreateGuid);
+                User.Validate("User Security ID", CreateGuid());
             User.Insert(true);
         end;
         exit(User."User Security ID");
@@ -348,7 +349,7 @@ codeunit 139460 "User Access in SaaS Tests"
     begin
         UserCardPage.OpenNew();
         UserCardPage."Windows User Name".Value := UserName;
-        UserCardPage.OK.Invoke;
+        UserCardPage.OK().Invoke();
     end;
 
 #if not CLEAN22
@@ -374,9 +375,9 @@ codeunit 139460 "User Access in SaaS Tests"
             SetWebServiceAccess.ExpirationDate.SetValue(WsExpirationDateToEnter);
 
         if WsInvokeCancelToEnter then
-            SetWebServiceAccess.Cancel.Invoke
+            SetWebServiceAccess.Cancel().Invoke()
         else
-            SetWebServiceAccess.OK.Invoke;
+            SetWebServiceAccess.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -397,7 +398,6 @@ codeunit 139460 "User Access in SaaS Tests"
 
     local procedure TestWebServiceKeyAccessibility(UserName: Code[50]; SoftwareAsAService: Boolean; IsCurrentUserAdmin: Boolean)
     var
-        User: Record User;
         WsCompareKey: Text;
         ChangeWebServiceAccessKeyEnabled: Boolean;
     begin
@@ -425,10 +425,10 @@ codeunit 139460 "User Access in SaaS Tests"
         WsNeverExpiresToenter := KeyNeverExpires;
         WsExpirationDateToEnter := KeyExpirationDate;
         WsInvokeCancelToEnter := InvokeCancel;
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
         UserCardPage.FindFirstField("User Name", UserName);
         UserCardPage."User Name".AssertEquals(UserName);
-        UserCardPage.WebServiceID.AssistEdit;
+        UserCardPage.WebServiceID.AssistEdit();
         UserCardPage.Close();
     end;
 
@@ -436,12 +436,12 @@ codeunit 139460 "User Access in SaaS Tests"
     var
         UserCardPage: TestPage "User Card";
     begin
-        UserCardPage.OpenEdit;
+        UserCardPage.OpenEdit();
         UserCardPage.FindFirstField("User Name", UserName);
         UserCardPage."User Name".AssertEquals(UserName);
         UserCardPage.WebServiceExpiryDate.AssertEquals('');
-        WsCompareKey := UserCardPage.WebServiceID.Value;
-        ChangeWebServiceAccessKeyEnabled := UserCardPage.ChangeWebServiceAccessKey.Enabled;
+        WsCompareKey := UserCardPage.WebServiceID.Value();
+        ChangeWebServiceAccessKeyEnabled := UserCardPage.ChangeWebServiceAccessKey.Enabled();
         UserCardPage.Close();
     end;
 

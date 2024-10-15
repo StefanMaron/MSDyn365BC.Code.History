@@ -155,7 +155,7 @@ page 1124 "Cost Type List"
                     Caption = 'Corresponding &G/L Accounts';
                     Image = CompareCosttoCOA;
                     RunObject = Page "Chart of Accounts";
-                    RunPageLink = "No." = field(FILTER("G/L Account Range"));
+                    RunPageLink = "No." = field(filter("G/L Account Range"));
                     ToolTip = 'View the G/L account for the selected line.';
                 }
                 separator(Action35)

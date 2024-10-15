@@ -16,6 +16,7 @@ table 5854 "Invt. Shipment Header"
     Caption = 'Invt. Shipment Header';
     DataCaptionFields = "No.", "Posting Description";
     LookupPageID = "Posted Invt. Shipments";
+    DataClassification = CustomerContent;
 
     fields
     {

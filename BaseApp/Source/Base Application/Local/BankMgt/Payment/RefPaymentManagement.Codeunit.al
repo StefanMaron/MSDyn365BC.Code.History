@@ -32,7 +32,7 @@ codeunit 32000000 "Ref. Payment Management"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlTemplate: Record "Gen. Journal Template";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         ApplyVendLedgEntry: Page "Apply Vendor Entries";
         LineNro: Integer;
         LastDocNro: Code[20];
@@ -112,7 +112,7 @@ codeunit 32000000 "Ref. Payment Management"
         GenJnlBatch.SetFilter("Journal Template Name", JnlTemplateName);
         GenJnlBatch.SetFilter(Name, JnlBatchName);
         if GenJnlBatch.FindFirst() then
-            LastDocNro := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), false);
+            LastDocNro := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series");
     end;
 
     procedure MatchLines(JnlTemplateName: Code[20]; JnlBatchName: Code[20])
@@ -333,57 +333,54 @@ codeunit 32000000 "Ref. Payment Management"
         CustLedgerEntryPmt: Record "Cust. Ledger Entry";
         CountEntries: Integer;
     begin
-        with CustLedgEntry do begin
-            Reset();
-            SetCurrentKey("Document No.");
-            SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
-            SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
-            if FindFirst() then
-                UpdateDiscountPossible(GenJnlLine2, GenJnlLine2.Amount)
-            else begin
-                Reset();
-                SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
-                SetRange("Document Type", "Document Type"::Invoice);
-                SetRange("Applies-to ID", GenJnlLine2."Applies-to ID");
-                CountEntries := Count;
-                if FindFirst() and ("Applies-to ID" <> '') then
-                    if CountEntries > 1 then begin
-                        if "Disreg. Pmt. Disc. at Full Pmt" then
-                            Error(Text1090005);
-                    end else begin
-                        CustLedgerEntryPmt.Reset();
-                        CustLedgerEntryPmt.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
-                        CustLedgerEntryPmt.SetRange("Document Type", "Document Type"::Payment);
-                        CustLedgerEntryPmt.SetRange("Applies-to ID", GenJnlLine2."Applies-to ID");
-                        if CustLedgerEntryPmt.FindFirst() then begin
-                            CustLedgerEntryPmt.CalcFields(Amount);
-                            UpdateDiscountPossible(GenJnlLine2, CustLedgerEntryPmt.Amount);
-                        end;
+        CustLedgEntry.Reset();
+        CustLedgEntry.SetCurrentKey("Document No.");
+        CustLedgEntry.SetRange("Document Type", GenJnlLine2."Applies-to Doc. Type");
+        CustLedgEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
+        if CustLedgEntry.FindFirst() then
+            UpdateDiscountPossible(GenJnlLine2, GenJnlLine2.Amount)
+        else begin
+            CustLedgEntry.Reset();
+            CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
+            CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+            CustLedgEntry.SetRange("Applies-to ID", GenJnlLine2."Applies-to ID");
+            CountEntries := CustLedgEntry.Count;
+            if CustLedgEntry.FindFirst() and (CustLedgEntry."Applies-to ID" <> '') then
+                if CountEntries > 1 then begin
+                    if CustLedgEntry."Disreg. Pmt. Disc. at Full Pmt" then
+                        Error(Text1090005);
+                end else begin
+                    CustLedgerEntryPmt.Reset();
+                    CustLedgerEntryPmt.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
+                    CustLedgerEntryPmt.SetRange("Document Type", CustLedgEntry."Document Type"::Payment);
+                    CustLedgerEntryPmt.SetRange("Applies-to ID", GenJnlLine2."Applies-to ID");
+                    if CustLedgerEntryPmt.FindFirst() then begin
+                        CustLedgerEntryPmt.CalcFields(Amount);
+                        UpdateDiscountPossible(GenJnlLine2, CustLedgerEntryPmt.Amount);
                     end;
-            end;
+                end;
         end;
     end;
 
     [Scope('OnPrem')]
     procedure UpdateDiscountPossible(var GenJnlLine2: Record "Gen. Journal Line"; PaymentAmount: Decimal)
     begin
-        with CustLedgEntry do
-            if "Disreg. Pmt. Disc. at Full Pmt" and
-               (GenJnlLine2."Posting Date" <= "Pmt. Disc. Tolerance Date") and
-               ("Remaining Pmt. Disc. Possible" <> 0)
-            then begin
-                CalcFields("Remaining Amount");
-                if Abs(PaymentAmount) >= Abs("Remaining Amount") then begin
-                    "Remaining Pmt. Disc. Possible" := 0;
-                    Modify();
-                end else
-                    if (Abs(PaymentAmount) > Abs("Remaining Amount") - "Remaining Pmt. Disc. Possible") and
-                       ("Accepted Payment Tolerance" = 0)
-                    then begin
-                        "Remaining Pmt. Disc. Possible" := Abs("Remaining Amount") - Abs(PaymentAmount);
-                        Modify();
-                    end;
-            end;
+        if CustLedgEntry."Disreg. Pmt. Disc. at Full Pmt" and
+            (GenJnlLine2."Posting Date" <= CustLedgEntry."Pmt. Disc. Tolerance Date") and
+            (CustLedgEntry."Remaining Pmt. Disc. Possible" <> 0)
+        then begin
+            CustLedgEntry.CalcFields("Remaining Amount");
+            if Abs(PaymentAmount) >= Abs(CustLedgEntry."Remaining Amount") then begin
+                CustLedgEntry."Remaining Pmt. Disc. Possible" := 0;
+                CustLedgEntry.Modify();
+            end else
+                if (Abs(PaymentAmount) > Abs(CustLedgEntry."Remaining Amount") - CustLedgEntry."Remaining Pmt. Disc. Possible") and
+                   (CustLedgEntry."Accepted Payment Tolerance" = 0)
+                then begin
+                    CustLedgEntry."Remaining Pmt. Disc. Possible" := Abs(CustLedgEntry."Remaining Amount") - Abs(PaymentAmount);
+                    CustLedgEntry.Modify();
+                end;
+        end;
     end;
 
     [Scope('OnPrem')]

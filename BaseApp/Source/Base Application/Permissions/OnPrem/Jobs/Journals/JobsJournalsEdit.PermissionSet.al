@@ -6,7 +6,7 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Inventory.Location;
 using Microsoft.Projects.TimeSheet;
 using Microsoft.Projects.Project.Journal;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -30,7 +30,7 @@ using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Sales.Pricing;
@@ -40,7 +40,7 @@ permissionset 7787 "Jobs Journals - Edit"
 {
     Access = Public;
     Assignable = false;
-    Caption = 'Create entries in job journals';
+    Caption = 'Create entries in project journals';
 
     Permissions = tabledata "Accounting Period" = R,
                   tabledata Bin = R,
@@ -61,7 +61,7 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Item Unit of Measure" = R,
                   tabledata "Item Variant" = R,
                   tabledata Job = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
@@ -72,7 +72,7 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Job Ledger Entry" = R,
                   tabledata "Job Planning Line - Calendar" = R,
                   tabledata "Job Planning Line" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Task" = R,
@@ -89,15 +89,15 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Price Worksheet Line" = R,
                   tabledata "Reason Code" = R,
                   tabledata Resource = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
 #endif
                   tabledata "Resource Group" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Price" = R,
 #endif
                   tabledata "Resource Unit of Measure" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Sales Price" = R,
 #endif
                   tabledata "Sales Price Access" = R,

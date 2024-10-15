@@ -13,6 +13,7 @@ table 6515 "Package No. Information"
     DataCaptionFields = "Item No.", "Variant Code", "Package No.", Description;
     DrillDownPageID = "Package No. Information List";
     LookupPageID = "Package No. Information List";
+    DataClassification = CustomerContent;
 
     fields
     {

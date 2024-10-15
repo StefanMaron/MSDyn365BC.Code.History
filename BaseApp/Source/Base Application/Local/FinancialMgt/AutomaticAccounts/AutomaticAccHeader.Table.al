@@ -18,6 +18,7 @@ table 11203 "Automatic Acc. Header"
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

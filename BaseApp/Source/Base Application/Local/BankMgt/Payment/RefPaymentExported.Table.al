@@ -19,6 +19,7 @@ table 32000002 "Ref. Payment - Exported"
     Caption = 'Ref. Payment - Exported';
     DrillDownPageID = "Ref. Payment - Export";
     LookupPageID = "Ref. Payment - Export";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,7 @@ using Microsoft.Sales.Customer;
 table 1879 "VAT Assisted Setup Bus. Grp."
 {
     Caption = 'VAT Assisted Setup Bus. Grp.';
+    DataClassification = CustomerContent;
 
     fields
     {

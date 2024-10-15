@@ -42,13 +42,13 @@ codeunit 144022 "E-BANKING Import Test"
 
         // Setup
         Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
-        FileName := FillInDomesticPaymentFileSample1;
+        FileName := FillInDomesticPaymentFileSample1();
         InvoiceBase := '87101010643';
         InvoicesCount := 4;
         PostingDate := DMY2Date(22, 11, 2005);
 
         CreateDomesticCustomer(Customer);
-        LibraryVariableStorage2.AssertEmpty;
+        LibraryVariableStorage2.AssertEmpty();
         for i := 1 to InvoicesCount do begin
             PostingNo := InvoiceBase + Format(i - 1);
             LibraryVariableStorage2.Enqueue(PostingNo); // save invoice numbers.
@@ -156,7 +156,7 @@ codeunit 144022 "E-BANKING Import Test"
 
         // Setup
         Setup(BankAccount, GenJournalBatch, GenJournalTemplate);
-        FileName := FillInDomesticPaymentFileSample2;
+        FileName := FillInDomesticPaymentFileSample2();
         PostingDate := DMY2Date(23, 8, 2006);
 
         // Exercise
@@ -270,8 +270,8 @@ codeunit 144022 "E-BANKING Import Test"
         LibraryFileMgtHandler.SetDownloadSubscriberActivated(true); // to avoid downloading backup file to restricted location
 
         CompanyInformation.Get();
-        SetupSalesAndReceivables;
-        SetupPaymentTerms;
+        SetupSalesAndReceivables();
+        SetupPaymentTerms();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"E-BANKING Import Test");
     end;
 
@@ -294,7 +294,7 @@ codeunit 144022 "E-BANKING Import Test"
         GenJournalBatch."Bal. Account No." := BankAccountNo;
         NoSeries.FindFirst();
         GenJournalBatch."No. Series" := NoSeries.Code;
-        GenJournalBatch."Posting No. Series" := LibraryERM.CreateNoSeriesCode;
+        GenJournalBatch."Posting No. Series" := LibraryERM.CreateNoSeriesCode();
         GenJournalBatch.Modify(true);
     end;
 
@@ -438,7 +438,7 @@ codeunit 144022 "E-BANKING Import Test"
     begin
         LibraryVariableStorage.Dequeue(BankAccountNo);
         TestRequestPage.BankAccCode.SetValue(BankAccountNo);
-        TestRequestPage.OK.Invoke;
+        TestRequestPage.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -499,7 +499,7 @@ codeunit 144022 "E-BANKING Import Test"
             LibraryVariableStorage2.Dequeue(InvoiceNo);
             Assert.AreEqual(InvoiceNo, GenJournalLine."Applies-to Doc. No.", 'Applies-to Doc. No. does not match');
         until GenJournalLine.Next() = 0;
-        LibraryVariableStorage2.AssertEmpty;
+        LibraryVariableStorage2.AssertEmpty();
     end;
 
     local procedure ValidateGenJournalLinesFile4(GenJournalBatchName: Code[10]; JnlTemplateName: Code[10]; PostingDate: Date; ExpectedAmount: Decimal)

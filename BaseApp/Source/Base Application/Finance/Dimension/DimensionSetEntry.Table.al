@@ -9,6 +9,7 @@ table 480 "Dimension Set Entry"
     LookupPageID = "Dimension Set Entries";
     Permissions = TableData "Dimension Set Entry" = rim,
                   TableData "Dimension Set Tree Node" = rim;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -53,14 +54,14 @@ table 480 "Dimension Set Entry"
         }
         field(5; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup(Dimension.Name where(Code = field("Dimension Code")));
+            CalcFormula = lookup(Dimension.Name where(Code = field("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
+            CalcFormula = lookup("Dimension Value".Name where("Dimension Code" = field("Dimension Code"),
                                                                Code = field("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;

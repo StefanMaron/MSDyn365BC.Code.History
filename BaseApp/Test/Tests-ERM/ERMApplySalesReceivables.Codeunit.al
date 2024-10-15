@@ -395,12 +395,12 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [WHEN] Set 'Applies-to Doc. No.' manually to Posted Invoice doc. no.
         CashReceiptJournal."Applies-to Doc. No.".SetValue(PostedDocNo);
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal.OK().Invoke();
 
         // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.', but Amount is not.
         VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, 0);
@@ -429,12 +429,12 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreateCashReceiptJnlLine(GenJournalLine, GenJournalLine."Account No.");
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [WHEN] Look up and set 'Applies-to Doc. No.' to Posted Invoice doc. no.
-        CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal."Applies-to Doc. No.".Lookup();
+        CashReceiptJournal.OK().Invoke();
 
         // [THEN] External doc. no. transferred to 'Applied-to Ext. Doc. No.' as well as Amount.
         VerifyExtDocNoAmount(GenJournalLine, ExpectedExtDocNo, ExpectedAmount);
@@ -455,13 +455,13 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreateDefaultDimensionGLAccSameValue(DimensionValue, CreateCustPostingGrPmtDiscDebitAccNo(CustomerNo));
 
         // [GIVEN] Posted Sales Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreateAndPostGenJnlLine(
           GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Sales Journal with Payment Amount = 9800 and applied to posted Invoice. No dimension is set.
         // [WHEN] Post Sales Journal
@@ -493,14 +493,14 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         GLAccountNo := CreateCustPostingGrPmtDiscDebitAccNo(CustomerNo);
         CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
 
         // [GIVEN] Posted Sales Invoice with Amount Including VAT = 10000 and possible Discount = 2%. No dimension is set.
         CreateAndPostGenJnlLine(
           GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Sales Journal with Payment Amount = 9800 and applied to posted Invoice. Dimension "D" is set.
         CreateGenJnlLineWithAppliesToDocNo(
@@ -535,7 +535,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
         // [GIVEN] Customer with "Payment Disc. Debit Acc." = "A"
         // [GIVEN] Default Dimension "D" with "Value Posting" = "Same Code" is set for G/L Account "A"
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         GLAccountNo := CreateCustPostingGrPmtDiscDebitAccNo(CustomerNo);
         CreateDefaultDimensionGLAccSameValue(DimensionValue, GLAccountNo);
 
@@ -543,7 +543,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         CreateAndPostGenJnlLine(
           GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000), CustomerNo, '');
         InvoiceDocumentNo := GenJournalLine."Document No.";
-        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct / 100;
+        PaymentAmount := -GenJournalLine.Amount + GenJournalLine.Amount * GetPmtTermsDiscountPct() / 100;
 
         // [GIVEN] Posted Sales Payment with Amount = 9800. No dimension is set.
         CreateAndPostGenJnlLine(
@@ -581,12 +581,12 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Customer Entries" page
         LibraryVariableStorage.Enqueue(ExpectedAmount);
-        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
 
         // [GIVEN] Use "Set Applies-to ID"
         // Done in ApplyCustomerEntriesWithSetAppliesToIDModalPageHandler
@@ -597,7 +597,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [THEN] "Amount to apply" on "Apply Customer Entries" page is 0
         // Done in ApplyCustomerEntriesWithSetAppliesToIDModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -621,11 +621,11 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Customer Entries" page with two lines
-        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" on both lines, "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "A"
         // Done in SeveralEntriesWithSameAppliesToIDModalPageHandler
@@ -636,7 +636,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [THEN] "Applies-to ID" of the 1st line = "A"
         // Done in SeveralEntriesWithSameAppliesToIDModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -660,11 +660,11 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Customer Entries" page with two lines
-        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
         // Done in SeveralApplyCustomerEntriesModalPageHandler
@@ -675,7 +675,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [THEN] "Applies-to ID" of the 1st line = "A"
         // Done in SeveralApplyCustomerEntriesModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -699,11 +699,11 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
 
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal."Applies-to Doc. Type".SetValue(GenJournalLine."Applies-to Doc. Type"::Invoice);
 
         // [GIVEN] Open "Apply Customer Entries" page with two lines
-        CashReceiptJournal."Apply Entries".Invoke;
+        CashReceiptJournal."Apply Entries".Invoke();
 
         // [GIVEN] Use "Set Applies-to ID" action on 1st line, "Applies-to ID" of the 1st line = "A"
         // Done in SeveralEntriesWithDifferentAppliesToIDModalPageHandler
@@ -714,7 +714,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [THEN] "Applies-to ID" of the 1st line = "A", "Applies-to ID" of the 2nd line = "B"
         // Done in SeveralEntriesWithDifferentAppliesToIDModalPageHandler
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -744,11 +744,11 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         // [GIVEN] Cash Receipt Journal was open
         LibraryVariableStorage.Enqueue(GenJournalLine."Journal Template Name");
         Commit();
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
 
         // [WHEN] Set 'Applies-to Doc. No.' value to Posted Invoice doc. no.
         CashReceiptJournal."Applies-to Doc. No.".SetValue(PostedDocNo);
-        CashReceiptJournal.OK.Invoke;
+        CashReceiptJournal.OK().Invoke();
 
         // [THEN] External doc. no. of posted invoice is not transferred to 'External Document No.' of Cash Receipt Journal Line
         GenJournalLine.Find();
@@ -795,7 +795,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         PaymentJournal.OpenEdit();
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Document No.");
         LibraryVariableStorage.Enqueue(CustLedgerEntry.Amount);
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.FindFirst();
         GenJournalLine.TestField(Amount, -CustLedgerEntry.Amount);
@@ -804,8 +804,8 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryVariableStorage.Enqueue(GenJournalLineInv."Document No.");
         LibraryVariableStorage.Enqueue(GenJournalLineInv.Amount / 2);
         PaymentJournal.Next();
-        PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
+        PaymentJournal.OK().Invoke();
 
         // [THEN] Second payment journal line gets Amount = -1000
         GenJournalLine.FindLast();
@@ -861,7 +861,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo());
         UpdateGenJnlLineAppln(
           GenJournalLine, '', CustLedgerEntry1."Amount (LCY)" / 2 + CustLedgerEntry2."Amount (LCY)");
 
@@ -929,7 +929,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
         GenJournalLine.Insert();
         GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
-        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateBankAccountNo());
         UpdateGenJnlLineAppln(
           GenJournalLine, '', CustLedgerEntry1."Amount (LCY)" / 2 + CustLedgerEntry2."Amount (LCY)");
 
@@ -1123,10 +1123,10 @@ codeunit 134000 "ERM Apply Sales/Receivables"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Sales/Receivables");
         LibraryERMCountryData.CreateVATData();
-        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
+        LibraryERMCountryData.UpdateAccountInCustomerPostingGroup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        ModifyGenJnlBatchNoSeries;
+        ModifyGenJnlBatchNoSeries();
         isInitialized := true;
         Commit();
 
@@ -1148,7 +1148,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         // Setup: Create Invoice and Payment General Lines and Post them.
         CreateAndPostGenJnlLine(
-          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(10000), CreateCustomer, '');
+          GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandInt(10000), CreateCustomer(), '');
         DocumentNo := GenJournalLine."Document No.";
         CreateAndPostGenJnlLine(
           GenJournalLine, DueDate, GenJournalLine."Document Type"::Payment, -GenJournalLine.Amount, GenJournalLine."Account No.", '');
@@ -1302,7 +1302,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, AccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, 0);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), 0);
     end;
 
     local procedure CreateDefaultDimensionGLAccSameValue(var DimensionValue: Record "Dimension Value"; GLAccountNo: Code[20])
@@ -1322,7 +1322,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     begin
         Customer.Get(CustomerNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
-        CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo);
+        CustomerPostingGroup.Validate("Payment Disc. Debit Acc.", LibraryERM.CreateGLAccountNo());
         CustomerPostingGroup.Modify(true);
         exit(CustomerPostingGroup."Payment Disc. Debit Acc.");
     end;
@@ -1342,7 +1342,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         with GenJournalLine do begin
             CreateGenJnlLine(
               GenJournalLine, WorkDate(), "Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
-              LibrarySales.CreateCustomerNo, '');
+              LibrarySales.CreateCustomerNo(), '');
             Validate("External Document No.", LibraryUtility.GenerateGUID());
             Modify(true);
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1394,7 +1394,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        GenJnlBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         GenJnlBatch.Modify(true);
     end;
 
@@ -1547,32 +1547,32 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesWithSetAppliesToIDModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.AppliedAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.AppliedAmount.AssertEquals(LibraryVariableStorage.DequeueDecimal());
 
         ApplyCustomerEntries.AppliesToID.SetValue('');
         ApplyCustomerEntries.AppliedAmount.AssertEquals(0);
         ApplyCustomerEntries."Amount to Apply".AssertEquals(0);
         ApplyCustomerEntries.ApplnAmountToApply.AssertEquals(0);
 
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesWithAmountModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText());
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1591,18 +1591,18 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     var
         AppliesToID: Code[20];
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        AppliesToID := ApplyCustomerEntries.AppliesToID.Value();
 
         ApplyCustomerEntries.Next();
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
         ApplyCustomerEntries.AppliesToID.SetValue('');
         ApplyCustomerEntries.AppliesToID.AssertEquals('');
 
-        ApplyCustomerEntries.Previous;
+        ApplyCustomerEntries.Previous();
         ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1611,17 +1611,17 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     var
         AppliesToID: Code[20];
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        AppliesToID := ApplyCustomerEntries.AppliesToID.Value();
 
         ApplyCustomerEntries.Next();
         ApplyCustomerEntries.AppliesToID.SetValue(AppliesToID);
         ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyCustomerEntries.Previous;
+        ApplyCustomerEntries.Previous();
         ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1631,26 +1631,26 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         AppliesToID: Code[20];
         AlternativeAppliesToID: Code[20];
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        AppliesToID := ApplyCustomerEntries.AppliesToID.Value();
 
         ApplyCustomerEntries.Next();
         AlternativeAppliesToID := LibraryUtility.GenerateGUID();
         ApplyCustomerEntries.AppliesToID.SetValue(AlternativeAppliesToID);
         ApplyCustomerEntries.AppliesToID.AssertEquals(AlternativeAppliesToID);
 
-        ApplyCustomerEntries.Previous;
+        ApplyCustomerEntries.Previous();
         ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
 
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GeneralJournalTemplateListModalPageHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.GotoKey(LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1659,17 +1659,17 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     var
         AppliesToID: Code[20];
     begin
-        AppliesToID := ApplyCustomerEntries.AppliesToID.Value;
+        AppliesToID := ApplyCustomerEntries.AppliesToID.Value();
         if AppliesToID = '' then
-            ApplyCustomerEntries."Set Applies-to ID".Invoke;
+            ApplyCustomerEntries."Set Applies-to ID".Invoke();
 
         if (ApplyCustomerEntries.Next()) then begin
             ApplyCustomerEntries.AppliesToID.SetValue(AppliesToID);
             ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
-            ApplyCustomerEntries.Previous;
+            ApplyCustomerEntries.Previous();
             ApplyCustomerEntries.AppliesToID.AssertEquals(AppliesToID);
         end;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 }
 

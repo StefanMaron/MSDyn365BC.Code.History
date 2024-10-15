@@ -1,6 +1,8 @@
 namespace Microsoft.Sales.Reminder;
 
+#pragma warning disable AL0659
 enum 524 "Report Selection Usage Reminder"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

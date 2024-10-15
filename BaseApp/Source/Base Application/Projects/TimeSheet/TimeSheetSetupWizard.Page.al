@@ -28,7 +28,7 @@ page 977 "Time Sheet Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND NOT (Step = Step::Finish);
+                Visible = TopBannerVisible and not (Step = Step::Finish);
                 field(MediaResourcesStandardMediaReference; MediaResourcesStandard."Media Reference")
                 {
                     ApplicationArea = Jobs;
@@ -40,7 +40,7 @@ page 977 "Time Sheet Setup Wizard"
             {
                 Editable = false;
                 ShowCaption = false;
-                Visible = TopBannerVisible AND (Step = Step::Finish);
+                Visible = TopBannerVisible and (Step = Step::Finish);
                 field(MediaResourcesDoneMediaReference; MediaResourcesDone."Media Reference")
                 {
                     ApplicationArea = Jobs;
@@ -59,7 +59,7 @@ page 977 "Time Sheet Setup Wizard"
                     label("Para1.1.1")
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'Track the time used on jobs or create simple time registrations for resources.';
+                        Caption = 'Track the time used on projects or create simple time registrations for resources.';
                     }
                     label("Para1.1.2")
                     {
@@ -242,9 +242,9 @@ page 977 "Time Sheet Setup Wizard"
                     field(TimeSheetByJobApproval; TimeSheetByJobApproval)
                     {
                         ApplicationArea = Jobs;
-                        Caption = 'For jobs, the person responsible is the approver';
+                        Caption = 'For projects, the person responsible is the approver';
                         OptionCaption = 'Never,,Always';
-                        ToolTip = 'Specifies whether time sheets must be approved on a per-job basis by the user specified for the job.';
+                        ToolTip = 'Specifies whether time sheets must be approved on a per-project basis by the user specified for the project.';
 
                         trigger OnValidate()
                         begin
@@ -317,7 +317,6 @@ page 977 "Time Sheet Setup Wizard"
                 Enabled = BackActionEnabled;
                 Image = PreviousRecord;
                 InFooterBar = true;
-                Promoted = true;
 
                 trigger OnAction()
                 begin
@@ -331,7 +330,6 @@ page 977 "Time Sheet Setup Wizard"
                 Enabled = NextActionEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
-                Promoted = true;
 
                 trigger OnAction()
                 begin
@@ -345,7 +343,6 @@ page 977 "Time Sheet Setup Wizard"
                 Enabled = FinishActionEnabled;
                 Image = Approve;
                 InFooterBar = true;
-                Promoted = true;
 
                 trigger OnAction()
                 var

@@ -2,10 +2,12 @@ namespace Microsoft.Assembly.History;
 
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
+using Microsoft.Projects.Project.Job;
 
 table 914 "Posted Assemble-to-Order Link"
 {
     Caption = 'Posted Assemble-to-Order Link';
+    DataClassification = CustomerContent;
     Permissions = TableData "Posted Assembly Header" = d,
                   TableData "Posted Assemble-to-Order Link" = d;
 
@@ -22,11 +24,9 @@ table 914 "Posted Assemble-to-Order Link"
             Caption = 'Assembly Document No.';
             TableRelation = if ("Assembly Document Type" = const(Assembly)) "Posted Assembly Header" where("No." = field("Assembly Document No."));
         }
-        field(12; "Document Type"; Option)
+        field(12; "Document Type"; enum "Posted Assembly Link Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Sales Shipment';
-            OptionMembers = " ","Sales Shipment";
         }
         field(13; "Document No."; Code[20])
         {
@@ -60,6 +60,16 @@ table 914 "Posted Assemble-to-Order Link"
         {
             Caption = 'Order Line No.';
         }
+        field(40; "Job No."; Code[20])
+        {
+            Caption = 'Project No.';
+            TableRelation = Job;
+        }
+        field(41; "Job Task No."; Code[20])
+        {
+            Caption = 'Project Task No.';
+            TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
+        }
     }
 
     keys
@@ -72,6 +82,9 @@ table 914 "Posted Assemble-to-Order Link"
         {
         }
         key(Key3; "Order No.", "Order Line No.")
+        {
+        }
+        key(Key4; "Job No.", "Job Task No.", "Document Line No.")
         {
         }
     }

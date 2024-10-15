@@ -26,10 +26,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as business manager
         Initialize();
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] A posted sales invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePostedSalesInvoice(CustomerNo);
 
         // [WHEN] A sales return  order is created from the sales order
@@ -50,10 +50,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as external accountant
         Initialize();
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] A posted sales invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePostedSalesInvoice(CustomerNo);
 
         // [WHEN] A sales return  order is created from the sales order
@@ -74,28 +74,28 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as team member
         Initialize();
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [GIVEN] A customer
         // The team member can't create a customer
-        asserterror CreateCustomer;
+        asserterror CreateCustomer();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CustomerNo := LibrarySales.CreateCustomerNo();
         Commit();
 
         // [GIVEN] A posted sales invoice
         // The team memeber can't create an item for the sales order
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreatePostedSalesInvoice(CustomerNo);
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreatePostedSalesInvoice(CustomerNo);
         Commit();
 
         // [WHEN] A sales return  order is created from the sales order;
         // Team member can create the return order, but can't post it
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreateSalesReturnOrderAndPostIt(CustomerNo);
         Assert.ExpectedErrorCode('TestValidation');
     end;
@@ -111,10 +111,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as Essential ISV Emb User
         Initialize();
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [GIVEN] A posted sales invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePostedSalesInvoice(CustomerNo);
 
         // [WHEN] A sales return  order is created from the sales order
@@ -135,30 +135,30 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as team member ISV Emb
         Initialize();
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [GIVEN] A customer
         // The team member can't create a customer
-        asserterror CreateCustomer;
+        asserterror CreateCustomer();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CustomerNo := LibrarySales.CreateCustomerNo();
         Commit();
 
         // [GIVEN] A posted sales invoice
         // The team memeber can't create an item for the sales order
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreatePostedSalesInvoice(CustomerNo);
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CreatePostedSalesInvoice(CustomerNo);
         Commit();
 
         // [WHEN] A sales return  order is created from the sales order;
         // Team member can create the return order, but can't post it
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreateSalesReturnOrderAndPostIt(CustomerNo);
         Assert.ExpectedErrorCode('TestValidation');
     end;
@@ -174,10 +174,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Sales]
         // [SCENARIO] Create a sales return order as Device ISV Emb User
         Initialize();
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [GIVEN] A posted sales invoice
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CreatePostedSalesInvoice(CustomerNo);
 
         // [WHEN] A sales return  order is created from the sales order
@@ -198,10 +198,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as business manager
         Initialize();
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePostedPurchaseInvoice(VendorNo);
 
         // [WHEN] A purchase return  order is created from the purchase order
@@ -222,10 +222,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as external accountant
         Initialize();
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePostedPurchaseInvoice(VendorNo);
 
         // [WHEN] A purchase return  order is created from the purchase order
@@ -247,28 +247,28 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as team member
         Initialize();
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
 
         // [GIVEN] A vendor
         // The team member can't create a vandor
-        asserterror CreateVendor;
+        asserterror CreateVendor();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         VendorNo := LibraryPurchase.CreateVendorNo();
         Commit();
 
         // [GIVEN] A posted purchase invoice
         // The team memeber can't create an item for the purchase order
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreatePostedPurchaseInvoice(VendorNo);
         Assert.ExpectedErrorCode('TestValidation');
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreatePostedPurchaseInvoice(VendorNo);
         Commit();
 
         // [WHEN] A purchase return  order is created from the purchase order
         // Team member can't create the return order
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreatePurchaseReturnOrderAndPostIt(VendorNo);
         Assert.ExpectedErrorCode('TestValidation');
     end;
@@ -284,10 +284,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as essential ISV emb user
         Initialize();
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePostedPurchaseInvoice(VendorNo);
 
         // [WHEN] A purchase return  order is created from the purchase order
@@ -309,30 +309,30 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as team member ISV Emb
         Initialize();
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // [GIVEN] A vendor
         // The team member can't create a vandor
-        asserterror CreateVendor;
+        asserterror CreateVendor();
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         VendorNo := LibraryPurchase.CreateVendorNo();
         Commit();
 
         // [GIVEN] A posted purchase invoice
         // The team memeber can't create an item for the purchase order
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreatePostedPurchaseInvoice(VendorNo);
         Assert.ExpectedErrorCode('TestValidation');
 
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         CreatePostedPurchaseInvoice(VendorNo);
         Commit();
 
         // [WHEN] A purchase return  order is created from the purchase order
         // Team member can't create the return order
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreatePurchaseReturnOrderAndPostIt(VendorNo);
         Assert.ExpectedErrorCode('TestValidation');
     end;
@@ -348,10 +348,10 @@ codeunit 135408 "Return Order Plan-based E2E"
         // [FEATURE] [Purchase]
         // [SCENARIO] Create a purchase return order as Device ISV emb user
         Initialize();
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [GIVEN] A posted purchase invoice
-        VendorNo := CreateVendor;
+        VendorNo := CreateVendor();
         CreatePostedPurchaseInvoice(VendorNo);
 
         // [WHEN] A purchase return  order is created from the purchase order
@@ -372,7 +372,7 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Return Order Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
 
         if isInitialized then
             exit;
@@ -382,11 +382,11 @@ codeunit 135408 "Return Order Plan-based E2E"
         LibraryTemplates.EnableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
-        LibrarySales.SetReturnOrderNoSeriesInSetup;
+        LibrarySales.SetReturnOrderNoSeriesInSetup();
 
-        LibraryPurchase.SetReturnOrderNoSeriesInSetup;
+        LibraryPurchase.SetReturnOrderNoSeriesInSetup();
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
@@ -405,10 +405,10 @@ codeunit 135408 "Return Order Plan-based E2E"
     var
         PostedSalesCreditMemos: TestPage "Posted Sales Credit Memos";
     begin
-        PostedSalesCreditMemos.OpenEdit;
+        PostedSalesCreditMemos.OpenEdit();
         PostedSalesCreditMemos.FILTER.SetFilter("Sell-to Customer No.", CustomerNo);
         PostedSalesCreditMemos.FILTER.SetFilter("Return Order No.", SalesReturnOrderNo);
-        PostedSalesCreditMemos.View.Invoke;
+        PostedSalesCreditMemos.View().Invoke();
         PostedSalesCreditMemos.Close();
     end;
 
@@ -416,10 +416,10 @@ codeunit 135408 "Return Order Plan-based E2E"
     var
         PostedPurchaseCreditMemos: TestPage "Posted Purchase Credit Memos";
     begin
-        PostedPurchaseCreditMemos.OpenEdit;
+        PostedPurchaseCreditMemos.OpenEdit();
         PostedPurchaseCreditMemos.FILTER.SetFilter("Buy-from Vendor No.", VendorNo);
         PostedPurchaseCreditMemos.FILTER.SetFilter("Return Order No.", PurchaseReturnOrderNo);
-        PostedPurchaseCreditMemos.View.Invoke;
+        PostedPurchaseCreditMemos.View().Invoke();
         PostedPurchaseCreditMemos.Close();
     end;
 
@@ -429,9 +429,9 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         SalesReturnOrder.OpenNew();
         SalesReturnOrder."Sell-to Customer No.".SetValue(CustomerNo);
-        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
-        SalesReturnOrderNo := SalesReturnOrder."No.".Value;
-        SalesReturnOrder.Post.Invoke;
+        SalesReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
+        SalesReturnOrderNo := SalesReturnOrder."No.".Value();
+        SalesReturnOrder.Post.Invoke();
         Commit();
     end;
 
@@ -441,10 +441,10 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         PurchaseReturnOrder.OpenNew();
         PurchaseReturnOrder."Buy-from Vendor No.".SetValue(VendorNo);
-        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke;
-        PurchaseReturnOrderNo := PurchaseReturnOrder."No.".Value;
+        PurchaseReturnOrder.GetPostedDocumentLinesToReverse.Invoke();
+        PurchaseReturnOrderNo := PurchaseReturnOrder."No.".Value();
         PurchaseReturnOrder."Vendor Cr. Memo No.".SetValue(PurchaseReturnOrderNo);
-        PurchaseReturnOrder.Post.Invoke;
+        PurchaseReturnOrder.Post.Invoke();
         Commit();
     end;
 
@@ -456,9 +456,9 @@ codeunit 135408 "Return Order Plan-based E2E"
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer No.".SetValue(CustomerNo);
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));
-        SalesInvoice.SalesLines."No.".SetValue(CreateItem);
+        SalesInvoice.SalesLines."No.".SetValue(CreateItem());
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
         Commit();
     end;
 
@@ -474,9 +474,9 @@ codeunit 135408 "Return Order Plan-based E2E"
         PurchaseInvoice."Message Type".SetValue(PurchaseHeader."Message Type"::Message);
         PurchaseInvoice."Invoice Message".SetValue(LibraryUtility.GenerateGUID());
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
-        PurchaseInvoice.PurchLines."No.".SetValue(CreateItem);
+        PurchaseInvoice.PurchLines."No.".SetValue(CreateItem());
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandDec(100, 1));
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
         Commit();
     end;
 
@@ -487,8 +487,8 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
         Commit();
     end;
 
@@ -499,8 +499,8 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
         Commit();
     end;
 
@@ -511,8 +511,8 @@ codeunit 135408 "Return Order Plan-based E2E"
     begin
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
         Commit();
     end;
 
@@ -555,14 +555,14 @@ codeunit 135408 "Return Order Plan-based E2E"
     [Scope('OnPrem')]
     procedure SelectPostedSalesDocumentLinesPageHandler(var PostedSalesDocumentLines: TestPage "Posted Sales Document Lines")
     begin
-        PostedSalesDocumentLines.OK.Invoke;
+        PostedSalesDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectPostedPurchaseDocumentLinesPageHandler(var PostedPurchaseDocumentLines: TestPage "Posted Purchase Document Lines")
     begin
-        PostedPurchaseDocumentLines.OK.Invoke;
+        PostedPurchaseDocumentLines.OK().Invoke();
     end;
 
     [ModalPageHandler]

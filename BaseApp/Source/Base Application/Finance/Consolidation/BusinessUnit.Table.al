@@ -9,6 +9,7 @@ table 220 "Business Unit"
 {
     Caption = 'Business Unit';
     LookupPageID = "Business Unit List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -100,6 +101,14 @@ table 220 "Business Unit"
             Caption = 'Company Name';
             TableRelation = Company.Name;
             ValidateTableRelation = false;
+            trigger OnValidate()
+            begin
+                if Rec."Default Data Import Method" <> Rec."Default Data Import Method"::Database then
+                    exit;
+                if Rec.Name <> '' then
+                    exit;
+                Rec.Name := Rec."Company Name";
+            end;
         }
         field(14; "Currency Code"; Code[10])
         {
@@ -110,6 +119,7 @@ table 220 "Business Unit"
             var
                 CurrencyFactor: Decimal;
             begin
+                WarnIfDifferentCurrencyUsedForPreviousConsolidation(Rec."Currency Code");
                 if "Currency Exchange Rate Table" = "Currency Exchange Rate Table"::"Business Unit" then
                     CurrencyFactor := GetCurrencyFactorFromBusinessUnit()
                 else
@@ -233,6 +243,14 @@ table 220 "Business Unit"
         {
             Caption = 'External Company Name';
             DataClassification = OrganizationIdentifiableInformation;
+            trigger OnValidate()
+            begin
+                if Rec."Default Data Import Method" <> Rec."Default Data Import Method"::API then
+                    exit;
+                if Rec.Name <> '' then
+                    exit;
+                Rec.Name := CopyStr(Rec."External Company Name", 1, MaxStrLen(Rec.Name));
+            end;
         }
     }
 
@@ -254,6 +272,7 @@ table 220 "Business Unit"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         UnsupportedDataImportMethodErr: Label 'Unsupported data import method.';
+        DifferentCurrenciesHaveBeenUsedInPreviousConsolidationsForBusinessUnitsErr: Label 'Different currencies have been used in previous consolidations for this business unit. Changing it may have an impact in currency adjustments. Do you want to continue?';
 
     procedure CheckGLAcc(AccNo: Code[20])
     var
@@ -297,5 +316,20 @@ table 220 "Business Unit"
         CurrExchRate.GetLastestExchangeRate(GLSetup."LCY Code", DummyDate, CurrencyFactor);
         exit(CurrencyFactor);
     end;
+
+    local procedure WarnIfDifferentCurrencyUsedForPreviousConsolidation(CurrencyCode: Code[10])
+    var
+        BusUnitInConsProcess: Record "Bus. Unit In Cons. Process";
+    begin
+        if not GuiAllowed() then
+            exit;
+        BusUnitInConsProcess.SetRange("Business Unit Code", Rec.Code);
+        BusUnitInConsProcess.SetFilter("Currency Code", '<> %1', CurrencyCode);
+        BusUnitInConsProcess.SetRange(Status, BusUnitInConsProcess.Status::Finished);
+        if not BusUnitInConsProcess.IsEmpty() then
+            if not Confirm(DifferentCurrenciesHaveBeenUsedInPreviousConsolidationsForBusinessUnitsErr) then
+                Error('');
+    end;
+
 }
 

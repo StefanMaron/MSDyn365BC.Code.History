@@ -11,6 +11,7 @@ using Microsoft.Utilities;
 table 99000880 "Order Promising Line"
 {
     Caption = 'Order Promising Line';
+    DataClassification = CustomerContent;
 
     fields
     {

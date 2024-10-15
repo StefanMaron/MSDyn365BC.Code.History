@@ -26,7 +26,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         EmployeeTempl.DeleteAll(true);
 
@@ -37,7 +37,7 @@ codeunit 135400 "Basic HR Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Basic HR Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibraryHumanResource.SetupEmployeeNumberSeries;
+        LibraryHumanResource.SetupEmployeeNumberSeries();
 
         IsInitialized := true;
         Commit();
@@ -55,10 +55,10 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Business Manager
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // [WHEN] Create/Modify/Delete Employee
         // Create Employee
-        CreateEmployee;
+        CreateEmployee();
         // Modify Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -78,10 +78,10 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Accountant
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
         // [WHEN] Create/Modify/Delete Employee
         // Create Employee
-        CreateEmployee;
+        CreateEmployee();
         // Modify Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -101,12 +101,12 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Team Member
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // Create Employee with wrong permissions and then create one with full-permissions, so that it can be modified later
-        CreateEmployeeWithPermissionError;
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        CreateEmployeeWithPermissionError();
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         LibraryHumanResource.CreateEmployee(Employee);
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         // [WHEN] Modify existing Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -127,10 +127,10 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Essential ISV Emb User
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         // [WHEN] Create/Modify/Delete Employee
         // Create Employee
-        CreateEmployee;
+        CreateEmployee();
         // Modify Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -150,20 +150,20 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Team Member
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
 
         // Create Employee with wrong permissions and then create one with full-permissions, so that it can be modified later
-        CreateEmployeeWithPermissionError;
+        CreateEmployeeWithPermissionError();
 
         // Check that Team Member ISV Emb cannot create Employees
         asserterror LibraryHumanResource.CreateEmployee(Employee);
         Assert.ExpectedError(MissingPermissionsErr);
 
         // Create employee as Essential ISV Emb User
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
         LibraryHumanResource.CreateEmployee(Employee);
 
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         // [WHEN] Modify existing Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -184,10 +184,10 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Initialize();
 
         // [GIVEN] Employee as Device ISV Emb User
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
         // [WHEN] Create/Modify/Delete Employee
         // Create Employee
-        CreateEmployee;
+        CreateEmployee();
         // Modify Employee
         Employee.FindFirst();
         ModifyEmployee(Employee."No.");
@@ -207,11 +207,11 @@ codeunit 135400 "Basic HR Plan-based E2E"
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
         EmployeeCard."Last Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Last Name")), 1, MaxStrLen(Employee."Last Name")));
-        EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail);
+        EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail());
         EmployeeCard."Job Title".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."Job Title")), 1, MaxStrLen(Employee."Job Title")));
-        EmployeeCard.Address.Activate;
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.Address.Activate();
+        EmployeeCard.OK().Invoke();
     end;
 
     local procedure ModifyEmployee(EmployeeNo: Code[20])
@@ -219,12 +219,12 @@ codeunit 135400 "Basic HR Plan-based E2E"
         Employee: Record Employee;
         EmployeeCard: TestPage "Employee Card";
     begin
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.GotoKey(EmployeeNo);
-        EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail);
+        EmployeeCard."E-Mail".SetValue(LibraryUtility.GenerateRandomEmail());
         EmployeeCard.Address.SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee.Address)), 1, MaxStrLen(Employee.Address)));
-        EmployeeCard.OK.Invoke;
+        EmployeeCard.OK().Invoke();
     end;
 
     local procedure CreateEmployeeWithPermissionError()

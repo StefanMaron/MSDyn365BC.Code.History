@@ -15,7 +15,7 @@ page 5734 "Item Category Attributes"
     SourceTable = "Item Attribute Value Selection";
     SourceTableTemporary = true;
     SourceTableView = sorting("Inheritance Level", "Attribute Name")
-                      order(Ascending);
+                      order(ascending);
 
     layout
     {
@@ -324,7 +324,7 @@ page 5734 "Item Category Attributes"
 
     procedure GetItemCategoryCode(): Code[20];
     begin
-        Exit(ItemCategoryCode);
+        exit(ItemCategoryCode);
     end;
 
     [IntegrationEvent(false, false)]

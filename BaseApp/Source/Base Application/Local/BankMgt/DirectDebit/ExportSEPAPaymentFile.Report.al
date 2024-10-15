@@ -132,7 +132,6 @@ report 13403 "Export SEPA Payment File"
         Vendor: Record Vendor;
         ReferenceFileSetup: Record "Reference File Setup";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         FileMgt: Codeunit "File Management";
         XMLDomMgt: Codeunit "XML DOM Management";
         XMLDomDoc: DotNet XmlDocument;
@@ -177,11 +176,12 @@ report 13403 "Export SEPA Payment File"
     local procedure ExportGroupHeader()
     var
         RefPaymentExported: Record "Ref. Payment - Exported";
+        NoSeries: Codeunit "No. Series";
         XMLNewChild: DotNet XmlNode;
     begin
         XMLDomMgt.AddElement(XMLNodeCurr, 'GrpHdr', '', '', XMLNewChild);
         XMLNodeCurr := XMLNewChild;
-        MessageId := NoSeriesMgt.GetNextNo(PurchSetup."Bank Batch Nos.", WorkDate(), true);
+        MessageId := NoSeries.GetNextNo(PurchSetup."Bank Batch Nos.");
         XMLDomMgt.AddElement(XMLNodeCurr, 'MsgId', MessageId, '', XMLNewChild);
         XMLDomMgt.AddElement(XMLNodeCurr, 'CreDtTm', Format(CurrentDateTime, 19, 9), '', XMLNewChild);
         RefPaymentExported.Reset();
@@ -410,44 +410,41 @@ report 13403 "Export SEPA Payment File"
         BankAcc: Record "Bank Account";
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        with RefPaymentExported do begin
-            ControlSum := 0;
-            Reset();
-            SetCurrentKey("Payment Account", "Payment Date");
-            SetRange(Transferred, false);
-            SetRange("Applied Payments", false);
-            SetRange("SEPA Payment", true);
-            if FindSet() then begin
-                repeat
-                    TestField("Vendor No.");
-                    TestField("Description 2");
-                    TestField("Vendor Account");
-                    TestField("Document No.");
-                    TestField(Amount);
-                    TestField("Payment Account");
-                    TestField("Payment Date");
+        ControlSum := 0;
+        RefPaymentExported.Reset();
+        RefPaymentExported.SetCurrentKey("Payment Account", "Payment Date");
+        RefPaymentExported.SetRange(Transferred, false);
+        RefPaymentExported.SetRange("Applied Payments", false);
+        RefPaymentExported.SetRange("SEPA Payment", true);
+        if RefPaymentExported.FindSet() then
+            repeat
+                RefPaymentExported.TestField("Vendor No.");
+                RefPaymentExported.TestField("Description 2");
+                RefPaymentExported.TestField("Vendor Account");
+                RefPaymentExported.TestField("Document No.");
+                RefPaymentExported.TestField(Amount);
+                RefPaymentExported.TestField("Payment Account");
+                RefPaymentExported.TestField("Payment Date");
 
-                    BankAcc.Get("Payment Account");
-                    BankAcc.TestField(IBAN);
-                    BankAcc.TestField("SWIFT Code");
-                    if not Country.Get(BankAcc."Country/Region Code") then
-                        BankAcc.FieldError("Country/Region Code");
-                    if not Country."SEPA Allowed" then
-                        Error(Text13405, "Payment Account");
+                BankAcc.Get(RefPaymentExported."Payment Account");
+                BankAcc.TestField(IBAN);
+                BankAcc.TestField("SWIFT Code");
+                if not Country.Get(BankAcc."Country/Region Code") then
+                    BankAcc.FieldError("Country/Region Code");
+                if not Country."SEPA Allowed" then
+                    Error(Text13405, RefPaymentExported."Payment Account");
 
-                    VendorBankAcc.Get("Vendor No.", "Vendor Account");
-                    if not Country.Get(VendorBankAcc."Country/Region Code") then
-                        VendorBankAcc.FieldError("Country/Region Code");
-                    if Country."SEPA Allowed" then
-                        VendorBankAcc.TestField(IBAN)
-                    else
-                        if VendorBankAcc.IBAN = '' then
-                            VendorBankAcc.TestField("Bank Account No.");
+                VendorBankAcc.Get(RefPaymentExported."Vendor No.", RefPaymentExported."Vendor Account");
+                if not Country.Get(VendorBankAcc."Country/Region Code") then
+                    VendorBankAcc.FieldError("Country/Region Code");
+                if Country."SEPA Allowed" then
+                    VendorBankAcc.TestField(IBAN)
+                else
+                    if VendorBankAcc.IBAN = '' then
+                        VendorBankAcc.TestField("Bank Account No.");
 
-                    ControlSum += Amount;
-                until Next() = 0;
-            end;
-        end;
+                ControlSum += RefPaymentExported.Amount;
+            until RefPaymentExported.Next() = 0;
     end;
 
     local procedure FormatOutput()
@@ -468,7 +465,7 @@ report 13403 "Export SEPA Payment File"
         repeat
             InStream.Read(Char);
             if AddCRLF(Char, NeedsCRLF) then
-                OutStream.WriteText;
+                OutStream.WriteText();
             OutStream.Write(Char);
         until InStream.EOS;
         File.Close();

@@ -757,7 +757,7 @@ page 46 "Sales Order Subform"
                 field("Work Type Code"; Rec."Work Type Code")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a job.';
+                    ToolTip = 'Specifies which work type the resource applies to when the sale is related to a project.';
                     Visible = false;
                 }
                 field("Whse. Outstanding Qty."; Rec."Whse. Outstanding Qty.")
@@ -859,7 +859,7 @@ page 46 "Sales Order Subform"
                 field("Deferral Code"; Rec."Deferral Code")
                 {
                     ApplicationArea = Suite;
-                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") AND (Rec.Type <> Rec.Type::" ");
+                    Enabled = (Rec.Type <> Rec.Type::"Fixed Asset") and (Rec.Type <> Rec.Type::" ");
                     TableRelation = "Deferral Template"."Deferral Code";
                     ToolTip = 'Specifies the deferral template that governs how revenue earned with this sales document is deferred to the different accounting periods when the good or service was delivered.';
                     Visible = false;
@@ -1026,7 +1026,9 @@ page 46 "Sales Order Subform"
                 group(Control45)
                 {
                     ShowCaption = false;
+#pragma warning disable AA0100
                     field("TotalSalesLine.""Line Amount"""; TotalSalesLine."Line Amount")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Basic, Suite;
                         AutoFormatExpression = Currency.Code;
@@ -1134,7 +1136,7 @@ page 46 "Sales Order Subform"
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
-#if not CLEAN21
+#if not CLEAN23
                     action(GetPrice)
                     {
                         AccessByPermission = TableData "Sales Price" = R;
@@ -1721,10 +1723,6 @@ page 46 "Sales Order Subform"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Edit in Excel';
                     Image = Excel;
-                    Promoted = true;
-                    PromotedCategory = Category8;
-                    PromotedIsBig = true;
-                    PromotedOnly = true;
                     Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
                     AccessByPermission = System "Allow Action Export To Excel" = X;
@@ -1866,7 +1864,6 @@ page 46 "Sales Order Subform"
         ItemChargeStyleExpression: Text;
         ItemChargeToHandleStyleExpression: Text;
         TypeAsText: Text[30];
-        SuppressTotals: Boolean;
         UseAllocationAccountNumber: Boolean;
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Type.';
         ExcelFileNameTxt: Label 'Sales Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
@@ -1892,6 +1889,7 @@ page 46 "Sales Order Subform"
         IsBlankNumber: Boolean;
         ItemReferenceVisible: Boolean;
         LocationCodeMandatory: Boolean;
+        SuppressTotals: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         AttachToInvtItemEnabled: Boolean;
         VATAmount: Decimal;
@@ -2190,11 +2188,12 @@ page 46 "Sales Order Subform"
 
     procedure ShowDocumentLineTracking()
     var
-        DocumentLineTracking: Page "Document Line Tracking";
+        DocumentLineTrackingPage: Page "Document Line Tracking";
     begin
-        Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(0, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal();
+        Clear(DocumentLineTrackingPage);
+        DocumentLineTrackingPage.SetSourceDoc(
+            "Document Line Source Type"::"Sales Order", Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
+        DocumentLineTrackingPage.RunModal();
     end;
 
     local procedure SetLocationCodeMandatory()

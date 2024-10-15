@@ -104,7 +104,7 @@ codeunit 144009 "E-BANKING Export Test"
     begin
         if not Initialized then begin
             CompanyInformation.Get();
-            Setup;
+            Setup();
             Initialized := true;
         end;
     end;
@@ -138,7 +138,7 @@ codeunit 144009 "E-BANKING Export Test"
         ExportRefPaymentLMP.SetTableView(DomesticBankAccount);
         ExportRefPaymentLMP.UseRequestPage := false;
         ExportRefPaymentLMP.RunModal();
-        exit(ExportRefPaymentLMP.GetFileName);
+        exit(ExportRefPaymentLMP.GetFileName());
     end;
 
     local procedure CreateForeignPaymentFile(Vendor: Record Vendor): Text
@@ -165,7 +165,7 @@ codeunit 144009 "E-BANKING Export Test"
         ExportRefPaymentLUM.SetTableView(ForeignBankAccount);
         ExportRefPaymentLUM.UseRequestPage := false;
         ExportRefPaymentLUM.RunModal();
-        exit(ExportRefPaymentLUM.GetFileName);
+        exit(ExportRefPaymentLUM.GetFileName());
     end;
 
     local procedure ValidateDomesticPaymentFile(Vendor: Record Vendor; FileName: Text)
@@ -236,7 +236,7 @@ codeunit 144009 "E-BANKING Export Test"
         PurchaseAndPayablesSetup."Bank Batch Nos." := 'BANK';
         PurchaseAndPayablesSetup.Modify(true);
 
-        CreateBankAccounts;
+        CreateBankAccounts();
         SetupPaymentRef('Domestic', DomesticBankAccount, DomesticBankRefFileSetup);
         SetupPaymentRef('Foreign', ForeignBankAccount, ForeignBankRefFileSetup);
     end;

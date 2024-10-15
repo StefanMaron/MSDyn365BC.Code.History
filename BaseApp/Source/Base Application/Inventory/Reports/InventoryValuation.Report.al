@@ -1,4 +1,4 @@
-namespace Microsoft.Inventory.Reports;
+﻿namespace Microsoft.Inventory.Reports;
 
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -262,6 +262,25 @@ report 1001 "Inventory Valuation"
     end;
 
     var
+        Text005: Label 'As of %1';
+        BoM_TextLbl: Label 'Base UoM';
+        Inventory_ValuationCaptionLbl: Label 'Inventory Valuation';
+        CurrReport_PAGENOCaptionLbl: Label 'Page';
+        This_report_includes_entries_that_have_been_posted_with_expected_costs_CaptionLbl: Label 'This report includes entries that have been posted with expected costs.';
+        IncreaseInvoicedQtyCaptionLbl: Label 'Increases (LCY)';
+        DecreaseInvoicedQtyCaptionLbl: Label 'Decreases (LCY)';
+        QuantityCaptionLbl: Label 'Quantity';
+        ValueCaptionLbl: Label 'Value';
+        QuantityCaption_Control31Lbl: Label 'Quantity';
+        QuantityCaption_Control40Lbl: Label 'Quantity';
+        InvCostPostedToGL_Control53CaptionLbl: Label 'Cost Posted to G/L';
+        QuantityCaption_Control58Lbl: Label 'Quantity';
+        TotalCaptionLbl: Label 'Total';
+        Expected_Cost_Included_TotalCaptionLbl: Label 'Expected Cost Included Total';
+        Expected_Cost_TotalCaptionLbl: Label 'Expected Cost Total';
+        Expected_Cost_IncludedCaptionLbl: Label 'Expected Cost Included';
+
+    protected var
         ValueEntry: Record "Value Entry";
         StartDate: Date;
         EndDate: Date;
@@ -280,24 +299,6 @@ report 1001 "Inventory Valuation"
         DecreaseExpectedValue: Decimal;
         DecreaseInvoicedQty: Decimal;
         DecreaseExpectedQty: Decimal;
-
-        Text005: Label 'As of %1';
-        BoM_TextLbl: Label 'Base UoM';
-        Inventory_ValuationCaptionLbl: Label 'Inventory Valuation';
-        CurrReport_PAGENOCaptionLbl: Label 'Page';
-        This_report_includes_entries_that_have_been_posted_with_expected_costs_CaptionLbl: Label 'This report includes entries that have been posted with expected costs.';
-        IncreaseInvoicedQtyCaptionLbl: Label 'Increases (LCY)';
-        DecreaseInvoicedQtyCaptionLbl: Label 'Decreases (LCY)';
-        QuantityCaptionLbl: Label 'Quantity';
-        ValueCaptionLbl: Label 'Value';
-        QuantityCaption_Control31Lbl: Label 'Quantity';
-        QuantityCaption_Control40Lbl: Label 'Quantity';
-        InvCostPostedToGL_Control53CaptionLbl: Label 'Cost Posted to G/L';
-        QuantityCaption_Control58Lbl: Label 'Quantity';
-        TotalCaptionLbl: Label 'Total';
-        Expected_Cost_Included_TotalCaptionLbl: Label 'Expected Cost Included Total';
-        Expected_Cost_TotalCaptionLbl: Label 'Expected Cost Total';
-        Expected_Cost_IncludedCaptionLbl: Label 'Expected Cost Included';
         InvCostPostedToGL: Decimal;
         CostPostedToGL: Decimal;
         ExpCostPostedToGL: Decimal;

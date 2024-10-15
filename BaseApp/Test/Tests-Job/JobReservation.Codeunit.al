@@ -38,8 +38,8 @@ codeunit 136312 "Job Reservation"
         VendorNoIsNotMatchErr: Label 'Vendor No. is not match.';
         VendorItemNoErr: Label 'Vendor Item No. should be %1';
         NotCreateReservationEntryErr: Label 'The Reservation Entry should not be created.';
-        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the job has reservations', Comment = '%1=The job status name';
-        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more job planning lines. \Please reserve manually.';
+        ReservationEntriesExistErr: Label 'You cannot set the status to %1 because the project has reservations', Comment = '%1=The project status name';
+        AutoReserveNotPossibleMsg: Label 'Automatic reservation is not possible for one or more project planning lines. \Please reserve manually.';
 
     [Test]
     [Scope('OnPrem')]
@@ -367,12 +367,12 @@ codeunit 136312 "Job Reservation"
         ModifyPurchaseLineReceiptDate(PurchaseLine, LibraryRandom.RandDate(5));  // Using Random for calculating Expected Receipt Date.
         CreateJobAndPlanningLine(JobPlanningLine, PurchaseLine."No.");
         PurchaseLine.ShowReservation();
-        PurchaseLine.Validate(Quantity, PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Using Random to modify Quantity.
+        PurchaseLine.Validate(Quantity, PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction());  // Using Random to modify Quantity.
         ModifyPurchaseLineReceiptDate(PurchaseLine, JobPlanningLine."Planning Date");
 
         // Exercise: Modify various feilds on Demand. Using Random to modify Quantity and Planning Date.
         UpdateJobPlanningLine(
-          JobPlanningLine, JobPlanningLine.Quantity - LibraryUtility.GenerateRandomFraction,
+          JobPlanningLine, JobPlanningLine.Quantity - LibraryUtility.GenerateRandomFraction(),
           LibraryRandom.RandDateFrom(JobPlanningLine."Planning Date", 5), JobPlanningLine.Reserve::Always, '');
 
         // Verify: Verify Purchase Line and Job Planning Line for Reserved Quantity.
@@ -399,7 +399,7 @@ codeunit 136312 "Job Reservation"
 
         // Exercise: Modify various feilds on Demand.
         UpdateJobPlanningLine(
-          JobPlanningLine, PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction, LibraryRandom.RandDate(-5),
+          JobPlanningLine, PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction(), LibraryRandom.RandDate(-5),
           JobPlanningLine.Reserve, '');  // Using Random to modify Quantity and Planning Date.
 
         // Verify: Verify Job Planning Line for Reserved Quantity.
@@ -530,8 +530,8 @@ codeunit 136312 "Job Reservation"
         // [GIVEN] Create a line in Requisition Worksheet
         CreateRequisitionWorksheetline(RequisitionLine, Item."No.", ItemVariant.Code);
         OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionLine."Journal Batch Name");
-        OriginalDescription := ReqWorksheet.Description.Value;
-        OriginalLocationCode := ReqWorksheet."Location Code".Value;
+        OriginalDescription := ReqWorksheet.Description.Value();
+        OriginalLocationCode := ReqWorksheet."Location Code".Value();
 
         // [WHEN] Change Vendor No..
         ReqWorksheet."Vendor No.".SetValue(Vendor."No.");
@@ -625,8 +625,8 @@ codeunit 136312 "Job Reservation"
 
         // Create a demand and Calculate Plan for Requisition Worksheet.
         CreateSalesOrder(
-          SalesHeader, WorkDate + LibraryRandom.RandInt(5), Vendor."Location Code", Item."No.", LibraryRandom.RandDec(5, 2));
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate - 30, WorkDate + 30);
+          SalesHeader, WorkDate() + LibraryRandom.RandInt(5), Vendor."Location Code", Item."No.", LibraryRandom.RandDec(5, 2));
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate() - 30, WorkDate() + 30);
 
         // Exercise: Change Vendor No..
         // Verify: Location Code is not updated.
@@ -692,15 +692,15 @@ codeunit 136312 "Job Reservation"
 
         // Create 2 demands.
         CreateSalesOrderWithVariantCode(
-          SalesHeader, WorkDate + LibraryRandom.RandInt(5),
+          SalesHeader, WorkDate() + LibraryRandom.RandInt(5),
           Vendor."Location Code", Item."No.", LibraryRandom.RandDec(5, 2), '');
         Clear(SalesHeader);
         CreateSalesOrderWithVariantCode(
-          SalesHeader, WorkDate + LibraryRandom.RandInt(5),
+          SalesHeader, WorkDate() + LibraryRandom.RandInt(5),
           Vendor."Location Code", Item."No.", LibraryRandom.RandDec(5, 2), ItemVariant.Code);
 
         // Exercise: Calculate Plan for Requisition Worksheet.
-        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate - 30, WorkDate + 30);
+        CalculatePlanForRequisitionWorksheet(RequisitionWkshName, Item, WorkDate() - 30, WorkDate() + 30);
 
         // Verify: Vendor Item No. is displayed correctly with Variant Code
         OpenRequisitionWorksheetPage(ReqWorksheet, RequisitionWkshName.Name);
@@ -1038,7 +1038,7 @@ codeunit 136312 "Job Reservation"
 
         // [THEN] The reservation for job planning of status "Order" is deleted
         ReservationEntry.SetSourceFilter(
-          DATABASE::"Job Planning Line", JobPlanningLine.Status::Order,
+          DATABASE::"Job Planning Line", JobPlanningLine.Status::Order.AsInteger(),
           JobPlanningLine."Job No.", JobPlanningLine."Job Contract Entry No.", false);
         Assert.RecordIsEmpty(ReservationEntry);
     end;
@@ -1316,7 +1316,7 @@ codeunit 136312 "Job Reservation"
     local procedure CreateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; LineType: Enum "Job Planning Line Line Type"; JobTask: Record "Job Task"; No: Code[20])
     begin
         // Use Random values for Quantity, Planning Date and Unit Cost because values are not important.
-        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LineType, LibraryJob.ItemType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No);
         JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandIntInRange(6, 10)) + 'M>', WorkDate())); // The Planning Date is later than Receipt Date on Transfer Line.
         JobPlanningLine.Validate("Usage Link", true);
@@ -1374,7 +1374,7 @@ codeunit 136312 "Job Reservation"
         LibraryWarehouse.CreateTransferHeader(
           TransferHeader, PurchaseLine."Location Code", LibraryWarehouse.CreateLocation(Location2), Location.Code);
         LibraryWarehouse.CreateTransferLine(
-          TransferHeader, TransferLine, PurchaseLine."No.", PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction);  // Use Random for Quantity.
+          TransferHeader, TransferLine, PurchaseLine."No.", PurchaseLine.Quantity - LibraryUtility.GenerateRandomFraction());  // Use Random for Quantity.
         TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // Use Random value to calculate the Receipt Date.
         TransferLine.Modify(true);
     end;
@@ -1405,18 +1405,18 @@ codeunit 136312 "Job Reservation"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
         PurchaseOrder.PurchLines."Expected Receipt Date".SetValue(ExpectedReceiptDate);
     end;
 
     local procedure OpenRequisitionWorksheetPage(var ReqWorksheet: TestPage "Req. Worksheet"; Name: Code[20])
     begin
-        ReqWorksheet.OpenEdit;
+        ReqWorksheet.OpenEdit();
         ReqWorksheet.CurrentJnlBatchName.SetValue(Name);
     end;
 
-    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Option)
+    local procedure SelectRequisitionTemplate(var ReqWkshTemplate: Record "Req. Wksh. Template"; Type: Enum "Req. Worksheet Template Type")
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
@@ -1501,7 +1501,7 @@ codeunit 136312 "Job Reservation"
 
         // Create Warehouse Employee and create a new Bin.
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
-        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID, '', '');
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
 
         // Create Item and Bin Content for it.
         LibraryWarehouse.CreateBinContent(
@@ -1523,7 +1523,7 @@ codeunit 136312 "Job Reservation"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
@@ -1532,27 +1532,27 @@ codeunit 136312 "Job Reservation"
     [Scope('OnPrem')]
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Auto Reserve".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Auto Reserve".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReserveFromCurrentLineHandler(var Reservation: TestPage Reservation)
     begin
-        Reservation."Reserve from Current Line".Invoke;
-        Reservation.OK.Invoke;
+        Reservation."Reserve from Current Line".Invoke();
+        Reservation.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ReserveOrCancelReservationPageHandler(var Reservation: TestPage Reservation)
     begin
-        if LibraryVariableStorage.DequeueBoolean then
-            Reservation."Reserve from Current Line".Invoke
+        if LibraryVariableStorage.DequeueBoolean() then
+            Reservation."Reserve from Current Line".Invoke()
         else
-            Reservation.CancelReservationCurrentLine.Invoke;
-        Reservation.OK.Invoke;
+            Reservation.CancelReservationCurrentLine.Invoke();
+        Reservation.OK().Invoke();
     end;
 
     local procedure ResetAndVerifyVendorItemNo(ReqWorksheet: TestPage "Req. Worksheet"; ReferenceNo: Code[50]; VendorNo: Code[20])

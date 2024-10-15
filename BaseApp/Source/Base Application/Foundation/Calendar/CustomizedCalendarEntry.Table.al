@@ -13,6 +13,7 @@ using Microsoft.Service.Setup;
 table 7603 "Customized Calendar Entry"
 {
     Caption = 'Customized Calendar Entry';
+    DataClassification = CustomerContent;
 
     fields
     {

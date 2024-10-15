@@ -72,7 +72,7 @@ codeunit 138022 "O365 Charts Tests"
     begin
         Initialize();
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
-        CreateTestItemLedgerEntriesForDrilldownTest;
+        CreateTestItemLedgerEntriesForDrilldownTest();
 
         AgedInventoryChartMgt.UpdateChart(BusinessChartBuffer);
         for ColumnIndex := 0 to 4 do begin
@@ -82,7 +82,7 @@ codeunit 138022 "O365 Charts Tests"
             else
                 StartDate := CalcDate('<-' + Format((ColumnIndex + 1) * 7) + 'D>', WorkDate());
             if ColumnIndex = 0 then
-                EndDate := WorkDate
+                EndDate := WorkDate()
             else
                 EndDate := CalcDate('<-' + Format(ColumnIndex * 7) + 'D>', WorkDate());
             LibraryVariableStorage.Enqueue(StartDate);
@@ -238,7 +238,7 @@ codeunit 138022 "O365 Charts Tests"
         LibrarySmallBusiness.CreateItem(Item);
 
         WorkDate := CalcDate('<CY - 10D>', RefDate);
-        for NewDate := WorkDate to CalcDate('<20D>', WorkDate()) do begin
+        for NewDate := WorkDate() to CalcDate('<20D>', WorkDate()) do begin
             WorkDate := NewDate;
             InvoiceCust(Cust, Item);
             ChangePrice(Item);
@@ -246,7 +246,7 @@ codeunit 138022 "O365 Charts Tests"
         end;
 
         SalesByCustGrpChartSetup.DeleteAll();
-        SalesByCustGrpChartMgt.OnInitPage;
+        SalesByCustGrpChartMgt.OnInitPage();
         with SalesByCustGrpChartSetup do
             for "Period Length" := "Period Length"::Day to "Period Length"::Year do begin
                 SetPeriodLength("Period Length");
@@ -290,7 +290,7 @@ codeunit 138022 "O365 Charts Tests"
 
         // [GIVEN] "Sales Trends by Customer Groups" chart is opened.
         SalesByCustGrpChartSetup.DeleteAll();
-        SalesByCustGrpChartMgt.OnInitPage;
+        SalesByCustGrpChartMgt.OnInitPage();
         SalesByCustGrpChartMgt.UpdateChart(BusChartBuf);
 
         // [WHEN] OnDrillDown is called in the "Sales Trends by Customer Groups" chart.
@@ -325,7 +325,7 @@ codeunit 138022 "O365 Charts Tests"
         LibrarySmallBusiness.CreateItem(Item);
 
         WorkDate := CalcDate('<CY - 10D>', RefDate);
-        for NewDate := WorkDate to CalcDate('<20D>', WorkDate()) do begin
+        for NewDate := WorkDate() to CalcDate('<20D>', WorkDate()) do begin
             WorkDate := NewDate;
             InvoiceCust(Cust, Item);
             ChangePrice(Item);
@@ -338,14 +338,14 @@ codeunit 138022 "O365 Charts Tests"
 
                 Assert.IsTrue(StrPos(AgedAccReceivable.UpdateStatusText(BusChartBuf), Format("Period Length")) > 0, '');
                 // Exercise on period length with previous
-                "Period Filter Start Date" := CalcDate('<-1' + GetPeriodLength + '>', CalcFromDate("Period Filter Start Date"));
+                "Period Filter Start Date" := CalcDate('<-1' + GetPeriodLength() + '>', CalcFromDate("Period Filter Start Date"));
                 WorkDate := "Period Filter Start Date";
                 AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
                 // Verify
                 VerifyCustPostingGroups2(BusChartBuf, "Period Length", Cust, Cust2);
 
                 // Exercise on period length with next
-                "Period Filter Start Date" := CalcDate('<+1' + GetPeriodLength + '>', CalcFromDate("Period Filter Start Date"));
+                "Period Filter Start Date" := CalcDate('<+1' + GetPeriodLength() + '>', CalcFromDate("Period Filter Start Date"));
                 WorkDate := "Period Filter Start Date";
                 AgedAccReceivable.UpdateDataPerGroup(BusChartBuf, TempEntryNoAmountBuf);
                 // Verify
@@ -372,7 +372,7 @@ codeunit 138022 "O365 Charts Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Charts Tests");
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
@@ -401,7 +401,7 @@ codeunit 138022 "O365 Charts Tests"
             DATABASE::"Cust. Ledger Entry":
                 CustLedgerEntry.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     local procedure CreateTwoCustPostingGroups(var CustPostingGroup1: Code[20]; var CustPostingGroup2: Code[20])
@@ -445,6 +445,7 @@ codeunit 138022 "O365 Charts Tests"
         I: Integer;
     begin
         LibrarySmallBusiness.CreateItem(TestItem);
+
         // create 'CustomerCount' customers with salesLCY ranging from high to low.
         for I := 1 to CustomerCount do begin
             LibrarySmallBusiness.CreateCustomer(TestCustomer);
@@ -457,7 +458,7 @@ codeunit 138022 "O365 Charts Tests"
 
         // update top customers buffer table, in order to include current Sales LCY numbers instantly
         TopCustomersBySalesBuffer.DeleteAll();
-        TopCustomersBySalesJob.UpdateCustomerTopList;
+        TopCustomersBySalesJob.UpdateCustomerTopList();
     end;
 
     local procedure CreateTestItemLedgerEntriesForDataTest(var ExpectedInventoryValueIncrease: array[12] of Decimal)
@@ -594,7 +595,7 @@ codeunit 138022 "O365 Charts Tests"
         CustomerNameOnCard: Text[40];
     begin
         LibraryVariableStorage.Dequeue(CustomerName);
-        CustomerNameOnCard := CustomerCard.Name.Value;
+        CustomerNameOnCard := CustomerCard.Name.Value();
         CustomerCard.Close();
         Assert.AreEqual(Format(CustomerName), CustomerNameOnCard, 'Unexpected customer card opened.');
     end;
@@ -608,11 +609,11 @@ codeunit 138022 "O365 Charts Tests"
     begin
         LibraryVariableStorage.Dequeue(Customer1Name);
         LibraryVariableStorage.Dequeue(Customer2Name);
-        CustomerList.First;
+        CustomerList.First();
         Assert.AreEqual(Format(Customer1Name), CustomerList.Name.Value, 'Unexpected customer in customer list that opened.');
         CustomerList.Next();
         Assert.AreEqual(Format(Customer2Name), CustomerList.Name.Value, 'Unexpected customer in customer list that opened.');
-        Assert.IsFalse(CustomerList.Next, 'Unexpected number of customers in customer list that opened.');
+        Assert.IsFalse(CustomerList.Next(), 'Unexpected number of customers in customer list that opened.');
         CustomerList.Close();
     end;
 
@@ -620,7 +621,7 @@ codeunit 138022 "O365 Charts Tests"
     [Scope('OnPrem')]
     procedure CustomerListPageHandlerSimple(var CustomerList: TestPage "Customer List")
     begin
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, CustomerList."No.".Value, 'Unexpected Customer No.');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), CustomerList."No.".Value, 'Unexpected Customer No.');
     end;
 
     [PageHandler]
@@ -638,10 +639,10 @@ codeunit 138022 "O365 Charts Tests"
         LibraryVariableStorage.Dequeue(EndDateVariant);
         Evaluate(StartDate, Format(StartDateVariant));
         Evaluate(EndDate, Format(EndDateVariant));
-        ItemLedgerEntries.First;
+        ItemLedgerEntries.First();
         repeat
-            PostingDate := ItemLedgerEntries."Posting Date".AsDate;
-            RemainingQuantity := ItemLedgerEntries."Remaining Quantity".AsDEcimal;
+            PostingDate := ItemLedgerEntries."Posting Date".AsDate();
+            RemainingQuantity := ItemLedgerEntries."Remaining Quantity".AsDecimal();
             Assert.IsTrue((PostingDate <= EndDate) and (PostingDate > StartDate) and (RemainingQuantity <> 0), 'Wrong item ledger entry');
         until not ItemLedgerEntries.Next();
     end;

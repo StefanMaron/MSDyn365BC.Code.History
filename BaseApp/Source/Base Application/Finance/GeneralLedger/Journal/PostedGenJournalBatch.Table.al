@@ -13,6 +13,7 @@ table 182 "Posted Gen. Journal Batch"
 {
     Caption = 'Posted Gen. Journal Batch';
     LookupPageId = "Posted General Journal Batch";
+    DataClassification = CustomerContent;
 
     fields
     {

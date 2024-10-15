@@ -13,7 +13,6 @@ codeunit 134626 "Person and Company Contacts"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryUtility: Codeunit "Library - Utility";
         CompanyNameMissingErr: Label 'Company No. must have a value in Contact: No.=%1. It cannot be zero or empty.', Comment = 'Company No. must have a value in Contact: No.=CT000258. It cannot be zero or empty.';
-        CreateCustomerFromContactQst: Label 'Do you want to create a contact as a customer using a customer template?';
         RelatedRecordIsCreatedMsg: Label 'The %1 record has been created.', Comment = 'The Customer record has been created.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -160,7 +159,7 @@ codeunit 134626 "Person and Company Contacts"
 
         // Setup
         // [GIVEN] A Quote for a Customer created from a person Contact not linked to a Company
-        SetUpCustomerTemplate;
+        SetUpCustomerTemplate();
         CreateContactAndCustomer(Contact, Customer);
         Contact.TestField("Company No.", '');
         LibrarySales.CreateSalesQuoteForCustomerNo(SalesHeader, Customer."No.");
@@ -269,12 +268,12 @@ codeunit 134626 "Person and Company Contacts"
         ContactCard.Name.SetValue(StrSubstNo('%1 %2 %3', FirstName, MiddleName, Surname));
 
         // [WHEN] Name details page opened by pressing AssitEdit near "Name" field
-        ContactCard.Name.AssistEdit;
+        ContactCard.Name.AssistEdit();
 
         // [THEN] Name details page Name fields are equal to X, Y, Z respectively
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, FirstName, '');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, MiddleName, '');
-        Assert.AreEqual(LibraryVariableStorage.DequeueText, Surname, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), FirstName, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), MiddleName, '');
+        Assert.AreEqual(LibraryVariableStorage.DequeueText(), Surname, '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -426,11 +425,11 @@ codeunit 134626 "Person and Company Contacts"
         LibraryLowerPermissions.SetO365BusFull();
 
         LibraryMarketing.CreatePersonContact(PersonContact);
-        ContactCard.OpenEdit;
+        ContactCard.OpenEdit();
         ContactCard.FILTER.SetFilter("No.", PersonContact."No.");
 
         // [WHEN] Invoke Assist Edit on a 'Company Name' field
-        ContactCard."Company Name".AssistEdit;
+        ContactCard."Company Name".AssistEdit();
 
         LibraryVariableStorage.AssertEmpty();
         // [THEN] Company Details page hasn't been opened
@@ -781,7 +780,7 @@ codeunit 134626 "Person and Company Contacts"
     [Scope('OnPrem')]
     procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Select Customer Templ. List")
     begin
-        CustomerTemplateList.OK.Invoke();
+        CustomerTemplateList.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -844,7 +843,7 @@ codeunit 134626 "Person and Company Contacts"
         LibraryVariableStorage.Enqueue(NameDetails."First Name".Value);
         LibraryVariableStorage.Enqueue(NameDetails."Middle Name".Value);
         LibraryVariableStorage.Enqueue(NameDetails.Surname.Value);
-        NameDetails.OK.Invoke();
+        NameDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -852,7 +851,7 @@ codeunit 134626 "Person and Company Contacts"
     procedure CompanyDetailsModalPageHandler(var CompanyDetails: TestPage "Company Details")
     begin
         LibraryVariableStorage.Enqueue(CompanyDetails.Name.Value);
-        CompanyDetails.OK.Invoke();
+        CompanyDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -860,8 +859,8 @@ codeunit 134626 "Person and Company Contacts"
     procedure NameDetailsErrorModalPageHandler(var NameDetails: TestPage "Name Details")
     begin
         asserterror NameDetails."Language Code".SetValue(LibraryVariableStorage.DequeueText());
-        Assert.AreEqual(LibraryVariableStorage.DequeueInteger(), NameDetails.ValidationErrorCount, '');
-        NameDetails.OK.Invoke();
+        Assert.AreEqual(LibraryVariableStorage.DequeueInteger(), NameDetails.ValidationErrorCount(), '');
+        NameDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -869,8 +868,8 @@ codeunit 134626 "Person and Company Contacts"
     procedure CompanyDetailsErrorModalPageHandler(var CompanyDetails: TestPage "Company Details")
     begin
         asserterror CompanyDetails."Country/Region Code".SetValue(LibraryVariableStorage.DequeueText());
-        Assert.AreEqual(LibraryVariableStorage.DequeueInteger(), CompanyDetails.ValidationErrorCount, '');
-        CompanyDetails.OK.Invoke();
+        Assert.AreEqual(LibraryVariableStorage.DequeueInteger(), CompanyDetails.ValidationErrorCount(), '');
+        CompanyDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -880,7 +879,7 @@ codeunit 134626 "Person and Company Contacts"
         NameDetails."First Name".SetValue(LibraryVariableStorage.DequeueText());
         NameDetails."Middle Name".SetValue(LibraryVariableStorage.DequeueText());
         NameDetails.Surname.SetValue(LibraryVariableStorage.DequeueText());
-        NameDetails.OK.Invoke();
+        NameDetails.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -888,7 +887,7 @@ codeunit 134626 "Person and Company Contacts"
     procedure CompanyDetailsOnChangeModalPageHandler(var CompanyDetails: TestPage "Company Details")
     begin
         CompanyDetails.Name.SetValue(LibraryVariableStorage.DequeueText());
-        CompanyDetails.OK.Invoke();
+        CompanyDetails.OK().Invoke();
     end;
 }
 

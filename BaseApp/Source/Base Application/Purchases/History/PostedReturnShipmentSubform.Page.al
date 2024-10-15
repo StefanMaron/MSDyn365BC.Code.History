@@ -107,7 +107,7 @@ page 6651 "Posted Return Shipment Subform"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Prod. Order No."; Rec."Prod. Order No.")
@@ -284,11 +284,12 @@ page 6651 "Posted Return Shipment Subform"
 
     procedure ShowDocumentLineTracking()
     var
-        DocumentLineTracking: Page "Document Line Tracking";
+        DocumentLineTrackingPage: Page "Document Line Tracking";
     begin
-        Clear(DocumentLineTracking);
-        DocumentLineTracking.SetDoc(13, Rec."Document No.", Rec."Line No.", Rec."Return Order No.", Rec."Return Order Line No.", '', 0);
-        DocumentLineTracking.RunModal();
+        Clear(DocumentLineTrackingPage);
+        DocumentLineTrackingPage.SetSourceDoc(
+            "Document Line Source Type"::"Return Shipment", Rec."Document No.", Rec."Line No.", Rec."Return Order No.", Rec."Return Order Line No.", '', 0);
+        DocumentLineTrackingPage.RunModal();
     end;
 }
 

@@ -44,49 +44,6 @@ codeunit 6301 "Power BI Service Mgt."
 #endif
         EmptyAccessTokenTelemetryMsg: Label 'Encountered an empty access token.', Locked = true;
         ScheduleSyncTelemetryMsg: Label 'Scheduling sync for UTC datetime: %1.', Locked = true;
-#if not CLEAN21
-        HackPowerBIGuidTxt: Label '06D251CE-A824-44B2-A5F9-318A0674C3FB', Locked = true;
-        DeploymentDisabledTelemetryMsg: Label 'Report deployment is disabled (tenant: %1, app service: %2)', Locked = true;
-        GhostReportTelemetryMsg: Label 'Power BI Report Configuration has an entry without URL and with null ID.', Locked = true;
-        GetReportsForContextTelemetryMsg: Label 'Empty report URL when loading Power BI reports (but the report ID is not empty).', Locked = true;
-        ServiceCallsDisabledTelemetryMsg: Label 'Service calls are disabled for the tenant.', Locked = true;
-#endif
-
-#if not CLEAN21
-    [Obsolete('Use physical table PowerBIReportConfiguration instead of temporary table TempPowerBIReportBuffer.', '21.0')]
-    [Scope('OnPrem')]
-    procedure GetReportsForUserContext(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; EnglishContext: Text[30])
-    var
-        PowerBIReportConfiguration: Record "Power BI Report Configuration";
-    begin
-        // Populates a buffer of reports to show to the user for the current context.
-        // Some rows of "Power BI Report Configuration" might be old and not contain a cached ReportEmbedUrl, in which
-        // case we can craft it using the report ID (if not null). If even the report ID is null, we have no way to recover
-        // the report that was selected (should never happen, but...)
-        if not TempPowerBIReportBuffer.IsEmpty() then
-            exit;
-
-        PowerBIReportConfiguration.Reset();
-        PowerBIReportConfiguration.SetFilter("User Security ID", UserSecurityId());
-        PowerBIReportConfiguration.SetFilter(Context, EnglishContext);
-
-        if PowerBIReportConfiguration.FindSet() then
-            repeat
-                if PowerBIReportConfiguration.ReportEmbedUrl <> '' then begin
-                    TempPowerBIReportBuffer.ReportID := PowerBIReportConfiguration."Report ID";
-                    TempPowerBIReportBuffer.Validate(ReportEmbedUrl, PowerBIReportConfiguration.ReportEmbedUrl);
-                    TempPowerBIReportBuffer."Workspace Name" := PowerBIReportConfiguration."Workspace Name";
-                    TempPowerBIReportBuffer."Workspace ID" := PowerBIReportConfiguration."Workspace ID";
-                    TempPowerBIReportBuffer.Enabled := true;
-                    if TempPowerBIReportBuffer.Insert() then;
-                end else
-                    if not IsNullGuid(PowerBIReportConfiguration."Report ID") then
-                        Session.LogMessage('0000B6Z', GetReportsForContextTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl)
-                    else
-                        Session.LogMessage('0000EDL', GhostReportTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-            until PowerBIReportConfiguration.Next() = 0;
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure CheckForPowerBILicenseInForeground(): Boolean
@@ -295,60 +252,6 @@ codeunit 6301 "Power BI Service Mgt."
     end;
 #endif
 
-#if not CLEAN21
-    [Obsolete('Disabling the integration through AzureADMgtSetup has been discontinued. Remove permissions from single users instead.', '21.0')]
-    procedure CanHandleServiceCalls() CanHandle: Boolean
-    var
-        AzureADMgtSetup: Record "Azure AD Mgt. Setup";
-    begin
-        // Checks if the current codeunit is allowed to handle Power BI service requests rather than a mock.
-        CanHandle := false;
-        if AzureADMgtSetup.Get() then
-            CanHandle := (AzureADMgtSetup."PBI Service Mgt. Codeunit ID" = CODEUNIT::"Power BI Service Mgt.");
-
-        if not CanHandle then
-            Session.LogMessage('0000EDM', ServiceCallsDisabledTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiTelemetryCategoryLbl);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('Global switch for Power BI report deployment is no longer supported.', '21.0')]
-    procedure IsPowerBIDeploymentEnabled(): Boolean
-    var
-        PowerBIBlob: Record "Power BI Blob";
-        DisabledForAppService: Boolean;
-    begin
-        DisabledForAppService := PowerBIBlob.Get(HackPowerBIGuidTxt);
-
-        if not DisabledForAppService then
-            exit(true);
-
-        Session.LogMessage('0000DZ0', StrSubstNo(DeploymentDisabledTelemetryMsg, false, DisabledForAppService), Verbosity::Normal,
-            DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GetPowerBiTelemetryCategory());
-        exit(false);
-    end;
-
-    [Scope('OnPrem')]
-    [IntegrationEvent(false, false)]
-    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
-    procedure OnGetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
-    begin
-    end;
-
-    [Scope('OnPrem')]
-    [IntegrationEvent(false, false)]
-    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
-    procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList; var ApiResponseList: DotNet ImportReportResponseList)
-    begin
-    end;
-
-    [Scope('OnPrem')]
-    [IntegrationEvent(false, false)]
-    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
-    procedure OnRetryUploads(var ImportIdList: DotNet ImportedReportRequestList; var ApiResponseList: DotNet ImportedReportResponseList)
-    begin
-    end;
-#endif
-
 #if not CLEAN23
     [Obsolete('Check "Power BI Report Uploads" table directly', '23.0')]
     [Scope('OnPrem')]
@@ -554,9 +457,6 @@ codeunit 6301 "Power BI Service Mgt."
 
     procedure CheckPowerBITablePermissions(): Boolean
     var
-#if not CLEAN21
-        PowerBIUserLicense: Record "Power BI User License";
-#endif
 #if not CLEAN23
         PowerBIUserConfiguration: Record "Power BI User Configuration";
 #endif
@@ -566,10 +466,6 @@ codeunit 6301 "Power BI Service Mgt."
         PowerBICustomerReports: Record "Power BI Customer Reports";
         PowerBIDisplayedElement: Record "Power BI Displayed Element";
     begin
-#if not CLEAN21
-        if not (PowerBIUserLicense.WritePermission and PowerBIUserLicense.ReadPermission) then
-            exit(false);
-#endif
 #if not CLEAN23
         if not (PowerBIUserConfiguration.WritePermission and PowerBIUserConfiguration.ReadPermission) then
             exit(false);

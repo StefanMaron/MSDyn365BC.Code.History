@@ -30,7 +30,7 @@ codeunit 139470 "SaaS Login Test"
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
-        CreateEvalCompany;
+        CreateEvalCompany();
     end;
 
     [Test]
@@ -46,7 +46,7 @@ codeunit 139470 "SaaS Login Test"
         SetCompanyToEvaluation(true);
 
         // [WHEN] The user logs in
-        LogInManagement.CompanyOpen;
+        LogInManagement.CompanyOpen();
 
         // [THEN] Loging accepted without a dialog
         // No ModalPageHandler needed
@@ -67,7 +67,7 @@ codeunit 139470 "SaaS Login Test"
         SetCompanyToEvaluation(false);
 
         // [WHEN] The user logs in
-        LogInManagement.CompanyOpen;
+        LogInManagement.CompanyOpen();
 
         // [THEN] The 30 days trial dialog is shown
         // Handled through ModalPageHandler
@@ -93,7 +93,7 @@ codeunit 139470 "SaaS Login Test"
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Phone);
 
         // [WHEN] The user logs in
-        asserterror LogInManagement.CompanyOpen;
+        asserterror LogInManagement.CompanyOpen();
         Assert.ExpectedError('');
 
         // [THEN] A message shown
@@ -122,7 +122,7 @@ codeunit 139470 "SaaS Login Test"
         TestClientTypeSubscriber.SetClientType(CLIENTTYPE::Tablet);
 
         // [WHEN] The user logs in
-        asserterror LogInManagement.CompanyOpen;
+        asserterror LogInManagement.CompanyOpen();
         Assert.ExpectedError('');
 
         // [THEN] A message shown
@@ -154,9 +154,9 @@ codeunit 139470 "SaaS Login Test"
     [Scope('OnPrem')]
     procedure ThirtyDayTrialDialogModalPageHandler(var ThirtyDayTrialDialog: TestPage "Thirty Day Trial Dialog")
     begin
-        ThirtyDayTrialDialog.ActionNext.Invoke;
+        ThirtyDayTrialDialog.ActionNext.Invoke();
         ThirtyDayTrialDialog.TermsAndConditionsCheckBox.SetValue(true);
-        ThirtyDayTrialDialog.ActionStartTrial.Invoke;
+        ThirtyDayTrialDialog.ActionStartTrial.Invoke();
     end;
 
     [SessionSettingsHandler]

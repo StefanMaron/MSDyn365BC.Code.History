@@ -14,6 +14,7 @@ table 32000001 "Ref. Payment - Imported"
     Caption = 'Ref. Payment - Imported';
     DrillDownPageID = "Ref. Payment - Import";
     LookupPageID = "Ref. Payment - Import";
+    DataClassification = CustomerContent;
 
     fields
     {

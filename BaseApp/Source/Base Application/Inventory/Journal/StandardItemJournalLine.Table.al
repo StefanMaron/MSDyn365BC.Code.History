@@ -25,6 +25,7 @@ using System.Security.User;
 table 753 "Standard Item Journal Line"
 {
     Caption = 'Standard Item Journal Line';
+    DataClassification = CustomerContent;
 
     fields
     {

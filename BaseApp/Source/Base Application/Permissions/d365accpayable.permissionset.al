@@ -36,7 +36,7 @@ using Microsoft.Purchases.Pricing;
 using Microsoft.Purchases.Archive;
 using Microsoft.Purchases.Remittance;
 using Microsoft.Inventory.Requisition;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -118,7 +118,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Purchase Header Archive" = RIMD,
                   tabledata "Purchase Line" = RIMD,
                   tabledata "Purchase Line Archive" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
 #endif
@@ -126,7 +126,7 @@ permissionset 5289 "D365 ACC. PAYABLE"
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Remit Address" = RIMD,
                   tabledata "Requisition Line" = RIMD,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,
 #endif

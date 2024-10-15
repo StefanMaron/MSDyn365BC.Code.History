@@ -25,7 +25,7 @@ codeunit 144019 "G/L Register FI Reports"
         // Verify GL Register FI Report.
 
         // Setup: Create and post General Journal Line With Random values.
-        CreateAndPostGenLine;
+        CreateAndPostGenLine();
         GLEntry.FindLast();
 
         // Exercise. Save GL Register FI Report.
@@ -67,8 +67,8 @@ codeunit 144019 "G/L Register FI Reports"
     var
         XmlPostingDate: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        if LibraryReportDataset.GetNextRow then begin
+        LibraryReportDataset.LoadDataSetFile();
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.FindCurrentRowValue('PostingDate_GLEntry', XmlPostingDate);
             Assert.AreEqual(GLEntry."Posting Date", EvaluateXmlDate(XmlPostingDate),
               StrSubstNo(CurrentRowErr, 'PostingDate_GLEntry', GLEntry."Posting Date"));
@@ -92,7 +92,7 @@ codeunit 144019 "G/L Register FI Reports"
     [Scope('OnPrem')]
     procedure RHGLRegisterFIReport(var GLRegisterReport: TestRequestPage "G/L Register FI")
     begin
-        GLRegisterReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+        GLRegisterReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName())
     end;
 }
 

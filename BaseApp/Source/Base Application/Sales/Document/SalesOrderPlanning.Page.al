@@ -534,7 +534,7 @@ page 99000883 "Sales Order Planning"
     begin
         ShowCreateOrderForm := true;
         IsHandled := false;
-        NewOrderTypeOption := NewOrderType;
+        NewOrderTypeOption := NewOrderType.AsInteger();
         OnBeforeCreateProdOrder(Rec, NewStatus, NewOrderTypeOption, ShowCreateOrderForm, IsHandled);
         NewOrderType := "Create Production Order Type".FromInteger(NewOrderTypeOption);
         if IsHandled then

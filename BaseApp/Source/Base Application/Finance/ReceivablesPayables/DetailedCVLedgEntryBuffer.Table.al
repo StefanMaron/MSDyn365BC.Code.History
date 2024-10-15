@@ -17,6 +17,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     DrillDownPageID = "Detailed Cust. Ledg. Entries";
     LookupPageID = "Detailed Cust. Ledg. Entries";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -470,21 +471,19 @@ table 383 "Detailed CV Ledg. Entry Buffer"
     var
         IsHandled: Boolean;
     begin
-        with DtldCVLedgEntryBuf do begin
-            InitFromGenJnlLine(GenJnlLine);
-            CopyFromCVLedgEntryBuf(CVLedgEntryBuf);
-            "Entry Type" := EntryType;
-            Amount := AmountFCY;
-            "Amount (LCY)" := AmountLCY;
-            "Additional-Currency Amount" := AmountAddCurr;
-            "Applied CV Ledger Entry No." := AppliedEntryNo;
-            "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
-            "Max. Payment Tolerance" := MaxPaymentTolerance;
-            IsHandled := false;
-            OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine, IsHandled, CVLedgEntryBuf);
-            if not IsHandled then
-                InsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, false);
-        end;
+        DtldCVLedgEntryBuf.InitFromGenJnlLine(GenJnlLine);
+        DtldCVLedgEntryBuf.CopyFromCVLedgEntryBuf(CVLedgEntryBuf);
+        DtldCVLedgEntryBuf."Entry Type" := EntryType;
+        DtldCVLedgEntryBuf.Amount := AmountFCY;
+        DtldCVLedgEntryBuf."Amount (LCY)" := AmountLCY;
+        DtldCVLedgEntryBuf."Additional-Currency Amount" := AmountAddCurr;
+        DtldCVLedgEntryBuf."Applied CV Ledger Entry No." := AppliedEntryNo;
+        DtldCVLedgEntryBuf."Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
+        DtldCVLedgEntryBuf."Max. Payment Tolerance" := MaxPaymentTolerance;
+        IsHandled := false;
+        OnBeforeInsertDtldCVLedgEntry(DtldCVLedgEntryBuf, GenJnlLine, IsHandled, CVLedgEntryBuf);
+        if not IsHandled then
+            DtldCVLedgEntryBuf.InsertDtldCVLedgEntry(DtldCVLedgEntryBuf, CVLedgEntryBuf, false);
     end;
 
     procedure FindVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer)

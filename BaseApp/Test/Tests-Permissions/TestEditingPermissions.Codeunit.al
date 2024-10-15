@@ -16,9 +16,6 @@ codeunit 134612 "Test Editing Permissions"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         CopySuccessMsg: Label 'New permission set, %1, has been created.', Comment = 'New permission set, D365 Basic Set, has been created.';
-        EditableControlErr: Label '%1 control is editable on %2 page.', Comment = 'Object Type control is editable on Permissions page.';
-        EnabledActionErr: Label '%1 control is enabled on %2 page.', Comment = 'Object Type action is enabled on Permissions page.';
-        DisabledActionErr: Label '%1 control is disabled on %2 page.', Comment = 'Object Type action is disabled on Permissions page.';
         FieldFilterErr: Label 'Security filter %1 does not have the field filter %2.', Comment = 'Security filter Customer: Chain Name=<>0 does not have the field filter <>100.';
         MissingSourceErr: Label 'There is no permission set to copy from.';
         MultipleSourcesErr: Label 'You can only copy one permission set at a time.';
@@ -42,11 +39,11 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionSetName := GenerateRandomTenantPermissionSetName;
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
+        NewPermissionSetName := GenerateRandomTenantPermissionSetName();
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CreateNewTenantPermissionSetFromPermissionSetsPage(NewPermissionSetRoleID, NewPermissionSetName);
 
         // Verify
@@ -64,8 +61,8 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
@@ -75,13 +72,13 @@ codeunit 134612 "Test Editing Permissions"
         // enabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
 
         // Verify
         AssertTenantPermissionSetEqualsPermissionSet(NewPermissionSetRoleID, PermissionSetRoleID);
         AssertTenantPermissionsEqualPermissions(NewPermissionSetRoleID, PermissionSetRoleID);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         AssertPermissionSetLinkExistsWithCorrectHash(PermissionSetRoleID, NewPermissionSetRoleID);
     end;
 
@@ -96,15 +93,15 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         // enabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // for the message handler
@@ -113,7 +110,7 @@ codeunit 134612 "Test Editing Permissions"
         // Verify
         AssertTenantPermissionSetEqualsPermissionSet(NewPermissionSetRoleID, PermissionSetRoleID);
         AssertTenantPermissionsEqualPermissions(NewPermissionSetRoleID, PermissionSetRoleID);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         AssertPermissionSetLinkDoesNotExist(PermissionSetRoleID, NewPermissionSetRoleID);
     end;
 
@@ -129,8 +126,8 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
 
@@ -139,7 +136,7 @@ codeunit 134612 "Test Editing Permissions"
         // disabled criteria for the option to notify depends on the source being a System permission set
         LibraryVariableStorage.Enqueue(false);
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CopyPermissionSetToNewTenantPermissionSet(ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
 
         // Verify
@@ -147,220 +144,9 @@ codeunit 134612 "Test Editing Permissions"
           NewPermissionSetRoleID, ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
         AssertTenantPermissionsEqualTenantPermissions(
           NewPermissionSetRoleID, ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
         AssertPermissionSetLinkDoesNotExist(ExtensionPermissionSetRoleID, NewPermissionSetRoleID);
     end;
-
-#if not CLEAN21
-    [Test]
-    [HandlerFunctions('AddItemPermissionToTenantPermissionSetPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditNewlyCreatedTenantPermissionSets()
-    var
-        NewPermissionSetRoleID: Code[20];
-        NewPermissionTableDataObjectID: Integer;
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionTableDataObjectID := DATABASE::Item;
-
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-        AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(NewPermissionTableDataObjectID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetContainsTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('CopyPermissionSetWithNewNameRequestPageHandler,CopyPermissionSetSuccessMessageHandler,AddItemPermissionToTenantPermissionSetPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditCopiedApplicationPermissionSets()
-    var
-        PermissionSetRoleID: Code[20];
-        NewPermissionSetRoleID: Code[20];
-        NewPermissionTableDataObjectID: Integer;
-    begin
-        Initialize();
-
-        // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionTableDataObjectID := DATABASE::Item;
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateNewPermissionSet(PermissionSetRoleID);
-        AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        Commit();
-
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
-        // enabled criteria for the option to notify depends on the source being a System permission set
-        LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(NewPermissionTableDataObjectID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetContainsTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('CopyPermissionSetWithNewNameRequestPageHandler,CopyPermissionSetSuccessMessageHandler,AddItemPermissionToTenantPermissionSetPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditCopiedExtensionPermissionSets()
-    var
-        ExtensionPermissionSetAppID: Guid;
-        ExtensionPermissionSetRoleID: Code[20];
-        NewPermissionSetRoleID: Code[20];
-        NewPermissionTableDataObjectID: Integer;
-    begin
-        Initialize();
-
-        // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionTableDataObjectID := DATABASE::Item;
-
-        ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-        AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        Commit();
-
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
-        // enabled criteria for the option to notify depends on the source being a System permission set
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        CopyPermissionSetToNewTenantPermissionSet(ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(NewPermissionTableDataObjectID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetContainsTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('DisplaySecurityFiltersForTenantPermissionPageHandler,AddNewSecurityFilterToTenantPermissionModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditNewlyCreatedTenantPermissionSecurityFilters()
-    var
-        TempTableFilter: Record "Table Filter" temporary;
-        NewPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-        DefineSecurityFilterForTenantPermission(TempTableFilter, NewPermissionSetRoleID);
-
-        AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter."Table Number");
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(TempTableFilter."Table Number");
-        LibraryVariableStorage.Enqueue(TempTableFilter."Field Filter");
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetHasSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('CopyPermissionSetWithNewNameRequestPageHandler,CopyPermissionSetSuccessMessageHandler,DisplaySecurityFiltersForTenantPermissionPageHandler,AddNewSecurityFilterToTenantPermissionModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditCopiedApplicationPermissionSecurityFilters()
-    var
-        TempTableFilter: Record "Table Filter" temporary;
-        PermissionSetRoleID: Code[20];
-        NewPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateNewPermissionSet(PermissionSetRoleID);
-        Commit();
-
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
-        LibraryVariableStorage.Enqueue(true);
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
-
-        DefineSecurityFilterForTenantPermission(TempTableFilter, NewPermissionSetRoleID);
-        AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter."Table Number");
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(TempTableFilter."Table Number");
-        LibraryVariableStorage.Enqueue(TempTableFilter."Field Filter");
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetHasSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('CopyPermissionSetWithNewNameRequestPageHandler,CopyPermissionSetSuccessMessageHandler,DisplaySecurityFiltersForTenantPermissionPageHandler,AddNewSecurityFilterToTenantPermissionModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCanEditCopiedExtensionPermissionSecurityFilters()
-    var
-        TempTableFilter: Record "Table Filter" temporary;
-        ExtensionPermissionSetRoleID: Code[20];
-        NewPermissionSetRoleID: Code[20];
-        ExtensionPermissionSetAppID: Guid;
-    begin
-        Initialize();
-
-        // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-        Commit();
-
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 1st time is for the request page handler
-        LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(NewPermissionSetRoleID); // 2nd time is for the message handler
-        CopyPermissionSetToNewTenantPermissionSet(ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
-
-        DefineSecurityFilterForTenantPermission(TempTableFilter, NewPermissionSetRoleID);
-        AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter."Table Number");
-
-        // Exercise
-        LibraryVariableStorage.Enqueue(TempTableFilter."Table Number");
-        LibraryVariableStorage.Enqueue(TempTableFilter."Field Filter");
-
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(NewPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetHasSecurityFilterForTenantPermission(NewPermissionSetRoleID, TempTableFilter);
-        LibraryVariableStorage.AssertEmpty;
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -371,11 +157,11 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
         CreateNewTenantPermissionSet(NewPermissionSetRoleID);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         DeleteExistingTenantPermissionSet(NewPermissionSetRoleID);
 
         // Verify
@@ -393,8 +179,8 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
@@ -407,12 +193,12 @@ codeunit 134612 "Test Editing Permissions"
         CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         DeleteExistingTenantPermissionSet(NewPermissionSetRoleID);
 
         // Verify
         AssertTenantPermissionSetNotExisting(NewPermissionSetRoleID);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -427,8 +213,8 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
         Commit();
@@ -440,119 +226,13 @@ codeunit 134612 "Test Editing Permissions"
         CopyPermissionSetToNewTenantPermissionSet(ExtensionPermissionSetRoleID, ExtensionPermissionSetAppID);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         DeleteExistingTenantPermissionSet(NewPermissionSetRoleID);
 
         // Verify
         AssertTenantPermissionSetNotExisting(NewPermissionSetRoleID);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
-
-#if not CLEAN21
-    [Test]
-    [HandlerFunctions('CannotAddItemPermissionToPermissionSetPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCannotEditApplicationPermissionSets()
-    var
-        PermissionSetRoleID: Code[20];
-        NewPermissionTableDataObjectID: Integer;
-    begin
-        Initialize();
-
-        // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionTableDataObjectID := DATABASE::Item;
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateNewPermissionSet(PermissionSetRoleID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(PermissionSetRoleID);
-
-        // Verify
-        AssertPermissionSetNotContainingTableDataTenantPermission(PermissionSetRoleID, NewPermissionTableDataObjectID);
-        AssertPermissionSetNotContainingTableDataPermission(PermissionSetRoleID, NewPermissionTableDataObjectID);
-    end;
-
-    [Test]
-    [HandlerFunctions('CannotAddItemPermissionToExtensionPermissionSetPageHandler')]
-    [Scope('OnPrem')]
-    procedure StanCannotEditExtensionPermissionSets()
-    var
-        ExtensionPermissionSetRoleID: Code[20];
-        NewPermissionTableDataObjectID: Integer;
-    begin
-        Initialize();
-
-        // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        NewPermissionTableDataObjectID := DATABASE::Item;
-
-        CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-        AssertTenantPermissionSetNotContainingTableDataTenantPermission(ExtensionPermissionSetRoleID, NewPermissionTableDataObjectID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(ExtensionPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetNotContainingTableDataTenantPermission(ExtensionPermissionSetRoleID, NewPermissionTableDataObjectID);
-    end;
-
-    [Test]
-    [HandlerFunctions('DisplaySecurityFiltersForPermissionPageHandler,HandleNotificationCannotEditPermissionSets')]
-    [Scope('OnPrem')]
-    procedure StanCannotEditApplicationPermissionSecurityFilters()
-    var
-        TempTableFilter: Record "Table Filter" temporary;
-        PermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-
-        LibraryLowerPermissions.SetOutsideO365Scope();
-        CreateNewPermissionSet(PermissionSetRoleID);
-
-        DefineSecurityFilterForPermission(TempTableFilter, PermissionSetRoleID);
-        AssertPermissionSetMissingSecurityFilterForPermission(PermissionSetRoleID, TempTableFilter."Table Number");
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(PermissionSetRoleID);
-
-        // Verify
-        AssertPermissionSetMissingSecurityFilterForPermission(PermissionSetRoleID, TempTableFilter."Table Number");
-    end;
-
-    [Test]
-    [HandlerFunctions('DisplaySecurityFiltersForTenantPermissionPageHandler,HandleNotificationCannotEditPermissionSets')]
-    [Scope('OnPrem')]
-    procedure StanCannotEditExtensionPermissionSecurityFilters()
-    var
-        TempTableFilter: Record "Table Filter" temporary;
-        ExtensionPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
-
-        DefineSecurityFilterForTenantPermission(TempTableFilter, ExtensionPermissionSetRoleID);
-        AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(ExtensionPermissionSetRoleID, TempTableFilter."Table Number");
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        DisplayPermissionsForPermissionSet(ExtensionPermissionSetRoleID);
-
-        // Verify
-        AssertTenantPermissionSetMissingSecurityFilterForTenantPermission(ExtensionPermissionSetRoleID, TempTableFilter."Table Number");
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('CopyPermissionSetMissingNewNameRequestPageHandler')]
@@ -565,15 +245,15 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         asserterror CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
 
         // Verify
@@ -590,7 +270,7 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
@@ -598,12 +278,12 @@ codeunit 134612 "Test Editing Permissions"
         // Exercise
         LibraryVariableStorage.Enqueue(PermissionSetRoleID);
         LibraryVariableStorage.Enqueue(true); // as source is permission set
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         asserterror CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
 
         // Verify
         Assert.ExpectedError(TargetExistsErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -617,18 +297,18 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         // Exercise
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID);
         LibraryVariableStorage.Enqueue(false); // as source does not exist
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         asserterror CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleID, ZeroGuid);
 
         // Verify
         Assert.ExpectedError(MissingSourceErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -643,9 +323,9 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleIDOne := GenerateRandomPermissionSetRoleID;
-        PermissionSetRoleIDTwo := GenerateRandomPermissionSetRoleID;
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        PermissionSetRoleIDOne := GenerateRandomPermissionSetRoleID();
+        PermissionSetRoleIDTwo := GenerateRandomPermissionSetRoleID();
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleIDOne);
@@ -654,12 +334,12 @@ codeunit 134612 "Test Editing Permissions"
         // Exercise
         LibraryVariableStorage.Enqueue(NewPermissionSetRoleID);
         LibraryVariableStorage.Enqueue(false);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         asserterror CopyTwoPermissionSetsToNewTenantPermissionSets(PermissionSetRoleIDOne, PermissionSetRoleIDTwo);
 
         // Verify
         Assert.ExpectedError(MultipleSourcesErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -675,7 +355,7 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
+        PermissionSetRoleID := GenerateRandomPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
@@ -683,7 +363,7 @@ codeunit 134612 "Test Editing Permissions"
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGUID, PermissionSetRoleID);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CanEditPermissionSet := PermissionPagesMgt.IsPermissionSetEditable(AggregatePermissionSet);
 
         // Verify
@@ -703,12 +383,12 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
         ExtensionPermissionSetAppID := CreateNewExtensionPermissionSet(ExtensionPermissionSetRoleID);
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ExtensionPermissionSetAppID, ExtensionPermissionSetRoleID);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CanEditPermissionSet := PermissionPagesMgt.IsPermissionSetEditable(AggregatePermissionSet);
 
         // Verify
@@ -728,12 +408,12 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
+        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID();
         CreateNewTenantPermissionSet(NewPermissionSetRoleID);
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGUID, NewPermissionSetRoleID);
 
         // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
         CanEditPermissionSet := PermissionPagesMgt.IsPermissionSetEditable(AggregatePermissionSet);
 
         // Verify
@@ -758,9 +438,9 @@ codeunit 134612 "Test Editing Permissions"
         Initialize();
 
         // Setup: Create new permission sets
-        PermissionSetRoleIDThatIsLaterChanged := GenerateRandomPermissionSetRoleID;
-        PermissionSetRoleIDThatIsLaterDeleted := GenerateRandomPermissionSetRoleID;
-        PermissionSetRoleIDThatIsNotLaterChanged := GenerateRandomPermissionSetRoleID;
+        PermissionSetRoleIDThatIsLaterChanged := GenerateRandomPermissionSetRoleID();
+        PermissionSetRoleIDThatIsLaterDeleted := GenerateRandomPermissionSetRoleID();
+        PermissionSetRoleIDThatIsNotLaterChanged := GenerateRandomPermissionSetRoleID();
 
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleIDThatIsLaterChanged);
@@ -768,8 +448,8 @@ codeunit 134612 "Test Editing Permissions"
         CreateNewPermissionSet(PermissionSetRoleIDThatIsNotLaterChanged);
 
         // Setup: Copy permission sets
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        NewPermissionSet1 := GenerateRandomTenantPermissionSetRoleID;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
+        NewPermissionSet1 := GenerateRandomTenantPermissionSetRoleID();
         LibraryVariableStorage.Enqueue(NewPermissionSet1);
         Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -777,7 +457,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryVariableStorage.Enqueue(NewPermissionSet1); // for the message handler
         CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleIDThatIsLaterChanged, ZeroGuid);
 
-        NewPermissionSet2 := GenerateRandomTenantPermissionSetRoleID;
+        NewPermissionSet2 := GenerateRandomTenantPermissionSetRoleID();
         LibraryVariableStorage.Enqueue(NewPermissionSet2);
         Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -785,7 +465,7 @@ codeunit 134612 "Test Editing Permissions"
         LibraryVariableStorage.Enqueue(NewPermissionSet2); // for the message handler
         CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleIDThatIsLaterDeleted, ZeroGuid);
 
-        NewPermissionSet3 := GenerateRandomTenantPermissionSetRoleID;
+        NewPermissionSet3 := GenerateRandomTenantPermissionSetRoleID();
         LibraryVariableStorage.Enqueue(NewPermissionSet3);
         Commit();
         // enabled criteria for the option to notify depends on the source being a System permission set
@@ -802,13 +482,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSet.Delete();
 
         // Exercise: Stan opens the permission set page and ensures that the only 2 records show up
-        PermissionSets.Trap;
+        PermissionSets.Trap();
         LibraryVariableStorage.Enqueue(PermissionSetRoleIDThatIsLaterChanged);
         LibraryVariableStorage.Enqueue(NewPermissionSet1);
         LibraryVariableStorage.Enqueue(PermissionSetRoleIDThatIsLaterDeleted);
         LibraryVariableStorage.Enqueue(NewPermissionSet2);
         LibraryVariableStorage.Enqueue(PermissionSetRoleIDThatIsNotLaterChanged);
-        PermissionSets.OpenEdit;
+        PermissionSets.OpenEdit();
 
         // Verify: Source Hash changes for the permission set that is later changed
         AssertPermissionSetLinkExistsWithCorrectHash(PermissionSetRoleIDThatIsLaterChanged, NewPermissionSet1);
@@ -818,493 +498,8 @@ codeunit 134612 "Test Editing Permissions"
         AssertPermissionSetLinkDoesNotExist(PermissionSetRoleIDThatIsLaterDeleted, NewPermissionSet2);
 
         // Verify: All variables have been dequeued
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
-
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanBulkModifiesPermissionChangesTenantPermissionState()
-    var
-        TenantPermission: Record "Tenant Permission";
-        TempTenantPermission: Record "Tenant Permission" temporary;
-        TenantPermissions: TestPage "Tenant Permissions";
-        TenantPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup - create two permissions
-        TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-        LibraryPermissions.AddTenantPermission(
-          ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
-        LibraryPermissions.AddTenantPermission(
-          ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Line");
-        TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Line");
-        TenantPermission."Read Permission" := TenantPermission."Read Permission"::Indirect;
-        TenantPermission.Modify();
-
-        // Setup - open the permissions page
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        TempTenantPermission.SetRange("App ID", ZeroGuid);
-        TempTenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermissions.Trap;
-        PAGE.Run(PAGE::"Tenant Permissions", TempTenantPermission);
-
-        // Exercise - Set read to Indirect on Customer
-        TenantPermissions."Object ID".AssertEquals(DATABASE::Customer);
-        TenantPermissions.AllowReadIndirect.Invoke;
-
-        // Verify
-        TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
-        Assert.AreEqual(TenantPermission."Read Permission"::Indirect, TenantPermission."Read Permission",
-          'Customer does not have Indirect permissions');
-
-        // Exercise - Set read to Indirect on Sales Line
-        TenantPermissions.Next();
-        TenantPermissions."Object ID".AssertEquals(DATABASE::"Sales Line");
-        TenantPermissions.AllowReadIndirect.Invoke;
-
-        // Verify
-        TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Line");
-        Assert.AreEqual(TenantPermission."Read Permission"::Indirect, TenantPermission."Read Permission",
-          'Customer does not have Indirect permissions');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanAddsRelatedTableWhenRelatedTableDoesNotExistInPermissionSet()
-    var
-        TenantPermission: Record "Tenant Permission";
-        TempTenantPermission: Record "Tenant Permission" temporary;
-        TenantPermissions: TestPage "Tenant Permissions";
-        TenantPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup - Add permission for Sales header in a new permission set
-        TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-        LibraryPermissions.AddTenantPermission(
-          ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Header");
-
-        // Setup - open the permissions page
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        TempTenantPermission.SetRange("App ID", ZeroGuid);
-        TempTenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermissions.Trap;
-        PAGE.Run(PAGE::"Tenant Permissions", TempTenantPermission);
-
-        // Exercise - Add read permissions to tables related.
-        TenantPermissions."Object ID".AssertEquals(DATABASE::"Sales Header");
-        TenantPermissions.AddRelatedTablesAction.Invoke;
-
-        // Verify
-        Assert.IsTrue(TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data",
-            DATABASE::Customer),
-          'Related table not added');
-        Assert.AreEqual(TenantPermission."Read Permission"::Yes, TenantPermission."Read Permission",
-          'Customer does not have read permissions');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanAddsRelatedTableWhenRelatedTableExistAsNonReadInPermissionSet()
-    var
-        TenantPermission: Record "Tenant Permission";
-        TempTenantPermission: Record "Tenant Permission" temporary;
-        TenantPermissions: TestPage "Tenant Permissions";
-        TenantPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup - Add permission for Sales header in a new permission set
-        TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        CreateNewTenantPermissionSet(TenantPermissionSetRoleID);
-        TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-        LibraryPermissions.AddTenantPermission(
-          ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::"Sales Header");
-        LibraryPermissions.AddTenantPermission(
-          ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
-        TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
-        TenantPermission."Read Permission" := TenantPermission."Read Permission"::" ";
-        TenantPermission."Insert Permission" := TenantPermission."Insert Permission"::Indirect;
-        TenantPermission.Modify();
-
-        // Setup - open the permissions page
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        TempTenantPermission.SetRange("App ID", ZeroGuid);
-        TempTenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
-        TenantPermissions.Trap;
-        PAGE.Run(PAGE::"Tenant Permissions", TempTenantPermission);
-
-        // Exercise - Add read permissions to tables related.
-        TenantPermissions.GotoRecord(TenantPermission);
-        TenantPermissions."Object ID".AssertEquals(DATABASE::Customer);
-        TenantPermissions.AddRelatedTablesAction.Invoke;
-
-        // Verify
-        Assert.IsTrue(TenantPermission.Get(ZeroGuid, TenantPermissionSetRoleID, TenantPermission."Object Type"::"Table Data",
-            DATABASE::Customer),
-          'Related table not added');
-        Assert.AreEqual(TenantPermission."Read Permission"::" ", TenantPermission."Read Permission",
-          'Customer is updated to have read permissions');
-    end;
-#endif
-
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanCanExportTenantPermissionSets()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        Permission: Record Permission;
-        TempBlob: Codeunit "Temp Blob";
-        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        ExportPermissionSets: XMLport "Export Permission Sets";
-        OutStr: OutStream;
-        PermissionXmlNodeList: DotNet XmlNodeList;
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        AggregatePermissionSet.SetRange("Role ID", NewPermissionSetRoleID);
-        TempBlob.CreateOutStream(OutStr);
-        ExportPermissionSets.SetTableView(AggregatePermissionSet);
-        ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export();
-
-        // Verify
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID);
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet/Permission', 2);
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'AppID', AggregatePermissionSet."App ID");
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleID', AggregatePermissionSet."Role ID");
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleName', AggregatePermissionSet.Name);
-
-        LibraryXPathXMLReader.GetNodeListByElementName('/PermissionSets/PermissionSet/Permission', PermissionXmlNodeList);
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ObjectType', Format(Permission."Object Type"::"Table Data"));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ObjectID', Format(DATABASE::Customer));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ReadPermission', Format(Permission."Read Permission"::Yes));
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'InsertPermission', Format(Permission."Insert Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'ModifyPermission', Format(Permission."Modify Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'DeletePermission', Format(Permission."Delete Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'ExecutePermission', Format(Permission."Execute Permission"::Yes));
-        Assert.ExpectedError('not found');
-
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ObjectType', Format(Permission."Object Type"::"Table Data"));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ObjectID', Format(DATABASE::Vendor));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ReadPermission', Format(Permission."Read Permission"::Yes));
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'InsertPermission', Format(Permission."Insert Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'ModifyPermission', Format(Permission."Modify Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'DeletePermission', Format(Permission."Delete Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'ExecutePermission', Format(Permission."Execute Permission"::Yes));
-        Assert.ExpectedError('not found');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanCanExportSystemPermissionSets()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        Permission: Record Permission;
-        TempBlob: Codeunit "Temp Blob";
-        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        ExportPermissionSets: XMLport "Export Permission Sets";
-        OutStr: OutStream;
-        PermissionXmlNodeList: DotNet XmlNodeList;
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        CreateNewPermissionSet(NewPermissionSetRoleID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        AggregatePermissionSet.SetRange("Role ID", NewPermissionSetRoleID);
-        TempBlob.CreateOutStream(OutStr);
-        ExportPermissionSets.SetTableView(AggregatePermissionSet);
-        ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export();
-
-        // Verify
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGuid, NewPermissionSetRoleID);
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet/Permission', 2);
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'AppID', AggregatePermissionSet."App ID");
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleID', AggregatePermissionSet."Role ID");
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleName', AggregatePermissionSet.Name);
-
-        LibraryXPathXMLReader.GetNodeListByElementName('/PermissionSets/PermissionSet/Permission', PermissionXmlNodeList);
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ObjectType', Format(Permission."Object Type"::"Table Data"));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ObjectID', Format(DATABASE::Customer));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(0), 'ReadPermission', Format(Permission."Read Permission"::Yes));
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'InsertPermission', Format(Permission."Insert Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'ModifyPermission', Format(Permission."Modify Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'DeletePermission', Format(Permission."Delete Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(0), 'ExecutePermission', Format(Permission."Execute Permission"::Yes));
-        Assert.ExpectedError('not found');
-
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ObjectType', Format(Permission."Object Type"::"Table Data"));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ObjectID', Format(DATABASE::Vendor));
-        LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-          PermissionXmlNodeList.Item(1), 'ReadPermission', Format(Permission."Read Permission"::Yes));
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'InsertPermission', Format(Permission."Insert Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'ModifyPermission', Format(Permission."Modify Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'DeletePermission', Format(Permission."Delete Permission"::Yes));
-        Assert.ExpectedError('not found');
-        asserterror LibraryXPathXMLReader.VerifyNodeValueFromParentNode(
-            PermissionXmlNodeList.Item(1), 'ExecutePermission', Format(Permission."Execute Permission"::Yes));
-        Assert.ExpectedError('not found');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanCanExportMultipleCreatedSystemPermissionSets()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TempBlob: Codeunit "Temp Blob";
-        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        ExportPermissionSets: XMLport "Export Permission Sets";
-        OutStr: OutStream;
-        NewPermissionSetRoleID: Code[20];
-        NewTenantPermissionSetRoleID: Code[20];
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-        NewTenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
-
-        CreateNewPermissionSet(NewPermissionSetRoleID);
-        CreateNewTenantPermissionSet(NewTenantPermissionSetRoleID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        AggregatePermissionSet.SetFilter("Role ID", '%1|%2', NewPermissionSetRoleID, NewTenantPermissionSetRoleID);
-        TempBlob.CreateOutStream(OutStr);
-        ExportPermissionSets.SetTableView(AggregatePermissionSet);
-        ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export();
-
-        // Verify
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet', 2);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet/Permission', 4);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanCanExportTenantPermissionSetsInExtensionSchema()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TempBlob: Codeunit "Temp Blob";
-        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
-        ExportPermissionSets: XMLport "Export Permission Sets";
-        OutStr: OutStream;
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // Setup
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-
-        // Exercise
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        AggregatePermissionSet.SetRange("Role ID", NewPermissionSetRoleID);
-        TempBlob.CreateOutStream(OutStr);
-        ExportPermissionSets.SetExportToExtensionSchema(true);
-        ExportPermissionSets.SetTableView(AggregatePermissionSet);
-        ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export();
-
-        // Verify
-        AggregatePermissionSet.Get(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID);
-        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet', 1);
-        LibraryXPathXMLReader.VerifyNodeCountByXPath('/PermissionSets/PermissionSet/Permission', 2);
-        asserterror LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'AppID', AggregatePermissionSet."App ID");
-        Assert.ExpectedError('instantiated');
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleID', AggregatePermissionSet."Role ID");
-        LibraryXPathXMLReader.VerifyAttributeValue('PermissionSet', 'RoleName', AggregatePermissionSet.Name);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanCanImportToTenantPermissionSets()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TenantPermissionSet: Record "Tenant Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        TempBlob: Codeunit "Temp Blob";
-        ExportPermissionSets: XMLport "Export Permission Sets";
-        Instr: InStream;
-        OutStr: OutStream;
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // Setup - Create a new Permission Set and export it to a stream
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-        AggregatePermissionSet.SetRange("Role ID", NewPermissionSetRoleID);
-        TempBlob.CreateOutStream(OutStr);
-        ExportPermissionSets.SetTableView(AggregatePermissionSet);
-        ExportPermissionSets.SetDestination(OutStr);
-        ExportPermissionSets.Export();
-
-        // Delete the newly created Permission Set
-        TenantPermission.SetRange("App ID", ZeroGuid);
-        TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-
-        TenantPermissionSet.Get(ZeroGuid, NewPermissionSetRoleID);
-        TenantPermissionSet.DeleteAll();
-
-        // Exercise
-        TempBlob.CreateInStream(Instr);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        XMLPORT.Import(XMLPORT::"Import Tenant Permission Sets", Instr);
-
-        // Verify
-        TenantPermissionSet.Get(ZeroGuid, NewPermissionSetRoleID);
-        TenantPermission.Get(ZeroGuid, NewPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Customer);
-        TenantPermission.TestField("Read Permission", TenantPermission."Read Permission"::Yes);
-        TenantPermission.TestField("Insert Permission", TenantPermission."Insert Permission"::" ");
-        TenantPermission.TestField("Modify Permission", TenantPermission."Modify Permission"::" ");
-        TenantPermission.TestField("Delete Permission", TenantPermission."Delete Permission"::" ");
-        TenantPermission.TestField("Execute Permission", TenantPermission."Execute Permission"::" ");
-
-        TenantPermission.Get(ZeroGuid, NewPermissionSetRoleID, TenantPermission."Object Type"::"Table Data", DATABASE::Vendor);
-        TenantPermission.TestField("Read Permission", TenantPermission."Read Permission"::Yes);
-        TenantPermission.TestField("Insert Permission", TenantPermission."Insert Permission"::" ");
-        TenantPermission.TestField("Modify Permission", TenantPermission."Modify Permission"::" ");
-        TenantPermission.TestField("Delete Permission", TenantPermission."Delete Permission"::" ");
-        TenantPermission.TestField("Execute Permission", TenantPermission."Execute Permission"::" ");
-    end;
-#endif
-
-#if not CLEAN21
-    [Test]
-    [Scope('OnPrem')]
-    procedure StanSetsFirstPermission()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        TenantPermissions: TestPage "Tenant Permissions";
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // GIVEN - Create a new Permission Set
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-
-        // GIVEN - No permissions for the permission set
-        TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-
-        // WHEN - Open the permissions for this permission set
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        TenantPermissions.Trap;
-        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID, false);
-
-        // THEN - only relevant fields are filled for first line
-        TenantPermissions."Object Type".AssertEquals(Format(TenantPermission."Object Type"::"Table Data"));
-        TenantPermissions.Control8.AssertEquals(Format(TenantPermission."Read Permission"::Yes));
-        TenantPermissions.Control7.AssertEquals(Format(TenantPermission."Insert Permission"::Yes));
-        TenantPermissions.Control6.AssertEquals(Format(TenantPermission."Modify Permission"::Yes));
-        TenantPermissions.Control5.AssertEquals(Format(TenantPermission."Delete Permission"::Yes));
-        TenantPermissions.Control4.AssertEquals(Format(TenantPermission."Execute Permission"::" "));
-
-        // WHEN - Object type is set to Codeunit
-        TenantPermissions."Object Type".SetValue(TenantPermission."Object Type"::Codeunit);
-
-        // THEN - only relevant fields are filled for Codeunit
-        TenantPermissions."Object Type".AssertEquals(Format(TenantPermission."Object Type"::Codeunit));
-        TenantPermissions.Control8.AssertEquals(Format(TenantPermission."Read Permission"::" "));
-        TenantPermissions.Control7.AssertEquals(Format(TenantPermission."Insert Permission"::" "));
-        TenantPermissions.Control6.AssertEquals(Format(TenantPermission."Modify Permission"::" "));
-        TenantPermissions.Control5.AssertEquals(Format(TenantPermission."Delete Permission"::" "));
-        TenantPermissions.Control4.AssertEquals(Format(TenantPermission."Execute Permission"::Yes));
-
-        // WHEN - Object type is set back to TableData
-        TenantPermissions."Object Type".SetValue(TenantPermission."Object Type"::"Table Data");
-
-        // THEN - only relevant fields are filled for Table Data
-        TenantPermissions."Object Type".AssertEquals(Format(TenantPermission."Object Type"::"Table Data"));
-        TenantPermissions.Control8.AssertEquals(Format(TenantPermission."Read Permission"::Yes));
-        TenantPermissions.Control7.AssertEquals(Format(TenantPermission."Insert Permission"::Yes));
-        TenantPermissions.Control6.AssertEquals(Format(TenantPermission."Modify Permission"::Yes));
-        TenantPermissions.Control5.AssertEquals(Format(TenantPermission."Delete Permission"::Yes));
-        TenantPermissions.Control4.AssertEquals(Format(TenantPermission."Execute Permission"::" "));
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1324,10 +519,10 @@ codeunit 134612 "Test Editing Permissions"
         OldRoleID := LibraryUtility.GenerateRandomCode20(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
         NewRoleID := LibraryUtility.GenerateRandomCode20(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
         CreateNewTenantPermissionSet(OldRoleID);
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] Open page "Permission Sets"
-        PermissionSets.OpenEdit;
+        PermissionSets.OpenEdit();
         PermissionSets.FILTER.SetFilter("Role ID", OldRoleID);
         PermissionSets.FILTER.SetFilter(Type, Format(PermissionSetBuffer.Type::"User-Defined"));
 
@@ -1377,60 +572,6 @@ codeunit 134612 "Test Editing Permissions"
         // [THEN] Error has been thrown with message "You cannot rename a tenant permission set while it is used elsewhere, for example, in permission settings for a user or security group."
         Assert.ExpectedError(Format(CannotRenameTenantPermissionSetHavingUsageErr));
     end;
-
-#if not CLEAN21
-    [Test]
-    [HandlerFunctions('StartStopRecorderConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure StanStartsAndStopsRecorderOnEditablePermissionSet()
-    var
-        AggregatePermissionSet: Record "Aggregate Permission Set";
-        TenantPermission: Record "Tenant Permission";
-        PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
-        TenantPermissions: TestPage "Tenant Permissions";
-        NewPermissionSetRoleID: Code[20];
-        ZeroGuid: Guid;
-    begin
-        Initialize();
-
-        // GIVEN - Create a new Permission Set
-        NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
-        CreateNewTenantPermissionSet(NewPermissionSetRoleID);
-
-        // GIVEN - No permissions for the permission set
-        TenantPermission.SetRange("Role ID", NewPermissionSetRoleID);
-        TenantPermission.DeleteAll();
-
-        // WHEN - Open the permissions for this permission set
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
-        TenantPermissions.Trap;
-        PermissionPagesMgt.ShowPermissions(AggregatePermissionSet.Scope::Tenant, ZeroGuid, NewPermissionSetRoleID, false);
-
-        // THEN - Initial state is that Start is enabled and Stop is not
-        Assert.IsTrue(TenantPermissions.Start.Enabled,
-          StrSubstNo(DisabledActionErr, 'Start', TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Stop.Enabled,
-          StrSubstNo(EnabledActionErr, 'Stop', TenantPermissions.Caption));
-
-        // WHEN - Start is pressed
-        TenantPermissions.Start.Invoke;
-
-        // THEN - Stop is enabled and Start is not
-        Assert.IsFalse(TenantPermissions.Start.Enabled,
-          StrSubstNo(EnabledActionErr, 'Start', TenantPermissions.Caption));
-        Assert.IsTrue(TenantPermissions.Stop.Enabled,
-          StrSubstNo(DisabledActionErr, 'Stop', TenantPermissions.Caption));
-
-        // When - Stop is pressed
-        TenantPermissions.Stop.Invoke;
-
-        // THEN - Start is enabled and Stop is not
-        Assert.IsTrue(TenantPermissions.Start.Enabled,
-          StrSubstNo(DisabledActionErr, 'Start', TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Stop.Enabled,
-          StrSubstNo(EnabledActionErr, 'Stop', TenantPermissions.Caption));
-    end;
-#endif
 
     local procedure Initialize()
     var
@@ -1567,12 +708,12 @@ codeunit 134612 "Test Editing Permissions"
         AggregatePermissionSet: Record "Aggregate Permission Set";
         PermissionSets: TestPage "Permission Sets";
     begin
-        PermissionSets.OpenEdit;
+        PermissionSets.OpenEdit();
         PermissionSets.FILTER.SetFilter("Role ID", SourcePermissionSetRoleID);
         PermissionSets.FILTER.SetFilter("App ID", AppId);
         AggregatePermissionSet.SetRange("Role ID", SourcePermissionSetRoleID);
         AggregatePermissionSet.SetRange("App ID", AppId);
-        PermissionSets.CopyPermissionSet.Invoke;
+        PermissionSets.CopyPermissionSet.Invoke();
         PermissionSets.Close();
     end;
 
@@ -1592,14 +733,14 @@ codeunit 134612 "Test Editing Permissions"
         TargetTenantPermissionSetRoleID: Code[20];
         NotifyFlagEnabled: Boolean;
     begin
-        TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         CopyPermissionSet.NewPermissionSet.SetValue(TargetTenantPermissionSetRoleID);
         CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
-        NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean;
-        Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled, 'Enabled criteria not fulfilled');
+        NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean();
+        Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled(), 'Enabled criteria not fulfilled');
         if NotifyFlagEnabled then
             CopyPermissionSet.CreateLink.SetValue(true);
-        CopyPermissionSet.OK.Invoke;
+        CopyPermissionSet.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1610,21 +751,21 @@ codeunit 134612 "Test Editing Permissions"
         TargetTenantPermissionSetRoleID: Code[20];
         NotifyFlagEnabled: Boolean;
     begin
-        TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        TargetTenantPermissionSetRoleID := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         CopyPermissionSet.NewPermissionSet.SetValue(TargetTenantPermissionSetRoleID);
         CopyPermissionSet.CopyType.SetValue("Permission Set Copy Type"::Flat);
-        NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean;
-        Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled, 'Enabled criteria not fulfilled');
+        NotifyFlagEnabled := LibraryVariableStorage.DequeueBoolean();
+        Assert.AreEqual(NotifyFlagEnabled, CopyPermissionSet.CreateLink.Enabled(), 'Enabled criteria not fulfilled');
         if NotifyFlagEnabled then
             CopyPermissionSet.CreateLink.SetValue(false);
-        CopyPermissionSet.OK.Invoke;
+        CopyPermissionSet.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CopyPermissionSetMissingNewNameRequestPageHandler(var CopyPermissionSet: TestRequestPage "Copy Permission Set")
     begin
-        CopyPermissionSet.OK.Invoke;
+        CopyPermissionSet.OK().Invoke();
     end;
 
     [MessageHandler]
@@ -1634,88 +775,9 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissionSet: Record "Tenant Permission Set";
         CopiedRoleID: Code[20];
     begin
-        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TenantPermissionSet."Role ID"));
+        CopiedRoleID := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TenantPermissionSet."Role ID"));
         Assert.ExpectedMessage(StrSubstNo(CopySuccessMsg, CopiedRoleID), Message);
     end;
-
-#if not CLEAN21
-    local procedure DisplayPermissionsForPermissionSet(RoleID: Code[20])
-    var
-        PermissionSets: TestPage "Permission Sets";
-    begin
-        PermissionSets.OpenEdit;
-        PermissionSets.FILTER.SetFilter("Role ID", RoleID);
-        PermissionSets.Permissions.Invoke;
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure AddItemPermissionToTenantPermissionSetPageHandler(var TenantPermissions: TestPage "Tenant Permissions")
-    var
-        TenantPermission: Record "Tenant Permission";
-    begin
-        TenantPermissions.New;
-        TenantPermissions."Object Type".SetValue(TenantPermission."Object Type"::"Table Data");
-        TenantPermissions."Object ID".SetValue(LibraryVariableStorage.DequeueInteger);
-        TenantPermissions.Control8.SetValue(TenantPermission."Read Permission"::Yes);
-        TenantPermissions.Close();
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure CannotAddItemPermissionToPermissionSetPageHandler(var Permissions: TestPage Permissions)
-    begin
-        asserterror Permissions.New;
-        Assert.ExpectedErrorCode('DB:ClientInsertDenied');
-
-        Assert.IsFalse(Permissions."Object Type".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Object Type".Caption, Permissions.Caption));
-        Assert.IsFalse(Permissions."Object ID".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Object ID".Caption, Permissions.Caption));
-        Assert.IsFalse(Permissions."Read Permission".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Read Permission".Caption, Permissions.Caption));
-        Assert.IsFalse(Permissions."Insert Permission".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Insert Permission".Caption, Permissions.Caption));
-        Assert.IsFalse(Permissions."Modify Permission".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Modify Permission".Caption, Permissions.Caption));
-        Assert.IsFalse(Permissions."Delete Permission".Editable,
-          StrSubstNo(EditableControlErr, Permissions."Delete Permission".Caption, Permissions.Caption));
-
-        Permissions.Close();
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure CannotAddItemPermissionToExtensionPermissionSetPageHandler(var TenantPermissions: TestPage "Tenant Permissions")
-    begin
-        Assert.IsFalse(TenantPermissions."Object Type".Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions."Object Type".Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions."Object ID".Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions."Object ID".Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Control8.Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions.Control8.Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Control7.Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions.Control7.Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Control6.Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions.Control6.Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Control5.Editable,
-          StrSubstNo(EditableControlErr, TenantPermissions.Control5.Caption, TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Start.Enabled,
-          StrSubstNo(EnabledActionErr, 'Start', TenantPermissions.Caption));
-        Assert.IsFalse(TenantPermissions.Stop.Enabled,
-          StrSubstNo(EnabledActionErr, 'Stop', TenantPermissions.Caption));
-
-        TenantPermissions.Close();
-    end;
-
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure DisplaySecurityFiltersForTenantPermissionPageHandler(var TenantPermissions: TestPage "Tenant Permissions")
-    begin
-        TenantPermissions."Security Filter".AssistEdit;
-        TenantPermissions.Close();
-    end;
-#endif
 
     [ModalPageHandler]
     [Scope('OnPrem')]
@@ -1725,24 +787,14 @@ codeunit 134612 "Test Editing Permissions"
         InputFieldFilter: Text[250];
         InputFieldNumber: Integer;
     begin
-        InputFieldNumber := LibraryVariableStorage.DequeueInteger;
-        InputFieldFilter := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(TableFilter."Field Filter"));
+        InputFieldNumber := LibraryVariableStorage.DequeueInteger();
+        InputFieldFilter := CopyStr(LibraryVariableStorage.DequeueText(), 1, MaxStrLen(TableFilter."Field Filter"));
 
-        TableFilterPage.New;
+        TableFilterPage.New();
         TableFilterPage."Field Number".SetValue(InputFieldNumber);
         TableFilterPage."Field Filter".SetValue(InputFieldFilter);
-        TableFilterPage.OK.Invoke;
+        TableFilterPage.OK().Invoke();
     end;
-
-#if not CLEAN21
-    [PageHandler]
-    [Scope('OnPrem')]
-    procedure DisplaySecurityFiltersForPermissionPageHandler(var Permissions: TestPage Permissions)
-    begin
-        Permissions."Security Filter".AssistEdit;
-        Permissions.Close();
-    end;
-#endif
 
     local procedure AssertTenantPermissionSetExists(ExpectedRoleID: Code[20])
     var
@@ -2014,16 +1066,16 @@ codeunit 134612 "Test Editing Permissions"
     [Scope('OnPrem')]
     procedure CopiedPermissionSetPageHandler(var ChangedPermissionSetList: TestPage "Changed Permission Set List")
     begin
-        ChangedPermissionSetList.First;
-        ChangedPermissionSetList."Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText); // the permission set that changed
-        ChangedPermissionSetList."Linked Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText);
+        ChangedPermissionSetList.First();
+        ChangedPermissionSetList."Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText()); // the permission set that changed
+        ChangedPermissionSetList."Linked Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText());
 
-        ChangedPermissionSetList.Last;
-        ChangedPermissionSetList."Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText); // the permission set that was deleted
-        ChangedPermissionSetList."Linked Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText);
+        ChangedPermissionSetList.Last();
+        ChangedPermissionSetList."Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText()); // the permission set that was deleted
+        ChangedPermissionSetList."Linked Permission Set ID".AssertEquals(LibraryVariableStorage.DequeueText());
 
-        ChangedPermissionSetList.FILTER.SetFilter("Permission Set ID", LibraryVariableStorage.DequeueText); // the permission set that did not change
-        ChangedPermissionSetList.First;
+        ChangedPermissionSetList.FILTER.SetFilter("Permission Set ID", LibraryVariableStorage.DequeueText()); // the permission set that did not change
+        ChangedPermissionSetList.First();
         ChangedPermissionSetList."Permission Set ID".AssertEquals('');
     end;
 
@@ -2033,14 +1085,5 @@ codeunit 134612 "Test Editing Permissions"
     begin
         Assert.AreEqual(CannotEditPermissionSetMsg, Notification.Message, 'Message mismatch');
     end;
-
-#if not CLEAN21
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure StartStopRecorderConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-#endif
 }
 

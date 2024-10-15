@@ -413,7 +413,7 @@ codeunit 481 "Check Dimensions"
     local procedure OnErrorMessageDrillDown(ErrorMessage: Record "Error Message"; SourceFieldNo: Integer; var IsHandled: Boolean)
     begin
         if not IsHandled then
-            if ErrorMessage."Table Number" in [Database::Dimension .. Database::"Default Dimension"] then
+            if ErrorMessage."Table Number" in [Database::Dimension, Database::"Dimension Value", Database::"Dimension Combination", Database::"Dimension Value Combination", Database::"Default Dimension"] then
                 case SourceFieldNo of
                     ErrorMessage.FieldNo("Context Record ID"):
                         IsHandled := ShowContextDimensions(ErrorMessage."Context Record ID");

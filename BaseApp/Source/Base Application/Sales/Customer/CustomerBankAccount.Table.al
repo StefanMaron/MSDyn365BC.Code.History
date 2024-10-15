@@ -1,4 +1,4 @@
-namespace Microsoft.Sales.Customer;
+﻿namespace Microsoft.Sales.Customer;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Setup;
@@ -15,6 +15,7 @@ table 287 "Customer Bank Account"
     DataCaptionFields = "Customer No.", "Code", Name;
     DrillDownPageID = "Customer Bank Account List";
     LookupPageID = "Customer Bank Account List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -179,11 +180,24 @@ table 287 "Customer Bank Account"
                 MailManagement.ValidateEmailAddressField("E-Mail");
             end;
         }
+#if not CLEAN24
         field(23; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(23; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(24; IBAN; Code[50])
         {
             Caption = 'IBAN';

@@ -43,14 +43,14 @@ codeunit 138041 "O365 Company Information"
         BankAccPostingGroup.FindLast();
 
         with CompanyInformationPage do begin
-            OpenEdit;
+            OpenEdit();
             "Bank Name".SetValue('Stans Bank');
             "Bank Branch No.".SetValue('0235');
             "Bank Account No.".SetValue('2229018-7205');
             "SWIFT Code".SetValue('DABASTAN');
             IBAN.SetValue('GB 80 RBOS 161732 41116737');
             BankAccountPostingGroup.SetValue(BankAccPostingGroup.Code);
-            OK.Invoke;
+            OK().Invoke();
         end;
 
         // verify that a bank account has been created
@@ -81,9 +81,9 @@ codeunit 138041 "O365 Company Information"
 
         // Modify bank name
         with CompanyInformationPage do begin
-            OpenEdit;
+            OpenEdit();
             "Bank Name".SetValue("Bank Name".Value + "Bank Name".Value);
-            OK.Invoke;
+            OK().Invoke();
         end;
 
         // Verify that company bank account has been updated
@@ -100,7 +100,7 @@ codeunit 138041 "O365 Company Information"
     begin
         // Validate that changing company name in the company information table changes the company display name
 
-        CompanyInformation.OpenEdit;
+        CompanyInformation.OpenEdit();
 
         NewCompanyName := LibraryUtility.GenerateGUID();
         CompanyInformation.Name.SetValue(NewCompanyName);

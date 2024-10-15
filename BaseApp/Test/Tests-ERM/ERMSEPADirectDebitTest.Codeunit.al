@@ -39,7 +39,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
+        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate(), Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute;
@@ -63,12 +63,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
+        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate(), Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute;
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
 
         // Verify
         VerifyDirectDebitMandateID(Customer."No.", PostedDocNo, Found);
@@ -94,7 +94,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // Execute;
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", true, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", true, false);
 
         // Verify
         VerifyTwoSalesInvoiceValidMandate(Customer."No.", PostedDocNo, Customer2."No.", PostedDocNo2);
@@ -112,12 +112,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate - 30, Customer."Partner Type"::Company);
+        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate() - 30, WorkDate() - 30, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute;
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
 
         // Verify
         VerifyDirectDebitMandateID(Customer."No.", PostedDocNo, not Found);
@@ -135,13 +135,13 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate - 30, Customer."Partner Type"::Company);
+        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate() - 30, WorkDate() - 30, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute
         asserterror
           RunCreateDirectDebitCollectionReport(
-            WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", true, true);
+            WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", true, true);
 
         // Verify
         Assert.ExpectedError(NoEntriesErr);
@@ -166,7 +166,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
 
         // Execute;
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", false, true);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", false, true);
 
         // Verify
         VerifyTwoSalesInvoiceValidMandate(Customer."No.", PostedDocNo, Customer2."No.", PostedDocNo2);
@@ -186,13 +186,13 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
-        PostedDocNo2 := PostWorkdateSalesInvoiceSEPADirectDebit(Customer2, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Person);
+        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate() - 30, WorkDate() + 30, Customer."Partner Type"::Company);
+        PostedDocNo2 := PostWorkdateSalesInvoiceSEPADirectDebit(Customer2, WorkDate() - 30, WorkDate() + 30, Customer."Partner Type"::Person);
         CreateSEPABankAccount(BankAccount);
 
         // Execute
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Person, BankAccount."No.", false, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Person, BankAccount."No.", false, false);
 
         // Verify
         VerifyDirectDebitMandateID(Customer."No.", PostedDocNo, Found);
@@ -216,12 +216,12 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
+        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate() - 30, WorkDate() + 30, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAccount."No.", false, false);
         DirectDebitCollectionEntry.SetFilter("Applies-to Entry Document No.", '<>%1', PostedDocNo);
         DirectDebitCollectionEntry.DeleteAll(true);
         DirectDebitCollectionEntry.SetRange("Applies-to Entry Document No.", PostedDocNo);
@@ -255,10 +255,10 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Pre-Setup
-        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
+        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate(), Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAcc);
         RunCreateDirectDebitCollectionReport(
-          WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAcc."No.", false, false);
+          WorkDate() - 5, WorkDate() + 5, Customer."Partner Type"::Company, BankAcc."No.", false, false);
 
         // Setup
         DirectDebitCollection.SetRange("Partner Type", Customer."Partner Type"::Company);
@@ -392,11 +392,11 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Sevice invoice with "Direct Debit Mandate ID" = "DD"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ServiceHeader."Direct Debit Mandate ID" :=
             LibraryUtility.GenerateRandomCode(ServiceHeader.FieldNo("Direct Debit Mandate ID"), DATABASE::"Service Header");
         ServiceHeader.Modify();
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(100, 2));
         ServiceLine.Modify(true);
 
@@ -426,7 +426,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Sevice header with "Direct Debit Mandate ID" = "DD"
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ServiceHeader."Direct Debit Mandate ID" :=
             LibraryUtility.GenerateRandomCode(ServiceHeader.FieldNo("Direct Debit Mandate ID"), DATABASE::"Service Header");
         ServiceHeader.Modify();
@@ -460,7 +460,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         // [GIVEN] Posted Sales Invoice with random Currency for Customer.
         Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
         PostedDocNo :=
-          PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company, Currency.Code);
+          PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, WorkDate(), WorkDate(), Customer."Partner Type"::Company, Currency.Code);
         CreateSEPABankAccount(BankAccount);
 
         // [WHEN] Report "Create Direct Debit Collection" is run for Customer.
@@ -831,7 +831,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateDirectDebitCollection.OnlyCustomerValidMandate.SetValue(ValidCustMandate);
         CreateDirectDebitCollection.OnlyInvoiceValidMandate.SetValue(ValidInvMandate);
         CreateDirectDebitCollection.BankAccNo.SetValue(BankAccNo);
-        CreateDirectDebitCollection.OK.Invoke;
+        CreateDirectDebitCollection.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -860,7 +860,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateDirectDebitCollection.OnlyInvoiceValidMandate.SetValue(ValidInvMandate);
         CreateDirectDebitCollection.BankAccNo.SetValue(BankAccNo);
         CreateDirectDebitCollection.Customer.SetFilter("Global Dimension 1 Filter", DimValCode);
-        CreateDirectDebitCollection.OK.Invoke;
+        CreateDirectDebitCollection.OK().Invoke();
     end;
 
     local procedure CreateDDEntryWithTransferDate(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; TransferDate: Date)
@@ -1005,9 +1005,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     local procedure PostTwoWorkdateSalesInvoicesSEPADirectDebit(var Customer: Record Customer; var Customer2: Record Customer; var PostedDocNo: Code[20]; var PostedDocNo2: Code[20])
     begin
         PostedDocNo :=
-          PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate - 30, WorkDate - 30, Customer."Partner Type"::Company);
+          PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate() - 30, WorkDate() - 30, Customer."Partner Type"::Company);
         PostedDocNo2 :=
-          PostWorkdateSalesInvoiceSEPADirectDebit(Customer2, WorkDate - 30, WorkDate + 30, Customer."Partner Type"::Company);
+          PostWorkdateSalesInvoiceSEPADirectDebit(Customer2, WorkDate() - 30, WorkDate() + 30, Customer."Partner Type"::Company);
     end;
 
     local procedure RunCreateDirectDebitCollectionReport(FromDate: Date; ToDate: Date; PartnerType: Enum "Partner Type"; BankAccNo: Code[20]; ValidCustMandate: Boolean; ValidInvMandate: Boolean)

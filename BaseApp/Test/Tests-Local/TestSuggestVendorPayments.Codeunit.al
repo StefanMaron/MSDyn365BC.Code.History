@@ -36,8 +36,8 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // Setup
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendor;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendor();
 
         CreateAndPostPurchaseDocumentWithRandomAmounts(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, false, true, PurchaseHeader."Message Type"::"Reference No.");
@@ -71,8 +71,8 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // Setup
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -1000, '');
         CreateRefPaymentExportLinesFromJournal(BankAccountNo, VendorNo, PurchaseHeader."Document Type"::"Credit Memo", 100, '');
@@ -102,9 +102,9 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] A vendor[1] blocked by payment
-        VendorNo[1] := CreateBlockedVendor;
+        VendorNo[1] := CreateBlockedVendor();
         // [GIVEN] Vendor[2] not blocked
-        VendorNo[2] := CreateVendor;
+        VendorNo[2] := CreateVendor();
         // [GIVEN] Created and posted invoices for Vendor[1] and Vendor[2]
         CreateAndPostPurchaseDocumentWithRandomAmounts(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo[1], false, true, PurchaseHeader."Message Type"::"Reference No.");
@@ -138,16 +138,16 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
-        SetPmtDiscToleranceGLSetup;
+        SetPmtDiscToleranceGLSetup();
 
         // [GIVEN] Posted Purchase Invoice on 06-06-19 with 'Pmt. Discount Date' = 20-06-19 and 'Pmt. Disc. Tolerance Date' = 25-06-19
         // [GIVEN] Amount = 1000, Pmt. Disc. Possible = 100
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
-        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate + 1);
+        UpdatePmtDiscDateVLE(VendorLedgerEntry, VendorNo, WorkDate() + 1);
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible");
         Commit();
 
@@ -176,12 +176,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
-        SetPmtDiscToleranceGLSetup;
+        SetPmtDiscToleranceGLSetup();
 
         // [GIVEN] Posted Purchase Invoice on 06-06-19 with 'Pmt. Discount Date' = 20-06-19 and 'Pmt. Disc. Tolerance Date' = 25-06-19
         // [GIVEN] Amount = 1000, Pmt. Disc. Possible = 100
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
@@ -214,12 +214,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
-        SetPmtDiscToleranceGLSetup;
+        SetPmtDiscToleranceGLSetup();
 
         // [GIVEN] Posted Purchase Invoice on 06-06-19 with 'Pmt. Discount Date' = 20-06-19 and 'Pmt. Disc. Tolerance Date' = 25-06-19
         // [GIVEN] Amount = 1000, Pmt. Disc. Possible = 100
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
@@ -252,12 +252,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
-        SetPmtDiscToleranceGLSetup;
+        SetPmtDiscToleranceGLSetup();
 
         // [GIVEN] Posted Purchase Invoice on 06-06-19 with 'Pmt. Discount Date' = 20-06-19 and 'Pmt. Disc. Tolerance Date' = 25-06-19
         // [GIVEN] Amount = 1000, Pmt. Disc. Possible = 100
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
@@ -290,12 +290,12 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Initialize();
 
         // [GIVEN] Pmt. Disc. Tolerance with grace period = <5D> in G/L Setup
-        SetPmtDiscToleranceGLSetup;
+        SetPmtDiscToleranceGLSetup();
 
         // [GIVEN] Posted Purchase Invoice on 06-06-19 with 'Pmt. Discount Date' = 20-06-19 and 'Pmt. Disc. Tolerance Date' = 25-06-19
         // [GIVEN] Amount = 1000, Pmt. Disc. Possible = 100
-        BankAccountNo := CreateBankAccount;
-        VendorNo := CreateVendorWithPmtTerms;
+        BankAccountNo := CreateBankAccount();
+        VendorNo := CreateVendorWithPmtTerms();
 
         CreateRefPaymentExportLinesFromJournal(
           BankAccountNo, VendorNo, PurchaseHeader."Document Type"::Invoice, -LibraryRandom.RandDecInRange(1000, 2000, 2), '');
@@ -363,8 +363,8 @@ codeunit 144024 "Test Suggest Vendor Payments"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CreateVendor);
-        Vendor.Validate("Payment Terms Code", CreatePaymentTerms);
+        Vendor.Get(CreateVendor());
+        Vendor.Validate("Payment Terms Code", CreatePaymentTerms());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -502,20 +502,20 @@ codeunit 144024 "Test Suggest Vendor Payments"
         SuggestBankPayments.InitializeRequest(PaymentDate, true, 0);
         SuggestBankPayments.Run();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RPHSuggestBankPayments(var RequestPage: TestRequestPage "Suggest Bank Payments")
     begin
-        RequestPage."Find Payment Discounts".SetValue(LibraryVariableStorage.DequeueBoolean);
-        RequestPage.UsePmtDiscTolerance.SetValue(LibraryVariableStorage.DequeueBoolean);
-        RequestPage."Payment Account".SetValue(LibraryVariableStorage.DequeueText);
-        RequestPage.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        RequestPage.OK.Invoke;
+        RequestPage."Find Payment Discounts".SetValue(LibraryVariableStorage.DequeueBoolean());
+        RequestPage.UsePmtDiscTolerance.SetValue(LibraryVariableStorage.DequeueBoolean());
+        RequestPage."Payment Account".SetValue(LibraryVariableStorage.DequeueText());
+        RequestPage.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        RequestPage.OK().Invoke();
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 }
 

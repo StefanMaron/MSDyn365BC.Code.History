@@ -29,17 +29,17 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         ItemCard: TestPage "Item Card";
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         LibraryVariableStorage.Enqueue(UserSetup);
         LibraryVariableStorage.Enqueue(1);
 
-        ItemCard.OpenView;
-        ItemCard.First;
+        ItemCard.OpenView();
+        ItemCard.First();
 
-        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
-        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
 
-        asserterror ItemCard.CreateApprovalWorkflow.Invoke;
+        asserterror ItemCard.CreateApprovalWorkflow.Invoke();
 
         Assert.ExpectedError(ApproverNotSelectedErr);
     end;
@@ -52,7 +52,7 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         ItemApprovalWFSetupWizard: TestPage "Item Approval WF Setup Wizard";
     begin
         Initialize();
-        ItemApprovalWFSetupWizard.Trap;
+        ItemApprovalWFSetupWizard.Trap();
 
         PAGE.Run(PAGE::"Item Approval WF Setup Wizard");
 
@@ -67,18 +67,18 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         ItemApprovalWFSetupWizard: TestPage "Item Approval WF Setup Wizard";
     begin
         Initialize();
-        ItemApprovalWFSetupWizard.Trap;
+        ItemApprovalWFSetupWizard.Trap();
 
         PAGE.Run(PAGE::"Item Approval WF Setup Wizard");
 
         // Go to second page
-        ItemApprovalWFSetupWizard.NextPage.Invoke;
+        ItemApprovalWFSetupWizard.NextPage.Invoke();
 
         // Go back to Intro page
-        ItemApprovalWFSetupWizard.PreviousPage.Invoke;
+        ItemApprovalWFSetupWizard.PreviousPage.Invoke();
 
         // Verify - Cannot check field visibility, we consider to be on the first page if we cannot go back
-        Assert.IsFalse(ItemApprovalWFSetupWizard.PreviousPage.Enabled, 'Control should not be enabled');
+        Assert.IsFalse(ItemApprovalWFSetupWizard.PreviousPage.Enabled(), 'Control should not be enabled');
     end;
 
     [Test]
@@ -90,27 +90,27 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         ItemCard: TestPage "Item Card";
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryWorkflow.DisableAllWorkflows();
 
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
         LibraryVariableStorage.Enqueue(UserSetup);
         LibraryVariableStorage.Enqueue(1);
 
-        ItemCard.OpenView;
-        ItemCard.First;
+        ItemCard.OpenView();
+        ItemCard.First();
 
-        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
-        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
 
-        ItemCard.CreateApprovalWorkflow.Invoke;
+        ItemCard.CreateApprovalWorkflow.Invoke();
 
         VerifyStandardWorkflow(UserSetup);
 
-        Assert.IsFalse(ItemCard.CreateApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
-        Assert.IsTrue(ItemCard.ManageApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemCard.CreateApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemCard.ManageApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
 
-        ItemCard.ManageApprovalWorkflow.Invoke;
+        ItemCard.ManageApprovalWorkflow.Invoke();
     end;
 
     [Test]
@@ -124,8 +124,8 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         FieldOperator: Integer;
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryWorkflow.DisableAllWorkflows();
 
         FieldOperator := LibraryRandom.RandInt(3);
 
@@ -136,20 +136,20 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         LibraryVariableStorage.Enqueue('Custom test message');
         LibraryVariableStorage.Enqueue(FieldOperator);
 
-        ItemCard.OpenView;
-        ItemCard.First;
+        ItemCard.OpenView();
+        ItemCard.First();
 
-        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
-        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemCard.CreateApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemCard.ManageApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
 
-        ItemCard.CreateApprovalWorkflow.Invoke;
+        ItemCard.CreateApprovalWorkflow.Invoke();
 
         VerifyChangeRecWorkflow(UserSetup, Item.FieldNo(Blocked), FieldOperator);
 
-        Assert.IsFalse(ItemCard.CreateApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
-        Assert.IsTrue(ItemCard.ManageApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemCard.CreateApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemCard.ManageApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
 
-        ItemCard.ManageApprovalWorkflow.Invoke;
+        ItemCard.ManageApprovalWorkflow.Invoke();
     end;
 
     [Test]
@@ -161,27 +161,27 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         ItemList: TestPage "Item List";
     begin
         Initialize();
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        LibraryWorkflow.DisableAllWorkflows();
 
         LibraryDocumentApprovals.CreateMockupUserSetup(UserSetup);
         LibraryVariableStorage.Enqueue(UserSetup);
         LibraryVariableStorage.Enqueue(1);
 
-        ItemList.OpenView;
-        ItemList.First;
+        ItemList.OpenView();
+        ItemList.First();
 
-        Assert.IsTrue(ItemList.CreateApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
-        Assert.IsFalse(ItemList.ManageApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemList.CreateApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemList.ManageApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
 
-        ItemList.CreateApprovalWorkflow.Invoke;
+        ItemList.CreateApprovalWorkflow.Invoke();
 
         VerifyStandardWorkflow(UserSetup);
 
-        Assert.IsFalse(ItemList.CreateApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
-        Assert.IsTrue(ItemList.ManageApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemList.CreateApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemList.ManageApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
 
-        ItemList.ManageApprovalWorkflow.Invoke;
+        ItemList.ManageApprovalWorkflow.Invoke();
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         FieldOperator: Integer;
     begin
         Initialize();
-        LibraryWorkflow.DisableAllWorkflows;
+        LibraryWorkflow.DisableAllWorkflows();
 
         FieldOperator := LibraryRandom.RandInt(3);
 
@@ -206,20 +206,20 @@ codeunit 139308 "Item App. Setup Wizard Tests"
         LibraryVariableStorage.Enqueue('Custom test message');
         LibraryVariableStorage.Enqueue(FieldOperator);
 
-        ItemList.OpenView;
-        ItemList.First;
+        ItemList.OpenView();
+        ItemList.First();
 
-        Assert.IsTrue(ItemList.CreateApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
-        Assert.IsFalse(ItemList.ManageApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemList.CreateApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemList.ManageApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
 
-        ItemList.CreateApprovalWorkflow.Invoke;
+        ItemList.CreateApprovalWorkflow.Invoke();
 
         VerifyChangeRecWorkflow(UserSetup, Item.FieldNo(Blocked), FieldOperator);
 
-        Assert.IsFalse(ItemList.CreateApprovalWorkflow.Enabled, ActionShouldNotBeEnabledErr);
-        Assert.IsTrue(ItemList.ManageApprovalWorkflow.Enabled, ActionShouldBeEnabledErr);
+        Assert.IsFalse(ItemList.CreateApprovalWorkflow.Enabled(), ActionShouldNotBeEnabledErr);
+        Assert.IsTrue(ItemList.ManageApprovalWorkflow.Enabled(), ActionShouldBeEnabledErr);
 
-        ItemList.ManageApprovalWorkflow.Invoke;
+        ItemList.ManageApprovalWorkflow.Invoke();
     end;
 
     local procedure Initialize()
@@ -245,29 +245,29 @@ codeunit 139308 "Item App. Setup Wizard Tests"
     begin
         LibraryVariableStorage.Dequeue(UserSetupVar);
         UserSetup := UserSetupVar;
-        TriggerOption := LibraryVariableStorage.DequeueInteger;
+        TriggerOption := LibraryVariableStorage.DequeueInteger();
         if TriggerOption > 1 then begin
-            FieldCaption := LibraryVariableStorage.DequeueText;
-            CustomMessage := LibraryVariableStorage.DequeueText;
-            FieldOperator := LibraryVariableStorage.DequeueInteger;
+            FieldCaption := LibraryVariableStorage.DequeueText();
+            CustomMessage := LibraryVariableStorage.DequeueText();
+            FieldOperator := LibraryVariableStorage.DequeueInteger();
         end;
 
         // Navigate away from the Intro page.
-        ItemApprovalWFSetupWizard.NextPage.Invoke;
+        ItemApprovalWFSetupWizard.NextPage.Invoke();
 
         ItemApprovalWFSetupWizard."Approver ID".SetValue(UserSetup."User ID");
         ItemApprovalWFSetupWizard."App. Trigger".SetValue(ItemApprovalWFSetupWizard."App. Trigger".GetOption(TriggerOption));
 
-        ItemApprovalWFSetupWizard.NextPage.Invoke;
+        ItemApprovalWFSetupWizard.NextPage.Invoke();
 
         if TriggerOption = 1 then
-            ItemApprovalWFSetupWizard.Finish.Invoke
+            ItemApprovalWFSetupWizard.Finish.Invoke()
         else begin
             ItemApprovalWFSetupWizard.ItemFieldCap.SetValue(FieldCaption);
             ItemApprovalWFSetupWizard."Field Operator".SetValue(FieldOperator);
             ItemApprovalWFSetupWizard."Custom Message".SetValue(CustomMessage);
-            ItemApprovalWFSetupWizard.NextPage.Invoke;
-            ItemApprovalWFSetupWizard.Finish.Invoke;
+            ItemApprovalWFSetupWizard.NextPage.Invoke();
+            ItemApprovalWFSetupWizard.Finish.Invoke();
         end;
     end;
 
@@ -334,7 +334,7 @@ codeunit 139308 "Item App. Setup Wizard Tests"
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         if WorkflowStep.FindFirst() then begin
             WorkflowStepArgument.Get(WorkflowStep.Argument);
             WorkflowStepArgument.TestField("Approver Limit Type", WorkflowStepArgument."Approver Limit Type"::"Specific Approver");

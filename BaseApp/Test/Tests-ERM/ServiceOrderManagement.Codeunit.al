@@ -52,7 +52,7 @@ codeunit 136135 "Service Order Management"
         Clear(ExpectedDate);
         GlobalItemNo := '';
         GlobalQuantity := 0;
-        InitVariables;
+        InitVariables();
 
         if IsInitialized then
             exit;
@@ -64,7 +64,7 @@ codeunit 136135 "Service Order Management"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryTemplates.EnableTemplatesFeature();
 
-        LibraryERMCountryData.UpdateAccountInServiceCosts;
+        LibraryERMCountryData.UpdateAccountInServiceCosts();
         LibraryService.SetupServiceMgtNoSeries();
         IsInitialized := true;
         Commit();
@@ -83,13 +83,13 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Create Item with Item Tracking code and create Item Journal Line for the Item.
         Initialize();
-        CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode);
+        CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode());
 
         // 2. Exercise: Assign Serial No. on Item Journal Line and post it.
-        ItemJournal.OpenEdit;
+        ItemJournal.OpenEdit();
         ItemJournal.CurrentJnlBatchName.SetValue(ItemJournalLine."Journal Batch Name");
-        ItemJournal.ItemTrackingLines.Invoke;
-        ItemJournal.Post.Invoke;
+        ItemJournal.ItemTrackingLines.Invoke();
+        ItemJournal.Post.Invoke();
 
         // 3. Verify: Verify No. of Item Ledger Entry is the Quantity on Item Journal Line.
         VerifyItemLedgerEntry(ItemJournalLine."Item No.", ItemJournalLine.Quantity);
@@ -108,11 +108,11 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Create Service Order with Name, Address, City and Post Code.
         Initialize();
-        ServiceOrderNo := CreateHeaderWithNameAndAddress;
+        ServiceOrderNo := CreateHeaderWithNameAndAddress();
 
         // 2. Exercise: Create Customer from Service Order.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder."Create Customer".Invoke;
+        ServiceOrder."Create Customer".Invoke();
 
         // 3. Verify: Verify Customer created from Service Order.
         Customer.Get(ServiceOrder."Customer No.".Value);
@@ -186,7 +186,7 @@ codeunit 136135 "Service Order Management"
         // 1. Setup: Create Service Header.
         Initialize();
         LibraryInventory.CreateItem(Item);
-        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
+        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage();
 
         // 2. Exercise: Create Service Item Line with Item and Create Service Item from it.
         ServiceItemNo := CreateServiceItemLineWithItem(ServiceOrderNo, Item."No.");
@@ -221,7 +221,7 @@ codeunit 136135 "Service Order Management"
 
         // 2. Exercise: Open Service Item worksheet and run insert Starting Fee function.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
 
         // 3. Verify: Verify Service Line for Type Cost.
         VerifyCostOnServiceLine(ServiceLine2, ServiceCost);
@@ -255,7 +255,7 @@ codeunit 136135 "Service Order Management"
 
         // 2. Exercise: Open Service Item worksheet and run insert Travel Fee function.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
 
         // 3. Verify: Verify Service Line for Type Cost.
         VerifyCostOnServiceLine(ServiceLine2, ServiceCost);
@@ -284,12 +284,12 @@ codeunit 136135 "Service Order Management"
         CreateExtendedTextForItem(ExtendedTextHeader, Item."No.");
         ExtendedText := CreateExtendedTextLine(ExtendedTextHeader);
         ItemNo2 := Item."No.";  // Assign global variable for page handler.
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
 
         // 2. Exercise: Open Service Item worksheet, create line for Item and run insert Extended Text function.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
 
         // 3. Verify: Verify Extended Text on Service Item worksheet.
         Assert.AreEqual(ExtendedText, ExtendedText2, StrSubstNo(ExtendedTextError, ExtendedText));
@@ -339,7 +339,7 @@ codeunit 136135 "Service Order Management"
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
-        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
+        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage();
 
         // Assign global variables for page handlers.
         ItemNo2 := Item."No.";
@@ -353,8 +353,8 @@ codeunit 136135 "Service Order Management"
         // 2. Exercise: Open Service Item worksheet, select Copy Components as per parameter on Service Item Replacement page and
         // post the Order.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+        ServiceOrder.Post.Invoke();
 
         // 3. Verify: Verify created Service Item and its components.
         FindServiceItem(ServiceItem, ServiceOrderNo);
@@ -391,7 +391,7 @@ codeunit 136135 "Service Order Management"
         LibrarySales.SetStockoutWarning(false);
         LibraryInventory.CreateItem(Item);
         QuantityPer := CreateBOMComponent(Item."No.");
-        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
+        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage();
 
         // Assign global variables for page handlers.
         ItemNo2 := Item."No.";
@@ -405,8 +405,8 @@ codeunit 136135 "Service Order Management"
         // 2. Exercise: Open Service Item worksheet, select Copy Components as Item BOM on Service Item Replacement page and post the
         // Order.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+        ServiceOrder.Post.Invoke();
 
         // 3. Verify: Verify created Service Item and its components.
         FindServiceItem(ServiceItem, ServiceOrderNo);
@@ -434,7 +434,7 @@ codeunit 136135 "Service Order Management"
 
         // 1. Setup: Create Service Item, Service Header and Service Item Line.
         Initialize();
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
 
         // 2. Exercise: Delete Service Item Line.
@@ -468,14 +468,14 @@ codeunit 136135 "Service Order Management"
         Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
 
         // 2. Exercise: Create Comment for Service Order, open Service Item worksheet, create Line for Type Item and post the Order.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder."Co&mments".Invoke;
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-        ServiceOrder.Post.Invoke;
+        ServiceOrder."Co&mments".Invoke();
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+        ServiceOrder.Post.Invoke();
 
         // 3. Verify: Verify Comment on Service Shipment Header.
         VerifyCommentOnShipmentHeader(ServiceOrderNo, Comment);
@@ -501,13 +501,13 @@ codeunit 136135 "Service Order Management"
         Initialize();
         SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
 
         // 2. Exercise: Open Service Item worksheet, create Line for Type Item and post the Order.
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
-        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke;
-        ServiceOrder.Post.Invoke;
+        ServiceOrder.ServItemLines."Service Item Worksheet".Invoke();
+        ServiceOrder.Post.Invoke();
 
         // 3. Verify: Verify Posted Service Shipment line on Navigate page.
         VerifyPostedShipmentEntry(ServiceOrderNo);
@@ -532,7 +532,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, Item."No.", '', LibraryRandom.RandInt(100));  // Blank value taken for Location Code.
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
         ExpectedDate := ServiceLine."Needed by Date";  // Assign in global variable.
 
         // 3. Verify: Verify that date are same as in Service line. Verification done in 'AvailableToPromisePageHandler'
@@ -555,7 +555,7 @@ codeunit 136135 "Service Order Management"
         ExpectedDate := ServiceLine."Planned Delivery Date";  // Assign in global variable.
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
 
         // 3. Verify: Verify that date are same as in Service line. Verification done in 'CapableToPromisePageHandler'.
     end;
@@ -576,7 +576,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, Item."No.", '', LibraryRandom.RandInt(100));  // Blank value taken for Location Code.
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
         ExpectedDate := ServiceLine."Needed by Date";  // Assign in global variable.
 
         // 3. Verify: Verify that date are same as in Service line. Verification done in 'AcceptPageHandler'.
@@ -604,7 +604,7 @@ codeunit 136135 "Service Order Management"
         ExpectedDate := PurchaseLine."Expected Receipt Date";  // Assign in global variable.
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
 
         // 3. Verify: Verifyt dates on the Order Promising page. Verification done in 'AvailableToPromisePageHandler'
     end;
@@ -629,7 +629,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, Item."No.", Location.Code, LibraryRandom.RandInt(100));
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
         ExpectedDate := PurchaseLine."Expected Receipt Date";  // Assign in global variable.
 
         // 3. Verify: Verify dates on the Order Promising page. Verification done in 'AcceptPageHandler'.
@@ -657,7 +657,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, Item."No.", Location.Code, LibraryRandom.RandInt(100));
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
         ExpectedDate := PurchaseLine."Expected Receipt Date";  // Assign in global variable.
 
         // 3. Verify: Verify dates on the Order Promising page. Verification done in 'AvailableToPromisePageHandler'
@@ -685,7 +685,7 @@ codeunit 136135 "Service Order Management"
         CreateServiceLine(ServiceLine, Item."No.", Location.Code, LibraryRandom.RandInt(100));
 
         // 2. Exercise.
-        ServiceLine.ShowOrderPromisingLine;
+        ServiceLine.ShowOrderPromisingLine();
         ExpectedDate := PurchaseLine."Expected Receipt Date";  // Assign in global variable.
 
         // 3. Verify: Verify that dates on the Order Promising page. Verification done in 'AcceptPageHandler'.
@@ -1010,13 +1010,13 @@ codeunit 136135 "Service Order Management"
         BOMComponent: Record "BOM Component";
     begin
         LibraryManufacturing.CreateBOMComponent(
-          BOMComponent, ItemNo, BOMComponent.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10), '');
+          BOMComponent, ItemNo, BOMComponent.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '');
         exit(BOMComponent."Quantity per");
     end;
 
     local procedure CreateCustomer(): Code[20]
     begin
-        exit(LibrarySales.CreateCustomerNo);
+        exit(LibrarySales.CreateCustomerNo());
     end;
 
     local procedure CreateCustomerWithZoneCode(ServiceZoneCode: Code[10]): Code[20]
@@ -1055,13 +1055,13 @@ codeunit 136135 "Service Order Management"
     begin
         LibraryERM.CreatePostCode(PostCode);
         ServiceOrder.OpenNew();
-        ServiceOrder.Name.Activate;
+        ServiceOrder.Name.Activate();
         ServiceOrder.Name.SetValue(ServiceOrder."No.".Value);
         ServiceOrder.Address.SetValue(ServiceOrder."No.".Value + PostCode.City);
         ServiceOrder.City.SetValue(PostCode.City);
         ServiceOrder."Post Code".SetValue(PostCode.Code);
-        ServiceOrderNo := ServiceOrder."No.".Value;
-        ServiceOrder.OK.Invoke;
+        ServiceOrderNo := ServiceOrder."No.".Value();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -1094,8 +1094,8 @@ codeunit 136135 "Service Order Management"
         Item: Record Item;
     begin
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Item Tracking Code", FindItemTrackingCode);
-        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        Item.Validate("Item Tracking Code", FindItemTrackingCode());
+        Item.Validate("Serial Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         Item.Modify(true);
         exit(Item."No.");
     end;
@@ -1149,7 +1149,7 @@ codeunit 136135 "Service Order Management"
     local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; LocationCode: Code[10])
     begin
         with ServiceHeader do begin
-            Get("Document Type"::Order, LibraryService.CreateServiceOrderHeaderUsingPage);
+            Get("Document Type"::Order, LibraryService.CreateServiceOrderHeaderUsingPage());
             Validate("Customer No.", CustomerNo);
             Validate("Location Code", LocationCode);
             Modify(true);
@@ -1158,8 +1158,8 @@ codeunit 136135 "Service Order Management"
 
     local procedure CreateServiceItem(var ServiceItem: Record "Service Item")
     begin
-        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
-        ServiceItem.Validate("Item No.", CreateItemWithItemTrackingCode);
+        LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo());
+        ServiceItem.Validate("Item No.", CreateItemWithItemTrackingCode());
         ServiceItem.Modify(true);
     end;
 
@@ -1168,10 +1168,10 @@ codeunit 136135 "Service Order Management"
         ServiceOrder: TestPage "Service Order";
     begin
         OpenServiceOrder(ServiceOrder, No);
-        ServiceOrder."Customer No.".SetValue(CreateCustomer);
-        ServiceOrder.ServItemLines.New;
+        ServiceOrder."Customer No.".SetValue(CreateCustomer());
+        ServiceOrder.ServItemLines.New();
         ServiceOrder.ServItemLines."Item No.".SetValue(ItemNo);
-        ServiceOrder.ServItemLines."Create Service Item".Invoke;
+        ServiceOrder.ServItemLines."Create Service Item".Invoke();
         exit(ServiceOrder.ServItemLines.ServiceItemNo.Value);
     end;
 
@@ -1179,12 +1179,12 @@ codeunit 136135 "Service Order Management"
     var
         ServiceOrder: TestPage "Service Order";
     begin
-        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage;
+        ServiceOrderNo := LibraryService.CreateServiceOrderHeaderUsingPage();
         OpenServiceOrder(ServiceOrder, ServiceOrderNo);
         ServiceOrder."Customer No.".SetValue(ServiceItem."Customer No.");
         ServiceOrder.ServItemLines.ServiceItemNo.SetValue(ServiceItem."No.");
-        ServiceOrder.ServItemLines.New;
-        ServiceOrder.OK.Invoke;
+        ServiceOrder.ServItemLines.New();
+        ServiceOrder.OK().Invoke();
     end;
 
     local procedure CreateServiceOrderWithTrackedReplacementComponentOnTwoLocations(var ServiceLine: Record "Service Line"; var Location: array[2] of Record Location)
@@ -1351,7 +1351,7 @@ codeunit 136135 "Service Order Management"
     var
         ServiceHeader: Record "Service Header";
     begin
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.FILTER.SetFilter("Document Type", Format(ServiceHeader."Document Type"::Order));
         ServiceOrder.FILTER.SetFilter("No.", No);
     end;
@@ -1405,7 +1405,7 @@ codeunit 136135 "Service Order Management"
         ServiceCommentLine: Record "Service Comment Line";
         ServiceCommentSheet: TestPage "Service Comment Sheet";
     begin
-        ServiceCommentSheet.OpenView;
+        ServiceCommentSheet.OpenView();
         ServiceCommentSheet.FILTER.SetFilter("Table Name", Format(ServiceCommentLine."Table Name"::"Service Shipment Header"));
         ServiceCommentSheet.FILTER.SetFilter("No.", FindServiceShipmentHeader(OrderNo));
         ServiceCommentSheet.Comment.AssertEquals(Comment2);
@@ -1444,9 +1444,9 @@ codeunit 136135 "Service Order Management"
     var
         Navigate: TestPage Navigate;
     begin
-        Navigate.OpenEdit;
+        Navigate.OpenEdit();
         Navigate.DocNoFilter.SetValue(FindServiceShipmentHeader(OrderNo));
-        Navigate.Find.Invoke;
+        Navigate.Find.Invoke();
         Navigate."Table Name".AssertEquals(PostedServiceShipmentCaption);
         Navigate."No. of Records".AssertEquals(1);
     end;
@@ -1472,8 +1472,8 @@ codeunit 136135 "Service Order Management"
             LibraryUtility.GenerateRandomCode(ServiceCommentLine.FieldNo(Comment), DATABASE::"Service Comment Line"),
             1,
             LibraryUtility.GetFieldLength(DATABASE::"Service Comment Line", ServiceCommentLine.FieldNo(Comment))));
-        Comment := ServiceCommentSheet.Comment.Value;  // Assign global variable for verification.
-        ServiceCommentSheet.OK.Invoke;
+        Comment := ServiceCommentSheet.Comment.Value();  // Assign global variable for verification.
+        ServiceCommentSheet.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1497,11 +1497,11 @@ codeunit 136135 "Service Order Management"
     begin
         ServiceItemWorksheet.ServInvLines.Type.SetValue(ServiceLine2.Type::Item);
         ServiceItemWorksheet.ServInvLines."No.".SetValue(ItemNo2);
-        ServiceItemWorksheet.ServInvLines."Insert Ext. Texts".Invoke;
-        ServiceItemWorksheet.ServInvLines.Last;
+        ServiceItemWorksheet.ServInvLines."Insert Ext. Texts".Invoke();
+        ServiceItemWorksheet.ServInvLines.Last();
 
         // Assign global variable for verification.
-        ExtendedText2 := ServiceItemWorksheet.ServInvLines.Description.Value;
+        ExtendedText2 := ServiceItemWorksheet.ServInvLines.Description.Value();
     end;
 
     [MessageHandler]
@@ -1514,7 +1514,7 @@ codeunit 136135 "Service Order Management"
     [Scope('OnPrem')]
     procedure MessageVerificationHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [ModalPageHandler]
@@ -1524,30 +1524,30 @@ codeunit 136135 "Service Order Management"
         ServiceItemReplacement.NewSerialNo.SetValue(ItemNo2);
         ServiceItemReplacement.CopyComponents.SetValue(CopyComponentsFrom);
         ServiceItemReplacement.Replacement.SetValue(Replacement);
-        ServiceItemReplacement.OK.Invoke;
+        ServiceItemReplacement.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemReplacementPageHandler2(var ServiceItemReplacement: TestPage "Service Item Replacement")
     begin
-        ServiceItemReplacement.NewSerialNo.SetValue(LibraryVariableStorage.DequeueText);
-        ServiceItemReplacement.OK.Invoke;
+        ServiceItemReplacement.NewSerialNo.SetValue(LibraryVariableStorage.DequeueText());
+        ServiceItemReplacement.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     begin
-        ItemTrackingLines."Assign Serial No.".Invoke;
-        ItemTrackingLines.OK.Invoke;
+        ItemTrackingLines."Assign Serial No.".Invoke();
+        ItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure QuantityToCreatePageHandler(var EnterQuantityToCreate: TestPage "Enter Quantity to Create")
     begin
-        EnterQuantityToCreate.OK.Invoke;
+        EnterQuantityToCreate.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1575,7 +1575,7 @@ codeunit 136135 "Service Order Management"
     [Scope('OnPrem')]
     procedure StartingFeePageHandler(var ServiceItemWorksheet: TestPage "Service Item Worksheet")
     begin
-        ServiceItemWorksheet.ServInvLines."Insert Starting Fee".Invoke;
+        ServiceItemWorksheet.ServInvLines."Insert Starting Fee".Invoke();
 
         // Assign global variable for verification.
         UpdateLineFromItemWorksheet(ServiceItemWorksheet);
@@ -1592,7 +1592,7 @@ codeunit 136135 "Service Order Management"
     [Scope('OnPrem')]
     procedure TravelFeePageHandler(var ServiceItemWorksheet: TestPage "Service Item Worksheet")
     begin
-        ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke;
+        ServiceItemWorksheet.ServInvLines."Insert Travel Fee".Invoke();
 
         // Assign global variable for verification.
         UpdateLineFromItemWorksheet(ServiceItemWorksheet);
@@ -1602,19 +1602,19 @@ codeunit 136135 "Service Order Management"
     [Scope('OnPrem')]
     procedure AvailableToPromisePageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.AvailableToPromise.Invoke;
+        OrderPromisingLines.AvailableToPromise.Invoke();
         OrderPromisingLines."Planned Delivery Date".AssertEquals(ExpectedDate);
         OrderPromisingLines."Earliest Shipment Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.OK.Invoke;
+        OrderPromisingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CapableToPromisePageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
-        OrderPromisingLines.CapableToPromise.Invoke;
+        OrderPromisingLines.CapableToPromise.Invoke();
         OrderPromisingLines."Original Shipment Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.OK.Invoke;
+        OrderPromisingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1622,7 +1622,7 @@ codeunit 136135 "Service Order Management"
     procedure AcceptPageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
     begin
         OrderPromisingLines."Planned Delivery Date".AssertEquals(ExpectedDate);
-        OrderPromisingLines.AcceptButton.Invoke;
+        OrderPromisingLines.AcceptButton.Invoke();
     end;
 
     [ModalPageHandler]

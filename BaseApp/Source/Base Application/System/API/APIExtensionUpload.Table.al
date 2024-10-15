@@ -4,6 +4,8 @@ using System.Apps;
 
 table 5447 "API Extension Upload"
 {
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; Id; Integer)

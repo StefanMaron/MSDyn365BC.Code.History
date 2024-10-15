@@ -30,36 +30,34 @@ codeunit 1011 "Job Jnl.-Check Line"
         Text001: Label 'is not within your range of allowed posting dates.';
         CombinationBlockedErr: Label 'The combination of dimensions used in %1 %2, %3, %4 is blocked. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
         DimensionCausedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error. %5.', Comment = '%1 = table name, %2 = template name, %3 = batch name, %4 = line no., %5 - error text';
-        Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post job journal %5 %6 = %7.', Comment = '%1=Item;%2=JobJnlline."No.";%3=Job;%4=JobJnlline."Job No.";%5=JobJnlline."Journal Batch Name";%6="Line No";%7=JobJnlline."Line No."';
-        WhseRemainQtyPickedErr: Label 'You cannot post usage for job number %1 with job planning line %2 because a quantity of %3 remains to be picked.', Comment = '%1 = 12345, %2 = 1000, %3 = 5';
+        Text004: Label 'You must post more usage of %1 %2 in %3 %4 before you can post project journal %5 %6 = %7.', Comment = '%1=Item;%2=ProjectJnlline."No.";%3=Project;%4=ProjectJnlline."Project No.";%5=ProjectJnlline."Journal Batch Name";%6="Line No";%7=ProjectJnlline."Line No."';
+        WhseRemainQtyPickedErr: Label 'You cannot post usage for project number %1 with project planning line %2 because a quantity of %3 remains to be picked.', Comment = '%1 = 12345, %2 = 1000, %3 = 5';
 
     procedure RunCheck(var JobJnlLine: Record "Job Journal Line")
     begin
         OnBeforeRunCheck(JobJnlLine);
 
-        with JobJnlLine do begin
-            if EmptyLine() then
-                exit;
+        if JobJnlLine.EmptyLine() then
+            exit;
 
-            TestJobJnlLine(JobJnlLine);
+        TestJobJnlLine(JobJnlLine);
 
-            TestJobStatusOpen(JobJnlLine);
+        TestJobStatusOpen(JobJnlLine);
 
-            CheckPostingDate(JobJnlLine);
+        CheckPostingDate(JobJnlLine);
 
-            CheckDocumentDate(JobJnlLine);
+        CheckDocumentDate(JobJnlLine);
 
-            if "Time Sheet No." <> '' then
-                TimeSheetMgt.CheckJobJnlLine(JobJnlLine);
+        if JobJnlLine."Time Sheet No." <> '' then
+            TimeSheetMgt.CheckJobJnlLine(JobJnlLine);
 
-            CheckDim(JobJnlLine);
+        CheckDim(JobJnlLine);
 
-            CheckItemQuantityAndBinCode(JobJnlLine);
+        CheckItemQuantityAndBinCode(JobJnlLine);
 
-            TestJobJnlLineChargeable(JobJnlLine);
+        TestJobJnlLineChargeable(JobJnlLine);
 
-            CheckWhseQtyPicked(JobJnlLine);
-        end;
+        CheckWhseQtyPicked(JobJnlLine);
 
         OnAfterRunCheck(JobJnlLine);
     end;
@@ -114,9 +112,8 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with JobJnlLine do
-            if "Line Type" in ["Line Type"::Billable, "Line Type"::"Both Budget and Billable"] then
-                TestField(Chargeable, true, ErrorInfo.Create());
+        if JobJnlLine."Line Type" in [JobJnlLine."Line Type"::Billable, JobJnlLine."Line Type"::"Both Budget and Billable"] then
+            JobJnlLine.TestField(Chargeable, true, ErrorInfo.Create());
     end;
 
     local procedure CheckDocumentDate(JobJnlLine: Record "Job Journal Line")
@@ -128,9 +125,8 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with JobJnlLine do
-            if ("Document Date" <> 0D) and ("Document Date" <> NormalDate("Document Date")) then
-                FieldError("Document Date", ErrorInfo.Create(Text000, true));
+        if (JobJnlLine."Document Date" <> 0D) and (JobJnlLine."Document Date" <> NormalDate(JobJnlLine."Document Date")) then
+            JobJnlLine.FieldError("Document Date", ErrorInfo.Create(Text000, true));
     end;
 
     local procedure CheckPostingDate(JobJnlLine: Record "Job Journal Line")
@@ -143,12 +139,10 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with JobJnlLine do begin
-            if NormalDate("Posting Date") <> "Posting Date" then
-                FieldError("Posting Date", ErrorInfo.Create(Text000, true));
-            if not UserSetupManagement.IsPostingDateValid("Posting Date") then
-                FieldError("Posting Date", ErrorInfo.Create(Text001, true));
-        end;
+        if NormalDate(JobJnlLine."Posting Date") <> JobJnlLine."Posting Date" then
+            JobJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text000, true));
+        if not UserSetupManagement.IsPostingDateValid(JobJnlLine."Posting Date") then
+            JobJnlLine.FieldError("Posting Date", ErrorInfo.Create(Text001, true));
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -171,34 +165,32 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with JobJnlLine do begin
-            if not DimMgt.CheckDimIDComb("Dimension Set ID") then
+        if not DimMgt.CheckDimIDComb(JobJnlLine."Dimension Set ID") then
+            Error(
+                CombinationBlockedErr,
+                JobJnlLine.TableCaption(), JobJnlLine."Journal Template Name", JobJnlLine."Journal Batch Name", JobJnlLine."Line No.",
+                DimMgt.GetDimCombErr());
+
+        TableID[1] := DATABASE::Job;
+        No[1] := JobJnlLine."Job No.";
+        TableID[2] := DimMgt.TypeToTableID2(JobJnlLine.Type.AsInteger());
+        No[2] := JobJnlLine."No.";
+        TableID[3] := DATABASE::"Resource Group";
+        No[3] := JobJnlLine."Resource Group No.";
+        TableID[4] := Database::Location;
+        No[4] := JobJnlLine."Location Code";
+        OnCheckDimOnAfterCreateDimTableID(JobJnlLine, TableID, No);
+
+        if not DimMgt.CheckDimValuePosting(TableID, No, JobJnlLine."Dimension Set ID") then begin
+            if JobJnlLine."Line No." <> 0 then
                 Error(
-                  CombinationBlockedErr,
-                  TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                  DimMgt.GetDimCombErr());
-
-            TableID[1] := DATABASE::Job;
-            No[1] := "Job No.";
-            TableID[2] := DimMgt.TypeToTableID2(Type.AsInteger());
-            No[2] := "No.";
-            TableID[3] := DATABASE::"Resource Group";
-            No[3] := "Resource Group No.";
-            TableID[4] := Database::Location;
-            No[4] := "Location Code";
-            OnCheckDimOnAfterCreateDimTableID(JobJnlLine, TableID, No);
-
-            if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then begin
-                if "Line No." <> 0 then
-                    Error(
-                        ErrorInfo.Create(
-                            StrSubstNo(
-                                DimensionCausedErr,
-                                TableCaption, "Journal Template Name", "Journal Batch Name", "Line No.",
-                                DimMgt.GetDimValuePostingErr()),
-                            true));
-                Error(ErrorInfo.Create(DimMgt.GetDimValuePostingErr(), true));
-            end;
+                    ErrorInfo.Create(
+                        StrSubstNo(
+                            DimensionCausedErr,
+                            JobJnlLine.TableCaption(), JobJnlLine."Journal Template Name", JobJnlLine."Journal Batch Name", JobJnlLine."Line No.",
+                            DimMgt.GetDimValuePostingErr()),
+                        true));
+            Error(ErrorInfo.Create(DimMgt.GetDimValuePostingErr(), true));
         end;
     end;
 
@@ -242,8 +234,8 @@ codeunit 1011 "Job Jnl.-Check Line"
 
         if WhseValidateSourceLine.IsWhsePickRequiredForJobJnlLine(JobJournalLine) or WhseValidateSourceLine.IsInventoryPickRequiredForJobJnlLine(JobJournalLine) then
             if not CalledFromInvtPutawayPick then
-                if JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") and (JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. Posted" < JobJournalLine.Quantity) then
-                    JobPlanningLine.FieldError("Qty. Picked", ErrorInfo.Create(StrSubstNo(WhseRemainQtyPickedErr, JobPlanningLine."Job No.", JobPlanningLine."Line No.", JobJournalLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked"), true));
+                if JobPlanningLine.Get(JobJournalLine."Job No.", JobJournalLine."Job Task No.", JobJournalLine."Job Planning Line No.") and (JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. Posted" < JobJournalLine.Quantity - JobPlanningLine."Qty. to Assemble") then
+                    JobPlanningLine.FieldError("Qty. Picked", ErrorInfo.Create(StrSubstNo(WhseRemainQtyPickedErr, JobPlanningLine."Job No.", JobPlanningLine."Line No.", JobJournalLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. to Assemble"), true));
     end;
 
     local procedure TestJobJnlLine(JobJournalLine: Record "Job Journal Line")
@@ -255,13 +247,11 @@ codeunit 1011 "Job Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        with JobJournalLine do begin
-            TestField("Job No.", ErrorInfo.Create());
-            TestField("Job Task No.", ErrorInfo.Create());
-            TestField("No.", ErrorInfo.Create());
-            TestField("Posting Date", ErrorInfo.Create());
-            TestField(Quantity, ErrorInfo.Create());
-        end;
+        JobJournalLine.TestField("Job No.", ErrorInfo.Create());
+        JobJournalLine.TestField("Job Task No.", ErrorInfo.Create());
+        JobJournalLine.TestField("No.", ErrorInfo.Create());
+        JobJournalLine.TestField("Posting Date", ErrorInfo.Create());
+        JobJournalLine.TestField(Quantity, ErrorInfo.Create());
     end;
 
     [IntegrationEvent(false, false)]

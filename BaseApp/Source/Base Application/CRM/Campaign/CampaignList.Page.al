@@ -181,7 +181,7 @@ page 5087 "Campaign List"
                     RunPageView = sorting("Campaign No.");
                     ToolTip = 'View sales opportunities handled by salespeople.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Sales &Prices")
                 {
                     ApplicationArea = RelationshipMgmt;
@@ -276,7 +276,7 @@ page 5087 "Campaign List"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -388,7 +388,7 @@ page 5087 "Campaign List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 4.';
 
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Sales &Prices_Promoted"; "Sales &Prices")
                 {
                     ObsoleteState = Pending;
@@ -402,7 +402,7 @@ page 5087 "Campaign List"
                 actionref(PriceLines_Promoted; PriceLines)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Sales &Line Discounts_Promoted"; "Sales &Line Discounts")
                 {
                     ObsoleteState = Pending;

@@ -38,7 +38,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -80,7 +80,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The External Accountant plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -125,7 +125,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
 
         // [THEN] An error is raised
@@ -151,7 +151,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Essential ISV Emb Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -196,7 +196,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CreateVendorCustomerAndItemWithLIFOCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member ISV Emb
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreateAndPostPurchaseInvoices(VendorNo, ItemNo, InventoryGLAccount);
 
         // [THEN] An error is raised
@@ -222,7 +222,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Device ISV Emb Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -263,7 +263,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Business Manager plan
-        LibraryE2EPlanPermissions.SetBusinessManagerPlan;
+        LibraryE2EPlanPermissions.SetBusinessManagerPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -302,7 +302,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The External Accountant plan
-        LibraryE2EPlanPermissions.SetExternalAccountantPlan;
+        LibraryE2EPlanPermissions.SetExternalAccountantPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -345,7 +345,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member
-        LibraryE2EPlanPermissions.SetTeamMemberPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberPlan();
         asserterror CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
 
         // [THEN] A permission error is raised
@@ -370,7 +370,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Essential ISV Emb Plan
-        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetEssentialISVEmbUserPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -413,7 +413,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CreateVendorCustomerAndItemWithStandardCosting(VendorNo, CustomerNo, ItemNo);
 
         // [WHEN] Creating and posting purchase orders as team member ISV Emb
-        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan;
+        LibraryE2EPlanPermissions.SetTeamMemberISVEmbPlan();
         asserterror CreateAndPostPurchaseInvoices(VendorNo, ItemNo, VarianceGLAccount);
 
         // [THEN] A permission error is raised
@@ -438,7 +438,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         Initialize();
 
         // [GIVEN] The Device ISV Emb Plan
-        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan;
+        LibraryE2EPlanPermissions.SetDeviceISVEmbUserPlan();
 
         // [GIVEN] An inventory, cogs and variance account
         SetupVarianceInventoryAndCOGSAccount(InventoryGLAccount, COGSGLAccount, VarianceGLAccount);
@@ -469,7 +469,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
-        LibraryNotificationMgt.ClearTemporaryNotificationContext;
+        LibraryNotificationMgt.ClearTemporaryNotificationContext();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         if IsInitialized then
@@ -478,11 +478,11 @@ codeunit 135409 "Item Costing Plan-based E2E"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
         LibraryTemplates.EnableTemplatesFeature();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
 
         LibraryInventory.SetAutomaticCostPosting(true);
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
@@ -496,15 +496,15 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
     local procedure CreateVendorCustomerAndItemWithLIFOCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20])
     begin
-        VendorNo := CreateVendor;
-        CustomerNo := CreateCustomer;
+        VendorNo := CreateVendor();
+        CustomerNo := CreateCustomer();
         ItemNo := CreateItemLIFOCosting(200);
     end;
 
     local procedure CreateVendorCustomerAndItemWithStandardCosting(var VendorNo: Code[20]; var CustomerNo: Code[20]; var ItemNo: Code[20])
     begin
-        VendorNo := CreateVendor;
-        CustomerNo := CreateCustomer;
+        VendorNo := CreateVendor();
+        CustomerNo := CreateCustomer();
         ItemNo := CreateItemStandardCosting(200, 70);
     end;
 
@@ -580,13 +580,13 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
         CreatePurchaseInvoiceLine(PurchaseInvoice, Format(PurchaseLine.Type::Item), ItemNo, Quantity, DirectUnitCost);
 
-        PurchaseInvoiceNo := PurchaseInvoice."No.".Value;
-        PurchaseInvoice.OK.Invoke;
+        PurchaseInvoiceNo := PurchaseInvoice."No.".Value();
+        PurchaseInvoice.OK().Invoke();
     end;
 
     local procedure CreatePurchaseInvoiceLine(var PurchaseInvoice: TestPage "Purchase Invoice"; Type: Text; No: Code[20]; Quantity: Integer; DirectUnitCost: Decimal)
     begin
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Type);
         PurchaseInvoice.PurchLines."No.".SetValue(No);
         PurchaseInvoice.PurchLines.Quantity.SetValue(Quantity);
@@ -598,9 +598,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
         PurchaseHeader: Record "Purchase Header";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenEdit;
+        PurchaseInvoice.OpenEdit();
         PurchaseInvoice.GotoKey(PurchaseHeader."Document Type"::Invoice, PurchaseInvoiceNo);
-        PurchaseInvoice.Post.Invoke;
+        PurchaseInvoice.Post.Invoke();
     end;
 
     local procedure CreateSalesInvoice(CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Integer) SalesInvoiceNo: Code[20]
@@ -614,13 +614,13 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CreateSalesInvoiceLine(
           SalesInvoice, Format(SalesLine.Type::Item), ItemNo, Quantity, LibraryRandom.RandDecInRange(10, 100, 2));
 
-        SalesInvoiceNo := SalesInvoice."No.".Value;
-        SalesInvoice.OK.Invoke;
+        SalesInvoiceNo := SalesInvoice."No.".Value();
+        SalesInvoice.OK().Invoke();
     end;
 
     local procedure CreateSalesInvoiceLine(var SalesInvoice: TestPage "Sales Invoice"; Type: Text; No: Code[20]; Quantity: Integer; UnitPrice: Decimal)
     begin
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(Type);
         SalesInvoice.SalesLines."No.".SetValue(No);
         SalesInvoice.SalesLines.Quantity.SetValue(Quantity);
@@ -634,9 +634,9 @@ codeunit 135409 "Item Costing Plan-based E2E"
     begin
         AccountBalanceDelta := GetAccountBalance(AccountNo);
 
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, SalesInvoiceNo);
-        SalesInvoice.Post.Invoke;
+        SalesInvoice.Post.Invoke();
 
         AccountBalanceDelta := GetAccountBalance(AccountNo) - AccountBalanceDelta;
     end;
@@ -664,8 +664,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
         VendorCard.OpenNew();
         VendorCard.Name.SetValue(VendorName);
-        VendorNo := VendorCard."No.".Value;
-        VendorCard.OK.Invoke;
+        VendorNo := VendorCard."No.".Value();
+        VendorCard.OK().Invoke();
     end;
 
     local procedure CreateCustomer() CustomerNo: Code[20]
@@ -677,8 +677,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
         CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(CustomerName);
-        CustomerNo := CustomerCard."No.".Value;
-        CustomerCard.OK.Invoke;
+        CustomerNo := CustomerCard."No.".Value();
+        CustomerCard.OK().Invoke();
     end;
 
     local procedure CreateItemLIFOCosting(UnitPrice: Decimal) ItemNo: Code[20]
@@ -692,8 +692,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         ItemCard.Description.SetValue(Description);
         ItemCard."Costing Method".SetValue(Item."Costing Method"::LIFO);
         ItemCard."Unit Price".SetValue(UnitPrice);
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
     end;
 
     local procedure CreateItemStandardCosting(UnitPrice: Decimal; StandardCost: Decimal) ItemNo: Code[20]
@@ -708,8 +708,8 @@ codeunit 135409 "Item Costing Plan-based E2E"
         ItemCard."Costing Method".SetValue(Item."Costing Method"::Standard);
         ItemCard."Standard Cost".SetValue(StandardCost);
         ItemCard."Unit Price".SetValue(UnitPrice);
-        ItemNo := ItemCard."No.".Value;
-        ItemCard.OK.Invoke;
+        ItemNo := ItemCard."No.".Value();
+        ItemCard.OK().Invoke();
     end;
 
     [ModalPageHandler]

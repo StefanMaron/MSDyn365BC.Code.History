@@ -226,32 +226,30 @@ codeunit 99000886 "Capable to Promise"
         if IsHandled then
             exit(Result);
 
-        with PlanningComponent do begin
-            SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
-            SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
-            SetRange("Worksheet Line No.", ReqLine."Line No.");
-            if FindSet() then
-                repeat
-                    if ("Supplied-by Line No." = 0) and Critical then begin
-                        if ValidateCapableToPromise(
-                             CompReqLine, "Item No.", "Variant Code", "Location Code", "Due Date",
-                             "Expected Quantity", "Unit of Measure Code", PeriodType, DueDateOfReqLine)
-                        then
-                            PlngComponentReserve.BindToRequisition(
-                              PlanningComponent, CompReqLine, CompReqLine.Quantity, CompReqLine."Quantity (Base)")
-                        else begin
-                            OrderPromisingLineNo := OrderPromisingLineNo - 1;
-                            exit(false);
+        PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
+        if PlanningComponent.FindSet() then
+            repeat
+                if (PlanningComponent."Supplied-by Line No." = 0) and PlanningComponent.Critical then begin
+                    if ValidateCapableToPromise(
+                         CompReqLine, PlanningComponent."Item No.", PlanningComponent."Variant Code", PlanningComponent."Location Code", PlanningComponent."Due Date",
+                         PlanningComponent."Expected Quantity", PlanningComponent."Unit of Measure Code", PeriodType, DueDateOfReqLine)
+                    then
+                        PlngComponentReserve.BindToRequisition(
+                          PlanningComponent, CompReqLine, CompReqLine.Quantity, CompReqLine."Quantity (Base)")
+                    else begin
+                        OrderPromisingLineNo := OrderPromisingLineNo - 1;
+                        exit(false);
+                    end;
+                end else
+                    if PlanningComponent."Supplied-by Line No." > 0 then
+                        if ReqLine2.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", PlanningComponent."Supplied-by Line No.") then begin
+                            IsValidDate := CheckDerivedDemandCTP(ReqLine2, PeriodType);
+                            if not IsValidDate or (ReqLine2."Starting Date" < OrderPromisingStart) then
+                                exit(false);
                         end;
-                    end else
-                        if "Supplied-by Line No." > 0 then
-                            if ReqLine2.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name", "Supplied-by Line No.") then begin
-                                IsValidDate := CheckDerivedDemandCTP(ReqLine2, PeriodType);
-                                if not IsValidDate or (ReqLine2."Starting Date" < OrderPromisingStart) then
-                                    exit(false);
-                            end;
-                until Next() = 0
-        end;
+            until PlanningComponent.Next() = 0;
         exit(true);
     end;
 
@@ -267,19 +265,17 @@ codeunit 99000886 "Capable to Promise"
         if IsHandled then
             exit(Result);
 
-        with ReqLine do begin
-            TestField("Replenishment System", "Replenishment System"::Transfer);
-            Item.Get("No.");
-            if Item.Critical then
-                if not
-                   ValidateCapableToPromise(
-                     RequisitionLine, "No.", "Variant Code", "Transfer-from Code", "Transfer Shipment Date",
-                     Quantity, "Unit of Measure Code", PeriodType, DueDateOfReqLine)
-                then begin
-                    OrderPromisingLineNo := OrderPromisingLineNo - 1;
-                    exit(false);
-                end;
-        end;
+        ReqLine.TestField("Replenishment System", ReqLine."Replenishment System"::Transfer);
+        Item.Get(ReqLine."No.");
+        if Item.Critical then
+            if not
+               ValidateCapableToPromise(
+                 RequisitionLine, ReqLine."No.", ReqLine."Variant Code", ReqLine."Transfer-from Code", ReqLine."Transfer Shipment Date",
+                 ReqLine.Quantity, ReqLine."Unit of Measure Code", PeriodType, DueDateOfReqLine)
+            then begin
+                OrderPromisingLineNo := OrderPromisingLineNo - 1;
+                exit(false);
+            end;
         exit(true);
     end;
 
@@ -297,14 +293,14 @@ codeunit 99000886 "Capable to Promise"
 
     local procedure SetOrderPromisingParameters(var LocOrderPromisingID: Code[20]; LocSourceLineNo: Integer; PeriodLengthFormula: DateFormula)
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         CompanyInfo.Get();
         OrderPromisingSetup.Get();
         OrderPromisingSetup.TestField("Order Promising Template");
         OrderPromisingSetup.TestField("Order Promising Worksheet");
         if LocOrderPromisingID = '' then begin
-            LocOrderPromisingID := NoSeriesMgt.GetNextNo(OrderPromisingSetup."Order Promising Nos.", WorkDate(), true);
+            LocOrderPromisingID := NoSeries.GetNextNo(OrderPromisingSetup."Order Promising Nos.", WorkDate());
             OrderPromisingLineNo := 1;
         end else
             OrderPromisingLineNo := GetNextOrderPromisingLineNo();
@@ -318,21 +314,19 @@ codeunit 99000886 "Capable to Promise"
     var
         ReqLine: Record "Requisition Line";
     begin
-        with ReqLine do begin
-            SetCurrentKey("Order Promising ID", "Order Promising Line ID", "Order Promising Line No.");
-            SetRange("Order Promising ID", OrderPromisingID);
-            if SourceLineNo <> 0 then
-                SetRange("Order Promising Line ID", SourceLineNo);
-            if LastGoodLineNo <> 0 then
-                SetFilter("Order Promising Line No.", '>=%1', LastGoodLineNo);
-            if FilterOnNonAccepted then
-                SetRange("Accept Action Message", false);
-            if Find('-') then
-                repeat
-                    DeleteMultiLevel();
-                    Delete(true);
-                until Next() = 0;
-        end;
+        ReqLine.SetCurrentKey("Order Promising ID", ReqLine."Order Promising Line ID", ReqLine."Order Promising Line No.");
+        ReqLine.SetRange("Order Promising ID", OrderPromisingID);
+        if SourceLineNo <> 0 then
+            ReqLine.SetRange("Order Promising Line ID", SourceLineNo);
+        if LastGoodLineNo <> 0 then
+            ReqLine.SetFilter("Order Promising Line No.", '>=%1', LastGoodLineNo);
+        if FilterOnNonAccepted then
+            ReqLine.SetRange("Accept Action Message", false);
+        if ReqLine.Find('-') then
+            repeat
+                ReqLine.DeleteMultiLevel();
+                ReqLine.Delete(true);
+            until ReqLine.Next() = 0;
     end;
 
     local procedure GetCumulativeATP(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; DueDate: Date; UnitOfMeasureCode: Code[10]; PeriodType: Enum "Analysis Period Type") Result: Decimal
@@ -381,35 +375,46 @@ codeunit 99000886 "Capable to Promise"
     var
         MfgSetup: Record "Manufacturing Setup";
         RequisitionLine: Record "Requisition Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
         NewRefOrderNo: Code[20];
         LastRefOrderNo: Code[20];
     begin
-        with RequisitionLine do begin
-            SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
-            SetRange("Order Promising ID", OrderPromisingID);
-            SetRange("Ref. Order Type", "Ref. Order Type"::"Prod. Order");
-            SetRange("Ref. Order Status", "Ref. Order Status"::Planned);
-            SetFilter("Ref. Order No.", '<>%1', '');
-            if not FindLast() then
-                exit;
-            LastRefOrderNo := "Ref. Order No.";
+        RequisitionLine.SetCurrentKey("Ref. Order Type", "Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
+        RequisitionLine.SetRange("Order Promising ID", OrderPromisingID);
+        RequisitionLine.SetRange("Ref. Order Type", RequisitionLine."Ref. Order Type"::"Prod. Order");
+        RequisitionLine.SetRange("Ref. Order Status", RequisitionLine."Ref. Order Status"::Planned);
+        RequisitionLine.SetFilter("Ref. Order No.", '<>%1', '');
+        if not RequisitionLine.FindLast() then
+            exit;
+        LastRefOrderNo := RequisitionLine."Ref. Order No.";
 
-            MfgSetup.Get();
-            MfgSetup.TestField("Planned Order Nos.");
+        MfgSetup.Get();
+        MfgSetup.TestField("Planned Order Nos.");
 
-            SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
-            Find('-');
-            repeat
-                SetRange("Ref. Order No.", "Ref. Order No.");
-                FindLast();
-                NewRefOrderNo := '';
-                NoSeriesMgt.InitSeries(
-                  MfgSetup."Planned Order Nos.", "No. Series", "Due Date", NewRefOrderNo, "No. Series");
-                ModifyAll("Ref. Order No.", NewRefOrderNo);
-                SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
-            until Next() = 0;
-        end;
+        RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
+        RequisitionLine.Find('-');
+        repeat
+            RequisitionLine.SetRange("Ref. Order No.", RequisitionLine."Ref. Order No.");
+            RequisitionLine.FindLast();
+            NewRefOrderNo := '';
+#if not CLEAN24
+            NoSeriesManagement.RaiseObsoleteOnBeforeInitSeries(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series", RequisitionLine."Due Date", NewRefOrderNo, RequisitionLine."No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+                if not NoSeries.AreRelated(MfgSetup."Planned Order Nos.", RequisitionLine."No. Series") then
+                    RequisitionLine."No. Series" := MfgSetup."Planned Order Nos.";
+                NewRefOrderNo := NoSeries.GetNextNo(RequisitionLine."No. Series", RequisitionLine."Due Date");
+#if not CLEAN24
+                NoSeriesManagement.RaiseObsoleteOnAfterInitSeries(RequisitionLine."No. Series", MfgSetup."Planned Order Nos.", RequisitionLine."Due Date", NewRefOrderNo);
+            end;
+#endif
+            RequisitionLine.ModifyAll("Ref. Order No.", NewRefOrderNo);
+            RequisitionLine.SetFilter("Ref. Order No.", '<>%1&<=%2', '', LastRefOrderNo);
+        until RequisitionLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -4,6 +4,7 @@ table 8632 "Config. Record For Processing"
 {
     Caption = 'Config. Record For Processing';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

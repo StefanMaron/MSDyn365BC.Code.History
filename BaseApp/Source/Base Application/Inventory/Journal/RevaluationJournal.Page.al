@@ -622,15 +622,6 @@ page 5803 "Revaluation Journal"
                 actionref("Calculate Inventory Value_Promoted"; "Calculate Inventory Value")
                 {
                 }
-#if not CLEAN21
-                actionref("Calculate Inventory Value - Test_Promoted"; "Calculate Inventory Value - Test")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 group(Category_Category5)
                 {
                     Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 4.';
@@ -659,24 +650,6 @@ page 5803 "Revaluation Journal"
             {
                 Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref("Value Entries_Promoted"; "Value Entries")
                 {
                 }

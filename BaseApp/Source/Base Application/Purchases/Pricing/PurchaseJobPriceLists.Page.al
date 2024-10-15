@@ -1,6 +1,6 @@
 namespace Microsoft.Purchases.Pricing;
 
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Pricing.Calculation;
 #endif
 using Microsoft.Pricing.PriceList;
@@ -8,7 +8,7 @@ using Microsoft.Pricing.Source;
 
 page 7020 "Purchase Job Price Lists"
 {
-    Caption = 'Purchase Job Price Lists';
+    Caption = 'Purchase Project Price Lists';
     CardPageID = "Purchase Price List";
     Editable = false;
     PageType = List;
@@ -66,7 +66,7 @@ page 7020 "Purchase Job Price Lists"
                     ApplicationArea = Jobs;
                     Caption = 'Assign-to Group';
                     Visible = false;
-                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or jobs.';
+                    ToolTip = 'Specifies whether the prices come from groups of customers, vendors or projects.';
                 }
                 field(SourceType; CurrRec."Source Type")
                 {
@@ -83,8 +83,8 @@ page 7020 "Purchase Job Price Lists"
                 field(ParentSourceNo; CurrRec."Parent Source No.")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Assign-to Job No.';
-                    ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
+                    Caption = 'Assign-to Project No.';
+                    ToolTip = 'Specifies the project to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Starting Date"; CurrRec."Starting Date")
                 {
@@ -124,7 +124,7 @@ page 7020 "Purchase Job Price Lists"
             }
         }
     }
-#if not CLEAN21
+#if not CLEAN23
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";

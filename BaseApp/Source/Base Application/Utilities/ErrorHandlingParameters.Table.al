@@ -7,9 +7,7 @@ using Microsoft.Service.Document;
 table 9080 "Error Handling Parameters"
 {
     DataClassification = SystemMetadata;
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
 
     fields
     {

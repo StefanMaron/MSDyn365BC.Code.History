@@ -33,6 +33,7 @@ table 311 "Sales & Receivables Setup"
     Caption = 'Sales & Receivables Setup';
     DrillDownPageID = "Sales & Receivables Setup";
     LookupPageID = "Sales & Receivables Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -662,7 +663,7 @@ table 311 "Sales & Receivables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN21
+#if not CLEAN23
 
             trigger OnValidate()
             var
@@ -723,12 +724,13 @@ table 311 "Sales & Receivables Setup"
             TableRelation = "No. Series".Code;
 
             trigger OnValidate()
+            var
+                NoSeries: Codeunit "No. Series";
             begin
                 if "Reference Nos." <> '' then begin
                     NoSeriesLine.LockTable();
-                    NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, "Reference Nos.", WorkDate());
 
-                    if not NoSeriesLine.FindFirst() then begin
+                    if not NoSeries.GetNoSeriesLine(NoSeriesLine, "Reference Nos.", WorkDate(), true) then begin
                         NoSeriesLine.SetRange("Starting Date");
                         if not NoSeriesLine.FindFirst() then
                             Error(Text1090000, "Reference Nos.", WorkDate());
@@ -762,7 +764,6 @@ table 311 "Sales & Receivables Setup"
 
     var
         NoSeriesLine: Record "No. Series Line";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         TestNo: Decimal;
         Text1090000: Label 'You cannot assign new numbers from the number series %1 on %2.';
         Text1090001: Label 'Illegal characters in No. Series %1; only numbers between 0-9 allowed.';

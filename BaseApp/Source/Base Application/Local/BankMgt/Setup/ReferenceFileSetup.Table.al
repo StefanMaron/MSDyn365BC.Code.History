@@ -13,6 +13,7 @@ using System.Telemetry;
 table 32000000 "Reference File Setup"
 {
     Caption = 'Reference File Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

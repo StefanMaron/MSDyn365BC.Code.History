@@ -11,6 +11,7 @@ table 32000003 "Foreign Payment Types"
 {
     Caption = 'Foreign Payment Types';
     LookupPageID = "Payment Method Codes";
+    DataClassification = CustomerContent;
 
     fields
     {

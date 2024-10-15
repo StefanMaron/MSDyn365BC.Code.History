@@ -30,47 +30,45 @@ report 1498 "Date Compress Bank Acc. Ledger"
             trigger OnAfterGetRecord()
             begin
                 BankAccLedgEntry2 := "Bank Account Ledger Entry";
-                with BankAccLedgEntry2 do begin
-                    SetCurrentKey("Bank Account No.", "Posting Date");
-                    CopyFilters("Bank Account Ledger Entry");
-                    SetRange("Bank Account No.", "Bank Account No.");
-                    SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
-                    SetRange("Bank Acc. Posting Group", "Bank Acc. Posting Group");
-                    SetRange("Currency Code", "Currency Code");
-                    SetRange("Document Type", "Document Type");
+                BankAccLedgEntry2.SetCurrentKey("Bank Account No.", "Posting Date");
+                BankAccLedgEntry2.CopyFilters("Bank Account Ledger Entry");
+                BankAccLedgEntry2.SetRange("Bank Account No.", BankAccLedgEntry2."Bank Account No.");
+                BankAccLedgEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(BankAccLedgEntry2."Posting Date", EntrdDateComprReg, true));
+                BankAccLedgEntry2.SetRange("Bank Acc. Posting Group", BankAccLedgEntry2."Bank Acc. Posting Group");
+                BankAccLedgEntry2.SetRange("Currency Code", BankAccLedgEntry2."Currency Code");
+                BankAccLedgEntry2.SetRange("Document Type", BankAccLedgEntry2."Document Type");
 
-                    if DateComprRetainFields."Retain Document No." then
-                        SetRange("Document No.", "Document No.");
-                    if DateComprRetainFields."Retain Contact Code" then
-                        SetRange("Our Contact Code", "Our Contact Code");
-                    if DateComprRetainFields."Retain Global Dimension 1" then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if DateComprRetainFields."Retain Global Dimension 2" then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                    if Amount >= 0 then
-                        SetFilter(Amount, '>=0')
-                    else
-                        SetFilter(Amount, '<0');
+                if DateComprRetainFields."Retain Document No." then
+                    BankAccLedgEntry2.SetRange("Document No.", BankAccLedgEntry2."Document No.");
+                if DateComprRetainFields."Retain Contact Code" then
+                    BankAccLedgEntry2.SetRange("Our Contact Code", BankAccLedgEntry2."Our Contact Code");
+                if DateComprRetainFields."Retain Global Dimension 1" then
+                    BankAccLedgEntry2.SetRange("Global Dimension 1 Code", BankAccLedgEntry2."Global Dimension 1 Code");
+                if DateComprRetainFields."Retain Global Dimension 2" then
+                    BankAccLedgEntry2.SetRange("Global Dimension 2 Code", BankAccLedgEntry2."Global Dimension 2 Code");
+                if BankAccLedgEntry2.Amount >= 0 then
+                    BankAccLedgEntry2.SetFilter(Amount, '>=0')
+                else
+                    BankAccLedgEntry2.SetFilter(Amount, '<0');
 
-                    InitNewEntry(NewBankAccLedgEntry);
+                InitNewEntry(NewBankAccLedgEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, BankAccLedgEntry2."Dimension Set ID", BankAccLedgEntry2."Entry No.",
+                  0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewBankAccLedgEntry, BankAccLedgEntry2);
+                while BankAccLedgEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.",
-                      0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewBankAccLedgEntry, BankAccLedgEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.",
-                          ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewBankAccLedgEntry, BankAccLedgEntry2);
-                    end;
-
-                    InsertNewEntry(NewBankAccLedgEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, BankAccLedgEntry2."Dimension Set ID", BankAccLedgEntry2."Entry No.",
+                      ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewBankAccLedgEntry, BankAccLedgEntry2);
                 end;
+
+                InsertNewEntry(NewBankAccLedgEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -138,13 +136,17 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
@@ -157,7 +159,9 @@ report 1498 "Date Compress Bank Acc. Ledger"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -306,8 +310,10 @@ report 1498 "Date Compress Bank Acc. Ledger"
         if GLReg.Find('+') then;
         GLReg.Init();
         GLReg."No." := GLReg."No." + 1;
+#if not CLEAN24
         GLReg."Creation Date" := Today;
         GLReg."Creation Time" := Time;
+#endif
         GLReg."Source Code" := SourceCodeSetup."Compress Bank Acc. Ledger";
         GLReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLReg."User ID"));
         GLReg."From Entry No." := LastEntryNo + 1;
@@ -383,20 +389,18 @@ report 1498 "Date Compress Bank Acc. Ledger"
 
     local procedure SummarizeEntry(var NewBankAccLedgEntry: Record "Bank Account Ledger Entry"; BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
-        with BankAccLedgEntry do begin
-            NewBankAccLedgEntry.Amount := NewBankAccLedgEntry.Amount + Amount;
-            NewBankAccLedgEntry."Remaining Amount" := NewBankAccLedgEntry."Remaining Amount" + "Remaining Amount";
-            NewBankAccLedgEntry."Amount (LCY)" := NewBankAccLedgEntry."Amount (LCY)" + "Amount (LCY)";
-            NewBankAccLedgEntry."Debit Amount" := NewBankAccLedgEntry."Debit Amount" + "Debit Amount";
-            NewBankAccLedgEntry."Credit Amount" := NewBankAccLedgEntry."Credit Amount" + "Credit Amount";
-            NewBankAccLedgEntry."Debit Amount (LCY)" :=
-              NewBankAccLedgEntry."Debit Amount (LCY)" + "Debit Amount (LCY)";
-            NewBankAccLedgEntry."Credit Amount (LCY)" :=
-              NewBankAccLedgEntry."Credit Amount (LCY)" + "Credit Amount (LCY)";
-            Delete();
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        NewBankAccLedgEntry.Amount := NewBankAccLedgEntry.Amount + BankAccLedgEntry.Amount;
+        NewBankAccLedgEntry."Remaining Amount" := NewBankAccLedgEntry."Remaining Amount" + BankAccLedgEntry."Remaining Amount";
+        NewBankAccLedgEntry."Amount (LCY)" := NewBankAccLedgEntry."Amount (LCY)" + BankAccLedgEntry."Amount (LCY)";
+        NewBankAccLedgEntry."Debit Amount" := NewBankAccLedgEntry."Debit Amount" + BankAccLedgEntry."Debit Amount";
+        NewBankAccLedgEntry."Credit Amount" := NewBankAccLedgEntry."Credit Amount" + BankAccLedgEntry."Credit Amount";
+        NewBankAccLedgEntry."Debit Amount (LCY)" :=
+          NewBankAccLedgEntry."Debit Amount (LCY)" + BankAccLedgEntry."Debit Amount (LCY)";
+        NewBankAccLedgEntry."Credit Amount (LCY)" :=
+          NewBankAccLedgEntry."Credit Amount (LCY)" + BankAccLedgEntry."Credit Amount (LCY)";
+        BankAccLedgEntry.Delete();
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(BankAccLedgEntry);
     end;
@@ -431,35 +435,33 @@ report 1498 "Date Compress Bank Acc. Ledger"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with BankAccLedgEntry2 do begin
-            NewBankAccLedgEntry.Init();
-            NewBankAccLedgEntry."Entry No." := LastEntryNo;
-            NewBankAccLedgEntry."Bank Account No." := "Bank Account No.";
-            NewBankAccLedgEntry."Posting Date" := GetRangeMin("Posting Date");
-            NewBankAccLedgEntry.Description := EntrdBankAccLedgEntry.Description;
-            NewBankAccLedgEntry."Bank Acc. Posting Group" := "Bank Acc. Posting Group";
-            NewBankAccLedgEntry."Currency Code" := "Currency Code";
-            NewBankAccLedgEntry."Document Type" := "Document Type";
-            NewBankAccLedgEntry."Source Code" := SourceCodeSetup."Compress Bank Acc. Ledger";
-            NewBankAccLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            NewBankAccLedgEntry."Transaction No." := NextTransactionNo;
+        NewBankAccLedgEntry.Init();
+        NewBankAccLedgEntry."Entry No." := LastEntryNo;
+        NewBankAccLedgEntry."Bank Account No." := BankAccLedgEntry2."Bank Account No.";
+        NewBankAccLedgEntry."Posting Date" := BankAccLedgEntry2.GetRangeMin(BankAccLedgEntry2."Posting Date");
+        NewBankAccLedgEntry.Description := EntrdBankAccLedgEntry.Description;
+        NewBankAccLedgEntry."Bank Acc. Posting Group" := BankAccLedgEntry2."Bank Acc. Posting Group";
+        NewBankAccLedgEntry."Currency Code" := BankAccLedgEntry2."Currency Code";
+        NewBankAccLedgEntry."Document Type" := BankAccLedgEntry2."Document Type";
+        NewBankAccLedgEntry."Source Code" := SourceCodeSetup."Compress Bank Acc. Ledger";
+        NewBankAccLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(BankAccLedgEntry2."User ID"));
+        NewBankAccLedgEntry."Transaction No." := NextTransactionNo;
 
-            if DateComprRetainFields."Retain Document No." then
-                NewBankAccLedgEntry."Document No." := "Document No.";
-            if DateComprRetainFields."Retain Contact Code" then
-                NewBankAccLedgEntry."Our Contact Code" := "Our Contact Code";
-            if DateComprRetainFields."Retain Global Dimension 1" then
-                NewBankAccLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if DateComprRetainFields."Retain Global Dimension 2" then
-                NewBankAccLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-            if DateComprRetainFields."Retain Journal Template Name" then
-                NewBankAccLedgEntry."Journal Templ. Name" := "Journal Templ. Name";
+        if DateComprRetainFields."Retain Document No." then
+            NewBankAccLedgEntry."Document No." := BankAccLedgEntry2."Document No.";
+        if DateComprRetainFields."Retain Contact Code" then
+            NewBankAccLedgEntry."Our Contact Code" := BankAccLedgEntry2."Our Contact Code";
+        if DateComprRetainFields."Retain Global Dimension 1" then
+            NewBankAccLedgEntry."Global Dimension 1 Code" := BankAccLedgEntry2."Global Dimension 1 Code";
+        if DateComprRetainFields."Retain Global Dimension 2" then
+            NewBankAccLedgEntry."Global Dimension 2 Code" := BankAccLedgEntry2."Global Dimension 2 Code";
+        if DateComprRetainFields."Retain Journal Template Name" then
+            NewBankAccLedgEntry."Journal Templ. Name" := BankAccLedgEntry2."Journal Templ. Name";
 
-            Window.Update(1, NewBankAccLedgEntry."Bank Account No.");
-            Window.Update(2, NewBankAccLedgEntry."Posting Date");
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(3, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewBankAccLedgEntry."Bank Account No.");
+        Window.Update(2, NewBankAccLedgEntry."Posting Date");
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(3, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewBankAccLedgEntry: Record "Bank Account Ledger Entry"; DimEntryNo: Integer)

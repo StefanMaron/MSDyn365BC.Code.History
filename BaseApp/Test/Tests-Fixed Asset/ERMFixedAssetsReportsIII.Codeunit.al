@@ -140,10 +140,10 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         RunFixedAssetBookValue02Report(FixedAsset."No.");
 
         // 3. Verify: Verify Custom 1 and Custom 2 values on Fixed Asset Book Value 02 Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt5', -AcquisitionCost / 2);
         LibraryReportDataset.AssertElementWithValueExists('NetChangeAmt6', GenJournalLine.Amount);
-        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
+        LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation(); // TFS 376879
     end;
 
     [Test]
@@ -164,11 +164,11 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Enqueue values for FAPostingTypesOvervMatrixPageHandler.
         LibraryVariableStorage.Enqueue(FixedAsset."No.");
         LibraryVariableStorage.Enqueue(AcquisitionCost);
-        FAPostingTypesOverview.OpenView;
+        FAPostingTypesOverview.OpenView();
         FAPostingTypesOverview.FILTER.SetFilter("FA Posting Date Filter", Format(WorkDate()));
 
         // Exercise: Open FA Posting Types Overview Matrix page.
-        FAPostingTypesOverview.ShowMatrix.Invoke;
+        FAPostingTypesOverview.ShowMatrix.Invoke();
 
         // Verify: Verification done in FAPostingTypesOvervMatrixPageHandler.
     end;
@@ -216,14 +216,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset.
         Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate, true);  // TRUE for FixedAssetsAcquired.
+        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate(), true);  // TRUE for FixedAssetsAcquired.
         Commit();  // Commit required for running report.
 
         // Exercise:
         REPORT.Run(REPORT::"Fixed Asset - Acquisition List");
 
         // Verify: Verify Fixed Asset No. on Fixed Asset Acquisition List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoFixedAssetCaption, FixedAsset."No.");
     end;
 
@@ -239,16 +239,16 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset with Acquisition.
         Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
-        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate, false);  // FALSE for FixedAssetsAcquired.
+        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate(), false);  // FALSE for FixedAssetsAcquired.
         Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Fixed Asset - Acquisition List");
 
         // Verify: Verify Acquisition Date on Fixed Asset Acquisition List Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.SetRange(NoFixedAssetCaption, FixedAsset."No.");
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(FaDeprBookAcquDateCaption, Format(WorkDate()));
     end;
 
@@ -284,14 +284,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset with Acquisition.
         Initialize();
         AcquisitionCost := CreateFixedAssetWithAcquisitionCost(FixedAsset);
-        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate, false);  // FALSE for FixedAssetsAcquired.
+        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate(), false);  // FALSE for FixedAssetsAcquired.
 
         // Exercise.
         REPORT.Run(REPORT::"FA Posting Group - Net Change");
 
         // Verify: Verify Acquisition Cost Amount on 'Fixed Asset Posting Group Net Change'.
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetReport(
           AccNoFAPostGrpBuffer1Caption, FAPostingGroup."Acquisition Cost Account",
           AmtFAPostGroupBuffer1Caption, AcquisitionCost);
@@ -311,7 +311,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset and post its Acquisition and depreciation.
         Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
-        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate, true);  // TRUE for FixedAssetsAcquired.
+        EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate(), WorkDate(), true);  // TRUE for FixedAssetsAcquired.
         CreateAndPostFAJournalLine(
           FixedAsset."No.", GenJournalLine."FA Posting Type"::Depreciation, '', -LibraryRandom.RandDec(5, 2));
 
@@ -320,7 +320,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // Verify: Verify Net Change in Acquisition Cost Amount and Accumulated Depreciation Amount.
         FAPostingGroup.Get(FixedAsset."FA Posting Group");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetReport(
           AccNoFAPostGrpBuffer2Caption, FAPostingGroup."Accum. Depreciation Account",
           GLAccNetChangeCaption, CalculateAmount(FAPostingGroup."Accum. Depreciation Account"));
@@ -360,7 +360,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset, create FA Depreciation Book.
         Initialize();
         CreateAndModifyFixedAsset(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");  // FALSE for New Page Per Asset.
         Commit();  // Commit required for running report.
 
@@ -368,7 +368,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // Verify: Verify Fixed Asset No. on Fixed Asset report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FANoCaption, FADepreciationBook."FA No.");
     end;
 
@@ -388,9 +388,9 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateAndModifyFixedAsset(FixedAsset);
         CreateAndModifyFixedAsset(FixedAsset2);
         CreateFADepreciationBook(
-          FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+          FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         CreateFADepreciationBook(
-          FADepreciationBook, FixedAsset2."No.", FixedAsset2."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+          FADepreciationBook, FixedAsset2."No.", FixedAsset2."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         EnqueueValuesForFixedAssetListReport(
           FADepreciationBook."Depreciation Book Code", true,
           StrSubstNo(FixedAssetFilter, FixedAsset."No.", FixedAsset2."No."));  // TRUE for New Page Per Asset.
@@ -401,7 +401,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // Verify: Verify two fixed Asset printed on two different pages when 'New Page per Asset' TRUE on Fixed Asset report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyFixedAssetReport(FANoCaption, FixedAsset."No.", PageGroupNoCaption, FixedAsset.Count);
         VerifyFixedAssetReport(FANoCaption, FixedAsset2."No.", PageGroupNoCaption, FixedAsset.Count + 1);  // Adding 1 for next page Group No.
     end;
@@ -468,14 +468,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateAndPostFAJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::Maintenance, Maintenance.Code, Amount);
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
         FADepreciationBook.FindFirst();
-        EnqueueValuesForMaintenanceAnalysisReport(FADepreciationBook."Depreciation Book Code", WorkDate(), WorkDate, Maintenance.Code);
+        EnqueueValuesForMaintenanceAnalysisReport(FADepreciationBook."Depreciation Book Code", WorkDate(), WorkDate(), Maintenance.Code);
         Commit();  // Commit required for running report.
 
         // Exercise.
         REPORT.Run(REPORT::"Maintenance - Analysis");
 
         // Verify: Verify Fixed Asset No and Maintenance amount on Maintenance Analysis report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(NoFACaption, FixedAsset."No.");
         LibraryReportDataset.AssertElementWithValueExists(Amounts1Caption, Amount);
         LibraryReportDataset.AssertElementWithValueExists(Amounts2Caption, 0);
@@ -501,7 +501,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         REPORT.Run(REPORT::"Maintenance - Details");
 
         // Verify: Verify Amount for Maintenance Entry.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMaintenanceDetailReport(Maintenance.Code, Round(AcquisitionCost / 2));  // Devide by 2 since Maintenance Cost is half of Acquisition Cost.
     end;
 
@@ -524,7 +524,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         REPORT.Run(REPORT::"Maintenance - Details");
 
         // Verify: Verify Amounts for Maintenance and Reversed Entries.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyMaintenanceDetailReport(Maintenance.Code, Round(AcquisitionCost / 2));  // Devide by 2 since Maintenance Cost is half of Acquisition Cost.
         LibraryReportDataset.Reset();
         VerifyMaintenanceDetailReport('', Round(AcquisitionCost / 2));  // Devide by 2 since Maintenance Cost is half of Acquisition Cost.
@@ -547,7 +547,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Setup: Create Fixed Asset and post Acquisition Cost for It.
         Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
-        FALedgerEntries.OpenView;
+        FALedgerEntries.OpenView();
         FALedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
@@ -559,7 +559,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify FA Ledger Entry Table Name. no. of Records and Amount on Document Entries Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, FALedgerEntry.TableCaption(), NoOfRecordsCap, FALedgerEntry.Count);
         FALedgerEntry.FindFirst();
@@ -585,7 +585,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         CreateAndPostFAJournalLine(
           FixedAsset."No.", GenJournalLine."FA Posting Type"::Maintenance, '', LibraryRandom.RandDec(100, 2));  // Take Random Amount.
-        MaintenanceLedgerEntries.OpenView;
+        MaintenanceLedgerEntries.OpenView();
         MaintenanceLedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
@@ -597,7 +597,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify Maintenance Ledger Entry Table Name, no. of Records and Amount on Document Entries Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         MaintenanceLedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, MaintenanceLedgerEntry.TableCaption(), NoOfRecordsCap, MaintenanceLedgerEntry.Count);
         MaintenanceLedgerEntry.FindFirst();
@@ -626,9 +626,9 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         ModifyInsuranceJournalBatch(InsuranceJournalBatch);
         LibraryFixedAsset.CreateInsuranceJournalLine(
           InsuranceJournalLine, InsuranceJournalBatch."Journal Template Name", InsuranceJournalBatch.Name);
-        ModifyInsuranceJournalLine(InsuranceJournalLine, WorkDate(), LibraryUtility.GenerateGUID, FixedAsset."No.");
+        ModifyInsuranceJournalLine(InsuranceJournalLine, WorkDate(), LibraryUtility.GenerateGUID(), FixedAsset."No.");
         LibraryFixedAsset.PostInsuranceJournal(InsuranceJournalLine);
-        InsCoverageLedgerEntries.OpenView;
+        InsCoverageLedgerEntries.OpenView();
         InsCoverageLedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
@@ -640,7 +640,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         DocumentEntries.Run(); // SaveAxXML in DocumentEntriesRequestPageHandler
 
         // Verify: Verify Ins. Coverage Ledger Entry Table Name, no. of Records and Amount on Document Entries Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         InsCoverageLedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, InsCoverageLedgerEntry.TableCaption(), NoOfRecordsCap, InsCoverageLedgerEntry.Count);
         InsCoverageLedgerEntry.FindFirst();
@@ -673,7 +673,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // [GIVEN] Fixed Asset and FA Depreciation Book
         CreateAndModifyFixedAsset(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");
         Commit();
 
@@ -682,7 +682,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // [THEN] Element with Tag 'GlobalDim1CodeCaption' and value 'X' exists
         // [THEN] Element with Tag 'GlobalDim2CodeCaption' and value 'Y' exists
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim1CodeCaption', FirstDimensionCodeCaption);
         LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim2CodeCaption', Dimension."Code Caption");
     end;
@@ -706,13 +706,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // [WHEN] Run "Fixed Asset - List" with some FA No. = "X"
         CreateAndModifyFixedAsset(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");
         Commit();
         REPORT.Run(REPORT::"Fixed Asset - List");
 
         // [THEN] Report terminates successfully and contains "X"
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(FANoCaption, FADepreciationBook."FA No.");
         Dimension.Get(LibraryERM.GetGlobalDimensionCode(1));
         LibraryReportDataset.AssertElementTagWithValueExists('GlobalDim1CodeCaption', Dimension."Code Caption");
@@ -768,7 +768,6 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
     local procedure CollectDocEntries(MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
     var
-        GLEntry: Record "G/L Entry";
         Navigate: Page Navigate;
     begin
         MaintenanceLedgEntry.Reset();
@@ -824,7 +823,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     local procedure CreateAndModifyFixedAsset(var FixedAsset: Record "Fixed Asset")
     begin
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
-        FixedAsset.Validate("FA Posting Group", ModifyFAPostingGroup);
+        FixedAsset.Validate("FA Posting Group", ModifyFAPostingGroup());
         FixedAsset.Modify(true);
     end;
 
@@ -835,7 +834,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     begin
         // Create Fixed Asset, Post Acquisition Cost for it.
         CreateAndModifyFixedAsset(FixedAsset);
-        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
+        CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook());
         Amount := LibraryRandom.RandDec(100, 2);  // Taking Random value for Acqusition Cost.
         CreateAndPostFAJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::"Acquisition Cost", '', Amount);
     end;
@@ -941,8 +940,8 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FAPostingGroup: Record "FA Posting Group";
     begin
         FAPostingGroup.FindFirst();
-        FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo);
-        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo);
+        FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo());
+        FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo());
         FAPostingGroup.Modify(true);
         exit(FAPostingGroup.Code);
     end;
@@ -967,7 +966,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Clear(FixedAssetBookValue02);
         FixedAsset.SetRange("No.", No);
         FixedAssetBookValue02.SetTableView(FixedAsset);
-        FixedAssetBookValue02.SetMandatoryFields(LibraryFixedAsset.GetDefaultDeprBook, WorkDate(), WorkDate());
+        FixedAssetBookValue02.SetMandatoryFields(LibraryFixedAsset.GetDefaultDeprBook(), WorkDate(), WorkDate());
         Commit();
         FixedAssetBookValue02.Run();
     end;
@@ -999,14 +998,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     local procedure VerifyDocumentEntries(RowCaption: Text[50]; RowValue: Text[50]; ColumnCaption: Text[50]; ColumnValue: Decimal)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, ColumnValue);
     end;
 
     local procedure VerifyFixedAssetReport(RowCaption: Text[50]; RowValue: Text[50]; ColumnCaption: Text[50]; ColumnValue: Decimal)
     begin
         LibraryReportDataset.SetRange(RowCaption, RowValue);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(ColumnCaption, ColumnValue)
     end;
 
@@ -1014,7 +1013,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     var
         FADepreciationBook: Record "FA Depreciation Book";
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo(FieldError, FAJournalLine.FieldCaption("FA Posting Date")));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
@@ -1043,7 +1042,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
             FAJournalLine.FieldCaption("FA Error Entry No.")));
 
         LibraryReportDataset.SetRange('FA_Journal_Line__FA_No__', FAJournalLine."FA No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'FA_Journal_Line__FA_No__', FAJournalLine."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Journal_Line__FA_Posting_Type_', Format(FAJournalLine."FA Posting Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Journal_Line_Description', FAJournalLine.Description);
@@ -1053,13 +1052,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     local procedure VerifyMaintenanceDetailReport(MaintenanceCode: Code[10]; Amount: Decimal)
     begin
         LibraryReportDataset.SetRange(MaintenanceCodeCaption, MaintenanceCode);
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals(AmountCaption, Amount);
     end;
 
     local procedure VerifyInsuranceJournalTestReportWarning(InsuranceJournalLine: Record "Insurance Journal Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
           StrSubstNo(FieldError, InsuranceJournalLine.FieldCaption("Posting Date")));
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number_',
@@ -1068,7 +1067,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
           StrSubstNo(FieldError, InsuranceJournalLine.FieldCaption("Document No.")));
 
         LibraryReportDataset.SetRange('Insurance_Journal_Line__Insurance_No__', InsuranceJournalLine."Insurance No.");
-        if not LibraryReportDataset.GetNextRow then
+        if not LibraryReportDataset.GetNextRow() then
             Error(RowNotFound, 'Insurance_Journal_Line__Insurance_No__', InsuranceJournalLine."Insurance No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance_Journal_Line_Description', InsuranceJournalLine.Description);
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance_Journal_Line_Amount', InsuranceJournalLine.Amount);
@@ -1122,7 +1121,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FixedAssetAcquisitionList.EndingDate.SetValue(EndingDate);
         FixedAssetAcquisitionList.FAWithoutAcqDate.SetValue(FixedAssetsAcquired);  // Setting Include Fixed Assets Not Yet Acquired.
         FixedAssetAcquisitionList."Fixed Asset".SetFilter("No.", FixedAssetNo);
-        FixedAssetAcquisitionList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetAcquisitionList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1142,7 +1141,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FAPostingGroupNetChange.EndingDate.SetValue(EndingDate);
         FAPostingGroupNetChange.OnlyTotals.SetValue(TotalPerGLAccount);  // Setting Total as per G/L Account.
         FAPostingGroupNetChange."FA Depreciation Book".SetFilter("FA No.", FixedAssetNo);
-        FAPostingGroupNetChange.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FAPostingGroupNetChange.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1159,7 +1158,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FixedAssetList.DeprBookCode.SetValue(DepreciationBookCode);  // Setting Depreciation Book Code.
         FixedAssetList.PrintOnlyOnePerPage.SetValue(NewPagePerAsset);  // Setting New Page per Asset.
         FixedAssetList."Fixed Asset".SetFilter("No.", FixedAssetFilter);
-        FixedAssetList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetList.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1204,7 +1203,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryVariableStorage.Dequeue(IncludeReversedEntries);
         MaintenanceDetails."Fixed Asset".SetFilter("No.", No);
         MaintenanceDetails.IncludeReversedEntries.SetValue(IncludeReversedEntries);  // Setting Include Reversed Entries boolean.
-        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        MaintenanceDetails.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]
@@ -1222,21 +1221,21 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     [Scope('OnPrem')]
     procedure RHFixedAssetJournalTest(var FixedAssetJournalTest: TestRequestPage "Fixed Asset Journal - Test")
     begin
-        FixedAssetJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHInsuranceJournalTest(var InsuranceJournalTest: TestRequestPage "Insurance Journal - Test")
     begin
-        InsuranceJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        InsuranceJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHFixedAssetBookValue02Report(var FixedAssetBookValue02Report: TestRequestPage "Fixed Asset - Book Value 02")
     begin
-        FixedAssetBookValue02Report.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FixedAssetBookValue02Report.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

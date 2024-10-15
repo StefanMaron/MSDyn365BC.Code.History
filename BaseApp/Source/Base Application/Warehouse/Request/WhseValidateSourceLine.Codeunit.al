@@ -44,7 +44,7 @@ codeunit 5777 "Whse. Validate Source Line"
         Text000: Label 'must not be changed when a %1 for this %2 exists: ';
         Text001: Label 'The %1 cannot be deleted when a related %2 exists.';
         Text002: Label 'You cannot post consumption for order no. %1 because a quantity of %2 remains to be picked.';
-        JobPostQtyPickRemainErr: Label 'You cannot post usage for job number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Job number, %2 = remaining quantity to pick';
+        JobPostQtyPickRemainErr: Label 'You cannot post usage for project number %1 because a quantity of %2 remains to be picked.', Comment = '%1 = Project number, %2 = remaining quantity to pick';
 
 #if not CLEAN23
     [Obsolete('Replaced by same procedure in codeunit Sales Warehouse Mgt.', '23.0')]
@@ -146,18 +146,16 @@ codeunit 5777 "Whse. Validate Source Line"
         if IsHandled then
             exit;
 
-        with NewTransLine do begin
-            if WhseLinesExist(Database::"Transfer Line", 0, "Document No.", "Line No.", 0, Quantity) then begin
-                TransLineCommonVerification(NewTransLine, OldTransLine);
-                if "Qty. to Ship" <> OldTransLine."Qty. to Ship" then
-                    FieldError("Qty. to Ship", StrSubstNo(Text000, TableCaptionValue, TableCaption));
-            end;
+        if WhseLinesExist(Database::"Transfer Line", 0, NewTransLine."Document No.", NewTransLine."Line No.", 0, NewTransLine.Quantity) then begin
+            TransLineCommonVerification(NewTransLine, OldTransLine);
+            if NewTransLine."Qty. to Ship" <> OldTransLine."Qty. to Ship" then
+                NewTransLine.FieldError("Qty. to Ship", StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
+        end;
 
-            if WhseLinesExist(Database::"Transfer Line", 1, "Document No.", "Line No.", 0, Quantity) then begin
-                TransLineCommonVerification(NewTransLine, OldTransLine);
-                if "Qty. to Receive" <> OldTransLine."Qty. to Receive" then
-                    FieldError("Qty. to Receive", StrSubstNo(Text000, TableCaptionValue, TableCaption));
-            end;
+        if WhseLinesExist(Database::"Transfer Line", 1, NewTransLine."Document No.", NewTransLine."Line No.", 0, NewTransLine.Quantity) then begin
+            TransLineCommonVerification(NewTransLine, OldTransLine);
+            if NewTransLine."Qty. to Receive" <> OldTransLine."Qty. to Receive" then
+                NewTransLine.FieldError("Qty. to Receive", StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
         end;
 
         OnAfterTransLineVerifyChange(NewTransLine, OldTransLine);
@@ -167,32 +165,28 @@ codeunit 5777 "Whse. Validate Source Line"
     var
         IsHandled: Boolean;
     begin
-        with NewTransLine do begin
-            if "Item No." <> OldTransLine."Item No." then
-                FieldError("Item No.", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+        if NewTransLine."Item No." <> OldTransLine."Item No." then
+            NewTransLine.FieldError("Item No.", StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
 
-            if "Variant Code" <> OldTransLine."Variant Code" then
-                FieldError("Variant Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+        if NewTransLine."Variant Code" <> OldTransLine."Variant Code" then
+            NewTransLine.FieldError("Variant Code", StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
 
-            if "Unit of Measure Code" <> OldTransLine."Unit of Measure Code" then
-                FieldError("Unit of Measure Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+        if NewTransLine."Unit of Measure Code" <> OldTransLine."Unit of Measure Code" then
+            NewTransLine.FieldError("Unit of Measure Code", StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
 
-            IsHandled := false;
-            OnTransLineCommonVerificationOnBeforeQuantityCheck(OldTransLine, NewTransLine, IsHandled);
-            if not IsHandled then
-                if Quantity <> OldTransLine.Quantity then
-                    FieldError(Quantity, StrSubstNo(Text000, TableCaptionValue, TableCaption));
-        end;
+        IsHandled := false;
+        OnTransLineCommonVerificationOnBeforeQuantityCheck(OldTransLine, NewTransLine, IsHandled);
+        if not IsHandled then
+            if NewTransLine.Quantity <> OldTransLine.Quantity then
+                NewTransLine.FieldError(Quantity, StrSubstNo(Text000, TableCaptionValue, NewTransLine.TableCaption));
     end;
 
     procedure TransLineDelete(var TransLine: Record "Transfer Line")
     begin
-        with TransLine do begin
-            if WhseLinesExist(Database::"Transfer Line", 0, "Document No.", "Line No.", 0, Quantity) then
-                Error(Text001, TableCaption(), TableCaptionValue);
-            if WhseLinesExist(Database::"Transfer Line", 1, "Document No.", "Line No.", 0, Quantity) then
-                Error(Text001, TableCaption(), TableCaptionValue);
-        end;
+        if WhseLinesExist(Database::"Transfer Line", 0, TransLine."Document No.", TransLine."Line No.", 0, TransLine.Quantity) then
+            Error(Text001, TransLine.TableCaption(), TableCaptionValue);
+        if WhseLinesExist(Database::"Transfer Line", 1, TransLine."Document No.", TransLine."Line No.", 0, TransLine.Quantity) then
+            Error(Text001, TransLine.TableCaption(), TableCaptionValue);
 
         OnAfterTransLineDelete(TransLine);
     end;
@@ -254,7 +248,6 @@ codeunit 5777 "Whse. Validate Source Line"
     end;
 
     procedure WhseWorkSheetLinesExistForJobOrProdOrderComponent(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSublineNo: Integer; SourceQty: Decimal): Boolean
-    var
     begin
         if not (SourceType in [Database::Job, Database::"Prod. Order Component"]) then begin
             TableCaptionValue := '';
@@ -326,86 +319,84 @@ codeunit 5777 "Whse. Validate Source Line"
         QtyRemainingToBePicked: Decimal;
         IsHandled: Boolean;
     begin
-        with NewItemJnlLine do begin
-            case "Entry Type" of
-                "Entry Type"::"Assembly Consumption":
-                    begin
-                        TestField("Order Type", "Order Type"::Assembly);
-                        if Location.Get("Location Code") and (Location."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-                            if AssemblyLine.Get(AssemblyLine."Document Type"::Order, "Order No.", "Order Line No.") and
-                               (Quantity >= 0)
+        case NewItemJnlLine."Entry Type" of
+            NewItemJnlLine."Entry Type"::"Assembly Consumption":
+                begin
+                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Assembly);
+                    if Location.Get(NewItemJnlLine."Location Code") and (Location."Asm. Consump. Whse. Handling" = Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
+                        if AssemblyLine.Get(AssemblyLine."Document Type"::Order, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.") and
+                           (NewItemJnlLine.Quantity >= 0)
+                        then begin
+                            QtyRemainingToBePicked := NewItemJnlLine.Quantity - AssemblyLine."Qty. Picked";
+                            CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
+                            QtyChecked := true;
+                        end;
+
+                    LinesExist := false;
+                end;
+            NewItemJnlLine."Entry Type"::Consumption:
+                begin
+                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Production);
+                    IsHandled := false;
+                    OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
+                    if not Ishandled then
+                        if Location.Get(NewItemJnlLine."Location Code") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
+                            if ProdOrderComp.Get(
+                                ProdOrderComp.Status::Released,
+                                NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.") and
+                                (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
+                                (NewItemJnlLine.Quantity >= 0)
                             then begin
-                                QtyRemainingToBePicked := Quantity - AssemblyLine."Qty. Picked";
-                                CheckQtyRemainingToBePickedForAssemblyConsumption(NewItemJnlLine, OldItemJnlLine, QtyRemainingToBePicked);
+                                QtyRemainingToBePicked :=
+                                    NewItemJnlLine.Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
+                                    ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
+                                CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
                                 QtyChecked := true;
                             end;
 
-                        LinesExist := false;
-                    end;
-                "Entry Type"::Consumption:
-                    begin
-                        TestField("Order Type", "Order Type"::Production);
-                        IsHandled := false;
-                        OnItemLineVerifyChangeOnBeforeCheckConsumptionQty(NewItemJnlLine, Location, QtyChecked, IsHandled);
-                        if not Ishandled then
-                            if Location.Get("Location Code") and (Location."Prod. Consump. Whse. Handling" = Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then
-                                if ProdOrderComp.Get(
-                                    ProdOrderComp.Status::Released,
-                                    "Order No.", "Order Line No.", "Prod. Order Comp. Line No.") and
-                                    (ProdOrderComp."Flushing Method" = ProdOrderComp."Flushing Method"::Manual) and
-                                    (Quantity >= 0)
-                                then begin
-                                    QtyRemainingToBePicked :=
-                                        Quantity - CalcNextLevelProdOutput(ProdOrderComp) -
-                                        ProdOrderComp."Qty. Picked" + ProdOrderComp."Expected Quantity" - ProdOrderComp."Remaining Quantity";
-                                    CheckQtyRemainingToBePickedForConsumption(NewItemJnlLine, OldItemJnlLine, ProdOrderComp, QtyRemainingToBePicked);
-                                    QtyChecked := true;
-                                end;
+                    LinesExist :=
+                      WhseLinesExist(
+                        Database::"Prod. Order Component", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.", NewItemJnlLine.Quantity) or
+                      WhseWorkSheetLinesExist(
+                        Database::"Prod. Order Component", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", NewItemJnlLine."Prod. Order Comp. Line No.", NewItemJnlLine.Quantity);
+                end;
+            NewItemJnlLine."Entry Type"::Output:
+                begin
+                    NewItemJnlLine.TestField("Order Type", NewItemJnlLine."Order Type"::Production);
+                    LinesExist :=
+                      WhseLinesExist(
+                        Database::"Prod. Order Line", 3, NewItemJnlLine."Order No.", NewItemJnlLine."Order Line No.", 0, NewItemJnlLine.Quantity);
+                end;
+            else
+                LinesExist := false;
+        end;
 
-                        LinesExist :=
-                          WhseLinesExist(
-                            Database::"Prod. Order Component", 3, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.", Quantity) or
-                          WhseWorkSheetLinesExist(
-                            Database::"Prod. Order Component", 3, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.", Quantity);
-                    end;
-                "Entry Type"::Output:
-                    begin
-                        TestField("Order Type", "Order Type"::Production);
-                        LinesExist :=
-                          WhseLinesExist(
-                            Database::"Prod. Order Line", 3, "Order No.", "Order Line No.", 0, Quantity);
-                    end;
-                else
-                    LinesExist := false;
-            end;
+        if LinesExist then begin
+            if (NewItemJnlLine."Item No." <> OldItemJnlLine."Item No.") and
+               (OldItemJnlLine."Item No." <> '')
+            then
+                NewItemJnlLine.FieldError("Item No.", StrSubstNo(Text000, TableCaptionValue, NewItemJnlLine.TableCaption));
 
-            if LinesExist then begin
-                if ("Item No." <> OldItemJnlLine."Item No.") and
-                   (OldItemJnlLine."Item No." <> '')
-                then
-                    FieldError("Item No.", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+            if (NewItemJnlLine."Variant Code" <> OldItemJnlLine."Variant Code") and
+               (OldItemJnlLine."Variant Code" <> '')
+            then
+                NewItemJnlLine.FieldError("Variant Code", StrSubstNo(Text000, TableCaptionValue, NewItemJnlLine.TableCaption));
 
-                if ("Variant Code" <> OldItemJnlLine."Variant Code") and
-                   (OldItemJnlLine."Variant Code" <> '')
-                then
-                    FieldError("Variant Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+            if (NewItemJnlLine."Location Code" <> OldItemJnlLine."Location Code") and
+               (OldItemJnlLine."Location Code" <> '')
+            then
+                NewItemJnlLine.FieldError("Location Code", StrSubstNo(Text000, TableCaptionValue, NewItemJnlLine.TableCaption));
 
-                if ("Location Code" <> OldItemJnlLine."Location Code") and
-                   (OldItemJnlLine."Location Code" <> '')
-                then
-                    FieldError("Location Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
+            if (NewItemJnlLine."Unit of Measure Code" <> OldItemJnlLine."Unit of Measure Code") and
+               (OldItemJnlLine."Unit of Measure Code" <> '')
+            then
+                NewItemJnlLine.FieldError("Unit of Measure Code", StrSubstNo(Text000, TableCaptionValue, NewItemJnlLine.TableCaption));
 
-                if ("Unit of Measure Code" <> OldItemJnlLine."Unit of Measure Code") and
-                   (OldItemJnlLine."Unit of Measure Code" <> '')
-                then
-                    FieldError("Unit of Measure Code", StrSubstNo(Text000, TableCaptionValue, TableCaption));
-
-                if (Quantity <> OldItemJnlLine.Quantity) and
-                   (OldItemJnlLine.Quantity <> 0) and
-                   not QtyChecked
-                then
-                    FieldError(Quantity, StrSubstNo(Text000, TableCaptionValue, TableCaption));
-            end;
+            if (NewItemJnlLine.Quantity <> OldItemJnlLine.Quantity) and
+               (OldItemJnlLine.Quantity <> 0) and
+               not QtyChecked
+            then
+                NewItemJnlLine.FieldError(Quantity, StrSubstNo(Text000, TableCaptionValue, NewItemJnlLine.TableCaption));
         end;
 
         OnAfterItemLineVerifyChange(NewItemJnlLine, OldItemJnlLine);
@@ -418,7 +409,7 @@ codeunit 5777 "Whse. Validate Source Line"
     begin
         if IsWhsePickRequiredForJobJnlLine(NewJobJnlLine) and (NewJobJnlLine.Quantity > 0) then
             if JobPlanningLine.Get(NewJobJnlLine."Job No.", NewJobJnlLine."Job Task No.", NewJobJnlLine."Job Planning Line No.") and (NewJobJnlLine.Quantity >= 0) then begin
-                QtyRemainingToBePicked := NewJobJnlLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked";
+                QtyRemainingToBePicked := NewJobJnlLine.Quantity + JobPlanningLine."Qty. Posted" - JobPlanningLine."Qty. Picked" - JobPlanningLine."Qty. to Assemble";
                 CheckQtyRemainingToBePickedForJob(NewJobJnlLine, QtyRemainingToBePicked);
             end;
     end;

@@ -49,31 +49,30 @@ codeunit 409 "Dimension Value-Indent"
         NoOfDimVals := DimVal.Count();
         if NoOfDimVals = 0 then
             NoOfDimVals := 1;
-        with DimVal do
-            if Find('-') then
-                repeat
-                    Progress := Progress + 1;
-                    Window.Update(1, 10000 * Progress div NoOfDimVals);
+        if DimVal.Find('-') then
+            repeat
+                Progress := Progress + 1;
+                Window.Update(1, 10000 * Progress div NoOfDimVals);
 
-                    if "Dimension Value Type" = "Dimension Value Type"::"End-Total" then begin
-                        if i < 1 then
-                            Error(
-                              Text005,
-                              Code);
-                        Totaling := DimValCode[i] + '..' + Code;
-                        i := i - 1;
-                    end;
+                if DimVal."Dimension Value Type" = DimVal."Dimension Value Type"::"End-Total" then begin
+                    if i < 1 then
+                        Error(
+                          Text005,
+                          DimVal.Code);
+                    DimVal.Totaling := DimValCode[i] + '..' + DimVal.Code;
+                    i := i - 1;
+                end;
 
-                    Indentation := i;
-                    Modify();
+                DimVal.Indentation := i;
+                DimVal.Modify();
 
-                    if "Dimension Value Type" = "Dimension Value Type"::"Begin-Total" then begin
-                        i := i + 1;
-                        if i > ArrayLen(DimValCode) then
-                            Error(ArrayExceededErr, ArrayLen(DimValCode));
-                        DimValCode[i] := Code;
-                    end;
-                until Next() = 0;
+                if DimVal."Dimension Value Type" = DimVal."Dimension Value Type"::"Begin-Total" then begin
+                    i := i + 1;
+                    if i > ArrayLen(DimValCode) then
+                        Error(ArrayExceededErr, ArrayLen(DimValCode));
+                    DimValCode[i] := DimVal.Code;
+                end;
+            until DimVal.Next() = 0;
 
         Window.Close();
     end;

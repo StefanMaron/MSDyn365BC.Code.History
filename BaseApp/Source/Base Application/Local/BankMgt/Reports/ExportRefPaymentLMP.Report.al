@@ -129,7 +129,6 @@ report 32000006 "Export Ref. Payment -  LMP"
         VendLedgEntry: Record "Vendor Ledger Entry";
         RefPmtExport: Record "Ref. Payment - Exported";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         RefPmtMgt: Codeunit "Ref. Payment Management";
         BankAccFormat: Codeunit "Bank Nos Check";
         FileMgt: Codeunit "File Management";
@@ -182,8 +181,10 @@ report 32000006 "Export Ref. Payment -  LMP"
 
     [Scope('OnPrem')]
     procedure CreateHeaderLines()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
-        UniqueBatchID := NoSeriesMgt.GetNextNo(PurchSetup."Bank Batch Nos.", WorkDate(), true);
+        UniqueBatchID := NoSeries.GetNextNo(PurchSetup."Bank Batch Nos.");
         UniqueBatchID2 := TextSpaceFormat(UniqueBatchID, 35, 1, ' ');
         DueDate := Format(RefPmtExport."Payment Date", 0, '<Year,2><Month,2><Day,2>');
 

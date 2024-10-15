@@ -17,63 +17,61 @@ codeunit 407 "Adjust Gen. Journal Balance"
         GenJnlLine.SetRange("Journal Template Name", Rec."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
 
-        with GenJnlLine do begin
-            OnRunOnBeforeGenJnlLineFind(GenJnlLine);
-            if not Find('-') then
-                exit;
-            PrevGenJnlLine := GenJnlLine;
-            CorrectionEntry := true;
-            TotalAmountLCY := 0;
-            repeat
-                if ("Posting Date" <> PrevGenJnlLine."Posting Date") or
-                   ("Document No." <> PrevGenJnlLine."Document No.")
-                then begin
-                    if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
-                        PrevGenJnlLine.Correction := CorrectionEntry;
-                        InsertCorrectionLines(GenJnlLine, PrevGenJnlLine);
-                    end;
-                    TotalAmountLCY := 0;
-                    TempCurrTotalBuffer.DeleteAll();
-                    CorrectionEntry := true;
-                    PrevGenJnlLine := GenJnlLine;
+        OnRunOnBeforeGenJnlLineFind(GenJnlLine);
+        if not GenJnlLine.Find('-') then
+            exit;
+        PrevGenJnlLine := GenJnlLine;
+        CorrectionEntry := true;
+        TotalAmountLCY := 0;
+        repeat
+            if (GenJnlLine."Posting Date" <> PrevGenJnlLine."Posting Date") or
+               (GenJnlLine."Document No." <> PrevGenJnlLine."Document No.")
+            then begin
+                if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
+                    PrevGenJnlLine.Correction := CorrectionEntry;
+                    InsertCorrectionLines(GenJnlLine, PrevGenJnlLine);
                 end;
-                TotalAmountLCY := TotalAmountLCY + "Amount (LCY)";
-                if "Bal. Account No." = '' then begin
-                    if TempCurrTotalBuffer.Get("Currency Code") then begin
-                        TempCurrTotalBuffer."Total Amount" :=
-                          TempCurrTotalBuffer."Total Amount" + Amount;
-                        TempCurrTotalBuffer."Total Amount (LCY)" :=
-                          TempCurrTotalBuffer."Total Amount (LCY)" + "Amount (LCY)";
-                        TempCurrTotalBuffer.Modify();
-                    end else begin
-                        TempCurrTotalBuffer."Currency Code" := "Currency Code";
-                        TempCurrTotalBuffer."Total Amount" := Amount;
-                        TempCurrTotalBuffer."Total Amount (LCY)" := "Amount (LCY)";
-                        TempCurrTotalBuffer.Insert();
-                    end;
-                    CorrectionEntry := CorrectionEntry and Correction;
-                end;
-
-                if "Document Type" <> PrevGenJnlLine."Document Type" then
-                    "Document Type" := "Document Type"::" ";
-                if "Business Unit Code" <> PrevGenJnlLine."Business Unit Code" then
-                    "Business Unit Code" := '';
-                if "Reason Code" <> PrevGenJnlLine."Reason Code" then
-                    "Reason Code" := '';
-                if "Recurring Method" <> PrevGenJnlLine."Recurring Method" then
-                    "Recurring Method" := "Recurring Method"::" ";
-                if "Recurring Frequency" <> PrevGenJnlLine."Recurring Frequency" then
-                    Evaluate("Recurring Frequency", '<>');
-
+                TotalAmountLCY := 0;
+                TempCurrTotalBuffer.DeleteAll();
+                CorrectionEntry := true;
                 PrevGenJnlLine := GenJnlLine;
-            until Next() = 0;
-
-            Clear(PrevGenJnlLine);
-
-            if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
-                Correction := CorrectionEntry;
-                InsertCorrectionLines(PrevGenJnlLine, GenJnlLine);
             end;
+            TotalAmountLCY := TotalAmountLCY + GenJnlLine."Amount (LCY)";
+            if GenJnlLine."Bal. Account No." = '' then begin
+                if TempCurrTotalBuffer.Get(GenJnlLine."Currency Code") then begin
+                    TempCurrTotalBuffer."Total Amount" :=
+                      TempCurrTotalBuffer."Total Amount" + GenJnlLine.Amount;
+                    TempCurrTotalBuffer."Total Amount (LCY)" :=
+                      TempCurrTotalBuffer."Total Amount (LCY)" + GenJnlLine."Amount (LCY)";
+                    TempCurrTotalBuffer.Modify();
+                end else begin
+                    TempCurrTotalBuffer."Currency Code" := GenJnlLine."Currency Code";
+                    TempCurrTotalBuffer."Total Amount" := GenJnlLine.Amount;
+                    TempCurrTotalBuffer."Total Amount (LCY)" := GenJnlLine."Amount (LCY)";
+                    TempCurrTotalBuffer.Insert();
+                end;
+                CorrectionEntry := CorrectionEntry and GenJnlLine.Correction;
+            end;
+
+            if GenJnlLine."Document Type" <> PrevGenJnlLine."Document Type" then
+                GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
+            if GenJnlLine."Business Unit Code" <> PrevGenJnlLine."Business Unit Code" then
+                GenJnlLine."Business Unit Code" := '';
+            if GenJnlLine."Reason Code" <> PrevGenJnlLine."Reason Code" then
+                GenJnlLine."Reason Code" := '';
+            if GenJnlLine."Recurring Method" <> PrevGenJnlLine."Recurring Method" then
+                GenJnlLine."Recurring Method" := GenJnlLine."Recurring Method"::" ";
+            if GenJnlLine."Recurring Frequency" <> PrevGenJnlLine."Recurring Frequency" then
+                Evaluate(GenJnlLine."Recurring Frequency", '<>');
+
+            PrevGenJnlLine := GenJnlLine;
+        until GenJnlLine.Next() = 0;
+
+        Clear(PrevGenJnlLine);
+
+        if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
+            GenJnlLine.Correction := CorrectionEntry;
+            InsertCorrectionLines(PrevGenJnlLine, GenJnlLine);
         end;
     end;
 
@@ -108,40 +106,38 @@ codeunit 407 "Adjust Gen. Journal Balance"
         if TempCurrTotalBuffer.Find('-') then
             repeat
                 Currency.Get(TempCurrTotalBuffer."Currency Code");
-                with NewGenJnlLine do begin
-                    Init();
-                    if GenJnlLine2."Line No." = 0 then
-                        "Line No." := "Line No." + 10000
+                NewGenJnlLine.Init();
+                if GenJnlLine2."Line No." = 0 then
+                    NewGenJnlLine."Line No." := NewGenJnlLine."Line No." + 10000
+                else
+                    if GenJnlLine2."Line No." >= NewGenJnlLine."Line No." + 2 then
+                        NewGenJnlLine."Line No." := (NewGenJnlLine."Line No." + GenJnlLine2."Line No.") div 2
                     else
-                        if GenJnlLine2."Line No." >= "Line No." + 2 then
-                            "Line No." := ("Line No." + GenJnlLine2."Line No.") div 2
-                        else
-                            Error(
-                              Text000,
-                              PrevGenJnlLine2."Line No.",
-                              GenJnlLine2."Line No.");
-                    "Document Type" := PrevGenJnlLine2."Document Type";
-                    "Account Type" := "Account Type"::"G/L Account";
-                    Correction := PrevGenJnlLine2.Correction;
-                    if Correction xor (TempCurrTotalBuffer."Total Amount (LCY)" <= 0) then
-                        Validate("Account No.", Currency.GetConvLCYRoundingDebitAccount())
-                    else
-                        Validate("Account No.", Currency.GetConvLCYRoundingCreditAccount());
-                    "Posting Date" := PrevGenJnlLine2."Posting Date";
-                    "Document No." := PrevGenJnlLine2."Document No.";
-                    Description := StrSubstNo(Text002, TempCurrTotalBuffer."Currency Code");
-                    Validate(Amount, -TempCurrTotalBuffer."Total Amount (LCY)");
-                    "Source Code" := PrevGenJnlLine2."Source Code";
-                    "Business Unit Code" := PrevGenJnlLine2."Business Unit Code";
-                    "Reason Code" := PrevGenJnlLine2."Reason Code";
-                    "Recurring Method" := PrevGenJnlLine2."Recurring Method";
-                    "Recurring Frequency" := PrevGenJnlLine2."Recurring Frequency";
-                    "Posting No. Series" := PrevGenJnlLine2."Posting No. Series";
-                    OnBeforeGenJnlLineInsert(NewGenJnlLine, GenJnlLine2, PrevGenJnlLine2);
-                    if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then begin
-                        OnInsertCorrectionLinesOnBeforeNewGenJnlLineInsert(GenJnlLine2, PrevGenJnlLine2, NewGenJnlLine);
-                        Insert();
-                    end;
+                        Error(
+                          Text000,
+                          PrevGenJnlLine2."Line No.",
+                          GenJnlLine2."Line No.");
+                NewGenJnlLine."Document Type" := PrevGenJnlLine2."Document Type";
+                NewGenJnlLine."Account Type" := NewGenJnlLine."Account Type"::"G/L Account";
+                NewGenJnlLine.Correction := PrevGenJnlLine2.Correction;
+                if NewGenJnlLine.Correction xor (TempCurrTotalBuffer."Total Amount (LCY)" <= 0) then
+                    NewGenJnlLine.Validate("Account No.", Currency.GetConvLCYRoundingDebitAccount())
+                else
+                    NewGenJnlLine.Validate("Account No.", Currency.GetConvLCYRoundingCreditAccount());
+                NewGenJnlLine."Posting Date" := PrevGenJnlLine2."Posting Date";
+                NewGenJnlLine."Document No." := PrevGenJnlLine2."Document No.";
+                NewGenJnlLine.Description := StrSubstNo(Text002, TempCurrTotalBuffer."Currency Code");
+                NewGenJnlLine.Validate(Amount, -TempCurrTotalBuffer."Total Amount (LCY)");
+                NewGenJnlLine."Source Code" := PrevGenJnlLine2."Source Code";
+                NewGenJnlLine."Business Unit Code" := PrevGenJnlLine2."Business Unit Code";
+                NewGenJnlLine."Reason Code" := PrevGenJnlLine2."Reason Code";
+                NewGenJnlLine."Recurring Method" := PrevGenJnlLine2."Recurring Method";
+                NewGenJnlLine."Recurring Frequency" := PrevGenJnlLine2."Recurring Frequency";
+                NewGenJnlLine."Posting No. Series" := PrevGenJnlLine2."Posting No. Series";
+                OnBeforeGenJnlLineInsert(NewGenJnlLine, GenJnlLine2, PrevGenJnlLine2);
+                if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then begin
+                    OnInsertCorrectionLinesOnBeforeNewGenJnlLineInsert(GenJnlLine2, PrevGenJnlLine2, NewGenJnlLine);
+                    NewGenJnlLine.Insert();
                 end;
             until TempCurrTotalBuffer.Next() = 0;
     end;

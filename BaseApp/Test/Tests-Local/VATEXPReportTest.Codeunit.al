@@ -20,7 +20,7 @@ codeunit 144017 "VATEXP Report Test"
     [Scope('OnPrem')]
     procedure SalesInvoiceReportHandler(var SalesInvoiceReport: TestRequestPage "Standard Sales - Invoice")
     begin
-        SalesInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 144017 "VATEXP Report Test"
         VATBusinessPostingGroup.FindFirst();
         VATPrintedOnInvoiceFieldExists := false;
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement('PrintOnInvoice_VatBusPostGroup') then begin
                 LibraryReportDataset.GetElementValueInCurrentRow('PrintOnInvoice_VatBusPostGroup', VATBusinessPostingGroupPrintOnInvoice);
                 Assert.AreEqual(VATBusinessPostingGroup."Print on Invoice", VATBusinessPostingGroupPrintOnInvoice, 'No VatBusPostGroup');
@@ -123,7 +123,7 @@ codeunit 144017 "VATEXP Report Test"
         VATProductPostingGroup.FindFirst();
         VATPrintedOnInvoiceFieldExists := false;
 
-        while LibraryReportDataset.GetNextRow do
+        while LibraryReportDataset.GetNextRow() do
             if LibraryReportDataset.CurrentRowHasElement('PrintOnInvoice_VatProdPostGroup') then begin
                 LibraryReportDataset.GetElementValueInCurrentRow('PrintOnInvoice_VatProdPostGroup', VATProductPostingGroupPrintOnInvoice);
                 Assert.AreEqual(VATProductPostingGroup."Print on Invoice", VATProductPostingGroupPrintOnInvoice, 'No VatProdPostGroup');
@@ -135,8 +135,8 @@ codeunit 144017 "VATEXP Report Test"
 
     local procedure VerifyReportDatasetHasData()
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.RowCount > 0, 'Empty Dataset');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.RowCount() > 0, 'Empty Dataset');
     end;
 
     local procedure TestSalesInvoiceReport(EnableVatBusPostGroup: Boolean; EnableVatProdPostGroup: Boolean)
@@ -154,10 +154,10 @@ codeunit 144017 "VATEXP Report Test"
         StandardSalesInvoice.Run();
 
         // Validate
-        VerifyReportDatasetHasData;
+        VerifyReportDatasetHasData();
         // No VatBusPostgroup information is available for this report.
-        asserterror VerifyVatBusPostGroup;
-        asserterror VerifyVatProdPostGroup;
+        asserterror VerifyVatBusPostGroup();
+        asserterror VerifyVatProdPostGroup();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)

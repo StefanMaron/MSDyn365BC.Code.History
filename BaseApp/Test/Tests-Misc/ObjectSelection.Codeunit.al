@@ -456,7 +456,7 @@ codeunit 134562 "Object Selection"
     begin
         // [FEATURE] [Report Selection] [Assembly]
         // [SCENARIO 375912] Report Selection - Inventory should include Assembly Order
-        ReportSelectionInventory.OpenEdit;
+        ReportSelectionInventory.OpenEdit();
 
         // [WHEN] Set "Asm.Order" for Usage in Report Selection Inventory Page
         ReportSelectionInventory.ReportUsage2.SetValue(ReportUsage2::"Asm. Order");
@@ -474,7 +474,7 @@ codeunit 134562 "Object Selection"
     begin
         // [FEATURE] [Report Selection] [Assembly]
         // [SCENARIO 375912] Report Selection - Inventory should include Posted Assembly Order
-        ReportSelectionInventory.OpenEdit;
+        ReportSelectionInventory.OpenEdit();
 
         // [WHEN] Set "P.Asm.Order" for Usage in Report Selection Inventory Page
         ReportSelectionInventory.ReportUsage2.SetValue(ReportUsage2::"P.Assembly Order");
@@ -501,7 +501,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
         Commit();
-        FirmPlannedProdOrders.ProdOrderJobCard.Invoke;
+        FirmPlannedProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Report "Prod. Order - Job Card" is run
         // Verify through ProdOrderJobCardHandler
@@ -525,7 +525,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
         Commit();
-        FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke;
+        FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
         // Verify through ProdOrderMatRequisitionHandler
@@ -549,7 +549,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
         Commit();
-        FirmPlannedProdOrders.ProdOrderShortageList.Invoke;
+        FirmPlannedProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Report "Prod. Order - Shortage List" is run
         // Verify through ProdOrderShortageListHandler
@@ -573,7 +573,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
         Commit();
-        RelProdOrders.ProdOrderJobCard.Invoke;
+        RelProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Report "Prod. Order - Job Card" is run
         // Verify through ProdOrderJobCardHandler
@@ -597,7 +597,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
         Commit();
-        RelProdOrders.ProdOrderMaterialRequisition.Invoke;
+        RelProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
         // Verify through ProdOrderMatRequisitionHandler
@@ -621,7 +621,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
         Commit();
-        RelProdOrders.ProdOrderShortageList.Invoke;
+        RelProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Report "Prod. Order - Shortage List" is run
         // Verify through ProdOrderShortageListHandler
@@ -645,7 +645,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
         Commit();
-        FinProdOrders.ProdOrderJobCard.Invoke;
+        FinProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Report "Prod. Order - Job Card" is run
         // Verify through ProdOrderJobCardHandler
@@ -669,7 +669,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
         Commit();
-        FinProdOrders.ProdOrderMaterialRequisition.Invoke;
+        FinProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Report "Prod. Order - Mat. Requisition" is run
         // Verify through ProdOrderMatRequisitionHandler
@@ -693,7 +693,7 @@ codeunit 134562 "Object Selection"
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page
         Commit();
-        FinProdOrders.ProdOrderShortageList.Invoke;
+        FinProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Report "Prod. Order - Shortage List" is run
         // Verify through ProdOrderShortageListHandler
@@ -714,7 +714,7 @@ codeunit 134562 "Object Selection"
         FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Firm Planned Prod. Order" Page
-        asserterror FirmPlannedProdOrders.ProdOrderJobCard.Invoke;
+        asserterror FirmPlannedProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -735,7 +735,7 @@ codeunit 134562 "Object Selection"
         FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Firm Planned Prod. Order" Page
-        asserterror FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke;
+        asserterror FirmPlannedProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -756,7 +756,7 @@ codeunit 134562 "Object Selection"
         FirmPlannedProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Firm Planned Prod. Order" Page
-        asserterror FirmPlannedProdOrders.ProdOrderShortageList.Invoke;
+        asserterror FirmPlannedProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -777,7 +777,7 @@ codeunit 134562 "Object Selection"
         RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Released Production Orders" Page
-        asserterror RelProdOrders.ProdOrderJobCard.Invoke;
+        asserterror RelProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -798,7 +798,7 @@ codeunit 134562 "Object Selection"
         RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Released Production Orders" Page
-        asserterror RelProdOrders.ProdOrderMaterialRequisition.Invoke;
+        asserterror RelProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -819,7 +819,7 @@ codeunit 134562 "Object Selection"
         RelProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Released Production Orders" Page
-        asserterror RelProdOrders.ProdOrderShortageList.Invoke;
+        asserterror RelProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -840,7 +840,7 @@ codeunit 134562 "Object Selection"
         FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderJobCard" action on "Finished Production Orders" Page
-        asserterror FinProdOrders.ProdOrderJobCard.Invoke;
+        asserterror FinProdOrders.ProdOrderJobCard.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -861,7 +861,7 @@ codeunit 134562 "Object Selection"
         FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderMaterialRequisition" action on "Finished Production Orders" Page
-        asserterror FinProdOrders.ProdOrderMaterialRequisition.Invoke;
+        asserterror FinProdOrders.ProdOrderMaterialRequisition.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);
@@ -882,7 +882,7 @@ codeunit 134562 "Object Selection"
         FinProdOrders.OpenNew();
 
         // [WHEN] Run "ProdOrderShortageList" action on "Finished Production Orders" Page
-        asserterror FinProdOrders.ProdOrderShortageList.Invoke;
+        asserterror FinProdOrders.ProdOrderShortageList.Invoke();
 
         // [THEN] Error is thrown: "There is no Report Selections within the filter"
         Assert.ExpectedError(ReportSelectionErr);

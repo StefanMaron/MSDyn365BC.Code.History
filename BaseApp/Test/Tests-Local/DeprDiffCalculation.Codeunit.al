@@ -91,7 +91,7 @@ codeunit 144020 "Depr. Diff. Calculation"
           CopyStr(Format(CreateGuid()), 1, 20), false, false, StrSubstNo('%1..%2', FixedAssetNo1, FixedAssetNo2));
 
         // Verify
-        VerifyCalcAndPostDeprDifferenceReportWithZeroDifference;
+        VerifyCalcAndPostDeprDifferenceReportWithZeroDifference();
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 144020 "Depr. Diff. Calculation"
           CopyStr(Format(CreateGuid()), 1, 20), true, false, FixedAssetNo1);
 
         // Verify
-        VerifyCalcAndPostDeprDifferenceReportWithEmptyLines;
+        VerifyCalcAndPostDeprDifferenceReportWithEmptyLines();
     end;
 
     [Test]
@@ -166,7 +166,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         // Verify
         ExpectedMessage := DeprDiffPostedTxt;
         Assert.AreEqual(ExpectedMessage, HandledMessage, 'DeprDiffPostedTxt must be equal to Report13402.Text13408');
-        VerifyCalcAndPostDeprDifferenceReportWithDifference;
+        VerifyCalcAndPostDeprDifferenceReportWithDifference();
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate, PostingDate, '', false, PostDepreciationDifference, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate(), PostingDate, '', false, PostDepreciationDifference, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterPostingDateTxt);
@@ -277,7 +277,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate, WorkDate(), DocumentNo, false, PostDepreciationDifference, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, WorkDate(), WorkDate(), WorkDate(), DocumentNo, false, PostDepreciationDifference, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterDocumentNoTxt);
@@ -301,7 +301,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, WorkDate(), WorkDate, '', false, false, '');
+            DepreciationBookCodeSUMU, DepreciationBookCodeTax, StartingDate, WorkDate(), WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterStartingDateTxt);
@@ -370,7 +370,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            EmptyBookCode, EmptyBookCode, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
+            EmptyBookCode, EmptyBookCode, WorkDate(), WorkDate(), WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(PleaseEnterBook1AndBook2Txt);
@@ -390,7 +390,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // Excercise
         asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(
-            BookInGL, BookInGL, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
+            BookInGL, BookInGL, WorkDate(), WorkDate(), WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(Book1InGLTxt);
@@ -409,7 +409,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         Commit();
 
         // Excercise
-        asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(BookNotInGL, BookNotInGL, WorkDate(), WorkDate, WorkDate(), '', false, false, '');
+        asserterror RunCalcAndPostDeprDifferenceReportWithEnqueue(BookNotInGL, BookNotInGL, WorkDate(), WorkDate(), WorkDate(), '', false, false, '');
 
         // Verify
         Assert.ExpectedError(Book2NotInGLTxt);
@@ -475,7 +475,7 @@ codeunit 144020 "Depr. Diff. Calculation"
 
         // [WHEN] Run report 13402 for books "FAB1" and "FAB2"
         EnqueueParamsForCalcAndPostDeprDifferenceReport(
-          DeprBookCode[1], DeprBookCode[2], WorkDate(), WorkDate, WorkDate(), LibraryUtility.GenerateGUID, false, true);
+          DeprBookCode[1], DeprBookCode[2], WorkDate(), WorkDate(), WorkDate(), LibraryUtility.GenerateGUID(), false, true);
 
         Commit();
 
@@ -483,7 +483,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         // UI Handled by CalcAndPostDeprDifferenceRPH,PostingDeprDiffCFH,MessageHandlerWithEnqueue
 
         // [THEN] Depreciation Difference is posted
-        Assert.AreEqual(DeprDiffPostedTxt, LibraryVariableStorage.DequeueText, 'DeprDiffPostedTxt must be equal to Report13402.Text13408');
+        Assert.AreEqual(DeprDiffPostedTxt, LibraryVariableStorage.DequeueText(), 'DeprDiffPostedTxt must be equal to Report13402.Text13408');
     end;
 
     [ConfirmHandler]
@@ -531,7 +531,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         LibraryVariableStorage.Dequeue(Value);
         CalcAndPostDeprDifferenceRequestPage."Post Depreciation Difference".SetValue(Value);
 
-        CalcAndPostDeprDifferenceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostDeprDifferenceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure CreateFixedAsset(var FixedAsset: Record "Fixed Asset"; FAPostingGroup: Code[20])
@@ -769,7 +769,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         GenJournalLine: Record "Gen. Journal Line";
         FAJournalSetup: Record "FA Journal Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         FAJournalSetup.Get(DepreciationBookCode, '');
@@ -779,12 +779,12 @@ codeunit 144020 "Depr. Diff. Calculation"
             FindSet();
             GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
-            DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false);
+            DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
             repeat
                 Validate("Document No.", DocumentNo);
                 Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -794,7 +794,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         FAJournalLine: Record "FA Journal Line";
         FAJournalSetup: Record "FA Journal Setup";
         FAJournalBatch: Record "FA Journal Batch";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         DocumentNo: Code[20];
     begin
         FAJournalSetup.Get(DepreciationBookCode, '');
@@ -805,12 +805,12 @@ codeunit 144020 "Depr. Diff. Calculation"
             FindSet();
             FAJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
-            DocumentNo := NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate(), false);
+            DocumentNo := NoSeries.PeekNextNo(FAJournalBatch."No. Series");
             repeat
                 Validate("Document No.", DocumentNo);
                 Validate(Description, FAJournalSetup."Gen. Jnl. Batch Name");
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
@@ -875,12 +875,12 @@ codeunit 144020 "Depr. Diff. Calculation"
           PostingDate, DocumentNo, PrintEmptyLines, PostDepreciationDifference);
 
         RunCalcAndPostDeprDifferenceReport(FixedAssetFilter);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure VerifyCalcAndPostDeprDifferenceReportWithZeroDifference()
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         Assert.IsFalse(
           LibraryReportDataset.FindRow('DifferenceAmt', 0) > -1,
           StrSubstNo(ZeroDifferenceLineErr, 'Calc. and Post Depr. Diff.'));
@@ -890,8 +890,8 @@ codeunit 144020 "Depr. Diff. Calculation"
     var
         DifferenceAmt: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        if LibraryReportDataset.GetNextRow then begin
+        LibraryReportDataset.LoadDataSetFile();
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.FindCurrentRowValue('DifferenceAmt', DifferenceAmt);
             Assert.AreEqual(0, DifferenceAmt, StrSubstNo(DifferenceAmtErr, 0));
         end
@@ -901,8 +901,8 @@ codeunit 144020 "Depr. Diff. Calculation"
     var
         DifferenceAmt: Variant;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        if LibraryReportDataset.GetNextRow then begin
+        LibraryReportDataset.LoadDataSetFile();
+        if LibraryReportDataset.GetNextRow() then begin
             LibraryReportDataset.FindCurrentRowValue('DifferenceAmt', DifferenceAmt);
             Assert.AreNotEqual(0, DifferenceAmt, StrSubstNo(DifferenceAmtErr, 0));
         end

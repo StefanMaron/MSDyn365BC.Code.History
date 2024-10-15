@@ -31,14 +31,14 @@ codeunit 137601 "SCM CETAF Purchase"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM CETAF Purchase");
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify();
 
         isInitialized := true;
@@ -702,7 +702,7 @@ codeunit 137601 "SCM CETAF Purchase"
           LibraryRandom.RandInt(10), WorkDate(), LibraryRandom.RandDec(100, 5));
         LibraryPatterns.MAKEPurchaseReturnOrder(
           PurchaseHeader1, PurchaseLine1, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", PurchaseLine.Quantity,
-          WorkDate + 1, LibraryRandom.RandDec(100, 5));
+          WorkDate() + 1, LibraryRandom.RandDec(100, 5));
 
         // Cost modification.
         // for Purchase.
@@ -897,7 +897,7 @@ codeunit 137601 "SCM CETAF Purchase"
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate + 1,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate() + 1,
               LibraryRandom.RandDec(100, 5), true, LibraryRandom.RandDecInDecimalRange(InvoiceQty, Qty, 2), true, InvoiceQty);
         end else begin
             Qty := LibraryRandom.RandDec(100, 2);
@@ -909,13 +909,13 @@ codeunit 137601 "SCM CETAF Purchase"
             Qty := LibraryRandom.RandDec(100, 2);
             InvoiceQty := LibraryRandom.RandDecInRange(0, 1, 1) * Qty;
             LibraryPatterns.POSTPurchaseOrderPartially(
-              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate + 1,
+              PurchaseHeader2, Item, StockkeepingUnit."Location Code", StockkeepingUnit."Variant Code", Qty, WorkDate() + 1,
               LibraryRandom.RandDec(100, 5), true, Qty, true, InvoiceQty);
         end;
 
         // Cost modification.
         LibraryPurchase.CreatePurchHeader(PurchaseHeaderInv, PurchaseHeaderInv."Document Type"::Invoice, '');
-        PurchaseHeaderInv.Validate("Posting Date", WorkDate + 3);
+        PurchaseHeaderInv.Validate("Posting Date", WorkDate() + 3);
         PurchRcptLine.SetRange("Order No.", PurchaseHeader1."No.");
         PurchRcptLine.FindFirst();
         LibraryPatterns.ASSIGNPurchChargeToPurchRcptLine(

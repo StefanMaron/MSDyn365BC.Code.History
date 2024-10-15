@@ -77,7 +77,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
 
         // Setup
         CreateVendor(Vendor);
-        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         LibraryERM.FindCurrency(Currency);
         Amount1 := LibraryRandom.RandDec(100, 2);
         VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
@@ -109,7 +109,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
 
         // Setup
         CreateVendor(Vendor);
-        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         LibraryERM.FindCurrency(Currency);
         Amount1 := LibraryRandom.RandDec(100, 2);
         VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
@@ -141,7 +141,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
 
         // Setup
         CreateVendor(Vendor);
-        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         LibraryERM.FindCurrency(Currency);
         Amount1 := LibraryRandom.RandDec(100, 2);
         VendorBankAlt := CreateVendorBankAccount(Vendor."No.");
@@ -175,7 +175,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         LibraryERM.CreateBankAccount(BankAccountNoComb);
         CreateBankAccountReferenceFileSetup(BankAccountNoComb."No.", false);
         CreateVendor(Vendor);
-        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         LibraryERM.FindCurrency(Currency);
         Amount := LibraryRandom.RandDec(100, 2);
 
@@ -218,7 +218,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         CreateBankAccountReferenceFileSetup(BankAccount2."No.", true);
         CreateVendor(Vendor);
         CreateVendor(Vendor2);
-        PostingDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        PostingDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         PostingDate2 := PostingDate + 1;
         LibraryERM.FindCurrency(Currency);
         LibraryERM.FindCurrency(Currency2);
@@ -380,7 +380,7 @@ codeunit 144008 "UT Codeunit32000000 162511"
         AnyDate: Date;
         NextNo: Integer;
     begin
-        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate + 1000);
+        AnyDate := LibraryUtility.GenerateRandomDate(WorkDate(), WorkDate() + 1000);
         Vendor.Get(VendorNo);
 
         with RefPmtExported do begin

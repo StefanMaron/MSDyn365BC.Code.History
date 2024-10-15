@@ -6,6 +6,7 @@ table 8625 "Config. Related Table"
 {
     Caption = 'Config. Related Table';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -21,7 +22,7 @@ table 8625 "Config. Related Table"
         }
         field(3; "Relation Table Name"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Table),
                                                                         "Object ID" = field("Relation Table ID")));
             Caption = 'Relation Table Name';
             Editable = false;
@@ -29,7 +30,7 @@ table 8625 "Config. Related Table"
         }
         field(4; "Related Fields"; Integer)
         {
-            CalcFormula = Count("Config. Related Field" where("Table ID" = field("Table ID"),
+            CalcFormula = count("Config. Related Field" where("Table ID" = field("Table ID"),
                                                                "Relation Table ID" = field("Relation Table ID")));
             Caption = 'Related Fields';
             Editable = false;
@@ -38,7 +39,7 @@ table 8625 "Config. Related Table"
         field(5; "In Worksheet"; Boolean)
         {
             BlankZero = true;
-            CalcFormula = Exist("Config. Line" where("Table ID" = field("Relation Table ID")));
+            CalcFormula = exist("Config. Line" where("Table ID" = field("Relation Table ID")));
             Caption = 'In Worksheet';
             Editable = false;
             FieldClass = FlowField;

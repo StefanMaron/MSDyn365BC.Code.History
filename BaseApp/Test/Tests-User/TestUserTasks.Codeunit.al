@@ -15,9 +15,6 @@ codeunit 134769 "Test User Tasks"
         UserTaskGroup1: Record "User Task Group";
         UserTaskGroupMember: Record "User Task Group Member";
         Assert: Codeunit Assert;
-        LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
 
     [Test]
@@ -33,11 +30,11 @@ codeunit 134769 "Test User Tasks"
         // [WHEN] The Page opens.
         // [THEN] Various fields are defaulted.
         BaseDate := CreateDateTime(20121212D, 000000T);
-        UserTaskCard.Trap;
+        UserTaskCard.Trap();
         UserTaskCard.OpenNew();
         UserTaskCard.Title.Value('Task 1');
-        Assert.AreEqual(0DT, UserTaskCard."Start DateTime".AsDateTime, 'Start DateTime should be 0DT');
-        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Created DateTime".AsDateTime - BaseDate,
+        Assert.AreEqual(0DT, UserTaskCard."Start DateTime".AsDateTime(), 'Start DateTime should be 0DT');
+        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Created DateTime".AsDateTime() - BaseDate,
           60000, 'Unexpected Created DateTime');
         Assert.AreEqual('', UserTaskCard.MultiLineTextControl.Value, 'Unexpected value in the Task Description');
 
@@ -45,30 +42,30 @@ codeunit 134769 "Test User Tasks"
         // [THEN] Various fields are defaulted.
         UserTaskCard."Percent Complete".Value('5');
 
-        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Start DateTime".AsDateTime - BaseDate,
+        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Start DateTime".AsDateTime() - BaseDate,
           60000, 'Unexpected Start DateTime');
 
         // [WHEN] The Percent Completed field is updated to be = 100
         // [THEN] Various fields are defaulted.
         UserTaskCard."Percent Complete".Value('100');
-        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Completed DateTime".AsDateTime - BaseDate,
+        Assert.AreNearlyEqual(CurrentDateTime - BaseDate, UserTaskCard."Completed DateTime".AsDateTime() - BaseDate,
           60000, 'Unexpected Completed DateTime');
 
         // [WHEN] The Percent Completed field is updated to be less that 100
         // [THEN] Various fields are defaulted.
         UserTaskCard."Percent Complete".Value('15');
-        Assert.AreEqual(0DT, UserTaskCard."Completed DateTime".AsDateTime, 'Unexpected Completed DateTime');
+        Assert.AreEqual(0DT, UserTaskCard."Completed DateTime".AsDateTime(), 'Unexpected Completed DateTime');
 
         // [WHEN] The Percent Completed field is updated to be 0
         // [THEN] Various fields are defaulted.
         UserTaskCard."Percent Complete".Value('0');
-        Assert.AreEqual(0DT, UserTaskCard."Completed DateTime".AsDateTime, 'Unexpected Completed DateTime');
-        Assert.AreEqual(0DT, UserTaskCard."Start DateTime".AsDateTime, 'Unexpected Start Date Time');
+        Assert.AreEqual(0DT, UserTaskCard."Completed DateTime".AsDateTime(), 'Unexpected Completed DateTime');
+        Assert.AreEqual(0DT, UserTaskCard."Start DateTime".AsDateTime(), 'Unexpected Start Date Time');
 
         // [WHEN] The Completed Date field is updated.
         // [THEN] Various fields are defaulted.
         UserTaskCard."Completed DateTime".Value(Format(CurrentDateTime));
-        Assert.AreEqual(100, UserTaskCard."Percent Complete".AsInteger, 'Unexpected Percent Complete');
+        Assert.AreEqual(100, UserTaskCard."Percent Complete".AsInteger(), 'Unexpected Percent Complete');
 
         // [WHEN] The user creates a hyper link using the object selection controls.
 
@@ -77,7 +74,7 @@ codeunit 134769 "Test User Tasks"
         UserTaskCard."Object Type".Value('Page');
         asserterror UserTaskCard."Object ID".Value('21');
 
-        UserTaskCard.OK.Invoke;
+        UserTaskCard.OK().Invoke();
     end;
 
     [Test]
@@ -111,7 +108,7 @@ codeunit 134769 "Test User Tasks"
         REPORT.Run(REPORT::"User Task Utility");
 
         Assert.AreEqual(1, UserTask.Count, 'Unexpected record count prior to purge');
-        Assert.IsTrue(UserTask.FindFirst, 'Expected record to be found');
+        Assert.IsTrue(UserTask.FindFirst(), 'Expected record to be found');
         Assert.AreEqual(User2."User Security ID", UserTask."Created By", 'Expected Task for User2 not found');
     end;
 
@@ -129,7 +126,7 @@ codeunit 134769 "Test User Tasks"
         UserTask.Insert();
 
         UserTask2.Get(UserTask.ID);
-        Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription, 'Unexpected value in the Task Description');
+        Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription(), 'Unexpected value in the Task Description');
     end;
 
     [Test]
@@ -244,16 +241,16 @@ codeunit 134769 "Test User Tasks"
         // [SCENARIO] Ensure linked page to user task card page can be opened by an action on the page.
 
         // [GIVEN] A task user card page with a valid page type associated with it.
-        UserTaskCard.Trap;
+        UserTaskCard.Trap();
         UserTaskCard.OpenNew();
         UserTaskCard."Object Type".Value('page');
         UserTaskCard."Object ID".Value('22');
 
         // [WHEN] An action on the user card page is clicked to open up linked page to task
         // [THEN] Linked page opens up handled by CustomerListPageHandler
-        UserTaskCard."Go To Task Item".Invoke;
+        UserTaskCard."Go To Task Item".Invoke();
 
-        UserTaskCard.OK.Invoke;
+        UserTaskCard.OK().Invoke();
     end;
 
     [PageHandler]
@@ -268,7 +265,7 @@ codeunit 134769 "Test User Tasks"
     procedure RequestPageHandler(var UserTaskPurge: TestRequestPage "User Task Utility")
     begin
         UserTaskPurge."User Task".SetFilter("Created By", User1."User Security ID");
-        UserTaskPurge.OK.Invoke;
+        UserTaskPurge.OK().Invoke();
     end;
 
     [Scope('OnPrem')]

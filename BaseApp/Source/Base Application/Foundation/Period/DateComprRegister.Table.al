@@ -27,6 +27,7 @@ table 87 "Date Compr. Register"
     Caption = 'Date Compr. Register';
     DataCaptionFields = "No.";
     LookupPageID = "Date Compr. Registers";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -40,7 +41,7 @@ table 87 "Date Compr. Register"
         }
         field(3; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;

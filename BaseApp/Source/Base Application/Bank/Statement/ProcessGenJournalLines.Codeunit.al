@@ -87,20 +87,18 @@ codeunit 1247 "Process Gen. Journal  Lines"
 
     procedure CreateGeneralJournalLineTemplate(var GenJournalLineTemplate: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLineTemplate do begin
-            "Journal Template Name" := GenJournalLine."Journal Template Name";
-            "Journal Batch Name" := GenJournalLine."Journal Batch Name";
-            SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
-            "Account Type" := "Account Type"::"G/L Account";
+        GenJournalLineTemplate."Journal Template Name" := GenJournalLine."Journal Template Name";
+        GenJournalLineTemplate."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        GenJournalLineTemplate.SetUpNewLine(GenJournalLine, GenJournalLine."Balance (LCY)", true);
+        GenJournalLineTemplate."Account Type" := GenJournalLineTemplate."Account Type"::"G/L Account";
 
-            GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-            GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-            if GenJournalLine.FindLast() then begin
-                "Line No." := GenJournalLine."Line No.";
-                "Document No." := IncStr(GenJournalLine."Document No.");
-            end else
-                "Document No." := GenJournalLine."Document No.";
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        if GenJournalLine.FindLast() then begin
+            GenJournalLineTemplate."Line No." := GenJournalLine."Line No.";
+            GenJournalLineTemplate."Document No." := IncStr(GenJournalLine."Document No.");
+        end else
+            GenJournalLineTemplate."Document No." := GenJournalLine."Document No.";
 
         OnAfterCreateGeneralJournalLineTemplate(GenJournalLineTemplate, GenJournalLine);
     end;

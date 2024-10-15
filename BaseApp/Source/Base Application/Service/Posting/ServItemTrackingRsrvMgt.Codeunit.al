@@ -188,22 +188,21 @@ codeunit 5985 "Serv-Item Tracking Rsrv. Mgt."
 
     procedure InsertTempHandlngSpecification(SrcType: Integer; var ServLine: Record "Service Line"; var TempHandlingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecificationInv: Record "Tracking Specification"; QtyToInvoiceNonZero: Boolean)
     begin
-        with ServLine do
-            if TempHandlingSpecification.Find('-') then
-                repeat
-                    TempTrackingSpecification := TempHandlingSpecification;
-                    TempTrackingSpecification."Source Type" := SrcType;
-                    TempTrackingSpecification."Source Subtype" := "Document Type".AsInteger();
-                    TempTrackingSpecification."Source ID" := "Document No.";
-                    TempTrackingSpecification."Source Batch Name" := '';
-                    TempTrackingSpecification."Source Prod. Order Line" := 0;
-                    TempTrackingSpecification."Source Ref. No." := "Line No.";
-                    if TempTrackingSpecification.Insert() then;
-                    if QtyToInvoiceNonZero then begin
-                        TempTrackingSpecificationInv := TempTrackingSpecification;
-                        if TempTrackingSpecificationInv.Insert() then;
-                    end;
-                until TempHandlingSpecification.Next() = 0;
+        if TempHandlingSpecification.Find('-') then
+            repeat
+                TempTrackingSpecification := TempHandlingSpecification;
+                TempTrackingSpecification."Source Type" := SrcType;
+                TempTrackingSpecification."Source Subtype" := ServLine."Document Type".AsInteger();
+                TempTrackingSpecification."Source ID" := ServLine."Document No.";
+                TempTrackingSpecification."Source Batch Name" := '';
+                TempTrackingSpecification."Source Prod. Order Line" := 0;
+                TempTrackingSpecification."Source Ref. No." := ServLine."Line No.";
+                if TempTrackingSpecification.Insert() then;
+                if QtyToInvoiceNonZero then begin
+                    TempTrackingSpecificationInv := TempTrackingSpecification;
+                    if TempTrackingSpecificationInv.Insert() then;
+                end;
+            until TempHandlingSpecification.Next() = 0;
     end;
 
     procedure RetrieveInvoiceSpecification(var ServLine: Record "Service Line"; var TempInvoicingSpecification: Record "Tracking Specification"; Consume: Boolean) Ok: Boolean

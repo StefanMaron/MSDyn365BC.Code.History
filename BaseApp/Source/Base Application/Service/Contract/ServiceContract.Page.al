@@ -3,6 +3,7 @@
 using Microsoft.CRM.Contact;
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
+using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
 using Microsoft.Sales.Customer;
 using Microsoft.Service.Comment;
@@ -10,6 +11,7 @@ using Microsoft.Service.Document;
 using Microsoft.Service.History;
 using Microsoft.Service.Ledger;
 using Microsoft.Service.Reports;
+using Microsoft.Utilities;
 using System.Security.User;
 using System.Utilities;
 
@@ -32,6 +34,7 @@ page 6050 "Service Contract"
                 {
                     ApplicationArea = Service;
                     Importance = Promoted;
+                    Visible = DocNoVisible;
                     ToolTip = 'Specifies the number of the service contract or service contract quote.';
 
                     trigger OnAssistEdit()
@@ -657,6 +660,14 @@ page 6050 "Service Contract"
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Contract Header"),
+                              "Document Type" = const("Service Contract"),
+                              "No." = field("Contract No.");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -809,7 +820,7 @@ page 6050 "Service Contract"
                     RunPageLink = "Contract Type Relation" = field("Contract Type"),
                                   "Contract No. Relation" = field("Contract No.");
                     RunPageView = sorting("Contract Type Relation", "Contract No. Relation", "File Date", "File Time")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View service contracts that are filed.';
                 }
                 action("Co&mments")
@@ -824,6 +835,23 @@ page 6050 "Service Contract"
                                   "Table Line No." = const(0);
                     ToolTip = 'View or add comments for the record.';
                 }
+                action(DocAttach)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attachments';
+                    Image = Attach;
+                    ToolTip = 'Add a file as an attachment. You can attach images as well as documents.';
+
+                    trigger OnAction()
+                    var
+                        DocumentAttachmentDetails: Page "Document Attachment Details";
+                        RecRef: RecordRef;
+                    begin
+                        RecRef.GetTable(Rec);
+                        DocumentAttachmentDetails.OpenForRecRef(RecRef);
+                        DocumentAttachmentDetails.RunModal();
+                    end;
+                }
                 action("&Gain/Loss Entries")
                 {
                     ApplicationArea = Service;
@@ -832,7 +860,7 @@ page 6050 "Service Contract"
                     RunObject = Page "Contract Gain/Loss Entries";
                     RunPageLink = "Contract No." = field("Contract No.");
                     RunPageView = sorting("Contract No.", "Change Date")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View the contract number, reason code, contract group code, responsibility center, customer number, ship-to code, customer name, and type of change, as well as the contract gain and loss. You can print all your service contract gain/loss entries.';
                 }
             }
@@ -847,7 +875,7 @@ page 6050 "Service Contract"
                     RunObject = Page "Contract Change Log";
                     RunPageLink = "Contract No." = field("Contract No.");
                     RunPageView = sorting("Contract No.")
-                                  order(Descending);
+                                  order(descending);
                     ToolTip = 'View all changes that have been made to the service contract.';
                 }
                 action("&Warranty Ledger Entries")
@@ -888,9 +916,27 @@ page 6050 "Service Contract"
 
                     trigger OnAction()
                     var
-                        DocPrint: Codeunit "Document-Print";
+                        DocumentPrint: Codeunit "Document-Print";
                     begin
-                        DocPrint.PrintServiceContract(Rec);
+                        DocumentPrint.PrintServiceContract(Rec);
+                    end;
+                }
+                action(AttachAsPDF)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Attach as PDF';
+                    Ellipsis = true;
+                    Image = PrintAttachment;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        ServiceContractHeader: Record "Service Contract Header";
+                        DocumentPrint: Codeunit "Document-Print";
+                    begin
+                        ServiceContractHeader := Rec;
+                        ServiceContractHeader.SetRecFilter();
+                        DocumentPrint.PrintServiceContractToDocumentAttachment(ServiceContractHeader);
                     end;
                 }
             }
@@ -1155,7 +1201,7 @@ page 6050 "Service Contract"
                 Caption = 'Contract Details';
                 Image = "Report";
                 RunObject = Report "Service Contract-Detail";
-                ToolTip = 'Specifies billable prices for the job task that are related to items.';
+                ToolTip = 'Specifies billable prices for the project task that are related to items.';
             }
             action("Contract Gain/Loss Entries")
             {
@@ -1163,7 +1209,7 @@ page 6050 "Service Contract"
                 Caption = 'Contract Gain/Loss Entries';
                 Image = "Report";
                 RunObject = Report "Contract Gain/Loss Entries";
-                ToolTip = 'Specifies billable prices for the job task that are related to G/L accounts, expressed in the local currency.';
+                ToolTip = 'Specifies billable prices for the project task that are related to G/L accounts, expressed in the local currency.';
             }
             action("Contract Invoicing")
             {
@@ -1171,7 +1217,7 @@ page 6050 "Service Contract"
                 Caption = 'Contract Invoicing';
                 Image = "Report";
                 RunObject = Report "Contract Invoicing";
-                ToolTip = 'Specifies all billable profits for the job task.';
+                ToolTip = 'Specifies all billable profits for the project task.';
             }
             action("Contract Price Update - Test")
             {
@@ -1251,6 +1297,9 @@ page 6050 "Service Contract"
                 actionref("&Print_Promoted"; "&Print")
                 {
                 }
+                actionref(AttachAsPDF_Promoted; AttachAsPDF)
+                {
+                }
             }
             group(Category_Category5)
             {
@@ -1263,6 +1312,9 @@ page 6050 "Service Contract"
                 {
                 }
                 actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
+                actionref(DocAttach_Promoted; DocAttach)
                 {
                 }
             }
@@ -1316,6 +1368,7 @@ page 6050 "Service Contract"
         Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields();
+        SetDocNoVisible();
     end;
 
     var
@@ -1350,6 +1403,7 @@ page 6050 "Service Contract"
         IsShipToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
+        DocNoVisible: Boolean;
 
     local procedure CollectShpmntsByLineContractNo(var TempServShptHeader: Record "Service Shipment Header" temporary)
     var
@@ -1378,6 +1432,14 @@ page 6050 "Service Contract"
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");
+    end;
+
+    local procedure SetDocNoVisible()
+    var
+        DocumentNoVisibility: Codeunit DocumentNoVisibility;
+        DocType: Option Quote,"Order",Invoice,"Credit Memo",Contract;
+    begin
+        DocNoVisible := DocumentNoVisibility.ServiceDocumentNoIsVisible(DocType::Contract, Rec."Contract No.");
     end;
 
     procedure CheckRequiredFields()

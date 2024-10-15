@@ -62,7 +62,7 @@ codeunit 144005 "Reference No Test"
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // Exercise
-        PostedDocumentNo := CreateAndPostServiceInvoice;
+        PostedDocumentNo := CreateAndPostServiceInvoice();
         ServiceInvoiceHeader.Get(PostedDocumentNo);
 
         Commit();
@@ -90,7 +90,7 @@ codeunit 144005 "Reference No Test"
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
 
         // Exercise
-        PostedDocumentNo := CreateAndPostServiceInvoice;
+        PostedDocumentNo := CreateAndPostServiceInvoice();
         ServiceInvoiceHeader.Get(PostedDocumentNo);
 
         Commit();
@@ -118,7 +118,7 @@ codeunit 144005 "Reference No Test"
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, true);
 
         // Exercise
-        PostedDocumentNo := CreateAndPostServiceOrder;
+        PostedDocumentNo := CreateAndPostServiceOrder();
         ServiceInvoiceHeader.Get(PostedDocumentNo);
 
         Commit();
@@ -146,7 +146,7 @@ codeunit 144005 "Reference No Test"
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
 
         // Exercise
-        PostedDocumentNo := CreateAndPostServiceOrder;
+        PostedDocumentNo := CreateAndPostServiceOrder();
         ServiceInvoiceHeader.Get(PostedDocumentNo);
 
         Commit();
@@ -176,7 +176,7 @@ codeunit 144005 "Reference No Test"
         SetupRefNumOnSalesAndReceivablesSetup(RefNoNoSeriesCode, false);
 
         // [WHEN] Posted Service Invoice
-        PostedDocumentNo := CreateAndPostServiceOrder;
+        PostedDocumentNo := CreateAndPostServiceOrder();
         ServiceInvoiceHeader.Get(PostedDocumentNo);
 
         // [THEN] Customer Ledger Entry contains Invoice's Reference No
@@ -200,8 +200,8 @@ codeunit 144005 "Reference No Test"
         // [GIVEN] Sales Invoice with Prepayment percentage set to 100%
         Initialize();
 
-        CreateSalesHeaderWithPrepaymentPercentage(SalesHeader, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        CreateSalesHeaderWithPrepaymentPercentage(SalesHeader, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
 
         // [WHEN] The Sales Order is posted
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -274,7 +274,7 @@ codeunit 144005 "Reference No Test"
         Quantity: Decimal;
     begin
         Quantity := LibraryRandom.RandIntInRange(3, 13);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, Quantity);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
         SalesLine.Validate("Qty. to Ship", Quantity);
         SalesLine.Modify(true);
@@ -299,8 +299,8 @@ codeunit 144005 "Reference No Test"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
@@ -326,7 +326,7 @@ codeunit 144005 "Reference No Test"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, 1);
         ServiceLine.Modify();
 
@@ -362,7 +362,7 @@ codeunit 144005 "Reference No Test"
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
 
         ServiceLine.Validate(Quantity, 1);
@@ -397,17 +397,17 @@ codeunit 144005 "Reference No Test"
 
     local procedure VerifyPostedInvoiceReferenceNo(ExpectedReferenceNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'Empty report dataset');
-        while LibraryReportDataset.GetNextRow do
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'Empty report dataset');
+        while LibraryReportDataset.GetNextRow() do
             LibraryReportDataset.AssertCurrentRowValueEquals('RefNo_SalesInvHdr', ExpectedReferenceNo);
     end;
 
     local procedure VerifyPostedServiceInvoiceReferenceNo(ExpectedReferenceNo: Code[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.AreNotEqual(0, LibraryReportDataset.RowCount, 'Empty report dataset');
-        while LibraryReportDataset.GetNextRow do
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreNotEqual(0, LibraryReportDataset.RowCount(), 'Empty report dataset');
+        while LibraryReportDataset.GetNextRow() do
             LibraryReportDataset.AssertCurrentRowValueEquals('RefernceNo_ServInvHeader', ExpectedReferenceNo);
     end;
 
@@ -420,9 +420,9 @@ codeunit 144005 "Reference No Test"
         LibraryVariableStorage.Dequeue(PostedDocumentNo);
 
         RequestPage."Service Invoice Header".SetFilter("No.", PostedDocumentNo);
-        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure SetupInvNoAndCustomerNoTrueOnSalesAndReceivablesSetup()

@@ -10,7 +10,6 @@ codeunit 132573 "Payment Export XMLPort UT"
     end;
 
     var
-        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
@@ -312,7 +311,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         XMLPORT.Export(DataExchDef."Reading/Writing XMLport", OutStream, DataExchField);
 
         // Verify Stream Content.
-        VerifyOutput(InStream, ExportTextArray, TempBlob, DataExchDef.ColumnSeparatorChar, '"');
+        VerifyOutput(InStream, ExportTextArray, TempBlob, DataExchDef.ColumnSeparatorChar(), '"');
     end;
 
     [Test]
@@ -603,7 +602,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         XMLPORT.Export(DataExchDef."Reading/Writing XMLport", OutStream, DataExchField);
 
         // [THEN] Output with "Variable Text" with "Column Separator" char
-        VerifyOutput(InStream, ExportTextArray, TempBlob, DataExchDef.ColumnSeparatorChar, '');
+        VerifyOutput(InStream, ExportTextArray, TempBlob, DataExchDef.ColumnSeparatorChar(), '');
     end;
 
     local procedure Initialize()
@@ -650,7 +649,7 @@ codeunit 132573 "Payment Export XMLPort UT"
             for j := 1 to 5 do
                 ExportText[i] [j] := FixedId; // repeating info for each line.
             for j := 6 to NoOfColumns do
-                ExportText[i] [j] := LibraryUtility.GenerateGUID + 'æøåÆØÅ';
+                ExportText[i] [j] := LibraryUtility.GenerateGUID() + 'æøåÆØÅ';
         end;
     end;
 
@@ -678,7 +677,7 @@ codeunit 132573 "Payment Export XMLPort UT"
     local procedure CreateDataExchDef(var DataExchDef: Record "Data Exch. Def"; ProcessingXMLport: Integer; ColumnSeparator: Option; FileType: Option)
     begin
         DataExchDef.InsertRecForExport(LibraryUtility.GenerateRandomCode(DataExchDef.FieldNo(Code), DATABASE::"Data Exch. Def"),
-          LibraryUtility.GenerateGUID, DataExchDef.Type::"Payment Export".AsInteger(), ProcessingXMLport, FileType);
+          LibraryUtility.GenerateGUID(), DataExchDef.Type::"Payment Export".AsInteger(), ProcessingXMLport, FileType);
         DataExchDef."Column Separator" := ColumnSeparator;
         DataExchDef."File Encoding" := DataExchDef."File Encoding"::WINDOWS;
         DataExchDef.Modify();
@@ -836,7 +835,7 @@ codeunit 132573 "Payment Export XMLPort UT"
         for i := 1 to ArrayLen(ExportData, 1) do
             VerifyOutputForLine(Reader, ExportData, i, ColumnSeparator, FieldDelimiter);
 
-        LineText := Reader.ReadLine;
+        LineText := Reader.ReadLine();
         Assert.AreEqual('', LineText, 'There should be no more data in the stream after line ' + Format(i));
         Reader.Close();
     end;
@@ -845,7 +844,7 @@ codeunit 132573 "Payment Export XMLPort UT"
     var
         LineText: Text;
     begin
-        LineText := Reader.ReadLine;
+        LineText := Reader.ReadLine();
         Assert.AreEqual(GetExpectedLine(ExportData, LineNo, ColumnSeparator, FieldDelimiter),
           LineText, 'Wrong export text on line ' + Format(LineNo));
     end;

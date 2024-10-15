@@ -18,15 +18,26 @@ codeunit 455 "Job Queue User Handler"
     local procedure RescheduleJobQueueEntries()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        User: Record User;
+        UserExists: Boolean;
     begin
-        JobQueueEntry.SetFilter(Status, '%1|%2|%3', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process", JobQueueEntry.Status::"On Hold with Inactivity Timeout");
-        JobQueueEntry.SetRange("Recurring Job", true);
-        JobQueueEntry.SetRange(Scheduled, false); // Only reschedule unscheduled jobs
-        JobQueueEntry.SetRange("User ID", UserId);
+        User.SetRange("User Name", UserId());
+        UserExists := not User.IsEmpty();
 
+        JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
+        JobQueueEntry.SetRange("Recurring Job", true);
+        JobQueueEntry.SetRange(Scheduled, false);
         if JobQueueEntry.FindSet(true) then
             repeat
-                if JobShouldBeRescheduled(JobQueueEntry) then
+                if JobShouldBeRescheduled(JobQueueEntry, UserExists) then
+                    Reschedule(JobQueueEntry);
+            until JobQueueEntry.Next() = 0;
+
+        JobQueueEntry.FilterInactiveOnHoldEntries();
+        JobQueueEntry.SetRange(Scheduled, false);
+        if JobQueueEntry.FindSet(true) then
+            repeat
+                if JobQueueEntry.DoesJobNeedToBeRun() then
                     Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
     end;
@@ -55,16 +66,22 @@ codeunit 455 "Job Queue User Handler"
                                 Dimensions)
     end;
 
-    local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry") Result: Boolean
+    local procedure JobShouldBeRescheduled(JobQueueEntry: Record "Job Queue Entry"; UserExists: Boolean) Result: Boolean
     var
         IsHandled: Boolean;
     begin
+        if not UserExists then
+            exit(false);
+
         IsHandled := false;
         OnBeforeJobShouldBeRescheduled(JobQueueEntry, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
-        exit(true);
+        if UserExists then
+            exit(true);
+
+        exit(false);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]

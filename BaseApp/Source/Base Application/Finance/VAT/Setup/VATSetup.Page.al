@@ -66,7 +66,7 @@ page 187 "VAT Setup"
                 field(UseForJobCost; Rec."Use For Job Cost")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the non-deductible VAT must be added to the job cost.';
+                    ToolTip = 'Specifies if the non-deductible VAT must be added to the project cost.';
                 }
                 field("Show Non-Ded. VAT In Lines"; Rec."Show Non-Ded. VAT In Lines")
                 {

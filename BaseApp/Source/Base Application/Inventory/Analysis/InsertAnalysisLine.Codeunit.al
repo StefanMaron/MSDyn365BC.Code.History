@@ -157,23 +157,21 @@ codeunit 7111 "Insert Analysis Line"
     var
         i: Integer;
     begin
-        with AnalysisLine do begin
-            AnalysisLineNo := "Line No.";
-            SetRange("Analysis Area", "Analysis Area");
-            SetRange("Analysis Line Template Name", "Analysis Line Template Name");
-            if Find('+') then
-                repeat
-                    i := "Line No.";
-                    if i >= AnalysisLineNo then begin
-                        Delete();
-                        "Line No." := i + 10000 * NewLineCount;
-                        Insert(true);
-                    end;
-                until (i <= AnalysisLineNo) or (Next(-1) = 0);
+        AnalysisLineNo := AnalysisLine."Line No.";
+        AnalysisLine.SetRange("Analysis Area", AnalysisLine."Analysis Area");
+        AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLine."Analysis Line Template Name");
+        if AnalysisLine.Find('+') then
+            repeat
+                i := AnalysisLine."Line No.";
+                if i >= AnalysisLineNo then begin
+                    AnalysisLine.Delete();
+                    AnalysisLine."Line No." := i + 10000 * NewLineCount;
+                    AnalysisLine.Insert(true);
+                end;
+            until (i <= AnalysisLineNo) or (AnalysisLine.Next(-1) = 0);
 
-            if AnalysisLineNo = 0 then
-                AnalysisLineNo := 10000;
-        end;
+        if AnalysisLineNo = 0 then
+            AnalysisLineNo := 10000;
     end;
 
     local procedure InsertAnalysisLine(var AnalysisLine: Record "Analysis Line"; var AnalysisLineNo: Integer; Text: Text[100]; No: Code[20]; Type2: Enum "Analysis Line Type"; Bold2: Boolean; Indent: Integer)
@@ -185,18 +183,16 @@ codeunit 7111 "Insert Analysis Line"
         if IsHandled then
             exit;
 
-        with AnalysisLine do begin
-            Init();
-            "Line No." := AnalysisLineNo;
-            AnalysisLineNo := AnalysisLineNo + 10000;
-            Description := Text;
-            Range := No;
-            "Row Ref. No." := CopyStr(No, 1, MaxStrLen("Row Ref. No."));
-            Type := Type2;
-            Bold := Bold2;
-            Indentation := Indent;
-            Insert(true);
-        end;
+        AnalysisLine.Init();
+        AnalysisLine."Line No." := AnalysisLineNo;
+        AnalysisLineNo := AnalysisLineNo + 10000;
+        AnalysisLine.Description := Text;
+        AnalysisLine.Range := No;
+        AnalysisLine."Row Ref. No." := CopyStr(No, 1, MaxStrLen(AnalysisLine."Row Ref. No."));
+        AnalysisLine.Type := Type2;
+        AnalysisLine.Bold := Bold2;
+        AnalysisLine.Indentation := Indent;
+        AnalysisLine.Insert(true);
     end;
 
     [IntegrationEvent(false, false)]

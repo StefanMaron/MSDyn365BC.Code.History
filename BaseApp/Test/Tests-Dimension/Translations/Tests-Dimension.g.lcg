@@ -896,13 +896,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Dimension Shortcuts - NamedType UpdateDimensionOnLineMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 1947391627" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 1606245354" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in Gen. Journal Line Template Name=''%3'',Journal Batch Name=''%4'',Line No.=''%5''.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field Name;%2=Field Value;%3=Gen. Journal Line Template Name;%4=Journal Batch Name;%5=Line No.;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AmountErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AmountErrorMessageMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 391675054" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -923,15 +923,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType AppliesToIdErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 3905048205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Document No. is not equal.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType DocumentNoErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 4272839647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot create a payment with an earlier posting date for %1 %2.]]></Val>
@@ -941,13 +932,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType EarlierPostingDateErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 3651045205" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 1073869965" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8. It cannot be zero or empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Caption;%2=Table;%3=Field1;%4=Value1;%5=Field2;%6=Value2;%7=Field3;%8=Value3;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType ExpectedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=Caption;%2=Table;%3=Field1;%4=Value1;%5=Field2;%6=Value2;%7=Field3;%8=Value3;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType ExpectedErrorErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 598370137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -986,13 +977,13 @@
       <Cmt Name="Dev"><![CDATA[There are payments in Journal Template Name PAYMENT, Journal Batch Name GENERAL, Applies-to Doc. No. 101321]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType PaymentsLineErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 1566215040" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 3673888961" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Report shouldn't suggest any payments.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType RecordExistsMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType RecordExistsMessageMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 3994859747" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1004,31 +995,31 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType SuggestVendorAmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 2349785258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 2468973611" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Suggested amount is incorrect.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType SumErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType SumErrorMessageMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 1487513605" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 3614017373" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3 %4 = %5.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field Caption;%2=Field Value;%3=Table;%4=Field;%5=Value;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType ValidateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1=Field Caption;%2=Field Value;%3=Table;%4=Field;%5=Value;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType ValidateErrorErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2488707860 - NamedType 1862665634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2488707860 - NamedType 708896975" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Expected and Actual amount must be equal.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType VerifyMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType VerifyMessageMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3227769053 - NamedType 276437244" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

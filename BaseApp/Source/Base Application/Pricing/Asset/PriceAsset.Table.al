@@ -14,9 +14,8 @@ using Microsoft.Utilities;
 
 table 7003 "Price Asset"
 {
-#pragma warning disable AS0034
     TableType = Temporary;
-#pragma warning restore AS0034
+    DataClassification = CustomerContent;
 
     fields
     {

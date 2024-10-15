@@ -58,20 +58,20 @@ codeunit 136145 "Service Contracts II"
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false), StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)), 1);
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
         SignContract(ServiceContractHeader);
-        RunCreateContractServiceOrders;
+        RunCreateContractServiceOrders();
         UpdateAndPostServiceOrder(ServiceContractHeader."Contract No.");
 
         LibraryVariableStorage.Enqueue(CalcDate(ServiceContractHeader."Service Period", WorkDate()));
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
         FindServiceLine(ServiceLine, ServiceContractHeader."Contract No.");
         UnitPrice := ServiceLine."Unit Price";
 
         // 2. Exercise: Post Service Invoice using Page.
-        ServiceInvoice.OpenEdit;
+        ServiceInvoice.OpenEdit();
         ServiceInvoice.FILTER.SetFilter("No.", ServiceLine."Document No.");
-        LibrarySales.DisableConfirmOnPostingDoc;
-        ServiceInvoice.Post.Invoke;
+        LibrarySales.DisableConfirmOnPostingDoc();
+        ServiceInvoice.Post.Invoke();
 
         // 3. Verify: Verify Unit Price in Service Ledger Entries.
         VerifyServiceLedgerEntry(ServiceContractHeader."Contract No.", -UnitPrice);
@@ -95,7 +95,7 @@ codeunit 136145 "Service Contracts II"
           ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CreateCustomer(false));
 
         // 2. Exercise: Open Service Contract Page because some code is written on Page.
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
 
         // 3. Verify: Verify Next Planned Service Date.
@@ -125,7 +125,7 @@ codeunit 136145 "Service Contracts II"
         ServiceContractHeader.Modify(true);
 
         // 2. Exercise: Open Service Contract Page. Using page because there is no data available on Service Contract Line Record when Line is not created.
-        ServiceContract.OpenEdit;
+        ServiceContract.OpenEdit();
         ServiceContract.FILTER.SetFilter("Contract No.", ServiceContractHeader."Contract No.");
 
         // 3. Verify: Verify Service Period and Next Planned Service Date.
@@ -157,7 +157,7 @@ codeunit 136145 "Service Contracts II"
 
         // 1. Setup: Create and Sign Service Contract, Create Service Invoice and Post it.
         Initialize();
-        PostServiceInvoiceAndVerifyPrepaidAccount(CreateAndUpdateServiceContractAccountGroup);
+        PostServiceInvoiceAndVerifyPrepaidAccount(CreateAndUpdateServiceContractAccountGroup());
     end;
 
     [Test]
@@ -184,7 +184,7 @@ codeunit 136145 "Service Contracts II"
 
         // Create and Sign Service Contract, Find Service Invoice and Post it, Create Service Credit Memo and Post.
         Initialize();
-        CreditMemoWithServiceContractAccountGroup(CreateAndUpdateServiceContractAccountGroup);
+        CreditMemoWithServiceContractAccountGroup(CreateAndUpdateServiceContractAccountGroup());
     end;
 
     [Test]
@@ -366,7 +366,7 @@ codeunit 136145 "Service Contracts II"
         CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, 0D);
 
         // 3. Verify: line is created
-        Assert.IsTrue(ServiceContractLine.Find, LineNotCreatedErr);
+        Assert.IsTrue(ServiceContractLine.Find(), LineNotCreatedErr);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -422,7 +422,7 @@ codeunit 136145 "Service Contracts II"
           ChangeExpirationDateOnContractLine(ServiceContractHeader, ServiceContractHeader."Next Invoice Date");
 
         // [WHEN] Run Create Contract Invoices batch job for Posting Date = "X"
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Service Ledger Entry for "Service Item No." = "A" and "Posting Date" = "X" is not created
         VerifyServiceLedgEntryDoesNotExist(
@@ -444,7 +444,7 @@ codeunit 136145 "Service Contracts II"
 
         Initialize();
         // [GIVEN] Signed Non Prepaid Service Contract with two lines ("Service Item No." = "A" and "B")
-        LibraryVariableStorage.Enqueue(CreateNonPrepaidServTemplateWithMonthInvPeriod);
+        LibraryVariableStorage.Enqueue(CreateNonPrepaidServTemplateWithMonthInvPeriod());
         CreateServiceContract(ServiceContractHeader, CreateCustomer(false), '<1M>', 2);
         SignContract(ServiceContractHeader);
 
@@ -453,7 +453,7 @@ codeunit 136145 "Service Contracts II"
           ChangeExpirationDateOnContractLine(ServiceContractHeader, ServiceContractHeader."Next Invoice Period Start");
 
         // [WHEN] Run Create Contract Invoices batch job for Posting Date = "X"
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Service Ledger Entry for "Service Item No." = "A" and "Posting Date" = 24.01 is not created
         VerifyServiceLedgEntryDoesNotExist(
@@ -487,7 +487,7 @@ codeunit 136145 "Service Contracts II"
             ServContractLine."Line Amount", ServContractLine."Starting Date", ServContractHeader."Next Invoice Period End");
 
         // [WHEN] Run Create Service Contract Invoices until the "Next Invoice Period End"
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Service Invoice created for new Service Line with non-zero amount
         // [THEN] Work item 359702: Description is equal to "02.01.22 - 31.12.22".
@@ -525,7 +525,7 @@ codeunit 136145 "Service Contracts II"
               ServContractLine."Line Amount", ServContractLine."Starting Date", ServContractHeader."Next Invoice Period End"));
 
         // [WHEN] Run Create Service Contract Invoices until the "Next Invoice Period End"
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] 12 service lines created with total amount = 95
         VerifyServContractLineAmountSplitByPeriod(
@@ -560,7 +560,7 @@ codeunit 136145 "Service Contracts II"
               ServContractLine."Line Amount", ServContractLine."Starting Date", ServContractLine."Contract Expiration Date"));
 
         // [WHEN] Run Create Service Contract Invoices until the "Contract Expiration Date"
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] 1 service line created with total amount = 5
         VerifyServContractLineAmountSplitByPeriod(
@@ -812,7 +812,7 @@ codeunit 136145 "Service Contracts II"
         // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 1 / 7.95
         CustomExchRate := 1 / 7.95;
         CreateServiceContractHeaderWithCurrency(
-          ServContractHeader, LibrarySales.CreateCustomerNo,
+          ServContractHeader, LibrarySales.CreateCustomerNo(),
           LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CustomExchRate, CustomExchRate));
 
         // [GIVEN] Service Contract Line has amount 39750
@@ -826,7 +826,7 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Enqueue(ServContractHeader."Contract No.");
 
         // [WHEN] Create Service Invoice
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Total amount of multiple Service Lines is 5000 (39750 * 1 / 7.95)
         VerifyServContractLineAmountSplitByPeriod(
@@ -891,7 +891,7 @@ codeunit 136145 "Service Contracts II"
         // [GIVEN] Prepaid Service Contract with FCY. Exchange Rate equal 100/64.8824
         CustomExchRate := 100 / 64.8824;
         CreateServiceContractHeaderWithCurrency(
-          ServContractHeader, LibrarySales.CreateCustomerNo,
+          ServContractHeader, LibrarySales.CreateCustomerNo(),
           LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CustomExchRate, CustomExchRate));
 
         // [GIVEN] Service Contract Line has amount 36933
@@ -906,7 +906,7 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.Enqueue(ServContractHeader."Contract No.");
 
         // [WHEN] Create Service Invoice
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Total amount of multiple Service Lines is 56922.99 (36933 * 100/64.8824)
         VerifyServContractLineAmountSplitByPeriod(
@@ -969,7 +969,7 @@ codeunit 136145 "Service Contracts II"
         ServiceLedgerEntry.DeleteAll();
 
         // [GIVEN] Create Service Invoice from Service Contract
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [WHEN] Post Service Invoice
         FindAndPostServiceInvoice(ServiceContractHeader."Contract No.");
@@ -1319,7 +1319,7 @@ codeunit 136145 "Service Contracts II"
         // [WHEN] Create Service Invoice for Service Contract.
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Service Invoice contains a line with Description = "SI DN SNO".
         ExpectedDescription :=
@@ -1352,7 +1352,7 @@ codeunit 136145 "Service Contracts II"
         // [WHEN] Create Service Invoice for Service Contract.
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Next Invoice Date");
         LibraryVariableStorage.Enqueue(ServiceContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
 
         // [THEN] Service Invoice contains two lines with overall Description = "SI DNXXXXX SNO".
         // [THEN] Description is devided into two parts - the first one contains first 100 chars, the second one contains remaining part.
@@ -1393,7 +1393,7 @@ codeunit 136145 "Service Contracts II"
         // [THEN] Report run without errors. "Annual Amount" increased by 5%, "Amount per Period" remains 0.
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
         ServiceContractHeader.TestField(
-          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision));
+          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision()));
         ServiceContractHeader.TestField("Amount per Period", 0);
     end;
 
@@ -1424,9 +1424,9 @@ codeunit 136145 "Service Contracts II"
         // [THEN] Report run without errors. "Annual Amount" increased by 5%, "Amount per Period" = "Annual Amount" / 2.
         ServiceContractHeader.Get(ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
         ServiceContractHeader.TestField(
-          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision));
+          "Annual Amount", Round(AnnualAmount + (AnnualAmount * PriceChangePercent / 100), LibraryERM.GetAmountRoundingPrecision()));
         ServiceContractHeader.TestField(
-          "Amount per Period", Round(ServiceContractHeader."Annual Amount" / 2, LibraryERM.GetAmountRoundingPrecision));
+          "Amount per Period", Round(ServiceContractHeader."Annual Amount" / 2, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
     [Test]
@@ -1799,6 +1799,122 @@ codeunit 136145 "Service Contracts II"
     [Test]
     [HandlerFunctions('SelectServiceContractTemplateListHandler,ServiceContractConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
+    procedure CreateServInvoiceLineFromContractWithYearForPrepaidServContractWithExpDate()
+    var
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceItemGroup: Record "Service Item Group";
+        ServicePriceGroup: Record "Service Price Group";
+        ServiceContractTemplate: Record "Service Contract Template";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ServiceContract: TestPage "Service Contract";
+        ContractStartingDate: Date;
+        ContractExpirationDate: Date;
+        DefaultContractValue: Decimal;
+        FirstMonthExpectedAmount: Decimal;
+        SecondMonthExpectedAmount: Decimal;
+        LastMonthExpectedAmount: Decimal;
+    begin
+        // [SCENARIO 498661] When creating a Service Invoice from a Prepaid Service Contract, the values are wrong only when the Contract has ‘Contract Lines on Invoice’ = FALSE
+        Initialize();
+
+        // [GIVEN] Generate and Save Contract Starting date in a Variable.
+        ContractStartingDate := LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 10, 20);
+
+        // [GIVEN] Generate and Save Contract Expiration date in a Variable.
+        ContractExpirationDate := CalcDate('<1Y>', ContractStartingDate);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Service Item Group.
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+
+        // [GIVEN] Create a Service Price Group.
+        LibraryService.CreateServicePriceGroup(ServicePriceGroup);
+
+        // [GIVEN] Generate and save Default Contract Value in a Variable.
+        DefaultContractValue := LibraryRandom.RandDecInRange(1000, 2000, 0);
+
+        // [GIVEN] Create a Service Item.
+        CreateServiceItemAndValidateFields(
+            ServiceItem,
+            Customer."No.",
+            ServiceItemGroup.Code,
+            ServicePriceGroup.Code,
+            DefaultContractValue,
+            ContractStartingDate);
+
+        // [GIVEN] Create a Service Contract Header.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(CreateContrUsingTemplateQst);
+        LibraryVariableStorage.Enqueue(CreateServiceContractTemplateInvPeriodYear(ServiceContractTemplate, true));
+        LibraryService.CreateServiceContractHeader(
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, Customer."No.");
+        Evaluate(ServiceContractHeader."Service Period", StrSubstNo('<%1Y>', LibraryRandom.RandInt(5)));
+
+        // [GIVEN] Update Starting Date and Expiration Date in a Service Contract Header
+        ServiceContractHeader.Validate("Starting Date", ContractStartingDate);
+        ServiceContractHeader."Expiration Date" := ContractExpirationDate;
+        ServiceContractHeader.Modify();
+
+        // [GIVEN] Create a Service Contract Line.
+        CreateServiceContractLineAndValidateFields(
+            ServiceContractLine,
+            ServiceContractHeader,
+            ServiceItem."No.",
+            DefaultContractValue,
+            ContractStartingDate,
+            ContractExpirationDate);
+
+        // [GIVEN] Validate Annual Amount, Invoice Period and "Contract Lines on Invoice" as false in Service Contract Header.
+        ServiceContractHeader.Validate("Annual Amount", DefaultContractValue);
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Validate("Contract Lines on Invoice", false);
+        ServiceContractHeader.Modify(true);
+
+        // [GIVEN] Sign Service Contract but do not create invoice
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Change WorkDate to next month
+        WorkDate(CalcDate('<CM+1D>', ContractStartingDate));
+
+        // [GIVEN] Open Service Contract page and run Create Service Invoice action.
+        ServiceContract.OpenView();
+        ServiceContract.GoToRecord(ServiceContractHeader);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        ServiceContract.CreateServiceInvoice.Invoke();
+
+        // [GIVEN] Generate different months line amount in the Variable.
+        FirstMonthExpectedAmount := CalcContractLineAmount(DefaultContractValue, ContractStartingDate, CalcDate('<CM>', ContractStartingDate));
+        SecondMonthExpectedAmount := CalcContractLineAmount(DefaultContractValue, WorkDate(), CalcDate('<CM>', WorkDate()));
+        LastMonthExpectedAmount := CalcContractLineAmount(DefaultContractValue, CalcDate('<-CM>', ContractExpirationDate), ContractExpirationDate);
+
+        // [WHEN] Find first Service Invoice Line.
+        FindFirstServiceLine(ServiceContractHeader, ServiceHeader, ServiceLine);
+
+        // [THEN] Verify Service Line - Line Amount field of first, second and last month
+        Assert.AreNearlyEqual(FirstMonthExpectedAmount, ServiceLine."Line Amount", 0.01, '');
+        ServiceLine.Next();
+        Assert.AreNearlyEqual(SecondMonthExpectedAmount, ServiceLine."Line Amount", 0.01, '');
+        ServiceLine.FindLast();
+        Assert.AreNearlyEqual(LastMonthExpectedAmount, ServiceLine."Line Amount", 0.01, '');
+    end;
+
+    [Test]
+    [HandlerFunctions('SelectServiceContractTemplateListHandler,ServiceContractConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
     procedure CreateServiceLineFromContractWithoutDuplicateEntries()
     var
         Customer: Record Customer;
@@ -1934,7 +2050,7 @@ codeunit 136145 "Service Contracts II"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Contracts II");
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -2032,7 +2148,7 @@ codeunit 136145 "Service Contracts II"
         PriceUpdatePeriod: DateFormula;
     begin
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         Evaluate(ServiceContractHeader."Service Period", '<3M>');
         ServiceContractHeader.Validate(Prepaid, IsPrepaid);
         ServiceContractHeader.Validate("Invoice Period", InvoicePeriod);
@@ -2043,7 +2159,7 @@ codeunit 136145 "Service Contracts II"
 
         Evaluate(PriceUpdatePeriod, '<1Y>');
         CreateContractLineAndUpdateContract(
-          ServiceContractHeader, CreateAndUpdateServiceContractAccountGroup, ServiceContractHeader."Expiration Date", PriceUpdatePeriod);
+          ServiceContractHeader, CreateAndUpdateServiceContractAccountGroup(), ServiceContractHeader."Expiration Date", PriceUpdatePeriod);
 
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
@@ -2165,7 +2281,7 @@ codeunit 136145 "Service Contracts II"
     local procedure CreateServiceContractWithLinesWithDiscount(var ServiceContractHeader: Record "Service Contract Header"; var ServiceItemNo: array[3] of Code[20])
     begin
         LibraryService.CreateServiceContractHeader(
-          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo);
+          ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, LibrarySales.CreateCustomerNo());
         CreateServiceContractLineWithDiscount(ServiceItemNo[1], ServiceContractHeader, 100);
         CreateServiceContractLineWithDiscount(ServiceItemNo[2], ServiceContractHeader, 50);
         CreateServiceContractLineWithDiscount(ServiceItemNo[3], ServiceContractHeader, 0);
@@ -2515,7 +2631,7 @@ codeunit 136145 "Service Contracts II"
         ServContractHeader.Find();
         LibraryVariableStorage.Enqueue(ServContractHeader."Next Invoice Period Start");
         LibraryVariableStorage.Enqueue(ServContractHeader."Contract No.");
-        RunCreateContractInvoices;
+        RunCreateContractInvoices();
     end;
 
     local procedure SetExpirationDateLessThanLastInvoiceDate(var ServiceContractHeader: Record "Service Contract Header")
@@ -2581,7 +2697,7 @@ codeunit 136145 "Service Contracts II"
     local procedure UpdateTemplateNoOnServiceContract(var ServiceContractTemplateList: TestPage "Service Contract Template List"; No: Text)
     begin
         ServiceContractTemplateList.FILTER.SetFilter("No.", No);
-        ServiceContractTemplateList.OK.Invoke;
+        ServiceContractTemplateList.OK().Invoke();
     end;
 
     local procedure UpdateAnnualAmountInServiceContract(var ServiceContractHeader: Record "Service Contract Header")
@@ -2663,7 +2779,7 @@ codeunit 136145 "Service Contracts II"
         FindServiceLedgerEntries(ServiceLedgerEntry, ServiceContractNo);
         repeat
             Assert.AreNearlyEqual(
-              AmountLCY, ServiceLedgerEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
+              AmountLCY, ServiceLedgerEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(
                 AmountError, ServiceLedgerEntry.FieldCaption("Amount (LCY)"), AmountLCY, ServiceLedgerEntry.TableCaption(),
                 ServiceLedgerEntry.FieldCaption("Entry No."), ServiceLedgerEntry."Entry No.", ServiceLedgerEntry."Amount (LCY)"));
@@ -2736,7 +2852,7 @@ codeunit 136145 "Service Contracts II"
           GetServiceDocAmount(ServiceHeader), ServiceLine.FieldCaption(Amount));
     end;
 
-    local procedure VerifyServiceContractStatus(ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; ExpectedStatus: Option)
+    local procedure VerifyServiceContractStatus(ContractType: Enum "Service Contract Type"; ContractNo: Code[20]; ExpectedStatus: Enum "Service Contract Status")
     var
         ServiceContractHeader: Record "Service Contract Header";
     begin
@@ -2807,19 +2923,19 @@ codeunit 136145 "Service Contracts II"
         CreateContractInvoices.PostingDate.SetValue(Format(InvoiceDate));
         CreateContractInvoices.InvoiceToDate.SetValue(Format(InvoiceDate));
         CreateContractInvoices.CreateInvoices.SetValue(Format(CreateContractInvoices.CreateInvoices.GetOption(1)));  // Passing 1 for First Option.
-        CreateContractInvoices."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText);
-        CreateContractInvoices.OK.Invoke;
+        CreateContractInvoices."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText());
+        CreateContractInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateContractInvoicesDiffDatesRequestPageHandler(var CreateContractInvoices: TestRequestPage "Create Contract Invoices")
     begin
-        CreateContractInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate);
-        CreateContractInvoices.InvoiceToDate.SetValue(LibraryVariableStorage.DequeueDate);
+        CreateContractInvoices.PostingDate.SetValue(LibraryVariableStorage.DequeueDate());
+        CreateContractInvoices.InvoiceToDate.SetValue(LibraryVariableStorage.DequeueDate());
         CreateContractInvoices.CreateInvoices.SetValue(Format(CreateContractInvoices.CreateInvoices.GetOption(1)));
-        CreateContractInvoices."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText);
-        CreateContractInvoices.OK.Invoke;
+        CreateContractInvoices."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText());
+        CreateContractInvoices.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2830,8 +2946,8 @@ codeunit 136145 "Service Contracts II"
         CreateContractServiceOrders.StartingDate.SetValue(Format(WorkDate()));
         CreateContractServiceOrders.EndingDate.SetValue(Format(WorkDate()));
         CreateContractServiceOrders.CreateServiceOrders.SetValue(Format(CreateContractServiceOrders.CreateServiceOrders.GetOption(1)));  // Passing 1 for First Option.
-        CreateContractServiceOrders."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText);
-        CreateContractServiceOrders.OK.Invoke;
+        CreateContractServiceOrders."Service Contract Header".SetFilter("Contract No.", LibraryVariableStorage.DequeueText());
+        CreateContractServiceOrders.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2839,7 +2955,7 @@ codeunit 136145 "Service Contracts II"
     procedure ConfirmCreateContractServiceOrdersRequestPageHandler(var CreateContractServiceOrders: TestRequestPage "Create Contract Service Orders")
     begin
         CurrentSaveValuesId := REPORT::"Create Contract Service Orders";
-        CreateContractServiceOrders.OK.Invoke;
+        CreateContractServiceOrders.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2857,14 +2973,14 @@ codeunit 136145 "Service Contracts II"
     [Scope('OnPrem')]
     procedure ServiceContractTemplateListHandler2(var ServiceContractTemplateList: TestPage "Service Contract Template List")
     begin
-        ServiceContractTemplateList.OK.Invoke;
+        ServiceContractTemplateList.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SelectServiceContractTemplateListHandler(var ServiceContractTemplateList: TestPage "Service Contract Template List")
     begin
-        UpdateTemplateNoOnServiceContract(ServiceContractTemplateList, LibraryVariableStorage.DequeueText);
+        UpdateTemplateNoOnServiceContract(ServiceContractTemplateList, LibraryVariableStorage.DequeueText());
     end;
 
     [MessageHandler]
@@ -2914,7 +3030,7 @@ codeunit 136145 "Service Contracts II"
     begin
         // There should be no additonal confirm handler with CreateInvoiceMsg. If confirmation window opens then handler failes on the following assert
 
-        Assert.AreNotEqual(0, StrPos(Question, LibraryVariableStorage.DequeueText), UnexpectedConfirmTextErr);
+        Assert.AreNotEqual(0, StrPos(Question, LibraryVariableStorage.DequeueText()), UnexpectedConfirmTextErr);
         Reply := true;
     end;
 
@@ -3045,6 +3161,21 @@ codeunit 136145 "Service Contracts II"
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
         ServiceLine.FindLast();
+    end;
+
+    local procedure FindFirstServiceLine(
+        var ServiceContractHeader: Record "Service Contract Header";
+        var Serviceheader: Record "Service Header";
+        var ServiceLine: Record "Service Line")
+    begin
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.FindFirst();
+
+        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
+        ServiceLine.FindFirst();
     end;
 
     local procedure CountofUnpostedServiceLines(var ServiceContractHeader: Record "Service Contract Header"): Integer

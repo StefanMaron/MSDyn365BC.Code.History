@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Resource;
 
 using Microsoft.Finance.Currency;
@@ -166,7 +166,7 @@ report 1192 "Suggest Res. Price Chg.(Price)"
                     {
                         ApplicationArea = Jobs;
                         Caption = 'Create New Prices';
-                        ToolTip = 'Specifies if you want the batch job to create new price suggestions, such as a new combination of currency, job number, or work type. If you only want to adjust existing alternative prices, do not select.';
+                        ToolTip = 'Specifies if you want the batch job to create new price suggestions, such as a new combination of currency, project number, or work type. If you only want to adjust existing alternative prices, do not select.';
                     }
                 }
             }

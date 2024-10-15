@@ -56,7 +56,7 @@ codeunit 132542 TestMappingToW1Tables
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch.FindLast();
 
@@ -65,7 +65,7 @@ codeunit 132542 TestMappingToW1Tables
           GenJnlLineTemplate."Document Type"::Payment, GenJnlLineTemplate."Account Type"::"Bank Account", '', 0);
         GenJnlLineTemplate2.Delete();
 
-        GenJnlLineTemplate2.ImportBankStatement;
+        GenJnlLineTemplate2.ImportBankStatement();
         DataExch1.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExch1.FindLast();
 
@@ -106,8 +106,8 @@ codeunit 132542 TestMappingToW1Tables
         // Exercise
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
-        GenJnlLineTemplate.ImportBankStatement;
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         Assert.AreEqual(3, GenJnlLineTemplate.Count, 'Not all lines was created');
@@ -153,7 +153,7 @@ codeunit 132542 TestMappingToW1Tables
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -170,7 +170,7 @@ codeunit 132542 TestMappingToW1Tables
 
         GenJnlLineTemplate.FindFirst();
         for i := 1 to AnyLineCount - 1 do
-            Assert.AreEqual(1, GenJnlLineTemplate.Next, StrSubstNo('Line %1 is missing', i));
+            Assert.AreEqual(1, GenJnlLineTemplate.Next(), StrSubstNo('Line %1 is missing', i));
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 132542 TestMappingToW1Tables
         CreateRecTemplateNoBank(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -227,7 +227,7 @@ codeunit 132542 TestMappingToW1Tables
 
         GenJnlLineTemplate.FindFirst();
         for i := 1 to AnyLineCount - 1 do
-            Assert.AreEqual(1, GenJnlLineTemplate.Next, StrSubstNo('Line %1 is missing', i));
+            Assert.AreEqual(1, GenJnlLineTemplate.Next(), StrSubstNo('Line %1 is missing', i));
     end;
 
     [Test]
@@ -327,7 +327,7 @@ codeunit 132542 TestMappingToW1Tables
         // Exercise
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
         BankAccReconciliationLine.Delete(true);
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -344,7 +344,7 @@ codeunit 132542 TestMappingToW1Tables
 
         BankAccReconciliationLine.FindFirst();
         for i := 1 to AnyLineCount - 1 do
-            Assert.AreEqual(1, BankAccReconciliationLine.Next, StrSubstNo('Line %1 is missing', i));
+            Assert.AreEqual(1, BankAccReconciliationLine.Next(), StrSubstNo('Line %1 is missing', i));
     end;
 
     [Test]
@@ -370,7 +370,7 @@ codeunit 132542 TestMappingToW1Tables
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         LineCount := GenJnlLineTemplate.Count();
         GenJnlLineTemplate.Next(LibraryRandom.RandInt(LineCount));
@@ -415,7 +415,7 @@ codeunit 132542 TestMappingToW1Tables
         CreateImportBlob(TempBlobANSI);
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
         BankAccReconciliationLine.Delete(true);
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         LineCount := BankAccReconciliationLine.Count();
         BankAccReconciliationLine.Next(LibraryRandom.RandInt(LineCount));
@@ -461,21 +461,21 @@ codeunit 132542 TestMappingToW1Tables
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
         AddFiltersToRecTemplate(GenJnlLineTemplate);
         GenJnlLineTemplate.Delete(true); // The template needs to removed to not skew when comparing testresults.
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
         GenJnlLineTemplate.Next(LibraryRandom.RandInt(GenJnlLineTemplate.Count));
         DataExchField.SetRange("Data Exch. No.", GenJnlLineTemplate."Data Exch. Entry No.");
         DataExchField.SetRange("Line No.", GenJnlLineTemplate."Data Exch. Line No.");
 
         // Exercise.
         LibraryVariableStorage.Enqueue(GenJnlLineTemplate."Journal Template Name");
-        BankStatementLineDetails.Trap;
-        GeneralJournal.OpenView;
+        BankStatementLineDetails.Trap();
+        GeneralJournal.OpenView();
         // Based on new changes General Journal page (PAG39) is always opened in simple mode which
         // displays one document number at a time. So, we need to filter simple page document number
         // to display this record on the view.
         GeneralJournal."<Document No. Simple Page>".SetValue(GenJnlLineTemplate."Document No.");
         GeneralJournal.GotoRecord(GenJnlLineTemplate);
-        GeneralJournal.ShowStatementLineDetails.Invoke;
+        GeneralJournal.ShowStatementLineDetails.Invoke();
 
         // Verify.
         VerifyBankStatementDetailsPage(DataExchField, BankStatementLineDetails, DataExchDef.Code, DataExchLineDef.Code);
@@ -506,18 +506,18 @@ codeunit 132542 TestMappingToW1Tables
         CreateImportBlob(TempBlobANSI);
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
         BankAccReconciliationLine.Delete(true);
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         BankAccReconciliationLine.Next(LibraryRandom.RandInt(BankAccReconciliationLine.Count));
         DataExchField.SetRange("Data Exch. No.", BankAccReconciliationLine."Data Exch. Entry No.");
         DataExchField.SetRange("Line No.", BankAccReconciliationLine."Data Exch. Line No.");
 
         // Exercise.
-        BankStatementLineDetails.Trap;
-        BankAccReconciliationPage.OpenView;
+        BankStatementLineDetails.Trap();
+        BankAccReconciliationPage.OpenView();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
         BankAccReconciliationPage.StmtLine.FILTER.SetFilter("Statement Line No.", Format(BankAccReconciliationLine."Statement Line No."));
-        BankAccReconciliationPage.StmtLine.ShowStatementLineDetails.Invoke;
+        BankAccReconciliationPage.StmtLine.ShowStatementLineDetails.Invoke();
 
         // Verify.
         VerifyBankStatementDetailsPage(DataExchField, BankStatementLineDetails, DataExchDef.Code, DataExchLineDef.Code);
@@ -548,7 +548,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Exercise
         CreateRecTemplate(GenJnlLineTemplate, DataExchDef.Code);
-        GenJnlLineTemplate.ImportBankStatement;
+        GenJnlLineTemplate.ImportBankStatement();
 
         // Verify
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -573,10 +573,10 @@ codeunit 132542 TestMappingToW1Tables
 
         // Exercise.
         LibraryVariableStorage.Enqueue(GenJnlLine."Journal Template Name");
-        BankStatementLineDetails.Trap;
-        GeneralJournal.OpenView;
+        BankStatementLineDetails.Trap();
+        GeneralJournal.OpenView();
         GeneralJournal.GotoRecord(GenJnlLine);
-        GeneralJournal.ShowStatementLineDetails.Invoke;
+        GeneralJournal.ShowStatementLineDetails.Invoke();
 
         // Verify.
         VerifyEmptyBankStatementDetailsPage(BankStatementLineDetails);
@@ -598,11 +598,11 @@ codeunit 132542 TestMappingToW1Tables
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, '');
 
         // Exercise.
-        BankStatementLineDetails.Trap;
-        BankAccReconciliationPage.OpenView;
+        BankStatementLineDetails.Trap();
+        BankAccReconciliationPage.OpenView();
         BankAccReconciliationPage.GotoRecord(BankAccReconciliation);
         BankAccReconciliationPage.StmtLine.FILTER.SetFilter("Statement Line No.", Format(BankAccReconciliationLine."Statement Line No."));
-        BankAccReconciliationPage.StmtLine.ShowStatementLineDetails.Invoke;
+        BankAccReconciliationPage.StmtLine.ShowStatementLineDetails.Invoke();
 
         // Verify.
         VerifyEmptyBankStatementDetailsPage(BankStatementLineDetails);
@@ -636,7 +636,7 @@ codeunit 132542 TestMappingToW1Tables
         DataExchDef.Modify();
 
         // Exercise
-        asserterror GenJnlLine.ImportBankStatement;
+        asserterror GenJnlLine.ImportBankStatement();
 
         // Verify
         Assert.ExpectedError(
@@ -653,11 +653,11 @@ codeunit 132542 TestMappingToW1Tables
         Initialize();
 
         // Setup
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
 
         // Exercise
-        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup);
+        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup());
 
         // Verify
         Assert.ExpectedError(
@@ -676,11 +676,11 @@ codeunit 132542 TestMappingToW1Tables
         Initialize();
 
         // Setup
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::Customer);
 
         // Exercise
-        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup);
+        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup());
 
         // Verify
         Assert.ExpectedError(
@@ -699,11 +699,11 @@ codeunit 132542 TestMappingToW1Tables
         Initialize();
 
         // Setup
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
 
         // Exercise
-        GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup);
+        GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup());
         GenJournalBatch.Modify();
 
         // Verify
@@ -719,11 +719,11 @@ codeunit 132542 TestMappingToW1Tables
         Initialize();
 
         // Setup
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::Customer);
 
         // Exercise
-        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup);
+        asserterror GenJournalBatch.Validate("Bank Statement Import Format", CreateRandomBankExportImportSetup());
         GenJournalBatch.Validate("Bank Statement Import Format", '');
         GenJournalBatch.Insert(); // the error rolled back the previous insert so can do insert again.
 
@@ -745,9 +745,9 @@ codeunit 132542 TestMappingToW1Tables
 
         // Pre-Setup
         DataExchDef.InsertRecForExport(
-            LibraryUtility.GenerateGUID, '', DataExchDef.Type::"Bank Statement Import".AsInteger(),
+            LibraryUtility.GenerateGUID(), '', DataExchDef.Type::"Bank Statement Import".AsInteger(),
             XMLPORT::"Data Exch. Import - CSV", DataExchDef."File Type"::"Variable Text");
-        DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID, '', 0);
+        DataExchLineDef.InsertRec(DataExchDef.Code, LibraryUtility.GenerateGUID(), '', 0);
         DataExchColumnDef.InsertRec(DataExchDef.Code, DataExchLineDef.Code, 1, '',
           true, DataExchColumnDef."Data Type"::Decimal, '', '', '');
 
@@ -811,7 +811,7 @@ codeunit 132542 TestMappingToW1Tables
         // [WHEN] Import Bank Acc. Reconciliation
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
         BankAccReconciliationLine.Delete(true);
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         // [THEN] Date and Amount are imported correctly
         DataExch.SetRange("Data Exch. Def Code", DataExchDef.Code);
@@ -868,7 +868,7 @@ codeunit 132542 TestMappingToW1Tables
         // [WHEN] Import Bank Acc. Reconciliation
         CreateBankAccRecLineTemplateWithFilter(BankAccReconciliation, BankAccReconciliationLine, DataExchDef.Code);
         BankAccReconciliationLine.Delete(true);
-        BankAccReconciliation.ImportBankStatement;
+        BankAccReconciliation.ImportBankStatement();
 
         // [THEN] Dates and Amounts are imported correctly
         VerifyImportedBankData(BankAccReconciliationLine, DataExchDef.Code, AnyDecimal, ArrayLen(AnyDecimal));
@@ -1005,7 +1005,6 @@ codeunit 132542 TestMappingToW1Tables
         LinesNumber: Integer;
         DataExchEntryNo: Integer;
         DataExchLineNo: Integer;
-        i: Integer;
     begin
         // [SCENARIO 418166] Data Exch. Field records when delete Gen. Journal Line that was created by importing bank statement for General Journals.
         Initialize();
@@ -1178,7 +1177,6 @@ codeunit 132542 TestMappingToW1Tables
         LinesNumber: Integer;
         DataExchEntryNo: Integer;
         DataExchLineNo: Integer;
-        i: Integer;
     begin
         // [SCENARIO 418166] Data Exch. Field records when delete Bank Acc. Reconciliation Line that was created by importing bank statement for Bank Account Reconciliation.
         Initialize();
@@ -1243,7 +1241,6 @@ codeunit 132542 TestMappingToW1Tables
         DecimalValues: List of [Decimal];
         LinesNumber: Integer;
         DataExchEntryNo: Integer;
-        i: Integer;
     begin
         // [SCENARIO 418166] Data Exch. Field records when post Bank Acc. Reconciliation Lines that were created by importing bank statement for Bank Account Reconciliation.
         Initialize();
@@ -1401,7 +1398,7 @@ codeunit 132542 TestMappingToW1Tables
     local procedure WriteLine(OutStream: OutStream; Text: Text)
     begin
         OutStream.WriteText(Text);
-        OutStream.WriteText;
+        OutStream.WriteText();
     end;
 
     local procedure GenerateAnyInputData(var Size: Integer; var DateArray: array[1000] of Date; var TextArray: array[1000] of Text; var DecimalArray: array[1000] of Decimal)
@@ -1410,7 +1407,7 @@ codeunit 132542 TestMappingToW1Tables
     begin
         Size := LibraryRandom.RandInt(100);
         for i := 1 to Size do begin
-            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate + 1000);
+            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate() + 1000);
             TextArray[i] := AnyASCIITextExceptCommaAndQuotes(30);
             DecimalArray[i] := LibraryRandom.RandDecInRange(-10000000, 10000000, 2);
         end
@@ -1421,7 +1418,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         for i := 1 to Size do begin
-            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate + 1000);
+            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate() + 1000);
             DecimalArray[i] := LibraryRandom.RandIntInRange(1, 9);
         end
     end;
@@ -1527,10 +1524,10 @@ codeunit 132542 TestMappingToW1Tables
 
     local procedure VerifyEmptyBankStatementDetailsPage(BankStatementLineDetails: TestPage "Bank Statement Line Details")
     begin
-        BankStatementLineDetails.First;
+        BankStatementLineDetails.First();
         Assert.AreEqual('', Format(BankStatementLineDetails.Name), 'There should be no data on the page.');
         Assert.AreEqual('', Format(BankStatementLineDetails.Value), 'There should be no data on the page.');
-        Assert.IsFalse(BankStatementLineDetails.Next, 'There should be no data on the page.');
+        Assert.IsFalse(BankStatementLineDetails.Next(), 'There should be no data on the page.');
     end;
 
     local procedure VerifyImportedBankData(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DataExchDefCode: Code[20]; ExpectedDecimal: array[3] of Decimal; LineCount: Integer)
@@ -1549,7 +1546,7 @@ codeunit 132542 TestMappingToW1Tables
                 TestField("Statement Amount", ExpectedDecimal[i]);
                 TestField("Data Exch. Line No.", i);
                 TestField("Data Exch. Entry No.", DataExch."Entry No.");
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1558,7 +1555,7 @@ codeunit 132542 TestMappingToW1Tables
         BankAccount: Record "Bank Account";
     begin
         CreateBankAccWithImportFormat(BankAccount, DataExchDefCode);
-        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, LibraryERM.SelectGenJnlTemplate());
         GenJnlBatch.Validate("Bal. Account Type", GenJnlBatch."Bal. Account Type"::"Bank Account");
         GenJnlBatch.Validate("Bal. Account No.", BankAccount."No.");
         GenJnlBatch.Modify(true);
@@ -1603,7 +1600,7 @@ codeunit 132542 TestMappingToW1Tables
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.Init();
-        BankExportImportSetup.Code := CreateRandomBankExportImportSetup;
+        BankExportImportSetup.Code := CreateRandomBankExportImportSetup();
         if DataExchDefCode <> '' then
             BankExportImportSetup."Data Exch. Def. Code" := DataExchDefCode;
         BankExportImportSetup.Modify();

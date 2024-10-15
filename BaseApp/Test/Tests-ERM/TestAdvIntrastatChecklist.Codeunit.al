@@ -502,21 +502,20 @@ codeunit 134194 "Test Adv. Intrastat Checklist"
     begin
         IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
         IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
-        IntrastatJnlBatch.SetRecFilter;
+        IntrastatJnlBatch.SetRecFilter();
         IntrastatJnlLine.SetRange(Type);
-        Commit;
+        Commit();
         RunIntrastatMakeDiscReport(IntrastatJnlBatch, IntrastatJnlLine);
     end;
 
     local procedure RunIntrastatMakeDiscReport(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
-        FileTempBlob: Codeunit "Temp Blob";
         IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+        FileTempBlob: Codeunit "Temp Blob";
         FileOutStream: OutStream;
-        ExportFormat: Option "2021","2022";
     begin
         FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat::"2022", IntrastatJnlLine.Type);
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, "Intrastat Export Format"::"2022", IntrastatJnlLine.Type);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
         IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
         IntrastatMakeDiskTaxAuth.UseRequestPage(true);

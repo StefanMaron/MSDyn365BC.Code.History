@@ -55,7 +55,41 @@ codeunit 110 "Consolidate Business Units"
         ValidateDatesForBusinessUnits(BusinessUnit, ConsolidationProcess."Starting Date", ConsolidationProcess."Ending Date", AskConfirmation);
     end;
 
-    local procedure ValidateBusinessUnitsToConsolidate(var BusinessUnit: Record "Business Unit" temporary)
+    internal procedure GetLastConsolidationEndingDate(BusinessUnit: Record "Business Unit"): Date
+    var
+        BusUnitInConsProcess: Record "Bus. Unit In Cons. Process";
+    begin
+        BusUnitInConsProcess.SetRange(Status, BusUnitInConsProcess.Status::Finished);
+        BusUnitInConsProcess.SetRange("Business Unit Code", BusinessUnit.Code);
+        BusUnitInConsProcess.SetCurrentKey(SystemCreatedAt);
+        BusUnitInConsProcess.SetAscending(SystemCreatedAt, false);
+        if not BusUnitInConsProcess.FindFirst() then
+            exit(0D);
+        exit(BusUnitInConsProcess."Ending Date");
+    end;
+
+    internal procedure BusinessUnitConsolidationProcessesInDateRange(BusinessUnit: Record "Business Unit"; StartingDate: Date; EndingDate: Date): Boolean
+    var
+        BusUnitConsProcess: Record "Bus. Unit In Cons. Process";
+    begin
+        BusUnitConsProcess.SetAutoCalcFields("Starting Date", "Ending Date");
+        BusUnitConsProcess.SetRange("Business Unit Code", BusinessUnit.Code);
+        BusUnitConsProcess.SetRange(Status, BusUnitConsProcess.Status::Finished);
+        BusUnitConsProcess.SetRange("Ending Date", StartingDate, EndingDate);
+        if not BusUnitConsProcess.IsEmpty() then
+            exit(true);
+        BusUnitConsProcess.SetRange("Ending Date");
+        BusUnitConsProcess.SetRange("Starting Date", StartingDate, EndingDate);
+        if not BusUnitConsProcess.IsEmpty() then
+            exit(true);
+        BusUnitConsProcess.SetRange("Starting Date", 0D, StartingDate);
+        BusUnitConsProcess.SetFilter("Ending Date", '>%1', EndingDate);
+        if not BusUnitConsProcess.IsEmpty() then
+            exit(true);
+        exit(false);
+    end;
+
+    internal procedure ValidateBusinessUnitsToConsolidate(var BusinessUnit: Record "Business Unit" temporary)
     var
         ImportConsolidationFromAPI: Codeunit "Import Consolidation from API";
         CompaniesWithNoAccess: Text;
@@ -90,6 +124,11 @@ codeunit 110 "Consolidate Business Units"
         repeat
             BusUnitInConsProcess."Consolidation Process Id" := ConsolidationProcess.Id;
             BusUnitInConsProcess."Business Unit Code" := BusinessUnit.Code;
+            BusUnitInConsProcess."Average Exchange Rate" := BusinessUnit."Income Currency Factor";
+            BusUnitInConsProcess."Closing Exchange Rate" := BusinessUnit."Balance Currency Factor";
+            BusUnitInConsProcess."Last Closing Exchange Rate" := BusinessUnit."Last Balance Currency Factor";
+            BusUnitInConsProcess."Currency Exchange Rate Table" := BusinessUnit."Currency Exchange Rate Table";
+            BusUnitInConsProcess."Currency Code" := BusinessUnit."Currency Code";
             BusUnitInConsProcess.Insert();
         until BusinessUnit.Next() = 0;
         ImportAndConsolidate.ImportAndConsolidate(ConsolidationProcess);

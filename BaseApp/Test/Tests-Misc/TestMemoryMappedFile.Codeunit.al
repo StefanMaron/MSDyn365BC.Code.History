@@ -23,7 +23,7 @@ codeunit 134690 "Test Memory Mapped File"
         ValueRead: Text;
     begin
         // Init
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Name := Format(CreateGuid());
         Value := '<doc>' + Format(CreateGuid()) + '</doc>'; // Expects an xml
 
@@ -35,9 +35,9 @@ codeunit 134690 "Test Memory Mapped File"
 
         // Verify
         Assert.AreEqual(Value, ValueRead, 'Wrong value returned');
-        Assert.AreEqual(Name, MemoryMappedFile.GetName, 'Wrong name');
+        Assert.AreEqual(Name, MemoryMappedFile.GetName(), 'Wrong name');
         MemoryMappedFile.Dispose();
-        Assert.AreEqual('', MemoryMappedFile.GetName, 'Wrong name');
+        Assert.AreEqual('', MemoryMappedFile.GetName(), 'Wrong name');
     end;
 
     [Test]
@@ -48,11 +48,11 @@ codeunit 134690 "Test Memory Mapped File"
         Value: Text;
     begin
         // Init
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Value := '';
 
         // Verify
-        Assert.AreEqual('', MemoryMappedFile.GetName, 'Wrong name');
+        Assert.AreEqual('', MemoryMappedFile.GetName(), 'Wrong name');
         asserterror MemoryMappedFile.ReadTextFromMemoryMappedFile(Value);
     end;
 
@@ -69,7 +69,7 @@ codeunit 134690 "Test Memory Mapped File"
     begin
         // [SCENARIO 390224] Test reading from memory mapped file that contains LF separators
         // [GIVEN] Text with LF line separators place in blob and memory mapped file
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         Value := '<doc>' + Format(CreateGuid()) + TypeHelper.LFSeparator() + Format(CreateGuid()) + '</doc>'; // Expects an xml
 
         TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);

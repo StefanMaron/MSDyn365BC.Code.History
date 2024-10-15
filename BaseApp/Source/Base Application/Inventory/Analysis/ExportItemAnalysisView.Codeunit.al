@@ -159,236 +159,228 @@ codeunit 7152 "Export Item Analysis View"
         TempExcelBuffer.Reset();
         TempExcelBuffer.DeleteAll();
 
-        with ItemAnalysisViewEntry do begin
-            FillCell(1, 1, ItemAnalysisView.TableCaption());
-            FillCell(2, 2, FieldCaption("Analysis View Code"));
-            FillCell(2, 3, "Analysis View Code");
-            FillCell(3, 2, Text023);
-            ItemAnalysisView.Get("Analysis Area", "Analysis View Code");
-            FillCell(3, 3, ItemAnalysisView.Name);
-            RowNoCount := 3;
-            if ItemAnalysisView."Item Filter" <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Item Filter"));
-                FillCell(RowNoCount, 3, ItemAnalysisView."Item Filter");
-            end;
+        FillCell(1, 1, ItemAnalysisView.TableCaption());
+        FillCell(2, 2, ItemAnalysisViewEntry.FieldCaption(ItemAnalysisViewEntry."Analysis View Code"));
+        FillCell(2, 3, ItemAnalysisViewEntry."Analysis View Code");
+        FillCell(3, 2, Text023);
+        ItemAnalysisView.Get(ItemAnalysisViewEntry."Analysis Area", ItemAnalysisViewEntry."Analysis View Code");
+        FillCell(3, 3, ItemAnalysisView.Name);
+        RowNoCount := 3;
+        if ItemAnalysisView."Item Filter" <> '' then begin
             RowNoCount := RowNoCount + 1;
-            FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Date Compression"));
-            case ItemAnalysisView."Date Compression" of
-                0:
-                    FillCell(RowNoCount, 3, Text003);
-                1:
-                    FillCell(RowNoCount, 3, Text004);
-                2:
-                    FillCell(RowNoCount, 3, Text005);
-                3:
-                    FillCell(RowNoCount, 3, Text006);
-                4:
-                    FillCell(RowNoCount, 3, Text007);
-                5:
-                    FillCell(RowNoCount, 3, Text008);
-                6:
-                    FillCell(RowNoCount, 3, Text009);
-            end;
-            if ItemAnalysisView."Starting Date" <> 0D then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Starting Date"));
-                FillCell(RowNoCount, 3, ItemAnalysisView."Starting Date");
-            end;
-            RowNoCount := RowNoCount + 1;
-            FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Last Date Updated"));
-            FillCell(RowNoCount, 3, ItemAnalysisView."Last Date Updated");
-            ItemAnalysisViewFilter.SetRange("Analysis View Code", "Analysis View Code");
-            if ItemAnalysisViewFilter.FindSet() then
-                repeat
-                    RowNoCount := RowNoCount + 1;
-                    FillCell(RowNoCount, 2, ItemAnalysisViewFilter."Dimension Code");
-                    FillCell(RowNoCount, 3, ItemAnalysisViewFilter."Dimension Value Filter");
-                until ItemAnalysisViewFilter.Next() = 0;
-            RowNoCount := RowNoCount + 1;
-            FillCell(RowNoCount, 1, Text011);
-            RowNoCount := RowNoCount + 1;
-            FillCell(RowNoCount, 2, Text012);
-
-            if DateFilter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, Text015);
-                FillCell(RowNoCount, 3, DateFilter);
-            end;
-            if ItemFilter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Item Filter"));
-                FillCell(RowNoCount, 3, ItemFilter);
-            end;
-            if LocationFilter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, Text039);
-                FillCell(RowNoCount, 3, LocationFilter);
-            end;
-            if BudgetFilter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, Text016);
-                FillCell(RowNoCount, 3, BudgetFilter);
-            end;
-
-            if Dim1Filter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 1 Code");
-                FillCell(RowNoCount, 3, Dim1Filter);
-            end;
-            if Dim2Filter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 2 Code");
-                FillCell(RowNoCount, 3, Dim2Filter);
-            end;
-            if Dim3Filter <> '' then begin
-                RowNoCount := RowNoCount + 1;
-                FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 3 Code");
-                FillCell(RowNoCount, 3, Dim3Filter);
-            end;
-
-            RowNoCount := RowNoCount + 1;
-            FillCell(RowNoCount, 2, Text028);
-            if Sign then
-                FillCell(RowNoCount, 3, Text029)
-            else
-                FillCell(RowNoCount, 3, Text030);
+            FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Item Filter"));
+            FillCell(RowNoCount, 3, ItemAnalysisView."Item Filter");
         end;
+        RowNoCount := RowNoCount + 1;
+        FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Date Compression"));
+        case ItemAnalysisView."Date Compression" of
+            0:
+                FillCell(RowNoCount, 3, Text003);
+            1:
+                FillCell(RowNoCount, 3, Text004);
+            2:
+                FillCell(RowNoCount, 3, Text005);
+            3:
+                FillCell(RowNoCount, 3, Text006);
+            4:
+                FillCell(RowNoCount, 3, Text007);
+            5:
+                FillCell(RowNoCount, 3, Text008);
+            6:
+                FillCell(RowNoCount, 3, Text009);
+        end;
+        if ItemAnalysisView."Starting Date" <> 0D then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Starting Date"));
+            FillCell(RowNoCount, 3, ItemAnalysisView."Starting Date");
+        end;
+        RowNoCount := RowNoCount + 1;
+        FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Last Date Updated"));
+        FillCell(RowNoCount, 3, ItemAnalysisView."Last Date Updated");
+        ItemAnalysisViewFilter.SetRange("Analysis View Code", ItemAnalysisViewEntry."Analysis View Code");
+        if ItemAnalysisViewFilter.FindSet() then
+            repeat
+                RowNoCount := RowNoCount + 1;
+                FillCell(RowNoCount, 2, ItemAnalysisViewFilter."Dimension Code");
+                FillCell(RowNoCount, 3, ItemAnalysisViewFilter."Dimension Value Filter");
+            until ItemAnalysisViewFilter.Next() = 0;
+        RowNoCount := RowNoCount + 1;
+        FillCell(RowNoCount, 1, Text011);
+        RowNoCount := RowNoCount + 1;
+        FillCell(RowNoCount, 2, Text012);
+
+        if DateFilter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, Text015);
+            FillCell(RowNoCount, 3, DateFilter);
+        end;
+        if ItemFilter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, ItemAnalysisView.FieldCaption("Item Filter"));
+            FillCell(RowNoCount, 3, ItemFilter);
+        end;
+        if LocationFilter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, Text039);
+            FillCell(RowNoCount, 3, LocationFilter);
+        end;
+        if BudgetFilter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, Text016);
+            FillCell(RowNoCount, 3, BudgetFilter);
+        end;
+
+        if Dim1Filter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 1 Code");
+            FillCell(RowNoCount, 3, Dim1Filter);
+        end;
+        if Dim2Filter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 2 Code");
+            FillCell(RowNoCount, 3, Dim2Filter);
+        end;
+        if Dim3Filter <> '' then begin
+            RowNoCount := RowNoCount + 1;
+            FillCell(RowNoCount, 2, ItemAnalysisView."Dimension 3 Code");
+            FillCell(RowNoCount, 3, Dim3Filter);
+        end;
+
+        RowNoCount := RowNoCount + 1;
+        FillCell(RowNoCount, 2, Text028);
+        if Sign then
+            FillCell(RowNoCount, 3, Text029)
+        else
+            FillCell(RowNoCount, 3, Text030);
     end;
 
     local procedure CreateRowWithColumnsCaptions(ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ItemAnalysisView: Record "Item Analysis View")
     var
         i: Integer;
     begin
-        with ItemAnalysisViewEntry do begin
-            NoOfColumns := NoOfColumns + 1;
-            FillCell(1, NoOfColumns, Format(Text018) + ' ' + Format(Text022) + ' ' + Format(0));
-            if ItemAnalysisView."Dimension 1 Code" <> '' then
-                for i := 0 to MaxLevelDim[1] do begin
-                    NoOfColumns := NoOfColumns + 1;
-                    FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 1 Code" + ' ' + Format(Text022) + ' ' + Format(i));
-                end;
-            if ItemAnalysisView."Dimension 2 Code" <> '' then
-                for i := 0 to MaxLevelDim[2] do begin
-                    NoOfColumns := NoOfColumns + 1;
-                    FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 2 Code" + ' ' + Format(Text022) + ' ' + Format(i));
-                end;
-            if ItemAnalysisView."Dimension 3 Code" <> '' then
-                for i := 0 to MaxLevelDim[3] do begin
-                    NoOfColumns := NoOfColumns + 1;
-                    FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 3 Code" + ' ' + Format(Text022) + ' ' + Format(i));
-                end;
+        NoOfColumns := NoOfColumns + 1;
+        FillCell(1, NoOfColumns, Format(Text018) + ' ' + Format(Text022) + ' ' + Format(0));
+        if ItemAnalysisView."Dimension 1 Code" <> '' then
+            for i := 0 to MaxLevelDim[1] do begin
+                NoOfColumns := NoOfColumns + 1;
+                FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 1 Code" + ' ' + Format(Text022) + ' ' + Format(i));
+            end;
+        if ItemAnalysisView."Dimension 2 Code" <> '' then
+            for i := 0 to MaxLevelDim[2] do begin
+                NoOfColumns := NoOfColumns + 1;
+                FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 2 Code" + ' ' + Format(Text022) + ' ' + Format(i));
+            end;
+        if ItemAnalysisView."Dimension 3 Code" <> '' then
+            for i := 0 to MaxLevelDim[3] do begin
+                NoOfColumns := NoOfColumns + 1;
+                FillCell(1, NoOfColumns, ItemAnalysisView."Dimension 3 Code" + ' ' + Format(Text022) + ' ' + Format(i));
+            end;
 
-            FillNextCellInRow(Text004);
-            FillNextCellInRow(Text005);
-            FillNextCellInRow(Text006);
-            FillNextCellInRow(Text007);
-            FillNextCellInRow(Text008);
-            FillNextCellInRow(Text009);
-            FillNextCellInRow(Text032);
-            FillNextCellInRow(Text033);
-            FillNextCellInRow(FieldCaption(Quantity));
-            FillNextCellInRow(Text039);
-            FillNextCellInRow(Text020);
-            FillNextCellInRow(Text035);
-            FillNextCellInRow(Text036);
+        FillNextCellInRow(Text004);
+        FillNextCellInRow(Text005);
+        FillNextCellInRow(Text006);
+        FillNextCellInRow(Text007);
+        FillNextCellInRow(Text008);
+        FillNextCellInRow(Text009);
+        FillNextCellInRow(Text032);
+        FillNextCellInRow(Text033);
+        FillNextCellInRow(ItemAnalysisViewEntry.FieldCaption(Quantity));
+        FillNextCellInRow(Text039);
+        FillNextCellInRow(Text020);
+        FillNextCellInRow(Text035);
+        FillNextCellInRow(Text036);
 
-            StartNewRow();
-        end;
+        StartNewRow();
     end;
 
     local procedure CreateItemAnalysisViewEntryPart(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ItemAnalysisView: Record "Item Analysis View"; var StartDate: Date; var EndDate: Date; ShowName: Boolean; SignValue: Integer)
     begin
-        with ItemAnalysisViewEntry do begin
-            StartDate := "Posting Date";
+        StartDate := ItemAnalysisViewEntry."Posting Date";
 
-            if Find('-') then
-                repeat
-                    if "Item No." <> Item."No." then
-                        if Item.Get("Item No.") then
-                            Item.Mark(true);
-                    if "Posting Date" = NormalDate("Posting Date") then begin
-                        if "Posting Date" >= EndDate then
-                            EndDate := "Posting Date"
-                        else
-                            if "Posting Date" <= StartDate then
-                                StartDate := "Posting Date";
-                        FillOutItem("Item No.", ShowName);
-                        if ItemAnalysisView."Dimension 1 Code" <> '' then
-                            FillOutDim("Dimension 1 Value Code", ItemAnalysisView."Dimension 1 Code", 1, ShowName);
-                        if ItemAnalysisView."Dimension 2 Code" <> '' then
-                            FillOutDim("Dimension 2 Value Code", ItemAnalysisView."Dimension 2 Code", 2, ShowName);
-                        if ItemAnalysisView."Dimension 3 Code" <> '' then
-                            FillOutDim("Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
+        if ItemAnalysisViewEntry.Find('-') then
+            repeat
+                if ItemAnalysisViewEntry."Item No." <> Item."No." then
+                    if Item.Get(ItemAnalysisViewEntry."Item No.") then
+                        Item.Mark(true);
+                if ItemAnalysisViewEntry."Posting Date" = NormalDate(ItemAnalysisViewEntry."Posting Date") then begin
+                    if ItemAnalysisViewEntry."Posting Date" >= EndDate then
+                        EndDate := ItemAnalysisViewEntry."Posting Date"
+                    else
+                        if ItemAnalysisViewEntry."Posting Date" <= StartDate then
+                            StartDate := ItemAnalysisViewEntry."Posting Date";
+                    FillOutItem(ItemAnalysisViewEntry."Item No.", ShowName);
+                    if ItemAnalysisView."Dimension 1 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewEntry."Dimension 1 Value Code", ItemAnalysisView."Dimension 1 Code", 1, ShowName);
+                    if ItemAnalysisView."Dimension 2 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewEntry."Dimension 2 Value Code", ItemAnalysisView."Dimension 2 Code", 2, ShowName);
+                    if ItemAnalysisView."Dimension 3 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewEntry."Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
 
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
-                        FillNextCellInRow(("Sales Amount (Actual)" + "Sales Amount (Expected)") * SignValue);
-                        FillNextCellInRow(("Cost Amount (Actual)" + "Cost Amount (Expected)" + "Cost Amount (Non-Invtbl.)") * SignValue);
-                        FillNextCellInRow(Quantity * SignValue);
-                        FillNextCellInRow(Format("Location Code"));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), -1));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), 0));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), 1));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), 2));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), 3));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewEntry."Posting Date"), 4));
+                    FillNextCellInRow((ItemAnalysisViewEntry."Sales Amount (Actual)" + ItemAnalysisViewEntry."Sales Amount (Expected)") * SignValue);
+                    FillNextCellInRow((ItemAnalysisViewEntry."Cost Amount (Actual)" + ItemAnalysisViewEntry."Cost Amount (Expected)" + ItemAnalysisViewEntry."Cost Amount (Non-Invtbl.)") * SignValue);
+                    FillNextCellInRow(ItemAnalysisViewEntry.Quantity * SignValue);
+                    FillNextCellInRow(Format(ItemAnalysisViewEntry."Location Code"));
 
-                        StartNewRow();
-                    end;
-                until Next() = 0;
-        end;
+                    StartNewRow();
+                end;
+            until ItemAnalysisViewEntry.Next() = 0;
     end;
 
     local procedure CreateItemAnalysisViewBudgetEntryPart(ItemAnalysisView: Record "Item Analysis View"; var StartDate: Date; var EndDate: Date; DateFilter: Text; ItemFilter: Text; LocationFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; ShowName: Boolean; SignValue: Integer)
     var
         ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry";
     begin
-        with ItemAnalysisViewBudgEntry do begin
-            SetRange("Analysis Area", ItemAnalysisView."Analysis Area");
-            SetRange("Analysis View Code", ItemAnalysisView.Code);
-            SetFilter("Posting Date", DateFilter);
-            SetFilter("Item No.", ItemFilter);
-            SetFilter("Location Code", LocationFilter);
-            SetFilter("Budget Name", BudgetFilter);
-            SetFilter("Dimension 1 Value Code", Dim1Filter);
-            SetFilter("Dimension 2 Value Code", Dim2Filter);
-            SetFilter("Dimension 3 Value Code", Dim3Filter);
-            if Find('-') then
-                repeat
-                    if "Item No." <> Item."No." then
-                        if Item.Get("Item No.") then
-                            Item.Mark(true);
-                    if "Posting Date" = NormalDate("Posting Date") then begin
-                        if "Posting Date" >= EndDate then
-                            EndDate := "Posting Date"
-                        else
-                            if "Posting Date" <= StartDate then
-                                StartDate := "Posting Date";
-                        FillOutItem("Item No.", ShowName);
+        ItemAnalysisViewBudgEntry.SetRange("Analysis Area", ItemAnalysisView."Analysis Area");
+        ItemAnalysisViewBudgEntry.SetRange("Analysis View Code", ItemAnalysisView.Code);
+        ItemAnalysisViewBudgEntry.SetFilter("Posting Date", DateFilter);
+        ItemAnalysisViewBudgEntry.SetFilter("Item No.", ItemFilter);
+        ItemAnalysisViewBudgEntry.SetFilter("Location Code", LocationFilter);
+        ItemAnalysisViewBudgEntry.SetFilter("Budget Name", BudgetFilter);
+        ItemAnalysisViewBudgEntry.SetFilter("Dimension 1 Value Code", Dim1Filter);
+        ItemAnalysisViewBudgEntry.SetFilter("Dimension 2 Value Code", Dim2Filter);
+        ItemAnalysisViewBudgEntry.SetFilter("Dimension 3 Value Code", Dim3Filter);
+        if ItemAnalysisViewBudgEntry.Find('-') then
+            repeat
+                if ItemAnalysisViewBudgEntry."Item No." <> Item."No." then
+                    if Item.Get(ItemAnalysisViewBudgEntry."Item No.") then
+                        Item.Mark(true);
+                if ItemAnalysisViewBudgEntry."Posting Date" = NormalDate(ItemAnalysisViewBudgEntry."Posting Date") then begin
+                    if ItemAnalysisViewBudgEntry."Posting Date" >= EndDate then
+                        EndDate := ItemAnalysisViewBudgEntry."Posting Date"
+                    else
+                        if ItemAnalysisViewBudgEntry."Posting Date" <= StartDate then
+                            StartDate := ItemAnalysisViewBudgEntry."Posting Date";
+                    FillOutItem(ItemAnalysisViewBudgEntry."Item No.", ShowName);
 
-                        if ItemAnalysisView."Dimension 1 Code" <> '' then
-                            FillOutDim("Dimension 1 Value Code", ItemAnalysisView."Dimension 1 Code", 1, ShowName);
-                        if ItemAnalysisView."Dimension 2 Code" <> '' then
-                            FillOutDim("Dimension 2 Value Code", ItemAnalysisView."Dimension 2 Code", 2, ShowName);
-                        if ItemAnalysisView."Dimension 3 Code" <> '' then
-                            FillOutDim("Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
+                    if ItemAnalysisView."Dimension 1 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewBudgEntry."Dimension 1 Value Code", ItemAnalysisView."Dimension 1 Code", 1, ShowName);
+                    if ItemAnalysisView."Dimension 2 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewBudgEntry."Dimension 2 Value Code", ItemAnalysisView."Dimension 2 Code", 2, ShowName);
+                    if ItemAnalysisView."Dimension 3 Code" <> '' then
+                        FillOutDim(ItemAnalysisViewBudgEntry."Dimension 3 Value Code", ItemAnalysisView."Dimension 3 Code", 3, ShowName);
 
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), -1));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 0));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 1));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 2));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 3));
-                        FillNextCellInRow(CalculatePeriodStart(NormalDate("Posting Date"), 4));
-                        FillNextCellInRow('');
-                        FillNextCellInRow('');
-                        FillNextCellInRow('');
-                        FillNextCellInRow("Location Code");
-                        FillNextCellInRow("Sales Amount" * SignValue);
-                        FillNextCellInRow("Cost Amount" * SignValue);
-                        FillNextCellInRow(Quantity * SignValue);
-                        StartNewRow();
-                    end;
-                until Next() = 0;
-        end;
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), -1));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), 0));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), 1));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), 2));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), 3));
+                    FillNextCellInRow(CalculatePeriodStart(NormalDate(ItemAnalysisViewBudgEntry."Posting Date"), 4));
+                    FillNextCellInRow('');
+                    FillNextCellInRow('');
+                    FillNextCellInRow('');
+                    FillNextCellInRow(ItemAnalysisViewBudgEntry."Location Code");
+                    FillNextCellInRow(ItemAnalysisViewBudgEntry."Sales Amount" * SignValue);
+                    FillNextCellInRow(ItemAnalysisViewBudgEntry."Cost Amount" * SignValue);
+                    FillNextCellInRow(ItemAnalysisViewBudgEntry.Quantity * SignValue);
+                    StartNewRow();
+                end;
+            until ItemAnalysisViewBudgEntry.Next() = 0;
     end;
 
     local procedure CalculatePeriodStart(PostingDate: Date; DateCompression: Integer): Date
@@ -503,21 +495,19 @@ codeunit 7152 "Export Item Analysis View"
 
     local procedure FillCell(RowNo: Integer; ColumnNo: Integer; Value: Variant)
     begin
-        with TempExcelBuffer do begin
-            Init();
-            Validate("Row No.", RowNo);
-            Validate("Column No.", ColumnNo);
-            case true of
-                Value.IsDecimal or Value.IsInteger:
-                    Validate("Cell Type", "Cell Type"::Number);
-                Value.IsDate:
-                    Validate("Cell Type", "Cell Type"::Date);
-                else
-                    Validate("Cell Type", "Cell Type"::Text);
-            end;
-            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert();
+        TempExcelBuffer.Init();
+        TempExcelBuffer.Validate("Row No.", RowNo);
+        TempExcelBuffer.Validate("Column No.", ColumnNo);
+        case true of
+            Value.IsDecimal or Value.IsInteger:
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Number);
+            Value.IsDate:
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Date);
+            else
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Text);
         end;
+        TempExcelBuffer."Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen(TempExcelBuffer."Cell Value as Text"));
+        TempExcelBuffer.Insert();
     end;
 
     local procedure FillNextCellInRow(Value: Variant)
@@ -525,23 +515,21 @@ codeunit 7152 "Export Item Analysis View"
         RowNo: Integer;
         ColumnNo: Integer;
     begin
-        with TempExcelBuffer do begin
-            RowNo := "Row No.";
-            ColumnNo := "Column No." + 1;
-            Init();
-            Validate("Row No.", RowNo);
-            Validate("Column No.", ColumnNo);
-            case true of
-                Value.IsDecimal or Value.IsInteger:
-                    Validate("Cell Type", "Cell Type"::Number);
-                Value.IsDate:
-                    Validate("Cell Type", "Cell Type"::Date);
-                else
-                    Validate("Cell Type", "Cell Type"::Text);
-            end;
-            "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert();
+        RowNo := TempExcelBuffer."Row No.";
+        ColumnNo := TempExcelBuffer."Column No." + 1;
+        TempExcelBuffer.Init();
+        TempExcelBuffer.Validate("Row No.", RowNo);
+        TempExcelBuffer.Validate("Column No.", ColumnNo);
+        case true of
+            Value.IsDecimal or Value.IsInteger:
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Number);
+            Value.IsDate:
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Date);
+            else
+                TempExcelBuffer.Validate("Cell Type", TempExcelBuffer."Cell Type"::Text);
         end;
+        TempExcelBuffer."Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen(TempExcelBuffer."Cell Value as Text"));
+        TempExcelBuffer.Insert();
     end;
 
     local procedure StartNewRow()

@@ -115,7 +115,6 @@ codeunit 32000001 "Currency Exchange Rate"
         GLSetup: Record "General Ledger Setup";
         FileMgt: Codeunit "File Management";
         CurrencyFile: File;
-        Length: Integer;
         Tietuerivi: Text[155];
         Tietuetunnus: Text[3];
         Counter: Integer;

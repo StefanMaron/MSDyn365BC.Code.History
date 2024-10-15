@@ -69,7 +69,7 @@ codeunit 134300 "Workflow Engine UT"
         EventWorkflowStepInstance."Workflow Step ID" := 1;
         EventWorkflowStepInstance.Status := EventWorkflowStepInstance.Status::Completed;
         EventWorkflowStepInstance.Type := EventWorkflowStepInstance.Type::"Event";
-        EventWorkflowStepInstance."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode;
+        EventWorkflowStepInstance."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode();
         EventWorkflowStepInstance.Insert(true);
 
         ResponseWorkflowStepInstance.Init();
@@ -78,7 +78,7 @@ codeunit 134300 "Workflow Engine UT"
         ResponseWorkflowStepInstance."Workflow Step ID" := 2;
         ResponseWorkflowStepInstance.Status := ResponseWorkflowStepInstance.Status::Inactive;
         ResponseWorkflowStepInstance.Type := ResponseWorkflowStepInstance.Type::Response;
-        ResponseWorkflowStepInstance."Function Name" := WorkflowResponseHandling.DoNothingCode;
+        ResponseWorkflowStepInstance."Function Name" := WorkflowResponseHandling.DoNothingCode();
         ResponseWorkflowStepInstance."Previous Workflow Step ID" := 1;
         ResponseWorkflowStepInstance.Insert(true);
 
@@ -88,7 +88,7 @@ codeunit 134300 "Workflow Engine UT"
         SecResponseWorkflowStepInstance."Workflow Step ID" := 3;
         SecResponseWorkflowStepInstance.Status := ResponseWorkflowStepInstance.Status::Inactive;
         SecResponseWorkflowStepInstance.Type := ResponseWorkflowStepInstance.Type::Response;
-        SecResponseWorkflowStepInstance."Function Name" := WorkflowResponseHandling.DoNothingCode;
+        SecResponseWorkflowStepInstance."Function Name" := WorkflowResponseHandling.DoNothingCode();
         SecResponseWorkflowStepInstance."Previous Workflow Step ID" := 2;
         SecResponseWorkflowStepInstance."Next Workflow Step ID" := EventWorkflowStepInstance."Workflow Step ID";
         SecResponseWorkflowStepInstance.Insert(true);
@@ -131,13 +131,13 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID1 :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        DoNothingResponseID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode,
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        DoNothingResponseID := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(),
             CreateIncDocEventID1);
 
         CreateIncDocEventID2 := LibraryWorkflow.InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode, DoNothingResponseID);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID2);
+            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode(), DoNothingResponseID);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, CreateIncDocEventID2);
 
@@ -172,16 +172,16 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID);
 
         EnableWorkflow(Workflow.Code);
         WorkflowInstance.SetRange(Entry_Point, true);
         WorkflowInstance.SetRange(Enabled, true);
-        WorkflowInstance.Open;
+        WorkflowInstance.Open();
 
         // Exercise/Verify
-        Assert.IsFalse(WorkflowInstance.Read, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption()));
+        Assert.IsFalse(WorkflowInstance.Read(), StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption()));
     end;
 
     [Test]
@@ -202,12 +202,12 @@ codeunit 134300 "Workflow Engine UT"
 
         // Setup
         Initialize();
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID);
 
         EnableWorkflow(Workflow.Code);
 
@@ -242,10 +242,10 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         WorkflowEntryPointStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode);
+            WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode());
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         LibraryWorkflow.InsertEventArgument(WorkflowEntryPointStep, WorkflowSetup.BuildGeneralJournalLineTypeConditions(GenJournalLine));
-        WorkflowResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode,
+        WorkflowResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.CreateNotificationEntryCode(),
             WorkflowEntryPointStep);
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowResponseStep, UserId, 0, '');
@@ -254,11 +254,11 @@ codeunit 134300 "Workflow Engine UT"
 
         // Exercise
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Invoice,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(100, 2));
 
         // Verify
         asserterror FindNotificationEntry(NotificationEntry, UserId, GenJournalLine.RecordId);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
     end;
 
     [Test]
@@ -283,8 +283,8 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID);
 
         EnableWorkflow(Workflow.Code);
 
@@ -317,8 +317,8 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID);
 
         // Exercise
         Workflow.Rename('TEST');
@@ -348,8 +348,8 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         CreateIncDocEventID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, CreateIncDocEventID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), CreateIncDocEventID);
 
         Workflow.Validate(Template, true);
         Workflow.Modify(true);
@@ -502,7 +502,7 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyResponseWorkflowStep(ResponseWorkflowStep, Workflow, EventWorkflowStep.ID);
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         WorkflowCard.Enabled.SetValue(true);
 
@@ -537,7 +537,7 @@ codeunit 134300 "Workflow Engine UT"
         Workflow.Modify();
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         WorkflowCard.Enabled.SetValue(false);
 
@@ -571,7 +571,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStep.Modify();
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         asserterror WorkflowCard.Enabled.SetValue(true);
 
@@ -605,7 +605,7 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowStep.Modify();
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         asserterror WorkflowCard.Enabled.SetValue(true);
 
@@ -639,16 +639,16 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         FirstEntryPointEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, FirstEntryPointEvent);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), FirstEntryPointEvent);
 
         SecondEntryPointEvent := LibraryWorkflow.InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, FirstResponse);
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(), FirstResponse);
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, SecondEntryPointEvent);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, SecondEntryPointEvent);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), SecondEntryPointEvent);
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         WorkflowCard.Enabled.SetValue(true);
 
@@ -681,16 +681,16 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         FirstEntryPointEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, FirstEntryPointEvent);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        FirstResponse := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), FirstEntryPointEvent);
 
         SecondEntryPointEvent := LibraryWorkflow.InsertEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode, FirstResponse);
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(), FirstResponse);
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, SecondEntryPointEvent);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, SecondEntryPointEvent);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), SecondEntryPointEvent);
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         WorkflowCard.Enabled.SetValue(true);
 
@@ -722,12 +722,12 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         FirstEntryPointEvent :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, FirstEntryPointEvent);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), FirstEntryPointEvent);
 
         SecondEntryPointEvent := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, SecondEntryPointEvent);
+            WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), SecondEntryPointEvent);
 
         // Exercise
         asserterror Workflow.Validate(Enabled, true);
@@ -764,10 +764,10 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyEvent(WorkflowEvent, DATABASE::"Purchase Header");
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEvent."Function Name");
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep);
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep);
 
         EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEvent."Function Name", ResponseStep1);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep2);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
@@ -811,15 +811,15 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyEvent(WorkflowEvent2, DATABASE::"Purchase Header");
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEvent1."Function Name");
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep);
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep);
 
         EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEvent2."Function Name", ResponseStep1);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep2);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
         // Exercise
-        WorkflowPage.OpenEdit;
+        WorkflowPage.OpenEdit();
         WorkflowPage.Enabled.SetValue(true);
 
         // Verify
@@ -855,10 +855,10 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyEvent(WorkflowEvent, DATABASE::"Purchase Header");
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEvent."Function Name");
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep);
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep);
 
         EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEvent."Function Name", ResponseStep1);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep2);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
@@ -906,10 +906,10 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyEvent(WorkflowEvent, DATABASE::"Purchase Header");
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEvent."Function Name");
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep);
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep);
 
         EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEvent."Function Name", ResponseStep1);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep2);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
@@ -958,21 +958,21 @@ codeunit 134300 "Workflow Engine UT"
         CreateAnyEvent(WorkflowEvent2, DATABASE::"Purchase Header");
 
         EntryPointEventStep := LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEvent1."Function Name");
-        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep);
+        ResponseStep1 := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep);
 
         EntryPointEventStep2 := LibraryWorkflow.InsertEventStep(Workflow, WorkflowEvent2."Function Name", ResponseStep1);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode, EntryPointEventStep2);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.DoNothingCode(), EntryPointEventStep2);
 
         LibraryWorkflow.SetEventStepAsEntryPoint(Workflow, EntryPointEventStep2);
 
         // Setup
         LibraryWorkflow.InsertEventArgument(EntryPointEventStep, StrSubstNo(ParametersHeaderLineTxt, WorkDate() - 1,
             LibraryRandom.RandInt(1000)));
-        LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, StrSubstNo(ParametersHeaderLineTxt, WorkDate + 1,
+        LibraryWorkflow.InsertEventArgument(EntryPointEventStep2, StrSubstNo(ParametersHeaderLineTxt, WorkDate() + 1,
             LibraryRandom.RandInt(1000)));
 
         // Exercise
-        WorkflowCard.OpenEdit;
+        WorkflowCard.OpenEdit();
         WorkflowCard.GotoRecord(Workflow);
         WorkflowCard.Enabled.SetValue(true);
 
@@ -1074,7 +1074,7 @@ codeunit 134300 "Workflow Engine UT"
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
           EntryPointEventStepId);
 
         // Exercise
@@ -1106,9 +1106,9 @@ codeunit 134300 "Workflow Engine UT"
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
+        ResponseStepId := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode(),
             EntryPointEventStepId);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode, ResponseStepId);
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(), ResponseStepId);
 
         // Exercise and Verify
         Workflow.Validate(Enabled, true);
@@ -1135,7 +1135,7 @@ codeunit 134300 "Workflow Engine UT"
 
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode,
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.ApplyNewValuesCode(),
           EntryPointEventStepId);
 
         // Exercise
@@ -1314,7 +1314,7 @@ codeunit 134300 "Workflow Engine UT"
         Variant := WorkflowStepInstance;
 
         // Exercise
-        Result := WorkflowManagement.FindEventWorkflowStepInstance(WorkflowStepInstance, LibraryUtility.GenerateGUID, Variant, Variant);
+        Result := WorkflowManagement.FindEventWorkflowStepInstance(WorkflowStepInstance, LibraryUtility.GenerateGUID(), Variant, Variant);
 
         // Verify
         Assert.IsFalse(Result, '');
@@ -1340,7 +1340,7 @@ codeunit 134300 "Workflow Engine UT"
         LibraryWorkflow.CreateWorkflow(Workflow);
         Workflow.Rename(CopyStr(Workflow.Code, 1, 1) + '()');
         EntryPointStepID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
         LibraryWorkflow.InsertEventArgument(EntryPointStepID,
           WorkflowSetup.BuildPurchHeaderTypeConditionsText(
               PurchaseHeader."Document Type"::Invoice, PurchaseHeader.Status::Open));
@@ -1348,10 +1348,10 @@ codeunit 134300 "Workflow Engine UT"
 
         // Exercise
         WorkflowStepInstance.Init();
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", '', 0);
         Result := WorkflowManagement.FindWorkflowStepInstance(PurchaseHeader, PurchaseHeader, WorkflowStepInstance,
-            WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode);
+            WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode());
 
         // Verify
         Assert.IsTrue(Result, 'Instance not found.');
@@ -1481,11 +1481,11 @@ codeunit 134300 "Workflow Engine UT"
         // Setup
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
 
         WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
-        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode;
+        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode();
         WorkflowStep."Previous Workflow Step ID" := 0;
         WorkflowStep.Type := WorkflowStep.Type::"Event";
         WorkflowStep.Insert(true);
@@ -1522,11 +1522,11 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+            WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
 
         WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
-        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode;
+        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnCustomerCreditLimitExceededCode();
         WorkflowStep."Previous Workflow Step ID" := 0;
         WorkflowStep.Type := WorkflowStep.Type::"Event";
         WorkflowStep.Insert(true);
@@ -1564,11 +1564,11 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+          WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
 
         WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
-        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode;
+        WorkflowStep."Function Name" := WorkflowEventHandling.RunWorkflowOnAfterInsertGeneralJournalLineCode();
         WorkflowStep."Previous Workflow Step ID" := 0;
         WorkflowStep.Type := WorkflowStep.Type::"Event";
         WorkflowStep.Insert(true);
@@ -1598,12 +1598,12 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(FirstWorkflow);
         LibraryWorkflow.InsertEntryPointEventStep(FirstWorkflow,
-          WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+          WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         LibraryWorkflow.EnableWorkflow(FirstWorkflow);
 
         LibraryWorkflow.CreateWorkflow(SecondWorkflow);
         LibraryWorkflow.InsertEntryPointEventStep(SecondWorkflow,
-          WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+          WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
         RecRef.Open(DATABASE::"Incoming Document");
 
         // Exercise
@@ -1630,9 +1630,9 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
 
-        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
+        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
           EntryPointEventStepId);
 
         // Execute
@@ -1659,9 +1659,9 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
+            WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode());
 
-        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode,
+        LibraryWorkflow.InsertEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterReleasePurchaseDocCode(),
           EntryPointEventStepId);
 
         // Execute
@@ -2306,7 +2306,7 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
 
         WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
@@ -2340,7 +2340,7 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
 
         WorkflowStep.Init();
         WorkflowStep."Workflow Code" := Workflow.Code;
@@ -2374,7 +2374,7 @@ codeunit 134300 "Workflow Engine UT"
         Initialize();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointEventStepId := LibraryWorkflow.InsertEntryPointEventStep(Workflow,
-            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode);
+            WorkflowEventHandling.RunWorkflowOnSendCustomerForApprovalCode());
 
         WorkflowStep.Get(Workflow.Code, EntryPointEventStepId);
         WorkflowStep.Type := WorkflowStep.Type::"Sub-Workflow";
@@ -2394,9 +2394,9 @@ codeunit 134300 "Workflow Engine UT"
         WorkflowSetup: Codeunit "Workflow Setup";
     begin
         // [SCENARIO 204071] Stan can override workflow template token
-        Assert.AreEqual('MS-', WorkflowSetup.GetWorkflowTemplateToken, '');
+        Assert.AreEqual('MS-', WorkflowSetup.GetWorkflowTemplateToken(), '');
         WorkflowSetup.SetCustomTemplateToken('AF-');
-        Assert.AreEqual('AF-', WorkflowSetup.GetWorkflowTemplateToken, '');
+        Assert.AreEqual('AF-', WorkflowSetup.GetWorkflowTemplateToken(), '');
     end;
 
     [Test]
@@ -2463,7 +2463,7 @@ codeunit 134300 "Workflow Engine UT"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Engine UT");
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         JobQueueEntry.DeleteAll();
 

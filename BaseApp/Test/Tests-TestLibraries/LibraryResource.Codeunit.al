@@ -50,7 +50,7 @@ codeunit 130511 "Library - Resource"
         UnitOfMeasure: Record "Unit of Measure";
         LibraryInventory: Codeunit "Library - Inventory";
     begin
-        ResNoSeriesSetup;
+        ResNoSeriesSetup();
         LibraryInventory.FindUnitOfMeasure(UnitOfMeasure);
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
@@ -82,7 +82,7 @@ codeunit 130511 "Library - Resource"
         ResourceGroup.Insert(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; Type: Option; "Code": Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         ResourcePrice.Init();
@@ -241,9 +241,9 @@ codeunit 130511 "Library - Resource"
         NoSeriesCode: Code[20];
     begin
         ResourcesSetup.Get();
-        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode;
+        NoSeriesCode := LibraryUtility.GetGlobalNoSeriesCode();
         if NoSeriesCode <> ResourcesSetup."Resource Nos." then begin
-            ResourcesSetup.Validate("Resource Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            ResourcesSetup.Validate("Resource Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             ResourcesSetup.Modify(true);
         end;
     end;

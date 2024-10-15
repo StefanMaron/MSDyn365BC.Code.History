@@ -16,7 +16,9 @@ codeunit 144010 "Company Field Report Test"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+#if not CLEAN23
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
+#endif
         TenDigitsTxt: Label '0123456789';
         LibraryERM: Codeunit "Library - ERM";
         VendorCrMemoNoTxt: Label '123';
@@ -24,10 +26,21 @@ codeunit 144010 "Company Field Report Test"
     local procedure Initialize()
     var
         SalesAndReceivablesSetup: Record "Sales & Receivables Setup";
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
     begin
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
         LibraryVariableStorage.Clear();
+        
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
 
         LibraryReportDataset.Reset();
         CompanyInformation.FindFirst();
@@ -69,7 +82,7 @@ codeunit 144010 "Company Field Report Test"
         with LibrarySales do begin
             CreateCustomer(Customer);
             CreateSalesHeader(SalesHeader, Type, Customer."No.");
-            CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(1000));
+            CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
             if Post then
                 DocumentNumber := PostSalesDocument(SalesHeader, true, true)
             else
@@ -93,7 +106,7 @@ codeunit 144010 "Company Field Report Test"
             if PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Credit Memo" then
                 PurchaseHeader."Vendor Cr. Memo No." := VendorCrMemoNoTxt;
             CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(1000));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(1000));
             if Post then
                 DocumentNumber := PostPurchaseDocument(PurchaseHeader, true, true)
             else
@@ -117,7 +130,7 @@ codeunit 144010 "Company Field Report Test"
             Initialize();
             LibrarySales.CreateCustomer(Customer);
             CreateServiceHeader(ServiceHeader, Type, Customer."No.");
-            CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+            CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
             ServiceLine.Validate(Quantity, 1);
             ServiceLine.Modify();
             if Post then begin
@@ -145,7 +158,7 @@ codeunit 144010 "Company Field Report Test"
         with LibraryService do begin
             Initialize();
             LibrarySales.CreateCustomer(Customer);
-            CreateServiceContractHeader(ServiceContractHeader, Type, Customer."No.");
+            CreateServiceContractHeader(ServiceContractHeader, "Service Contract Type".FromInteger(Type), Customer."No.");
             CreateServiceItem(ServiceItem, Customer."No.");
             CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
             DocumentNumber := ServiceContractHeader."Contract No.";
@@ -161,10 +174,10 @@ codeunit 144010 "Company Field Report Test"
         CompanyInfoBusinessIdCode: Variant;
         I: Integer;
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.RowCount > 0, 'Empty Dataset');
-        for I := 0 to LibraryReportDataset.RowCount - 1 do begin
-            LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.RowCount() > 0, 'Empty Dataset');
+        for I := 0 to LibraryReportDataset.RowCount() - 1 do begin
+            LibraryReportDataset.GetNextRow();
             case ReportType of
                 0:
                     begin
@@ -216,7 +229,7 @@ codeunit 144010 "Company Field Report Test"
     [Scope('OnPrem')]
     procedure VATVIESDeclarationTaxAuthReportHandler(var VATVIESDeclarationTaxAuthReport: TestRequestPage "VAT- VIES Declaration Tax Auth")
     begin
-        VATVIESDeclarationTaxAuthReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATVIESDeclarationTaxAuthReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -229,17 +242,17 @@ codeunit 144010 "Company Field Report Test"
         Initialize();
 
         VATVIESDeclarationTaxAuthReport.UseRequestPage(true);
-        VATVIESDeclarationTaxAuthReport.InitializeRequest(true, WorkDate(), WorkDate + 365, '');
+        VATVIESDeclarationTaxAuthReport.InitializeRequest(true, WorkDate(), WorkDate() + 365, '');
         VATVIESDeclarationTaxAuthReport.Run();
         TestBusinessIdentityandHomeCity(3);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourceReportHandler(var ResourceReport: TestRequestPage "Resource - Price List")
     begin
-        ResourceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ResourceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -266,7 +279,7 @@ codeunit 144010 "Company Field Report Test"
         CustLedgerEntry.FindFirst();
         StatementReport."Start Date".SetValue(CustLedgerEntry."Posting Date");
         StatementReport."End Date".SetValue(CustLedgerEntry."Posting Date");
-        StatementReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StatementReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -312,7 +325,7 @@ codeunit 144010 "Company Field Report Test"
     [Scope('OnPrem')]
     procedure ReminderReportHandler(var ReminderReport: TestRequestPage Reminder)
     begin
-        ReminderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReminderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -324,7 +337,7 @@ codeunit 144010 "Company Field Report Test"
         IssueRemindersReport: Report "Issue Reminders";
     begin
         Initialize();
-        ReminderMemoReportInit;
+        ReminderMemoReportInit();
 
         IssueRemindersReport.UseRequestPage(false);
         IssueRemindersReport.Run();
@@ -337,7 +350,7 @@ codeunit 144010 "Company Field Report Test"
     [Scope('OnPrem')]
     procedure ReminderTestReportHandler(var ReminderTestReport: TestRequestPage "Reminder - Test")
     begin
-        ReminderTestReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ReminderTestReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -348,7 +361,7 @@ codeunit 144010 "Company Field Report Test"
         ReminderTestReport: Report "Reminder - Test";
     begin
         Initialize();
-        ReminderMemoReportInit;
+        ReminderMemoReportInit();
 
         ReminderTestReport.UseRequestPage(true);
         ReminderTestReport.Run();
@@ -358,7 +371,7 @@ codeunit 144010 "Company Field Report Test"
     [Scope('OnPrem')]
     procedure FinanceChargeMemoReportHandler(var FinanceChargeMemoReport: TestRequestPage "Finance Charge Memo")
     begin
-        FinanceChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinanceChargeMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -407,7 +420,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         SalesQuoteReport.Header.SetFilter("No.", Format(DocumentNumber));
 
-        SalesQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -437,7 +450,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         SalesInvoiceReport.Header.SetFilter("No.", Format(DocumentNumber));
 
-        SalesInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -466,7 +479,7 @@ codeunit 144010 "Company Field Report Test"
         SalesInvoiceHeader.Get(DocumentNumber);
         SalesShipmentReport."Sales Shipment Header".SetFilter("Order No.", SalesInvoiceHeader."Order No.");
 
-        SalesShipmentReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesShipmentReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -494,7 +507,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         BlanketSalesOrderReport."Sales Header".SetFilter("No.", Format(DocumentNumber));
 
-        BlanketSalesOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketSalesOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -522,7 +535,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         PurchaseQuoteReport."Purchase Header".SetFilter("No.", Format(DocumentNumber));
 
-        PurchaseQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -550,7 +563,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         PurchaseOrderReport."Purchase Header".SetFilter("No.", Format(DocumentNumber));
 
-        PurchaseOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -578,7 +591,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         PurchaseInvoiceReport."Purch. Inv. Header".SetFilter("No.", Format(DocumentNumber));
 
-        PurchaseInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -606,7 +619,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         PurchaseCreditMemoReport."Purch. Cr. Memo Hdr.".SetFilter("No.", Format(DocumentNumber));
 
-        PurchaseCreditMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -636,7 +649,7 @@ codeunit 144010 "Company Field Report Test"
         PurchInvHeader.Get(DocumentNumber);
         PurchaseReceiptReport."Purch. Rcpt. Header".SetFilter("Order No.", PurchInvHeader."Order No.");
 
-        PurchaseReceiptReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseReceiptReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -664,7 +677,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         BlanketPurchaseOrderReport."Purchase Header".SetFilter("No.", Format(DocumentNumber));
 
-        BlanketPurchaseOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BlanketPurchaseOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -683,12 +696,12 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListReportHandler(var PriceListReport: TestRequestPage "Price List")
     begin
-        PriceListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PriceListReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -728,7 +741,7 @@ codeunit 144010 "Company Field Report Test"
         IntrastatFormReport."Intrastat Jnl. Batch".SetFilter("Journal Template Name", JournalTemplateName);
         IntrastatFormReport."Intrastat Jnl. Batch".SetFilter(Name, JournalBatchName);
         IntrastatFormReport."Intrastat Jnl. Line".SetFilter(Type, 'Receipt');
-        IntrastatFormReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IntrastatFormReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 #endif
 
@@ -791,7 +804,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceOrderReport."Service Header".SetFilter("No.", Format(DocumentNumber));
 
-        ServiceOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceOrderReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -819,7 +832,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceQuoteReport."Service Header".SetFilter("No.", Format(DocumentNumber));
 
-        ServiceQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -846,7 +859,7 @@ codeunit 144010 "Company Field Report Test"
     begin
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceInvoiceReport."Service Invoice Header".SetFilter("No.", Format(DocumentNumber));
-        ServiceInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoiceReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -874,7 +887,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceContractReport."Service Contract Header".SetFilter("Contract No.", Format(DocumentNumber));
 
-        ServiceContractReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceContractReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -902,7 +915,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceContractDetailReport."Service Contract Header".SetFilter("Contract No.", Format(DocumentNumber));
 
-        ServiceContractDetailReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceContractDetailReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -930,7 +943,7 @@ codeunit 144010 "Company Field Report Test"
         LibraryVariableStorage.Dequeue(DocumentNumber);
         ServiceContractQuoteReport."Service Contract Header".SetFilter("Contract No.", Format(DocumentNumber));
 
-        ServiceContractQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceContractQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [Test]
@@ -949,6 +962,6 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-    
+
 }
 

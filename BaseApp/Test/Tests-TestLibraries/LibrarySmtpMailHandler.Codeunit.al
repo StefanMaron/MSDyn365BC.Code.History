@@ -8,7 +8,6 @@ codeunit 131105 "Library - SMTP Mail Handler"
 
     var
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        LibraryUtility: Codeunit "Library - Utility";
         RunOnAfterTrySendSubscriber: Boolean;
         SenderAddressGlobal: Text;
         SenderNameGlobal: Text;

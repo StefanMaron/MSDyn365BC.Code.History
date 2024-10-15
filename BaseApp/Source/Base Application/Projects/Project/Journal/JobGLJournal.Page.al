@@ -15,10 +15,10 @@ using System.Threading;
 
 page 1020 "Job G/L Journal"
 {
-    AdditionalSearchTerms = 'project general ledger posting';
+    AdditionalSearchTerms = 'project general ledger posting, Job G/L Journals';
     ApplicationArea = Jobs;
     AutoSplitKey = true;
-    Caption = 'Job G/L Journals';
+    Caption = 'Project G/L Journals';
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
@@ -118,7 +118,7 @@ page 1020 "Job G/L Journal"
                 field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the code for the business unit that the job entry is linked to.';
+                    ToolTip = 'Specifies the code for the business unit that the project entry is linked to.';
                     Visible = false;
                 }
                 field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
@@ -337,7 +337,7 @@ page 1020 "Job G/L Journal"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
 
                     trigger OnValidate()
                     begin
@@ -347,7 +347,7 @@ page 1020 "Job G/L Journal"
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
 
                     trigger OnValidate()
                     begin
@@ -358,13 +358,13 @@ page 1020 "Job G/L Journal"
                 field("Job Planning Line No."; Rec."Job Planning Line No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
+                    ToolTip = 'Specifies the project planning line number that the usage should be linked to when the project journal is posted. You can only link to project planning lines that have the Apply Usage Link option enabled.';
                     Visible = false;
                 }
                 field("Job Line Type"; Rec."Job Line Type")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the type of planning line to create when a job ledger entry is posted. If the field is empty, no planning lines are created.';
+                    ToolTip = 'Specifies the type of planning line to create when a project ledger entry is posted. If the field is empty, no planning lines are created.';
                 }
                 field("Job Unit Of Measure Code"; Rec."Job Unit Of Measure Code")
                 {
@@ -375,27 +375,27 @@ page 1020 "Job G/L Journal"
                 field("Job Quantity"; Rec."Job Quantity")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity for the job ledger entry that is derived from posting the journal line. If the Job Quantity is 0, the total amount on the job ledger entry will also be 0.';
+                    ToolTip = 'Specifies the quantity for the project ledger entry that is derived from posting the journal line. If the Project Quantity is 0, the total amount on the project ledger entry will also be 0.';
                 }
                 field("Job Unit Cost"; Rec."Job Unit Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job cost of one unit of the item or resource on the journal line. The value is calculated as follows: Job Total Cost (LCY) / Job Quantity.';
+                    ToolTip = 'Specifies the project cost of one unit of the item or resource on the journal line. The value is calculated as follows: Project Total Cost (LCY) / Project Quantity.';
                 }
                 field("Job Unit Cost (LCY)"; Rec."Job Unit Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job cost of one unit of the item or resource on the journal line, in the local currency. The value is calculated as follows: Job Total Cost (LCY) / Job Quantity.';
+                    ToolTip = 'Specifies the project cost of one unit of the item or resource on the journal line, in the local currency. The value is calculated as follows: Project Total Cost (LCY) / Project Quantity.';
                 }
                 field("Job Total Cost"; Rec."Job Total Cost")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies if you have assigned a job number and a job task number to the journal line. It shows the amount excluding VAT divided by the job quantity for the journal line. The amount is shown in the currency specified for the job. The value field is calculated as follows: (Amount - VAT Amount) x (Job Currency Rate/Currency Rate).';
+                    ToolTip = 'Specifies if you have assigned a project number and a project task number to the journal line. It shows the amount excluding VAT divided by the project quantity for the journal line. The amount is shown in the currency specified for the project. The value field is calculated as follows: (Amount - VAT Amount) x (Project Currency Rate/Currency Rate).';
                 }
                 field("Job Total Cost (LCY)"; Rec."Job Total Cost (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the job total cost if you have assigned a job number and a job task number to the journal line. It shows the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
+                    ToolTip = 'Specifies the project total cost if you have assigned a project number and a project task number to the journal line. It shows the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
                 }
                 field("Job Unit Price"; Rec."Job Unit Price")
                 {
@@ -411,22 +411,22 @@ page 1020 "Job G/L Journal"
                 field("Job Line Amount"; Rec."Job Line Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry.';
                 }
                 field("Job Line Amount (LCY)"; Rec."Job Line Amount (LCY)")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line amount of the job ledger entry.';
+                    ToolTip = 'Specifies the line amount of the project ledger entry.';
                 }
                 field("Job Line Discount Amount"; Rec."Job Line Discount Amount")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount amount of the job ledger entry.';
+                    ToolTip = 'Specifies the line discount amount of the project ledger entry.';
                 }
                 field("Job Line Discount %"; Rec."Job Line Discount %")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
+                    ToolTip = 'Specifies the line discount percentage of the project ledger entry that is related to the purchase line.';
                 }
                 field("Job Total Price"; Rec."Job Total Price")
                 {
@@ -442,7 +442,7 @@ page 1020 "Job G/L Journal"
                 field("Job Remaining Qty."; Rec."Job Remaining Qty.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the quantity that remains to complete a job.';
+                    ToolTip = 'Specifies the quantity that remains to complete a project.';
                     Visible = false;
                 }
 
@@ -741,7 +741,7 @@ page 1020 "Job G/L Journal"
                     Caption = 'Reconcile';
                     Image = Reconcile;
                     ShortCutKey = 'Ctrl+F11';
-                    ToolTip = 'View what has been reconciled for the job. The window shows the quantity entered on the job journal lines, totaled by unit of measure and by work type.';
+                    ToolTip = 'View what has been reconciled for the project. The window shows the quantity entered on the project journal lines, totaled by unit of measure and by work type.';
 
                     trigger OnAction()
                     begin
@@ -892,15 +892,6 @@ page 1020 "Job G/L Journal"
                     Caption = 'Post/Print', Comment = 'Generated from the PromotedActionCategories property index 4.';
                     ShowAs = SplitButton;
 
-#if not CLEAN21
-                    actionref("Remove From Job Queue_Promoted"; "Remove From Job Queue")
-                    {
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                        ObsoleteTag = '21.0';
-                    }
-#endif
                     actionref("P&ost_Promoted"; "P&ost")
                     {
                     }
@@ -930,24 +921,6 @@ page 1020 "Job G/L Journal"
             {
                 Caption = 'Account', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(Card_Promoted; Card)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {

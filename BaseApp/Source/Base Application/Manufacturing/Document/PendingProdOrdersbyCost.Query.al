@@ -5,7 +5,7 @@ using Microsoft.Inventory.Item;
 query 5401 "Pending Prod. Orders - by Cost"
 {
     Caption = 'Pending Prod. Orders - by Cost';
-    OrderBy = Descending(Cost_of_Open_Production_Orders);
+    OrderBy = descending(Cost_of_Open_Production_Orders);
 
     elements
     {

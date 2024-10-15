@@ -188,11 +188,9 @@ page 6700 "Exchange Sync. Setup"
 
     local procedure GetUser(var User: Record User): Boolean
     begin
-        with User do begin
-            SetRange("User Name", UserId);
-            if FindFirst() then
-                exit(true);
-        end;
+        User.SetRange(User."User Name", UserId);
+        if User.FindFirst() then
+            exit(true);
     end;
 
     [NonDebuggable]

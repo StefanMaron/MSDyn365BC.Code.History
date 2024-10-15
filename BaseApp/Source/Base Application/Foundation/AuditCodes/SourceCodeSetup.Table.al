@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.AuditCodes;
 table 242 "Source Code Setup"
 {
     Caption = 'Source Code Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

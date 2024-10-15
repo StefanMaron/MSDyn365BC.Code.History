@@ -5,6 +5,7 @@ using Microsoft.Bank.Setup;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Receivables;
+using Microsoft.Foundation.Company;
 using System.IO;
 
 codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
@@ -34,20 +35,18 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
         // In case of selecting more than one line on the page.
-        if CustLedgerEntry.MarkedOnly then
-            with CustLedgerEntry2 do begin
-                MarkedOnly(true);
-                SetRange("Exported to Payment File", true);
-                exit(not IsEmpty);
-            end;
+        if CustLedgerEntry.MarkedOnly() then begin
+            CustLedgerEntry2.MarkedOnly(true);
+            CustLedgerEntry2.SetRange(CustLedgerEntry2."Exported to Payment File", true);
+            exit(not CustLedgerEntry2.IsEmpty());
+        end;
 
         // In case of selecting one line on the page or passing a variable directly.
-        if CustLedgerEntry.HasFilter then
-            with CustLedgerEntry2 do begin
-                CopyFilters(CustLedgerEntry);
-                SetRange("Exported to Payment File", true);
-                exit(not IsEmpty);
-            end;
+        if CustLedgerEntry.HasFilter() then begin
+            CustLedgerEntry2.CopyFilters(CustLedgerEntry);
+            CustLedgerEntry2.SetRange(CustLedgerEntry2."Exported to Payment File", true);
+            exit(not CustLedgerEntry2.IsEmpty());
+        end;
 
         // The case of a record not being passed via the user interface is not supported.
         exit(false);
@@ -123,10 +122,8 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with CustLedgerEntry do begin
-            PreparePaymentExportDataCLE(PaymentExportData, CustLedgerEntry, DataExchEntryNo, LineNo);
-            PaymentExportMgt.CreatePaymentLines(PaymentExportData);
-        end;
+        PreparePaymentExportDataCLE(PaymentExportData, CustLedgerEntry, DataExchEntryNo, LineNo);
+        PaymentExportMgt.CreatePaymentLines(PaymentExportData);
     end;
 
     procedure PreparePaymentExportDataCLE(var TempPaymentExportData: Record "Payment Export Data" temporary; CustLedgerEntry: Record "Cust. Ledger Entry"; DataExchEntryNo: Integer; LineNo: Integer)
@@ -136,56 +133,58 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PaymentMethod: Record "Payment Method";
         BankAccount: Record "Bank Account";
+        CompanyInformation: Record "Company Information";
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         GeneralLedgerSetup.Get();
         Customer.Get(CustLedgerEntry."Customer No.");
         CustomerBankAccount.Get(CustLedgerEntry."Customer No.", CustLedgerEntry."Recipient Bank Account");
 
-        with TempPaymentExportData do begin
-            BankAccount.Get(CustLedgerEntry."Bal. Account No.");
-            BankAccount.GetBankExportImportSetup(BankExportImportSetup);
-            SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
+        BankAccount.Get(CustLedgerEntry."Bal. Account No.");
+        BankAccount.GetBankExportImportSetup(BankExportImportSetup);
+        TempPaymentExportData.SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init();
-            "Data Exch Entry No." := DataExchEntryNo;
-            "Sender Bank Account Code" := CustLedgerEntry."Bal. Account No.";
+        CompanyInformation.Get();
+        TempPaymentExportData.Init();
+        TempPaymentExportData."Data Exch Entry No." := DataExchEntryNo;
+        TempPaymentExportData."Sender Bank Account Code" := CustLedgerEntry."Bal. Account No.";
+        if CompanyInformation."Registration No." <> '' then
+            TempPaymentExportData."Sender Reg. No." := CopyStr(CompanyInformation."Registration No.", 1, MaxStrLen(TempPaymentExportData."Sender Reg. No."));
 
-            if BankAccount."Country/Region Code" = CustomerBankAccount."Country/Region Code" then begin
-                CustLedgerEntry.CalcFields("Amount (LCY)");
-                Amount := CustLedgerEntry."Amount (LCY)";
-                "Currency Code" := GeneralLedgerSetup."LCY Code";
-            end else begin
-                CustLedgerEntry.CalcFields(Amount);
-                Amount := CustLedgerEntry.Amount;
-                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(CustLedgerEntry."Currency Code");
-            end;
-
-            "Recipient Bank Acc. No." :=
-              CopyStr(CustomerBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
-            "Recipient Reg. No." := CustomerBankAccount."Bank Branch No.";
-            "Recipient Acc. No." := CustomerBankAccount."Bank Account No.";
-            "Recipient Bank Country/Region" := CustomerBankAccount."Country/Region Code";
-            "Recipient Bank Name" := CopyStr(CustomerBankAccount.Name, 1, 35);
-            "Recipient Bank Address" := CopyStr(CustomerBankAccount.Address, 1, 35);
-            "Recipient Bank City" := CopyStr(CustomerBankAccount."Post Code" + CustomerBankAccount.City, 1, 35);
-            "Recipient Bank BIC" := CustomerBankAccount."SWIFT Code";
-
-            "Recipient Name" := CopyStr(Customer.Name, 1, 35);
-            "Recipient Address" := CopyStr(Customer.Address, 1, 35);
-            "Recipient City" := CopyStr(Customer."Post Code" + ' ' + Customer.City, 1, 35);
-            "Transfer Date" := CustLedgerEntry."Posting Date";
-            "Message to Recipient 1" := CopyStr(CustLedgerEntry."Message to Recipient", 1, 35);
-            "Message to Recipient 2" := CopyStr(CustLedgerEntry."Message to Recipient", 36, 70);
-            "Document No." := CustLedgerEntry."Document No.";
-            "Applies-to Ext. Doc. No." := CustLedgerEntry."Applies-to Ext. Doc. No.";
-            "Short Advice" := CustLedgerEntry."Applies-to Ext. Doc. No.";
-            "Line No." := LineNo;
-            if PaymentMethod.Get(CustLedgerEntry."Payment Method Code") then
-                "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
-            OnPreparePaymentExportDataCLEOnBeforeTempPaymentExportDataInsert(TempPaymentExportData, CustLedgerEntry, GeneralLedgerSetup);
-            Insert(true);
+        if BankAccount."Country/Region Code" = CustomerBankAccount."Country/Region Code" then begin
+            CustLedgerEntry.CalcFields("Amount (LCY)");
+            TempPaymentExportData.Amount := CustLedgerEntry."Amount (LCY)";
+            TempPaymentExportData."Currency Code" := GeneralLedgerSetup."LCY Code";
+        end else begin
+            CustLedgerEntry.CalcFields(Amount);
+            TempPaymentExportData.Amount := CustLedgerEntry.Amount;
+            TempPaymentExportData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode(CustLedgerEntry."Currency Code");
         end;
+
+        TempPaymentExportData."Recipient Bank Acc. No." :=
+          CopyStr(CustomerBankAccount.GetBankAccountNo(), 1, MaxStrLen(TempPaymentExportData."Recipient Bank Acc. No."));
+        TempPaymentExportData."Recipient Reg. No." := CustomerBankAccount."Bank Branch No.";
+        TempPaymentExportData."Recipient Acc. No." := CustomerBankAccount."Bank Account No.";
+        TempPaymentExportData."Recipient Bank Country/Region" := CustomerBankAccount."Country/Region Code";
+        TempPaymentExportData."Recipient Bank Name" := CopyStr(CustomerBankAccount.Name, 1, 35);
+        TempPaymentExportData."Recipient Bank Address" := CopyStr(CustomerBankAccount.Address, 1, 35);
+        TempPaymentExportData."Recipient Bank City" := CopyStr(CustomerBankAccount."Post Code" + CustomerBankAccount.City, 1, 35);
+        TempPaymentExportData."Recipient Bank BIC" := CustomerBankAccount."SWIFT Code";
+
+        TempPaymentExportData."Recipient Name" := CopyStr(Customer.Name, 1, 35);
+        TempPaymentExportData."Recipient Address" := CopyStr(Customer.Address, 1, 35);
+        TempPaymentExportData."Recipient City" := CopyStr(Customer."Post Code" + ' ' + Customer.City, 1, 35);
+        TempPaymentExportData."Transfer Date" := CustLedgerEntry."Posting Date";
+        TempPaymentExportData."Message to Recipient 1" := CopyStr(CustLedgerEntry."Message to Recipient", 1, 35);
+        TempPaymentExportData."Message to Recipient 2" := CopyStr(CustLedgerEntry."Message to Recipient", 36, 70);
+        TempPaymentExportData."Document No." := CustLedgerEntry."Document No.";
+        TempPaymentExportData."Applies-to Ext. Doc. No." := CustLedgerEntry."Applies-to Ext. Doc. No.";
+        TempPaymentExportData."Short Advice" := CustLedgerEntry."Applies-to Ext. Doc. No.";
+        TempPaymentExportData."Line No." := LineNo;
+        if PaymentMethod.Get(CustLedgerEntry."Payment Method Code") then
+            TempPaymentExportData."Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
+        OnPreparePaymentExportDataCLEOnBeforeTempPaymentExportDataInsert(TempPaymentExportData, CustLedgerEntry, GeneralLedgerSetup);
+        TempPaymentExportData.Insert(true);
     end;
 
     procedure EnableExportToServerTempFile(SilentServerMode: Boolean; ServerFileExtension: Text[3])
@@ -202,13 +201,11 @@ codeunit 1208 "Pmt Export Mgt Cust Ledg Entry"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry2 do begin
-            Copy(CustLedgerEntry);
-            repeat
-                Validate("Exported to Payment File", true);
-                CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry2);
-            until Next() = 0;
-        end;
+        CustLedgerEntry2.Copy(CustLedgerEntry);
+        repeat
+            CustLedgerEntry2.Validate(CustLedgerEntry2."Exported to Payment File", true);
+            CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry2);
+        until CustLedgerEntry2.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

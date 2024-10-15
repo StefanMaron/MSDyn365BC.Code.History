@@ -15,6 +15,7 @@ codeunit 137912 "SCM Assembly Availability II"
         FirstNumber: Label '137912-001';
         LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -24,7 +25,6 @@ codeunit 137912 "SCM Assembly Availability II"
         CnfmChangeOfItemNo: Label 'Changing Item No. will change all the lines. Do you want to change the Item No.';
         CnfmRefreshLines: Label 'This assembly order may have customized lines. Are you sure that you want to reset the lines according to the assembly BOM?';
         SubStep: Integer;
-        ErrUpdateInterrupted: Label 'The update has been interrupted to respect the warning.';
         SupplyDate1: Date;
         SupplyQty1: Decimal;
         SupplyDate2: Date;
@@ -73,7 +73,7 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure ChangeLocCheckDueDateNoLineUpd()
     var
@@ -113,10 +113,11 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(OldLineLocation, AsmLine."Location Code", 'Line location is not updated.');
         Assert.AreEqual(AsmHeader."Starting Date", AsmLine."Due Date", 'Line Due dates are not equal.');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure ChangeLocCheckDueDateLineUpd()
     var
@@ -154,10 +155,11 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(AsmHeader."Location Code", AsmLine."Location Code", 'Line location is updated.');
         Assert.AreEqual(AsmHeader."Starting Date", AsmLine."Due Date", 'Line Due dates are not equal.');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure ValidateLocAfterSKUNewDueDate()
     var
@@ -207,10 +209,11 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(AsmHeader."Location Code", AsmLine."Location Code", 'Line location is updated.');
         Assert.AreEqual(AsmHeader."Starting Date", AsmLine."Due Date", 'Line Due dates are not equal.');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure ChangeVariantNoLocUpdConfirm()
     var
@@ -244,10 +247,11 @@ codeunit 137912 "SCM Assembly Availability II"
         Step := 3;
         AsmHeader.Validate("Variant Code", VariantCode); // expect no update warning on location - dont handle in ConfirmHandler
         AsmHeader.Modify(true);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('UpdateLocationOnLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure DataConsistencyCheck()
     var
@@ -265,13 +269,13 @@ codeunit 137912 "SCM Assembly Availability II"
         // change location code on the header
         Step := 2;
         MockLocation(Location);
-        // make the availability confirmation appear, and there change lines to get error
-        asserterror AsmHeader.Validate("Location Code", Location.Code);
-        Assert.ExpectedErrorCode('DB:RecordChanged');
+        // make the availability confirmation appear, and there change lines
+        AsmHeader.Validate("Location Code", Location.Code);
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,ConfirmChangeOfItem,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('ConfirmChangeOfItem,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure ValidateItemNoToParentItem()
     var
@@ -304,10 +308,11 @@ codeunit 137912 "SCM Assembly Availability II"
         // verify lines have been changed.
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(ParentItem."No.", AsmLine."No.", 'Asm line should have parent item.');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure VSTF238472()
     var
@@ -325,6 +330,7 @@ codeunit 137912 "SCM Assembly Availability II"
         Step := 2;
         // Select Unit of measure field on the assembly order header and without changing something, press tab.
         AsmHeader.Validate("Unit of Measure Code"); // should not open avail warning
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -357,7 +363,7 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,ConfirmRefreshLines,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('ConfirmRefreshLines,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure VSTF255987()
     var
@@ -380,16 +386,17 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Modify(true);
         Step := 3;
         // Refresh Asm header.
-        AsmHeader.RefreshBOM; // say No to confirm - expect no avail. warning
+        AsmHeader.RefreshBOM(); // say No to confirm - expect no avail. warning
         // verify line has NOT been changed.
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(3, AsmLine."Quantity per", 'Quantity per should be the same as set above. Assert at Step = ' + Format(Step));
         Step := 4;
         // Refresh Asm header.
-        AsmHeader.RefreshBOM; // say Yes to confirm - expect avail. warning
+        AsmHeader.RefreshBOM(); // say Yes to confirm - expect avail. warning
         // verify line has been changed.
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get first line
         Assert.AreEqual(1, AsmLine."Quantity per", 'Quantity per should be the same as Assembly BOM. Assert at Step = ' + Format(Step));
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -429,11 +436,11 @@ codeunit 137912 "SCM Assembly Availability II"
         MfgSetup.Get();
         MfgSetup.Validate("Default Safety Lead Time", DTFormula);
         MfgSetup.Modify(true);
-        // Create asm order for KIT with due date = WorkDate, Location=Blank.
+        // Create asm order for KIT with due date = WorkDate(), Location=Blank.
         MockAsmOrder(AsmHeader, ParentItem, 1, WorkDate(), '');
         Assert.AreEqual(WorkDate(), AsmHeader."Due Date", 'Due Date = WorkDate');
         Evaluate(DTFormula, '-2D');
-        Assert.AreEqual(CalcDate(DTFormula, WorkDate()), AsmHeader."Ending Date", 'Ending Date = WorkDate - 2D');
+        Assert.AreEqual(CalcDate(DTFormula, WorkDate()), AsmHeader."Ending Date", 'Ending Date = WorkDate() - 2D');
         Assert.AreEqual(AsmHeader."Ending Date", AsmHeader."Starting Date", 'Starting Date = Ending Date');
         // Change location code on header = BLUE
         AsmHeader.Validate("Location Code", Location.Code);
@@ -447,7 +454,7 @@ codeunit 137912 "SCM Assembly Availability II"
           'Starting Date = Ending Date - 4D (SKU Lead Time Calculation)');
 
         // Extension based on repro of Bug 257960
-        // Change due date on header = WORKDATE + 1M
+        // Change due date on header = WorkDate() + 1M
         Step := 1;
         Evaluate(DTFormula, '+1M');
         AsmHeader.Validate("Due Date", CalcDate(DTFormula, WorkDate()));
@@ -458,7 +465,7 @@ codeunit 137912 "SCM Assembly Availability II"
         Assert.AreEqual(
           CalcDate(DTFormula, AsmHeader."Ending Date"), AsmHeader."Starting Date",
           'Starting Date = Ending Date - 4D (SKU Lead Time Calculation)');
-        // Change starting date to WORKDATE - 2D
+        // Change starting date to WorkDate() - 2D
         Step := 2;
         Evaluate(DTFormula, '-2D');
         NewStartDate2 := CalcDate(DTFormula, WorkDate());
@@ -492,7 +499,7 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,VSTF238977ConfirmHandler')]
+    [HandlerFunctions('VSTF238977ConfirmHandler')]
     [Scope('OnPrem')]
     procedure VSTF238977()
     var
@@ -506,7 +513,7 @@ codeunit 137912 "SCM Assembly Availability II"
         TestMethodName := TestMethodVSTF238977;
         // Create assembled item with one comp (qty per = 1).
         MockAsmItem(ParentItem, ChildItem, 1);
-        // Make purchase order for 10 PCS with expected rcpt date = workdate + 1M
+        // Make purchase order for 10 PCS with expected rcpt date = WorkDate() + 1M
         MockPurchOrder(ChildItem."No.", 10, '', CalcDate('<+1M>', WorkDate()));
         // Create assembly order. Qty = 1
         Step := 1;
@@ -521,6 +528,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader.Validate("Starting Date", CalcDate('<+1M+1W>', WorkDate()));
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // get the only line
         Assert.AreEqual(false, AsmLine."Avail. Warning", '');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [ConfirmHandler]
@@ -579,7 +587,7 @@ codeunit 137912 "SCM Assembly Availability II"
         StockkeepingUnit.Validate("Safety Lead Time", SafetyLeadTime);
         StockkeepingUnit.Validate("Lead Time Calculation", LeadTimeCalc);
         StockkeepingUnit.Modify(true);
-        // Create asm order for KIT with due date = WORKDATE + 8D
+        // Create asm order for KIT with due date = WorkDate() + 8D
         Step := 1;
         Evaluate(DTFormula, '<+8D>');
         ExpDueDate := CalcDate(DTFormula, WorkDate());
@@ -776,7 +784,7 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [Test]
-    [HandlerFunctions('AvailWarningConfirm,SendNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('AssemblyAvailabilityCheckModalPageHandler,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure VSTF266309()
     var
@@ -807,13 +815,13 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000); // first line
         // Show availability from line
         Step := 2;
-        AsmLine.ShowAvailabilityWarning; // line availability warning expected
+        AsmLine.ShowAvailabilityWarning(); // line availability warning expected
         Assert.IsTrue(AsmLine."Avail. Warning", ''); // expect availability warning
         // Show availability from header
-        AsmOrder.Trap;
+        AsmOrder.Trap();
         PAGE.Run(PAGE::"Assembly Order", AsmHeader);
         Step := 3;
-        AsmOrder.ShowAvailability.Invoke; // availability warning expected
+        AsmOrder.ShowAvailability.Invoke(); // availability warning expected
         asserterror Error(''); // to undo changes made to Setup table.
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -1138,7 +1146,7 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [Test]
-    [HandlerFunctions('EarliestDatesCheckTestPage,DueDateBeforeWorkDateMsgHandler')]
+    [HandlerFunctions('EarliestDatesCheckTestPage,DueDateBeforeWorkDateMsgHandler,EarliestDatesCheckAvailabilityTestPageNotificationHandler')]
     [Scope('OnPrem')]
     procedure EarliestDatesCheck()
     var
@@ -1202,31 +1210,47 @@ codeunit 137912 "SCM Assembly Availability II"
         UnitOfMeasure.FindLast();
         LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ParentItem."No.", UnitOfMeasure.Code, 5);
         Step := 3;
-        asserterror AsmHeader.Validate("Unit of Measure Code", UnitOfMeasure.Code); // avail warning should open - make check
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrUpdateInterrupted) > 0, 'Error expected: ' + ErrUpdateInterrupted +
-          '; Actual: ' + GetLastErrorText);
+        AsmHeader.Validate("Unit of Measure Code", UnitOfMeasure.Code); // avail warning should open - make check
+        AsmHeader.Modify();
+        Commit();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        Step := 4;
+        AsmHeader.ShowAvailability();
         ClearLastError();
 
         // set data back to original
         MfgSetup.Validate("Default Safety Lead Time", OldDefSafetyLeadTime);
         MfgSetup.Modify(true);
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure EarliestDatesCheckAvailabilityTestPageNotificationHandler(var Notification: Notification): Boolean
+    var
+        AssemblyLineManagement: Codeunit "Assembly Line Management";
+    begin
+        Commit();
+        AssemblyLineManagement.ShowNotificationDetails(Notification);
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure EarliestDatesCheckTestPage(var AsmAvailability: TestPage "Assembly Availability")
+    procedure EarliestDatesCheckTestPage(var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
     var
         ExpectedPageToAppear: Boolean;
     begin
         if Step = 3 then
-            CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, CalcDate('<+1M>', WorkDate()),
+            exit;
+        if Step = 4 then
+            CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, CalcDate('<+1M>', WorkDate()),
               2 / 5, 0, 0, 0); // (2 / 5) because 2 are in inventory & 5 is Qty per UOM
         if not ExpectedPageToAppear then
             Assert.Fail('Availability warning should not appear on Step = ' + Format(Step));
     end;
 
     [Test]
-    [HandlerFunctions('CAWTestAvailWarningPage')]
+    [HandlerFunctions('CAWTestAvailWarningPage,EarliestDatesCheckAvailabilityTestPageNotificationHandler,DueDateBeforeWorkDateMsgHandler')]
     [Scope('OnPrem')]
     procedure CheckAvailWarning()
     var
@@ -1352,9 +1376,7 @@ codeunit 137912 "SCM Assembly Availability II"
            ((Step = 11) and (SubStep in [5, 6])) or
            ((Step = 12) and (SubStep in [5, 6]))
         then begin
-            asserterror MockAsmOrder(AsmHeader, ParentItem, AsmQty, AsmDueDate, '');
-            Assert.IsTrue(StrPos(GetLastErrorText, ErrUpdateInterrupted) > 0, 'Error expected: ' + ErrUpdateInterrupted +
-              '; Actual: ' + GetLastErrorText);
+            MockAsmOrder(AsmHeader, ParentItem, AsmQty, AsmDueDate, ''); //no more errors related to availability
         end else begin
             asserterror
             begin
@@ -1367,9 +1389,8 @@ codeunit 137912 "SCM Assembly Availability II"
     end;
 
     [ModalPageHandler]
-    [HandlerFunctions('AvailWarningConfirm')]
     [Scope('OnPrem')]
-    procedure CAWTestAvailWarningPage(var AsmAvailability: TestPage "Assembly Availability")
+    procedure CAWTestAvailWarningPage(var AsmAvailabilityCheck: TestPage "Assembly Availability Check")
     var
         ExpectedPageToAppear: Boolean;
     begin
@@ -1377,90 +1398,90 @@ codeunit 137912 "SCM Assembly Availability II"
             1:
                 case SubStep of
                     1, 2:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate1, 0, 0, 0, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate1, 0, 0, 0, 0);
                     3, 4, 5:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, 0, 0, 0, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, 0, 0, 0, 0);
                     6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, 0, 0, 0, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, 0, 0, 0, 0);
                 end;
             2:
                 case SubStep of
                     3, 4, 5:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
                     6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1, 0, SupplyQty1, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1, 0, SupplyQty1, 0);
                 end;
             3:
                 case SubStep of
                     6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2, 0, SupplyQty1 + SupplyQty2, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2, 0, SupplyQty1 + SupplyQty2, 0);
                 end;
             4:
                 case SubStep of
                     1:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate1, 0, DemandQty, 0, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate1, 0, DemandQty, 0, DemandQty);
                     2, 3, 4:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, 0, DemandQty, 0, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, 0, DemandQty, 0, DemandQty);
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, 0, DemandQty, 0, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, 0, DemandQty, 0, DemandQty);
                 end;
             5:
                 case SubStep of
                     2, 3, 4:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty,
                           DemandQty, SupplyQty1, DemandQty);
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty,
                           DemandQty, SupplyQty1, DemandQty);
                 end;
             6:
                 case SubStep of
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
                           DemandQty, SupplyQty1 + SupplyQty2, DemandQty);
                 end;
             7:
                 case SubStep of
                     2, 3, 4:
-                        CAWVerifyAvailWarningPage(
-                          AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty, 0, SupplyQty1, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(
+                          AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty, 0, SupplyQty1, DemandQty);
                     5, 6:
-                        CAWVerifyAvailWarningPage(
-                          AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty, 0, SupplyQty1, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(
+                          AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty, 0, SupplyQty1, DemandQty);
                 end;
             8:
                 case SubStep of
                     2, 3, 4:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1 - DemandQty,
                           DemandQty, SupplyQty1, DemandQty);
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty, DemandQty, SupplyQty1, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 - DemandQty, DemandQty, SupplyQty1, DemandQty);
                 end;
             9:
                 case SubStep of
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
                           DemandQty, SupplyQty1 + SupplyQty2, DemandQty);
                 end;
             10:
                 case SubStep of
                     3, 4:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
                     5:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, SupplyDate2, SupplyQty1, 0, SupplyQty1, 0);
                     6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1, 0, SupplyQty1, 0);
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1, 0, SupplyQty1, 0);
                 end;
             11:
                 case SubStep of
                     5, 6:
-                        CAWVerifyAvailWarningPage(
-                          AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty, 0, SupplyQty1 + SupplyQty2, DemandQty);
+                        CAWVerifyAvailCheckWarningPage(
+                          AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty, 0, SupplyQty1 + SupplyQty2, DemandQty);
                 end;
             12:
                 case SubStep of
                     5, 6:
-                        CAWVerifyAvailWarningPage(AsmAvailability, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
+                        CAWVerifyAvailCheckWarningPage(AsmAvailabilityCheck, ExpectedPageToAppear, 0D, SupplyQty1 + SupplyQty2 - DemandQty,
                           DemandQty, SupplyQty1 + SupplyQty2, DemandQty);
                 end;
         end;
@@ -1488,11 +1509,11 @@ codeunit 137912 "SCM Assembly Availability II"
     begin
         ExpectedPageToAppear := true;
         Evaluate(ActualAbleToAssemble, AsmAvailability.AbleToAssemble.Value);
-        ActualEarliestAvailDate := AsmAvailability.EarliestAvailableDate.AsDate;
-        AsmAvailability.AssemblyLineAvail.First;
+        ActualEarliestAvailDate := AsmAvailability.EarliestAvailableDate.AsDate();
+        AsmAvailability.AssemblyLineAvail.First();
         Evaluate(ActualLineSchRcpt, AsmAvailability.AssemblyLineAvail.ScheduledReceipt.Value);
         Evaluate(ActualLineGrossReq, AsmAvailability.AssemblyLineAvail.GrossRequirement.Value);
-        ActualLineEarliestAvailDate := AsmAvailability.AssemblyLineAvail.EarliestAvailableDate.AsDate;
+        ActualLineEarliestAvailDate := AsmAvailability.AssemblyLineAvail.EarliestAvailableDate.AsDate();
         StepInfo := 'Step = ' + Format(Step) + '; SubStep = ' + Format(SubStep);
         Assert.AreEqual(ExpectedAbleToAssemble, ActualAbleToAssemble, 'Incorrect Able to Assemble Qty. ' + StepInfo);
         Evaluate(ActualGrossReq, AsmAvailability.GrossRequirement.Value);
@@ -1509,6 +1530,56 @@ codeunit 137912 "SCM Assembly Availability II"
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Safety Lead Time", true);
             AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Lead Time Calculation", false);
             Evaluate(DF, AsmAvailability.AssemblyLineAvail."Lead-Time Offset".Value);
+            AddToDateOffsetText(HdrEarliestDateOffset, DF, false);
+            Evaluate(DF, HdrEarliestDateOffset);
+            ExpectedAvailDate := CalcDate(DF, ExpectedLineAvailDate);
+        end;
+        Assert.AreEqual(ExpectedAvailDate, ActualEarliestAvailDate, 'Incorrect earliest availability date. ' + StepInfo);
+        Assert.AreEqual(ExpectedLineSchRcpt, ActualLineSchRcpt, 'Incorrect line scheduled receipt. ' + StepInfo);
+        Assert.AreEqual(ExpectedLineGrossReq, ActualLineGrossReq, 'Incorrect line gross requirement. ' + StepInfo);
+        Assert.AreEqual(ExpectedLineAvailDate, ActualLineEarliestAvailDate, 'Incorrect line available date. ' + StepInfo);
+    end;
+
+    [Scope('OnPrem')]
+    procedure CAWVerifyAvailCheckWarningPage(var AsmAvailabilityCheck: TestPage "Assembly Availability Check"; var ExpectedPageToAppear: Boolean; ExpectedLineAvailDate: Date; ExpectedAbleToAssemble: Decimal; ExpectedHeaderSchRcpt: Decimal; ExpectedLineSchRcpt: Decimal; ExpectedLineGrossReq: Decimal)
+    var
+        MfgSetup: Record "Manufacturing Setup";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        HdrEarliestDateOffset: Text[30];
+        ExpectedAvailDate: Date;
+        ActualAbleToAssemble: Decimal;
+        ActualEarliestAvailDate: Date;
+        ActualGrossReq: Decimal;
+        ActualSchRcpt: Decimal;
+        ActualLineEarliestAvailDate: Date;
+        ActualLineSchRcpt: Decimal;
+        ActualLineGrossReq: Decimal;
+        StepInfo: Text[30];
+        DF: DateFormula;
+    begin
+        ExpectedPageToAppear := true;
+        Evaluate(ActualAbleToAssemble, AsmAvailabilityCheck.AbleToAssemble.Value);
+        ActualEarliestAvailDate := AsmAvailabilityCheck.EarliestAvailableDate.AsDate();
+        AsmAvailabilityCheck.AssemblyLineAvail.First();
+        Evaluate(ActualLineSchRcpt, AsmAvailabilityCheck.AssemblyLineAvail.ScheduledReceipt.Value);
+        Evaluate(ActualLineGrossReq, AsmAvailabilityCheck.AssemblyLineAvail.GrossRequirement.Value);
+        ActualLineEarliestAvailDate := AsmAvailabilityCheck.AssemblyLineAvail.EarliestAvailableDate.AsDate();
+        StepInfo := 'Step = ' + Format(Step) + '; SubStep = ' + Format(SubStep);
+        Assert.AreEqual(ExpectedAbleToAssemble, ActualAbleToAssemble, 'Incorrect Able to Assemble Qty. ' + StepInfo);
+        Evaluate(ActualGrossReq, AsmAvailabilityCheck.GrossRequirement.Value);
+        Assert.AreEqual(0, ActualGrossReq, 'Incorrect Gross Req in Header. ' + StepInfo); // always zero in these test methods
+        Evaluate(ActualSchRcpt, AsmAvailabilityCheck.ScheduledReceipts.Value);
+        Assert.AreEqual(ExpectedHeaderSchRcpt, ActualSchRcpt, 'Incorrect Scheduled Receipt in Header. ' + StepInfo);
+        MfgSetup.Get();
+        if StockkeepingUnit.Get(AsmAvailabilityCheck."Location Code".Value, AsmAvailabilityCheck."Item No.".Value,
+             AsmAvailabilityCheck."Variant Code".Value)
+        then
+            ;
+        if ExpectedLineAvailDate > 0D then begin
+            AddToDateOffsetText(HdrEarliestDateOffset, MfgSetup."Default Safety Lead Time", false);
+            AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Safety Lead Time", true);
+            AddToDateOffsetText(HdrEarliestDateOffset, StockkeepingUnit."Lead Time Calculation", false);
+            Evaluate(DF, AsmAvailabilityCheck.AssemblyLineAvail."Lead-Time Offset".Value);
             AddToDateOffsetText(HdrEarliestDateOffset, DF, false);
             Evaluate(DF, HdrEarliestDateOffset);
             ExpectedAvailDate := CalcDate(DF, ExpectedLineAvailDate);
@@ -1607,6 +1678,7 @@ codeunit 137912 "SCM Assembly Availability II"
         AsmHeader.Modify(true);
         AsmHeader.Validate("Item No."); // setting qty above leads to creation of asm lines here.
         AsmHeader.Modify(true); // to clear the LinesAlreadyUpdated flag.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure MockSKUWithLeadTime(Item: Record Item; var Location: Record Location; LeadTimeText: Text[30]; var VariantCode: Code[10])
@@ -1630,6 +1702,18 @@ codeunit 137912 "SCM Assembly Availability II"
     begin
         Evaluate(DF, '<' + DateText + '>');
         exit(CalcDate(DF, RefDate));
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MsgHandler(MsgText: Text)
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AssemblyAvailabilityCheckModalPageHandler(var AssemblyAvailability: TestPage "Assembly Availability Check")
+    begin
     end;
 
     [RecallNotificationHandler]

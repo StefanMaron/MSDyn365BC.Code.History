@@ -195,13 +195,10 @@ report 593 "Intrastat - Make Disk Tax Auth"
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
         TotalAmount: Decimal;
-        Text1090000: Label 'must be either Receipt or Shipment';
         IntraJnlLineType: Option Receipt,Shipment;
         LineNo: Text[5];
         MissingFileSetupConfigErr: Label 'You have not set up any Intrastat transfer files. To set up a transfer file, go to the Transfer File window.';
 
-        Text001: Label 'WwWw';
-        Text002: Label 'INTRASTAT';
         Text003: Label 'It is not possible to display %1 in a field with a length of %2.';
 
     local procedure FilterSourceLinesByIntrastatSetupExportTypes()

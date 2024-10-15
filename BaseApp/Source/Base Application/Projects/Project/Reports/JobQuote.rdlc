@@ -900,14 +900,14 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="UnitCostCaption">
+                        <Textbox Name="UnitPriceCaption">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!UnitCostCaption.Value</Value>
+                                  <Value>=Fields!UnitPriceCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -920,7 +920,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>UnitCostCaption</rd:DefaultName>
                           <Style>
                             <Border />
                             <VerticalAlign>Bottom</VerticalAlign>
@@ -931,14 +930,14 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TotalCostCaption">
+                        <Textbox Name="TotalPriceCaption">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TotalCostCaption.Value</Value>
+                                  <Value>=Fields!TotalPriceCaption.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -951,7 +950,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>TotalCostCaption</rd:DefaultName>
                           <Style>
                             <Border />
                             <VerticalAlign>Bottom</VerticalAlign>
@@ -2079,18 +2077,18 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="UnitCostLCY2">
+                        <Textbox Name="UnitPriceLCY2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!UnitCostLCY.Value</Value>
+                                  <Value>=Fields!UnitPriceLCY.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!UnitCostLCYFormat.Value</Format>
+                                    <Format>=Fields!UnitPriceLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2099,7 +2097,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>UnitCostLCY</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2113,18 +2110,18 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TotalCostLCY2">
+                        <Textbox Name="TotalPriceLCY2">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!TotalCostLCY.Value</Value>
+                                  <Value>=Fields!TotalPriceLCY.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
-                                    <Format>=Fields!TotalCostLCYFormat.Value</Format>
+                                    <Format>=Fields!TotalPriceLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2133,7 +2130,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>TotalCostLCY</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2263,7 +2259,7 @@
                           </Paragraphs>
                           <rd:DefaultName>TotalJobTask</rd:DefaultName>
                           <Visibility>
-                            <Hidden>=Sum(Fields!TotalCostLCY.Value)=0</Hidden>
+                            <Hidden>=Sum(Fields!TotalPriceLCY.Value)=0</Hidden>
                           </Visibility>
                           <Style>
                             <Border>
@@ -2377,19 +2373,19 @@
                     </TablixCell>
                     <TablixCell>
                       <CellContents>
-                        <Textbox Name="TotalCostLCY">
+                        <Textbox Name="TotalPriceLCY">
                           <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalCostLCY.Value)</Value>
+                                  <Value>=Sum(Fields!TotalPriceLCY.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!TotalCostLCYFormat.Value</Format>
+                                    <Format>=Fields!TotalPriceLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2398,7 +2394,6 @@
                               </Style>
                             </Paragraph>
                           </Paragraphs>
-                          <rd:DefaultName>TotalCostLCY</rd:DefaultName>
                           <Style>
                             <Border>
                               <Style>None</Style>
@@ -2613,7 +2608,7 @@
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
-                                    <Format>=Fields!TotalCostLCYFormat.Value</Format>
+                                    <Format>=Fields!TotalPriceLCYFormat.Value</Format>
                                   </Style>
                                 </TextRun>
                               </TextRuns>
@@ -2624,6 +2619,9 @@
                           </Paragraphs>
                           <rd:DefaultName>JobTotalValue</rd:DefaultName>
                           <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
                             <VerticalAlign>Top</VerticalAlign>
                             <PaddingLeft>5pt</PaddingLeft>
                           </Style>
@@ -3917,11 +3915,11 @@ End Function
         <Field Name="QuantityCaption">
           <DataField>QuantityCaption</DataField>
         </Field>
-        <Field Name="UnitCostCaption">
-          <DataField>UnitCostCaption</DataField>
+        <Field Name="UnitPriceCaption">
+          <DataField>UnitPriceCaption</DataField>
         </Field>
-        <Field Name="TotalCostCaption">
-          <DataField>TotalCostCaption</DataField>
+        <Field Name="TotalPriceCaption">
+          <DataField>TotalPriceCaption</DataField>
         </Field>
         <Field Name="JobTaskTypeCaption">
           <DataField>JobTaskTypeCaption</DataField>
@@ -3953,29 +3951,29 @@ End Function
         <Field Name="QuantityFormat">
           <DataField>QuantityFormat</DataField>
         </Field>
-        <Field Name="UnitCostLCY">
-          <DataField>UnitCostLCY</DataField>
+        <Field Name="UnitPriceLCY">
+          <DataField>UnitPriceLCY</DataField>
         </Field>
-        <Field Name="UnitCostLCYFormat">
-          <DataField>UnitCostLCYFormat</DataField>
+        <Field Name="UnitPriceLCYFormat">
+          <DataField>UnitPriceLCYFormat</DataField>
         </Field>
-        <Field Name="UnitCost">
-          <DataField>UnitCost</DataField>
+        <Field Name="UnitPrice">
+          <DataField>UnitPrice</DataField>
         </Field>
-        <Field Name="UnitCostFormat">
-          <DataField>UnitCostFormat</DataField>
+        <Field Name="UnitPriceFormat">
+          <DataField>UnitPriceFormat</DataField>
         </Field>
-        <Field Name="TotalCostLCY">
-          <DataField>TotalCostLCY</DataField>
+        <Field Name="TotalPriceLCY">
+          <DataField>TotalPriceLCY</DataField>
         </Field>
-        <Field Name="TotalCostLCYFormat">
-          <DataField>TotalCostLCYFormat</DataField>
+        <Field Name="TotalPriceLCYFormat">
+          <DataField>TotalPriceLCYFormat</DataField>
         </Field>
-        <Field Name="TotalCost">
-          <DataField>TotalCost</DataField>
+        <Field Name="TotalPrice">
+          <DataField>TotalPrice</DataField>
         </Field>
-        <Field Name="TotalCostFormat">
-          <DataField>TotalCostFormat</DataField>
+        <Field Name="TotalPriceFormat">
+          <DataField>TotalPriceFormat</DataField>
         </Field>
         <Field Name="Type">
           <DataField>Type</DataField>

@@ -190,7 +190,7 @@ codeunit 133782 "Booking Service Sync Test"
         LibraryO365Sync: Codeunit "Library - O365 Sync";
         ConnectionID: Guid;
     begin
-        LibraryO365Sync.SetupNavUser;
+        LibraryO365Sync.SetupNavUser();
         LibraryO365Sync.SetupBookingsSync(BookingSync);
         LibraryO365Sync.SetupExchangeSync(ExchangeSync);
         LibraryO365Sync.SetupBookingTableConnection(BookingSync, ConnectionID);

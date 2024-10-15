@@ -1,7 +1,6 @@
 namespace Microsoft.Service.Document;
 
 using Microsoft.Service.Contract;
-using Microsoft.Utilities;
 using System.Utilities;
 
 report 5979 "Copy Service Document"
@@ -24,36 +23,44 @@ report 5979 "Copy Service Document"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(DocType; DocType)
+                    field(DocType; FromContractType)
                     {
                         ApplicationArea = Service;
-                        Caption = 'Document Type';
-                        OptionCaption = 'Quote,Contract';
-                        ToolTip = 'Specifies the type of service document that you want to copy.';
+                        Caption = 'Contract Type';
+                        ToolTip = 'Specifies the type of service contract that you want to copy.';
 
                         trigger OnValidate()
                         begin
+                            FromContractNo := '';
+#if not CLEAN24
                             DocNo := '';
-                            ValidateDocNo();
+#endif
+                            ValidateContractNo();
                         end;
                     }
-                    field(DocNo; DocNo)
+                    field(DocNo; FromContractNo)
                     {
                         ApplicationArea = Service;
-                        Caption = 'Document No.';
-                        ToolTip = 'Specifies the document number that you want to copy from by choosing the field.';
+                        Caption = 'Contract No.';
+                        ToolTip = 'Specifies the contract number that you want to copy from by choosing the field.';
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            LookupDocNo();
+                            LookupContractNo();
                         end;
 
                         trigger OnValidate()
                         begin
-                            ValidateDocNo();
+                            ValidateContractNo();
                         end;
                     }
+#if not CLEAN24
+#pragma warning disable AA0100
                     field("FromServContractHeader.""Customer No."""; FromServContractHeader."Customer No.")
+#pragma warning restore AA0100
+#else
+                    field("FromServContractHeader.CustomerNo"; FromServContractHeader."Customer No.")
+#endif
                     {
                         ApplicationArea = Service;
                         Caption = 'Customer No.';
@@ -77,17 +84,15 @@ report 5979 "Copy Service Document"
 
         trigger OnOpenPage()
         begin
-            if DocNo <> '' then begin
-                case DocType of
-                    DocType::Quote:
-                        if FromServContractHeader.Get(FromServContractHeader."Contract Type"::Quote, DocNo) then
-                            ;
-                    DocType::Contract:
-                        if FromServContractHeader.Get(FromServContractHeader."Contract Type"::Contract, DocNo) then
-                            ;
+            if FromContractNo <> '' then begin
+                case FromContractType of
+                    FromContractType::Quote:
+                        if FromServContractHeader.Get(FromServContractHeader."Contract Type"::Quote, FromContractNo) then;
+                    FromContractType::Contract:
+                        if FromServContractHeader.Get(FromServContractHeader."Contract Type"::Contract, FromContractNo) then;
                 end;
                 if FromServContractHeader."Contract No." = '' then
-                    DocNo := ''
+                    FromContractNo := ''
                 else
                     FromServContractHeader.CalcFields(Name);
             end;
@@ -104,7 +109,7 @@ report 5979 "Copy Service Document"
     begin
         Commit();
         if not AllLinesCopied then
-            if ConfirmManagement.GetResponse(Text000, true) then begin
+            if ConfirmManagement.GetResponse(ShowNotCopiedLinesQst, true) then begin
                 OutServContractLine.MarkedOnly := true;
                 PAGE.RunModal(PAGE::"Service Contract Line List", OutServContractLine);
             end;
@@ -114,76 +119,97 @@ report 5979 "Copy Service Document"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        if DocNo = '' then
-            Error(Text004);
-        ValidateDocNo();
+        if FromContractNo = '' then
+            Error(MissingContractNoErr);
+        ValidateContractNo();
         if FromServContractHeader."Ship-to Code" <> ServContractHeader."Ship-to Code" then
-            if not ConfirmManagement.GetResponseOrDefault(Text003, true) then
+            if not ConfirmManagement.GetResponseOrDefault(ChangeShipToCodeQst, true) then
                 CurrReport.Quit();
-        AllLinesCopied := CopyDocMgt.CopyServContractLines(ServContractHeader, DocType, DocNo, OutServContractLine);
+        AllLinesCopied := CopyServiceContractMgt.CopyServiceContractLines(ServContractHeader, FromContractType, FromContractNo, OutServContractLine);
     end;
 
     var
         OutServContractLine: Record "Service Contract Line";
-        CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,Contract;
+        CopyServiceContractMgt: Codeunit "Copy Service Contract Mgt.";
+        FromContractType: Enum "Service Contract Type From";
         AllLinesCopied: Boolean;
-        Text000: Label 'It was not possible to copy all of the service contract lines.\\Do you want to see these lines?';
-        Text002: Label 'You can only copy the document with the same %1.';
-        Text003: Label 'The document has a different ship-to code.\\Do you want to continue?';
-        Text004: Label 'You must fill in the Document No. field.';
+
+        ShowNotCopiedLinesQst: Label 'It was not possible to copy all of the service contract lines.\\Do you want to see these lines?';
+        SameFieldValueErr: Label 'You can only copy the document with the same %1.', Comment = '%1 - field caption';
+        ChangeShipToCodeQst: Label 'The document has a different ship-to code.\\Do you want to continue?';
+        MissingContractNoErr: Label 'You must fill in the Contract No. field.';
 
     protected var
         ServContractHeader: Record "Service Contract Header";
         FromServContractHeader: Record "Service Contract Header";
+        FromContractNo: Code[20];
+#if not CLEAN24
+        [Obsolete('Replaced by FromContractNo', '24.0')]
         DocNo: Code[20];
+#endif
 
     procedure SetServContractHeader(var NewServContractHeader: Record "Service Contract Header")
     begin
         ServContractHeader := NewServContractHeader;
     end;
 
-    local procedure ValidateDocNo()
+    local procedure ValidateContractNo()
     begin
-        if DocNo = '' then
+#if not CLEAN24
+        DocNo := FromContractNo;
+#endif
+        if FromContractNo = '' then
             FromServContractHeader.Init()
         else begin
             FromServContractHeader.Init();
-            FromServContractHeader.Get(DocType, DocNo);
+            FromServContractHeader.Get(FromContractType, FromContractNo);
             if FromServContractHeader."Customer No." <> ServContractHeader."Customer No." then
-                Error(Text002, ServContractHeader.FieldCaption("Customer No."));
+                Error(SameFieldValueErr, ServContractHeader.FieldCaption("Customer No."));
             if FromServContractHeader."Currency Code" <> ServContractHeader."Currency Code" then
-                Error(Text002, ServContractHeader.FieldCaption("Currency Code"));
+                Error(SameFieldValueErr, ServContractHeader.FieldCaption("Currency Code"));
             FromServContractHeader.CalcFields(Name);
         end;
     end;
 
-    local procedure LookupDocNo()
+    local procedure LookupContractNo()
     var
         ContractType: Enum "Service Contract Type";
     begin
-        ContractType := "Service Contract Type".FromInteger(DocType);
+        ContractType := CopyServiceContractMgt.GetServiceContractType(FromContractType);
 
         FromServContractHeader.FilterGroup := 2;
         FromServContractHeader.SetRange("Contract Type", ContractType);
         if ServContractHeader."Contract Type" = ContractType then
             FromServContractHeader.SetFilter("Contract No.", '<>%1', ServContractHeader."Contract No.");
         FromServContractHeader."Contract Type" := ContractType;
-        FromServContractHeader."Contract No." := DocNo;
+        FromServContractHeader."Contract No." := FromContractNo;
         FromServContractHeader.SetCurrentKey("Customer No.", "Currency Code", "Ship-to Code");
         FromServContractHeader.SetRange("Customer No.", ServContractHeader."Customer No.");
         FromServContractHeader.SetRange("Currency Code", ServContractHeader."Currency Code");
         FromServContractHeader.FilterGroup := 0;
         FromServContractHeader.SetRange("Ship-to Code", ServContractHeader."Ship-to Code");
         if PAGE.RunModal(0, FromServContractHeader) = ACTION::LookupOK then
-            DocNo := FromServContractHeader."Contract No.";
-        ValidateDocNo();
+            FromContractNo := FromServContractHeader."Contract No.";
+        ValidateContractNo();
     end;
 
+    procedure SetParameters(ContractType: Enum "Service Contract Type From"; ContractNo: Code[20])
+    begin
+        FromContractType := ContractType;
+        FromContractNo := ContractNo;
+#if not CLEAN24
+        DocNo := ContractNo;
+#endif
+    end;
+
+#if not CLEAN24
+    [Obsolete('Replaced by procedure SetParameters()', '24.0')]
     procedure InitializeRequest(DocumentType: Option; DocumentNo: Code[20])
     begin
-        DocType := DocumentType;
+        FromContractType := "Service Contract Type From".FromInteger(DocumentType);
+        FromContractNo := DocumentNo;
         DocNo := DocumentNo;
     end;
+#endif
 }
 

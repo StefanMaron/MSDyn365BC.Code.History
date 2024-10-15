@@ -9,6 +9,7 @@ table 13400 "Intrastat - File Setup"
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
 #endif
+    DataClassification = CustomerContent;
 
     fields
     {

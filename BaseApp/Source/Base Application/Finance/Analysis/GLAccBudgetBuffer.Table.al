@@ -12,6 +12,7 @@ table 374 "G/L Acc. Budget Buffer"
     DrillDownPageID = "Chart of Accounts";
     LookupPageID = "G/L Account List";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
