@@ -59,7 +59,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
                         OnBeforeTransferLineToPurchaseDoc(ReturnShptHeader, ReturnShptLine2, PurchHeader, DifferentCurrencies);
                     end;
                     ShouldInsertReturnRcptLine := not DifferentCurrencies;
-                    OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnShptHeader, ReturnShptLine2, PurchHeader, ShouldInsertReturnRcptLine);
+                    OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(ReturnShptHeader, ReturnShptLine2, PurchHeader, ShouldInsertReturnRcptLine, PurchLine);
                     if ShouldInsertReturnRcptLine then begin
                         ReturnShptLine := ReturnShptLine2;
                         ReturnShptLine.InsertInvLineFromRetShptLine(PurchLine);
@@ -203,7 +203,7 @@ codeunit 6648 "Purch.-Get Return Shipments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(var ReturnShipmentHeader: Record "Return Shipment Header"; var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var ShouldInsertReturnRcptLine: Boolean)
+    local procedure OnCreateInvLinesOnAfterCalcShouldInsertReturnRcptLine(var ReturnShipmentHeader: Record "Return Shipment Header"; var ReturnShipmentLine: Record "Return Shipment Line"; var PurchaseHeader: Record "Purchase Header"; var ShouldInsertReturnRcptLine: Boolean; PurchLine: Record "Purchase Line")
     begin
     end;
 

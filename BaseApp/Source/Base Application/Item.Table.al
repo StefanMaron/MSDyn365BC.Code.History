@@ -3606,7 +3606,14 @@
     end;
 
     procedure UpdateReplenishmentSystem(): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateReplenishmentSystem(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CalcFields("Assembly BOM");
 
         if "Assembly BOM" then begin
@@ -3942,6 +3949,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePhysInvtCountingPeriodCodeOnBeforeConfirmUpdate(var Item: Record Item; xItem: Record Item; PhysInvtCountPeriod: Record "Phys. Invt. Counting Period"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReplenishmentSystem(var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

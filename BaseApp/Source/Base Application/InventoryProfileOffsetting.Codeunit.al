@@ -46,7 +46,7 @@
         SpecificSNTracking: Boolean;
         Text001: Label 'Assertion failed: %1.';
         UseParm: Boolean;
-        PlanningResilicency: Boolean;
+        PlanningResiliency: Boolean;
         Text002: Label 'The %1 from ''%2'' to ''%3'' does not exist.';
         Text003: Label 'The %1 for %2 %3 %4 %5 does not exist.';
         Text004: Label '%1 must not be %2 in %3 %4 %5 %6 when %7 is %8.';
@@ -82,7 +82,7 @@
         FindCombination(InventoryProfile[1], InventoryProfile[2], Item);
         PlanItem(InventoryProfile[1], InventoryProfile[2], OrderDate, ToDate, RespectPlanningParm);
         OnCalculatePlanFromWorksheetOnAfterPlanItem(CurrTemplateName, CurrWorksheetName, Item, ReqLine, TempTrkgReservEntry);
-        CommitTracking;
+        CommitTracking();
 
         OnAfterCalculatePlanFromWorksheet(Item);
     end;
@@ -123,7 +123,14 @@
     end;
 
     local procedure CreateTempSKUForLocation(ItemNo: Code[20]; LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempSKUForLocation(TempSKU, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         TempSKU.Init();
         TempSKU."Item No." := ItemNo;
         TransferPlanningParameters(TempSKU);
@@ -180,7 +187,7 @@
         TransAsmHeaderToProfile(InventoryProfile, Item, ToDate);
         TransRcptTransLineToProfile(InventoryProfile, Item, ToDate);
 
-        OnAfterSupplyToInvProfile(InventoryProfile, Item, ToDate, TempItemTrkgEntry, LineNo);
+        OnAfterSupplyToInvProfile(InventoryProfile, Item, ToDate, TempItemTrkgEntry, LineNo, TempSKU);
 
         Item.Copy(CopyOfItem);
     end;
@@ -193,7 +200,7 @@
             InventoryProfile.Insert();
         end else
             if InventoryProfile."Due Date" <= ToDate then begin
-                InventoryProfile.ChangeSign;
+                InventoryProfile.ChangeSign();
                 InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
                 InventoryProfile.Insert();
             end;
@@ -203,22 +210,26 @@
     var
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
+        ShouldProcess: Boolean;
     begin
         OnBeforeTransSalesLineToProfile(InventoryProfile, Item, SalesLine);
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
             repeat
-                if SalesLine."Shipment Date" <> 0D then begin
+                ShouldProcess := SalesLine."Shipment Date" <> 0D;
+                OnTransSalesLineToProfileOnBeforeProcessLine(SalesLine, ShouldProcess);
+                if ShouldProcess then begin
                     IsHandled := false;
                     OnAfterFindLinesWithItemToPlan(SalesLine, IsHandled, InventoryProfile, Item, LineNo);
                     if not IsHandled then begin
                         InventoryProfile.Init();
-                        InventoryProfile."Line No." := NextLineNo;
+                        InventoryProfile."Line No." := NextLineNo();
                         OnTransSalesLineToProfileOnBeforeTransferFromSalesLineOrder(Item, SalesLine);
                         InventoryProfile.TransferFromSalesLine(SalesLine, TempItemTrkgEntry);
                         OnTransSalesLineToProfileOnAfterTransferFromSalesLineOrder(Item, SalesLine, InventoryProfile);
                         if InventoryProfile.IsSupply then
-                            InventoryProfile.ChangeSign;
+                            InventoryProfile.ChangeSign();
                         InventoryProfile."MPS Order" := true;
+                        OnTransSalesLineToProfileOnBeforeInvProfileInsert(InventoryProfile, Item);
                         InventoryProfile.Insert();
                         OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromOrder(Item, SalesLine, InventoryProfile);
                     end;
@@ -232,12 +243,12 @@
                     OnAfterFindLinesWithItemToPlan(SalesLine, IsHandled, InventoryProfile, Item, LineNo);
                     if not IsHandled then begin
                         InventoryProfile.Init();
-                        InventoryProfile."Line No." := NextLineNo;
+                        InventoryProfile."Line No." := NextLineNo();
                         OnTransSalesLineToProfileOnBeforeTransferFromSalesLineReturnOrder(Item, SalesLine);
                         InventoryProfile.TransferFromSalesLine(SalesLine, TempItemTrkgEntry);
                         OnTransSalesLineToProfileOnAfterTransferFromSalesLineReturnOrder(Item, SalesLine, InventoryProfile);
                         if InventoryProfile.IsSupply then
-                            InventoryProfile.ChangeSign;
+                            InventoryProfile.ChangeSign();
                         InventoryProfile.Insert();
                         OnTransSalesLineToProfileOnAfterInsertInventoryProfileFromReturnOrder(Item, SalesLine, InventoryProfile);
                     end;
@@ -247,42 +258,49 @@
 
     local procedure TransServLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     var
-        ServLine: Record "Service Line";
+        ServiceLine: Record "Service Line";
+        ShouldProcess: Boolean;
     begin
-        if ServLine.FindLinesWithItemToPlan(Item) then
+        if ServiceLine.FindLinesWithItemToPlan(Item) then
             repeat
-                if ServLine."Needed by Date" <> 0D then begin
+                ShouldProcess := ServiceLine."Needed by Date" <> 0D;
+                OnTransServLineToProfileOnBeforeProcessLine(ServiceLine, ShouldProcess);
+                if ShouldProcess then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
-                    InventoryProfile.TransferFromServLine(ServLine, TempItemTrkgEntry);
+                    InventoryProfile."Line No." := NextLineNo();
+                    InventoryProfile.TransferFromServLine(ServiceLine, TempItemTrkgEntry);
                     if InventoryProfile.IsSupply then
-                        InventoryProfile.ChangeSign;
+                        InventoryProfile.ChangeSign();
                     InventoryProfile.Insert();
                 end;
-            until ServLine.Next() = 0;
+            until ServiceLine.Next() = 0;
     end;
 
     local procedure TransJobPlanningLineToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     var
         JobPlanningLine: Record "Job Planning Line";
+        ShouldProcess: Boolean;
     begin
         if JobPlanningLine.FindLinesWithItemToPlan(Item) then
             repeat
-                if JobPlanningLine."Planning Date" <> 0D then begin
+                ShouldProcess := JobPlanningLine."Planning Date" <> 0D;
+                OnTransJobPlanningLineToProfileOnBeforeProcessLine(JobPlanningLine, ShouldProcess);
+                if ShouldProcess then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
-                    InventoryProfile.TransferFromJobPlanningLine(JobPlanningLine, TempItemTrkgEntry);
-                    if InventoryProfile.IsSupply then
-                        InventoryProfile.ChangeSign;
-                    InventoryProfile.Insert();
-                end;
-            until JobPlanningLine.Next() = 0;
+                        InventoryProfile."Line No." := NextLineNo();
+                        InventoryProfile.TransferFromJobPlanningLine(JobPlanningLine, TempItemTrkgEntry);
+                        if InventoryProfile.IsSupply then
+                            InventoryProfile.ChangeSign();
+                        InventoryProfile.Insert();
+                    end;
+                until JobPlanningLine.Next() = 0;
     end;
 
     local procedure TransProdOrderCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     var
         ProdOrderComp: Record "Prod. Order Component";
         IsHandled: Boolean;
+        ShouldProcess: Boolean;
     begin
         IsHandled := false;
         OnBeforeTransProdOrderCompToProfile(InventoryProfile, Item, IsHandled);
@@ -291,17 +309,20 @@
 
         if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
             repeat
-                if ProdOrderComp."Due Date" <> 0D then begin
+                ShouldProcess := ProdOrderComp."Due Date" <> 0D;
+                OnTransProdOrderCompToProfileOnBeforeProcessLine(ProdOrderComp, ShouldProcess);
+                if ShouldProcess then begin
                     ReqLine.SetRefFilter(
                       ReqLine."Ref. Order Type"::"Prod. Order", ProdOrderComp.Status.AsInteger(),
                       ProdOrderComp."Prod. Order No.", ProdOrderComp."Prod. Order Line No.");
                     ReqLine.SetRange("Operation No.", '');
                     if not ReqLine.FindFirst() then begin
                         InventoryProfile.Init();
-                        InventoryProfile."Line No." := NextLineNo;
+                        InventoryProfile."Line No." := NextLineNo();
                         InventoryProfile.TransferFromComponent(ProdOrderComp, TempItemTrkgEntry);
                         if InventoryProfile.IsSupply then
-                            InventoryProfile.ChangeSign;
+                            InventoryProfile.ChangeSign();
+                        OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(InventoryProfile, Item);
                         InventoryProfile.Insert();
                     end;
                 end;
@@ -325,11 +346,12 @@
             repeat
                 if PlanningComponent."Due Date" <> 0D then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile."Item No." := Item."No.";
                     InventoryProfile.TransferFromPlanComponent(PlanningComponent, TempItemTrkgEntry);
                     if InventoryProfile.IsSupply then
-                        InventoryProfile.ChangeSign;
+                        InventoryProfile.ChangeSign();
+                    OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(InventoryProfile, Item);
                     InventoryProfile.Insert();
                 end;
             until PlanningComponent.Next() = 0;
@@ -388,6 +410,7 @@
     var
         TransLine: Record "Transfer Line";
         FilterIsSetOnLocation: Boolean;
+        ShouldProcess: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -398,15 +421,17 @@
         FilterIsSetOnLocation := Item.GetFilter("Location Filter") <> '';
         if TransLine.FindLinesWithItemToPlan(Item, false, true) then
             repeat
-                if TransLine."Shipment Date" <> 0D then begin
+                ShouldProcess := TransLine."Shipment Date" <> 0D;
+                OnTransShptTransLineToProfileOnBeforeProcessLine(TransLine, ShouldProcess);
+                if ShouldProcess then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile."Item No." := Item."No.";
                     OnTransShptTransLineToProfileOnBeforeTransferFromOutboundTransfer(Item, Transline);
                     InventoryProfile.TransferFromOutboundTransfer(TransLine, TempItemTrkgEntry);
                     OnTransShptTransLineToProfileOnAfterTransferFromOutboundTransfer(Item, Transline, InventoryProfile);
                     if InventoryProfile.IsSupply then
-                        InventoryProfile.ChangeSign;
+                        InventoryProfile.ChangeSign();
                     if FilterIsSetOnLocation then
                         InventoryProfile."Transfer Location Not Planned" := TransferLocationIsFilteredOut(Item, TransLine);
                     SyncTransferDemandWithReqLine(InventoryProfile, TransLine."Transfer-to Code");
@@ -422,13 +447,13 @@
         if ItemLedgEntry.FindLinesWithItemToPlan(Item, false) then
             repeat
                 InventoryProfile.Init();
-                InventoryProfile."Line No." := NextLineNo;
+                InventoryProfile."Line No." := NextLineNo();
                 OnTransItemLedgEntryToProfileOnBeforeTransferFromItemLedgerEntry(Item, ItemLedgEntry);
                 InventoryProfile.TransferFromItemLedgerEntry(ItemLedgEntry, TempItemTrkgEntry);
                 OnTransItemLedgEntryToProfileOnAfterTransferFromItemLedgerEntry(Item, ItemLedgEntry, InventoryProfile);
                 InventoryProfile."Due Date" := 0D;
                 if not InventoryProfile.IsSupply then
-                    InventoryProfile.ChangeSign;
+                    InventoryProfile.ChangeSign();
                 InventoryProfile.Insert();
                 OnTransItemLedgEntryToProfileOnAfterInsertInventoryProfile(Item, ItemLedgEntry, InventoryProfile);
             until ItemLedgEntry.Next() = 0;
@@ -442,7 +467,7 @@
             repeat
                 if ReqLine."Due Date" <> 0D then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile."Item No." := Item."No.";
                     InventoryProfile.TransferFromRequisitionLine(ReqLine, TempItemTrkgEntry);
                     InsertSupplyInvtProfile(InventoryProfile, ToDate);
@@ -485,12 +510,15 @@
         ProdOrderLine: Record "Prod. Order Line";
         CapLedgEntry: Record "Capacity Ledger Entry";
         ProdOrderComp: Record "Prod. Order Component";
+        ShouldProcess: Boolean;
     begin
         if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
             repeat
-                if ProdOrderLine."Due Date" <> 0D then begin
+                ShouldProcess := ProdOrderLine."Due Date" <> 0D;
+                OnTransProdOrderToProfileOnBeforeProcessLine(ProdOrderLine, ShouldProcess);
+                if ShouldProcess then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile.TransferFromProdOrderLine(ProdOrderLine, TempItemTrkgEntry);
                     if (ProdOrderLine."Planning Flexibility" = ProdOrderLine."Planning Flexibility"::Unlimited) and
                        (ProdOrderLine.Status = ProdOrderLine.Status::Released)
@@ -502,7 +530,7 @@
                         ItemLedgEntry.SetCurrentKey("Order Type", "Order No.");
                         ItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type"::Production);
                         ItemLedgEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-                        if not (CapLedgEntry.IsEmpty and ItemLedgEntry.IsEmpty) then
+                        if not (CapLedgEntry.IsEmpty() and ItemLedgEntry.IsEmpty) then
                             InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None
                         else begin
                             ProdOrderComp.SetRange(Status, ProdOrderLine.Status);
@@ -526,7 +554,7 @@
             repeat
                 if AsmHeader."Due Date" <> 0D then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile.TransferFromAsmHeader(AsmHeader, TempItemTrkgEntry);
                     if InventoryProfile."Finished Quantity" > 0 then
                         InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
@@ -540,14 +568,17 @@
         TransLine: Record "Transfer Line";
         WhseEntry: Record "Warehouse Entry";
         FilterIsSetOnLocation: Boolean;
+        ShouldProcess: Boolean;
     begin
         OnBeforeTransRcptTransLineToProfile(InventoryProfile, Item, ToDate);
         FilterIsSetOnLocation := Item.GetFilter("Location Filter") <> '';
         if TransLine.FindLinesWithItemToPlan(Item, true, true) then
             repeat
-                if TransLine."Receipt Date" <> 0D then begin
+                ShouldProcess := TransLine."Receipt Date" <> 0D;
+                OnTransRcptTransLineToProfileOnBeforeProcessLine(TransLine, ShouldProcess);
+                if ShouldProcess then begin
                     InventoryProfile.Init();
-                    InventoryProfile."Line No." := NextLineNo;
+                    InventoryProfile."Line No." := NextLineNo();
                     InventoryProfile.TransferFromInboundTransfer(TransLine, TempItemTrkgEntry);
                     if TransLine."Planning Flexibility" = TransLine."Planning Flexibility"::Unlimited then
                         if (InventoryProfile."Finished Quantity" > 0) or
@@ -582,7 +613,7 @@
     local procedure InsertPurchLineToProfile(var InventoryProfile: Record "Inventory Profile"; PurchLine: Record "Purchase Line"; ToDate: Date)
     begin
         InventoryProfile.Init();
-        InventoryProfile."Line No." := NextLineNo;
+        InventoryProfile."Line No." := NextLineNo();
         InventoryProfile.TransferFromPurchaseLine(PurchLine, TempItemTrkgEntry);
         if InventoryProfile."Finished Quantity" > 0 then
             InventoryProfile."Planning Flexibility" := InventoryProfile."Planning Flexibility"::None;
@@ -592,14 +623,14 @@
     local procedure InsertAsmLineToProfile(var InventoryProfile: Record "Inventory Profile"; AsmLine: Record "Assembly Line"; RemRatio: Decimal)
     begin
         InventoryProfile.Init();
-        InventoryProfile."Line No." := NextLineNo;
+        InventoryProfile."Line No." := NextLineNo();
         InventoryProfile.TransferFromAsmLine(AsmLine, TempItemTrkgEntry);
         if RemRatio <> 1 then begin
-            InventoryProfile."Untracked Quantity" := Round(InventoryProfile."Untracked Quantity" * RemRatio, UOMMgt.QtyRndPrecision);
+            InventoryProfile."Untracked Quantity" := Round(InventoryProfile."Untracked Quantity" * RemRatio, UOMMgt.QtyRndPrecision());
             InventoryProfile."Remaining Quantity (Base)" := InventoryProfile."Untracked Quantity";
         end;
         if InventoryProfile.IsSupply then
-            InventoryProfile.ChangeSign;
+            InventoryProfile.ChangeSign();
         InventoryProfile.Insert();
     end;
 
@@ -802,7 +833,7 @@
                     if "Quantity (Base)" <> "Qty. to Asm. to Order (Base)" then
                         if "Outstanding Qty. (Base)" - "Qty. to Asm. to Order (Base)" > QtyReleased then begin
                             InventoryProfile.Init();
-                            InventoryProfile."Line No." := NextLineNo;
+                            InventoryProfile."Line No." := NextLineNo();
                             InventoryProfile.TransferFromSalesLine(BlanketSalesLine, TempItemTrkgEntry);
                             InventoryProfile."Untracked Quantity" := "Outstanding Qty. (Base)" - QtyReleased;
                             InventoryProfile."Remaining Quantity (Base)" := InventoryProfile."Untracked Quantity";
@@ -886,11 +917,15 @@
         if SKU.FindSet() then
             FillSkUBuffer(SKU)
         else
-            if (not InvtSetup."Location Mandatory") and (ManufacturingSetup."Components at Location" = '') then
-                CreateTempSKUForLocation(
-                  Item."No.",
-                  WMSManagement.GetLastOperationLocationCode(
-                    Item."Routing No.", VersionManagement.GetRtngVersion(Item."Routing No.", SupplyInvtProfile."Due Date", true)));
+            if (not InvtSetup."Location Mandatory") and (ManufacturingSetup."Components at Location" = '') then begin
+                IsHandled := false;
+                OnFindCombinationOnBeforeCreateTempSKUForLocation(Item, IsHandled);
+                if not IsHandled then
+                    CreateTempSKUForLocation(
+                        Item."No.",
+                        WMSManagement.GetLastOperationLocationCode(
+                            Item."Routing No.", VersionManagement.GetRtngVersion(Item."Routing No.", SupplyInvtProfile."Due Date", true)));
+            end;
 
         Clear(DemandInvtProfile);
         Clear(SupplyInvtProfile);
@@ -960,14 +995,14 @@
 
             if not TransitLocation then begin
                 TransferPlanningParameters(TempSKU);
-                InsertTempSKU;
+                InsertTempSKU();
                 while (TempSKU."Replenishment System" = TempSKU."Replenishment System"::Transfer) and
                       (TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" ")
                 do begin
                     TempSKU."Location Code" := TempSKU."Transfer-from Code";
                     TransferPlanningParameters(TempSKU);
                     if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then
-                        InsertTempSKU;
+                        InsertTempSKU();
                 end;
             end;
         end;
@@ -1041,7 +1076,7 @@
         InventoryProfile.FindLast();
         InventoryProfile.SetRange("Variant Code");
         InventoryProfile.SetRange("Location Code");
-        exit(InventoryProfile.Next <> 0);
+        exit(InventoryProfile.Next() <> 0);
     end;
 
     local procedure TransferPlanningParameters(var SKU: Record "Stockkeeping Unit")
@@ -1064,7 +1099,7 @@
         ActionMsgEntry.SetCurrentKey("Reservation Entry");
 
         with ReservEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Item No.", "Variant Code", "Location Code");
             SetRange("Item No.", SKU."Item No.");
             SetRange("Variant Code", SKU."Variant Code");
@@ -1081,7 +1116,7 @@
                             then
                                 if ReservEntry1.Get("Entry No.", not Positive) then
                                     ReservEntry1.Delete();
-                            Delete;
+                            Delete();
                         end else
                             ResEntryWasDeleted := CloseTracking(ReservEntry, SupplyInventoryProfile, ToDate);
 
@@ -1176,7 +1211,7 @@
                         ParentInvProfile."Planning Flexibility" := ParentInvProfile."Planning Flexibility"::None;
                     repeat
                         ChildInvProfile := ParentInvProfile;
-                        ChildInvProfile."Line No." := NextLineNo;
+                        ChildInvProfile."Line No." := NextLineNo();
                         ChildInvProfile."Tracking Reference" := ParentInvProfile."Line No.";
                         ChildInvProfile.CopyTrackingFromReservEntry(TempItemTrkgEntry);
                         ChildInvProfile."Expiration Date" := TempItemTrkgEntry."Expiration Date";
@@ -1353,7 +1388,7 @@
         ReqLine.LockTable();
         if ReqLine.FindLast() then;
 
-        if PlanningResilicency then
+        if PlanningResiliency then
             ReqLine.SetResiliencyOn(CurrTemplateName, CurrWorksheetName, TempSKU."Item No.");
 
         PlanItemSetInvtProfileFilters(DemandInvtProfile, SupplyInvtProfile);
@@ -1362,14 +1397,14 @@
 
         ExceedROPqty := 0.000000001;
 
-        UpdateTempSKUTransferLevels;
+        UpdateTempSKUTransferLevels();
 
         TempSKU.SetCurrentKey("Item No.", "Transfer-Level Code");
         OnPlanItemOnBeforeTempSKUFind(TempSKU, PlanningStartDate);
         if TempSKU.Find('-') then
             repeat
                 IsReorderPointPlanning := IsSKUSetUpForReorderPointPlanning(TempSKU);
-                OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning, ReqLine, PlanningTransparency, PlanningResilicency, CurrTemplateName, CurrWorksheetName, PlanningStartDate);
+                OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning, ReqLine, PlanningTransparency, PlanningResiliency, CurrTemplateName, CurrWorksheetName, PlanningStartDate);
 
                 BucketSize := TempSKU."Time Bucket";
                 // Minimum bucket size is 1 day:
@@ -1557,14 +1592,14 @@
                 FrozenZoneTrack(SupplyInvtProfile, DemandInvtProfile);
                 SupplyInvtProfile."Untracked Quantity" := 0;
                 SupplyInvtProfile.Modify();
-                SupplyExists := SupplyInvtProfile.Next <> 0;
+                SupplyExists := SupplyInvtProfile.Next() <> 0;
             end else begin
                 LastProjectedInventory -= DemandInvtProfile."Remaining Quantity (Base)";
                 SupplyInvtProfile."Untracked Quantity" -= DemandInvtProfile."Untracked Quantity";
                 FrozenZoneTrack(DemandInvtProfile, SupplyInvtProfile);
                 DemandInvtProfile."Untracked Quantity" := 0;
                 DemandInvtProfile.Modify();
-                DemandExists := DemandInvtProfile.Next <> 0;
+                DemandExists := DemandInvtProfile.Next() <> 0;
                 if not DemandExists then
                     SupplyInvtProfile.Modify();
             end;
@@ -1610,7 +1645,7 @@
         if DemandInvtProfile."Order Relation" = DemandInvtProfile."Order Relation"::"Safety Stock" then
             SupplyExists := SupplyInvtProfile.FindSet(true); // We assume that next profile is NOT safety stock
 
-        DemandExists := DemandInvtProfile.Next <> 0;
+        DemandExists := DemandInvtProfile.Next() <> 0;
         NextState := NextState::StartOver;
 
         OnAfterPlanItemNextStateCloseDemand(SupplyInvtProfile, SupplyExists);
@@ -1683,7 +1718,7 @@
         end;
         if TempSKU."Maximum Order Quantity" > 0 then
             CheckSupplyRemQtyAndUntrackQty(SupplyInvtProfile);
-        SupplyExists := SupplyInvtProfile.Next <> 0;
+        SupplyExists := SupplyInvtProfile.Next() <> 0;
         NextState := NextState::StartOver;
     end;
 
@@ -1699,6 +1734,8 @@
             NewSupplyDate := DemandInvtProfile."Due Date";
             LotAccumulationPeriodStartDate := 0D;
         end;
+        OnPlanItemNextStateCreateSupplyOnAfterCalcNewSupplyDate(NewSupplyDate, TempSKU, SupplyInvtProfile);
+
         if (NewSupplyDate >= LatestBucketStartDate) and IsReorderPointPlanning then
             MaintainProjectedInventory(
               TempReminderInvtProfile, NewSupplyDate, LastProjectedInventory, LatestBucketStartDate, ROPHasBeenCrossed);
@@ -1821,10 +1858,10 @@
                     end;
                 end;
             else begin
-                    NextState := NextState::CloseSupply;
-                    if TempSKU."Maximum Order Quantity" > 0 then
-                        LotAccumulationPeriodStartDate := SupplyInventoryProfile."Due Date";
-                end;
+                NextState := NextState::CloseSupply;
+                if TempSKU."Maximum Order Quantity" > 0 then
+                    LotAccumulationPeriodStartDate := SupplyInventoryProfile."Due Date";
+            end;
         end;
     end;
 
@@ -1864,7 +1901,7 @@
     begin
         if DemandExists and (DemandInvtProfile."Source Type" = DATABASE::"Transfer Line") then
             while CancelTransfer(SupplyInvtProfile, DemandInvtProfile, DemandExists) do
-                DemandExists := DemandInvtProfile.Next <> 0;
+                DemandExists := DemandInvtProfile.Next() <> 0;
 
         IsHandled := false;
         OnBeforePlanStepSettingOnStartOver(
@@ -1930,7 +1967,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeIncreaseQtyToMeetDemand(SupplyInvtProfile, DemandInvtProfile, CheckSourceType, Result, IsHandled);
+        OnBeforeIncreaseQtyToMeetDemand(SupplyInvtProfile, DemandInvtProfile, CheckSourceType, Result, IsHandled, TempSKU);
         if IsHandled then
             exit(Result);
 
@@ -2142,6 +2179,8 @@
         OnBeforeCreateSupply(SupplyInvtProfile, DemandInvtProfile);
 
         InitSupply(SupplyInvtProfile, 0, DemandInvtProfile."Due Date", DemandInvtProfile."Due Time");
+        OnCreateSupplyOnAfterInitSupply(SupplyInvtProfile, DemandInvtProfile);
+
         ReorderQty := DemandInvtProfile."Untracked Quantity";
         if (not IsExceptionOrder) or RespectPlanningParm then begin
             if not RespectPlanningParm then
@@ -2186,7 +2225,7 @@
     local procedure CreateDemand(var DemandInvtProfile: Record "Inventory Profile"; var SKU: Record "Stockkeeping Unit"; NeededQuantity: Decimal; NeededDueDate: Date; OrderRelation: Option Normal,"Safety Stock","Reorder Point")
     begin
         DemandInvtProfile.Init();
-        DemandInvtProfile."Line No." := NextLineNo;
+        DemandInvtProfile."Line No." := NextLineNo();
         DemandInvtProfile."Item No." := SKU."Item No.";
         DemandInvtProfile."Variant Code" := SKU."Variant Code";
         DemandInvtProfile."Location Code" := SKU."Location Code";
@@ -2272,11 +2311,11 @@
                                 TrkgReservEntryArray[1].Quantity :=
                                   Round(
                                     TrkgReservEntryArray[1]."Quantity (Base)" / TrkgReservEntryArray[1]."Qty. per Unit of Measure",
-                                    UOMMgt.QtyRndPrecision);
+                                    UOMMgt.QtyRndPrecision());
                                 TrkgReservEntryArray[3].Quantity :=
                                   Round(
                                     TrkgReservEntryArray[3]."Quantity (Base)" / TrkgReservEntryArray[3]."Qty. per Unit of Measure",
-                                    UOMMgt.QtyRndPrecision);
+                                    UOMMgt.QtyRndPrecision());
                             end else begin
                                 FromProfile.TransferToTrackingEntry(TrkgReservEntryArray[1], false);
                                 ReqLine.TransferToTrackingEntry(TrkgReservEntryArray[1], true);
@@ -2318,7 +2357,7 @@
                     TrkgReservEntryArray[5].Quantity :=
                       Round(
                         TrkgReservEntryArray[5]."Quantity (Base)" / TrkgReservEntryArray[5]."Qty. per Unit of Measure",
-                        UOMMgt.QtyRndPrecision);
+                        UOMMgt.QtyRndPrecision());
                     FromProfile."Untracked Quantity" := FromProfile."Untracked Quantity" - SplitQty2;
                     TrackQty := TrackQty - SplitQty2;
                     SplitQty := SplitQty - SplitQty2;
@@ -2340,11 +2379,11 @@
                         TrkgReservEntryArray[2].Quantity :=
                           Round(
                             TrkgReservEntryArray[2]."Quantity (Base)" / TrkgReservEntryArray[2]."Qty. per Unit of Measure",
-                            UOMMgt.QtyRndPrecision);
+                            UOMMgt.QtyRndPrecision());
                         TrkgReservEntryArray[3].Quantity :=
                           Round(
                             TrkgReservEntryArray[3]."Quantity (Base)" / TrkgReservEntryArray[3]."Qty. per Unit of Measure",
-                            UOMMgt.QtyRndPrecision);
+                            UOMMgt.QtyRndPrecision());
                     end else begin
                         ToProfile.TransferToTrackingEntry(TrkgReservEntryArray[2], false);
                         ReqLine.TransferToTrackingEntry(TrkgReservEntryArray[2], true);
@@ -2383,7 +2422,7 @@
         if not IsSurplus then begin
             ToTrkgReservEntry."Quantity (Base)" := -FromTrkgReservEntry."Quantity (Base)";
             ToTrkgReservEntry.Quantity :=
-              Round(ToTrkgReservEntry."Quantity (Base)" / ToTrkgReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round(ToTrkgReservEntry."Quantity (Base)" / ToTrkgReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
         end else
             ToTrkgReservEntry."Suppressed Action Msg." := not IssueActionMessage;
 
@@ -2502,7 +2541,7 @@
                 ReservEntry."Entry No." := PrevInsertedEntryNo
             else
                 ReservEntry."Entry No." := 0;
-            ReservEntry.UpdateItemTracking;
+            ReservEntry.UpdateItemTracking();
             UpdateAppliedItemEntry(ReservEntry);
             ReservEntry.Insert();
             PrevTempEntryNo := TempTrkgReservEntry."Entry No.";
@@ -2538,6 +2577,8 @@
                         PlanLineNo := "Line No." + 10000
                     else
                         PlanLineNo := 10000;
+
+                    OnMaintainPlanningLineOnAfterCalcPlanLineNo(ReqLine, PlanLineNo);
 
                     Init();
                     "Worksheet Template Name" := CurrTemplateName;
@@ -2592,11 +2633,11 @@
                     AdjustPlanLine(SupplyInvtProfile);
                     "Accept Action Message" := true;
                     "Routing Reference No." := "Line No.";
-                    UpdateDatetime;
+                    UpdateDatetime();
                     "MPS Order" := SupplyInvtProfile."MPS Order";
                     OnMaintainPlanningLineOnBeforeReqLineInsert(
                       ReqLine, SupplyInvtProfile, PlanToDate, CurrForecast, NewPhase, Direction, DemandInvtProfile, ExcludeForecastBefore);
-                    Insert;
+                    Insert();
                     OnMaintainPlanningLineOnAfterReqLineInsert(ReqLine);
                     SupplyInvtProfile."Planning Line No." := "Line No.";
                     if NewPhase = NewPhase::"Line Created" then
@@ -2648,7 +2689,7 @@
 
                     RecalculationRequired := false;
                 end else
-                    DisableRelations
+                    DisableRelations()
             else begin
                 GetComponents(ReqLine);
                 RecalculationRequired := true;
@@ -2661,12 +2702,12 @@
                 if ReqLine."Action Message" = ReqLine."Action Message"::New then begin
                     CurrentSupplyInvtProfile.Copy(SupplyInvtProfile);
                     SupplyInvtProfile.Init();
-                    SupplyInvtProfile."Line No." := NextLineNo;
+                    SupplyInvtProfile."Line No." := NextLineNo();
                     SupplyInvtProfile."Item No." := ReqLine."No.";
                     SupplyInvtProfile.TransferFromOutboundTransfPlan(ReqLine, TempItemTrkgEntry);
                     SupplyInvtProfile.CopyTrackingFromInvtProfile(CurrentSupplyInvtProfile);
                     if SupplyInvtProfile.IsSupply then
-                        SupplyInvtProfile.ChangeSign;
+                        SupplyInvtProfile.ChangeSign();
                     OnMaintainPlanningLineOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile, CurrentSupplyInvtProfile);
                     SupplyInvtProfile.Insert();
 
@@ -2682,11 +2723,13 @@
               ((SupplyInvtProfile."Planning Line Phase" < SupplyInvtProfile."Planning Line Phase"::"Routing Created") or
                (ReqLine."Action Message" = ReqLine."Action Message"::New)) and
               (ReqLine."Ref. Order Type" = ReqLine."Ref. Order Type"::"Prod. Order"));
-            ReqLine.UpdateDatetime;
+            ReqLine.UpdateDatetime();
             ReqLine.Modify();
 
             SupplyInvtProfile."Starting Date" := ReqLine."Starting Date";
             SupplyInvtProfile."Due Date" := ReqLine."Due Date";
+
+            OnMaintainPlanningLineOnAfterCopyDatesToInvtProfile(SupplyInvtProfile, ReqLine);
         end;
 
         if NewPhase = NewPhase::Obsolete then begin
@@ -2787,24 +2830,8 @@
         case TempSKU."Reordering Policy" of
             TempSKU."Reordering Policy"::"Maximum Qty.":
                 begin
-                    if TempSKU."Maximum Inventory" <= TempSKU."Reorder Point" then begin
-                        if PlanningResilicency then
-                            if SKU.Get(TempSKU."Location Code", TempSKU."Item No.", TempSKU."Variant Code") then
-                                ReqLine.SetResiliencyError(
-                                  StrSubstNo(
-                                    Text004, SKU.FieldCaption("Maximum Inventory"), SKU."Maximum Inventory", SKU.TableCaption,
-                                    SKU."Location Code", SKU."Item No.", SKU."Variant Code",
-                                    SKU.FieldCaption("Reorder Point"), SKU."Reorder Point"),
-                                  DATABASE::"Stockkeeping Unit", SKU.GetPosition)
-                            else
-                                if Item.Get(TempSKU."Item No.") then
-                                    ReqLine.SetResiliencyError(
-                                      StrSubstNo(
-                                        Text005, Item.FieldCaption("Maximum Inventory"), Item."Maximum Inventory", Item.TableCaption,
-                                        Item."No.", Item.FieldCaption("Reorder Point"), Item."Reorder Point"),
-                                      DATABASE::Item, Item.GetPosition);
-                        TempSKU.TestField("Maximum Inventory", TempSKU."Reorder Point" + 1); // Assertion
-                    end;
+                    if TempSKU."Maximum Inventory" <= TempSKU."Reorder Point" then
+                        CalcMaximumReorderQty();
 
                     QtyToOrder := TempSKU."Maximum Inventory" - ProjectedInventory;
                     PlanningTransparency.LogSurplus(
@@ -2815,22 +2842,22 @@
                 begin
                     if TempSKU."Reorder Quantity" = 0 then
                         if SKU.Get(TempSKU."Location Code", TempSKU."Item No.", TempSKU."Variant Code") then begin
-                            if PlanningResilicency then
+                            if PlanningResiliency then
                                 ReqLine.SetResiliencyError(
                                   StrSubstNo(
-                                    Text004, SKU.FieldCaption("Reorder Quantity"), 0, SKU.TableCaption,
+                                    Text004, SKU.FieldCaption("Reorder Quantity"), 0, SKU.TableCaption(),
                                     SKU."Location Code", SKU."Item No.", SKU."Variant Code",
                                     SKU.FieldCaption("Reordering Policy"), SKU."Reordering Policy"),
-                                  DATABASE::"Stockkeeping Unit", SKU.GetPosition);
+                                  DATABASE::"Stockkeeping Unit", SKU.GetPosition());
                             TempSKU.TestField("Reorder Quantity");
                         end else
                             if Item.Get(TempSKU."Item No.") then begin
-                                if PlanningResilicency then
+                                if PlanningResiliency then
                                     ReqLine.SetResiliencyError(
                                       StrSubstNo(
-                                        Text005, Item.FieldCaption("Reorder Quantity"), 0, Item.TableCaption,
+                                        Text005, Item.FieldCaption("Reorder Quantity"), 0, Item.TableCaption(),
                                         Item."No.", Item.FieldCaption("Reordering Policy"), Item."Reordering Policy"),
-                                      DATABASE::Item, Item.GetPosition);
+                                      DATABASE::Item, Item.GetPosition());
                                 Item.TestField("Reorder Quantity");
                             end;
 
@@ -2840,12 +2867,41 @@
                       QtyToOrder, SurplusType::FixedOrderQty);
                 end;
             else begin
-                    IsHandled := false;
-                    OnCalcReorderQtyOnCaseElse(QtyToOrder, NeededQty, ProjectedInventory, SupplyLineNo, TempSKU, PlanningResilicency, IsHandled);
-                    if not IsHandled then
-                        QtyToOrder := NeededQty;
-                end;
+                IsHandled := false;
+                OnCalcReorderQtyOnCaseElse(QtyToOrder, NeededQty, ProjectedInventory, SupplyLineNo, TempSKU, PlanningResiliency, IsHandled);
+                if not IsHandled then
+                    QtyToOrder := NeededQty;
+            end;
         end;
+    end;
+
+    local procedure CalcMaximumReorderQty()
+    var
+        Item: Record Item;
+        SKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcMaximumReorderQty(TempSKU, ReqLine, PlanningResiliency, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PlanningResiliency then
+            if SKU.Get(TempSKU."Location Code", TempSKU."Item No.", TempSKU."Variant Code") then
+                ReqLine.SetResiliencyError(
+                    StrSubstNo(
+                    Text004, SKU.FieldCaption("Maximum Inventory"), SKU."Maximum Inventory", SKU.TableCaption(),
+                    SKU."Location Code", SKU."Item No.", SKU."Variant Code",
+                    SKU.FieldCaption("Reorder Point"), SKU."Reorder Point"),
+                    DATABASE::"Stockkeeping Unit", SKU.GetPosition())
+            else
+                if Item.Get(TempSKU."Item No.") then
+                    ReqLine.SetResiliencyError(
+                        StrSubstNo(
+                        Text005, Item.FieldCaption("Maximum Inventory"), Item."Maximum Inventory", Item.TableCaption(),
+                        Item."No.", Item.FieldCaption("Reorder Point"), Item."Reorder Point"),
+                        DATABASE::Item, Item.GetPosition());
+        TempSKU.TestField("Maximum Inventory", TempSKU."Reorder Point" + 1); // Assertion
     end;
 
     local procedure CalcOrderQty(NeededQty: Decimal; ProjectedInventory: Decimal; SupplyLineNo: Integer) QtyToOrder: Decimal
@@ -2894,13 +2950,13 @@
                 if "Qty. per Unit of Measure" = 0 then
                     "Qty. per Unit of Measure" := 1;
                 UpdateReqLineQuantity(SupplyInventoryProfile);
-                ReqLine."Original Quantity" := "Original Quantity";
+                UpdateReqLineOriginalQuantity(SupplyInventoryProfile);
                 ReqLine."Net Quantity (Base)" :=
                   (ReqLine."Remaining Quantity" - ReqLine."Original Quantity") *
                   ReqLine."Qty. per Unit of Measure";
                 OnAdjustPlanLineAfterValidateQuantity(ReqLine, SupplyInventoryProfile);
             end;
-            ReqLine."Original Due Date" := "Original Due Date";
+            UpdateOriginalDueDate(SupplyInventoryProfile);
             ReqLine."Due Date" := "Due Date";
             if "Planning Level Code" = 0 then begin
                 ReqLine."Ending Date" :=
@@ -2923,6 +2979,16 @@
         OnAfterAdjustPlanLine(ReqLine, SupplyInventoryProfile);
     end;
 
+    local procedure UpdateOriginalDueDate(var SupplyInventoryProfile: Record "Inventory Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateOriginalDueDate(SupplyInventoryProfile, IsHandled);
+        if not IsHandled then
+            ReqLine."Original Due Date" := SupplyInventoryProfile."Original Due Date";
+    end;
+
     local procedure UpdateReqLineQuantity(var SupplyInventoryProfile: Record "Inventory Profile")
     var
         IsHandled: Boolean;
@@ -2934,7 +3000,19 @@
 
         ReqLine.Validate(
             Quantity,
-            Round(SupplyInventoryProfile."Remaining Quantity (Base)" / SupplyInventoryProfile."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+            Round(SupplyInventoryProfile."Remaining Quantity (Base)" / SupplyInventoryProfile."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
+    end;
+
+    local procedure UpdateReqLineOriginalQuantity(var SupplyInventoryProfile: Record "Inventory Profile")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateReqLineOriginalQuantity(ReqLine, SupplyInventoryProfile, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReqLine."Original Quantity" := SupplyInventoryProfile."Original Quantity";
     end;
 
     local procedure DisableRelations()
@@ -2965,7 +3043,7 @@
             SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
             SetRange("Worksheet Line No.", ReqLine."Line No.");
             DeleteAll();
-            Reset;
+            Reset();
             SetCurrentKey(Status, "Prod. Order No.", Active);
             SetRange(Status, ReqLine."Ref. Order Status");
             SetRange("Prod. Order No.", ReqLine."Ref. Order No.");
@@ -3075,13 +3153,13 @@
         TransferReqLine.TestField("Ref. Order Type", TransferReqLine."Ref. Order Type"::Transfer);
         with TransferReqLine do begin
             OK := Location.Get("Transfer-from Code");
-            if PlanningResilicency and not OK then
+            if PlanningResiliency and not OK then
                 if SKU.Get("Location Code", "No.", "Variant Code") then
                     ReqLine.SetResiliencyError(
                       StrSubstNo(
-                        Text003, SKU.FieldCaption("Transfer-from Code"), SKU.TableCaption,
+                        Text003, SKU.FieldCaption("Transfer-from Code"), SKU.TableCaption(),
                         SKU."Location Code", SKU."Item No.", SKU."Variant Code"),
-                      DATABASE::"Stockkeeping Unit", SKU.GetPosition);
+                      DATABASE::"Stockkeeping Unit", SKU.GetPosition());
             if not OK then
                 Location.Get("Transfer-from Code");
             OutboundWhseTime := Location."Outbound Whse. Handling Time";
@@ -3090,10 +3168,10 @@
             InboundWhseTime := Location."Inbound Whse. Handling Time";
 
             OK := TransferRoute.Get("Transfer-from Code", "Location Code");
-            if PlanningResilicency and not OK then
+            if PlanningResiliency and not OK then
                 ReqLine.SetResiliencyError(
                   StrSubstNo(
-                    Text002, TransferRoute.TableCaption,
+                    Text002, TransferRoute.TableCaption(),
                     "Transfer-from Code", "Location Code"),
                   DATABASE::"Transfer Route", '');
             if not OK then
@@ -3121,9 +3199,9 @@
             TransferRoute.CalcShipmentDateBackward(
               "Transfer Shipment Date", "Starting Date", OutboundWhseTime, "Transfer-from Code");
 
-            UpdateDatetime;
+            UpdateDatetime();
             OnAdjustTransferDatesOnBeforeTransferReqLineModify(TransferReqLine);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -3153,7 +3231,7 @@
     begin
         SKU.Copy(TempSKU);
         with TempTransferSKU do begin
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     TempSKU.Reset();
@@ -3217,7 +3295,7 @@
 
                 // IF supply is fully cancelled, demand is deleted, otherwise demand is modified:
                 if Cancel then
-                    DemandInvtProfile.Delete
+                    DemandInvtProfile.Delete()
                 else begin
                     DemandInvtProfile.Get(DemandInvtProfile."Line No."); // Get the updated version
                     DemandInvtProfile."Untracked Quantity" -= (DemandInvtProfile."Original Quantity" - DemandInvtProfile."Quantity (Base)");
@@ -3512,6 +3590,8 @@
     end;
 
     local procedure CheckScheduleOut(var SupplyInvtProfile: Record "Inventory Profile"; TargetDate: Date; var PossibleDate: Date; LimitedHorizon: Boolean): Boolean
+    var
+        ShouldExitAllowLotAccumulation: Boolean;
     begin
         OnBeforeCheckScheduleOut(SupplyInvtProfile, TempSKU, BucketSize);
 
@@ -3531,8 +3611,12 @@
                 else begin
                     // Do not reschedule but may be lot accumulation is still an option
                     PossibleDate := SupplyInvtProfile."Due Date";
-                    if SupplyInvtProfile."Fixed Date" <> 0D then
+
+                    ShouldExitAllowLotAccumulation := SupplyInvtProfile."Fixed Date" <> 0D;
+                    OnCheckScheduleOutOnNotAllowScheduleOut(SupplyInvtProfile, ShouldExitAllowLotAccumulation);
+                    if ShouldExitAllowLotAccumulation then
                         exit(AllowLotAccumulation(SupplyInvtProfile, TargetDate));
+
                     exit(false);
                 end;
 
@@ -3727,7 +3811,7 @@
     begin
         CanReschedule := CalcDate(TempSKU."Rescheduling Period", SupplyInvtProfile."Due Date") >= TargetDate;
 
-        OnAfterAllowScheduleOut(SupplyInvtProfile, TargetDate, CanReschedule);
+        OnAfterAllowScheduleOut(SupplyInvtProfile, TargetDate, CanReschedule, TempSKU);
     end;
 
     local procedure AllowLotAccumulation(SupplyInvtProfile: Record "Inventory Profile"; DemandDueDate: Date) AccumulationOK: Boolean
@@ -3798,7 +3882,7 @@
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
         SupplyInvtProfile.Init();
-        SupplyInvtProfile."Line No." := NextLineNo;
+        SupplyInvtProfile."Line No." := NextLineNo();
         SupplyInvtProfile."Item No." := TempSKU."Item No.";
         SupplyInvtProfile."Variant Code" := TempSKU."Variant Code";
         SupplyInvtProfile."Location Code" := TempSKU."Location Code";
@@ -3865,7 +3949,7 @@
 
         ToInvProfile."MPS Order" := FromInvProfile."MPS Order";
 
-        if ToInvProfile.TrackingExists then
+        if ToInvProfile.TrackingExists() then
             ToInvProfile."Planning Flexibility" := ToInvProfile."Planning Flexibility"::None;
 
         OnAfterTransferAttributes(ToInvProfile, FromInvProfile, TempSKU, SpecificLotTracking, SpecificSNTracking);
@@ -4023,12 +4107,12 @@
                     "Order Priority" := 100 + ("Order Priority" / 10);
 
             if "Planning Flexibility" = "Planning Flexibility"::Unlimited then
-                if ActiveInWarehouse then
+                if ActiveInWarehouse() then
                     "Order Priority" -= 1;
 
             SetAttributePriority(InvProfile);
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -4088,12 +4172,14 @@
     begin
         if TempSKU."Safety Stock Quantity" = 0 then
             exit;
+
         xDemandInvtProfile.Copy(DemandInvtProfile);
+
+        OnInsertSafetyStockDemandsOnBeforeCreateDemand(DemandInvtProfile, PlanningStartDate, TempSKU);
 
         DemandInvtProfile.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Due Date", "Attribute Priority", "Order Priority");
         DemandInvtProfile.SetFilter("Due Date", '%1..', PlanningStartDate);
-
         if DemandInvtProfile.FindSet() then
             repeat
                 if TempSafetyStockInvtProfile."Due Date" <> DemandInvtProfile."Due Date" then
@@ -4173,7 +4259,7 @@
             repeat
                 SupplyInvtProfile := TempRescheduledSupplyInvtProfile;
                 SupplyInvtProfile.Delete();
-                SupplyInvtProfile."Line No." := NextLineNo;
+                SupplyInvtProfile."Line No." := NextLineNo();
                 OnScheduleAllOutChangesSequenceOnBeforeSupplyInvtProfileInsert(SupplyInvtProfile);
                 SupplyInvtProfile.Insert();
                 if SavedPosition = 0 then
@@ -4201,8 +4287,8 @@
                                     if "Source Type" = DATABASE::"Planning Component" then begin
                                         // Primary Order references have already been set on Component Lines
                                         Binding := Binding::"Order-to-Order";
-                                    end else begin
-                                        Binding := Binding::"Order-to-Order";
+                                end else begin
+                                    Binding := Binding::"Order-to-Order";
                                         "Primary Order Type" := "Source Type";
                                         "Primary Order Status" := "Source Order Status";
                                         "Primary Order No." := "Source ID";
@@ -4211,7 +4297,7 @@
                                         else
                                             "Primary Order Line" := "Source Prod. Order Line";
                                     end;
-                                    Modify;
+                                    Modify();
                                 end;
                 until Next() = 0;
         end;
@@ -4226,6 +4312,7 @@
         AsmHeader: Record "Assembly Header";
         ReqWkshTempl: Record "Req. Wksh. Template";
         AcceptActionMsg: Boolean;
+        IsHandled: Boolean;
     begin
         with ReqLine do begin
             ReqWkshTempl.Get(CurrTemplateName);
@@ -4240,11 +4327,11 @@
 
             if FindSet(true) then
                 repeat
-                    AcceptActionMsg := "Starting Date" >= WorkDate;
+                    AcceptActionMsg := "Starting Date" >= WorkDate();
                     if not AcceptActionMsg then
                         PlanningTransparency.LogWarning(0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
                           StrSubstNo(Text008, DummyInventoryProfileTrackBuffer."Warning Level", FieldCaption("Starting Date"),
-                            "Starting Date", WorkDate));
+                            "Starting Date", WorkDate()));
 
                     if "Action Message" <> "Action Message"::New then
                         case "Ref. Order Type" of
@@ -4280,15 +4367,18 @@
                                         "Ref. Order No.", AsmHeader.Status));
                                 end;
                             "Ref. Order Type"::Transfer:
-                                if (TransHeader.Get("Ref. Order No.") and
-                                    (TransHeader.Status = TransHeader.Status::Released))
-                                then begin
-                                    AcceptActionMsg := false;
-                                    PlanningTransparency.LogWarning(
-                                      0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                                      StrSubstNo(Text009,
-                                        DummyInventoryProfileTrackBuffer."Warning Level", TransHeader.FieldCaption(Status), "Ref. Order Type",
-                                        "Ref. Order No.", TransHeader.Status));
+                                begin
+                                    IsHandled := false;
+                                    OnSetAcceptActionOnCaseRefOrderTypeTransfer(ReqLine, AcceptActionMsg, IsHandled);
+                                    if not IsHandled then
+                                        if (TransHeader.Get("Ref. Order No.") and (TransHeader.Status = TransHeader.Status::Released)) then begin
+                                            AcceptActionMsg := false;
+                                            PlanningTransparency.LogWarning(
+                                                0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+                                                StrSubstNo(Text009,
+                                                DummyInventoryProfileTrackBuffer."Warning Level", TransHeader.FieldCaption(Status), "Ref. Order Type",
+                                                "Ref. Order No.", TransHeader.Status));
+                                        end;
                                 end;
                         end;
 
@@ -4323,7 +4413,7 @@
                     Validate("Routing Version Code",
                       VersionMgt.GetRtngVersion("Routing No.", "Due Date", true));
                 Clear(PlngLnMgt);
-                if PlanningResilicency then
+                if PlanningResiliency then
                     PlngLnMgt.SetResiliencyOn("Worksheet Template Name", "Journal Batch Name", "No.");
                 OnGetRoutingOnAfterSetResiliencyOn(ReqLine);
             end else
@@ -4333,7 +4423,7 @@
                     ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                     ProdOrderRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
                     ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
-                    DisableRelations;
+                    DisableRelations();
                     if ProdOrderRoutingLine.Find('-') then
                         repeat
                             PlanRoutingLine.Init();
@@ -4358,7 +4448,7 @@
         with ReqLine do begin
             BlockDynamicTracking(true);
             Clear(PlngLnMgt);
-            if PlanningResilicency then
+            if PlanningResiliency then
                 PlngLnMgt.SetResiliencyOn("Worksheet Template Name", "Journal Batch Name", "No.");
             PlngLnMgt.BlockDynamicTracking(true);
             if "Action Message" = "Action Message"::New then begin
@@ -4436,7 +4526,7 @@
 
     procedure SetResiliencyOn()
     begin
-        PlanningResilicency := true;
+        PlanningResiliency := true;
     end;
 
     procedure GetResiliencyError(var PlanningErrorLog: Record "Planning Error Log"): Boolean
@@ -4488,10 +4578,10 @@
 
     local procedure FrozenZoneTrack(FromInventoryProfile: Record "Inventory Profile"; ToInventoryProfile: Record "Inventory Profile")
     begin
-        if FromInventoryProfile.TrackingExists then
+        if FromInventoryProfile.TrackingExists() then
             Track(FromInventoryProfile, ToInventoryProfile, true, false, FromInventoryProfile.Binding::" ");
 
-        if ToInventoryProfile.TrackingExists then begin
+        if ToInventoryProfile.TrackingExists() then begin
             ToInventoryProfile."Untracked Quantity" := FromInventoryProfile."Untracked Quantity";
             ToInventoryProfile."Quantity (Base)" := FromInventoryProfile."Untracked Quantity";
             ToInventoryProfile."Original Quantity" := 0;
@@ -4599,7 +4689,7 @@
         with InventoryProfile do begin
             SetRange("Source Type", DATABASE::"Item Ledger Entry");
             SetFilter(Binding, '<>%1', Binding::"Order-to-Order");
-            ItemInventoryExists := not IsEmpty;
+            ItemInventoryExists := not IsEmpty();
             SetRange("Source Type");
             SetRange(Binding);
         end;
@@ -4680,6 +4770,7 @@
                     ToInventoryProfile.SetRange("Primary Order No.", "Primary Order No.");
                     ToInventoryProfile.SetRange("Primary Order Line", "Primary Order Line");
                     ToInventoryProfile.SetTrackingFilter(FromInventoryProfile);
+                    OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(ToInventoryProfile, FromInventoryProfile);
                     if ToInventoryProfile.FindSet() then
                         repeat
                             UntrackedQty += ToInventoryProfile."Untracked Quantity";
@@ -4751,7 +4842,7 @@
 
         ClosedInvtProfile."Untracked Quantity" := 0;
         if ClosedInvtProfile."Remaining Quantity (Base)" = 0 then
-            ClosedInvtProfile.Delete
+            ClosedInvtProfile.Delete()
         else
             ClosedInvtProfile.Modify();
     end;
@@ -4764,18 +4855,27 @@
     local procedure CloseSupply(var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"): Boolean
     begin
         CloseInventoryProfile(SupplyInvtProfile, DemandInvtProfile, SupplyInvtProfile."Action Message");
-        exit(SupplyInvtProfile.Next <> 0);
+        exit(SupplyInvtProfile.Next() <> 0);
     end;
 
     local procedure CreateTempSKUForComponentsLocation(var Item: Record Item)
     var
         SKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTempSKUForComponentsLocation(Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if ManufacturingSetup."Components at Location" = '' then
             exit;
 
         SKU.SetRange("Item No.", Item."No.");
-        SKU.SetRange("Location Code", ManufacturingSetup."Components at Location");
+        IsHandled := false;
+        OnCreateTempSKUForComponentsLocationOnBeforeSetLocationCodeFilter(Item, SKU, IsHandled);
+        if not IsHandled then
+            SKU.SetRange("Location Code", ManufacturingSetup."Components at Location");
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
         if SKU.IsEmpty() then
             CreateTempSKUForLocation(Item."No.", ManufacturingSetup."Components at Location");
@@ -4784,8 +4884,8 @@
     procedure ForecastInitDemand(var InventoryProfile: Record "Inventory Profile"; ProductionForecastEntry: Record "Production Forecast Entry"; ItemNo: Code[20]; LocationCode: Code[10]; TotalForecastQty: Decimal)
     begin
         with InventoryProfile do begin
-            Init;
-            "Line No." := NextLineNo;
+            Init();
+            "Line No." := NextLineNo();
             "Source Type" := DATABASE::"Production Forecast Entry";
             "Planning Flexibility" := "Planning Flexibility"::None;
             "Qty. per Unit of Measure" := 1;
@@ -4845,14 +4945,19 @@
     end;
 
     local procedure SetTransfer(var TransLine: Record "Transfer Line"; var InventoryProfile: Record "Inventory Profile")
+    var
+        IsHandled: Boolean;
     begin
-        with ReqLine do begin
-            "Ref. Order Type" := "Ref. Order Type"::Transfer;
-            "Ref. Order Status" := 0; // A Transfer Order has no status
-            "Ref. Order No." := InventoryProfile."Source ID";
-            "Ref. Line No." := InventoryProfile."Source Ref. No.";
-            TransLine.Get("Ref. Order No.", "Ref. Line No.");
-            TransferFromTransLine(TransLine);
+        ReqLine."Ref. Order Type" := ReqLine."Ref. Order Type"::Transfer;
+        ReqLine."Ref. Order Status" := 0; // A Transfer Order has no status
+        ReqLine."Ref. Order No." := InventoryProfile."Source ID";
+        ReqLine."Ref. Line No." := InventoryProfile."Source Ref. No.";
+
+        IsHandled := false;
+        OnSetTransferOnBeforeTransferFromTransLine(InventoryProfile, ReqLine, IsHandled);
+        if not IsHandled then begin
+            TransLine.Get(ReqLine."Ref. Order No.", ReqLine."Ref. Line No.");
+            ReqLine.TransferFromTransLine(TransLine);
         end;
     end;
 
@@ -4906,11 +5011,11 @@
             exit;
 
         InventoryProfile.Init();
-        InventoryProfile."Line No." := NextLineNo;
+        InventoryProfile."Line No." := NextLineNo();
         InventoryProfile."Item No." := Item."No.";
         InventoryProfile.TransferFromOutboundTransfPlan(RequisitionLine, TempItemTrkgEntry);
         if InventoryProfile.IsSupply then
-            InventoryProfile.ChangeSign;
+            InventoryProfile.ChangeSign();
         InventoryProfile.Insert();
     end;
 
@@ -4946,7 +5051,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAllowScheduleOut(SupplyInvtProfile: Record "Inventory Profile"; TargetDate: Date; var CanReschedule: Boolean)
+    local procedure OnAfterAllowScheduleOut(SupplyInvtProfile: Record "Inventory Profile"; TargetDate: Date; var CanReschedule: Boolean; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
     begin
     end;
 
@@ -5016,7 +5121,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSupplyToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ToDate: Date; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer)
+    local procedure OnAfterSupplyToInvProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var ToDate: Date; var ReservEntry: Record "Reservation Entry"; var NextLineNo: Integer; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
     begin
     end;
 
@@ -5431,7 +5536,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIncreaseQtyToMeetDemand(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; CheckSourceType: Boolean; var Result: Boolean; var IsHandled: Boolean);
+    local procedure OnBeforeIncreaseQtyToMeetDemand(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; CheckSourceType: Boolean; var Result: Boolean; var IsHandled: Boolean; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary);
     begin
     end;
 
@@ -5541,6 +5646,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReqLineOriginalQuantity(var ReqLine: Record "Requisition Line"; var SupplyInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnMaintainPlanningLineOnAfterPopulateReqLineFields(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; var TempSKU: Record "Stockkeeping Unit")
     begin
     end;
@@ -5637,6 +5747,131 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanItemNextStateMatchDatesOnBeforeCheckScheduleOut(var SupplyInvtProfile: Record "Inventory Profile"; var LimitedHorizon: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDemandMatchedSupplyOnAfterSetFiltersToInvProfile(var ToInventoryProfile: Record "Inventory Profile"; FromInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOriginalDueDate(SupplyInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetTransferOnBeforeTransferFromTransLine(InventoryProfile: Record "Inventory Profile"; RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempSKUForComponentsLocation(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempSKUForComponentsLocationOnBeforeSetLocationCodeFilter(Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTempSKUForLocation(var TempStockkeeping: Record "Stockkeeping Unit" temporary; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSafetyStockDemandsOnBeforeCreateDemand(DemandInvtProfile: Record "Inventory Profile"; var PlanningStartDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcMaximumReorderQty(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var RequisitionLine: Record "Requisition Line"; PlanningResiliency: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransShptTransLineToProfileOnBeforeProcessLine(TransferLine: Record "Transfer Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSupplyOnAfterInitSupply(var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindCombinationOnBeforeCreateTempSKUForLocation(var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanItemNextStateCreateSupplyOnAfterCalcNewSupplyDate(var NewSupplyDate: Date; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; var SupplyInvtProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransPlanningCompToProfileOnBeforeInventoryProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransRcptTransLineToProfileOnBeforeProcessLine(TransferLine: Record "Transfer Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderToProfileOnBeforeProcessLine(ProdOrderLine: Record "Prod. Order Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransServLineToProfileOnBeforeProcessLine(ServiceLine: Record "Service Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransJobPlanningLineToProfileOnBeforeProcessLine(JobPlanningLine: Record "Job Planning Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnBeforeProcessLine(SalesLine: Record "Sales Line"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderCompToProfileOnBeforeProcessLine(ProdOrderComp: Record "Prod. Order Component"; var ShouldProcess: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnAfterCopyDatesToInvtProfile(var SupplyInvtProfile: Record "Inventory Profile"; var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransSalesLineToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckScheduleOutOnNotAllowScheduleOut(var SupplyInvtProfile: Record "Inventory Profile"; var ShouldExitAllowLotAccumulation: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransProdOrderCompToProfileOnBeforeInvProfileInsert(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnAfterCalcPlanLineNo(RequisitionLine: Record "Requisition Line"; var PlanLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetAcceptActionOnCaseRefOrderTypeTransfer(ReqLine: Record "Requisition Line"; var AcceptActionMsg: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
