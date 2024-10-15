@@ -238,6 +238,7 @@ codeunit 5780 "Whse. Cross-Dock Management"
         CrossDockForm.LookupMode(true);
         CrossDockForm.SetTableView(CrossDockOpp);
         if CrossDockForm.RunModal = ACTION::LookupOK then begin
+            ReceiptLine.Get(SourceNameNo, SourceLineNo);
             CrossDockForm.GetValues(QtyToCrossDock);
             QtyToCrossDock := QtyToCrossDock / ReceiptLine."Qty. per Unit of Measure";
             if ReceiptLine."Qty. to Receive" < QtyToCrossDock then

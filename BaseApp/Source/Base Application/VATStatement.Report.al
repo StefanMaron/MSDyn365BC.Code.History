@@ -344,6 +344,7 @@ report 12 "VAT Statement"
                                 Amount := ConditionalAdd(0, VATEntry."Nondeductible Base", VATEntry."Add. Curr. Nondeductible Base");
                             end;
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -547,6 +548,11 @@ report 12 "VAT Statement"
             exit(GLSetup."Additional Reporting Currency")
         else
             exit('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

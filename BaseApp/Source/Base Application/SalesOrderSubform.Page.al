@@ -1,4 +1,4 @@
-page 46 "Sales Order Subform"
+﻿page 46 "Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -1704,7 +1704,14 @@ page 46 "Sales Order Subform"
     end;
 
     local procedure QtyToAsmToOrderOnAfterValidate()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeQtyToAsmToOrderOnAfterValidate(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         CurrPage.SaveRecord;
         if Reserve = Reserve::Always then
             AutoReserve;
@@ -1916,6 +1923,11 @@ page 46 "Sales Order Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnNoOnAfterValidateOnBeforeSaveAndAutoAsmToOrder()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeQtyToAsmToOrderOnAfterValidate(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

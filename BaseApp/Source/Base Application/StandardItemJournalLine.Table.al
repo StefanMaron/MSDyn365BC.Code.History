@@ -620,8 +620,6 @@ table 753 "Standard Item Journal Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5800; "Value Entry Type"; Option)

@@ -185,7 +185,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         GetWhseSourceDocuments.RunModal;
     end;
 
-    procedure CheckSalesHeader(SalesHeader: Record "Sales Header"; ShowError: Boolean): Boolean
+    procedure CheckSalesHeader(SalesHeader: Record "Sales Header"; ShowError: Boolean) Result: Boolean
     var
         SalesLine: Record "Sales Line";
         CurrItemVariant: Record "Item Variant";
@@ -230,15 +230,23 @@ codeunit 5752 "Get Source Doc. Outbound"
                     if EqualItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code") then
                         QtyOutstandingBase += SalesLine."Outstanding Qty. (Base)"
                     else begin
+                        if CheckSalesHeaderOnBeforeCheckAvailability(SalesHeader, SalesLine, ShowError, Result) then
+                            exit(Result);
+
                         if CheckAvailability(
                              CurrItemVariant, QtyOutstandingBase, SalesLine."Location Code",
                              SalesOrder.Caption, DATABASE::"Sales Line", "Document Type", "No.", ShowError)
                         then
                             exit(true);
                         SetItemVariant(CurrItemVariant, SalesLine."No.", SalesLine."Variant Code");
+                        if CheckSalesHeaderOnAfterSetItemVariant(Result) then
+                            exit(Result);
                         QtyOutstandingBase := SalesLine."Outstanding Qty. (Base)";
                     end;
                     if RecordNo = TotalNoOfRecords then begin // last record
+                        if CheckSalesHeaderOnBeforeCheckAvailability(SalesHeader, SalesLine, ShowError, Result) then
+                            exit(Result);
+
                         if CheckAvailability(
                              CurrItemVariant, QtyOutstandingBase, SalesLine."Location Code",
                              SalesOrder.Caption, DATABASE::"Sales Line", "Document Type", "No.", ShowError)
@@ -248,6 +256,16 @@ codeunit 5752 "Get Source Doc. Outbound"
                 until SalesLine.Next = 0; // sorted by item
             end;
         end;
+    end;
+
+    local procedure CheckSalesHeaderOnAfterSetItemVariant(var Result: Boolean) IsHandled: Boolean
+    begin
+        OnCheckSalesHeaderOnAfterSetItemVariant(Result, IsHandled);
+    end;
+
+    local procedure CheckSalesHeaderOnBeforeCheckAvailability(SalesHeader: Record "Sales Header"; SalesLine: record "Sales Line"; ShowError: Boolean; var Result: Boolean) IsHandled: Boolean
+    begin
+        OnCheckSalesHeaderOnBeforeCheckAvailability(SalesHeader, SalesLine, ShowError, Result, IsHandled);
     end;
 
     procedure CheckTransferHeader(TransferHeader: Record "Transfer Header"; ShowError: Boolean): Boolean
@@ -304,6 +322,8 @@ codeunit 5752 "Get Source Doc. Outbound"
         QtyReservedForOrder: Decimal;
         IsHandled: Boolean;
         Result: Boolean;
+        NotAvailable: Boolean;
+        ErrorMessage: Text;
     begin
         IsHandled := false;
         OnBeforeCheckAvailability(
@@ -329,11 +349,23 @@ codeunit 5752 "Get Source Doc. Outbound"
                     QtyReservedForOrder += ReservEntry2."Quantity (Base)";
                 until ReservEntry.Next = 0;
 
-            if Inventory - ("Reserved Qty. on Inventory" - QtyReservedForOrder) < QtyBaseNeeded then begin
-                if ShowError then
-                    Error(Text002, CurrItemVariant."Item No.", LocationCode, FormCaption, SourceID);
-                exit(true);
-            end;
+            NotAvailable := Inventory - ("Reserved Qty. on Inventory" - QtyReservedForOrder) < QtyBaseNeeded;
+            ErrorMessage := StrSubstNo(Text002, CurrItemVariant."Item No.", LocationCode, FormCaption, SourceID);
+            if AfterCheckAvailability(NotAvailable, ShowError, ErrorMessage, Result) then
+                exit(Result);
+        end;
+    end;
+
+    local procedure AfterCheckAvailability(NotAvailable: Boolean; ShowError: Boolean; ErrorMessage: Text; var Result: Boolean) IsHandled: Boolean;
+    begin
+        OnAfterCheckAvailability(NotAvailable, ShowError, ErrorMessage, Result, IsHandled);
+        if IsHandled then
+            exit(true);
+
+        if NotAvailable then begin
+            if ShowError then
+                Error(ErrorMessage);
+            exit(true);
         end;
     end;
 
@@ -458,6 +490,11 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAvailability(NotAvailable: Boolean; ShowError: Boolean; ErrorMessage: Text; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
@@ -534,6 +571,16 @@ codeunit 5752 "Get Source Doc. Outbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckSalesHeaderOnAfterSetLineFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesHeaderOnAfterSetItemVariant(var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSalesHeaderOnBeforeCheckAvailability(SalesHeader: Record "Sales Header"; SalesLine: record "Sales Line"; ShowError: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

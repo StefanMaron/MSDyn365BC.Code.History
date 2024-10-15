@@ -149,7 +149,7 @@ table 32 "Item Ledger Entry"
         field(70; "Reserved Quantity"; Decimal)
         {
             AccessByPermission = TableData "Purch. Rcpt. Header" = R;
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = CONST(''),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = CONST(''),
                                                                            "Source Ref. No." = FIELD("Entry No."),
                                                                            "Source Type" = CONST(32),
                                                                            "Source Subtype" = CONST("0"),
@@ -272,8 +272,6 @@ table 32 "Item Ledger Entry"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5800; "Completely Invoiced"; Boolean)
@@ -291,7 +289,7 @@ table 32 "Item Ledger Entry"
         field(5803; "Cost Amount (Expected)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Expected)';
             Editable = false;
             FieldClass = FlowField;
@@ -299,7 +297,7 @@ table 32 "Item Ledger Entry"
         field(5804; "Cost Amount (Actual)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Actual)';
             Editable = false;
             FieldClass = FlowField;
@@ -307,7 +305,7 @@ table 32 "Item Ledger Entry"
         field(5805; "Cost Amount (Non-Invtbl.)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Non-Invtbl.)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Non-Invtbl.)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Non-Invtbl.)';
             Editable = false;
             FieldClass = FlowField;
@@ -316,7 +314,7 @@ table 32 "Item Ledger Entry"
         {
             AutoFormatExpression = GetCurrencyCode;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Expected) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Expected) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Expected) (ACY)';
             Editable = false;
             FieldClass = FlowField;
@@ -325,7 +323,7 @@ table 32 "Item Ledger Entry"
         {
             AutoFormatExpression = GetCurrencyCode;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Actual) (ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Actual) (ACY)';
             Editable = false;
             FieldClass = FlowField;
@@ -334,7 +332,7 @@ table 32 "Item Ledger Entry"
         {
             AutoFormatExpression = GetCurrencyCode;
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Cost Amount (Non-Invtbl.)(ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Cost Amount (Non-Invtbl.)(ACY)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Cost Amount (Non-Invtbl.)(ACY)';
             Editable = false;
             FieldClass = FlowField;
@@ -342,7 +340,7 @@ table 32 "Item Ledger Entry"
         field(5813; "Purchase Amount (Expected)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Purchase Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Purchase Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Purchase Amount (Expected)';
             Editable = false;
             FieldClass = FlowField;
@@ -350,7 +348,7 @@ table 32 "Item Ledger Entry"
         field(5814; "Purchase Amount (Actual)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Purchase Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Purchase Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Purchase Amount (Actual)';
             Editable = false;
             FieldClass = FlowField;
@@ -358,7 +356,7 @@ table 32 "Item Ledger Entry"
         field(5815; "Sales Amount (Expected)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Sales Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Sales Amount (Expected)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Sales Amount (Expected)';
             Editable = false;
             FieldClass = FlowField;
@@ -366,7 +364,7 @@ table 32 "Item Ledger Entry"
         field(5816; "Sales Amount (Actual)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
+            CalcFormula = Sum("Value Entry"."Sales Amount (Actual)" WHERE("Item Ledger Entry No." = FIELD("Entry No.")));
             Caption = 'Sales Amount (Actual)';
             Editable = false;
             FieldClass = FlowField;

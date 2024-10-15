@@ -71,6 +71,7 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         LibraryDimension: Codeunit "Library - Dimension";
         BillReferenceCap: Label 'BillReference';
         WithHoldTaxAmountErr: Label '%1 should be equal to %2.', Comment = '%1 = Field Caption,%2 = Field Value';
+        RecalculateINPSMsg: Label 'Please recalculate %1 and %2 from the Withholding - INPS.', Comment = '%1 = FIELDCAPTION("Withholding Tax Amount"), %2 = FIELDCAPTION("Social Security Amount")';
 
     [Test]
     [Scope('OnPrem')]
@@ -392,6 +393,49 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         VendorLedgerEntry.FindFirst;
         VendorLedgerEntry.TestField("Vendor Bill List", VendorBillHeader."Vendor Bill List No.");
         VendorLedgerEntry.TestField("Vendor Bill No.", VendorBillLine."Vendor Bill No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorBillWithholdTaxNoCheckModalPageHandler,MessageHandlerWithCheck')]
+    [Scope('OnPrem')]
+    procedure AmountToPayRemainsUnchangedWhenCloseVendorBillWithholdingTaxPageWithoutChanges()
+    var
+        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
+        VendorBillLine: Record "Vendor Bill Line";
+        ExpectedAmountToPay: Decimal;
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 361346] The "Amount to Pay" remains unchanged when close the Vendor Bill Withholding Tax page without any changes
+
+        Initialize();
+
+        // [GIVEN] Vendor Bill Line with "Remaining Amount " = 500, "Amount to Pay" = 250, "Withholoding Tax Amount" = 100
+        VendorBillLine.Init();
+        VendorBillLine."Vendor Bill List No." := LibraryUtility.GenerateGUID;
+        VendorBillLine."Remaining Amount" := LibraryRandom.RandDecInRange(500, 1000, 2);
+        VendorBillLine."Amount to Pay" := Round(VendorBillLine."Remaining Amount" / 2);
+        VendorBillLine."Withholding Tax Amount" := Round(VendorBillLine."Amount to Pay" / 2);
+        VendorBillLine.Insert();
+        ExpectedAmountToPay := VendorBillLine."Amount to Pay";
+        // [GIVEN] Vendor Bill Withholding Tax related to Vendor Bill Line with the same "Withholding Tax Amount" and "Free-Lance Amount" = 150
+        VendorBillWithholdingTax.Init();
+        VendorBillWithholdingTax."Vendor Bill List No." := VendorBillLine."Vendor Bill List No.";
+        VendorBillWithholdingTax."Withholding Tax Amount" := VendorBillLine."Withholding Tax Amount";
+        VendorBillWithholdingTax."Free-Lance Amount" :=
+          VendorBillLine."Remaining Amount" - VendorBillLine."Amount to Pay" - VendorBillLine."Withholding Tax Amount";
+        VendorBillWithholdingTax.Insert();
+        LibraryVariableStorage.Enqueue(
+          StrSubstNo(RecalculateINPSMsg,
+            VendorBillLine.FieldCaption("Withholding Tax Amount"), VendorBillLine.FieldCaption("Social Security Amount")));
+
+        // [GIVEN] The "Vendor Bill Withholdoing Tax" page is opened
+
+        // [WHEN] Close the the "Vendor Bill Withholdoing Tax" page
+        VendorBillLine.ShowVendorBillWithhTax(true);
+
+        // [THEN] The "Amount to Pay" of Vendor Bill Line remains unchanged and equals 250
+        VendorBillLine.Find();
+        VendorBillLine.TestField("Amount to Pay", ExpectedAmountToPay);
     end;
 
     local procedure Initialize()
@@ -769,6 +813,13 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
         VendorBillWithhTax.OK.Invoke;
     end;
 
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorBillWithholdTaxNoCheckModalPageHandler(var VendorBillWithhTax: TestPage "Vendor Bill Withh. Tax")
+    begin
+        VendorBillWithhTax.OK.Invoke();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorBillReportRequestPageHandler(var VendorBillReport: TestRequestPage "Vendor Bill Report")
@@ -813,6 +864,13 @@ codeunit 144089 "ERM Plafond - Withhold Tax"
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandlerWithCheck(Message: Text[1024])
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     [RequestPageHandler]

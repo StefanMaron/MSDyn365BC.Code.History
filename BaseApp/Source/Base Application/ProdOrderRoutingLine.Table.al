@@ -1082,6 +1082,10 @@ table 5409 "Prod. Order Routing Line"
 
         GetProdOrderLine();
         "Location Code" := ProdOrderLine."Location Code";
+        "From-Production Bin Code" := '';
+        if "Next Operation No." = '' then
+            "From-Production Bin Code" := ProdOrderLine."Bin Code";
+
         case Type of
             Type::"Work Center":
                 begin
@@ -1090,7 +1094,8 @@ table 5409 "Prod. Order Routing Line"
                     if WorkCenter."Location Code" = "Location Code" then begin
                         "Open Shop Floor Bin Code" := WorkCenter."Open Shop Floor Bin Code";
                         "To-Production Bin Code" := WorkCenter."To-Production Bin Code";
-                        "From-Production Bin Code" := WorkCenter."From-Production Bin Code";
+                        if "From-Production Bin Code" = '' then
+                            "From-Production Bin Code" := WorkCenter."From-Production Bin Code";
                     end;
                 end;
             Type::"Machine Center":
@@ -1100,7 +1105,8 @@ table 5409 "Prod. Order Routing Line"
                     if MachineCenter."Location Code" = "Location Code" then begin
                         "Open Shop Floor Bin Code" := MachineCenter."Open Shop Floor Bin Code";
                         "To-Production Bin Code" := MachineCenter."To-Production Bin Code";
-                        "From-Production Bin Code" := MachineCenter."From-Production Bin Code";
+                        if "From-Production Bin Code" = '' then
+                            "From-Production Bin Code" := MachineCenter."From-Production Bin Code";
                     end;
                     if WorkCenter."No." <> MachineCenter."Work Center No." then
                         WorkCenter.Get(MachineCenter."Work Center No.");

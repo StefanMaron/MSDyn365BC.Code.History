@@ -332,6 +332,7 @@ codeunit 144081 "SCM Subcontracting"
         Vendor: Record Vendor;
         WorkCenter: Record "Work Center";
         RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
         VendorNo: Code[20];
         WorkCenterNo: Code[20];
     begin
@@ -356,6 +357,8 @@ codeunit 144081 "SCM Subcontracting"
         // and it will check all Subcontractor No. in function LibraryManufacturing.CalculateSubcontractOrder(WorkCenter), failed other cases.
         RoutingHeader.Get(Item."Routing No.");
         RoutingHeader.Delete();
+        RoutingLine.SetRange("Routing No.", Item."Routing No.");
+        RoutingLine.DeleteAll();
         WorkCenter.Get(WorkCenterNo);
         WorkCenter.Delete(true);
     end;

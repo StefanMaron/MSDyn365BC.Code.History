@@ -1,4 +1,4 @@
-table 172 "Standard Customer Sales Code"
+﻿table 172 "Standard Customer Sales Code"
 {
     Caption = 'Standard Customer Sales Code';
 
@@ -123,6 +123,7 @@ table 172 "Standard Customer Sales Code"
         SalesHeader.Init();
         SalesHeader."No." := '';
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        OnCreateSalesInvoiceOnBeforeSalesHeaderInsert(SalesHeader, Rec);
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Customer No.", "Customer No.");
         SalesHeader.Validate("Order Date", OrderDate);
@@ -134,6 +135,7 @@ table 172 "Standard Customer Sales Code"
             SalesHeader.Validate("Payment Terms Code", "Payment Terms Code");
         if "Direct Debit Mandate ID" <> '' then
             SalesHeader.Validate("Direct Debit Mandate ID", "Direct Debit Mandate ID");
+        OnCreateSalesInvoiceOnBeforeSalesHeaderModify(SalesHeader, Rec);
         SalesHeader.Modify();
         ApplyStdCodesToSalesLines(SalesHeader, Rec);
 
@@ -200,7 +202,8 @@ table 172 "Standard Customer Sales Code"
                 SalesLine.Validate(Type, StdSalesLine.Type);
                 if StdSalesLine.Type = StdSalesLine.Type::" " then begin
                     SalesLine.Validate("No.", StdSalesLine."No.");
-                    SalesLine.Description := StdSalesLine.Description
+                    SalesLine.Description := StdSalesLine.Description;
+                    SalesLine."Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
                 end else
                     if not StdSalesLine.EmptyLine then begin
                         StdSalesLine.TestField("No.");
@@ -254,6 +257,8 @@ table 172 "Standard Customer Sales Code"
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin
+        if SalesLine.Type = SalesLine.Type::" " then
+            exit;
         if TransferExtendedText.SalesCheckIfAnyExtText(SalesLine, false) then
             TransferExtendedText.InsertSalesExtText(SalesLine);
     end;
@@ -338,6 +343,16 @@ table 172 "Standard Customer Sales Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStdCustSalesCodesSetTableView(var StandardCustomerSalesCode: Record "Standard Customer Sales Code"; var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesInvoiceOnBeforeSalesHeaderModify(var SalesHeader: Record "Sales Header"; StandardCustomerSalesCode: Record "Standard Customer Sales Code")
     begin
     end;
 }

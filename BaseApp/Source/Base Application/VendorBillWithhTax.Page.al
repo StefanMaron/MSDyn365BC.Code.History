@@ -186,12 +186,7 @@ page 12198 "Vendor Bill Withh. Tax"
     begin
         if Open then
             if VendBillLine.Get("Vendor Bill List No.", "Line No.") then begin
-                if VendBillLine."Remaining Amount" =
-                   VendBillLine."Amount to Pay" + VendBillLine."Withholding Tax Amount" + "Old Free-Lance Amount"
-                then
-                    VendBillLine.Validate("Amount to Pay", (VendBillLine."Remaining Amount" - "Withholding Tax Amount" - "Free-Lance Amount"))
-                else
-                    VendBillLine.Validate("Amount to Pay", (VendBillLine."Amount to Pay" - "Withholding Tax Amount" - "Free-Lance Amount"));
+                VendBillLine.Validate("Amount to Pay", VendBillLine."Remaining Amount" - "Withholding Tax Amount" - "Free-Lance Amount");
                 VendBillLine."Withholding Tax Amount" := "Withholding Tax Amount";
                 VendBillLine."Social Security Amount" := "Total Social Security Amount";
                 VendBillLine.Modify();

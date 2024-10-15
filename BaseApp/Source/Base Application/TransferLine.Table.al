@@ -24,14 +24,12 @@
             trigger OnValidate()
             var
                 TempTransferLine: Record "Transfer Line" temporary;
-                ReturnValue: Text[50];
             begin
                 TestField("Quantity Shipped", 0);
                 TestField("WIP Qty. Shipped", 0);
                 if CurrFieldNo <> 0 then
                     TestStatusOpen;
-                Item.TryGetItemNo(ReturnValue, "Item No.", true);
-                "Item No." := CopyStr(ReturnValue, 1, MaxStrLen("Item No."));
+                "Item No." := GetItemNo();
                 ReserveTransferLine.VerifyChange(Rec, xRec);
                 CalcFields("Reserved Qty. Inbnd. (Base)");
                 TestField("Reserved Qty. Inbnd. (Base)", 0);
@@ -737,8 +735,6 @@
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5750; "Whse. Inbnd. Otsdg. Qty (Base)"; Decimal)
@@ -1221,6 +1217,20 @@
             Item.Get("Item No.");
     end;
 
+    local procedure GetItemNo(): Code[20]
+    var
+        ReturnValue: Text[50];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetItemNo(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit("Item No.");
+
+        Item.TryGetItemNo(ReturnValue, "Item No.", true);
+        exit(CopyStr(ReturnValue, 1, MaxStrLen("Item No.")));
+    end;
+
     procedure BlockDynamicTracking(SetBlock: Boolean)
     begin
         TrackingBlocked := SetBlock;
@@ -1435,7 +1445,14 @@
     end;
 
     local procedure GetDefaultBin(FromLocationCode: Code[10]; ToLocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDefaultBin(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (FromLocationCode <> '') and ("Item No." <> '') then begin
             GetLocation(FromLocationCode);
             if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
@@ -1564,6 +1581,7 @@
         SetFilter("Shortcut Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
         SetFilter("Shortcut Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
+        OnAfterFilterLinesWithItemToPlan(Item, IsReceipt, IsSupplyForPlanning);
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean): Boolean
@@ -1675,6 +1693,11 @@
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetTransHeader(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
     begin
@@ -1746,6 +1769,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemNo(var TransLine: Record "Transfer Line"; xTransLine: Record "Transfer Line"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTransHeader(var TransferLine: Record "Transfer Line"; var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
@@ -1792,6 +1820,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeTransLineVerifyChange(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDefaultBin(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
     begin
     end;
 }

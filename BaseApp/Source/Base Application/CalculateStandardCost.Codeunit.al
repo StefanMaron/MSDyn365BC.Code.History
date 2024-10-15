@@ -592,7 +592,7 @@ codeunit 5812 "Calculate Standard Cost"
         end;
     end;
 
-    local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var Item: Record Item)
+    local procedure CalcRtngCost(RtngHeaderNo: Code[20]; MfgItemQtyBase: Decimal; var SLCap: Decimal; var SLSub: Decimal; var SLCapOvhd: Decimal; var ParentItem: Record Item)
     var
         RtngLine: Record "Routing Line";
         RtngHeader: Record "Routing Header";
@@ -604,7 +604,8 @@ codeunit 5812 "Calculate Standard Cost"
             end;
 
             repeat
-                CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, Item);
+                OnCalcRtngCostOnBeforeCalcRtngLineCost(RtngLine, ParentItem);
+                CalcRtngLineCost(RtngLine, MfgItemQtyBase, SLCap, SLSub, SLCapOvhd, ParentItem);
             until RtngLine.Next = 0;
         end;
     end;
@@ -999,6 +1000,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdBOMCostOnAfterCalcMfgItem(var ProdBOMLine: Record "Production BOM Line"; MfgItem: Record Item; MfgItemQtyBase: Decimal; CompItem: Record Item; CompItemQtyBase: Decimal; Level: Integer; IsTypeItem: Boolean; UOMFactor: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRtngCostOnBeforeCalcRtngLineCost(var RoutingLine: Record "Routing Line"; ParentItem: Record Item)
     begin
     end;
 

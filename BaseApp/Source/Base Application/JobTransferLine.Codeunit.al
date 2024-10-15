@@ -472,6 +472,7 @@ codeunit 1004 "Job Transfer Line"
                 JobJnlLine.Validate(Type, JobJnlLine.Type::"G/L Account")
             else
                 JobJnlLine.Validate(Type, JobJnlLine.Type::Item);
+            OnFromPurchaseLineToJnlLineOnBeforeValidateNo(JobJnlLine, PurchLine);
             JobJnlLine.Validate("No.", "No.");
             JobJnlLine.Validate("Variant Code", "Variant Code");
             if UpdateBaseQtyForPurchLine(Item, PurchLine) then begin
@@ -530,6 +531,7 @@ codeunit 1004 "Job Transfer Line"
             GetCurrencyRounding(JobJnlLine."Currency Code");
 
             JobJnlLine."Unit Cost (LCY)" := "Unit Cost (LCY)" / "Qty. per Unit of Measure" + Abs(NondeductibleVATAmtPrUnitLCY);
+            OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(JobJnlLine, PurchLine);
             if Type = Type::Item then begin
                 Item.Get("No.");
                 if Item."Costing Method" = Item."Costing Method"::Standard then
@@ -728,6 +730,16 @@ codeunit 1004 "Job Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFromPurchaseLineToJnlLine(PurchHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; PurchLine: Record "Purchase Line"; SourceCode: Code[10]; var JobJnlLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromPurchaseLineToJnlLineOnBeforeValidateNo(var JobJnlLine: Record "Job Journal Line"; var PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromPurchaseLineToJnlLineOnAfterCalcUnitCostLCY(var JobJnlLine: Record "Job Journal Line"; var PurchLine: Record "Purchase Line")
     begin
     end;
 }

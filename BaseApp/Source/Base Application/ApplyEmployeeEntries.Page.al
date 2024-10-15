@@ -869,8 +869,10 @@ page 234 "Apply Employee Entries"
                 Rec := TempApplyingEmplLedgEntry;
                 NewDocumentNo := "Document No.";
                 NewApplicationDate := EmplEntryApplyPostedEntries.GetApplicationDate(Rec);
+                OnPostDirectApplicationBeforeSetValues(NewApplicationDate);
                 AskForDocNoAndApplnDate(NewDocumentNo, NewApplicationDate);
 
+                OnPostDirectApplicationBeforeApply();
                 if PreviewMode then
                     EmplEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate)
                 else
@@ -946,6 +948,16 @@ page 234 "Apply Employee Entries"
         ApplyCustomerEntries: Page "Apply Customer Entries";
     begin
         ApplyCustomerEntries.AskForDocNoAndApplnDate(DocumentNo, ApplicationDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeApply()
+    begin
     end;
 }
 

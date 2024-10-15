@@ -1638,6 +1638,133 @@ codeunit 144090 "ERM Withhold"
           PurchWithhContribution, VendorBillHeader."No.", PurchaseHeader."Amount Including VAT");
     end;
 
+    [Test]
+    [HandlerFunctions('ShowValidateWHTSocSecMPH')]
+    procedure ExternalDocNo_ApplyInvoiceToPaymentWithBlankedValue()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 361963] External Document No. is updated on Withholding Tax and Contribution (Social Security) records
+        // [SCENARIO 361963] in case of Invoice to Payment application where payment had an empty external doc. no. value
+        Initialize();
+
+        // [GIVEN] Vendor with Withholding Tax and Social Security setup
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] Posted payment with a blanked External Document No. value
+        PaymentNo := CreatePostVendorPaymentWithExternalDocNo(VendorNo, Amount, '');
+
+        // [GIVEN] Posted invoice with External Document No. = "X"
+        InvoiceNo := CreatePostPurchaseInvoiceWithAmount(WorkDate(), VendorNo, Amount);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.TestField("External Document No.");
+
+        // [WHEN] Apply Invoice to Payment vendor ledger entry
+        LibraryERM.ApplyVendorLedgerEntries(
+          VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, InvoiceNo, PaymentNo);
+
+        // [THEN] Withh.Tax and Social Sec. records are updated with External Document No. = "X"
+        VerifyWithhTaxAndContribExternalDocNo(VendorNo, VendorLedgerEntry."External Document No.");
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ShowValidateWHTSocSecMPH')]
+    procedure ExternalDocNo_ApplyInvoiceToPaymentWithNotBlankedValue()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [SCENARIO 361963] External Document No. is not updated on Withholding Tax and Contribution (Social Security) records
+        // [SCENARIO 361963] in case of Invoice to Payment application where payment had external doc. no. value
+        Initialize;
+
+        // [GIVEN] Vendor with Withholding Tax and Social Security setup
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] Posted payment with External Document No. = "X"
+        PaymentNo := CreatePostVendorPaymentWithExternalDocNo(VendorNo, Amount, LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Posted invoice with External Document No. = "Y"
+        InvoiceNo := CreatePostPurchaseInvoiceWithAmount(WorkDate(), VendorNo, Amount);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.TestField("External Document No.");
+
+        // [WHEN] Apply Invoice to Payment vendor ledger entry
+        LibraryERM.ApplyVendorLedgerEntries(
+          VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, InvoiceNo, PaymentNo);
+
+        // [THEN] Withh.Tax and Social Sec. records are remain with blanked External Document No.
+        VerifyWithhTaxAndContribExternalDocNo(VendorNo, '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ShowValidateWHTSocSecMPH')]
+    procedure ExternalDocNo_ApplyInvoiceToPaymentWithBlankedButWithhValue()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        WithholdingTax: Record "Withholding Tax";
+        Contributions: Record Contributions;
+        ContributionCode: Code[20];
+        WithholdCode: Code[20];
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceNo: Code[20];
+        Amount: Decimal;
+        ExternalDocNo: Code[35];
+    begin
+        // [SCENARIO 361963] External Document No. remains with its value on Withholding Tax and Contribution (Social Security) records
+        // [SCENARIO 361963] in case of Invoice to Payment application where payment had an empty external doc. no. value,
+        // [SCENARIO 361963] but withholding tax and social security had external document no. value
+        Initialize();
+
+        // [GIVEN] Vendor with Withholding Tax and Social Security setup
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+        VendorNo := CreateVendorWithSocSecAndWithholdCodes(WithholdCode, ContributionCode, '');
+        Amount := LibraryRandom.RandDec(1000, 2);
+
+        // [GIVEN] Posted payment with a blanked External Document No. value
+        PaymentNo := CreatePostVendorPaymentWithExternalDocNo(VendorNo, Amount, LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Posted invoice with External Document No. = "X"
+        InvoiceNo := CreatePostPurchaseInvoiceWithAmount(WorkDate(), VendorNo, Amount);
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.TestField("External Document No.");
+
+        // [GIVEN] Assign withholding tax and social security records External Document No. = "Y"
+        ExternalDocNo := LibraryUtility.GenerateGUID();
+        FindWithholdingTax(WithholdingTax, VendorNo);
+        WithholdingTax."External Document No." := ExternalDocNo;
+        WithholdingTax.Modify();
+        FindContributions(Contributions, VendorNo);
+        Contributions."External Document No." := ExternalDocNo;
+        Contributions.Modify();
+
+        // [WHEN] Apply Invoice to Payment vendor ledger entry
+        LibraryERM.ApplyVendorLedgerEntries(
+          VendorLedgerEntry."Document Type"::Invoice, VendorLedgerEntry."Document Type"::Payment, InvoiceNo, PaymentNo);
+
+        // [THEN] Withh.Tax and Social Sec. records are remain with External Document No. = "Y"
+        VerifyWithhTaxAndContribExternalDocNo(VendorNo, ExternalDocNo);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1743,6 +1870,20 @@ codeunit 144090 "ERM Withhold"
         ShowComputedWithholdContributionOnPayment(GenJournalLine."Journal Batch Name"); // Invoke Handler - GenJnlLineTemplateListPageHandler.
         VerifyTmpWithholdingContributionNotEmpty(AppliesToDocNo);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure CreatePostVendorPaymentWithExternalDocNo(VendorNo: Code[20]; Amount: Decimal; ExternalDocNo: Code[35]): Code[20]
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        WithholdingContribution: Codeunit "Withholding - Contribution";
+    begin
+        CreateGeneralJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment, VendorNo, Amount);
+        GenJournalLine.Validate("External Document No.", ExternalDocNo);
+        GenJournalLine.Modify();
+        LibraryVariableStorage.Enqueue(Round(Amount / 3));
+        WithholdingContribution.CreateTmpWithhSocSec(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        EXIT(GenJournalLine."Document No.");
     end;
 
     local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AppliesToDocNo: Code[20]; AppliesToDocType: Option)
@@ -1870,12 +2011,12 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader.CalcFields("Amount Including VAT", Amount);
     end;
 
-    local procedure CreatePostPurchaseInvoiceWithAmount(PostingDate: Date; VendorNo: Code[20]; DirectUnitCost: Decimal)
+    local procedure CreatePostPurchaseInvoiceWithAmount(PostingDate: Date; VendorNo: Code[20]; DirectUnitCost: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
         CreatePurchaseInvoiceWithAmount(PurchaseHeader, PostingDate, VendorNo, 1, DirectUnitCost);
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
     local procedure CreateVendorWithSocSecAndWithholdCodes(WithholdingTaxCode: Code[20]; SocialSecurityCode: Code[20]; INAILCode: Code[20]): Code[20]
@@ -2046,6 +2187,12 @@ codeunit 144090 "ERM Withhold"
         WithholdingTax.FindFirst;
     end;
 
+    local procedure FindContributions(var Contributions: Record Contributions; VendorNo: Code[20]);
+    begin
+        Contributions.SetRange("Vendor No.", VendorNo);
+        Contributions.FindFirst();
+    end;
+
     local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; BalAccountType: Option; BalAccountNo: Code[20])
     begin
         with GenJournalLine do begin
@@ -2069,6 +2216,16 @@ codeunit 144090 "ERM Withhold"
           GenJournalLine."Bal. Account Type"::"G/L Account", WithholdCode."Withholding Taxes Payable Acc.");
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure GetExternalDocNoFromPostedInvoice(VendorNo: Code[20]): Code[35]
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+    begin
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
+        PurchInvHeader.FindFirst();
+        PurchInvHeader.TestField("Vendor Invoice No.");
+        exit(PurchInvHeader."Vendor Invoice No.");
     end;
 
     local procedure INAILCodeLookupOnVendorCard(No: Code[20])
@@ -2321,6 +2478,10 @@ codeunit 144090 "ERM Withhold"
         Assert.AreNearlyEqual(TaxableBase, WithholdingTax."Taxable Base", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
           WithholdingTaxAmount, WithholdingTax."Withholding Tax Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreEqual(
+          GetExternalDocNoFromPostedInvoice(VendorNo),
+          WithholdingTax."External Document No.",
+          'WithholdingTax."External Document No."');
     end;
 
     local procedure VerifyAmountInVendorLedgerEntry(DocType: Option; VendorNo: Code[20]; BalAccType: Option; BalAccNo: Code[20]; ExpectedAmount: Decimal)
@@ -2417,6 +2578,18 @@ codeunit 144090 "ERM Withhold"
         end;
     end;
 
+    local procedure VerifyWithhTaxAndContribExternalDocNo(VendorNo: Code[20]; ExternalDocNo: Code[35]);
+    var
+        WithholdingTax: Record "Withholding Tax";
+        Contributions: Record Contributions;
+    begin
+        FindWithholdingTax(WithholdingTax, VendorNo);
+        WithholdingTax.TestField("External Document No.", ExternalDocNo);
+
+        FindContributions(Contributions, VendorNo);
+        Contributions.TestField("External Document No.", ExternalDocNo);
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContributionCodesINAILModalPageHandler(var ContributionCodesINAIL: TestPage "Contribution Codes-INAIL")
@@ -2484,6 +2657,14 @@ codeunit 144090 "ERM Withhold"
         Evaluate(TotalAmount, ShowComputedWithhContrib."Total Amount".Value);
         ShowComputedWithhContrib."Base - Excluded Amount".SetValue(TotalAmount);
         ShowComputedWithhContrib.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ShowValidateWHTSocSecMPH(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.");
+    begin
+        ShowComputedWithhContrib."Total Amount".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ShowComputedWithhContrib.OK.Invoke();
     end;
 
     [ModalPageHandler]

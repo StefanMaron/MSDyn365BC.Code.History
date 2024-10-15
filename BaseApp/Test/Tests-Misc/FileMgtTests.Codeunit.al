@@ -749,16 +749,14 @@ codeunit 139016 "File Mgt. Tests"
         PathHelper: DotNet Path;
         DotNetString: DotNet String;
         FileName: Text;
-        Str: Text;
     begin
         // [FEATURE] [UT]
         // [SCENARIO 379537] GetSafeFileName should remove invalid characters (colon, etc) in the file name
         Initialize;
 
-        DotNetString := FileName;
-        foreach Str in DotNetString.Split(PathHelper.GetInvalidFileNameChars) do
-            FileName += Str;
-        FileName += 'Default.docx';
+        DotNetString := DotNetString.String(PathHelper.GetInvalidFileNameChars());
+
+        FileName := DotNetString + 'Default.docx';
 
         FileName := FileMgt.GetSafeFileName(FileName);
 

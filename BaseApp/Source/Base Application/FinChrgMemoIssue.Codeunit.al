@@ -397,6 +397,7 @@ codeunit 395 "FinChrgMemo-Issue"
         CustLedgerEntry2.SetCurrentKey("Closed by Entry No.");
         CustLedgerEntry2.SetRange("Closed by Entry No.", EntryNo);
         CustLedgerEntry2.SetRange("Closing Interest Calculated", false);
+        OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(CustLedgerEntry2, CustLedgerEntry);
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
     end;
 
@@ -422,6 +423,11 @@ codeunit 395 "FinChrgMemo-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIssuedFinChrgMemoHeaderInsert(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgEntriesCalculateInterestOnBeforeCustLedgerEntry2ModifyAll(var CustLedgEntry2: Record "Cust. Ledger Entry"; CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

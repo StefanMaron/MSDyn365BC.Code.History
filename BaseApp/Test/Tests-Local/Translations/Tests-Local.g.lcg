@@ -1607,6 +1607,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Field Caption,%2 = Field Value]D;]A;(LookupHint=Codeunit ERM Plafond - Withhold Tax - NamedType WithHoldTaxAmountErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3959304027 - NamedType 3288800218" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Please recalculate %1 and %2 from the Withholding - INPS.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = FIELDCAPTION("Withholding Tax Amount"), %2 = FIELDCAPTION("Social Security Amount")]D;]A;(LookupHint=Codeunit ERM Plafond - Withhold Tax - NamedType RecalculateINPSMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3628821200 - NamedType 4965073" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Purchase Invoice  already exists for this vendor]]></Val>

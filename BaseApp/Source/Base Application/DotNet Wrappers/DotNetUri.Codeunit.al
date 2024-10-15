@@ -1,5 +1,8 @@
 codeunit 3024 DotNet_Uri
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Use codeunit Uri instead.';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin

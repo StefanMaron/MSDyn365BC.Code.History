@@ -1,4 +1,4 @@
-page 311 "Intrastat Journal"
+﻿page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
     AutoSplitKey = true;

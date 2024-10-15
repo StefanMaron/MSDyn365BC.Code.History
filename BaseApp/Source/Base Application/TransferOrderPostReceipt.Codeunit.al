@@ -272,7 +272,7 @@
         WriteDownDerivedLines(TransLine3);
         ItemJnlPostLine.SetPostponeReservationHandling(true);
 
-        OnBeforePostItemJournalLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, SuppressCommit);
+        OnBeforePostItemJournalLine(ItemJnlLine, TransLine3, TransRcptHeader2, TransRcptLine2, SuppressCommit, TransLine);
         ItemJnlPostLine.RunWithCheck(ItemJnlLine);
     end;
 
@@ -317,6 +317,8 @@
                 Error(
                   Text006,
                   TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+
+        OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
 
     local procedure CheckDimValuePosting(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
@@ -485,6 +487,7 @@
     local procedure InsertTransRcptLine(ReceiptNo: Code[20]; var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
     var
         PurchOrderLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
         TransRcptLine.Init();
         TransRcptLine."Document No." := ReceiptNo;
@@ -503,7 +506,11 @@
                 PurchOrderLine.Modify();
             end;
         TransRcptLine."Return Order" := TransLine."Return Order";
-        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit);
+        IsHandled := false;
+        OnBeforeInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         TransRcptLine.Insert();
         OnAfterInsertTransRcptLine(TransRcptLine, TransLine, SuppressCommit);
 
@@ -631,6 +638,7 @@
             if Location."Bin Mandatory" then
                 if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, true) then begin
                     WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 1, TransRcptHeader."No.");
+                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
                     ItemTrackingMgt.SplitWhseJnlLine(WhseJnlLine, TempWhseJnlLine2, TempHandlingSpecification, true);
                     if TempWhseJnlLine2.Find('-') then
                         repeat
@@ -681,7 +689,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferReceiptHeader: Record "Transfer Receipt Header"; TransferReceiptLine: Record "Transfer Receipt Line"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforePostItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; TransferLine: Record "Transfer Line"; TransferReceiptHeader: Record "Transfer Receipt Header"; TransferReceiptLine: Record "Transfer Receipt Line"; CommitIsSuppressed: Boolean; TransLine: Record "Transfer Line")
     begin
     end;
 
@@ -721,7 +729,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeInsertTransRcptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -771,7 +779,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnBeforeSplitWhseJnlLine()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCommit(var TransHeader: Record "Transfer Header"; TransRcptHeader: Record "Transfer Receipt Header"; PostedWhseRcptHeader: Record "Posted Whse. Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimComb(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
     begin
     end;
 }

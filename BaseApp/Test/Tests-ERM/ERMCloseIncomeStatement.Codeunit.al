@@ -24,6 +24,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
+        PostToRetainedEarningsAcc: Option Balance,Details;
         ExpectedMessageMsg: Label 'The journal lines have successfully been created.';
         GenJnlLineExistErr: Label 'There should be no %1 with %2=%3,%4=%5', Comment = '%1=Gen. Journal Line;%2=Account Type;%3=Account Type Value;%4=Account No.;%5=Account No. Value.';
         CannotDeleteGLAccGLEntryFoundErr: Label 'You cannot delete G/L account %1 because it has ledger entries in a fiscal year that has not been closed yet.';
@@ -292,7 +293,7 @@ codeunit 134228 "ERM Close Income Statement"
         PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
         SelectDimForCloseIncomeStatement(TempDimensionSetEntry);
         DocumentNo := IncStr(GenJournalLine."Document No.");
-        RunCloseIncomeStatement(GenJournalLine, PostingDate, true, true, IncStr(GenJournalLine."Document No."));
+        RunCloseIncomeStatement(GenJournalLine, PostingDate, PostToRetainedEarningsAcc::Balance, true, true, IncStr(GenJournalLine."Document No."));
         CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJournalLine);
 
         // [THEN] Close Income Statement G/L Entry Amount for "X" = "Amount X"
@@ -432,6 +433,39 @@ codeunit 134228 "ERM Close Income Statement"
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ConfirmHandler,CloseIncomeStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CloseIncomeStatementWithPostToRetainedEarningsAccDetailsAllLinesHaveBalanceZero()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+        PostingDate: Date;
+    begin
+        // [SCENARIO 361507] "Close Income Statement" report with "Post to Retained Earnings Acc." = Details
+        // [SCENARIO 361507] Must have balance zero for each line generated (since each line is balanced against itself)
+        Initialize;
+        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear;
+
+        // [GIVEN] Posted Document
+        PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
+        CreateGeneralJournalLines(GenJournalLine, PostingDate + 1);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [WHEN] Run 'Close Income Statement' report with "Post to Retained Earnings Acc." = Details
+        LibraryFiscalYear.CloseFiscalYear;
+        PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
+        DocumentNo := IncStr(GenJournalLine."Document No.");
+        RunCloseIncomeStatement(GenJournalLine, PostingDate, PostToRetainedEarningsAcc::Details, false, false, DocumentNo);
+
+        // [THEN] All lines have Balance (LCY) = 0
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.SetFilter("Balance (LCY)", '<>0');
+        Assert.RecordIsEmpty(GenJournalLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -462,6 +496,16 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         CloseIncomeStatement(GenJournalLine, IncStr(GenJournalLine."Document No."));
+    end;
+
+    local procedure CreateBalanceGLAccountNo(): Code[20]
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.Modify();
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateBusinessUnitCode(): Code[10]
@@ -516,6 +560,8 @@ codeunit 134228 "ERM Close Income Statement"
         // Create General Journal Lines in an open Fiscal Year; Generate random No. of Lines from 1 to 10 and
         // take any Random Amount from 1 to 1000.
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        GenJournalBatch."Bal. Account No." := CreateBalanceGLAccountNo;
+        GenJournalBatch.Modify();
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 5) do begin
             LibraryERM.CreateGeneralJnlLine(
@@ -611,7 +657,7 @@ codeunit 134228 "ERM Close Income Statement"
         Date.SetRange("Period Start", LibraryFiscalYear.GetLastPostingDate(true));
         Date.FindFirst;
 
-        RunCloseIncomeStatement(GenJournalLine, NormalDate(Date."Period End"), true, false, DocumentNo);
+        RunCloseIncomeStatement(GenJournalLine, NormalDate(Date."Period End"), 0, true, false, DocumentNo);
     end;
 
     local procedure IntitializeGLAccountWithClosedEntriesClosedAccountingPeriod(var GLAccount: Record "G/L Account")
@@ -657,7 +703,7 @@ codeunit 134228 "ERM Close Income Statement"
         CloseIncomeStatement(GenJournalLine, IncStr(GenJournalLine."Document No."));
     end;
 
-    local procedure RunCloseIncomeStatement(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; ClosePerBusinessUnit: Boolean; UseDimensions: Boolean; DocumentNo: Code[20])
+    local procedure RunCloseIncomeStatement(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; PostToRetainedEarningsAcc: Option; ClosePerBusinessUnit: Boolean; UseDimensions: Boolean; DocumentNo: Code[20])
     begin
         // Enqueue values for CloseIncomeStatementRequestPageHandler.
         LibraryVariableStorage.Enqueue(PostingDate);
@@ -667,6 +713,7 @@ codeunit 134228 "ERM Close Income Statement"
         LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
         LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
         LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo);
+        LibraryVariableStorage.Enqueue(PostToRetainedEarningsAcc);
         LibraryVariableStorage.Enqueue(ClosePerBusinessUnit);
         LibraryVariableStorage.Enqueue(UseDimensions);
 
@@ -800,6 +847,7 @@ codeunit 134228 "ERM Close Income Statement"
         CloseIncomeStatement.BalancingAccountNo.SetValue(LibraryVariableStorage.DequeueText);
         CloseIncomeStatement.NetProfitAccountNo.SetValue(LibraryVariableStorage.DequeueText);
         CloseIncomeStatement.NetLossAccountNo.SetValue(LibraryVariableStorage.DequeueText);
+        CloseIncomeStatement.PostToRetainedEarningsAccount.SetValue(LibraryVariableStorage.DequeueInteger); // Post to Retained Earnings Account
         CloseIncomeStatement.ClosePerBusUnit.SetValue(LibraryVariableStorage.DequeueBoolean); // Close Business Unit Code
         if LibraryVariableStorage.DequeueBoolean then // get stored flag for usage Dimensions
             CloseIncomeStatement.Dimensions.AssistEdit; // Select Dimensions

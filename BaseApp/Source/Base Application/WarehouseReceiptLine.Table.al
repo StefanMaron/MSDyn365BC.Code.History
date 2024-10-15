@@ -343,6 +343,7 @@ table 7317 "Warehouse Receipt Line"
                     "Over-Receipt Quantity" := 0;
                     exit;
                 end;
+                TestField("Source Document", "Source Document"::"Purchase Order");
                 if CurrFieldNo = FieldNo("Over-Receipt Quantity") then
                     if xRec."Over-Receipt Quantity" = "Over-Receipt Quantity" then
                         exit;
