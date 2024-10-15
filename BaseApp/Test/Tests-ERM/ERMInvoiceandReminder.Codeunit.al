@@ -20,6 +20,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        MIRHelperFunctions: Codeunit "MIR - Helper Functions";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -439,6 +440,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
         ReminderStatistics: TestPage "Reminder Statistics";
         TotalAmount: Decimal;
     begin
@@ -450,8 +452,11 @@ codeunit 134907 "ERM Invoice and Reminder"
         UpdateGLSetupInvRoundingPrecision();
         GeneralLedgerSetup.Get();
 
-        // [GIVEN] Reminder with G/L Accout Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        // [GIVEN] Reminder with G/L Account Line = 1912.41
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
@@ -477,6 +482,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderHeader: Record "Reminder Header";
         ReminderLine: Record "Reminder Line";
         GeneralLedgerSetup: Record "General Ledger Setup";
+        Customer: Record Customer;
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin
         // [FEATURE] [Invoice Rounding]
@@ -488,7 +494,10 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup.Get();
 
         // [GIVEN] Reminder with G/L Account Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
@@ -513,6 +522,7 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup: Record "General Ledger Setup";
         IssuedReminderHeader: Record "Issued Reminder Header";
         IssuedReminderLine: Record "Issued Reminder Line";
+        Customer: Record Customer;
         InvRoundingAmountAmount: Decimal;
     begin
         // [FEATURE] [Invoice Rounding]
@@ -524,7 +534,10 @@ codeunit 134907 "ERM Invoice and Reminder"
         GeneralLedgerSetup.Get();
 
         // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
-        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Modify(true);
+        CreateReminderHeader(ReminderHeader, Customer."No.");
         CreateReminderLineForInvRounding(
             ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
 
@@ -594,6 +607,45 @@ codeunit 134907 "ERM Invoice and Reminder"
         CustLedgerEntry.TestField("Last Issued Reminder Level", 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelIssuedFinChargeMemoWithIntersets()
+    var
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        GLEntry: Record "G/L Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        CancelIssuedFinChargeMemo: Codeunit "Cancel Issued Fin. Charge Memo";
+        ExpectedAmount: Decimal;
+    begin
+        // [FEATURE] [Cancel Finance Charge Memo] [Interest Rate]
+        // [SCENARIO 411355] When cancel the Issued Finance Charge Memo with detailed interest line, then do not use the detailed interest lines 
+        Initialize();
+
+        // [GIVEN] Issued Finance Charge Memo with Detailed interest line
+        CreateIssuedFinChargeMemoWithInterestLine(IssuedFinChargeMemoHeader);
+
+        // [GIVEN] G/L Entry with Ammount = 100 and type = "Finance Charge Memo"
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::"Finance Charge Memo");
+        GLEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
+        GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::" ");
+        GLEntry.FindFirst();
+        ExpectedAmount := GLEntry.Amount;
+
+        // [WHEN] Cancel Issued Finance Charge Memo
+        GenJournalLine."Journal Template Name" := GLEntry."Journal Template Name";
+        GenJournalLine."Journal Batch Name" := GLEntry."Journal Batch Name";
+        CancelIssuedFinChargeMemo.SetJournal(GenJournalLine);
+        CancelIssuedFinChargeMemo.SetParameters(true, false, WorkDate(), false);
+        CancelIssuedFinChargeMemo.Run(IssuedFinChargeMemoHeader);
+
+        // [THEN] G/L Entry with Amount = -100 and type = " "
+        GLEntry.Reset();
+        GLEntry.SetRange("Document No.", IssuedFinChargeMemoHeader."No.");
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::" ");
+        GLEntry.SetRange(Amount, -ExpectedAmount);
+        GLEntry.FindFirst();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -645,6 +697,54 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
+    local procedure CreateIssuedFinChargeMemoWithInterestLine(var IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
+    var
+        FinanceChargeTerms: Record "Finance Charge Terms";
+        FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
+        Customer: Record Customer;
+        FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
+        FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
+        CreationDate: Date;
+        CreateFinanceChargeMemos: Report "Create Finance Charge Memos";
+
+    begin
+        CreateFinanceChargeTerm(FinanceChargeTerms);
+        CreateFinanceChargeInterestRates(FinanceChargeInterestRate, FinanceChargeTerms.Code, CalcDate('<-1D>', WorkDate()));
+        Customer.Get(MIRHelperFunctions.UpdateFinChargeTermsOnCustomer(FinanceChargeTerms.Code));
+        MIRHelperFunctions.CreateAndPostSalesInvoiceBySalesJournal(Customer."No.");
+        CreationDate := CalcDate('<' + Format(2 * LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        Customer.SetRecFilter;
+        CreateFinanceChargeMemos.SetTableView(Customer);
+        CreateFinanceChargeMemos.InitializeRequest(CreationDate, CreationDate);
+        CreateFinanceChargeMemos.UseRequestPage(false);
+        CreateFinanceChargeMemos.Run;
+        FinanceChargeMemoHeader.SetRange("Customer No.", Customer."No.");
+        FinanceChargeMemoHeader.FindFirst;
+        FinChrgMemoIssue.Set(FinanceChargeMemoHeader, false, WorkDate());
+        LibraryERM.RunFinChrgMemoIssue(FinChrgMemoIssue);
+        IssuedFinChargeMemoHeader.SetRange("Customer No.", Customer."No.");
+        IssuedFinChargeMemoHeader.FindFirst();
+    end;
+
+    local procedure CreateFinanceChargeTerm(var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+        LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+        FinanceChargeTerms.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeTerms.Validate("Interest Period (Days)", LibraryRandom.RandInt(10));
+        Evaluate(FinanceChargeTerms."Due Date Calculation", '<1M>');
+        FinanceChargeTerms.Modify(true);
+    end;
+
+    local procedure CreateFinanceChargeInterestRates(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; FinanceChargeTermsCode: Code[10]; StartDate: Date)
+    begin
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.Validate("Fin. Charge Terms Code", FinanceChargeTermsCode);
+        FinanceChargeInterestRate.Validate("Start Date", StartDate);
+        FinanceChargeInterestRate.Validate("Interest Rate", LibraryRandom.RandInt(10));
+        FinanceChargeInterestRate.Validate("Interest Period (Days)", LibraryRandom.RandInt(100));
+        FinanceChargeInterestRate.Insert(true);
     end;
 
     local procedure CreateCurrency(): Code[10]

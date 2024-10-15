@@ -7,7 +7,10 @@ codeunit 131106 "Library - File Mgt Handler"
     end;
 
     var
+        FileMgt: Codeunit "File Management";
+        ServerTempFileName: Text;
         BeforeDownloadHandlerActivated: Boolean;
+        SaveFileActivated: Boolean;
         DisableSending: Boolean;
 
     [Scope('OnPrem')]
@@ -16,11 +19,26 @@ codeunit 131106 "Library - File Mgt Handler"
         BeforeDownloadHandlerActivated := NewBeforeDownloadHandlerActivated;
     end;
 
+    procedure SetSaveFileActivated(NewSaveFileActivated: Boolean)
+    begin
+        SaveFileActivated := NewSaveFileActivated;
+    end;
+
+    procedure GetServerTempFileName(): Text
+    begin
+        exit(ServerTempFileName);
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
     local procedure HandleOnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
         if not BeforeDownloadHandlerActivated then
             exit;
+
+        if SaveFileActivated then begin
+            ServerTempFileName := FileMgt.ServerTempFileName(FileMgt.GetExtension(FromFileName));
+            FileMgt.CopyServerFile(FromFileName, ServerTempFileName, false);
+        end;
 
         IsHandled := true;
     end;

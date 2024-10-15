@@ -422,7 +422,7 @@ table 1381 "Customer Templ."
         }
         field(7602; "Validate EU Vat Reg. No."; Boolean)
         {
-            Caption = 'Validate EU Vat Reg. No.';
+            Caption = 'Validate EU VAT Reg. No.';
         }
         field(11310; "Enterprise No."; Text[50])
         {

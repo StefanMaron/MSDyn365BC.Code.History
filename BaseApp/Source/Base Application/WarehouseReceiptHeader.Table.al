@@ -50,6 +50,8 @@ table 7316 "Warehouse Receipt Header"
                     Validate("Cross-Dock Bin Code", Location."Cross-Dock Bin Code");
                 end;
 
+                OnValidateLocationCodeOnAfterTransferLocationFields(Rec, xRec, Location);
+
                 if UserId <> '' then begin
                     FilterGroup := 2;
                     SetRange("Location Code", "Location Code");
@@ -298,7 +300,7 @@ table 7316 "Warehouse Receipt Header"
         Validate("Cross-Dock Bin Code", Location."Cross-Dock Bin Code");
         "Posting Date" := WorkDate;
 
-        OnAfterOnInsert(Rec, xRec);
+        OnAfterOnInsert(Rec, xRec, Location);
     end;
 
     trigger OnRename()
@@ -578,7 +580,7 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterOnInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var xWarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnAfterOnInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var xWarehouseReceiptHeader: Record "Warehouse Receipt Header"; Location: Record Location)
     begin
     end;
 
@@ -604,6 +606,11 @@ table 7316 "Warehouse Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnSortWhseDocOnCaseSortingMethodElse(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WhseRcptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnAfterTransferLocationFields(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; xWarehouseReceiptHeader: Record "Warehouse Receipt Header"; Location: Record Location)
     begin
     end;
 }

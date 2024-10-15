@@ -37,6 +37,7 @@ codeunit 1385 "Vendor Templ. Mgt."
     begin
         ApplyTemplate(Vendor, VendorTempl);
         InsertDimensions(Vendor."No.", VendorTempl.Code, Database::Vendor, Database::"Vendor Templ.");
+        Vendor.Get(Vendor."No.");
     end;
 
     [Obsolete('Replaced by ApplyVendorTemplate with different set of parameters', '18.0')]

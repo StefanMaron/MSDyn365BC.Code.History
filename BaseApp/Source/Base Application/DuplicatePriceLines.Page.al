@@ -45,21 +45,21 @@ page 7003 "Duplicate Price Lines"
                 }
                 field("Source Type"; CurrPriceListLine."Source Type")
                 {
-                    Caption = 'Applies-to Type';
+                    Caption = 'Assign-to Type';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
                     Style = Strong;
-                    ToolTip = 'Specifies the type of the source the price applies to.';
+                    ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
                 }
                 field("Source No."; CurrPriceListLine."Source No.")
                 {
-                    Caption = 'Applies-to No.';
+                    Caption = 'Assign-to';
                     ApplicationArea = All;
                     Editable = false;
                     StyleExpr = Not Remove;
                     Style = Strong;
-                    ToolTip = 'Specifies the number of the source the price applies to.';
+                    ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field("Asset Type"; CurrPriceListLine."Asset Type")
                 {
@@ -232,7 +232,7 @@ page 7003 "Duplicate Price Lines"
         if CurrPriceListLine.Get(Rec."Price List Code", Rec."Price List Line No.") then;
     end;
 
-    var
+    protected var
         CurrPriceListLine: Record "Price List Line";
         DiscountVisible: Boolean;
         PriceVisible: Boolean;

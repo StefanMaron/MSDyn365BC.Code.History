@@ -7,7 +7,12 @@ codeunit 104151 "ISO Code UPG.BE"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+         
         MoveCurrencyISOCode;
         UpdateCountyName;
     end;

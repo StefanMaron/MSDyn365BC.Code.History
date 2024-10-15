@@ -1260,6 +1260,72 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
         VerifyCanceledReminderCustLedgerEntries(IssuedReminderHeader."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReminderWithCurrencyRounding()
+    var
+        Customer: Record Customer;
+        Currency: Record Currency;
+        CurrencyForReminderLevel: Record "Currency for Reminder Level";
+        ReminderLevel: Record "Reminder Level";
+        ReminderLine: Record "Reminder Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReminderNo: Code[20];
+    begin
+        // [SCENARIO 409875] Reminder with Currency creation should use Currency Rounding instead of Invoice Rounding
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "Invoice Rounding Precision (LCY)" = 10
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Inv. Rounding Precision (LCY)" := 10;
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Sales & Receivables Setup "Invoice Rounding" = true
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Invoice Rounding" := true;
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] Currency "C" with exchange rate 1:1 and Invoice/Amount Rounding Precision = 0.01
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 1, 1));
+        Currency."Invoice Rounding Precision" := 0.01;
+        Currency."Amount Rounding Precision" := 0.01;
+        Currency.Modify();
+
+        // [GIVEN] Reminder Level with Currency "C"
+        LibraryERM.CreateCurrencyForReminderLevel(CurrencyForReminderLevel, CreateOneLevelReminderTerms(), Currency.Code);
+
+        // [GIVEN] Posted Sales Invoice for Customer "Cust" and Amount = 6 (if test fails there will be rounding line with amount 4)
+        CreateCustomer(Customer, '', Currency.Code, CurrencyForReminderLevel."Reminder Terms Code");
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, 1);
+        SalesLine.Validate("Unit Price", 6);
+        SalesLine.Modify();
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        GetReminderLevel(ReminderLevel, Customer."Reminder Terms Code", 0);
+
+        // [WHEN] Reminder is created for Customer "CUST"
+        ReminderNo :=
+            CreateReminder(
+                Customer."No.",
+                LibraryRandom.RandDateFrom(CalcDate(ReminderLevel."Grace Period", SalesHeader."Due Date"), LibraryRandom.RandIntInRange(1, 10)));
+
+        // [THEN] Reminder line with "Remaining Amount" = Amount of Sales Invoice
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetRange(Type, ReminderLine.Type::"Customer Ledger Entry");
+        ReminderLine.SetRange("Remaining Amount", SalesLine."Amount Including VAT");
+        Assert.RecordIsNotEmpty(ReminderLine);
+
+        ReminderLine.Reset();
+
+        // [THEN] No Rounding Line added
+        ReminderLine.SetRange("Reminder No.", ReminderNo);
+        ReminderLine.SetRange("Line Type", ReminderLine."Line Type"::Rounding);
+        Assert.RecordIsEmpty(ReminderLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1277,7 +1343,8 @@ codeunit 134909 "ERM Reminder/Fin.Charge Memo"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         IsInitialized := true;
         Commit();
 

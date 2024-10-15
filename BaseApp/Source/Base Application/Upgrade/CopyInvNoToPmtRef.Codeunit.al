@@ -7,7 +7,12 @@ codeunit 104153 "Copy Inv. No. To Pmt. Ref"
     end;
 
     trigger OnUpgradePerCompany()
+    var
+        HybridDeployment: Codeunit "Hybrid Deployment";
     begin
+        if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
+            exit;
+            
         SetCopyInvNoToPmtRef();
     end;
 

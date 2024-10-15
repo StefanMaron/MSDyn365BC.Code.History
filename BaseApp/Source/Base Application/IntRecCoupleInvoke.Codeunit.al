@@ -114,7 +114,6 @@ codeunit 5361 "Int. Rec. Couple Invoke"
     var
         IntegrationRecordManagement: Codeunit "Integration Record Management";
         IntegrationManagement: Codeunit "Integration Management";
-        LocalRecordId: RecordId;
         IntegrationTableUidFieldRef: FieldRef;
         IntegrationTableUid: Variant;
         DestinationTableID: Integer;
@@ -126,11 +125,7 @@ codeunit 5361 "Int. Rec. Couple Invoke"
         IntegrationTableUid := IntegrationTableUidFieldRef.Value();
         DestinationTableID := IntegrationTableMapping."Table ID";
 
-        if LocalRecordRef.Number() <> 0 then
-            if not IsNullGuid(LocalRecordRef.Field(LocalRecordRef.SystemIdNo()).Value()) then
-                LocalRecordId := LocalRecordRef.RecordId();
-
-        IntegrationRecordManagement.UpdateIntegrationTableCoupling(IntegrationTableConnectionType, IntegrationTableUid, LocalRecordId);
+        IntegrationRecordManagement.UpdateIntegrationTableCoupling(IntegrationTableConnectionType, IntegrationTableUid, LocalRecordRef);
     end;
 
     local procedure LogSynchError(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; ErrorMessage: Text; JobId: Guid)

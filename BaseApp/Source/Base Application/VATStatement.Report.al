@@ -329,6 +329,7 @@
                         else
                             VATEntry.SetRange(Closed);
                     end;
+                    OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine2, VATEntry, Selection);
                     case VATStmtLine2."Amount Type" of
                         VATStmtLine2."Amount Type"::Amount:
                             begin
@@ -466,6 +467,7 @@
             SetRange("Statement Name", VATStmtLine2."Statement Name");
             SetRange("Statement Line No.", VATStmtLine2."Line No.");
             SetRange("Posting Date", GetPeriodStartDate, EndDate);
+            OnCalcManualVATCorrectionSumsOnAfterManualVATCorrectionSetFilters(VATStmtLine2, ManualVATCorrection);
             CalcSums(Amount, "Additional-Currency Amount");
         end;
     end;
@@ -478,12 +480,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcManualVATCorrectionSumsOnAfterManualVATCorrectionSetFilters(VATStmtLine: Record "VAT Statement Line"; var ManualVATCorrection: Record "Manual VAT Correction")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLineTotalOnBeforeCalcTotalAmountAccountTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnVATEntryTotalingOnAfterVATEntrySetFilters(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; Selection: Enum "VAT Statement Report Selection")
     begin
     end;
 }

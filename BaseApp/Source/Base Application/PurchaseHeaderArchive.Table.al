@@ -819,12 +819,24 @@ table 5109 "Purchase Header Archive"
     end;
 
     procedure SetSecurityFilterOnRespCenter()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserSetupMgt.GetPurchasesFilter <> '' then begin
             FilterGroup(2);
             SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchaseHeaderArchive: Record "Purchase Header Archive"; var IsHandled: Boolean)
+    begin
     end;
 }
 

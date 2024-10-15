@@ -1,4 +1,4 @@
-codeunit 2000042 "Post Coded Bank Statement"
+﻿codeunit 2000042 "Post Coded Bank Statement"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm,
@@ -80,6 +80,7 @@ codeunit 2000042 "Post Coded Bank Statement"
                 Error(Text002, "Bank Account No.");
             GenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
             GenJnlManagement.OpenJnl(BatchName, GenJnlLine);
+            OnCodeOnBeforeTransferCodBankStmtLines(CodedBankStmtLine);
             TransferCodBankStmtLines;
         end
     end;
@@ -298,6 +299,7 @@ codeunit 2000042 "Post Coded Bank Statement"
     [Scope('OnPrem')]
     procedure DefaultPosting(var CodedBankStmtLine: Record "CODA Statement Line")
     begin
+        OnBeforeDefaultPosting(CodedBankStmtLine, CodedTrans);
         if ProcessingDefaultPosting then
             Error(Text006);
         ProcessingDefaultPosting := true;
@@ -776,10 +778,26 @@ codeunit 2000042 "Post Coded Bank Statement"
                 "Unapplied Amount" := "Unapplied Amount" - Amount;
             end;
         end;
+        OnAfterInitCodBankStmtLine(CodBankStmtLine, CodedTrans, AccountType, UpdateApplicationAmounts);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCodBankStmtLine(var CodBankStmtLine: Record "CODA Statement Line"; TransactionCoding: Record "Transaction Coding"; AccountType: Integer; UpdateApplicationAmounts: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSearchVendor(var Vendor: Record Vendor; var VendorBankAccount: Record "Vendor Bank Account"; var CODAStatementLine: Record "CODA Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDefaultPosting(var CODAStatementLine: Record "CODA Statement Line"; TransactionCoding: Record "Transaction Coding")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeTransferCodBankStmtLines(var CODAStatementLine: Record "CODA Statement Line")
     begin
     end;
 
@@ -794,7 +812,7 @@ codeunit 2000042 "Post Coded Bank Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(CODAStatementLine: Record "CODA Statement Line")
+    local procedure OnTransferCodBankStmtLinesOnBeforeInitGenJnlLine(var CODAStatementLine: Record "CODA Statement Line")
     begin
     end;
 

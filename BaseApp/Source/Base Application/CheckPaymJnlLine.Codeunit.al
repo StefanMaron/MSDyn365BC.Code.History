@@ -221,7 +221,14 @@ codeunit 2000001 CheckPaymJnlLine
     end;
 
     local procedure CheckSEPAAllowed(RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSEPAAllowed(RequiredSEPAAllowed, PmtJnlLineNo, CountryRegionCode, IsHandled);
+        if IsHandled then
+            exit;
+
         GetCountry(CountryRegionCode);
         if not Country."SEPA Allowed" and RequiredSEPAAllowed then
             InsertErrorLog(StrSubstNo(Text012, Country."SEPA Allowed", CountryRegionCode, PmtJnlLineNo));
@@ -302,6 +309,11 @@ codeunit 2000001 CheckPaymJnlLine
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfCurrencyEuro(var PaymentJnlLine: Record "Payment Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSEPAAllowed(var RequiredSEPAAllowed: Boolean; PmtJnlLineNo: Integer; CountryRegionCode: Code[10]; IsHandled: Boolean)
     begin
     end;
 

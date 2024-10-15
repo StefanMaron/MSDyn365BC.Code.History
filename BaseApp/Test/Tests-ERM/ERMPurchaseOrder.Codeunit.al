@@ -5593,7 +5593,6 @@
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
     end;
 
-#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -5617,40 +5616,7 @@
         CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::Item);
 
         // [WHEN] Purchase order is being posted
-        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
         InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
-
-        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
-        VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
-    end;
-#endif
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        TempPurchaseLine: Record "Purchase Line" temporary;
-        ERMPurchaseOrder: Codeunit "ERM Purchase Order";
-        InvoiceNo: Code[20];
-    begin
-        // [FEATURE] [G/L Entry] [Description] [Event]
-        // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase can be used to copy document line Description for line type Item
-        Initialize();
-
-        // [GIVEN] Subscribe on InvoicePostBuffer.OnAfterInvPostBufferPreparePurchase
-        BINDSUBSCRIPTION(ERMPurchaseOrder);
-
-        // [GIVEN] Set PurchaseSetup."Copy Line Descr. to G/L Entry" = "No"
-        SetPurchSetupCopyLineDescrToGLEntry(FALSE);
-
-        // [GIVEN] Create purchase order with 5 "Item" type purchase lines with unique descriptions "Descr1" - "Descr5"
-        CreatePurchOrderWithUniqueDescriptionLines(PurchaseHeader, TempPurchaseLine, TempPurchaseLine.Type::Item);
-
-        // [WHEN] Purchase order is being posted
-        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (v.19)");
-        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, TRUE, TRUE);
-        SetInvoicePosting("Purchase Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempPurchaseLine, InvoiceNo);
@@ -9536,15 +9502,6 @@
           DATABASE::"G/L Account");
         MyNotifications.Enabled := true;
         MyNotifications.Modify();
-    end;
-
-    local procedure SetInvoicePosting(InvoicePosting: Enum "Purchase Invoice Posting")
-    var
-        PurchSetup: Record "Purchases & Payables Setup";
-    begin
-        PurchSetup.Get();
-        PurchSetup.Validate("Invoice Posting Setup", InvoicePosting);
-        PurchSetup.Modify();
     end;
 
     local procedure VerifyResJournalLineCopiedFromPurchaseLine(ResJournalLine: Record "Res. Journal Line"; PurchaseLine: Record "Purchase Line")

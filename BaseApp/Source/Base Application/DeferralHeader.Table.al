@@ -163,6 +163,7 @@ table 1701 "Deferral Header"
     var
         DeferralDescription: Text[100];
     begin
+        OnBeforeCalculateSchedule(Rec);
         if "Deferral Code" = '' then begin
             Message(SelectionMsg);
             exit(false);
@@ -173,6 +174,11 @@ table 1701 "Deferral Header"
             "Gen. Jnl. Batch Name", "Document Type", "Document No.", "Line No.", "Amount to Defer",
             "Calc. Method", "Start Date", "No. of Periods", false, DeferralDescription, false, "Currency Code");
         exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateSchedule(var DeferralHeader: Record "Deferral Header")
+    begin
     end;
 }
 

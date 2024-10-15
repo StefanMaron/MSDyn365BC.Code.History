@@ -247,6 +247,42 @@ page 315 "VAT Entries"
                     Navigate.Run;
                 end;
             }
+            action(SetGLAccountNo)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Set G/L Account No.';
+                Image = AdjustEntries;
+                ToolTip = 'Fill the G/L Account No. field in VAT entries that are linked to G/L entries.';
+
+                trigger OnAction()
+                var
+                    VATEntry: Record "VAT Entry";
+                    Window: Dialog;
+                    BucketIndex: Integer;
+                    SizeOfBucket: Integer;
+                    LastEntryNo: Integer;
+                    NoOfBuckets: Integer;
+                begin
+                    SizeOfBucket := 1000;
+
+                    if not VATEntry.FindLast() then
+                        exit;
+
+                    Window.Open(AdjustTitleMsg + ProgressMsg);
+
+                    LastEntryNo := VATEntry."Entry No.";
+                    NoOfBuckets := LastEntryNo DIV SizeOfBucket + 1;
+
+                    for BucketIndex := 1 to NoOfBuckets do begin
+                        VATEntry.SetRange("Entry No.", (BucketIndex - 1) * SizeOfBucket, BucketIndex * SizeOfBucket);
+                        VATEntry.SetGLAccountNo(false);
+                        Commit();
+                        Window.Update(2, Round(BucketIndex / NoOfBuckets * 10000, 1));
+                    end;
+
+                    Window.Close();
+                end;
+            }
             group(IncomingDocument)
             {
                 Caption = 'Incoming Document';
@@ -327,5 +363,7 @@ page 315 "VAT Entries"
         Navigate: Page Navigate;
         HasIncomingDocument: Boolean;
         IsUnrealizedVATEnabled: Boolean;
+        AdjustTitleMsg: Label 'Adjust G/L account number in VAT entries.\';
+        ProgressMsg: Label 'Processed: @2@@@@@@@@@@@@@@@@@\';
 }
 

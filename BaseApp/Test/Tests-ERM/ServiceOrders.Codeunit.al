@@ -1,4 +1,4 @@
-codeunit 136101 "Service Orders"
+﻿codeunit 136101 "Service Orders"
 {
     EventSubscriberInstance = Manual;
     Subtype = Test;
@@ -3781,7 +3781,6 @@ codeunit 136101 "Service Orders"
         VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
     end;
 
-#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ExtendCopyDocumentLineDescriptionToGLEntry()
@@ -3804,39 +3803,7 @@ codeunit 136101 "Service Orders"
         CreateServiceInvoiceWithUniqueDescriptionLines(ServiceHeader, TempServiceLine, TempServiceLine.Type::Item);
 
         // [WHEN] Service invoice is being posted
-        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (Default)");
         LibraryService.PostServiceOrder(ServiceHeader, TRUE, FALSE, TRUE);
-
-        // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
-        VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
-    end;
-#endif
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ExtendCopyDocumentLineDescriptionToGLEntryV19()
-    var
-        ServiceHeader: Record "Service Header";
-        TempServiceLine: Record "Service Line" temporary;
-        ServiceOrders: Codeunit "Service Orders";
-    begin
-        // [FEATURE] [G/L Entry] [Description]
-        // [SCENARIO 300843] Event InvoicePostBuffer.OnAfterInvPostBufferPrepareService can be used to copy document line Description for line type Item
-        Initialize;
-
-        // [GIVEN] Subscribe on InvoicePostingBuffer.OnAfterPrepareService
-        BINDSUBSCRIPTION(ServiceOrders);
-
-        // [GIVEN] Set ServiceSetup."Copy Line Descr. to G/L Entry" = "No"
-        SetServiceSetupCopyLineDescrToGLEntry(FALSE);
-
-        // [GIVEN] Create service invoice with 5 "Item" type lines with unique descriptions "Descr1" - "Descr5"
-        CreateServiceInvoiceWithUniqueDescriptionLines(ServiceHeader, TempServiceLine, TempServiceLine.Type::Item);
-
-        // [WHEN] Service invoice is being posted
-        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (v.19)");
-        LibraryService.PostServiceOrder(ServiceHeader, TRUE, FALSE, TRUE);
-        SetInvoicePosting("Service Invoice Posting"::"Invoice Posting (Default)");
 
         // [THEN] G/L entries created with descriptions "Descr1" - "Descr5"
         VerifyGLEntriesDescription(TempServiceLine, ServiceHeader."Customer No.");
@@ -6087,15 +6054,6 @@ codeunit 136101 "Service Orders"
     begin
         ServiceMgtSetup.Get();
         ServiceMgtSetup."Copy Line Descr. to G/L Entry" := CopyDescrToGLEntry;
-        ServiceMgtSetup.Modify();
-    end;
-
-    local procedure SetInvoicePosting(InvoicePosting: Enum "Service Invoice Posting")
-    var
-        ServiceMgtSetup: Record "Service Mgt. Setup";
-    begin
-        ServiceMgtSetup.Get();
-        ServiceMgtSetup.Validate("Invoice Posting Setup", InvoicePosting);
         ServiceMgtSetup.Modify();
     end;
 

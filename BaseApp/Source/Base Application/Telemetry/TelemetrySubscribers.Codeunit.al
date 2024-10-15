@@ -631,6 +631,15 @@ codeunit 1351 "Telemetry Subscribers"
         Session.LogMessage('0000AHW', StrSubstNo(BankAccountRecTransferToGJMsg, BankAccReconciliationLine.Count), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Telemetry Custom Dimensions", 'OnAddCommonCustomDimensions', '', true, true)]
+    local procedure OnAddCommonCustomDimensions(var Sender: Codeunit "Telemetry Custom Dimensions")
+    var
+        CompanyInformation: Record "Company Information";
+    begin
+        if CompanyInformation.Get('') then
+            Sender.AddCommonCustomDimension('CountryCode', CompanyInformation."Country/Region Code");
+    end;
+
     [EventSubscriber(ObjectType::Page, Page::"Sent Emails", 'OnOpenPageEvent', '', false, false)]
     local procedure LogUserPlansOnOpenSentEmails()
     begin
