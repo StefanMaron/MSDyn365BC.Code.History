@@ -67,6 +67,7 @@ codeunit 136101 "Service Orders"
         RoundingTo0Err: Label 'Rounding of the field';
         RoundingErr: Label 'is of lesser precision than expected';
         RoundingBalanceErr: Label 'This will cause the quantity and base quantity fields to be out of balance.';
+        InvalidDiscCodeErr: Label 'Invalid Invoice Disc. Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -4956,6 +4957,32 @@ codeunit 136101 "Service Orders"
         // [THEN] No error is thrown.
         LibraryService.ReopenServiceDocument(ServiceHeader);
 
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyInvoiceDiscCodeInCustomerTemplateWhenDelete()
+    var
+        Customer: Record Customer;
+        CustomerTemplate: Record "Customer Templ.";
+        CustomerTemplCard: TestPage "Customer Templ. Card";
+    begin
+        // [SCENARIO 449496] Invoice Disc. Code can be empty without error when trying to delete Invoice Disc. Code from Customer Template
+        Initialize();
+        
+        // [GIVEN] Create Customer Template.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
+        CustomerTemplate.Validate("Invoice Disc. Code", Customer."Invoice Disc. Code");
+        CustomerTemplate.Modify();
+
+        // [WHEN] Open customer template card and delete the Invoice Disc Code
+        CustomerTemplCard.OpenEdit();
+        CustomerTemplCard.Filter.SetFilter(Code, CustomerTemplate.Code);
+
+        // [THEN] Invoice Disc. Code can be set as empty without error
+        CustomerTemplCard."Invoice Disc. Code".SetValue('');
+        CustomerTemplCard.Close();
     end;
 
     local procedure Initialize()

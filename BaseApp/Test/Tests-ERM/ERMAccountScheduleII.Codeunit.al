@@ -30,6 +30,7 @@ codeunit 134994 "ERM Account Schedule II"
         SystemGeneratedAccSchedQst: Label 'This account schedule may be automatically updated by the system, so any changes you make may be lost. Do you want to make a copy?';
         TargetExistsErr: Label 'The new account schedule already exists.';
         TargetNameMissingErr: Label 'You must specify a name for the new account schedule.';
+        IncorrectValueInTotalingValueErr: Label 'Incorrect Value in Totaling Value';
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
         IsInitialized: Boolean;
@@ -527,6 +528,46 @@ codeunit 134994 "ERM Account Schedule II"
         LibraryReportValidation.VerifyEmptyCellByRef('A', 22, 1);
         LibraryReportValidation.VerifyEmptyCellByRef('A', 24, 1);
         LibraryReportValidation.VerifyEmptyCellByRef('A', 26, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteAccountScheduleLinesAndVerifyTotaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        AccScheduleLine2: Record "Acc. Schedule Line";
+        AccScheduleLine3: Record "Acc. Schedule Line";
+        AccScheduleLine4: Record "Acc. Schedule Line";
+        AccountSchedulePage: TestPage "Account Schedule";
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        TotalingValue: Text[250];
+    begin
+        // [SCENARIO 441229] Delete Lines from Account Schedule and ensure not modifies the value in Totalling
+        Initialize();
+
+        // [GIVEN] An account schedule with four lines
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1110');
+        CreateAccScheduleLine(AccScheduleLine2, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1120');
+        CreateAccScheduleLine(AccScheduleLine3, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1120');
+        CreateAccScheduleLine(AccScheduleLine4, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Total Accounts", '1110');
+
+        // [GIVEN] Open the Account Schedule Page
+        AccountScheduleNames.OpenEdit();
+        AccountScheduleNames.Filter.SetFilter(Name, AccScheduleName.Name);
+        AccountSchedulePage.Trap();
+        AccountScheduleNames.EditAccountSchedule.Invoke();
+        AccountSchedulePage.GoToRecord(AccScheduleLine2);
+        TotalingValue := AccountSchedulePage.Totaling.Value();
+
+        // [WHEN] Delete two Account Schedule Lines and go to existing line
+        AccScheduleLine2.Delete(true);
+        AccScheduleLine3.Delete(true);
+        AccountSchedulePage.GoToRecord(AccScheduleLine);
+
+        // [THEN] Verify Totaling Values are not equal after deletion of Account Schedule Lines
+        Assert.AreNotEqual(AccountSchedulePage.Totaling.Value, TotalingValue, IncorrectValueInTotalingValueErr);
     end;
 
     local procedure VerifyAccSchedColumnIndentationCalc(Indentation: Integer; ShowIndentation: Option; ExpectZero: Boolean)
