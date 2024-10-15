@@ -3139,9 +3139,9 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustEntriesOKPageHandler,ConfirmHandler,GeneralJournalTemplateListModalPageHandler')]
+    [HandlerFunctions('ApplyCustEntriesOKPageHandler,ConfirmHandler,GeneralJournalTemplateListModalPageHandler,PaymentDiscToleranceWarningCheckNameHandler')]
     [Scope('OnPrem')]
-    procedure CheckNoPaymentToleranceWarningAfterLookUpApplToDocNoWhenZeroAmount()
+    procedure CheckPaymentToleranceWarningAfterLookUpApplToDocNoWhenZeroAmount()
     var
         GenJournalLine: array[2] of Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
@@ -3149,7 +3149,7 @@ codeunit 134022 "ERM Payment Tolerance"
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
         // [FEATURE] [Sales] [UI]
-        // [SCENARIO 269739] Payment Discount Tolerance Warning is not shown when Stan looks up "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
+        // [SCENARIO 400306] Payment Discount Tolerance Warning is shown when Stan looks up "Applies-to Doc. No." for Customer when Amount of Gen. Journal Line is 0.
         Initialize;
 
         // [GIVEN] Customer "C1" with Payment Tolerance Discount setup
@@ -3175,12 +3175,13 @@ codeunit 134022 "ERM Payment Tolerance"
         // [GIVEN] Cash Receipt Page was open for Payment Gen. Journal Line
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.GotoRecord(GenJournalLine[2]);
+        LibraryVariableStorage.Enqueue(GenJournalLine[2].Description);
 
         // [WHEN] Applies-to Doc. No. Lookup is used, selecting Invoice "SI1"
         CashReceiptJournal."Applies-to Doc. No.".Lookup;
-        // UI Handled by ApplyCustEntriesOKPageHandler
+        // UI Handled by ApplyCustEntriesOKPageHandler and PaymentDiscToleranceWarningCheckNameHandler
 
-        // [THEN] Payment Discount Tolerance Warning is not shown, Amount updates to -"A1".
+        // [THEN] Payment Discount Tolerance Warning is shown, Amount updates to -"A1".
         CashReceiptJournal.Amount.AssertEquals(-GenJournalLine[1].Amount);
 
         CashReceiptJournal.OK.Invoke;
@@ -3403,6 +3404,143 @@ codeunit 134022 "ERM Payment Tolerance"
           StrSubstNo(DetailedVendorLedgerEntryMustNotExistErr, Format(DetailedVendorLedgEntry."Entry Type"::"Payment Discount")));
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyReconciliationWithCurrencyAndPaymentToleranceSales()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        Currency: Record Currency;
+        BankAccount: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        PaymentApplicationProposal: Record "Payment Application Proposal";
+        Item: Record Item;
+        PostedSalesDocNo: Code[20];
+    begin
+        // [SCENARIO 401363] Posting Reconciliation with Currency and payment tolerance should not leave opened applied Document
+        Initialize;
+
+        // [GIVEN] Currency "C" with Payment Tolerance % = 1 and Max. Payment Tolerance Amount = 1
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+        Currency.Validate("Payment Tolerance %", 1);
+        Currency.Validate("Max. Payment Tolerance Amount", 1);
+        Currency.Modify();
+
+        // [GIVEN] Customer "CUST" with Currency Code = "C"
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify();
+
+        // [GIVEN] Posted Sales Invoice for Customer "CUST" and Unit Price = 50
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", 50);
+        SalesLine.Modify(true);
+        PostedSalesDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Customer Ledger Entry "CLE" with Remaining Amount = 60.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedSalesDocNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+
+        // [GIVEN] Bank Account with Currency Code = "C"
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", Currency.Code);
+        BankAccount.Modify();
+
+        // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = Customer Ledger Entry "CLE" - 0.01 (59.99)
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, Workdate, CustLedgerEntry."Remaining Amount" - 0.01);
+        LibraryVariableStorage.Enqueue(FORMAT(PaymentApplicationProposal."Account Type"::Customer));
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        LibraryVariableStorage.Enqueue(CustLedgerEntry."Document No.");
+
+        // [GIVEN] Bank Account Reconciliation matched with Customer Ledger Entry
+        MatchBankReconLineManually(BankAccReconLine);
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
+
+        // [WHEN] Bank Account Reconciliation is posted
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Customer Ledger Entry "CLE" has Open = false and Remaining Amount = 0.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, PostedSalesDocNo);
+        CustLedgerEntry.CalcFields("Remaining Amount");
+        CustLedgerEntry.TestField(Open, false);
+        CustLedgerEntry.TestField("Remaining Amount", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('PaymentApplicationModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyReconciliationWithCurrencyAndPaymentTolerancePurch()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        BankAccount: Record "Bank Account";
+        BankAccRecon: Record "Bank Acc. Reconciliation";
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        PaymentApplicationProposal: Record "Payment Application Proposal";
+        Item: Record Item;
+        PostedPurchDocNo: Code[20];
+    begin
+        // [SCENARIO 401363] Posting Reconciliation with Currency and payment tolerance should not leave opened applied Document
+        Initialize;
+
+        // [GIVEN] Currency "C" with Payment Tolerance % = 1 and Max. Payment Tolerance Amount = 1
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+        Currency.Validate("Payment Tolerance %", 1);
+        Currency.Validate("Max. Payment Tolerance Amount", 1);
+        Currency.Modify();
+
+        // [GIVEN] Vendor "Vend" with Currency Code = "C"
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify();
+
+        // [GIVEN] Posted Purchase Invoice for Vednor "VEND" and Direct Unit Cost = 50
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", 50);
+        PurchaseLine.Modify(true);
+        PostedPurchDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Vendor Ledger Entry "VLE" with Remaining Amount = 60.
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, PostedPurchDocNo);
+        VendLedgerEntry.CalcFields("Remaining Amount");
+
+        // [GIVEN] Bank Account with Currency Code = "C"
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Currency Code", Currency.Code);
+        BankAccount.Modify();
+
+        // [GIVEN] Bank Account Reconciliation Line with "Statement Amount" = Vendor Ledger Entry "VLE" - 0.01 (59.99)
+        CreateBankPmtReconcWithLine(BankAccount, BankAccRecon, BankAccReconLine, Workdate, VendLedgerEntry."Remaining Amount" - 0.01);
+        LibraryVariableStorage.Enqueue(FORMAT(PaymentApplicationProposal."Account Type"::Vendor));
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        LibraryVariableStorage.Enqueue(VendLedgerEntry."Document No.");
+
+        // [GIVEN] Bank Account Reconciliation matched with Vendpr Ledger Entry
+        MatchBankReconLineManually(BankAccReconLine);
+        UpdateBankAccRecStmEndingBalance(BankAccRecon, BankAccRecon."Balance Last Statement" + BankAccReconLine."Statement Amount");
+
+        // [WHEN] Bank Account Reconciliation is posted
+        LibraryERM.PostBankAccReconciliation(BankAccRecon);
+
+        // [THEN] Vendor Ledger Entry "VLE" has Open = false and Remaining Amount = 0.
+        LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, PostedPurchDocNo);
+        VendLedgerEntry.CalcFields("Remaining Amount");
+        VendLedgerEntry.TestField(Open, false);
+        VendLedgerEntry.TestField("Remaining Amount", 0);
     end;
 
     local procedure Initialize()
@@ -4763,6 +4901,37 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    local procedure CreateBankPmtReconcWithLine(BankAcc: Record "Bank Account"; var BankAccRecon: Record "Bank Acc. Reconciliation"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; TransactionDate: Date; StmtLineAmt: Decimal)
+    begin
+        Clear(BankAccRecon);
+        Clear(BankAccReconLine);
+
+        // Create Bank Rec Header
+        LibraryERM.CreateBankAccReconciliation(
+          BankAccRecon, BankAcc."No.", BankAccRecon."Statement Type"::"Payment Application");
+        LibraryERM.CreateBankAccReconciliationLn(BankAccReconLine, BankAccRecon);
+
+        // Create Bank Rec Line
+        BankAccReconLine.Validate("Transaction Date", TransactionDate);
+        BankAccReconLine.Validate("Statement Amount", StmtLineAmt);
+        BankAccReconLine.Modify(true);
+    end;
+
+    local procedure MatchBankReconLineManually(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    var
+        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
+    begin
+        PaymentReconciliationJournal.OpenEdit;
+        PaymentReconciliationJournal.GotoRecord(BankAccReconciliationLine);
+        PaymentReconciliationJournal.ApplyEntries.Invoke;
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
@@ -5019,6 +5188,20 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure ApplyCustEntriesOKPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PaymentApplicationModalPageHandler(var PaymentApplication: TestPage "Payment Application")
+    var
+        PaymentApplicationProposal: Record "Payment Application Proposal";
+    begin
+        PaymentApplication.FILTER.SetFilter("Account Type", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Account No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.FILTER.SetFilter("Document Type", Format(PaymentApplicationProposal."Document Type"::Invoice));
+        PaymentApplication.FILTER.SetFilter("Document No.", LibraryVariableStorage.DequeueText);
+        PaymentApplication.Applied.SetValue(true);
+        PaymentApplication.OK.Invoke;
     end;
 }
 

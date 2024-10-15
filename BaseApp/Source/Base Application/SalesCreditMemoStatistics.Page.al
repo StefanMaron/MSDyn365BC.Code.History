@@ -331,7 +331,7 @@ page 398 "Sales Credit Memo Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     SalesCrMemoLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
-                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until SalesCrMemoLine.Next() = 0;
     end;
 
@@ -346,7 +346,7 @@ page 398 "Sales Credit Memo Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 }

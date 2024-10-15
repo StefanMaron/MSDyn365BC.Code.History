@@ -370,6 +370,7 @@ codeunit 99000773 "Calculate Prod. Order"
                     ProdOrderRoutingLine."Ending Time" := 235959T;
                     ProdOrderRoutingLine."Ending Date" := CalendarMgt.GetMaxDate;
                 end;
+            Clear(CalculateRoutingLine);
             CalculateRoutingLine.CalculateRoutingLine(ProdOrderRoutingLine, Direction, CalcStartEndDate);
             CalcStartEndDate := true;
         until ProdOrderRoutingLine.Next() = 0;

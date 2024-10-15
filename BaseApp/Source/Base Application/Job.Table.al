@@ -123,7 +123,8 @@
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -134,7 +135,8 @@
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -819,6 +821,8 @@
 
         if ("Project Manager" <> '') and (Status = Status::Open) then
             AddToMyJobs("Project Manager");
+
+        OnAfterOnInsert(Rec, xRec);
     end;
 
     trigger OnModify()
@@ -1162,7 +1166,7 @@
             Validate("Bill-to Contact No.", '');
         end;
 
-        OnAfterUpdateBillToCust(Rec);
+        OnAfterUpdateBillToCust(Rec, Cust);
     end;
 
     procedure InitWIPFields()
@@ -1718,12 +1722,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateBillToCust(var Job: Record Job)
+    local procedure OnAfterUpdateBillToCust(var Job: Record Job; Customer: Record Customer)
     begin
     end;
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterCalcRecognizedProfitAmount(var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var Job: Record Job; var xJob: Record Job)
     begin
     end;
 

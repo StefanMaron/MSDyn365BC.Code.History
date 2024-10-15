@@ -28,6 +28,7 @@ codeunit 141021 "ERM Electronic - Banking"
         LibraryJournals: Codeunit "Library - Journals";
         ERMElectronicBanking: Codeunit "ERM Electronic - Banking";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         IsInitialized: Boolean;
         NothingToExportErr: Label 'There is nothing to export.';
         CancelExportRequiredErr: Label 'You cannot delete line number %3 in journal template name %1, journal batch name %2 because it has been exported. You must cancel the export first.', Comment = '%1 - journal template name, %2 - journal batch name, %3 - line number';
@@ -1391,6 +1392,268 @@ codeunit 141021 "ERM Electronic - Banking"
         Assert.RecordIsEmpty(GLEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CreateEFTFileRequestPageHandler')]
+    procedure CreateEFTPaymentFileWithRoundedWHTAmount()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VendorNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+        FilePath: Text;
+        TextLine: Text;
+    begin
+        // [FEATURE] [EFT Payment File] [Export]
+        // [SCENARO 405906] Create EFT payment file for vendor in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        // [GIVEN] GLSetup."Round Payment Amount for Withholding Tax" = TRUE
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        // [GIVEN] Posted purchase invoice with total amount 100 and WHT amount 10.12
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        // [GIVEN] Suggest payment for posted invoice
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        SuggestVendorPayments(GenJournalLine, GenJournalBatch, VendorNo, true);
+
+        // [WHEN] Create EFT payment file
+        FilePath := EFTPaymentCreateFile(GenJournalLine);
+
+        // [THEN] EFT file payment line has amount to pay 90 and WHT amount 10
+        TextLine := LibraryTextFileValidation.ReadLine(FilePath, 2);
+        VerifyPaymentFileLineAmountAndWHTAmount(TextLine, InvoiceAmount, RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteRPH')]
+    procedure WHTCertificate_RoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate]
+        // [SCENARO 405906] Report "WHT Certificate" in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteRPH')]
+    procedure WHTCertificate_NotRoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate]
+        // [SCENARO 405906] Report "WHT Certificate" in case of "Round Payment Amount for Withholding Tax" = FALSE
+        Initialize();
+
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', WHTAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteOtherRPH')]
+    procedure WHTCertificateOther_RoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate - Other]
+        // [SCENARO 405906] Report "WHT Certificate - Other" in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate - Other", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteOtherRPH')]
+    procedure WHTCertificateOther_NotRoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate - Other]
+        // [SCENARO 405906] Report "WHT Certificate - Other" in case of "Round Payment Amount for Withholding Tax" = FALSE
+        Initialize();
+
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate - Other", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', WHTAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteOtherCopyRPH')]
+    procedure WHTCertificateOtherCopy_RoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate - Other Copy]
+        // [SCENARO 405906] Report "WHT Certificate - Other Copy" in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate - Other Copy", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertitifacteOtherCopyRPH')]
+    procedure WHTCertificateOtherCopy_NotRoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate - Other Copy]
+        // [SCENARO 405906] Report "WHT Certificate - Other Copy" in case of "Round Payment Amount for Withholding Tax" = FALSE
+        Initialize();
+
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate - Other Copy", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', WHTAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertificateTHCopyRPH')]
+    procedure WHTCertificateTHCopy_RoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate TH - Copy]
+        // [SCENARO 405906] Report "WHT Certificate TH - Copy" in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate TH - Copy", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,WHTCertificateTHCopyRPH')]
+    procedure WHTCertificateTHCopy_NotRoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [WHT Certificate TH - Copy]
+        // [SCENARO 405906] Report "WHT Certificate TH - Copy" in case of "Round Payment Amount for Withholding Tax" = FALSE
+        Initialize();
+
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunWHTCertificateReport(Report::"WHT Certificate TH - Copy", VendorNo, PaymentNo);
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('WHTAmountLCY', WHTAmount);
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CalcAndPostWHTSettlementRPH')]
+    procedure CalcAndPostWHTSettlement_RoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [Calc. and Post WHT Settlement]
+        // [SCENARO 405906] Report "Calc. and Post WHT Settlement" in case of "Round Payment Amount for Withholding Tax" = TRUE
+        Initialize();
+
+        UpdateGLSetupRoundAmtForWHTCalc(true);
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunCalcAndPostWHTSettlementReport();
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('DisplayEntries__Amount__LCY___Control1500034', RoundWHTAmount(WHTAmount));
+        LibraryReportDataset.AssertValueInElement('DisplayEntries__Amount__LCY__', RoundWHTAmount(WHTAmount));
+        LibraryReportDataset.AssertValueInElement('DisplayEntries_Amount', RoundWHTAmount(WHTAmount));
+    end;
+
+    [Test]
+    [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,CalcAndPostWHTSettlementRPH')]
+    procedure CalcAndPostWHTSettlement_NotRoundedWHT()
+    var
+        VendorNo: Code[20];
+        PaymentNo: Code[20];
+        InvoiceAmount: Decimal;
+        WHTAmount: Decimal;
+    begin
+        // [FEATURE] [Report] [Calc. and Post WHT Settlement]
+        // [SCENARO 405906] Report "Calc. and Post WHT Settlement" in case of "Round Payment Amount for Withholding Tax" = FALSE
+        Initialize();
+
+        CreatePostPurchaseOrderWithDecimalWHTAmount(VendorNo, InvoiceAmount, WHTAmount);
+        PaymentNo := CreateSuggestAndPostVendorPayment(VendorNo);
+
+        RunCalcAndPostWHTSettlementReport();
+
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertValueInElement('DisplayEntries__Amount__LCY___Control1500034', WHTAmount);
+        LibraryReportDataset.AssertValueInElement('DisplayEntries__Amount__LCY__', WHTAmount);
+        LibraryReportDataset.AssertValueInElement('DisplayEntries_Amount', WHTAmount);
+    end;
+
     local procedure Initialize()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1440,6 +1703,28 @@ codeunit 141021 "ERM Electronic - Banking"
         // Convert Decimal value into text and remove special char.
         TotalRemWHTPrepaidAmountTxt := Format(Round(TotalRemWHTPrepaidAmount) * 100);
         exit(DelChr(TotalRemWHTPrepaidAmountTxt, '=', DelChr(TotalRemWHTPrepaidAmountTxt, '=', '0123456789')));
+    end;
+
+    local procedure CreatePostPurchaseOrderWithDecimalWHTAmount(var VendorNo: Code[20]; var InvoiceAmount: Decimal; var WHTAmount: Decimal)
+    var
+        Vendor: Record Vendor;
+        InvoiceNo: Code[20];
+    begin
+        InvoiceNo := CreateAndPostPurchaseOrderForNewVendor(Vendor);
+        VendorNo := Vendor."No.";
+        CalculateInvoiceAndWHTAmount(VendorNo, InvoiceNo, InvoiceAmount, WHTAmount);
+        Assert.AreNotEqual(0, WHTAmount mod 1, ''); // ensure decimals
+    end;
+
+    local procedure CreateSuggestAndPostVendorPayment(VendorNo: Code[20]): Code[20]
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJournalBatchWithBankAccount(GenJournalBatch);
+        SuggestVendorPayments(GenJournalLine, GenJournalBatch, VendorNo, true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreateAndPostPurchaseOrder(VendorNo: Code[20]; Type: Enum "Purchase Line Type"; No: Code[20]; PricesIncludingVAT: Boolean): Code[20]
@@ -1497,7 +1782,7 @@ codeunit 141021 "ERM Electronic - Banking"
         end;
     end;
 
-    local procedure CreateAndPostPurchaseOrderForNewVendor(var Vendor: Record Vendor)
+    local procedure CreateAndPostPurchaseOrderForNewVendor(var Vendor: Record Vendor): Code[20]
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchaseLine: Record "Purchase Line";
@@ -1506,7 +1791,7 @@ codeunit 141021 "ERM Electronic - Banking"
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+        exit(CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true));
     end;
 
     local procedure CreateBalancingJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentNo: Code[20]; Amount: Decimal)
@@ -1750,10 +2035,16 @@ codeunit 141021 "ERM Electronic - Banking"
     end;
 
     local procedure FindWHTPostingSetup(var WHTPostingSetup: Record "WHT Posting Setup")
+    var
+        WHTRevenueTypes: Record "WHT Revenue Types";
     begin
         // Enable test cases in NZ, create WHT Posting Setup.
-        if not WHTPostingSetup.Get('', '') then
+        if not WHTPostingSetup.Get('', '') then begin
             CreateWHTPostingSetup(WHTPostingSetup, '', '', LibraryRandom.RandDecInRange(50, 80, 2));  // WHT Product Posting Group, WHT Business Posting Group - blank,WHT Minimum Invoice Amount.
+            LibraryAPACLocalization.CreateWHTRevenueTypes(WHTRevenueTypes);
+            WHTPostingSetup.Validate("Revenue Type", WHTRevenueTypes.Code);
+            WHTPostingSetup.Modify(true);
+        end;
     end;
 
     local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -1780,6 +2071,9 @@ codeunit 141021 "ERM Electronic - Banking"
     local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean)
     begin
         SuggestVendorPayments(GenJnlLine, GenJnlBatch, VendorNoFilter, SummarizePerVendor, false);
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        GenJnlLine.FindFirst();
     end;
 
     local procedure SuggestVendorPayments(var GenJnlLine: Record "Gen. Journal Line"; GenJnlBatch: Record "Gen. Journal Batch"; VendorNoFilter: Text; SummarizePerVendor: Boolean; EFTPayment: Boolean)
@@ -1805,6 +2099,15 @@ codeunit 141021 "ERM Electronic - Banking"
         exit(UpdateGSTProdPostingGroupOnPurchasesSetup(CreateVATPostingSetupWithZeroVATPct(VATPostingSetup."VAT Bus. Posting Group")));
     end;
 
+    local procedure UpdateGLSetupRoundAmtForWHTCalc(NewValue: Boolean)
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Round Amount for WHT Calc", NewValue);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     local procedure UpdateGSTProdPostingGroupOnPurchasesSetup(GSTProdPostingGroup: Code[20]) OldGSTProdPostingGroup: Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -1812,6 +2115,7 @@ codeunit 141021 "ERM Electronic - Banking"
         PurchasesPayablesSetup.Get();
         OldGSTProdPostingGroup := PurchasesPayablesSetup."GST Prod. Posting Group";
         PurchasesPayablesSetup.Validate("GST Prod. Posting Group", GSTProdPostingGroup);
+        PurchasesPayablesSetup.Validate("WHT Certificate No. Series", LibraryERM.CreateNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -1857,6 +2161,28 @@ codeunit 141021 "ERM Electronic - Banking"
     begin
         GenJournalLine.Validate("Skip WHT", SkipWHT);
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure RunWHTCertificateReport(ReportId: Integer; VendorNo: Code[20]; PaymentNo: Code[20])
+    var
+        WHTEntry: Record "WHT Entry";
+    begin
+        WHTEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        WHTEntry.SetRange("Original Document No.", PaymentNo);
+        Report.Run(ReportId, true, false, WHTEntry);
+    end;
+
+    local procedure RunCalcAndPostWHTSettlementReport()
+    begin
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNo());
+        Commit();
+        Report.Run(Report::"Calc. and Post WHT Settlement", true, false);
+    end;
+
+    local procedure RoundWHTAmount(Amount: Decimal): Decimal
+    begin
+        exit(Round(Amount, 1, '<'));
     end;
 
     local procedure VerifyRemWHTPrepaidAmountOnPurchInvHeader(DocumentNo: Code[20]; WHTProductPostingGroupCode: Code[20])
@@ -2010,6 +2336,42 @@ codeunit 141021 "ERM Electronic - Banking"
     procedure ConfirmHandlerYes(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [RequestPageHandler]
+    procedure WHTCertitifacteRPH(var WHTCertificate: TestRequestPage "WHT Certificate")
+    begin
+        WHTCertificate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure WHTCertitifacteOtherRPH(var WHTCertitifacteOther: TestRequestPage "WHT Certificate - Other")
+    begin
+        WHTCertitifacteOther.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure WHTCertitifacteOtherCopyRPH(var WHTCertitifacteOtherCopy: TestRequestPage "WHT Certificate - Other Copy")
+    begin
+        WHTCertitifacteOtherCopy.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure WHTCertificateTHCopyRPH(var WHTCertificateTHCopy: TestRequestPage "WHT Certificate TH - Copy")
+    begin
+        WHTCertificateTHCopy.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure CalcAndPostWHTSettlementRPH(var CalcAndPostWHTSettlement: TestRequestPage "Calc. and Post WHT Settlement")
+    begin
+        CalcAndPostWHTSettlement.StartingDate.SetValue(CalcDate('<-10D>', WorkDate()));
+        CalcAndPostWHTSettlement.EndingDate.SetValue(WorkDate());
+        CalcAndPostWHTSettlement.PostingDate.SetValue(WorkDate());
+        CalcAndPostWHTSettlement.SettlementAccount.SetValue(LibraryVariableStorage.DequeueText());
+        CalcAndPostWHTSettlement.RoundAccNo.SetValue(LibraryVariableStorage.DequeueText());
+        CalcAndPostWHTSettlement.Post.SetValue(false);
+        CalcAndPostWHTSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"EFT Management", 'OnBeforeDownloadFile', '', false, false)]

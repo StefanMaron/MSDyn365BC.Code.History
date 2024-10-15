@@ -359,7 +359,7 @@ page 7024 "Prices Overview"
                     Editable = PriceLineEditable and PriceEditable;
                     Style = Attention;
                     StyleExpr = LineToVerify and SalesPriceLine and PriceEditable;
-                    ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Direct Unit Cost"; Rec."Direct Unit Cost")
                 {

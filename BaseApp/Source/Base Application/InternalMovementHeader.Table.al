@@ -86,6 +86,17 @@ table 7346 "Internal Movement Header"
             Caption = 'To Bin Code';
             TableRelation = Bin.Code WHERE("Location Code" = FIELD("Location Code"));
 
+            trigger OnLookup()
+            var
+                Bin: Record Bin;
+            begin
+                Bin.FilterGroup(2);
+                Bin.SetRange("Location Code", "Location Code");
+                Bin.FilterGroup(0);
+                if PAGE.RunModal(0, Bin) = ACTION::LookupOK then
+                    Validate("To Bin Code", Bin.Code);
+            end;
+
             trigger OnValidate()
             var
                 BinType: Record "Bin Type";
@@ -95,12 +106,7 @@ table 7346 "Internal Movement Header"
                     if "To Bin Code" <> '' then begin
                         GetLocation("Location Code");
                         Location.TestField("Bin Mandatory");
-                        if "To Bin Code" = Location."Adjustment Bin Code" then
-                            FieldError(
-                              "To Bin Code",
-                              StrSubstNo(
-                                Text001, Location.FieldCaption("Adjustment Bin Code"),
-                                Location.TableCaption));
+                        InternalMovementLine.CheckBin("Location Code", "To Bin Code", true);
 
                         Bin.Get("Location Code", "To Bin Code");
                         if Bin."Bin Type Code" <> '' then
@@ -168,7 +174,6 @@ table 7346 "Internal Movement Header"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WmsManagement: Codeunit "WMS Management";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        Text001: Label 'must not be the %1 of the %2';
         Text002: Label 'You cannot rename a %1.';
         Text003: Label 'You cannot use Location Code %1.';
         Text004: Label 'You have changed the %1 on the %2, but it has not been changed on the existing internal movement lines.\You must update the existing internal movement lines manually.';

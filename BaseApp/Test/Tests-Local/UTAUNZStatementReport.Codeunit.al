@@ -208,6 +208,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         REPORT.Run(REPORT::"AU/NZ Statement");  // Opens handler - PrintLCYFalseAUNZStatementRequestPageHandler or PrintLCYtrueAUNZStatementRequestPageHandler.
 
         // [THEN] Verify Customer Ledger - Entry Number, Customer Number, Remaining Amount and Remaining Amount LCY on generated XML of Report - AU/NZ Statement.
+        // [THEN] 'StatementBalance' is printed for both options PrintLCY = false and true (TFS 404013)
         VerifyCustLedgerEntryRemainingAmtOnReportAUNZStatement(CustLedgerEntry, PrintLCY);
     end;
 
@@ -522,6 +523,9 @@ codeunit 141041 "UT AUNZ Statement Report"
           OpenDebitBalanceCap, FindCustomerLedgerEntryAmount(CustLedgerEntry."Remaining Amount", PrintLCY));
         LibraryReportDataset.AssertElementWithValueExists(
           OpenDebitBalanceLCYCap, FindCustomerLedgerEntryAmountLCY(CustLedgerEntry."Remaining Amt. (LCY)", PrintLCY));
+        LibraryReportDataset.AssertElementWithValueExists(
+            'StatementBalance', FindCustomerLedgerEntryAmountLCY(CustLedgerEntry."Remaining Amt. (LCY)", PrintLCY));
+
     end;
 
     local procedure VerifyDetailCustLedgerEntryAmountOnReportAUNZStatement(CustomerNo: Code[20]; PrintLCY: Boolean; CustLedgEntryAmountCap: Text[100])

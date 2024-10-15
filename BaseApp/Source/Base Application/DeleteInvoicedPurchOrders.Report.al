@@ -62,7 +62,9 @@ report 499 "Delete Invoiced Purch. Orders"
                 if PurchLine.FindSet() then
                     repeat
                         PurchLine.CalcFields("Qty. Assigned");
-                        if PurchLine."Qty. Assigned" <> PurchLine."Quantity Invoiced" then
+                        if (PurchLine."Qty. Assigned" <> PurchLine."Quantity Invoiced") and
+                           not IsPostedUnassignedItemChargeWithZeroAmount(PurchLine)
+                        then
                             ItemChargeComplete := false;
                     until (PurchLine.Next() = 0) or not ItemChargeComplete;
 
@@ -158,6 +160,19 @@ report 499 "Delete Invoiced Purch. Orders"
         WhseRequest: Record "Warehouse Request";
         ArchiveManagement: Codeunit ArchiveManagement;
         Window: Dialog;
+
+    local procedure IsPostedUnassignedItemChargeWithZeroAmount(PurchaseLine: Record "Purchase Line"): Boolean
+    begin
+        PurchaseLine.CalcFields("Qty. Assigned");
+        if (PurchaseLine.Type = PurchaseLine.Type::"Charge (Item)") and
+           (PurchaseLine.Quantity = PurchaseLine."Quantity Invoiced") and
+           (PurchaseLine."Qty. Assigned" = 0) and
+           (PurchaseLine.Amount = 0)
+        then
+            exit(true);
+
+        exit(false);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetPurchLineFilters(var PurchaseLine: Record "Purchase Line")

@@ -342,7 +342,7 @@ page 397 "Sales Invoice Statistics"
 
                 OnCalculateTotalsOnAfterAddLineTotals(
                     SalesInvLine, CustAmount, AmountInclVAT, InvDiscAmount, CostLCY, TotalAdjCostLCY,
-                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels)
+                    LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, Rec)
             until SalesInvLine.Next() = 0;
     end;
 
@@ -357,7 +357,7 @@ page 397 "Sales Invoice Statistics"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesInvLine: Record "Sales Invoice Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal)
+    local procedure OnCalculateTotalsOnAfterAddLineTotals(var SalesInvLine: Record "Sales Invoice Line"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

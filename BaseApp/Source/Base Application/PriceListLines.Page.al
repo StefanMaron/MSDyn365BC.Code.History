@@ -192,7 +192,7 @@ page 7001 "Price List Lines"
                     Visible = PriceVisible;
                     Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
-                    ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
+                    ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
                 field("Unit Cost"; Rec."Unit Cost")
                 {
@@ -240,6 +240,18 @@ page 7001 "Price List Lines"
                     Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
+                }
+                field(PriceIncludesVAT; Rec."Price Includes VAT")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the if prices include VAT.';
+                }
+                field(VATBusPostingGrPrice; Rec."VAT Bus. Posting Gr. (Price)")
+                {
+                    ApplicationArea = All;
+                    Visible = AllowUpdatingDefaults;
+                    ToolTip = 'Specifies the default VAT business posting group code.';
                 }
             }
         }

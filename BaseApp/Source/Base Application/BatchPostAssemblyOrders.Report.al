@@ -63,8 +63,11 @@ report 900 "Batch Post Assembly Orders"
         }
 
         trigger OnOpenPage()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
-            ReplacePostingDate := false;
+            if ClientTypeManagement.GetCurrentClientType() <> ClientType::Background then
+                ReplacePostingDate := false;
         end;
     }
 
