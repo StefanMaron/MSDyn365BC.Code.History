@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 5601 "FA Ledger Entry"
 {
     Caption = 'FA Ledger Entry';
@@ -503,7 +502,6 @@ table 5601 "FA Ledger Entry"
         FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
         GenJnlLine."FA Posting Type" := "Gen. Journal Line FA Posting Type".FromInteger(ConvertPostingType() + 1);
         GenJnlLine."Posting Date" := "Posting Date";
-        GenJnlLine."VAT Date" := "Posting Date"; // NAVCZ
         GenJnlLine."FA Posting Date" := "FA Posting Date";
         if GenJnlLine."Posting Date" = GenJnlLine."FA Posting Date" then
             GenJnlLine."FA Posting Date" := 0D;
@@ -606,4 +604,4 @@ table 5601 "FA Ledger Entry"
     begin
     end;
 }
-#endif
+

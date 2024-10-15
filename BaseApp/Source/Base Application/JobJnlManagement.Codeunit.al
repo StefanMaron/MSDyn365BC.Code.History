@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 1020 JobJnlManagement
 {
     Permissions = TableData "Job Journal Template" = imd,
@@ -46,7 +46,7 @@ codeunit 1020 JobJnlManagement
                     Commit();
                 end;
             1:
-                JobJnlTemplate.FindFirst;
+                JobJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, JobJnlTemplate) = ACTION::LookupOK;
         end;
@@ -113,14 +113,14 @@ codeunit 1020 JobJnlManagement
         JobJnlBatch.FilterGroup(0);
 
         if not JobJnlBatch.Find('-') then begin
-            if not JobJnlTemplate.FindFirst then
+            if not JobJnlTemplate.FindFirst() then
                 TemplateSelection(0, false, JobJnlLine, JnlSelected);
-            if JobJnlTemplate.FindFirst then
+            if JobJnlTemplate.FindFirst() then
                 CheckTemplateName(JobJnlTemplate.Name, JobJnlBatch.Name);
             JobJnlTemplate.SetRange(Recurring, true);
-            if not JobJnlTemplate.FindFirst then
+            if not JobJnlTemplate.FindFirst() then
                 TemplateSelection(0, true, JobJnlLine, JnlSelected);
-            if JobJnlTemplate.FindFirst then
+            if JobJnlTemplate.FindFirst() then
                 CheckTemplateName(JobJnlTemplate.Name, JobJnlBatch.Name);
             JobJnlTemplate.SetRange(Recurring);
         end;
@@ -132,7 +132,7 @@ codeunit 1020 JobJnlManagement
             JobJnlTemplate.SetRange(Name, JobJnlBatch.GetFilter("Journal Template Name"));
         case JobJnlTemplate.Count of
             1:
-                JobJnlTemplate.FindFirst;
+                JobJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, JobJnlTemplate) = ACTION::LookupOK;
         end;
@@ -150,7 +150,7 @@ codeunit 1020 JobJnlManagement
     begin
         JobJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not JobJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not JobJnlBatch.FindFirst then begin
+            if not JobJnlBatch.FindFirst() then begin
                 JobJnlBatch.Init();
                 JobJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 JobJnlBatch.SetupNewBatch;

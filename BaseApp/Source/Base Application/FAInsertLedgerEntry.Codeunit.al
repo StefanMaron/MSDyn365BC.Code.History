@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
@@ -29,7 +29,9 @@ codeunit 5600 "FA Insert Ledger Entry"
         TmpMaintenanceLedgEntry: Record "Maintenance Ledger Entry" temporary;
         FAReg: Record "FA Register";
         FAJnlLine: Record "FA Journal Line";
+#if not CLEAN20
         TempFALedgerEntryReverse: Record "FA Ledger Entry" temporary;
+#endif
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
         FAAutomaticEntry: Codeunit "FA Automatic Entry";
         DeprBookCode: Code[10];
@@ -55,7 +57,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             FALedgEntry.LockTable();
             NextEntryNo := FALedgEntry.GetLastEntryNo();
             InitRegister(
-              0, FALedgEntry3."G/L Entry No.", FALedgEntry3."Source Code",
+              "FA Register Called From"::"Fixed Asset", FALedgEntry3."G/L Entry No.", FALedgEntry3."Source Code",
               FALedgEntry3."Journal Batch Name");
         end;
         NextEntryNo := NextEntryNo + 1;
@@ -129,7 +131,7 @@ codeunit 5600 "FA Insert Ledger Entry"
 
         OnBeforeInsertRegister(FALedgEntry, FALedgEntry2, NextEntryNo);
 
-        InsertRegister(0, NextEntryNo);
+        InsertRegister("FA Register Called From"::"Fixed Asset", NextEntryNo);
     end;
 
     procedure InsertMaintenance(var MaintenanceLedgEntry2: Record "Maintenance Ledger Entry")
@@ -138,13 +140,13 @@ codeunit 5600 "FA Insert Ledger Entry"
             MaintenanceLedgEntry.LockTable();
             NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
             InitRegister(
-              1, MaintenanceLedgEntry2."G/L Entry No.", MaintenanceLedgEntry2."Source Code",
+              "FA Register Called From"::Maintenance, MaintenanceLedgEntry2."G/L Entry No.", MaintenanceLedgEntry2."Source Code",
               MaintenanceLedgEntry2."Journal Batch Name");
         end;
 
         // NAVCZ
         // NextMaintenanceEntryNo Correction;
-        if MaintenanceLedgEntry.FindLast then
+        if MaintenanceLedgEntry.FindLast() then
             NextMaintenanceEntryNo := MaintenanceLedgEntry."Entry No.";
         // NAVCZ
 
@@ -172,7 +174,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             Insert(true);
             SetMaintenanceLastDate(MaintenanceLedgEntry);
         end;
-        InsertRegister(1, NextMaintenanceEntryNo);
+        InsertRegister("FA Register Called From"::Maintenance, NextMaintenanceEntryNo);
     end;
 
     procedure SetMaintenanceLastDate(MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
@@ -182,7 +184,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             SetRange("FA No.", "FA No.");
             SetRange("Depreciation Book Code", "Depreciation Book Code");
             FADeprBook.Get("FA No.", "Depreciation Book Code");
-            if FindLast then
+            if FindLast() then
                 FADeprBook."Last Maintenance Date" := "FA Posting Date"
             else
                 FADeprBook."Last Maintenance Date" := 0D;
@@ -310,12 +312,13 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
     end;
 
-    local procedure InitRegister(CalledFrom: Option FA,Maintenance; GLEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10])
+    local procedure InitRegister(CalledFrom: Enum "FA Register Called From"; GLEntryNo: Integer; SourceCode: Code[10]; BatchName: Code[10])
     begin
-        if (CalledFrom = CalledFrom::FA) and (NextMaintenanceEntryNo <> 0) then
+        if (CalledFrom = "FA Register Called From"::"Fixed Asset") and (NextMaintenanceEntryNo <> 0) then
             exit;
-        if (CalledFrom = CalledFrom::Maintenance) and (NextEntryNo <> 0) then
+        if (CalledFrom = "FA Register Called From"::Maintenance) and (NextEntryNo <> 0) then
             exit;
+
         with FAReg do begin
             LockTable();
             if FindLast() and (GLRegisterNo <> 0) and (GLRegisterNo = GetLastGLRegisterNo()) then
@@ -334,21 +337,23 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
     end;
 
-    local procedure InsertRegister(CalledFrom: Option FA,Maintenance; NextEntryNo: Integer)
+    procedure InsertRegister(CalledFrom: Enum "FA Register Called From"; NextEntryNo: Integer)
     begin
-        with FAReg do begin
-            if CalledFrom = CalledFrom::FA then begin
-                if "From Entry No." = 0 then
-                    "From Entry No." := NextEntryNo;
-                "To Entry No." := NextEntryNo;
-            end;
-            if CalledFrom = CalledFrom::Maintenance then begin
-                if "From Maintenance Entry No." = 0 then
-                    "From Maintenance Entry No." := NextEntryNo;
-                "To Maintenance Entry No." := NextEntryNo;
-            end;
-            Modify;
+        case CalledFrom of
+            "FA Register Called From"::"Fixed Asset":
+                begin
+                    if FAReg."From Entry No." = 0 then
+                        FAReg."From Entry No." := NextEntryNo;
+                    FAReg."To Entry No." := NextEntryNo;
+                end;
+            "FA Register Called From"::Maintenance:
+                begin
+                    if FAReg."From Maintenance Entry No." = 0 then
+                        FAReg."From Maintenance Entry No." := NextEntryNo;
+                    FAReg."To Maintenance Entry No." := NextEntryNo;
+                end;
         end;
+        FAReg.Modify();
     end;
 
     local procedure FAName(DeprBookCode: Code[10]): Text[200]
@@ -376,7 +381,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         OldFALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type");
         OldFALedgEntry.SetRange("Document No.", FALedgEntry."Document No.");
         OldFALedgEntry.SetRange("Entry No.", 0, LastEntryNo);
-        if OldFALedgEntry.FindFirst then
+        if OldFALedgEntry.FindFirst() then
             Error(
               Text007,
               OldFALedgEntry.FieldCaption("Document No."),
@@ -432,7 +437,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                     FALedgEntry.LockTable();
                     NextEntryNo := FALedgEntry.GetLastEntryNo();
                     SourceCodeSetup.Get();
-                    InitRegister(0, 1, SourceCodeSetup.Reversal, '');
+                    InitRegister("FA Register Called From"::"Fixed Asset", 1, SourceCodeSetup.Reversal, '');
                     RegisterInserted := true;
                 end;
                 NextEntryNo := NextEntryNo + 1;
@@ -458,7 +463,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FALedgEntry3.Insert(true);
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry3);
                 OnInsertReverseEntryOnBeforeInsertRegister(FALedgEntry3);
-                InsertRegister(0, NextEntryNo);
+                InsertRegister("FA Register Called From"::"Fixed Asset", NextEntryNo);
             end;
         end;
         if FAEntryType = FAEntryType::Maintenance then begin
@@ -466,7 +471,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 MaintenanceLedgEntry.LockTable();
                 NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
                 SourceCodeSetup.Get();
-                InitRegister(1, 1, SourceCodeSetup.Reversal, '');
+                InitRegister("FA Register Called From"::Maintenance, 1, SourceCodeSetup.Reversal, '');
                 RegisterInserted := true;
             end;
             NextMaintenanceEntryNo := NextMaintenanceEntryNo + 1;
@@ -501,7 +506,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             MaintenanceLedgEntry3."Journal Batch Name" := '';
             MaintenanceLedgEntry3."FA No./Budgeted FA No." := '';
             MaintenanceLedgEntry3.Insert();
-            InsertRegister(1, NextMaintenanceEntryNo);
+            InsertRegister("FA Register Called From"::Maintenance, NextMaintenanceEntryNo);
         end;
     end;
 
@@ -529,9 +534,9 @@ codeunit 5600 "FA Insert Ledger Entry"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if TmpFALedgEntry.FindFirst then
+        if TmpFALedgEntry.FindFirst() then
             Error(Text004, FALedgEntry.TableCaption, GLEntry.TableCaption);
-        if TmpMaintenanceLedgEntry.FindFirst then
+        if TmpMaintenanceLedgEntry.FindFirst() then
             Error(Text004, MaintenanceLedgEntry.TableCaption, GLEntry.TableCaption);
         if RegisterInserted then begin
             FAReg."G/L Register No." := GLReg."No.";
@@ -539,6 +544,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
     end;
 
+#if not CLEAN20
     [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure FinalizeInsertFA()
     var
@@ -553,6 +559,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             TempFALedgerEntryReverse.DeleteAll();
         end;
     end;
+#endif
 
     local procedure SetFAReversalMark(var FALedgEntry: Record "FA Ledger Entry"; NextEntryNo: Integer)
     var
@@ -645,6 +652,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         GLRegisterNo := NewGLRegisterNo;
     end;
 
+#if not CLEAN20
     [Obsolete('Reverted FA Disposal Entries sign', '18.0')]
     procedure ReverseFALedgerEntryAmounts(var FALedgerEntry: Record "FA Ledger Entry")
     begin
@@ -652,6 +660,7 @@ codeunit 5600 "FA Insert Ledger Entry"
         FALedgerEntry."Amount (LCY)" := -FALedgerEntry."Amount (LCY)";
         UpdateDebitCredit(FALedgerEntry);
     end;
+#endif
 
     local procedure UpdateDebitCredit(var FALedgerEntry: Record "FA Ledger Entry")
     begin

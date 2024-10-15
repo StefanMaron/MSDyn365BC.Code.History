@@ -180,7 +180,7 @@ table 5624 "FA Reclass. Journal Line"
             if TemplateFilter <> '' then
                 FAReclassJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             FAReclassJournalBatch.SetFilter(Name, BatchFilter);
-            FAReclassJournalBatch.FindFirst;
+            FAReclassJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));

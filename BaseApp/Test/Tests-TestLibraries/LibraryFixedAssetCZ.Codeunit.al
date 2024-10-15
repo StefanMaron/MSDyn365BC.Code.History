@@ -77,7 +77,7 @@ codeunit 143030 "Library - Fixed Asset CZ"
           0D, DocumentNo, PostingDescription, false);
         ReportCalculateDepreciation.SetTableView(FixedAsset2);
         ReportCalculateDepreciation.UseRequestPage(false);
-        ReportCalculateDepreciation.RunModal;
+        ReportCalculateDepreciation.RunModal();
     end;
 }
 

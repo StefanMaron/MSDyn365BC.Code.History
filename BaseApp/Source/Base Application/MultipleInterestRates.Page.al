@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 11783 "Multiple Interest Rates"
 {
-    Caption = 'Multiple Interest Rates';
+    Caption = 'Multiple Interest Rates (Obsolete)';
     DataCaptionFields = "Finance Charge Code";
     PageType = List;
     SourceTable = "Multiple Interest Rate";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'Replaced by Finance Charge Interest Rates';
 
     layout
     {
@@ -54,3 +58,4 @@ page 11783 "Multiple Interest Rates"
     }
 }
 
+#endif

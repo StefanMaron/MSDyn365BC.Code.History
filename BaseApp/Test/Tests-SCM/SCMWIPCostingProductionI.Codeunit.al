@@ -192,7 +192,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyInvtAmountGLEntry(TempPurchaseLine, PurchInvHeader."No.", ItemNo, '', false);  // Boolean for Additional Currency.
     end;
 
@@ -331,13 +331,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         TempPurchaseLine: Record "Purchase Line" temporary;
         ItemNo: Code[20];
         ItemNo2: Code[20];
-        AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
-        Initialize;
+        Initialize();
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
@@ -351,7 +350,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyInvtAmountGLEntry(TempPurchaseLine, PurchInvHeader."No.", ItemNo, '', false);  // Boolean for Additional Currency.
     end;
 
@@ -527,7 +526,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyPurchaseAccountGLEntry(TempPurchaseLine, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.", ItemNo);
         VerifyWIPAmountConsumpOutput(ProductionOrder, ItemNo, true);  // True signifies verification for Output Amount.
     end;
@@ -603,7 +602,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyPurchaseAccountGLEntry(TempPurchaseLine, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.", ItemNo);
         VerifyWIPAmountConsumpOutput(ProductionOrder, ItemNo, true);  // True signifies verification for Output Amount.
     end;
@@ -674,7 +673,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyPurchaseAccountGLEntry(TempPurchaseLine, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.", ItemNo);
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
     end;
@@ -780,7 +779,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // [THEN] Verify G/L Entries - Purchase Account Amount and WIP Account Amount equal Calculated amount without Adjust Cost.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyPurchaseAccountGLEntry(TempPurchaseLine, PurchaseHeader."Buy-from Vendor No.", PurchInvHeader."No.", ItemNo);
         VerifyWIPAmountExclCostFinish(ProductionOrder, ItemNo, ItemNo2, false);
     end;
@@ -1039,7 +1038,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
 
         // [WHEN] Finish Production Order & run Post Inventory Cost to G/L report.
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
@@ -1257,7 +1256,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
         // [WHEN] Run Adjust Cost Item Entries report and Post Inventory Cost to G/L report.
@@ -1372,7 +1371,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyInvtAmountGLEntry(
           TempPurchaseLine, PurchInvHeader."No.", ItemNo, CurrencyCode, true);  // Booelan - True signifies Additional Currency.
     end;
@@ -1499,14 +1498,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo: Code[20];
         ItemNo2: Code[20];
         CurrencyCode: Code[10];
-        AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
-        Initialize;
+        Initialize();
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, CurrencyCode, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         CurrencyCode := UpdateAddnlReportingCurrency;
@@ -1521,7 +1519,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         // 3. Verify: Verify General Ledger Entries that WIP Account does not exist and Total Inventory amount equals Calculated amount.
         PurchInvHeader.SetRange("Order No.", PurchaseHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         VerifyInvtAmountGLEntry(TempPurchaseLine, PurchInvHeader."No.", ItemNo, CurrencyCode, true);  // Boolean for Additional Currency.
     end;
 
@@ -1571,7 +1569,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // [SCENARIO 376035] "Last Direct Cost" is updated for Top Item in complex Production Order after running "Adjust Cost - Item Entries".
 
         // [GIVEN] Production Item "T", with Production BOM which includes production Items "C1" (Production BOM with component "CC1") and "C2" (Production BOM with component "CC2").
-        Initialize;
+        Initialize();
         PrepareItemsOfComplexProdBOM(ItemNo);
 
         // [GIVEN] Purchase "CC1" and "CC2".
@@ -1622,7 +1620,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // [FEATURE] [Manufacturing] [Adjust Cost - Item Entries] [Last Direct Cost]
         // [SCENARIO 380782] When a BOM Component of a production Item is revalued after the Production Order is finished and the output is invoiced, the revaluation is not included in Direct Unit Cost of the Item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production Item "I" with a BOM component "C".
         CreateManufacturingItem(ProdItem, CompItemNo);
@@ -1665,7 +1663,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // [FEATURE] [Manufacturing] [Adjust Cost - Item Entries] [Last Direct Cost]
         // [SCENARIO 380782] When a BOM Component of a production Item is revalued before the Production Order is finished and the output is invoiced, the revaluation is included in Direct Unit Cost of the Item.
-        Initialize;
+        Initialize();
         GLSetup.Get();
 
         // [GIVEN] Production Item "I" with a BOM component "C".
@@ -1712,13 +1710,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // [FEATURE] [Manufacturing] [Adjust Cost - Item Entries] [Last Direct Cost] [No Accounting Periods]
         // [SCENARIO 222561] Calculate average cost automatically for production item when no accounting periods
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Accounting periods
         // [GIVEN] "Automatic Cost Adjustment" is turned on in Inventory Setup
         AccountingPeriod.DeleteAll();
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, true, false, InventorySetup."Automatic Cost Adjustment"::Always,
+          InventorySetup, true, false, "Automatic Cost Adjustment Type"::Always,
           InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
         // [GIVEN] Production Item "I" with a BOM component "C".
@@ -1747,7 +1745,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM WIP Costing Production-I");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -1756,13 +1754,15 @@ codeunit 137003 "SCM WIP Costing Production-I"
         GeneralLedgerSetup.Get();
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateInventoryPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM WIP Costing Production-I");
@@ -1786,15 +1786,14 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProductionBOMNo: Code[20];
         ItemNo2: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
-        AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);
@@ -1884,16 +1883,15 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo2: Code[20];
         ItemNo4: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
-        AutomaticCostAdjustment: Option Never,Day,Week,Month,Quarter,Year,Always;
         AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
-        Initialize;
+        Initialize();
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);
@@ -1998,7 +1996,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
         CapacityUnitOfMeasure.SetRange(Type, CapacityUnitOfMeasure.Type::Minutes);
-        CapacityUnitOfMeasure.FindFirst;
+        CapacityUnitOfMeasure.FindFirst();
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
         LibraryManufacturing.CreateRoutingLineSetup(
           RoutingLine, RoutingHeader, WorkCenterNo,
@@ -2067,7 +2065,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
-        CompItemNo := LibraryInventory.CreateItemNo;
+        CompItemNo := LibraryInventory.CreateItemNo();
         LibraryInventory.CreateItem(ProdItem);
         LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItemNo, 1);
         LibraryManufacturing.CreateItemManufacturing(
@@ -2145,8 +2143,8 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionBOMNo: array[3] of Code[20];
     begin
-        ItemNo[1] := LibraryInventory.CreateItemNo;
-        ItemNo[2] := LibraryInventory.CreateItemNo;
+        ItemNo[1] := LibraryInventory.CreateItemNo();
+        ItemNo[2] := LibraryInventory.CreateItemNo();
         ManufacturingSetup.Get();
         ProductionBOMNo[1] :=
           LibraryManufacturing.CreateCertifiedProductionBOM(
@@ -2187,7 +2185,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         RequisitionLine: Record "Requisition Line";
     begin
         RequisitionLine.SetRange("Demand Order No.", DemandOrderNo);
-        RequisitionLine.FindFirst;
+        RequisitionLine.FindFirst();
 
         GetManufacturingUserTemplate(
           ManufacturingUserTemplate, ManufacturingUserTemplate."Make Orders"::"The Active Order",
@@ -2196,7 +2194,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryPlanning.MakeSupplyOrders(ManufacturingUserTemplate, RequisitionLine);
     end;
 
-    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Option)
+    local procedure GetManufacturingUserTemplate(var ManufacturingUserTemplate: Record "Manufacturing User Template"; MakeOrder: Option; CreateProductionOrder: Enum "Planning Create Prod. Order")
     begin
         if not ManufacturingUserTemplate.Get(UserId) then
             LibraryPlanning.CreateManufUserTemplate(
@@ -2208,7 +2206,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
     end;
 
     local procedure FindProdOrderLineNo(ProductionOrder: Record "Production Order"; ItemNo: Code[20]): Integer
@@ -2219,7 +2217,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
             SetRange(Status, ProductionOrder.Status);
             SetRange("Prod. Order No.", ProductionOrder."No.");
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             exit("Line No.");
         end;
     end;
@@ -2284,14 +2282,14 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProdOrderComponent.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderComponent.SetRange("Item No.", ItemNo);
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Delete(true);
         Commit();
 
         ProdOrderLine.SetRange(Status, ProdOrderComponent.Status::Planned);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderLine.SetRange("Item No.", ItemNo2);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         CreateProdOrderComponent(ProdOrderLine, ProdOrderComponent, NewItemNo, 1);  // Quantity Per important for Test.
     end;
 
@@ -2332,7 +2330,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProductionOrderNo);
         ProdOrderRoutingLine.SetRange("Routing No.", ProdOrderRoutingNo);
-        ProdOrderRoutingLine.FindFirst;
+        ProdOrderRoutingLine.FindFirst();
         exit(ProdOrderRoutingLine."Routing Reference No.");
     end;
 
@@ -2354,7 +2352,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         // Select Account from General Ledger Account of type Posting.
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         exit(GLAccount."No.");
     end;
 
@@ -2467,7 +2465,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         Item.Get(ItemNo);
         InventoryPostingSetup.SetRange("Invt. Posting Group Code", Item."Inventory Posting Group");
-        InventoryPostingSetup.FindFirst;
+        InventoryPostingSetup.FindFirst();
     end;
 
     local procedure SelectGLEntry(var GLEntry: Record "G/L Entry"; PostingSetupAccount: Code[20]; DocumentNo: Code[20])
@@ -2584,7 +2582,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Calculate Cost Amount for Machine Center.
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
         ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Machine Center");
-        if ProdOrderRoutingLine.FindSet then
+        if ProdOrderRoutingLine.FindSet() then
             repeat
                 MachineCenter.Get(ProdOrderRoutingLine."No.");
                 TimeSubtotal := CalculateTimeSubTotal(ProdOrderRoutingLine, ItemNo, Quantity);
@@ -2606,7 +2604,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         // Calculate Cost Amount for Work Center.
         ProdOrderRoutingLine.SetRange("Routing No.", RoutingNo);
         ProdOrderRoutingLine.SetRange(Type, ProdOrderRoutingLine.Type::"Work Center");
-        if ProdOrderRoutingLine.FindSet then
+        if ProdOrderRoutingLine.FindSet() then
             repeat
                 WorkCenter.Get(ProdOrderRoutingLine."No.");
                 TimeSubtotal := CalculateTimeSubTotal(ProdOrderRoutingLine, ItemNo, Quantity);
@@ -2645,7 +2643,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
 
         PurchRcptLine.SetRange(Type, PurchRcptLine.Type::Item);
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
 
         with ItemChargeAssignmentPurch do begin
             Init;
@@ -2720,7 +2718,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         if AddnlCurrency then begin
             Currency.Get(CurrencyCode);
             CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-            CurrencyExchangeRate.FindFirst;
+            CurrencyExchangeRate.FindFirst();
             Assert.AreNearlyEqual(
               Round(
                 CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount" *
@@ -2860,7 +2858,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         GLEntry.SetRange("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
         GLEntry.SetRange("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
         // NAVCZ
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         // Verify WIP Account amounts and calculated WIP amounts are equal.
         Assert.AreNearlyEqual(
@@ -2981,7 +2979,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
     begin
         Currency.Get(CurrencyCode);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         // Last parameter True signifies Finished Production Order.
         SelectProductionOrderComponent(ProdOrderComponent, ProductionOrder, true);

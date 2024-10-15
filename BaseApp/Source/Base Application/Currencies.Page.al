@@ -258,7 +258,7 @@ page 5 Currencies
                         ChangePmtTol: Report "Change Payment Tolerance";
                     begin
                         ChangePmtTol.SetCurrency(Rec);
-                        ChangePmtTol.RunModal;
+                        ChangePmtTol.RunModal();
                     end;
                 }
                 action(SuggestAccounts)

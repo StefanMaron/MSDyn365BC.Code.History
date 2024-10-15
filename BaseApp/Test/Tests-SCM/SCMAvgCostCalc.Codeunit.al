@@ -35,7 +35,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [SCENARIO] Average Cost Period: Day, Average Cost Calc. Type: Item, verify expected Cost after posting: purchase - sale - negative purchase - undo negative purchase - adjust cost - sale - adjust cost.
 
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item);
         PostPurch(Item, '', WorkDate, 142.7, 8.458);
@@ -58,7 +58,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [SCENARIO] Average Cost Period: Day, Average Cost Calc. Type: Item & Location & Variant, verify expected Cost after posting: purchase - transfer - negative purchase - undo negative purchase - adjust cost - sale - adjust cost.
 
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant");
         CreateItem(Item);
         PostPurch(Item, '', WorkDate, 142.7, 8.458);
@@ -87,7 +87,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [FEATURE] [Item Journal]
         // [SCENARIO] Average Cost Period: Day, Average Cost Calc. Type: Item, verify Total Cost in ILEs after post: purchase (Qty = X*3) - three sales (Qty = X), then Adjust Cost.
 
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item);
 
@@ -117,7 +117,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // VERIFYCATION
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
                 TotalCost += ItemLedgerEntry."Cost Amount (Actual)";
@@ -153,7 +153,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // Scenario: Revaluation should be allowed for an inbnd ILE even it has one ore more otbnd entries not invoiced
 
         // Setup test
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item); // Step 1
 
@@ -208,7 +208,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // revaluation is done on qty on inventory.
 
         // Setup test
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item); // Step 1
 
@@ -271,7 +271,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // This is to test that not only Entry No is used in Adjustment of revaluation but alse Date of revaluation is taken into account
 
         // Setup test
-        Initialize;
+        Initialize();
         InvtSetup(InventorySetup."Average Cost Period"::Day, InventorySetup."Average Cost Calc. Type"::Item);
         CreateItem(Item); // Step 1
 
@@ -324,7 +324,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount for Item is equal to rounding precision of a local currency, the Average Cost is equal to precise remaining Cost divided by remaining Quantity.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryInventory.CreateItem(Item);
 
@@ -362,7 +362,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount in an additional reporting currency (ACY) for Item is equal to rounding precision of ACY, the Average Cost in ACY is equal to precise remaining Cost divided by remaining Quantity.
-        Initialize;
+        Initialize();
         CreateCurrencyWithRoundingPrecision(Currency);
         OldACYCode := UpdateAdditionalReportingCurrencyInGLSetup(GeneralLedgerSetup, Currency.Code);
         LibraryInventory.CreateItem(Item);
@@ -402,7 +402,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount for Item is greater than rounding precision of a local currency, the Average Cost is equal to the sum of cost divided by the sum of quantity of posted entries.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryInventory.CreateItem(Item);
 
@@ -441,7 +441,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [FEATURE] [Average Cost] [UT]
         // [SCENARIO 380304] In case sum of Cost Amount in an additional reporting currency (ACY) for Item is greater than the rounding precision of ACY, the Average Cost in ACY is equal to the sum of cost (ACY) divided by the sum of quantity.
-        Initialize;
+        Initialize();
         CreateCurrencyWithRoundingPrecision(Currency);
         OldACYCode := UpdateAdditionalReportingCurrencyInGLSetup(GeneralLedgerSetup, Currency.Code);
         LibraryInventory.CreateItem(Item);
@@ -481,7 +481,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
     begin
         // [FEATURE] [Undo Purchase]
         // [SCENARIO 263366] "Avg. Cost Adjmt. Entry Point"."Cost Is Adjusted" is FALSE after undo purchase receipt line for item with "Costing Method" = Average
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with "Costing Method" = Average
         CreateItem(Item);
@@ -516,7 +516,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [FEATURE] [Job]
         // [SCENARIO 262595] Job consumption item ledger entry should be posted with fixed application to the purchase entry without item tracking
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase 10 pcs of item "I", "Unit Cost" = 100
         CreateItem(Item);
@@ -536,7 +536,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [THEN] Unit cost in job consumption is 300
         ItemLedgerEntry.SetRange("Item No.", Item."No.");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Negative Adjmt.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         VerifyItemLedgEntryActualCost(ItemLedgerEntry, -PurchaseLine."Direct Unit Cost" * PurchaseLine.Quantity);
         VerifyCostApplication(ItemLedgerEntry."Entry No.");
     end;
@@ -555,7 +555,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // [FEATURE] [Job]
         // [SCENARIO 262595] Job consumption item ledger entry should be posted with fixed application to the purchase entry with item tracking
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" tracked by serial number
         CreateItem(Item);
@@ -675,10 +675,10 @@ codeunit 137070 "SCM Avg. Cost Calc."
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Avg. Cost Calc.");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
         IsInitialized := true;
 
         Commit();
@@ -792,7 +792,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         // Change Unit Cost
         ItemJnlLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJnlLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        ItemJnlLine.FindFirst;
+        ItemJnlLine.FindFirst();
         ItemJnlLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
         ItemJnlLine.Modify();
         QtyRevalued := ItemJnlLine.Quantity;
@@ -825,7 +825,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         else begin
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
         end;
 
         SalesLine.Validate("Location Code", LocationCode);
@@ -845,10 +845,10 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemLedgerEntry.SetCurrentKey("Item No.");
         ItemLedgerEntry.SetRange("Item No.", itemNo);
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(expectedValue, ValueEntry."Cost per Unit", tolerance, '');
             until ItemLedgerEntry.Next = 0;
     end;
@@ -871,7 +871,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         Location.SetRange("Directed Put-away and Pick", false);
         Location.SetRange("Require Receive", false);
         Location.SetRange("Require Shipment", false);
-        Location.FindFirst;
+        Location.FindFirst();
         exit(Location.Code);
     end;
 
@@ -957,7 +957,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryUtility: Codeunit "Library - Utility";
     begin
         ItemJournalBatch.SetRange("Template Type", TemplateType);
-        if ItemJournalBatch.FindFirst then begin
+        if ItemJournalBatch.FindFirst() then begin
             if ItemJournalBatch."No. Series" <> '' then begin
                 ItemJournalBatch.Validate("No. Series", '');
                 ItemJournalBatch.Modify(true);
@@ -979,7 +979,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         LibraryUtility: Codeunit "Library - Utility";
     begin
         ItemJournalTemplate.SetRange(Type, TemplateType);
-        if ItemJournalTemplate.FindFirst then
+        if ItemJournalTemplate.FindFirst() then
             exit(ItemJournalTemplate.Name);
 
         ItemJournalTemplate.Init();
@@ -1046,13 +1046,13 @@ codeunit 137070 "SCM Avg. Cost Calc."
     local procedure FindPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; OrderNo: Code[20])
     begin
         PurchRcptLine.SetRange("Order No.", OrderNo);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindAvgCostAdjmtEntryPoint(var AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point"; ItemNo: Code[20])
     begin
         AvgCostAdjmtEntryPoint.SetRange("Item No.", ItemNo);
-        AvgCostAdjmtEntryPoint.FindFirst;
+        AvgCostAdjmtEntryPoint.FindFirst();
     end;
 
     [ConfirmHandler]
@@ -1073,7 +1073,7 @@ codeunit 137070 "SCM Avg. Cost Calc."
         ItemApplicationEntry: Record "Item Application Entry";
     begin
         ItemApplicationEntry.SetRange("Outbound Item Entry No.", OutboundEntryNo);
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         ItemApplicationEntry.TestField("Cost Application", true);
     end;
 

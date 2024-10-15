@@ -449,17 +449,6 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
             group(Version)
             {

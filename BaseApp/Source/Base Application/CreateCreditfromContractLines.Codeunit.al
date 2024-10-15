@@ -24,7 +24,7 @@ codeunit 5945 CreateCreditfromContractLines
             ServItemLine.SetCurrentKey("Contract No.");
             ServItemLine.SetRange("Contract No.", "Contract No.");
             ServItemLine.SetRange("Contract Line No.", "Line No.");
-            ServItemLineExist := ServItemLine.FindFirst;
+            ServItemLineExist := ServItemLine.FindFirst();
         end;
 
         if LinesToDelete = 1 then begin

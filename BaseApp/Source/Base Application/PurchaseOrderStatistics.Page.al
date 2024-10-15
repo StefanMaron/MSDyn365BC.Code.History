@@ -1118,13 +1118,9 @@ page 403 "Purchase Order Statistics"
 #if not CLEAN18
         // NAVCZ
         VATLinesForm.SetCurrencyFactor("Currency Factor");
-#if not CLEAN17
-        if "Currency Factor" <> "VAT Currency Factor" then
-            VATLinesForm.SetVATCurrencyFactor("VAT Currency Factor");
-#endif
         // NAVCZ
 #endif
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 
@@ -1147,14 +1143,14 @@ page 403 "Purchase Order Statistics"
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetFilter("Prepmt. Line Amount", '<>0');
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 TempPurchLine2 := PurchLine;
                 TempPurchLine2.Insert();
             until PurchLine.Next() = 0;
 
         PurchPostAdv.AdvanceCalcVATAmountLines(PurchHeader, TempPurchLine2, VATAmountLine);
-        if VATAmountLine.FindSet then begin
+        if VATAmountLine.FindSet() then begin
             PrevVATPct := VATAmountLine."VAT %";
             repeat
                 if VATAmountLine."VAT %" <> PrevVATPct then
@@ -1191,7 +1187,7 @@ page 403 "Purchase Order Statistics"
     begin
         // NAVCZ
         with VATAmountLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
@@ -1233,7 +1229,7 @@ page 403 "Purchase Order Statistics"
         Clear(VATAmount);
         Clear(VATBaseAmount);
 
-        if VATAmountLine.FindSet then
+        if VATAmountLine.FindSet() then
             repeat
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";

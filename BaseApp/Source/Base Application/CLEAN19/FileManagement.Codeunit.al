@@ -8,32 +8,15 @@ codeunit 419 "File Management"
 
     var
         Text001: Label 'Default';
-#if not CLEAN17
-        Text002: Label 'You must enter a file path.';
-        Text003: Label 'You must enter a file name.';
-#endif
         FileDoesNotExistErr: Label 'The file %1 does not exist.', Comment = '%1 File Path';
         Text006: Label 'Export';
         Text007: Label 'Import';
         PathHelper: DotNet Path;
         [RunOnClient]
         DirectoryHelper: DotNet Directory;
-#if not CLEAN17
-        [RunOnClient]
-        ClientFileHelper: DotNet File;
-#endif
         ServerFileHelper: DotNet File;
         ServerDirectoryHelper: DotNet Directory;
-#if not CLEAN17
-        Text010: Label 'The file %1 has not been uploaded.';
-        Text011: Label 'You must specify a source file name.';
-        Text012: Label 'You must specify a target file name.';
-#endif
         Text013: Label 'The file name %1 already exists.';
-#if not CLEAN17
-        DirectoryDoesNotExistErr: Label 'Directory %1 does not exist.', Comment = '%1=Directory user is trying to upload does not exist';
-        CreatePathQst: Label 'The path %1 does not exist. Do you want to add it now?';
-#endif
         AllFilesFilterTxt: Label '*.*', Locked = true;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
         XMLFileType: Label 'XML Files (*.xml)|*.xml', Comment = '{Split=r''\|''}{Locked=s''1''}';
@@ -50,10 +33,6 @@ codeunit 419 "File Management"
         SingleFilterErr: Label 'Specify a file filter and an extension filter when using this function.';
         InvalidWindowsChrStringTxt: Label '"#%&*:<>?\/{|}~', Locked = true;
         DownloadImageTxt: Label 'Download image';
-#if not CLEAN17
-        LocalFileSystemNotAccessibleErr: Label 'Sorry, this action is not available for the online version of the app.';
-        ChooseFileTitleMsg: Label 'Choose the file to upload.';
-#endif
         NotAllowedPathErr: Label 'Files outside of the current user''s folder cannot be accessed. Access is denied to file %1.', Comment = '%1=the full path to a file. ex: C:\Windows\TextFile.txt ';
         AppendFileNameWithIndexTxt: Label '%1 (%2)', Locked = true, Comment = '%1 - original file name, %2 - append index';
         AppendFileNameWithExtWithIndexTxt: Label '%1 (%2).%3', Locked = true, Comment = '%1 - original file name, %2 - append index, %3 - extension';
@@ -127,7 +106,13 @@ codeunit 419 "File Management"
     procedure BLOBExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean): Text
     var
         NVInStream: InStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBlobExport(TempBlob, Name, CommonDialog, IsHandled);
+        if IsHandled then
+            exit;
+
         TempBlob.CreateInStream(NVInStream);
         exit(BLOBExportLocal(NVInStream, Name, CommonDialog));
     end;
@@ -142,51 +127,8 @@ codeunit 419 "File Management"
         TempFile.Close;
     end;
 
-#if not CLEAN17
+#pragma warning disable AS0022
     [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure ClientTempFileName(FileExtension: Text) ClientFileName: Text
-    var
-        TempFile: File;
-        ClientTempPath: Text;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        // Returns the pseudo uniquely generated name of a non existing file in the client temp directory
-        TempFile.CreateTempFile;
-        ClientFileName := CreateFileNameWithExtension(TempFile.Name, FileExtension);
-        TempFile.Close;
-        TempFile.Create(ClientFileName);
-        TempFile.Close;
-        ClientTempPath := GetDirectoryName(DownloadTempFile(ClientFileName));
-        if Erase(ClientFileName) then;
-        ClientFileHelper.Delete(ClientTempPath + '\' + PathHelper.GetFileName(ClientFileName));
-        ClientFileName := CreateFileNameWithExtension(ClientTempPath + '\' + Format(CreateGuid()), FileExtension);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure CreateClientTempSubDirectory() ClientDirectory: Text
-    var
-        ServerFile: File;
-        ServerFileName: Text;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        // Creates a new subdirectory in the client's TEMP folder
-        ServerFile.Create(CreateGuid());
-        ServerFileName := ServerFile.Name;
-        ServerFile.Close;
-        ClientDirectory := GetDirectoryName(DownloadTempFile(ServerFileName));
-        if Erase(ServerFileName) then;
-        DeleteClientFile(CombinePath(ClientDirectory, GetFileName(ServerFileName)));
-        ClientDirectory := CombinePath(ClientDirectory, CreateGuid());
-        CreateClientDirectory(ClientDirectory);
-    end;
-#endif
-
     procedure DownloadTempFile(ServerFileName: Text): Text
     var
         FileName: Text;
@@ -197,59 +139,7 @@ codeunit 419 "File Management"
         Download(ServerFileName, '', Path, AllFilesDescriptionTxt, FileName);
         exit(FileName);
     end;
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure UploadFileSilent(ClientFilePath: Text): Text
-    begin
-        exit(UploadFileSilentToServerPath(ClientFilePath, ''));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure UploadFileSilentToServerPath(ClientFilePath: Text; ServerFilePath: Text): Text
-    var
-        ClientFileAttributes: DotNet FileAttributes;
-        ServerFileName: Text;
-        TempClientFile: Text;
-        FileName: Text;
-        FileExtension: Text;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if not ClientFileHelper.Exists(ClientFilePath) then
-            Error(FileDoesNotExistErr, ClientFilePath);
-        FileName := GetFileName(ClientFilePath);
-        FileExtension := GetExtension(FileName);
-
-        TempClientFile := ClientTempFileName(FileExtension);
-        ClientFileHelper.Copy(ClientFilePath, TempClientFile, true);
-
-        if ServerFilePath <> '' then
-            ServerFileName := ServerFilePath
-        else
-            ServerFileName := ServerTempFileName(FileExtension);
-
-        if not Upload('', Magicpath, AllFilesDescriptionTxt, GetFileName(TempClientFile), ServerFileName) then
-            Error(Text010, ClientFilePath);
-
-        ClientFileHelper.SetAttributes(TempClientFile, ClientFileAttributes.Normal);
-        ClientFileHelper.Delete(TempClientFile);
-        exit(ServerFileName);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false, please use the UploadFile procedure.', '17.3')]
-    procedure UploadFileToServer(ClientFilePath: Text): Text
-    begin
-        if IsLocalFileSystemAccessible() then
-            exit(UploadFileSilentToServerPath(ClientFilePath, ''));
-
-        exit(UploadFile(ChooseFileTitleMsg, ''));
-    end;
-#endif
+#pragma warning restore AS0022
 
     [Scope('OnPrem')]
     procedure UploadFile(WindowTitle: Text[50]; ClientFileName: Text) ServerFileName: Text
@@ -334,212 +224,6 @@ codeunit 419 "File Management"
                 Error('%1', GetLastErrorText);
         exit(Downloaded);
     end;
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false, please use the DownloadHandler(ServerFileName, '''', '''', '''', ClientFileName) procedure.', '17.3')]
-    procedure DownloadToFile(ServerFileName: Text; ClientFileName: Text)
-    var
-        TempClientFileName: Text;
-    begin
-        if IsLocalFileSystemAccessible() then begin
-            ValidateFileNames(ServerFileName, ClientFileName);
-            TempClientFileName := DownloadTempFile(ServerFileName);
-            MoveFile(TempClientFileName, ClientFileName);
-        end else
-            DownloadHandler(ServerFileName, '', '', '', ClientFileName);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure AppendAllTextToClientFile(ServerFileName: Text; ClientFileName: Text)
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        ValidateFileNames(ServerFileName, ClientFileName);
-        IsAllowedPath(ServerFileName, false);
-        ClientFileHelper.AppendAllText(ClientFileName, ServerFileHelper.ReadAllText(ServerFileName));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure MoveAndRenameClientFile(OldFilePath: Text; NewFileName: Text; NewSubDirectoryName: Text) NewFilePath: Text
-    var
-        directory: Text;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if OldFilePath = '' then
-            Error(Text002);
-
-        if NewFileName = '' then
-            Error(Text003);
-
-        if not ClientFileHelper.Exists(OldFilePath) then
-            Error(FileDoesNotExistErr, OldFilePath);
-
-        // Get the directory from the OldFilePath, if directory is empty it will just use the current location.
-        directory := GetDirectoryName(OldFilePath);
-
-        // create the sub directory name is name is given
-        if NewSubDirectoryName <> '' then begin
-            directory := PathHelper.Combine(directory, NewSubDirectoryName);
-            DirectoryHelper.CreateDirectory(directory);
-        end;
-
-        NewFilePath := PathHelper.Combine(directory, NewFileName);
-        MoveFile(OldFilePath, NewFilePath);
-
-        exit(NewFilePath);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure CreateClientFile(FilePathName: Text)
-    var
-        [RunOnClient]
-        StreamWriter: DotNet StreamWriter;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if not ClientFileHelper.Exists(FilePathName) then begin
-            StreamWriter := ClientFileHelper.CreateText(FilePathName);
-            StreamWriter.Close;
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure DeleteClientFile(FilePath: Text): Boolean
-    begin
-        if not IsLocalFileSystemAccessible then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if not ClientFileHelper.Exists(FilePath) then
-            exit(false);
-
-        ClientFileHelper.Delete(FilePath);
-        exit(true);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure CopyClientFile(SourceFileName: Text; DestFileName: Text; OverWrite: Boolean)
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        ClientFileHelper.Copy(SourceFileName, DestFileName, OverWrite);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false, this procedure will always return false. This procedure will be removed.', '17.3')]
-    procedure ClientFileExists(FilePath: Text): Boolean
-    begin
-        if not IsLocalFileSystemAccessible() then
-            exit(false);
-        exit(ClientFileHelper.Exists(FilePath));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false, this procedure will always return false. This procedure will be removed.', '17.3')]
-    procedure ClientDirectoryExists(DirectoryPath: Text): Boolean
-    begin
-        if not IsLocalFileSystemAccessible() then
-            exit(false);
-        exit(DirectoryHelper.Exists(DirectoryPath));
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure CreateClientDirectory(DirectoryPath: Text)
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if not ClientDirectoryExists(DirectoryPath) then
-            DirectoryHelper.CreateDirectory(DirectoryPath);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure DeleteClientDirectory(DirectoryPath: Text)
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if ClientDirectoryExists(DirectoryPath) then
-            DirectoryHelper.Delete(DirectoryPath, true);
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure UploadClientDirectorySilent(DirectoryPath: Text; FileExtensionFilter: Text; IncludeSubDirectories: Boolean) ServerDirectoryPath: Text
-    var
-        [RunOnClient]
-        SearchOption: DotNet SearchOption;
-        [RunOnClient]
-        ArrayHelper: DotNet Array;
-        [RunOnClient]
-        ClientFilePath: DotNet String;
-        ServerFilePath: Text;
-        RelativeServerPath: Text;
-        i: Integer;
-        ArrayLength: Integer;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        if not ClientDirectoryExists(DirectoryPath) then
-            Error(DirectoryDoesNotExistErr, DirectoryPath);
-
-        if IncludeSubDirectories then
-            ArrayHelper := DirectoryHelper.GetFiles(DirectoryPath, FileExtensionFilter, SearchOption.AllDirectories)
-        else
-            ArrayHelper := DirectoryHelper.GetFiles(DirectoryPath, FileExtensionFilter, SearchOption.TopDirectoryOnly);
-
-        ArrayLength := ArrayHelper.GetLength(0);
-
-        if ArrayLength = 0 then
-            exit;
-
-        ServerDirectoryPath := ServerCreateTempSubDirectory;
-
-        for i := 1 to ArrayLength do begin
-            ClientFilePath := ArrayHelper.GetValue(i - 1);
-            RelativeServerPath := ClientFilePath.Replace(DirectoryPath, '');
-            if PathHelper.IsPathRooted(RelativeServerPath) then
-                RelativeServerPath := DelChr(RelativeServerPath, '<', '\');
-            ServerFilePath := CombinePath(ServerDirectoryPath, RelativeServerPath);
-            ServerCreateDirectory(GetDirectoryName(ServerFilePath));
-            UploadFileSilentToServerPath(ClientFilePath, ServerFilePath);
-        end;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure MoveFile(SourceFileName: Text; TargetFileName: Text)
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        // System.IO.File.Move is not used due to a known issue in KB310316
-        if not ClientFileHelper.Exists(SourceFileName) then
-            Error(FileDoesNotExistErr, SourceFileName);
-
-        if UpperCase(SourceFileName) = UpperCase(TargetFileName) then
-            exit;
-
-        ValidateClientPath(GetDirectoryName(TargetFileName));
-
-        DeleteClientFile(TargetFileName);
-        ClientFileHelper.Copy(SourceFileName, TargetFileName);
-        ClientFileHelper.Delete(SourceFileName);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure CopyServerFile(SourceFileName: Text; TargetFileName: Text; Overwrite: Boolean)
@@ -642,30 +326,6 @@ codeunit 419 "File Management"
         exit(PathHelper.GetDirectoryName(FileName));
     end;
 
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure GetClientDirectoryFilesList(var NameValueBuffer: Record "Name/Value Buffer"; DirectoryPath: Text)
-    var
-        [RunOnClient]
-        ArrayHelper: DotNet Array;
-        i: Integer;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        NameValueBuffer.Reset();
-        NameValueBuffer.DeleteAll();
-
-        ArrayHelper := DirectoryHelper.GetFiles(DirectoryPath);
-        for i := 1 to ArrayHelper.GetLength(0) do begin
-            NameValueBuffer.ID := i;
-            Evaluate(NameValueBuffer.Name, ArrayHelper.GetValue(i - 1));
-            NameValueBuffer.Insert();
-        end;
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure GetServerDirectoryFilesList(var NameValueBuffer: Record "Name/Value Buffer"; DirectoryPath: Text)
     var
@@ -704,7 +364,7 @@ codeunit 419 "File Management"
         IsAllowedPath(DirectoryPath, false);
         ArrayHelper := ServerDirectoryHelper.GetFileSystemEntries(DirectoryPath);
         for Index := 1 to ArrayHelper.GetLength(0) do begin
-            if NameValueBuffer.FindLast then
+            if NameValueBuffer.FindLast() then
                 LastId := NameValueBuffer.ID;
             Evaluate(FileSystemEntry, ArrayHelper.GetValue(Index - 1));
             if ServerDirectoryExists(FileSystemEntry) then
@@ -717,26 +377,6 @@ codeunit 419 "File Management"
             end;
         end;
     end;
-
-#if not CLEAN17
-    [TryFunction]
-    [Scope('OnPrem')]
-    [Obsolete('IsLocalFileSystemAccessible always returns false and this procedure will always throw an error.', '17.3')]
-    procedure GetClientFileProperties(FullFileName: Text; var ModifyDate: Date; var ModifyTime: Time; var Size: BigInteger)
-    var
-        [RunOnClient]
-        FileInfo: DotNet FileInfo;
-        ModifyDateTime: DateTime;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            Error(LocalFileSystemNotAccessibleErr);
-
-        ModifyDateTime := ClientFileHelper.GetLastWriteTime(FullFileName);
-        ModifyDate := DT2Date(ModifyDateTime);
-        ModifyTime := DT2Time(ModifyDateTime);
-        Size := FileInfo.FileInfo(FullFileName).Length;
-    end;
-#endif
 
     [TryFunction]
     [Scope('OnPrem')]
@@ -873,87 +513,6 @@ codeunit 419 "File Management"
         exit(FileExtension);
     end;
 
-#if not CLEAN17
-    [Obsolete('The local file system is no longer accessible. Please use the UploadFile procedure.', '17.3')]
-    procedure OpenFileDialog(WindowTitle: Text[50]; DefaultFileName: Text; FilterString: Text): Text
-    var
-        [RunOnClient]
-        OpenFileDialog: DotNet OpenFileDialog;
-        [RunOnClient]
-        DialogResult: DotNet DialogResult;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            exit(UploadFile(WindowTitle, DefaultFileName));
-
-        OpenFileDialog := OpenFileDialog.OpenFileDialog;
-        OpenFileDialog.ShowReadOnly := false;
-        OpenFileDialog.FileName := GetFileName(DefaultFileName);
-        OpenFileDialog.Title := WindowTitle;
-        OpenFileDialog.Filter := GetToFilterText(FilterString, DefaultFileName);
-        OpenFileDialog.InitialDirectory := GetDirectoryName(DefaultFileName);
-
-        DialogResult := OpenFileDialog.ShowDialog;
-        if DialogResult.CompareTo(DialogResult.OK) = 0 then
-            exit(OpenFileDialog.FileName);
-        exit('');
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The local file system is no longer accessible. The procedure will always return an empty string. This procdure will be removed.', '17.3')]
-    procedure SaveFileDialog(WindowTitle: Text[50]; DefaultFileName: Text; FilterString: Text): Text
-    var
-        [RunOnClient]
-        SaveFileDialog: DotNet SaveFileDialog;
-        [RunOnClient]
-        DialogResult: DotNet DialogResult;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            exit('');
-        SaveFileDialog := SaveFileDialog.SaveFileDialog();
-        SaveFileDialog.CheckPathExists := true;
-        SaveFileDialog.OverwritePrompt := true;
-        SaveFileDialog.FileName := GetFileName(DefaultFileName);
-        SaveFileDialog.Title := WindowTitle;
-        SaveFileDialog.Filter := GetToFilterText(FilterString, DefaultFileName);
-        SaveFileDialog.InitialDirectory := GetDirectoryName(DefaultFileName);
-
-        DialogResult := SaveFileDialog.ShowDialog;
-        if DialogResult.CompareTo(DialogResult.OK) = 0 then
-            exit(SaveFileDialog.FileName);
-        exit('');
-    end;
-
-    [Obsolete('The local file system is no longer accessible and this procedure will always return false.', '17.3')]
-    procedure SelectFolderDialog(WindowTitle: Text; var SelectedFolder: Text): Boolean
-    var
-        [RunOnClient]
-        FolderBrowser: DotNet FolderBrowserDialog;
-        [RunOnClient]
-        DialogResult: DotNet DialogResult;
-    begin
-        if not IsLocalFileSystemAccessible() then
-            exit(false);
-
-        FolderBrowser := FolderBrowser.FolderBrowserDialog();
-        FolderBrowser.ShowNewFolderButton := true;
-        FolderBrowser.Description := WindowTitle;
-
-        DialogResult := FolderBrowser.ShowDialog;
-        if DialogResult = 1 then begin
-            SelectedFolder := FolderBrowser.SelectedPath;
-            exit(true);
-        end;
-    end;
-
-    [Obsolete('The windows client type has been retired. This procedure will always return false.', '17.3')]
-    procedure IsLocalFileSystemAccessible(): Boolean
-    var
-        ClientTypeManagement: Codeunit "Client Type Management";
-    begin
-        exit(ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Windows);
-    end;
-#endif
-
     procedure IsValidFileName(FileName: Text): Boolean
     var
         String: DotNet String;
@@ -972,17 +531,6 @@ codeunit 419 "File Management"
         exit(true);
     end;
 
-#if not CLEAN17
-    local procedure ValidateFileNames(ServerFileName: Text; ClientFileName: Text)
-    begin
-        if not IsValidFileName(ServerFileName) then
-            Error(Text011);
-
-        if not IsValidFileName(ClientFileName) then
-            Error(Text012);
-    end;
-#endif
-
     procedure ValidateFileExtension(FilePath: Text; ValidExtensions: Text)
     var
         FileExt: Text;
@@ -997,23 +545,6 @@ codeunit 419 "File Management"
         if StrPos(LowerValidExts, FileExt) = 0 then
             Error(UnsupportedFileExtErr, FileExt, LowerValidExts);
     end;
-
-#if not CLEAN17
-    local procedure ValidateClientPath(FilePath: Text)
-    var
-        ConfirmManagement: Codeunit "Confirm Management";
-    begin
-        if FilePath = '' then
-            exit;
-        if DirectoryHelper.Exists(FilePath) then
-            exit;
-
-        if ConfirmManagement.GetResponseOrDefault(StrSubstNo(CreatePathQst, FilePath), true) then
-            DirectoryHelper.CreateDirectory(FilePath)
-        else
-            Error('');
-    end;
-#endif
 
     procedure CreateFileNameWithExtension(FileNameWithoutExtension: Text; Extension: Text) FileName: Text
     begin
@@ -1046,27 +577,6 @@ codeunit 419 "File Management"
         StreamWriter.Close;
     end;
 
-#if not CLEAN17
-    [Obsolete('The procedure uses .NET which does not function on non-Windows client types.', '17.3')]
-    procedure BrowseForFolderDialog(WindowTitle: Text[50]; DefaultFolderName: Text; ShowNewFolderButton: Boolean): Text
-    var
-        [RunOnClient]
-        FolderBrowserDialog: DotNet FolderBrowserDialog;
-        [RunOnClient]
-        DialagResult: DotNet DialogResult;
-    begin
-        FolderBrowserDialog := FolderBrowserDialog.FolderBrowserDialog();
-        FolderBrowserDialog.Description := WindowTitle;
-        FolderBrowserDialog.SelectedPath := DefaultFolderName;
-        FolderBrowserDialog.ShowNewFolderButton := ShowNewFolderButton;
-
-        DialagResult := FolderBrowserDialog.ShowDialog();
-        if DialagResult.CompareTo(DialagResult.OK) = 0 then
-            exit(FolderBrowserDialog.SelectedPath());
-        exit(DefaultFolderName);
-    end;
-#endif
-
     procedure StripNotsupportChrInFileName(InText: Text): Text
     begin
         InText := DelChr(InText, '=', InvalidWindowsChrStringTxt);
@@ -1083,7 +593,7 @@ codeunit 419 "File Management"
         NameValueBuffer.DeleteAll();
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, TemporaryPath);
         TempNameValueBuffer.SetFilter(Name, StrSubstNo('%1*', ImagetPath));
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
         ToFile := StripNotsupportChrInFileName(ToFile);
         Download(TempNameValueBuffer.Name, DownloadImageTxt, '', '', ToFile);
         if FileManagement.DeleteServerFile(TempNameValueBuffer.Name) then;
@@ -1105,24 +615,6 @@ codeunit 419 "File Management"
             exit(ServerDirectoryHelper.GetFiles(Path).Length = 0);
         exit(false);
     end;
-
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('GetFileContent will be replaced with GetFileContents. This currently uses InStream.ReadText() which only returns the stream contents up to the first line break character.', '17.0')]
-    procedure GetFileContent(FilePath: Text) Result: Text
-    var
-        FileHandle: File;
-        InStr: InStream;
-    begin
-        if not FILE.Exists(FilePath) then
-            exit;
-
-        FileHandle.Open(FilePath, TEXTENCODING::UTF8);
-        FileHandle.CreateInStream(InStr);
-
-        InStr.ReadText(Result);
-    end;
-#endif
 
     /// <summary>
     /// Gets the file contents as text from the file path provided in UTF8 text encoding.
@@ -1193,6 +685,11 @@ codeunit 419 "File Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeBlobExport(var TempBlob: Codeunit "Temp Blob"; Name: Text; CommonDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadHandler(var ToFolder: Text; ToFileName: Text; FromFileName: Text; var IsHandled: Boolean)
     begin
     end;
@@ -1206,51 +703,6 @@ codeunit 419 "File Management"
     local procedure OnBeforeDownloadFromStreamHandler(var ToFolder: Text; ToFileName: Text; FromInStream: InStream; var IsHandled: Boolean)
     begin
     end;
-
-#if not CLEAN17
-    [Obsolete('Use the DownloadFromStream function to save the content of a stream locally.', '17.0')]
-    procedure SaveStreamToFileServerFolder(var TempBlob: Codeunit "Temp Blob"; Name: Text; FileExtension: Text; InnerFolder: Text): Text
-    //@param Name: File-s name
-    //@param FileExtension: FileExtension
-    //@param InnerFolder: In the case you want to create an inner folder inside the server folder. It must be in the form "folderName\" or "''". It will 
-    // be created if does not exist.
-    //@return Path to the file.
-    var
-        NVInStream: InStream;
-        ServerFolderFilePath: Text;
-        ServerDirectory: Text;
-        NewPath: Text;
-    begin
-        TempBlob.CreateInStream(NVInStream);
-        ServerFolderFilePath := InstreamExportToServerFile(NVInStream, FileExtension);
-        ServerDirectory := GetDirectoryName(ServerFolderFilePath);
-        NewPath := ServerDirectory + '\' + InnerFolder + Name;
-        IsAllowedPath(NewPath, false);
-        if InnerFolder <> '' then
-            ServerCreateDirectory(ServerDirectory + '\' + InnerFolder);
-        MoveAndRenameServerFile(ServerFolderFilePath, InnerFolder, Name);
-        exit(NewPath);
-    end;
-
-    [Obsolete('Server files should not be edited directly on the server. Instead, use the DownloadFromStream function to get a local copy of the file on the server.', '17.0')]
-    procedure MoveAndRenameServerFile(AbsolutePathToFile: Text; RelativePathFolder: Text; NewNameFile: Text)
-    //@param AbsolutePathToFile: Absolute path to the file to rename.
-    //@param RelativePathFolder: relative path starting from the server folder to the folder that will contain the file
-    //  Start with the name of the folder without '\' and finish with '\': ex. 'folder\'. If you want to just rename the file without moving it
-    // you can have to pass ''. In the eventual intern forlder/s, THEY MUST BE ALREADY CREATED.
-    //@param NewNameFile: new file's name.
-    var
-        ServerDirectory: Text;
-        newPath: Text;
-    begin
-        IsAllowedPath(AbsolutePathToFile, false);
-        ServerDirectory := GetDirectoryName(AbsolutePathToFile);
-        newPath := ServerDirectory + '\' + RelativePathFolder + NewNameFile;
-        IsAllowedPath(newPath, false);
-        CopyServerFile(AbsolutePathToFile, newPath, true);
-        DeleteServerFile(AbsolutePathToFile);
-    end;
-#endif
 }
 
 #endif

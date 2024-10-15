@@ -29,7 +29,7 @@ codeunit 1720 "Deferral Utilities"
         Year := Date2DMY(PostingDate, 3);
         if IsAccountingPeriodExist(AccountingPeriod, PostingDate) then begin
             AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-            if not AccountingPeriod.FindLast then
+            if not AccountingPeriod.FindLast() then
                 AccountingPeriod.Name := '';
         end;
         FinalDescription :=
@@ -103,7 +103,7 @@ codeunit 1720 "Deferral Utilities"
                 begin
                     if IsAccountingPeriodExist(AccountingPeriod, StartDate) then begin
                         AccountingPeriod.SetFilter("Starting Date", '>=%1', StartDate);
-                        AccountingPeriod.FindFirst;
+                        AccountingPeriod.FindFirst();
                     end;
                     if AccountingPeriod."Starting Date" = StartDate then
                         exit(NoOfPeriods);
@@ -131,6 +131,7 @@ codeunit 1720 "Deferral Utilities"
         FirstPeriodDate: Date;
         SecondPeriodDate: Date;
         PerDiffSum: Decimal;
+        IsHandled: Boolean;
     begin
         // If the Start Date passed in matches the first date of a financial period, this is essentially the same
         // as the "Equal Per Period" deferral method, so call that function.
@@ -138,15 +139,20 @@ codeunit 1720 "Deferral Utilities"
 
         if IsAccountingPeriodExist(AccountingPeriod, DeferralHeader."Start Date") then begin
             AccountingPeriod.SetFilter("Starting Date", '>=%1', DeferralHeader."Start Date");
-            if not AccountingPeriod.FindFirst then
+            if not AccountingPeriod.FindFirst() then
                 Error(DeferSchedOutOfBoundsErr);
         end;
-        if AccountingPeriod."Starting Date" = DeferralHeader."Start Date" then begin
-            CalculateEqualPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
-            exit;
-        end;
 
-        PeriodicDeferralAmount := Round(DeferralHeader."Amount to Defer" / DeferralHeader."No. of Periods", AmountRoundingPrecision);
+        IsHandled := false;
+        OnCalculateStraightlineOnBeforeCalcPeriodicDeferralAmount(DeferralHeader, PeriodicDeferralAmount, AmountRoundingPrecision, IsHandled);
+        if not IsHandled then begin
+            if AccountingPeriod."Starting Date" = DeferralHeader."Start Date" then begin
+                CalculateEqualPerPeriod(DeferralHeader, DeferralLine, DeferralTemplate);
+                exit;
+            end;
+
+            PeriodicDeferralAmount := Round(DeferralHeader."Amount to Defer" / DeferralHeader."No. of Periods", AmountRoundingPrecision);
+        end;
 
         for PeriodicCount := 1 to (DeferralHeader."No. of Periods" + 1) do begin
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
@@ -160,6 +166,7 @@ codeunit 1720 "Deferral Utilities"
 
                     // Get the starting date of the next accounting period
                     SecondPeriodDate := GetNextPeriodStartingDate(PostDate);
+                    OnCalculateStraightlineOnAfterCalcSecondPeriodDate(DeferralHeader, PostDate, FirstPeriodDate, SecondPeriodDate);
 
                     HowManyDaysLeftInPeriod := (SecondPeriodDate - DeferralHeader."Start Date");
                     NumberOfDaysInPeriod := (SecondPeriodDate - FirstPeriodDate);
@@ -177,7 +184,7 @@ codeunit 1720 "Deferral Utilities"
             end;
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
@@ -193,6 +200,7 @@ codeunit 1720 "Deferral Utilities"
 
     local procedure CheckPostingDate(DeferralHeader: Record "Deferral Header"; DeferralLine: Record "Deferral Line")
     var
+        GenJnlBatch: Record "Gen. Journal Batch";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -200,6 +208,8 @@ codeunit 1720 "Deferral Utilities"
         if IsHandled then
             exit;
 
+        if GenJnlBatch.Get(DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name") then
+            GenJnlCheckLine.SetGenJnlBatch(GenJnlBatch);
         if GenJnlCheckLine.DateNotAllowed(DeferralLine."Posting Date") then
             Error(InvalidPostingDateErr, DeferralLine."Posting Date");
     end;
@@ -217,7 +227,7 @@ codeunit 1720 "Deferral Utilities"
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
 
             DeferralLine.Validate("Posting Date", PostDate);
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             AmountToDefer := DeferralHeader."Amount to Defer";
             if PeriodicCount = 1 then
@@ -259,7 +269,7 @@ codeunit 1720 "Deferral Utilities"
 
         if IsAccountingPeriodExist(AccountingPeriod, DeferralHeader."Start Date") then begin
             AccountingPeriod.SetFilter("Starting Date", '>=%1', DeferralHeader."Start Date");
-            if not AccountingPeriod.FindFirst then
+            if not AccountingPeriod.FindFirst() then
                 Error(DeferSchedOutOfBoundsErr);
         end;
         if AccountingPeriod."Starting Date" = DeferralHeader."Start Date" then
@@ -271,7 +281,7 @@ codeunit 1720 "Deferral Utilities"
         if not NoExtraPeriod then begin
             if IsAccountingPeriodExist(AccountingPeriod, DeferralHeader."Start Date") then begin
                 AccountingPeriod.SetFilter("Starting Date", '<%1', DeferralHeader."Start Date");
-                AccountingPeriod.FindLast;
+                AccountingPeriod.FindLast();
             end;
             NumberOfDaysIntoCurrentPeriod := (DeferralHeader."Start Date" - AccountingPeriod."Starting Date");
         end else
@@ -297,6 +307,8 @@ codeunit 1720 "Deferral Utilities"
                 end else
                     EndDate := (TempDate + NumberOfDaysIntoCurrentPeriod);
         end;
+        OnCalculateDaysPerPeriodOnAfterCalcEndDate(DeferralHeader, DeferralLine, DeferralTemplate, EndDate);
+
         NumberOfDaysInSchedule := (EndDate - DeferralHeader."Start Date");
         DailyDeferralAmount := (DeferralHeader."Amount to Defer" / NumberOfDaysInSchedule);
 
@@ -331,12 +343,13 @@ codeunit 1720 "Deferral Utilities"
             end;
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
             DeferralLine.Amount := AmountToDefer;
 
+            OnCalculateDaysPerPeriodOnBeforeDeferralLineInsert(DeferralHeader, DeferralLine);
             DeferralLine.Insert();
         end;
 
@@ -354,15 +367,28 @@ codeunit 1720 "Deferral Utilities"
             InitializeDeferralHeaderAndSetPostDate(DeferralLine, DeferralHeader, PeriodicCount, PostDate);
 
             DeferralLine."Posting Date" := PostDate;
-            DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
+            UpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate);
 
             CheckPostingDate(DeferralHeader, DeferralLine);
 
             // For User-Defined, user must enter in deferral amounts
+            OnCalculateUserDefinedOnBeforeDeferralLineInsert(DeferralHeader, DeferralLine);
             DeferralLine.Insert();
         end;
 
         OnAfterCalculateUserDefined(DeferralHeader, DeferralLine, DeferralTemplate);
+    end;
+
+    local procedure UpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateDeferralLineDescription(DeferralLine, DeferralHeader, DeferralTemplate, PostDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        DeferralLine.Description := CreateRecurringDescription(PostDate, DeferralTemplate."Period Description");
     end;
 
     procedure FilterDeferralLines(var DeferralLine: Record "Deferral Line"; DeferralDocType: Option; GenJnlTemplateName: Code[10]; GenJnlBatchName: Code[10]; DocumentType: Integer; DocumentNo: Code[20]; LineNo: Integer)
@@ -373,6 +399,35 @@ codeunit 1720 "Deferral Utilities"
         DeferralLine.SetRange("Document Type", DocumentType);
         DeferralLine.SetRange("Document No.", DocumentNo);
         DeferralLine.SetRange("Line No.", LineNo);
+    end;
+
+    procedure IsDateNotAllowed(PostingDate: Date) Result: Boolean
+    var
+        GLSetup: Record "General Ledger Setup";
+        UserSetup: Record "User Setup";
+        AllowPostingFrom: Date;
+        AllowPostingTo: Date;
+        IsHandled: Boolean;
+    begin
+        OnBeforeIsDateNotAllowed(PostingDate, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if UserId() <> '' then
+            if UserSetup.Get(UserId()) then begin
+                UserSetup.CheckAllowedDeferralPostingDates(1);
+                AllowPostingFrom := UserSetup."Allow Deferral Posting From";
+                AllowPostingTo := UserSetup."Allow Deferral Posting To";
+            end;
+        if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
+            GLSetup.Get();
+            GLSetup.CheckAllowedDeferralPostingDates(1);
+            AllowPostingFrom := GLSetup."Allow Deferral Posting From";
+            AllowPostingTo := GLSetup."Allow Deferral Posting To";
+        end;
+        if AllowPostingTo = 0D then
+            AllowPostingTo := DMY2Date(31, 12, 9999);
+        Result := not (PostingDate in [AllowPostingFrom .. AllowPostingTo]);
     end;
 
     local procedure SetStartDate(DeferralTemplate: Record "Deferral Template"; StartDate: Date) AdjustedStartDate: Date
@@ -389,7 +444,7 @@ codeunit 1720 "Deferral Utilities"
                     if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<-CM>', StartDate));
                     AccountingPeriod.SetRange("Starting Date", 0D, StartDate);
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
             DeferralStartDate::"End of Period":
@@ -397,7 +452,7 @@ codeunit 1720 "Deferral Utilities"
                     if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<CM>', StartDate));
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");
                 end;
             DeferralStartDate::"Beginning of Next Period":
@@ -405,9 +460,11 @@ codeunit 1720 "Deferral Utilities"
                     if AccountingPeriod.IsEmpty() then
                         exit(CalcDate('<CM + 1D>', StartDate));
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
+            DeferralStartDate::"Beginning of Next Calendar Year":
+                AdjustedStartDate := CalcDate('<CY + 1D>', StartDate);
         end;
 
         OnAfterSetStartDate(DeferralTemplate, StartDate, AdjustedStartDate);
@@ -426,7 +483,7 @@ codeunit 1720 "Deferral Utilities"
             DeferralHeader.Insert();
         end;
         DeferralHeader."Amount to Defer" := AdjustedDeferralAmount;
-        if AdjustStartDate then
+        if AdjustStartDate or (DeferralHeader."Initial Amount to Defer" = 0) then
             DeferralHeader."Initial Amount to Defer" := AmountToDefer;
         DeferralHeader."Calc. Method" := CalcMethod;
         DeferralHeader."Start Date" := AdjustedStartDate;
@@ -546,7 +603,7 @@ codeunit 1720 "Deferral Utilities"
               DeferralLine, DeferralHeader."Deferral Doc. Type"::"G/L".AsInteger(),
               GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
               0, '', GenJournalLine."Line No.");
-            if DeferralLine.FindSet then begin
+            if DeferralLine.FindSet() then begin
                 repeat
                     PostedDeferralLine.Init();
                     PostedDeferralLine.TransferFields(DeferralLine);
@@ -617,7 +674,7 @@ codeunit 1720 "Deferral Utilities"
             if DeferralTemplate.Get(DeferralCode) then
                 if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
                     DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
-                    DeferralSchedule.RunModal;
+                    DeferralSchedule.RunModal();
                     Changed := DeferralSchedule.GetParameter;
                     Clear(DeferralSchedule);
                 end else begin
@@ -628,7 +685,7 @@ codeunit 1720 "Deferral Utilities"
                     Commit();
                     if DeferralHeader.Get(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo) then begin
                         DeferralSchedule.SetParameter(DeferralDocType, GenJnlTemplateName, GenJnlBatchName, DocumentType, DocumentNo, LineNo);
-                        DeferralSchedule.RunModal;
+                        DeferralSchedule.RunModal();
                         Changed := DeferralSchedule.GetParameter;
                         Clear(DeferralSchedule);
                     end;
@@ -700,7 +757,7 @@ codeunit 1720 "Deferral Utilities"
           DeferralLine, DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.");
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             TotalDeferralCount := DeferralLine.Count();
             repeat
                 DeferralCount := DeferralCount + 1;
@@ -730,14 +787,6 @@ codeunit 1720 "Deferral Utilities"
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
-#if not CLEAN17
-    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
-    procedure GetSalesDeferralDocType(): Integer
-    begin
-        exit("Deferral Document Type"::Sales.AsInteger())
-    end;
-#endif
-
     procedure InitializeDeferralHeaderAndSetPostDate(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; PeriodicCount: Integer; var PostDate: Date)
     var
         AccountingPeriod: Record "Accounting Period";
@@ -754,14 +803,14 @@ codeunit 1720 "Deferral Utilities"
         if PeriodicCount = 1 then begin
             if not AccountingPeriod.IsEmpty() then begin
                 AccountingPeriod.SetFilter("Starting Date", '..%1', DeferralHeader."Start Date");
-                if not AccountingPeriod.FindFirst then
+                if not AccountingPeriod.FindFirst() then
                     Error(DeferSchedOutOfBoundsErr);
             end;
             PostDate := DeferralHeader."Start Date";
         end else begin
             if IsAccountingPeriodExist(AccountingPeriod, CalcDate('<CM>', PostDate) + 1) then begin
                 AccountingPeriod.SetFilter("Starting Date", '>%1', PostDate);
-                if not AccountingPeriod.FindFirst then
+                if not AccountingPeriod.FindFirst() then
                     Error(DeferSchedOutOfBoundsErr);
             end;
             PostDate := AccountingPeriod."Starting Date";
@@ -779,22 +828,6 @@ codeunit 1720 "Deferral Utilities"
         AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, PostingDate);
         exit(false);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
-    procedure GetPurchDeferralDocType(): Integer
-    begin
-        exit("Deferral Document Type"::Purchase.AsInteger())
-    end;
-#endif
-
-#if not CLEAN17
-    [Obsolete('Replace by enum "Deferral Document Type value."', '17.0')]
-    procedure GetGLDeferralDocType(): Integer
-    begin
-        exit("Deferral Document Type"::"G/L".AsInteger())
-    end;
-#endif
 
     procedure GetDeferralStartDate(DeferralDocType: Integer; RecordDocumentType: Integer; RecordDocumentNo: Code[20]; RecordLineNo: Integer; DeferralCode: Code[10]; PostingDate: Date): Date
     var
@@ -848,7 +881,7 @@ codeunit 1720 "Deferral Utilities"
             exit(CalcDate('<-CM>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '<%1', PostingDate);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             exit(AccountingPeriod."Starting Date");
 
         Error(DeferSchedOutOfBoundsErr);
@@ -862,7 +895,7 @@ codeunit 1720 "Deferral Utilities"
             exit(CalcDate('<CM+1D>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '>%1', PostingDate);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             exit(AccountingPeriod."Starting Date");
 
         Error(DeferSchedOutOfBoundsErr);
@@ -876,7 +909,7 @@ codeunit 1720 "Deferral Utilities"
             exit(CalcDate('<-CM>', PostingDate));
 
         AccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         exit(AccountingPeriod."Starting Date");
     end;
 
@@ -990,12 +1023,47 @@ codeunit 1720 "Deferral Utilities"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateStraightlineOnAfterCalcSecondPeriodDate(DeferralHeader: Record "Deferral Header"; PostDate: Date; var FirstPeriodDate: Date; var SecondPeriodDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalculateStraightlineOnBeforeDeferralLineInsert(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalculateStraightlineOnBeforeCalcPeriodicDeferralAmount(var DeferralHeader: Record "Deferral Header"; var PeriodicDeferralAmount: Decimal; AmountRoundingPrecision: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDaysPerPeriodOnAfterCalcEndDate(var DeferralHeader: Record "Deferral Header"; var DeferralLine: Record "Deferral Line"; DeferralTemplate: Record "Deferral Template"; var EndDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateDaysPerPeriodOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateUserDefinedOnBeforeDeferralLineInsert(DeferralHeader: Record "Deferral Header"; var DeferralLine: record "Deferral Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetDeferralRecordsOnBeforeDeferralHeaderModify(var DeferralHeader: Record "Deferral Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsDateNotAllowed(PostingDate: Date; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDeferralLineDescription(var DeferralLine: Record "Deferral Line"; DeferralHeader: Record "Deferral Header"; DeferralTemplate: Record "Deferral Template"; PostDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

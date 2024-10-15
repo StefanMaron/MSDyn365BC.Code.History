@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 1004 "Job Transfer Line"
 {
 
@@ -11,6 +12,8 @@ codeunit 1004 "Job Transfer Line"
         LCYCurrency: Record Currency;
         CurrencyRoundingRead: Boolean;
         Text001: Label '%1 %2 does not exist.';
+        JobPlanningLineNotFoundErr: Label 'Could not find any lines on the %1 page that are related to the %2 where the value in the %3 field is %4, and value in the %5 field is %6.', Comment = '%1=page caption, %2=table caption, %3,%5=field caption, %4,%6=field value';
+        DuplicateJobplanningLinesErr: Label 'We found more than one %1s where the value in the %2 field is %3. The value in the %2 field must be unique.', Comment = '%1=table caption, %2=field caption, %3=field value';
 
     procedure FromJnlLineToLedgEntry(JobJnlLine2: Record "Job Journal Line"; var JobLedgEntry: Record "Job Ledger Entry")
     begin
@@ -156,14 +159,6 @@ codeunit 1004 "Job Transfer Line"
         OnAfterFromJnlToPlanningLine(JobPlanningLine, JobJnlLine);
     end;
 
-#if not CLEAN17
-    [Obsolete('EntryType parameter converted to Enum', '17.0')]
-    procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Option Usage,Sale)
-    begin
-        FromPlanningSalesLineToJnlLine(JobPlanningLine, SalesHeader, SalesLine, JobJnlLine, "Job Journal Line Entry Type".FromInteger(EntryType));
-    end;
-#endif
-
     procedure FromPlanningSalesLineToJnlLine(JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var JobJnlLine: Record "Job Journal Line"; EntryType: Enum "Job Journal Line Entry Type")
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -213,10 +208,6 @@ codeunit 1004 "Job Transfer Line"
 #if not CLEAN18
         // NAVCZ
         JobJnlLine."Shipment Method Code" := SalesHeader."Shipment Method Code";
-#if not CLEAN17
-        JobJnlLine."Tariff No." := SalesLine."Tariff No.";
-        JobJnlLine."Statistic Indication" := SalesLine."Statistic Indication";
-#endif
         JobJnlLine."Net Weight" := SalesLine."Net Weight";
         JobJnlLine."Country/Region of Origin Code" := SalesLine."Country/Region of Origin Code";
         JobJnlLine."Intrastat Transaction" := SalesHeader.IsIntrastatTransaction;
@@ -256,6 +247,7 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine2: Record "Job Journal Line";
         JobJournalTemplate: Record "Job Journal Template";
         JobJournalBatch: Record "Job Journal Batch";
+        JobSetup: Record "Jobs Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
@@ -266,14 +258,14 @@ codeunit 1004 "Job Transfer Line"
         if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
             Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
         if PostingDate = 0D then
-            PostingDate := WorkDate;
+            PostingDate := WorkDate();
 
         JobJnlLine.Init();
         JobJnlLine.Validate("Journal Template Name", JobJournalTemplate.Name);
         JobJnlLine.Validate("Journal Batch Name", JobJournalBatch.Name);
         JobJnlLine2.SetRange("Journal Template Name", JobJournalTemplate.Name);
         JobJnlLine2.SetRange("Journal Batch Name", JobJournalBatch.Name);
-        if JobJnlLine2.FindLast then
+        if JobJnlLine2.FindLast() then
             JobJnlLine.Validate("Line No.", JobJnlLine2."Line No." + 10000)
         else
             JobJnlLine.Validate("Line No.", 10000);
@@ -290,10 +282,14 @@ codeunit 1004 "Job Transfer Line"
         JobJnlLine."Posting Group" := JobTask."Job Posting Group";
         JobJnlLine."Posting Date" := PostingDate;
         JobJnlLine."Document Date" := PostingDate;
+        JobSetup.Get();
         if JobJournalBatch."No. Series" <> '' then
             JobJnlLine."Document No." := NoSeriesMgt.GetNextNo(JobJournalBatch."No. Series", PostingDate, false)
         else
-            JobJnlLine."Document No." := JobPlanningLine."Document No.";
+            if JobSetup."Document No. Is Job No." then
+                JobJnlLine."Document No." := JobPlanningLine."Job No."
+            else
+                JobJnlLine."Document No." := JobPlanningLine."Document No.";
 
         JobJnlLine.Type := JobPlanningLine.Type;
         JobJnlLine."No." := JobPlanningLine."No.";
@@ -327,8 +323,113 @@ codeunit 1004 "Job Transfer Line"
 #endif
         OnAfterFromPlanningLineToJnlLine(JobJnlLine, JobPlanningLine);
 
-        JobJnlLine.UpdateDimensions;
-        ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1, JobJnlLine.RowID1, false);
+        JobJnlLine.UpdateDimensions();
+        ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
+
+        JobJnlLine.Insert(true);
+    end;
+
+    // Create 'Job Journal Line' from 'Warehouse Activity Line'
+    procedure FromWarehouseActivityLineToJnlLine(WarehouseActivityLine: Record "Warehouse Activity Line"; PostingDate: Date; JobJournalTemplateName: Code[10]; JobJournalBatchName: Code[10]; var JobJnlLine: Record "Job Journal Line")
+    var
+        JobTask: Record "Job Task";
+        JobJnlLine2: Record "Job Journal Line";
+        JobPlanningLine: Record "Job Planning Line";
+        JobJournalTemplate: Record "Job Journal Template";
+        JobJournalBatch: Record "Job Journal Batch";
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        JobPlanningLines: Page "Job Planning Lines";
+    begin
+        WarehouseActivityLine.TestField("Qty. to Handle");
+
+        if JobJournalTemplateName <> '' then begin
+            if not JobJournalTemplate.Get(JobJournalTemplateName) then
+                Error(Text001, JobJournalTemplate.TableCaption, JobJournalTemplateName);
+            if not JobJournalBatch.Get(JobJournalTemplateName, JobJournalBatchName) then
+                Error(Text001, JobJournalBatch.TableCaption, JobJournalBatchName);
+        end;
+        if PostingDate = 0D then
+            PostingDate := WorkDate();
+
+        JobPlanningLine.SetLoadFields(
+            "Job No.", "Job Task No.", "Usage Link", "Line No.", "Line Type", Type, "No.", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
+            "Serial No.", "Lot No.", Description, "Description 2", "Unit of Measure Code", "Currency Code", "Currency Factor", "Resource Group No.",
+            "Location Code", "Work Type Code", "Customer Price Group", "Variant Code", "Bin Code", "Service Order No.", "Country/Region Code",
+            "Qty. per Unit of Measure", "Direct Unit Cost (LCY)", "Unit Cost", "Unit Price", "Line Discount %", "Document No.");
+        JobPlanningLine.SetRange("Job No.", WarehouseActivityLine."Source No.");
+        JobPlanningLine.SetRange("Job Contract Entry No.", WarehouseActivityLine."Source Line No.");
+
+        if JobPlanningLine.IsEmpty() then
+            Error(JobPlanningLineNotFoundErr, JobPlanningLines.Caption(), WarehouseActivityLine.TableCaption(), WarehouseActivityLine.FieldCaption("Source No."),
+                    WarehouseActivityLine."Source No.", WarehouseActivityLine.FieldCaption("Source Line No."), WarehouseActivityLine."Source Line No.");
+
+        if JobPlanningLine.Count() > 1 then
+            Error(DuplicateJobplanningLinesErr, JobPlanningLine.TableCaption(), JobPlanningLine.FieldCaption("Job Contract Entry No."), JobPlanningLine."Job Contract Entry No.");
+
+        JobPlanningLine.FindFirst();
+
+        JobJnlLine.Init();
+        JobJnlLine.Validate("Journal Template Name", JobJournalTemplate.Name);
+        JobJnlLine.Validate("Journal Batch Name", JobJournalBatch.Name);
+
+        JobJnlLine2.SetLoadFields("Line No.");
+        JobJnlLine2.SetRange("Journal Template Name", JobJournalTemplate.Name);
+        JobJnlLine2.SetRange("Journal Batch Name", JobJournalBatch.Name);
+        if JobJnlLine2.FindLast() then
+            JobJnlLine.Validate("Line No.", JobJnlLine2."Line No." + 10000)
+        else
+            JobJnlLine.Validate("Line No.", 10000);
+
+        JobJnlLine."Job No." := JobPlanningLine."Job No.";
+        JobJnlLine."Job Task No." := JobPlanningLine."Job Task No.";
+
+        if JobPlanningLine."Usage Link" then begin
+            JobJnlLine."Job Planning Line No." := JobPlanningLine."Line No.";
+            JobJnlLine."Line Type" := JobPlanningLine.ConvertToJobLineType();
+        end;
+
+        JobTask.Get(JobPlanningLine."Job No.", JobPlanningLine."Job Task No.");
+        JobJnlLine."Posting Group" := JobTask."Job Posting Group";
+        JobJnlLine."Posting Date" := PostingDate;
+        JobJnlLine."Document Date" := PostingDate;
+
+        JobJnlLine."Document No." := JobPlanningLine."Job No.";
+        if JobPlanningLine."Document No." <> '' then
+            JobJnlLine."Document No." := JobPlanningLine."Document No.";
+
+        JobJnlLine.Type := JobPlanningLine.Type;
+        JobJnlLine."No." := JobPlanningLine."No.";
+        JobJnlLine."Entry Type" := JobJnlLine."Entry Type"::Usage;
+        JobJnlLine."Gen. Bus. Posting Group" := JobPlanningLine."Gen. Bus. Posting Group";
+        JobJnlLine."Gen. Prod. Posting Group" := JobPlanningLine."Gen. Prod. Posting Group";
+        JobJnlLine.CopyTrackingFromJobPlanningLine(JobPlanningLine);
+        JobJnlLine.Description := WarehouseActivityLine.Description;
+        JobJnlLine."Description 2" := WarehouseActivityLine."Description 2";
+        JobJnlLine.Validate("Unit of Measure Code", WarehouseActivityLine."Unit of Measure Code");
+        JobJnlLine."Currency Code" := JobPlanningLine."Currency Code";
+        JobJnlLine."Currency Factor" := JobPlanningLine."Currency Factor";
+        JobJnlLine."Resource Group No." := JobPlanningLine."Resource Group No.";
+        JobJnlLine."Location Code" := WarehouseActivityLine."Location Code";
+        JobJnlLine."Work Type Code" := JobPlanningLine."Work Type Code";
+        JobJnlLine."Customer Price Group" := JobPlanningLine."Customer Price Group";
+        JobJnlLine."Variant Code" := WarehouseActivityLine."Variant Code";
+        JobJnlLine."Bin Code" := WarehouseActivityLine."Bin Code";
+        JobJnlLine."Service Order No." := JobPlanningLine."Service Order No.";
+        JobJnlLine."Country/Region Code" := JobPlanningLine."Country/Region Code";
+        JobJnlLine."Source Code" := JobJournalTemplate."Source Code";
+        JobJnlLine."Serial No." := WarehouseActivityLine."Serial No.";
+        JobJnlLine."Lot No." := WarehouseActivityLine."Lot No.";
+        JobJnlLine."Package No." := WarehouseActivityLine."Package No.";
+
+        JobJnlLine.Validate(Quantity, WarehouseActivityLine."Qty. to Handle");
+        JobJnlLine.Validate("Qty. per Unit of Measure", WarehouseActivityLine."Qty. per Unit of Measure");
+        JobJnlLine."Direct Unit Cost (LCY)" := JobPlanningLine."Direct Unit Cost (LCY)";
+        JobJnlLine.Validate("Unit Cost", JobPlanningLine."Unit Cost");
+        JobJnlLine.Validate("Unit Price", JobPlanningLine."Unit Price");
+        JobJnlLine.Validate("Line Discount %", JobPlanningLine."Line Discount %");
+
+        JobJnlLine.UpdateDimensions();
+        ItemTrackingMgt.CopyItemTracking(JobPlanningLine.RowID1(), JobJnlLine.RowID1(), false);
 
         JobJnlLine.Insert(true);
     end;
@@ -628,10 +729,6 @@ codeunit 1004 "Job Transfer Line"
 #if not CLEAN18
             JobJnlLine."Shipment Method Code" := PurchHeader."Shipment Method Code";
 #endif
-#if not CLEAN17
-            JobJnlLine."Tariff No." := "Tariff No.";
-            JobJnlLine."Statistic Indication" := "Statistic Indication";
-#endif
 #if not CLEAN18
             JobJnlLine."Net Weight" := "Net Weight";
             JobJnlLine."Country/Region of Origin Code" := "Country/Region of Origin Code";
@@ -664,7 +761,7 @@ codeunit 1004 "Job Transfer Line"
     begin
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
-        if JobPlanningLine.FindFirst then begin
+        if JobPlanningLine.FindFirst() then begin
             // Update Prices
             if JobPlanningLine."Currency Code" <> '' then begin
                 JobPlanningLine."Unit Price (LCY)" := SalesLine."Unit Price" / CurrencyFactor;
@@ -806,4 +903,4 @@ codeunit 1004 "Job Transfer Line"
     begin
     end;
 }
-
+#endif

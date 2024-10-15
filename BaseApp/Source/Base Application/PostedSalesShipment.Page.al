@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 130 "Posted Sales Shipment"
 {
     Caption = 'Posted Sales Shipment';
@@ -138,6 +139,10 @@ page 130 "Posted Sales Shipment"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the sales shipment. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -534,12 +539,20 @@ page 130 "Posted Sales Shipment"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
         }
@@ -700,7 +713,7 @@ page 130 "Posted Sales Shipment"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -725,7 +738,7 @@ page 130 "Posted Sales Shipment"
                 begin
                     PostedSalesShipmentUpdate.LookupMode := true;
                     PostedSalesShipmentUpdate.SetRec(Rec);
-                    PostedSalesShipmentUpdate.RunModal;
+                    PostedSalesShipmentUpdate.RunModal();
                 end;
             }
         }
@@ -759,4 +772,4 @@ page 130 "Posted Sales Shipment"
     begin
     end;
 }
-
+#endif

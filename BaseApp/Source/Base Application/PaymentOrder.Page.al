@@ -215,7 +215,7 @@ page 11716 "Payment Order"
                         ApprovalEntries: Page "Approval Entries";
                     begin
                         ApprovalEntries.Setfilters(DATABASE::"Payment Order Header", 0, "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.Run();
                     end;
                 }
             }
@@ -312,7 +312,7 @@ page 11716 "Payment Order"
                         SuggestPayments: Report "Suggest Payments";
                     begin
                         SuggestPayments.SetPaymentOrder(Rec);
-                        SuggestPayments.RunModal;
+                        SuggestPayments.RunModal();
                     end;
                 }
                 action(Import)
@@ -328,24 +328,6 @@ page 11716 "Payment Order"
                         ImportPaymentOrder;
                     end;
                 }
-#if not CLEAN17
-                action("Uncertainty VAT Payment Check")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Uncertainty VAT Payment Check';
-                    Image = ElectronicPayment;
-                    ToolTip = 'Checks uncertaintie vat of the vendor';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-
-                    trigger OnAction()
-                    begin
-                        ImportUncPayerStatus();
-                    end;
-                }
-#endif
             }
             group("&Release")
             {
@@ -516,7 +498,7 @@ page 11716 "Payment Order"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         IssuedPaymentOrderHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if IssuedPaymentOrderHeader.FindFirst then
+        if IssuedPaymentOrderHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(OpenIssuedPayOrdQst, InstructionMgt.ShowIssuedConfirmationMessageCode) then
                 PAGE.Run(PAGE::"Issued Payment Order", IssuedPaymentOrderHeader);
     end;

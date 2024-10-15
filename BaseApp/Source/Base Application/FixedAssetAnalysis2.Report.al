@@ -628,7 +628,7 @@ report 31042 "Fixed Asset - Analysis 2"
             exit;
         with FADateType do begin
             SetRange("FA Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TypeExist := lteDateType = "FA Date Type Name";
                     if TypeExist then
@@ -646,7 +646,7 @@ report 31042 "Fixed Asset - Analysis 2"
             exit;
         with FAPostingType do begin
             SetRange("FA Entry", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     TypeExist := ltePostingType = "FA Posting Type Name";
                     if TypeExist then

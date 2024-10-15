@@ -367,7 +367,7 @@ page 31002 "Sales Advance Letters"
             0:
                 exit(Result);
             1:
-                Result := SalesAdvPmtTemplate.FindFirst;
+                Result := SalesAdvPmtTemplate.FindFirst();
             else begin
                     Result := PAGE.RunModal(PAGE::"Sales Advanced Paym. Selection", SalesAdvPmtTemplate) = ACTION::LookupOK;
                     if not Result then

@@ -272,7 +272,7 @@ page 521 "Application Worksheet"
                     begin
                         Clear(ApplicationsForm);
                         ApplicationsForm.SetRecordToShow(Rec, Apply, true);
-                        ApplicationsForm.Run;
+                        ApplicationsForm.Run();
                         InsertUnapplyItem("Item No.");
                         CurrPage.Update();
                     end;
@@ -520,7 +520,7 @@ page 521 "Application Worksheet"
         Item: Record Item;
     begin
         with TempUnapplyItem do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     Item.Get("No.");
                     if Item."Application Wksh. User ID" = UpperCase(UserId) then begin

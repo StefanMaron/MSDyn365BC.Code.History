@@ -189,13 +189,13 @@ page 161 "Purchase Statistics"
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because a vendor invoice discount with the code %1 exists.';
         PurchSetup: Record "Purchases & Payables Setup";
-        PurchPost: Codeunit "Purch.-Post";
 
     protected var
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TotalPurchLine: Record "Purchase Line";
         TotalPurchLineLCY: Record "Purchase Line";
+        PurchPost: Codeunit "Purch.-Post";
         VATAmount: Decimal;
         TotalAmount1: Decimal;
         TotalAmount2: Decimal;
@@ -345,7 +345,7 @@ page 161 "Purchase Statistics"
         PurchPost.SumPurchLinesTemp(
           Rec, TempPurchLine, 0, TotalPurchLine, TotalPurchLineLCY, VATAmount, VATAmountText);
 
-        OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(Rec, TempPurchLine, AllowVATDifference);
+        OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(Rec, TempPurchLine, AllowVATDifference, TotalAmount1, TotalAmount2);
 
         if Rec."Prices Including VAT" then begin
             TotalAmount2 := TotalPurchLine.Amount;
@@ -379,7 +379,7 @@ page 161 "Purchase Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(var PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line"; var AllowVATDifference: Boolean)
+    local procedure OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(var PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line"; var AllowVATDifference: Boolean; var TotalAmount1: Decimal; var TotalAmount2: Decimal)
     begin
     end;
 

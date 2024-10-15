@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 5629 "Fixed Asset Journal"
 {
     ApplicationArea = FixedAssets;
@@ -91,6 +92,9 @@ page 5629 "Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the entry as a corrective entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field(Amount; Amount)
                 {
@@ -146,6 +150,9 @@ page 5629 "Fixed Asset Journal"
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the reason code on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Insurance No."; "Insurance No.")
                 {
@@ -569,4 +576,4 @@ page 5629 "Fixed Asset Journal"
     begin
     end;
 }
-
+#endif

@@ -103,11 +103,22 @@ page 507 "Blanket Sales Order"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact person at the customer.';
 
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not SelltoContactLookup() then
+                                exit(false);
+                            Text := Rec."Sell-to Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
+
                         trigger OnValidate()
                         begin
                             if GetFilter("Sell-to Contact No.") = xRec."Sell-to Contact No." then
                                 if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
                                     SetRange("Sell-to Contact No.");
+                            if "Sell-to Contact No." <> xRec."Sell-to Contact No." then
+                                CurrPage.Update();
                         end;
                     }
                     field(SellToPhoneNo; SellToContact."Phone No.")
@@ -239,8 +250,12 @@ page 507 "Blanket Sales Order"
                     trigger OnValidate()
                     begin
                         CurrPage.Update();
-                        SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
@@ -271,6 +286,7 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -306,6 +322,12 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the payment discount percentage that is granted if the customer pays on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -517,18 +539,11 @@ page 507 "Blanket Sales Order"
                             ToolTip = 'Specifies the customer to whom you will send the invoice, when different from the customer that you are selling to.';
 
                             trigger OnValidate()
-                            var
-                                ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                             begin
                                 if GetFilter("Bill-to Customer No.") = xRec."Bill-to Customer No." then
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
-
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                                CurrPage.Update(false);
+                                CurrPage.Update();
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -742,11 +757,12 @@ page 507 "Blanket Sales Order"
                     var
                         Handled: Boolean;
                     begin
+                        Handled := false;
                         OnBeforeStatisticsAction(Rec, Handled);
-                        if not Handled then begin
-                            OpenSalesOrderStatistics;
-                            SalesCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
-                        end
+                        if Handled then
+                            exit;
+
+                        OpenSalesOrderStatistics();
                     end;
                 }
                 action(Card)
@@ -804,9 +820,9 @@ page 507 "Blanket Sales Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -825,7 +841,7 @@ page 507 "Blanket Sales Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -978,6 +994,7 @@ page 507 "Blanket Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
                 action(Reopen)
@@ -996,6 +1013,7 @@ page 507 "Blanket Sales Order"
                         ReleaseSalesDoc: Codeunit "Release Sales Document";
                     begin
                         ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SalesLines.PAGE.ClearTotalSalesHeader();
                     end;
                 }
             }
@@ -1106,8 +1124,8 @@ page 507 "Blanket Sales Order"
     begin
         SetControlAppearance;
         UpdateShipToBillToGroupVisibility();
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1138,12 +1156,17 @@ page 507 "Blanket Sales Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
+
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1157,6 +1180,10 @@ page 507 "Blanket Sales Order"
         CanCancelApprovalForRecord: Boolean;
         [InDataSet]
         StatusStyleTxt: Text;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var
@@ -1194,6 +1221,7 @@ page 507 "Blanket Sales Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

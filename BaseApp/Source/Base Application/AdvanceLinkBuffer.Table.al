@@ -270,7 +270,7 @@ table 31018 "Advance Link Buffer"
                     PurchPostAdvances.CalcLinkedAmount(PurchAdvanceLetterLine, TempVendLedgEntry);
                     LinkedPrepayments.InsertVendEntries(TempVendLedgEntry);
                 end;
-            LinkedPrepayments.Run;
+            LinkedPrepayments.Run();
         end;
     end;
 #endif

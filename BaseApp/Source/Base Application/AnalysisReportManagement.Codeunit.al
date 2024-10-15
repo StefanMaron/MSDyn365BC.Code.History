@@ -89,7 +89,7 @@ codeunit 7110 "Analysis Report Management"
     begin
         if not AnalysisLineTemplate.Get(CurrentAnalysisArea, CurrentAnalysisLineTempl) then begin
             AnalysisLineTemplate.SetRange("Analysis Area", CurrentAnalysisArea);
-            if not AnalysisLineTemplate.FindFirst then begin
+            if not AnalysisLineTemplate.FindFirst() then begin
                 AnalysisLineTemplate.Init();
                 AnalysisLineTemplate."Analysis Area" := CurrentAnalysisArea;
                 AnalysisLineTemplate.Name := Text001;
@@ -150,18 +150,18 @@ codeunit 7110 "Analysis Report Management"
                 begin
                     AnalysisLinesForSale.SetCurrentAnalysisLineTempl(CurrentAnalysisLineTempl);
                     AnalysisLinesForSale.SetTableView(AnalysisLine);
-                    AnalysisLinesForSale.RunModal;
+                    AnalysisLinesForSale.RunModal();
                 end;
             AnalysisLine."Analysis Area"::Purchase:
                 begin
                     AnalysisLinesForPurchase.SetCurrentAnalysisLineTempl(CurrentAnalysisLineTempl);
                     AnalysisLinesForPurchase.SetTableView(AnalysisLine);
-                    AnalysisLinesForPurchase.RunModal;
+                    AnalysisLinesForPurchase.RunModal();
                 end;
             else
                 AnalysisLines.SetCurrentAnalysisLineTempl(CurrentAnalysisLineTempl);
                 AnalysisLines.SetTableView(AnalysisLine);
-                AnalysisLines.RunModal;
+                AnalysisLines.RunModal();
         end;
     end;
 
@@ -177,7 +177,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisColumn.FilterGroup := 0;
         AnalysisColumns.SetTableView(AnalysisColumn);
         AnalysisColumns.SetCurrentColumnName(CurrentColumnTempl);
-        AnalysisColumns.RunModal;
+        AnalysisColumns.RunModal();
     end;
 
     procedure OpenColumns(var CurrentColumnTempl: Code[10]; var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column")
@@ -203,7 +203,7 @@ codeunit 7110 "Analysis Report Management"
     begin
         if not AnalysisColumnTemplate.Get(CurrentAnalysisArea, CurrentColumnName) then begin
             AnalysisColumnTemplate.SetRange("Analysis Area", CurrentAnalysisArea);
-            if not AnalysisColumnTemplate.FindFirst then begin
+            if not AnalysisColumnTemplate.FindFirst() then begin
                 AnalysisColumnTemplate.Init();
                 AnalysisColumnTemplate."Analysis Area" := CurrentAnalysisArea;
                 AnalysisColumnTemplate.Name := Text001;
@@ -240,12 +240,12 @@ codeunit 7110 "Analysis Report Management"
         AnalysisColumn.SetRange(
           "Analysis Area", AnalysisLine.GetRangeMax("Analysis Area"));
         AnalysisColumn.SetRange("Analysis Column Template", ColumnName);
-        if AnalysisColumn.FindSet then begin
+        if AnalysisColumn.FindSet() then begin
             repeat
                 TempAnalysisColumn := AnalysisColumn;
                 TempAnalysisColumn.Insert();
             until AnalysisColumn.Next() = 0;
-            TempAnalysisColumn.FindFirst;
+            TempAnalysisColumn.FindFirst();
         end;
     end;
 
@@ -603,12 +603,12 @@ codeunit 7110 "Analysis Report Management"
                     end;
                 Type::"Sales/Purchase person":
                     begin
-                        GetSalesSetup;
+                        GetSalesSetup();
                         SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Salesperson Dimension Code", Range);
                     end;
                 Type::"Customer Group":
                     begin
-                        GetSalesSetup;
+                        GetSalesSetup();
                         SetGroupDimFilter(ItemStatisticsBuf, SalesSetup."Customer Group Dimension Code", Range);
                     end;
                 Type::"Item Group":
@@ -1759,7 +1759,7 @@ codeunit 7110 "Analysis Report Management"
             Line."Analysis Line Template Name" := OldLine."Analysis Line Template Name";
             Line."Line No." := OldLine."Line No.";
             if not Line.Find then
-                if Line.FindFirst then;
+                if Line.FindFirst() then;
         end else begin
             Line.MarkedOnly(false);
             Line.ClearMarks;
@@ -1785,7 +1785,7 @@ codeunit 7110 "Analysis Report Management"
     begin
         AnalysisFieldValue.SetRange("Row Ref. No.", RowNo);
         AnalysisFieldValue.SetRange("Column No.", ColumnNo);
-        if AnalysisFieldValue.FindFirst then begin
+        if AnalysisFieldValue.FindFirst() then begin
             AllErrorType :=
               AnalysisFieldValue."Has Error" and
               AnalysisFieldValue."Period Error" and

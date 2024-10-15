@@ -503,6 +503,11 @@ table 112 "Sales Invoice Header"
             Caption = 'Quote No.';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(166; "Last Email Sent Time"; DateTime)
         {
             CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = CONST(Invoice),
@@ -728,11 +733,7 @@ table 112 "Sales Invoice Header"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif            
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -860,50 +861,25 @@ table 112 "Sales Invoice Header"
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnLookup()
-            var
-                BankAcc: Record "Bank Account";
-            begin
-                // NAVCZ
-                if BankAcc.Get("Cash Desk Code") then;
-                if PAGE.RunModal(PAGE::"Cash Desk List", BankAcc) = ACTION::LookupOK then;
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11731; "Cash Document Status"; Option)
         {
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -911,13 +887,9 @@ table 112 "Sales Invoice Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11762; "Tax Corrective Document"; Boolean)
         {
@@ -940,24 +912,16 @@ table 112 "Sales Invoice Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -1048,13 +1012,9 @@ table 112 "Sales Invoice Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -1264,7 +1224,7 @@ table 112 "Sales Invoice Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure LookupAdjmtValueEntries()
@@ -1344,7 +1304,7 @@ table 112 "Sales Invoice Header"
         CustLedgerEntry.SetRange("Document No.", "No.");
         CustLedgerEntry.SetAutoCalcFields("Remaining Amount");
 
-        if not CustLedgerEntry.FindFirst then
+        if not CustLedgerEntry.FindFirst() then
             exit(0);
 
         exit(CustLedgerEntry."Remaining Amount");
@@ -1564,4 +1524,3 @@ table 112 "Sales Invoice Header"
     begin
     end;
 }
-

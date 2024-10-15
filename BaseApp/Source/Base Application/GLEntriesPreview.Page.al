@@ -21,17 +21,6 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry''s posting date.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the entry''s VAT Date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -126,7 +115,7 @@ page 122 "G/L Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger entry that is posted if you post in an additional reporting currency.';
-                    Visible = ACYVisible;
+                    Visible = false;
                 }
                 field("VAT Amount"; "VAT Amount")
                 {
@@ -300,21 +289,15 @@ page 122 "G/L Entries Preview"
 
     trigger OnOpenPage()
     begin
-        GLSetup.GetRecordOnce();
-        if GLSetup."Additional Reporting Currency" <> '' then
-            ACYVisible := true;
-
         SetDimVisibility();
     end;
 
     var
         GLAcc: Record "G/L Account";
-        GLSetup: Record "General Ledger Setup";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
 
     protected var
-        ACYVisible: Boolean;
         Dim1Visible: Boolean;
         Dim2Visible: Boolean;
         Dim3Visible: Boolean;

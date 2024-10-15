@@ -134,12 +134,6 @@ report 123 "Finance Charge Memo - Test"
                 column(Finance_Charge_Memo_Header___Fin__Charge_Terms_Code_Caption; "Finance Charge Memo Header".FieldCaption("Fin. Charge Terms Code"))
                 {
                 }
-#if not CLEAN17
-                column(Finance_Charge_Memo_Header___RegistrationNo; "Finance Charge Memo Header"."Registration No.")
-                {
-                    IncludeCaption = true;
-                }
-#endif
                 dataitem(DimensionLoop; "Integer")
                 {
                     DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
@@ -156,7 +150,7 @@ report 123 "Finance Charge Memo - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -329,36 +323,11 @@ report 123 "Finance Charge Memo - Test"
                     column(Finance_Charge_Memo_Line__VAT_Amount_Caption; FieldCaption("VAT Amount"))
                     {
                     }
-                    dataitem("Detailed Fin. Charge Memo Line"; "Detailed Fin. Charge Memo Line")
+                    column(MulIntRateEntry_FinChrgMemoLine; "Detailed Interest Rates Entry")
                     {
-                        CalcFields = "Posting Date";
-                        DataItemLink = "Finance Charge Memo No." = FIELD("Finance Charge Memo No."), "Fin. Charge. Memo Line No." = FIELD("Line No.");
-                        DataItemTableView = SORTING("Finance Charge Memo No.", "Fin. Charge. Memo Line No.", "Detailed Customer Entry No.", "Line No.");
-                        column(Det_Finance_Charge_Memo_Line_DocumentNo; "Detailed Fin. Charge Memo Line"."Document No.")
-                        {
-                            IncludeCaption = true;
-                        }
-                        column(Det_Finance_Charge_Memo_Line_PostingDate; Format("Detailed Fin. Charge Memo Line"."Posting Date"))
-                        {
-                        }
-                        column(Det_Finance_Charge_Memo_Line_InterestRate; "Detailed Fin. Charge Memo Line"."Interest Rate")
-                        {
-                            IncludeCaption = true;
-                        }
-                        column(Det_Finance_Charge_Memo_Line_BaseAmount; "Detailed Fin. Charge Memo Line"."Base Amount")
-                        {
-                            IncludeCaption = true;
-                        }
-                        column(Det_Finance_Charge_Memo_Line_InterestAmount; "Detailed Fin. Charge Memo Line"."Interest Amount")
-                        {
-                            IncludeCaption = true;
-                        }
-
-                        trigger OnPreDataItem()
-                        begin
-                            if not PrintDetailedFinChargeMemoLine then
-                                CurrReport.Break();
-                        end;
+                    }
+                    column(ShowMIRLines; ShowMIRLines)
+                    {
                     }
                     dataitem(LineErrorCounter; "Integer")
                     {
@@ -383,29 +352,31 @@ report 123 "Finance Charge Memo - Test"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATAmountLine.Init();
-                        VATAmountLine."VAT Identifier" := "VAT Identifier";
-                        VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                        VATAmountLine."Tax Group Code" := "Tax Group Code";
-                        VATAmountLine."VAT %" := "VAT %";
-                        VATAmountLine."VAT Base" := Amount;
-                        VATAmountLine."VAT Amount" := "VAT Amount";
-                        VATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
-                        VATAmountLine.InsertLine;
+                        if not "Detailed Interest Rates Entry" then begin
+                            VATAmountLine.Init();
+                            VATAmountLine."VAT Identifier" := "VAT Identifier";
+                            VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
+                            VATAmountLine."Tax Group Code" := "Tax Group Code";
+                            VATAmountLine."VAT %" := "VAT %";
+                            VATAmountLine."VAT Base" := Amount;
+                            VATAmountLine."VAT Amount" := "VAT Amount";
+                            VATAmountLine."Amount Including VAT" := Amount + "VAT Amount";
+                            VATAmountLine.InsertLine;
 
-                        case Type of
-                            Type::"Customer Ledger Entry":
-                                begin
-                                    if Amount < 0 then
-                                        AddError(
-                                          StrSubstNo(
-                                            Text009,
-                                            FieldCaption(Amount)));
-                                end;
+                            case Type of
+                                Type::"Customer Ledger Entry":
+                                    begin
+                                        if Amount < 0 then
+                                            AddError(
+                                              StrSubstNo(
+                                                Text009,
+                                                FieldCaption(Amount)));
+                                    end;
+                            end;
+
+                            TotalAmount += Amount;
+                            TotalVatAmount += "VAT Amount";
                         end;
-
-                        TotalAmount += Amount;
-                        TotalVatAmount += "VAT Amount";
                     end;
 
                     trigger OnPreDataItem()
@@ -705,11 +676,11 @@ report 123 "Finance Charge Memo - Test"
                         Caption = 'Show Dimensions';
                         ToolTip = 'Specifies if you want dimensions information for the journal lines to be included in the report.';
                     }
-                    field(PrintDetailedFinChargeMemoLine; PrintDetailedFinChargeMemoLine)
+                    field(ShowMIR; ShowMIRLines)
                     {
                         ApplicationArea = Basic, Suite;
-                        Caption = 'Print Interest Details';
-                        ToolTip = 'Specifies if the interest details has to be printed.';
+                        Caption = 'Show MIR Details';
+                        ToolTip = 'Specifies if you want multiple interest rate details for the journal lines to be included in the report.';
                     }
                 }
             }
@@ -800,7 +771,7 @@ report 123 "Finance Charge Memo - Test"
         ContactPhoneNoLbl: Label 'Contact Phone No.';
         ContactMobilePhoneNoLbl: Label 'Contact Mobile Phone No.';
         ContactEmailLbl: Label 'Contact E-Mail';
-        PrintDetailedFinChargeMemoLine: Boolean;
+        ShowMIRLines: Boolean;
 
     local procedure AddError(Text: Text[250])
     begin

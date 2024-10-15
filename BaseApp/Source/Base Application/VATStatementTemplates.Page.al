@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 318 "VAT Statement Templates"
 {
     ApplicationArea = Basic, Suite;
@@ -23,15 +22,6 @@ page 318 "VAT Statement Templates"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement template.';
-                }
-                field("Allow Comments/Attachments"; "Allow Comments/Attachments")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the possibillity to allow or not allow comments or attachments insert.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
             }
         }
@@ -67,22 +57,8 @@ page 318 "VAT Statement Templates"
                     RunPageLink = "Statement Template Name" = FIELD(Name);
                     ToolTip = 'View or edit special tables to manage the tasks necessary for settling Tax and reporting to the customs and tax authorities.';
                 }
-                action("VAT Attribute Codes")
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Attribute Codes';
-                    Image = List;
-                    RunObject = Page "VAT Attribute Codes";
-                    RunPageLink = "VAT Statement Template Name" = FIELD(Name);
-                    ToolTip = 'Specifies a set of VAT attributes to use in this VAT Statement Template.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
             }
         }
     }
 }
 
-#endif

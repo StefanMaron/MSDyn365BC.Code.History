@@ -1,8 +1,9 @@
-codeunit 134007 "ERM Apply Unapply Vendor"
+﻿codeunit 134007 "ERM Apply Unapply Vendor"
 {
     Permissions = TableData "Vendor Ledger Entry" = rimd;
     Subtype = Test;
     TestPermissions = NonRestrictive;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -53,7 +54,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Additional Currency, Remaining Amount and Entries unapplied after Applying and then Unapplying Payment Entries for Vendor.
 
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
+        Initialize();
         NoOfLines := 2 * LibraryRandom.RandInt(2);
         Amount := -100 * LibraryRandom.RandInt(10);
         LibraryERM.SetAddReportingCurrency(CreateCurrency(0));
@@ -77,7 +78,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Additional Currency Amount, Detailed Vendor Ledger Entry after Unapplying, Applying Payment Entries Again for Vendor.
 
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
+        Initialize();
         ApplyUnapplySeveralVendorEntries(
           -1, GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment);
 
@@ -95,7 +96,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Additional Currency, Remaining Amount and Entries unapplied after Applying and then Unapplying Payment Entries for Vendor.
 
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
+        Initialize();
         ApplyUnapplySeveralVendorEntries(
           1, GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
 
@@ -116,7 +117,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Additional Currency Amount, Detailed Vendor Ledger Entry after Unapplying, Applying Payment Entries Again for Vendor.
 
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
+        Initialize();
         NoOfLines := 2 * LibraryRandom.RandInt(2);
         Amount := 100 * LibraryRandom.RandInt(10);
         LibraryERM.SetAddReportingCurrency(CreateCurrency(0));
@@ -160,7 +161,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         AppRounding: Decimal;
     begin
         // Setup: Create Invoice and Payment General Line with Different Currency.
-        Initialize;
+        Initialize();
         AppRounding := LibraryRandom.RandDec(10, 2);
         CreateGenLineAndApply(GenJournalLine, DocumentType, DocumentType2, AppRounding, Amount);
 
@@ -201,7 +202,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         AppRounding: Decimal;
     begin
         // Setup: Create Invoice and Payment General Line with Different Currency.
-        Initialize;
+        Initialize();
         AppRounding := LibraryRandom.RandDec(10, 2);
         CreateGenLineAndApply(GenJournalLine, DocumentType, DocumentType2, AppRounding, Amount);
         UnapplyVendorLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
@@ -221,7 +222,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Test that correct Source Code updated on Detailed Vendor Ledger Entry after Unapply Payment from Vendor Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ApplyUnapplyAndCheckSourceCode(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
@@ -234,7 +235,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Test that correct Source Code updated on Detailed Vendor Ledger Entry after Unapply Refund from Vendor Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         ApplyUnapplyAndCheckSourceCode(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandDec(100, 2));
     end;
@@ -266,7 +267,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
 
         // Setup: Create Bank Account, create and post General Journal Lines.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDec(100, 2);
         LibraryERM.CreateBankAccount(BankAccount);
 
@@ -288,7 +289,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Check that Payment cannot be Unapplied after Exchange Rate has been changed.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
 
         ChangeExchRateUnapply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(500));
@@ -302,13 +303,14 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Check that Refund cannot be Unapplied after Exchange Rate has been changed.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeExchRateUnapply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandInt(500));
     end;
 
     local procedure ChangeExchRateUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -324,7 +326,9 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           GenJournalLine."Account No.");
 
         // Exercise: Unapply Payment/Refund from Vendor Ledger Entry.
-        asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, GenJournalLine."Document No.", PostingDate);
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Document No.";
+        ApplyUnapplyParameters."Posting Date" := PostingDate;
+        asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error on Unapply after Exchange Rate has been changed.
         Assert.AreEqual(StrSubstNo(UnapplyExchangeRateErr, WorkDate), GetLastErrorText, MessageDoNotMatchErr);
@@ -338,7 +342,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Check Document No can be change when Unapply Payment from Vendor Ledger Entry.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeDocumentNoAndUnapply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(500));
     end;
@@ -351,13 +355,14 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Check Document No can be change when Unapply Refund from Vendor Ledger Entry.
         // Use Random Nunber Generator for Amount.
-        Initialize;
+        Initialize();
         ChangeDocumentNoAndUnapply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, LibraryRandom.RandInt(500));
     end;
 
     local procedure ChangeDocumentNoAndUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -371,8 +376,9 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         DocumentNo := GenJournalLine."Account No.";
 
         // Exercise: Change Document No and Unapply Payment/Refund from Vendor Ledger Entry.
-        VendEntryApplyPostedEntries.PostUnApplyVendor(
-          DetailedVendorLedgEntry, GenJournalLine."Account No.", GenJournalLine."Posting Date");
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Account No.";
+        ApplyUnapplyParameters."Posting Date" := GenJournalLine."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Check Detailed Vendor Ledger Entry with updated Document No exist after Unapply.
         FindDetailedLedgerEntry(DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::Application, DocumentNo, DocumentNo);
@@ -382,6 +388,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     [Scope('OnPrem')]
     procedure UnapplyDateCompressVendLedger()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -403,8 +410,9 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           DetailedVendorLedgEntry, DetailedVendorLedgEntry."Entry Type"::Application, '', GenJournalLine."Account No.");
 
         // Exercise: Unapply Vendor Ledger Entry Which have been Date Compress.
-        asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(
-            DetailedVendorLedgEntry, GenJournalLine."Account No.", GenJournalLine."Posting Date");
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Account No.";
+        ApplyUnapplyParameters."Posting Date" := GenJournalLine."Posting Date";
+        asserterror VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Verify error when Unapplying Vendor Ledger entry which have been Date Compress.
         Assert.AreEqual(StrSubstNo(DateCompressUnapplyErr, VendorLedgerEntry.TableCaption), GetLastErrorText, MessageDoNotMatchErr);
@@ -418,7 +426,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Invoice from Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromVendorLedger(GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -430,7 +438,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Payment from Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromVendorLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -442,7 +450,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Credit Memo from Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromVendorLedger(GenJournalLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(100, 2));
     end;
 
@@ -454,7 +462,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Refund from Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromVendorLedger(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -488,7 +496,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Invoice from Detailed Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldVendorLedger(GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -500,7 +508,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Payment from Detailed Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldVendorLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -512,7 +520,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Credit Memo from Detailed Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldVendorLedger(GenJournalLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(100, 2));
     end;
 
@@ -524,7 +532,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Unapply Refund from Detailed Vendor Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
+        Initialize();
         UnapplyFromDtldVendorLedger(GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -570,7 +578,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Check Remaining Amount on Vendor Ledger Entry after Creating and Posting Purchase Invoice without Currency and Apply with Partial Payment.
 
         // Setup: Create and Post Purchase Invoice, Create a Vendor Payment and apply it to posted Invoice.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
@@ -608,7 +616,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Check Remaining Amount on Vendor Ledger Entry after Creating and Posting Purchase Invoice with Currency and Apply with Partial Payment.
 
         // Setup: Create and Post Purchase Invoice with Currency, Create a Vendor Payment without Currency and apply it to posted Invoice after modifying Payment Amount.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         PaymentTolerance := LibraryRandom.RandDec(10, 2);  // Using Random value for Payment Tolerance.
@@ -646,7 +654,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Check General Ledger, Vendor Ledger and Detailed Vendor ledger entries after Posting Purchase Order with Currency and Payment method with a balance account.
 
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Vendor with Currency and with Payment method with a balance account.
-        Initialize;
+        Initialize();
         SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency(0));  // Taken 0 value for Rounding Precision.
@@ -674,7 +682,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         DocumentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Payment Method Code", FindPaymentMethodWithBalanceAccount);
         Vendor.Modify(true);
@@ -704,7 +712,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Check General Ledger, Vendor Ledger and Detailed Vendor ledger entries after posting Purchase documents with Currency and Apply to Oldest Application Method.
 
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Vendor with Currency and with Apply to Oldest Application Method, Create and post Purchase Invoice with Random Quantity and Direct Unit Cost.
-        Initialize;
+        Initialize();
         SetApplnRoundingPrecision(LibraryRandom.RandDec(10, 2));  // Taken Random value for Rounding Precision.
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency(LibraryRandom.RandDec(10, 2)));  // Taken Random value for Rounding Precision.
@@ -739,7 +747,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify VAT Amount on G/L Entry after Unappling Payment from Vendor Ledger Entry.
 
         // Setup: Modify General Ledger Setup,VAT Posting Setup and Create Vendor With Payment Terms.Post Purchase Invoice and Payment Line.
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
         LibraryPmtDiscSetup.SetPmtTolerance(LibraryRandom.RandDec(100, 2));
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -756,7 +764,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify: Verify VAT Amount on G/L Entry.
         VerifyVATAmountOnGLEntry(GenJournalLine);
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         // TearDown: Cleanup of setup done.
         SetAdjustForPaymentDiscInVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
@@ -774,7 +782,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Amount To Apply on Vendor Ledger Entries after Invoking Apply Vendor Entries for Invoice.
 
         // Setup: Post Invoice and Payment for Vendor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         DocumentNo := CreateAndPostPurchDocAndPayment(GenJournalLine, Vendor."No.", PurchaseHeader."Document Type"::Order);
 
@@ -798,7 +806,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Amount To Apply on Vendor Ledger Entries after Invoking Apply Vendor Entries for Payment.
 
         // Setup: Post Invoice and Payment for Vendor.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchDocAndPayment(GenJournalLine, Vendor."No.", PurchaseHeader."Document Type"::Invoice);
 
@@ -821,7 +829,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify that Apply Vendor Entry Page Shows Correct value when payment is applied under due date.
 
         // Setup: Create and post Gen journal line for two Invoice and two Credit Memo. and Create One Payment Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(
           GenJournalLine, 2, CreateVendor, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandIntInRange(100, 200));
         ModifyGenJournalLine(GenJournalLine);
@@ -846,7 +854,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     procedure ApplyUnapplyPurchInvoicesWithDimVals()
     begin
         // Verify that Dimension Set ID and Global Dimension values are correct after unapply of Vendor Ledger Entries with different Dimension Set IDs.
-        Initialize;
+        Initialize();
         ApplyUnapplyVendEntriesWithMiscDimSetIDs(
           LibraryRandom.RandIntInRange(3, 10));
     end;
@@ -884,7 +892,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify that "Applies To Doc. No." can be validated with "Credit Memo" for Refund journal line.
 
         // Setup: Post credit memo and create empty refund line without vendor and amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateGeneralJournalLine(
           GenJnlLine, 1, Vendor."No.", GenJnlLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(100, 2));
@@ -921,7 +929,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Verify Applied Amount on Apply Entries Page when applying entries in different currencies
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         SelectGenJournalBatch(GenJournalBatch);
         ExchangeRateAmount := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -968,7 +976,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // [SCENARIO] Apply / Unapply Payment in additional currency to Invoice in foreigh currency with certain exchange rates
 
         // [GIVEN] No VAT setup, Foreign Currency and Additional Currency.
-        Initialize;
+        Initialize();
         SetupSpecificExchRates(ForeignCurrencyCode, AdditionalCurrencyCode, InvoiceDate);
         CreateVendorAndItem(VendorNo, ItemNo, ForeignCurrencyCode);
         LibraryERM.SetAddReportingCurrency(AdditionalCurrencyCode);
@@ -1014,10 +1022,10 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         i: Integer;
     begin
         // [SCENARIO 121881] Verify balance by dimensions = 0 after Apply/Unapply several Payments to Invoices with different dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Last "G/L Entry" = LastGLEntryNo
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastGLEntryNo := GLEntry."Entry No.";
 
         // [GIVEN] Vendor with possible discount
@@ -1097,7 +1105,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount]
         // [SCENARIO 229786] There are no VAT and G/L Entries created when unapplies the entry without discount but with Reverse Charge and "Adjust For Payment Discount"
-        Initialize;
+        Initialize();
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         // [GIVEN] Posted invoice with Reverse Charge VAT setup with "Adjust For Payment Discount"
@@ -1115,7 +1123,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // [WHEN] Unapply the empty document application
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, "Gen. Journal Document Type"::" ", GenJnlLine."Document No.");
         LibraryERM.UnapplyVendorLedgerEntry(VendLedgEntry);
 
@@ -1139,12 +1147,12 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         Amount: array[2] of Decimal;
     begin
         // [SCENARIO 233340] Credit-memo does not become closed when it is applied to Payment with less amount (by absolute value).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor.
         Amount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
         Amount[2] := LibraryRandom.RandDecInRange(10, 20, 2);
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Credit memo with Amount = 100 LCY is posted in the purchase journal.
         CreateAndPostGenJournalLine(
@@ -1165,6 +1173,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           VendorLedgerEntry."Document Type"::Payment, DocumentNo[2], 0);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
@@ -1182,7 +1191,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // [FEATURE] [FCY] [Adjust Exchange Rate]
         // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
-        Initialize;
+        Initialize();
 
         // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
         PostingDate[1] := WorkDate;
@@ -1222,6 +1231,68 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // [THEN] This invoice is balanced to its adjusted exchange rate
         VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
     end;
+#endif
+
+    [Test]
+    [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyEntryWithLaterExchRateAdjustment()
+    var
+        Vendor: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+        ERMApplyUnapplyVendor: Codeunit "ERM Apply Unapply Vendor";
+        Amount: array[2] of Decimal;
+        PostingDate: array[3] of Date;
+        CurrencyCode: Code[10];
+        Rate: Decimal;
+    begin
+        // [FEATURE] [FCY] [Adjust Exchange Rate]
+        // [SCENARIO 304391] "Remaining Amt. (LCY)" should match "Adjusted Currency Factor" after Unapply of the entry being adjusted on the later date.
+        Initialize;
+        BindSubscription(ERMApplyUnapplyVendor);
+
+        // [GIVEN] USD has different exchange rates on 01.01, 15.01, 31.01.
+        PostingDate[1] := WorkDate;
+        PostingDate[2] := PostingDate[1] + 1;
+        PostingDate[3] := PostingDate[2] + 1;
+        Rate := LibraryRandom.RandDec(10, 2);
+        CurrencyCode := CreateCurrencyAndExchangeRate(Rate, 1, PostingDate[1]);
+        CreateExchangeRate(CurrencyCode, Rate * 1.2, 1, PostingDate[2]);
+        CreateExchangeRate(CurrencyCode, Rate * 0.85, 1, PostingDate[3]);
+
+        // [GIVEN] Invoice of 100 USD posted on 01.01, where "Document No." is 'INV001'
+        LibraryPurchase.CreateVendor(Vendor);
+        SelectGenJournalBatch(GenJournalBatch);
+        Amount[1] := -LibraryRandom.RandDecInRange(10000, 20000, 2);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[1], GenJournalBatch, PostingDate[1],
+          GenJournalLine[1]."Document Type"::Invoice, Vendor."No.", CurrencyCode, Amount[1]);
+
+        // [GIVEN] Payment of 150 USD posted on 15.01, applied to Invoice
+        Amount[2] := Round(-Amount[1] * 1.5, 0.01);
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine[2], GenJournalBatch, PostingDate[2],
+          GenJournalLine[2]."Document Type"::Payment, Vendor."No.", CurrencyCode, Amount[2]);
+        ApplyVendorLedgerEntryWithAmount(GenJournalLine[1]."Document Type", GenJournalLine[2]."Document Type", Amount[1],
+          GenJournalLine[1]."Document No.", GenJournalLine[2]."Document No.");
+
+        // [GIVEN] Payment has been adjusted by "Adjust Exchange Rate" on 31.01
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, PostingDate[3], PostingDate[3]);
+
+        // [WHEN] Unapply Invoice and Payment on 15.01
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, GenJournalLine[1]."Document Type", GenJournalLine[1]."Document No.");
+        VendEntryApplyPostedEntries.UnApplyVendLedgEntry(VendorLedgerEntry."Entry No.");
+        UnbindSubscription(ERMApplyUnapplyVendor);
+
+        // [THEN] This Payment is balanced to its adjusted exchange rate
+        VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[1]."Document No.", GenJournalLine[1]."Document Type");
+
+        // [THEN] This invoice is balanced to its adjusted exchange rate
+        VerifyVendLedgerEntryRemAmtLCYisBalanced(GenJournalLine[2]."Document No.", GenJournalLine[2]."Document Type");
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -1239,7 +1310,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // [FEATURE] [Reverse Charge VAT] [Adjust For Payment Discount] [ACY]
         // [SCENARIO 348963] Payment applied to the invoice with reverse charge VAT and payment discount gives zero Add.Curr Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Adjustment for Payment Discount is turned on
         LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
@@ -1275,17 +1346,19 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // [THEN] Amount and "Additional-Currency Amount" not equal to 0 in reverse charge VAT Entry created for the payment
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         VATEntry.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
         VATEntry.TestField(Amount);
         VATEntry.TestField("Additional-Currency Amount");
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('MessageHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchangeRates()
     var
+        ApplyUnapplyVendor: Record "Apply Unapply Parameters";
         Currency: Record Currency;
         Vendor: Record Vendor;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1363,8 +1436,105 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
         DetailedVendorLedgEntry.FindLast();
 
-        VendEntryApplyPostedEntries.PostUnApplyVendor(
-          DetailedVendorLedgEntry, VendorLedgerEntryPayment."Document No.", VendorLedgerEntryPayment."Posting Date");
+        ApplyUnapplyVendor."Document No." := VendorLedgerEntryPayment."Document No.";
+        ApplyUnapplyVendor."Posting Date" := VendorLedgerEntryPayment."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyVendor);
+
+        VendorLedgerEntryPayment.Find();
+        VendorLedgerEntryPayment.TestField(Open, true);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchRates()
+    var
+        Currency: Record Currency;
+        Vendor: Record Vendor;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VendorLedgerEntryPayment: Record "Vendor Ledger Entry";
+        VendorLedgerEntryInvoice: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
+        VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
+        ERMApplyUnapplyVendor: Codeunit "ERM Apply Unapply Vendor";
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [FCY] [Unapply] [Apply]
+        // [SCENARIO 399430] Stan can Unapply vendor's payment that is applied to multiple invoices with different currency rates and multiple currency rate adjustment.
+        Initialize();
+        BindSubscription(ERMApplyUnapplyVendor);
+
+        PrepareCurrency(Currency, 0);
+
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 8, 2020), 0.12901, 0.12901);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 9, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 10, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 11, 2020), 0.12905, 0.12905);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 12, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 1, 2021), 0.12903, 0.12903);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+
+        SelectGenJournalBatch(GenJournalBatch);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(19, 8, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -400);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(30, 9, 2020), DMY2Date(30, 9, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -850);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -250);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(17, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Vendor."No.", Currency.Code, -244140);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(30, 11, 2020), DMY2Date(30, 11, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(7, 1, 2021),
+          GenJournalLine."Document Type"::Payment, Vendor."No.", Currency.Code, 77280);
+
+        VendorLedgerEntryPayment.SetRange("Vendor No.", Vendor."No.");
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntryPayment, VendorLedgerEntryPayment."Document Type"::Payment, GenJournalLine."Document No.");
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryPayment);
+
+        VendorLedgerEntryInvoice.SetRange("Vendor No.", Vendor."No.");
+        VendorLedgerEntryInvoice.SetRange("Document Type", VendorLedgerEntryInvoice."Document Type"::Invoice);
+
+        LibraryERM.SetAppliestoIdVendor(VendorLedgerEntryInvoice);
+
+        LibraryERM.PostVendLedgerApplication(VendorLedgerEntryPayment);
+
+        LibraryERM.RunExchRateAdjustmentSimple(Currency.Code, DMY2Date(31, 12, 2020), DMY2Date(31, 12, 2020));
+
+        Commit();
+
+        VendorLedgerEntryPayment.Find();
+        VendorLedgerEntryPayment.TestField(Open, false);
+
+        DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Payment);
+        DetailedVendorLedgEntry.SetRange("Document No.", VendorLedgerEntryPayment."Document No.");
+        DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
+        DetailedVendorLedgEntry.FindLast();
+
+        ApplyUnapplyParameters."Document No." := VendorLedgerEntryPayment."Document No.";
+        ApplyUnapplyParameters."Posting Date" := VendorLedgerEntryPayment."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendorLedgEntry, ApplyUnapplyParameters);
+
+        UnbindSubscription(ERMApplyUnapplyVendor);
 
         VendorLedgerEntryPayment.Find();
         VendorLedgerEntryPayment.TestField(Open, true);
@@ -1376,10 +1546,10 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Unapply Vendor");
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -1387,14 +1557,15 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryPurchase.SetInvoiceRounding(false);
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryFiscalYear.CreateFiscalYear();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -1402,6 +1573,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Vendor");
     end;
 
@@ -1442,7 +1614,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         // Verify Application Rounding and Balance amounts
         // Setup.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ApplicationRoundingPrecision := 1;
         LineAmount := 99;
         // prime numbers are required to obtain non-whole number after currency conversion
@@ -1498,7 +1670,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         NoOfLines: Integer;
         Amount: Integer;
     begin
-        Initialize;
+        Initialize();
         NoOfLines := 2 * LibraryRandom.RandInt(2);
         Amount := Sign * 100 * LibraryRandom.RandInt(10);
         LibraryERM.SetAddReportingCurrency(CreateCurrency(0));
@@ -1601,7 +1773,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           VendorNo, -TotalDiscountedAmount);
         BankAccount.SetRange(Blocked, false);
         BankAccount.SetRange("Currency Code", '');
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         with GenJournalLine do begin
             Validate("Account Type", "Account Type"::"Bank Account");
             Validate("Account No.", BankAccount."No.");
@@ -1621,7 +1793,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         with VendLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     i += 1;
                     Validate("Applying Entry", true);
@@ -1637,7 +1809,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         Result := 0;
         with GLEntry do begin
             SetRange("Dimension Set ID", DimSetID);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Result += Amount;
                 until Next = 0;
@@ -1786,14 +1958,12 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     local procedure CreateGenJnlLineWithPostingGroups(var GenJnlLine: Record "Gen. Journal Line"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PurchLine: Record "Purchase Line")
     begin
         CreateGeneralJournalLine(GenJnlLine, 1, VendorNo, DocumentType, Amount);
-        with GenJnlLine do begin
-            Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::Purchase);
-            Validate("Bal. Gen. Bus. Posting Group", PurchLine."Gen. Bus. Posting Group");
-            Validate("Bal. Gen. Prod. Posting Group", PurchLine."Gen. Prod. Posting Group");
-            Validate("Bal. VAT Bus. Posting Group", PurchLine."VAT Bus. Posting Group");
-            Validate("Bal. VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Bal. Gen. Posting Type", "General Posting Type"::Purchase);
+        GenJnlLine.Validate("Bal. Gen. Bus. Posting Group", PurchLine."Gen. Bus. Posting Group");
+        GenJnlLine.Validate("Bal. Gen. Prod. Posting Group", PurchLine."Gen. Prod. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Bus. Posting Group", PurchLine."VAT Bus. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Prod. Posting Group", PurchLine."VAT Prod. Posting Group");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateItem(VATProductPostingGroup: Code[20]): Code[20]
@@ -1891,7 +2061,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Use Random Number Generator for Exchange Rate.
         GeneralLedgerSetup.Get();
         CurrencyExchangeRate.SetRange("Currency Code", GeneralLedgerSetup."Additional Reporting Currency");
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, GeneralLedgerSetup."Additional Reporting Currency", PostingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", LibraryRandom.RandInt(100));
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
@@ -2110,14 +2280,19 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     local procedure DateCompressForVendor(GenJournalLine: Record "Gen. Journal Line"; StartingDate: Date; PeriodLength: Option)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressVendorLedger: Report "Date Compress Vendor Ledger";
     begin
         // Run the Date Compress Vendor Ledger Report with a closed Accounting Period.
         VendorLedgerEntry.SetRange("Vendor No.", GenJournalLine."Account No.");
         DateCompressVendorLedger.SetTableView(VendorLedgerEntry);
-        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', false, false, false, '');
+        DateComprRetainFields."Retain Document No." := false;
+        DateComprRetainFields."Retain Buy-from Vendor No." := false;
+        DateComprRetainFields."Retain Purchaser Code" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;
+        DateCompressVendorLedger.InitializeRequest(StartingDate, GenJournalLine."Posting Date", PeriodLength, '', DateComprRetainFields, '', false);
         DateCompressVendorLedger.UseRequestPage(false);
-        DateCompressVendorLedger.Run;
+        DateCompressVendorLedger.Run();
     end;
 
     local procedure CreateZeroVATPostingGLAccount(): Code[20]
@@ -2148,7 +2323,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -2158,7 +2333,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document Type", "Document Type"::Invoice);
             SetRange(Open, false);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2199,7 +2374,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Unapplied, true);
-            FindLast;
+            FindLast();
             exit("Transaction No.");
         end;
     end;
@@ -2311,7 +2486,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           WorkDate, false, 0, false, WorkDate, GenJournalLine."Account No.", true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo,
           GenJournalLine."Bank Payment Type"::"Manual Check");
         SuggestVendorPayments.UseRequestPage(false);
-        SuggestVendorPayments.RunModal;
+        SuggestVendorPayments.RunModal();
     end;
 
     local procedure UpdateDirectUnitCostOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; DirectUnitCost: Decimal)
@@ -2335,7 +2510,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         VendorLedgerEntry.SetRange(Open, false);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
@@ -2523,7 +2698,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         with GLEntry do begin
             SetCurrentKey("Transaction No.");
             SetRange("Document No.", DocumentNo);
-            FindLast;
+            FindLast();
             SetRange("Transaction No.", "Transaction No.");
             Assert.RecordCount(GLEntry, DimSetArrLen + 1);
             FindSet();
@@ -2581,7 +2756,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         with VendLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Document Type", DocumentType);
-            FindFirst;
+            FindFirst();
             CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             TestField("Remaining Amt. (LCY)", Round("Remaining Amount" / "Adjusted Currency Factor", 0.01));
         end;
@@ -2700,6 +2875,15 @@ codeunit 134007 "ERM Apply Unapply Vendor"
           0, PageControlValue, ApplyVendorEntries.ControlBalance.Caption);
 
         ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exch. Rate Adjmt. Run Handler", 'OnBeforeRunVendExchRateAdjustment', '', false, false)]
+    local procedure RunCustExchRateAdjustment(GenJnlLine: Record "Gen. Journal Line"; var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary; var IsHandled: Boolean)
+    var
+        ExchRateAdjmtProcess: Codeunit "Exch. Rate Adjmt. Process";
+    begin
+        ExchRateAdjmtProcess.AdjustExchRateVend(GenJnlLine, TempVendorLedgerEntry);
+        IsHandled := true;
     end;
 }
 

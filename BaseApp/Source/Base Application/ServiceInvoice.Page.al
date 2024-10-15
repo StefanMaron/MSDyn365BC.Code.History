@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
@@ -137,23 +138,16 @@ page 5933 "Service Invoice"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the date when the service document should be posted.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Service;
@@ -323,6 +317,13 @@ page 5933 "Service Invoice"
                         ShortcutDimension2CodeOnAfterV;
                     end;
                 }
+                field("Customer Posting Group"; Rec."Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Service;
@@ -375,6 +376,12 @@ page 5933 "Service Invoice"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Service;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -385,21 +392,14 @@ page 5933 "Service Invoice"
                         PricesIncludingVATOnAfterValid;
                     end;
                 }
-#if not CLEAN18
-                field("Customer Posting Group"; "Customer Posting Group")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -540,60 +540,32 @@ page 5933 "Service Invoice"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the service header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Intrastat Exclude"; "Intrastat Exclude")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that entry will be excluded from intrastat.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
 #if not CLEAN18
@@ -702,6 +674,14 @@ page 5933 "Service Invoice"
         }
         area(factboxes)
         {
+            part(ServiceDocCheckFactbox; "Service Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = ServiceDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Service;
@@ -1021,12 +1001,15 @@ page 5933 "Service Invoice"
             DocumentIsPosted := (not Get("Document Type", "No."));
 
         ActivateFields;
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnAfterGetRecord()
     begin
         SellToContact.GetOrClear("Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1038,9 +1021,11 @@ page 5933 "Service Invoice"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        ServiceMgtSetup: Record "Service Mgt. Setup";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
         ServLogMgt: Codeunit ServLogManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocumentIsPosted: Boolean;
@@ -1048,12 +1033,34 @@ page 5933 "Service Invoice"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
+        ServiceDocCheckFactboxVisible: Boolean;
 
     local procedure ActivateFields()
     begin
         IsSellToCountyVisible := FormatAddress.UseCounty("Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        ServiceDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+
+        SetPostingGroupEditable();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.ServiceDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            ActivateFields();
+    end;
+
+    local procedure SetPostingGroupEditable()
+    begin
+        ServiceMgtSetup.GetRecordOnce();
+        IsPostingGroupEditable := ServiceMgtSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ApproveCalcInvDisc()
@@ -1111,11 +1118,16 @@ page 5933 "Service Invoice"
     begin
         ServiceInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if ServiceInvoiceHeader.FindFirst then
+        if ServiceInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedServiceInvQst, ServiceInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Service Invoice", ServiceInvoiceHeader);
+                InstructionMgt.ShowPostedDocument(ServiceInvoiceHeader, Page::"Service Invoice");
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var ServiceHeader: Record "Service Header")
+    begin
     end;
 }
-
+#endif

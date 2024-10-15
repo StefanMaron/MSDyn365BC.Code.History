@@ -7,7 +7,6 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
-      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>2a4733d5-e33c-4a22-b712-6ff4cb4c049e</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -133,7 +132,7 @@
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>23.19753cm</Height>
+                  <Height>21.92869cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -274,7 +273,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>6.42829cm</Top>
+                              <Top>6.00529cm</Top>
                               <Height>0.423cm</Height>
                               <Width>18.09523cm</Width>
                               <ZIndex>1</ZIndex>
@@ -672,7 +671,7 @@ Fields!PageCaption.Value)</Hidden>
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>5.97855cm</Top>
+                              <Top>5.55555cm</Top>
                               <Height>0.423cm</Height>
                               <Width>3.15cm</Width>
                               <ZIndex>13</ZIndex>
@@ -752,7 +751,7 @@ Fields!PageCaption.Value)</Hidden>
                                   <Style />
                                 </Paragraph>
                               </Paragraphs>
-                              <Top>5.97855cm</Top>
+                              <Top>5.55555cm</Top>
                               <Left>3.36cm</Left>
                               <Height>0.423cm</Height>
                               <Width>6.3cm</Width>
@@ -1241,7 +1240,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>6.90448cm</Top>
+                              <Top>6.48148cm</Top>
                               <Height>1.269cm</Height>
                               <Width>18.17302cm</Width>
                               <ZIndex>29</ZIndex>
@@ -1322,7 +1321,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>8.20077cm</Top>
+                              <Top>7.77777cm</Top>
                               <Height>0.42328cm</Height>
                               <Width>18.09524cm</Width>
                               <ZIndex>30</ZIndex>
@@ -1680,6 +1679,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Document_Date_.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                       <Format>d</Format>
                                                     </Style>
                                                   </TextRun>
@@ -1711,6 +1711,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Document_Type_.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1739,6 +1740,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Document_No__.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1768,6 +1770,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line__Due_Date_.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                       <Format>d</Format>
                                                     </Style>
                                                   </TextRun>
@@ -1797,6 +1800,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Fields!Finance_Charge_Memo_Line_Description.Value</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -1826,6 +1830,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Original_Amount_.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                       <Format>=Fields!Finance_Charge_Memo_Line__Original_Amount_Format.Value</Format>
                                                     </Style>
                                                   </TextRun>
@@ -1858,6 +1863,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Remaining_Amount_.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                       <Format>=Fields!Finance_Charge_Memo_Line__Remaining_Amount_Format.Value</Format>
                                                     </Style>
                                                   </TextRun>
@@ -1890,6 +1896,7 @@ Fields!PageCaption.Value)</Hidden>
                                                     <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line_Amount.Value)</Value>
                                                     <Style>
                                                       <FontSize>9pt</FontSize>
+                                                      <FontWeight>Bold</FontWeight>
                                                       <Format>=Fields!Finance_Charge_Memo_Line_AmountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
@@ -1901,6 +1908,243 @@ Fields!PageCaption.Value)</Hidden>
                                             </Paragraphs>
                                             <rd:DefaultName>textbox101</rd:DefaultName>
                                             <ZIndex>20</ZIndex>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                    </TablixCells>
+                                  </TablixRow>
+                                  <TablixRow>
+                                    <Height>0.423cm</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox4">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Finance_Charge_Memo_Line__Document_Date_.Value</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox4</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox45">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Finance_Charge_Memo_Line__Document_Type_.Value</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox45</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox52">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Finance_Charge_Memo_Line__Document_No__.Value</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox52</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox63">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Finance_Charge_Memo_Line__Due_Date_.Value</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox63</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox69">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!Finance_Charge_Memo_Line_Description.Value</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox69</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox71">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Original_Amount_.Value)</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox71</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox72">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line__Remaining_Amount_.Value)</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox72</rd:DefaultName>
+                                            <Style>
+                                              <PaddingLeft>2pt</PaddingLeft>
+                                              <PaddingRight>2pt</PaddingRight>
+                                              <PaddingTop>1pt</PaddingTop>
+                                              <PaddingBottom>1pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox75">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Code.BlankZero(Fields!Finance_Charge_Memo_Line_Amount.Value)</Value>
+                                                    <Style>
+                                                      <FontSize>9pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox75</rd:DefaultName>
                                             <Style>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
@@ -2004,503 +2248,6 @@ Fields!PageCaption.Value)</Hidden>
                                             <rd:DefaultName>textbox85</rd:DefaultName>
                                             <ZIndex>17</ZIndex>
                                             <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.423cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox137">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox137</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox138">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox138</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox131">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox131</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_DocumentNo">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Parameters!Det_Finance_Charge_Memo_Line_DocumentNoCaption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_DocumentNo</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox141">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Finance_Charge_Memo_Header___Posting_Date_Caption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox141</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox142">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Parameters!Det_Finance_Charge_Memo_Line_InterestRateCaption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox142</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox143">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Parameters!Det_Finance_Charge_Memo_Line_BaseAmountCaption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox143</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox144">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Parameters!Det_Finance_Charge_Memo_Line_InterestAmountCaption.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox144</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
-                                    <Height>0.423cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox121">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox121</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox123">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox123</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox133">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox133</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_DocumentNo3">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Det_Finance_Charge_Memo_Line_DocumentNo.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_DocumentNo</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_PostingDate">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Det_Finance_Charge_Memo_Line_PostingDate.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_PostingDate</rd:DefaultName>
-                                            <Style>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_InterestRate">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Det_Finance_Charge_Memo_Line_InterestRate.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                      <Format>=Fields!Det_Finance_Charge_Memo_Line_InterestRateFormat.Value</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_InterestRate</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_BaseAmount">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Det_Finance_Charge_Memo_Line_BaseAmount.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                      <Format>=Fields!Det_Finance_Charge_Memo_Line_BaseAmountFormat.Value</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_BaseAmount</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>1pt</PaddingTop>
-                                              <PaddingBottom>1pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Det_Finance_Charge_Memo_Line_InterestAmount">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!Det_Finance_Charge_Memo_Line_InterestAmount.Value</Value>
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                      <Format>=Fields!Det_Finance_Charge_Memo_Line_InterestAmountFormat.Value</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Right</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Det_Finance_Charge_Memo_Line_InterestAmount</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
                                               <PaddingLeft>2pt</PaddingLeft>
                                               <PaddingRight>2pt</PaddingRight>
                                               <PaddingTop>1pt</PaddingTop>
@@ -3146,18 +2893,19 @@ Fields!PageCaption.Value)</Hidden>
                                             <GroupExpression>=Fields!FinChMemo_Line___Line_No__.Value</GroupExpression>
                                           </GroupExpressions>
                                         </Group>
-                                        <SortExpressions>
-                                          <SortExpression>
-                                            <Value>=Fields!FinChMemo_Line___Line_No__.Value</Value>
-                                          </SortExpression>
-                                        </SortExpressions>
                                         <TablixMembers>
                                           <TablixMember>
                                             <Visibility>
-                                              <Hidden>=IIF(Fields!ShowFinChMemoLine1.Value,False,True)</Hidden>
+                                              <Hidden>=IIF((Fields!ShowFinChMemoLine1.Value) and (Not Fields!MulIntRateEntry_FinChrgMemoLine.Value),False,True)</Hidden>
                                             </Visibility>
                                             <KeepWithGroup>After</KeepWithGroup>
                                             <KeepTogether>true</KeepTogether>
+                                          </TablixMember>
+                                          <TablixMember>
+                                            <Visibility>
+                                              <Hidden>=IIF((Fields!ShowFinChMemoLine1.Value) and (Fields!MulIntRateEntry_FinChrgMemoLine.Value) and (Fields!ShowMIRLines.Value),False,True)</Hidden>
+                                            </Visibility>
+                                            <KeepWithGroup>After</KeepWithGroup>
                                           </TablixMember>
                                           <TablixMember>
                                             <Visibility>
@@ -3167,21 +2915,10 @@ Fields!PageCaption.Value)</Hidden>
                                             <KeepTogether>true</KeepTogether>
                                           </TablixMember>
                                           <TablixMember>
-                                            <Visibility>
-                                              <Hidden>=(Fields!Det_Finance_Charge_Memo_Line_DocumentNo.Value = "")</Hidden>
-                                            </Visibility>
-                                            <KeepWithGroup>After</KeepWithGroup>
-                                          </TablixMember>
-                                          <TablixMember>
                                             <Group Name="table6_Details_Group">
                                               <DataElementName>Detail</DataElementName>
                                             </Group>
                                             <TablixMembers>
-                                              <TablixMember>
-                                                <Visibility>
-                                                  <Hidden>=(Fields!Det_Finance_Charge_Memo_Line_DocumentNo.Value = "")</Hidden>
-                                                </Visibility>
-                                              </TablixMember>
                                               <TablixMember>
                                                 <Visibility>
                                                   <Hidden>=IIF(Fields!ErrorText_Number__Control97Caption.Value = "",True,False)</Hidden>
@@ -3231,7 +2968,6 @@ Fields!PageCaption.Value)</Hidden>
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>
-                              <DataSetName>DataSet_Result</DataSetName>
                               <Filters>
                                 <Filter>
                                   <FilterExpression>=Fields!Finance_Charge_Memo_Line_DescriptionCaption.Value</FilterExpression>
@@ -3241,8 +2977,8 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>8.65051cm</Top>
-                              <Height>5.922cm</Height>
+                              <Top>8.22751cm</Top>
+                              <Height>5.499cm</Height>
                               <Width>18.1cm</Width>
                               <ZIndex>31</ZIndex>
                               <Visibility>
@@ -3359,7 +3095,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>14.62862cm</Top>
+                              <Top>13.35978cm</Top>
                               <Height>1.269cm</Height>
                               <Width>18.09524cm</Width>
                               <ZIndex>32</ZIndex>
@@ -4023,7 +3759,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>15.95138cm</Top>
+                              <Top>14.68254cm</Top>
                               <Height>3.384cm</Height>
                               <Width>10.4cm</Width>
                               <ZIndex>33</ZIndex>
@@ -4725,7 +4461,7 @@ Fields!PageCaption.Value)</Hidden>
                                   </FilterValues>
                                 </Filter>
                               </Filters>
-                              <Top>19.39053cm</Top>
+                              <Top>18.12169cm</Top>
                               <Height>3.807cm</Height>
                               <Width>8.96984cm</Width>
                               <ZIndex>34</ZIndex>
@@ -4735,59 +4471,6 @@ Fields!PageCaption.Value)</Hidden>
                               <DataElementOutput>NoOutput</DataElementOutput>
                               <Style />
                             </Tablix>
-                            <Textbox Name="textbox45">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!Finance_Charge_Memo_Header___RegistrationNo.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style />
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>5.55555cm</Top>
-                              <Left>3.36cm</Left>
-                              <Height>0.423cm</Height>
-                              <Width>4.2cm</Width>
-                              <ZIndex>35</ZIndex>
-                              <Style>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>1pt</PaddingTop>
-                                <PaddingBottom>1pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="textbox52">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Parameters!Finance_Charge_Memo_Header___RegistrationNoCaption.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style />
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>5.55555cm</Top>
-                              <Height>0.423cm</Height>
-                              <Width>3.15cm</Width>
-                              <ZIndex>36</ZIndex>
-                              <Style>
-                                <PaddingLeft>2pt</PaddingLeft>
-                                <PaddingRight>2pt</PaddingRight>
-                                <PaddingTop>1pt</PaddingTop>
-                                <PaddingBottom>1pt</PaddingBottom>
-                              </Style>
-                            </Textbox>
                           </ReportItems>
                           <KeepTogether>true</KeepTogether>
                           <Style />
@@ -4822,7 +4505,6 @@ Fields!PageCaption.Value)</Hidden>
                 </TablixMember>
               </TablixMembers>
             </TablixRowHierarchy>
-            <DataSetName>DataSet_Result</DataSetName>
             <Filters>
               <Filter>
                 <FilterExpression>=Fields!Fin_Charge_Memo_Header___No__.Value</FilterExpression>
@@ -4833,14 +4515,14 @@ Fields!PageCaption.Value)</Hidden>
               </Filter>
             </Filters>
             <Top>1.2963cm</Top>
-            <Height>23.19753cm</Height>
+            <Height>21.92869cm</Height>
             <Width>18.17302cm</Width>
             <ZIndex>1</ZIndex>
             <DataElementOutput>NoOutput</DataElementOutput>
             <Style />
           </Tablix>
         </ReportItems>
-        <Height>24.49383cm</Height>
+        <Height>23.22499cm</Height>
         <Style />
       </Body>
       <Width>18.17302cm</Width>
@@ -4989,86 +4671,6 @@ Fields!PageCaption.Value)</Hidden>
       </Page>
     </ReportSection>
   </ReportSections>
-  <ReportParameters>
-    <ReportParameter Name="Finance_Charge_Memo_Header___RegistrationNoCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Finance_Charge_Memo_Header___RegistrationNoCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Finance_Charge_Memo_Header___RegistrationNoCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="Det_Finance_Charge_Memo_Line_DocumentNoCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Det_Finance_Charge_Memo_Line_DocumentNoCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Det_Finance_Charge_Memo_Line_DocumentNoCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="Det_Finance_Charge_Memo_Line_InterestRateCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Det_Finance_Charge_Memo_Line_InterestRateCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Det_Finance_Charge_Memo_Line_InterestRateCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="Det_Finance_Charge_Memo_Line_BaseAmountCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Det_Finance_Charge_Memo_Line_BaseAmountCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Det_Finance_Charge_Memo_Line_BaseAmountCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="Det_Finance_Charge_Memo_Line_InterestAmountCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>Det_Finance_Charge_Memo_Line_InterestAmountCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>Det_Finance_Charge_Memo_Line_InterestAmountCaption</Prompt>
-    </ReportParameter>
-  </ReportParameters>
-  <ReportParametersLayout>
-    <GridLayoutDefinition>
-      <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>5</NumberOfRows>
-      <CellDefinitions>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>0</RowIndex>
-          <ParameterName>Finance_Charge_Memo_Header___RegistrationNoCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>1</RowIndex>
-          <ParameterName>Det_Finance_Charge_Memo_Line_DocumentNoCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>2</RowIndex>
-          <ParameterName>Det_Finance_Charge_Memo_Line_InterestRateCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>3</RowIndex>
-          <ParameterName>Det_Finance_Charge_Memo_Line_BaseAmountCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>4</RowIndex>
-          <ParameterName>Det_Finance_Charge_Memo_Line_InterestAmountCaption</ParameterName>
-        </CellDefinition>
-      </CellDefinitions>
-    </GridLayoutDefinition>
-  </ReportParametersLayout>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -5243,9 +4845,6 @@ End Function</Code>
         <Field Name="Finance_Charge_Memo_Header___Fin__Charge_Terms_Code_Caption">
           <DataField>Finance_Charge_Memo_Header___Fin__Charge_Terms_Code_Caption</DataField>
         </Field>
-        <Field Name="Finance_Charge_Memo_Header___RegistrationNo">
-          <DataField>Finance_Charge_Memo_Header___RegistrationNo</DataField>
-        </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>
         </Field>
@@ -5378,29 +4977,11 @@ End Function</Code>
         <Field Name="Finance_Charge_Memo_Line__VAT_Amount_Caption">
           <DataField>Finance_Charge_Memo_Line__VAT_Amount_Caption</DataField>
         </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_DocumentNo">
-          <DataField>Det_Finance_Charge_Memo_Line_DocumentNo</DataField>
+        <Field Name="MulIntRateEntry_FinChrgMemoLine">
+          <DataField>MulIntRateEntry_FinChrgMemoLine</DataField>
         </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_PostingDate">
-          <DataField>Det_Finance_Charge_Memo_Line_PostingDate</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_InterestRate">
-          <DataField>Det_Finance_Charge_Memo_Line_InterestRate</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_InterestRateFormat">
-          <DataField>Det_Finance_Charge_Memo_Line_InterestRateFormat</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_BaseAmount">
-          <DataField>Det_Finance_Charge_Memo_Line_BaseAmount</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_BaseAmountFormat">
-          <DataField>Det_Finance_Charge_Memo_Line_BaseAmountFormat</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_InterestAmount">
-          <DataField>Det_Finance_Charge_Memo_Line_InterestAmount</DataField>
-        </Field>
-        <Field Name="Det_Finance_Charge_Memo_Line_InterestAmountFormat">
-          <DataField>Det_Finance_Charge_Memo_Line_InterestAmountFormat</DataField>
+        <Field Name="ShowMIRLines">
+          <DataField>ShowMIRLines</DataField>
         </Field>
         <Field Name="ErrorText_Number__Control97">
           <DataField>ErrorText_Number__Control97</DataField>

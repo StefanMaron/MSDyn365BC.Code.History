@@ -399,7 +399,7 @@ page 900 "Assembly Order"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category8;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -673,7 +673,7 @@ page 900 "Assembly Order"
 
                     trigger OnAction()
                     begin
-                        UpdateWarningOnLines()
+                        Rec.UpdateWarningOnLines();
                     end;
                 }
                 action("Update Unit Cost")
@@ -729,7 +729,7 @@ page 900 "Assembly Order"
                         CopyAssemblyDocument: Report "Copy Assembly Document";
                     begin
                         CopyAssemblyDocument.SetAssemblyHeader(Rec);
-                        CopyAssemblyDocument.RunModal;
+                        CopyAssemblyDocument.RunModal();
                         if Get("Document Type", "No.") then;
                     end;
                 }
@@ -767,7 +767,7 @@ page 900 "Assembly Order"
                     Image = CreateWarehousePick;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ToolTip = 'Prepare to create warehouse picks for the lines on the order. When you have selected options and you run the function, a warehouse pick document are created for the assembly order components.';
+                    ToolTip = 'Create warehouse pick documents for the assembly order lines.';
 
                     trigger OnAction()
                     begin
@@ -855,7 +855,6 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := not IsStandardCostItem;
         IsAsmToOrderEditable := not IsAsmToOrder;
-        UpdateWarningOnLines();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -875,6 +874,7 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
+        Rec.UpdateWarningOnLines();
     end;
 
     var

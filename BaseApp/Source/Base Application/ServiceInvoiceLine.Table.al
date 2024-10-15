@@ -564,30 +564,29 @@ table 5993 "Service Invoice Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Functionality will be removed and this field should not be used.';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
@@ -750,7 +749,7 @@ table 5993 "Service Invoice Line"
             exit;
 
         FilterPstdDocLineValueEntries(ValueEntry);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Service Shipment" then
@@ -780,7 +779,9 @@ table 5993 "Service Invoice Line"
             PAGE.RunModal(0, TempServShptLine);
         end;
     end;
+#if not CLEAN20
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure RoundAmount(ServInvHeader: Record "Service Invoice Header")
     var
         NoVAT: Boolean;
@@ -833,6 +834,7 @@ table 5993 "Service Invoice Line"
         IncrAmount(TotalServInvLineLCY, ServInvHeader);
     end;
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure IncrAmount(var TotalServInvLine: Record "Service Invoice Line"; ServInvHeader: Record "Service Invoice Header")
     begin
         // NAVCZ
@@ -850,15 +852,16 @@ table 5993 "Service Invoice Line"
         Increment(TotalServInvLine."Inv. Discount Amount", "Inv. Discount Amount");
     end;
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure Increment(var Number: Decimal; Number2: Decimal)
     begin
         // NAVCZ
         Number := Number + Number2;
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
     end;
 }
-

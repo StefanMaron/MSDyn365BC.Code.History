@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 6627 "Sales Return Order Archive"
 {
     Caption = 'Sales Return Order Archive';
@@ -122,15 +121,6 @@ page 6627 "Sales Return Order Archive"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
-                }
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -328,6 +318,7 @@ page 6627 "Sales Return Order Archive"
                         ApplicationArea = Suite;
                         Caption = 'County';
                         Importance = Additional;
+                        ToolTip = 'Specifies the postal code.';
                     }
                     field("Bill-to City"; "Bill-to City")
                     {
@@ -418,15 +409,6 @@ page 6627 "Sales Return Order Archive"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
-                }
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
             }
             group(Version)
@@ -578,4 +560,3 @@ page 6627 "Sales Return Order Archive"
     end;
 }
 
-#endif

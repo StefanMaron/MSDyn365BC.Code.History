@@ -166,7 +166,7 @@ table 31120 "EET Service Setup"
     begin
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"EET Send Entries To Service");
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entries", JobQueueEntry);
     end;
 

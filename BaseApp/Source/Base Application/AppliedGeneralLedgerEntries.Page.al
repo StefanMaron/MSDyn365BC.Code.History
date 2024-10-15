@@ -77,7 +77,7 @@ page 11777 "Applied General Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -113,7 +113,7 @@ page 11777 "Applied General Ledger Entries"
                 if DtldGLEntry1."G/L Entry No." = DtldGLEntry1."Applied G/L Entry No." then begin
                     DtldGLEntry2.SetRange("Applied G/L Entry No.", DtldGLEntry1."Applied G/L Entry No.");
                     DtldGLEntry2.SetRange(Unapplied, false);
-                    if DtldGLEntry2.FindSet then
+                    if DtldGLEntry2.FindSet() then
                         repeat
                             if DtldGLEntry2."G/L Entry No." <>
                                DtldGLEntry2."Applied G/L Entry No."

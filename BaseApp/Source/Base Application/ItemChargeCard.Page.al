@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 31074 "Item Charge Card"
 {
     Caption = 'Item Charge Card';
     PageType = Card;
     SourceTable = "Item Charge";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced by PageExtension 31103 and PageExtension 31104 in Core Localization Pack for Czech.';
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -113,4 +117,4 @@ page 31074 "Item Charge Card"
         }
     }
 }
-
+#endif

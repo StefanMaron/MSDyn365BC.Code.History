@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 572 "Finance Charge Interest Rates"
 {
     Caption = 'Finance Charge Interest Rates';
@@ -33,5 +34,14 @@ page 572 "Finance Charge Interest Rates"
     actions
     {
     }
+
+    var
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
+
+    trigger OnOpenPage()
+    begin
+        ReplaceMulIntRateMgt.TestIsEnabled();
+    end;
 }
 
+#endif

@@ -2,7 +2,7 @@
 report 5600 "Fixed Asset - Analysis"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CLEAN18/FixedAssetAnalysis.rdlc';
+    RDLCLayout = './FixedAssetAnalysis.rdlc';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Analysis';
     UsageCategory = ReportsAndAnalysis;
@@ -634,4 +634,5 @@ report 5600 "Fixed Asset - Analysis"
         FADateType.CreateTypes;
     end;
 }
+
 #endif

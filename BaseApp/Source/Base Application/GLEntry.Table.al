@@ -273,6 +273,10 @@ table 17 "G/L Entry"
             Editable = false;
             FieldClass = FlowField;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -416,13 +420,9 @@ table 17 "G/L Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11762; "Closed at Date"; Date)
         {
@@ -547,15 +547,6 @@ table 17 "G/L Entry"
             Enabled = false;
             SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
         }
-#if not CLEAN17
-        key(Key5; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date", "VAT Date")
-        {
-            SumIndexFields = Amount, "Debit Amount", "Credit Amount", "Additional-Currency Amount", "Add.-Currency Debit Amount", "Add.-Currency Credit Amount";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
-            ObsoleteTag = '17.5';
-        }
-#endif
         key(Key6; "G/L Account No.", "Business Unit Code", "Global Dimension 1 Code", "Global Dimension 2 Code", "Posting Date")
         {
             Enabled = false;
@@ -671,7 +662,7 @@ table 17 "G/L Entry"
         OnBeforeShowValueEntries(ValueEntry, GLItemLedgRelation);
 
         GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
-        if GLItemLedgRelation.FindSet then
+        if GLItemLedgRelation.FindSet() then
             repeat
                 ValueEntry.Get(GLItemLedgRelation."Value Entry No.");
                 TempValueEntry.Init();
@@ -747,6 +738,7 @@ table 17 "G/L Entry"
             "Source Type" := "Source Type"::" ";
         "Job No." := GenJnlLine."Job No.";
         Quantity := GenJnlLine.Quantity;
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "User ID" := UserId;
@@ -754,9 +746,6 @@ table 17 "G/L Entry"
         "IC Partner Code" := GenJnlLine."IC Partner Code";
 	    "Prod. Order No." := GenJnlLine."Prod. Order No.";
         // NAVCZ
-#if not CLEAN17
-        "VAT Date" := GenJnlLine."VAT Date";
-#endif
 #if not CLEAN18
         "Variable Symbol" := GenJnlLine."Variable Symbol";
 #endif
@@ -923,4 +912,3 @@ table 17 "G/L Entry"
     begin
     end;
 }
-

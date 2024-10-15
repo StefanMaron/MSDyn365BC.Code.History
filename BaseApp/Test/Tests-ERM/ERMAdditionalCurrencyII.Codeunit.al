@@ -1,4 +1,4 @@
-codeunit 134091 "ERM Additional Currency II"
+﻿codeunit 134091 "ERM Additional Currency II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -16,6 +16,7 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERMUnapply: Codeunit "Library - ERM Unapply";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
@@ -38,7 +39,7 @@ codeunit 134091 "ERM Additional Currency II"
         // with Customer and GL Account.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -74,7 +75,7 @@ codeunit 134091 "ERM Additional Currency II"
         // with Payment Posted Invoices.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -110,7 +111,7 @@ codeunit 134091 "ERM Additional Currency II"
         // Verify Additional Currency Amount in GL Entry after Posting Sales Invoice.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate));
@@ -152,7 +153,7 @@ codeunit 134091 "ERM Additional Currency II"
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer and Random Values.
         // Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -223,7 +224,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyGainsLossesAccNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
 
@@ -232,7 +233,11 @@ codeunit 134091 "ERM Additional Currency II"
         ModifyExchangeRateAmount(CurrencyCode, IsLossEntry);
 
         if IsAdjustExchRate then
+#if not CLEAN20
             LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
+#else
+            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+#endif
 
         InvoiceDocNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
         CreatePostGenJnlLineAndApplyToDoc(
@@ -261,7 +266,7 @@ codeunit 134091 "ERM Additional Currency II"
         // with Vendor and GL Account.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -295,7 +300,7 @@ codeunit 134091 "ERM Additional Currency II"
         // Verify Additional Currency Amount in GL Entry and Amount after Posting Invoice and payment General Journal Line
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -331,7 +336,7 @@ codeunit 134091 "ERM Additional Currency II"
         // Verify Additional Currency Amount in GL Entry after Posting Purchase Invoice.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Customer and Random Values.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         AmountLCY := Round(LibraryERM.ConvertCurrency(LibraryRandom.RandDec(100, 2), '', CurrencyCode, WorkDate));
@@ -371,7 +376,7 @@ codeunit 134091 "ERM Additional Currency II"
         // Verify Additional Currency Amount in GL Entry after Posting Purchase Invoice with Payment General Line.
 
         // Setup: Update Additional Currency in General Ledger Setup and Create Currency with Vendor and Random Values.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
         Amount := LibraryRandom.RandDec(100, 2);
@@ -440,7 +445,7 @@ codeunit 134091 "ERM Additional Currency II"
         CurrencyGainsLossesAccNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
 
@@ -449,8 +454,11 @@ codeunit 134091 "ERM Additional Currency II"
         ModifyExchangeRateAmount(CurrencyCode, not IsLossEntry);
 
         if IsAdjustExchRate then
+#if not CLEAN20
             LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);
-
+#else
+            LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);
+#endif
         CreatePostGenJnlLineAndApplyToDoc(
           GenJournalLine."Account Type"::Vendor, PurchHeader."Buy-from Vendor No.",
           -Amount, InvoiceDocNo);
@@ -472,7 +480,7 @@ codeunit 134091 "ERM Additional Currency II"
         Dates: array[2] of Date;
         Amounts: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateInitDataTFS351444(CurrencyCode, Dates, Amounts, true);
         CustNo := CreateSimpleCustomer(CurrencyCode);
 
@@ -496,7 +504,7 @@ codeunit 134091 "ERM Additional Currency II"
         Dates: array[2] of Date;
         Amounts: array[3] of Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateInitDataTFS351444(CurrencyCode, Dates, Amounts, false);
         VendNo := CreateSimpleVendor(CurrencyCode);
 
@@ -522,7 +530,7 @@ codeunit 134091 "ERM Additional Currency II"
         // [FEATURE] [Service] [Payment Method]
         // [SCENARIO 362623] Service Invoice with Additional Currency and Payment Method with "Bal. Account No."
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Additional Currency Code" = "X"
         CurrencyCode := CreateCurrencyAndExchangeRate;
         UpdateAddnlReportingCurrency(CurrencyCode);
@@ -727,7 +735,7 @@ codeunit 134091 "ERM Additional Currency II"
         // balancing Bank having no Currency code.
 
         // Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
 
         Amount := LibraryRandom.RandDec(100, 2);
@@ -751,20 +759,25 @@ codeunit 134091 "ERM Additional Currency II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Additional Currency II");
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Additional Currency II");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
+
         IsInitialized := true;
         Commit();
+
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Additional Currency II");
     end;
@@ -874,7 +887,7 @@ codeunit 134091 "ERM Additional Currency II"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SelltoCustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -885,7 +898,7 @@ codeunit 134091 "ERM Additional Currency II"
         with CustLedgEntry do begin
             SetRange("Sell-to Customer No.", CustNo);
             SetRange("Document Type", "Document Type"::Payment);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -897,7 +910,7 @@ codeunit 134091 "ERM Additional Currency II"
         with VendLedgEntry do begin
             SetRange("Buy-from Vendor No.", VendNo);
             SetRange("Document Type", "Document Type"::Payment);
-            FindFirst;
+            FindFirst();
             exit("Document No.");
         end;
     end;
@@ -907,7 +920,7 @@ codeunit 134091 "ERM Additional Currency II"
         with GLEntry do begin
             SetRange("Document No.", DocNo);
             SetRange("G/L Account No.", GLAccNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -922,7 +935,7 @@ codeunit 134091 "ERM Additional Currency II"
             RaiseValue := 3;
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindFirst;
+            FindFirst();
             Validate("Relational Exch. Rate Amount", "Relational Exch. Rate Amount" * RaiseValue);
             Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
             Modify(true);
@@ -952,7 +965,7 @@ codeunit 134091 "ERM Additional Currency II"
     begin
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -1032,7 +1045,7 @@ codeunit 134091 "ERM Additional Currency II"
         VendorLedgerEntry.SetRange("Vendor No.", VendNo);
         VendorLedgerEntry.SetRange("Document No.", DocNo);
         VendorLedgerEntry.SetRange(Open, false);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
         LibraryERMUnapply.UnapplyVendorLedgerEntryBase(VendorLedgerEntry, PostingDate);
     end;
 
@@ -1043,7 +1056,7 @@ codeunit 134091 "ERM Additional Currency II"
         CustLedgerEntry.SetRange("Customer No.", CustNo);
         CustLedgerEntry.SetRange("Document No.", DocNo);
         CustLedgerEntry.SetRange(Open, false);
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         LibraryERMUnapply.UnapplyCustomerLedgerEntryBase(CustLedgerEntry, PostingDate);
     end;
 
@@ -1071,7 +1084,7 @@ codeunit 134091 "ERM Additional Currency II"
         with BankAccountLedgerEntry do begin
             SetRange("Bank Account No.", BankAccountNo);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedAmount, Amount,
               StrSubstNo(WrongBankAccLedgEntryAmtErr, FieldCaption(Amount)));
             Assert.AreEqual(ExpectedAmount, "Remaining Amount",
@@ -1148,7 +1161,7 @@ codeunit 134091 "ERM Additional Currency II"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreEqual(
           Amount, GLEntry."Additional-Currency Amount",
           StrSubstNo(WrongAmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), Amount, GLEntry.TableCaption));

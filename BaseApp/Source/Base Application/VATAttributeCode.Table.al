@@ -1,15 +1,9 @@
 table 11779 "VAT Attribute Code"
 {
     Caption = 'VAT Attribute Code';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "VAT Attribute Codes";
-    LookupPageID = "VAT Attribute Codes";
-    ObsoleteState = Pending;
-#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -52,28 +46,4 @@ table 11779 "VAT Attribute Code"
         {
         }
     }
-#if not CLEAN17
-
-    var
-        ValueCoefErr: Label 'The value of a coefficient %1 must be between 0 and 1.';
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetRoundingPrecision(): Decimal
-    begin
-        if Coefficient then
-            exit(0.01);
-        exit(1);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure CheckValue(Value: Decimal)
-    begin
-        if Coefficient then
-            if not (Value in [0 .. 1]) then
-                Error(ValueCoefErr, Code);
-    end;
-#endif
 }
-

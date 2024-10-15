@@ -40,9 +40,9 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM VAT Tool - Sales Doc");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ERMVATToolHelper.SetupItemNos;
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
         LibrarySetupStorage.SaveSalesSetup();
@@ -59,7 +59,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader: Record "Sales Header";
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -90,7 +90,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader: Record "Sales Header";
     begin
         // Run VAT Rate Change with Perform Conversion = FALSE, expect no updates.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -127,7 +127,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Check Description field value when out standing quantity is zero on sales order.
 
         // Setup: Create posting groups to update and save them in VAT Change Tool Conversion table.
-        Initialize;
+        Initialize();
         ERMVATToolHelper.UpdateVatRateChangeSetup(VATRateChangeSetup);
         SetupToolSales(VATRateChangeSetup."Update Sales Documents"::"VAT Prod. Posting Group", true, true);
         ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', LibraryRandom.RandInt(5));
@@ -293,7 +293,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderHeader: Record "Sales Header";
     begin
         // Sales Blanket Order with one line, Partial Make Sales Order, Partially Ship Sales Order, Make.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -469,7 +469,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LineCount: Integer;
     begin
         // Sales Order with multiple lines, update one line only.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -487,7 +487,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         if First then
             SalesLine.Next
         else
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.Modify(true);
 
@@ -613,7 +613,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempRecRef: RecordRef;
     begin
         // Sales Invoice with one line, related to a Shipment Line, update both groups. No update expected.
-        Initialize;
+        Initialize();
 
         // Setup
         // Create posting groups to update and save them in VAT Change Tool Conversion table.
@@ -668,7 +668,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     procedure VATToolSalesOrderItemTracking()
     begin
         // Sales Order with one line with Item Tracking with Serial No., update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -750,7 +750,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         // Sales Order with one partially shipped line with Dimensions assigned, update both groups.
         // Verify that dimensions are copied to the new line.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -787,7 +787,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempRecRef: RecordRef;
     begin
         // Sales Order with prepayment, update both groups. No update expected.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -842,7 +842,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         LineCount: Integer;
     begin
         // Sales Order with two lines, first partially shipped, no line number available between them. Update both groups.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1351,7 +1351,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1381,7 +1381,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1411,7 +1411,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1443,7 +1443,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1485,7 +1485,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1522,7 +1522,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1566,7 +1566,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesOrderHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1603,7 +1603,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         TempRecRef: RecordRef;
         Update: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1643,7 +1643,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader: Record "Sales Header";
     begin
         // Sales Order with one partially shipped and released line, update VAT group and ignore header status. Verify Amount.
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1678,7 +1678,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(AutoInsertDefault);
@@ -1712,7 +1712,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
     local procedure VATToolSalesLineReserve(FieldOption: Option; MultipleLines: Boolean)
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1737,7 +1737,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1767,7 +1767,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1792,7 +1792,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     var
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1821,7 +1821,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesHeader: Record "Sales Header";
         TempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1860,7 +1860,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesTempRecRef: RecordRef;
         PurchaseTempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1892,7 +1892,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesTempRecRef: RecordRef;
         PurchaseTempRecRef: RecordRef;
     begin
-        Initialize;
+        Initialize();
 
         // SETUP: Create posting groups to update and save them in VAT Change Tool Conversion table.
         ERMVATToolHelper.CreatePostingGroups(false);
@@ -1943,7 +1943,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine3: Record "Sales Line";
     begin
         GetSalesLine(SalesHeader, SalesLine3);
-        SalesLine3.FindLast;
+        SalesLine3.FindLast();
         ERMVATToolHelper.CreateSalesLine(SalesLine, SalesHeader, '', SalesLine3."No.", -SalesLine3.Quantity);
     end;
 
@@ -1953,7 +1953,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesLine3: Record "Sales Line";
     begin
         GetSalesLine(SalesHeader, SalesLine3);
-        SalesLine3.FindLast;
+        SalesLine3.FindLast();
 
         with SalesLine do begin
             Init;
@@ -1992,7 +1992,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreateSalesDocumentWithRef(SalesHeader, SalesTempRecRef, SalesHeader."Document Type"::Order, '', 1);
         UpdateSpecialSalesLine(SalesHeader, DropShipment);
         ReqWkshTemplate.SetRange(Type, ReqWkshName."Template Type"::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
         ReqLine.Init();
         ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
@@ -2001,7 +2001,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         RunGetSalesOrders(ReqLine, SalesHeader, DropShipment);
         ReqLine.SetRange("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", ReqWkshName.Name);
-        ReqLine.FindFirst;
+        ReqLine.FindFirst();
         ReqLine.Validate("Vendor No.", ERMVATToolHelper.CreateVendor);
         ReqLine.Modify(true);
         LibraryPlanning.CarryOutActionMsgPlanWksh(ReqLine);
@@ -2011,7 +2011,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
             PurchaseLine.SetFilter("Sales Order No.", SalesHeader."No.")
         else
             PurchaseLine.SetFilter("Special Order Sales No.", SalesHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         RecRef.GetTable(PurchaseLine);
         ERMVATToolHelper.CopyRecordRef(RecRef, PurchaseTempRecRef);
     end;
@@ -2142,10 +2142,10 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesShipmentHeader.FindFirst;
+        SalesShipmentHeader.FindFirst();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure GetShipmentLineForSalesInvoice(var SalesHeader: Record "Sales Header"; var SalesShipmentLine: Record "Sales Shipment Line")
@@ -2162,7 +2162,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         exit(SalesLine."VAT Prod. Posting Group");
     end;
 
@@ -2257,7 +2257,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         CreateSalesItemChargeLine(SalesLine, SalesHeader);
         SalesLine3.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine3.SetRange("Document No.", SalesHeader."No.");
-        SalesLine3.FindFirst;
+        SalesLine3.FindFirst();
         with SalesLine3 do
             LibraryInventory.CreateItemChargeAssignment(ItemChargeAssignmentSales,
               SalesLine, ItemChargeAssignmentSales."Applies-to Doc. Type"::Order, "Document No.", "Line No.", "No.");
@@ -2352,7 +2352,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         else
             GetSalesOrders.SetReqWkshLine(RequisitionLine, 1);
         GetSalesOrders.UseRequestPage(false);
-        GetSalesOrders.Run;
+        GetSalesOrders.Run();
     end;
 
     local procedure PostSalesPrepayment(var SalesHeader: Record "Sales Header")
@@ -2376,7 +2376,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         // SETTABLE call required for each record of the temporary table.
         TempRecRef.Reset();
-        if TempRecRef.FindSet then begin
+        if TempRecRef.FindSet() then begin
             TempSalesLn.SetView(TempRecRef.GetView);
             repeat
                 TempRecRef.SetTable(TempSalesLn);
@@ -2400,12 +2400,12 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         Purchasing: Record Purchasing;
     begin
         SalesLine.SetFilter("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         if DropShipment then
             Purchasing.SetRange("Drop Shipment", true)
         else
             Purchasing.SetRange("Special Order", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         SalesLine.Validate("Purchasing Code", Purchasing.Code);
         SalesLine.Modify(true);
     end;
@@ -2487,7 +2487,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     begin
         SetTempTableSales(TempRecRef, TempSalesLn);
         TempSalesLn.SetRange(Type, TempSalesLn.Type::"Charge (Item)");
-        TempSalesLn.FindFirst;
+        TempSalesLn.FindFirst();
         QtyItemCharge := TempSalesLn.Quantity;
         TempSalesLn.SetRange(Type, TempSalesLn.Type::Item);
         TempSalesLn.FindSet();

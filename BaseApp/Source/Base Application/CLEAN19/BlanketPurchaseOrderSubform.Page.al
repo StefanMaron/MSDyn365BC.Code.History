@@ -40,35 +40,11 @@ page 510 "Blanket Purchase Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; Rec."Cross-Reference No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        Rec.CrossReferenceNoLookUp();
-                        InsertExtendedText(false);
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        InsertExtendedText(false);
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -114,8 +90,53 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -389,26 +410,28 @@ page 510 "Blanket Purchase Order Subform"
                 }
                 field("Gross Weight"; "Gross Weight")
                 {
+                    Caption = 'Unit Gross Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the gross weight of the item.';
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
                 field("Net Weight"; "Net Weight")
                 {
+                    Caption = 'Unit Net Weight';
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the net weight of the item.';
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
                     Visible = false;
                 }
                 field("Unit Volume"; "Unit Volume")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the volume of one unit of the item.';
+                    ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
                     Visible = false;
                 }
                 field("Units per Parcel"; "Units per Parcel")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of units per parcel of the item.';
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
                     Visible = false;
                 }
             }
@@ -827,13 +850,17 @@ page 510 "Blanket Purchase Order Subform"
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.InitType();
+        SetDefaultType();
         Clear(ShortcutDimCode);
     end;
 
     trigger OnOpenPage()
     begin
+        OnBeforeOnOpenPage();
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -864,8 +891,10 @@ page 510 "Blanket Purchase Order Subform"
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
 
     procedure ApproveCalcInvDisc()
     begin
@@ -923,6 +952,11 @@ page 510 "Blanket Purchase Order Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
+    procedure ClearTotalPurchaseHeader();
+    begin
+        Clear(TotalPurchaseHeader);
+    end;
+
     procedure CalculateTotals()
     begin
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
@@ -940,6 +974,11 @@ page 510 "Blanket Purchase Order Subform"
     begin
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         CheckSendLineInvoiceDiscountResetNotification();
+    end;
+
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
     end;
 
     local procedure CheckSendLineInvoiceDiscountResetNotification()
@@ -960,7 +999,9 @@ page 510 "Blanket Purchase Order Subform"
         IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
 
-        InvDiscAmountEditable := CurrPage.Editable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable :=
+            CurrPage.Editable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
+            (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1001,11 +1042,24 @@ page 510 "Blanket Purchase Order Subform"
         Clear(DimMgt);
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
+    end;
+#endif
+
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -1028,18 +1082,31 @@ page 510 "Blanket Purchase Order Subform"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Use OnItemReferenceNoOnLookup', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

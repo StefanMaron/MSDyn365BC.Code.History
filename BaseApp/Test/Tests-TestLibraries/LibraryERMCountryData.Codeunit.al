@@ -18,18 +18,8 @@ codeunit 131305 "Library - ERM Country Data"
     end;
 
     procedure CreateVATData()
-    var
-        VATPeriod: Record "VAT Period";
-        StartingDate: Date;
     begin
-        // NAVCZ
-        StartingDate := CalcDate('<-2Y>', WorkDate);
-        if not VATPeriod.Get(StartingDate) then begin
-            VATPeriod.Init();
-            VATPeriod."Starting Date" := StartingDate;
-            VATPeriod.Insert();
-        end;
-        // NAVCZ
+        exit;
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -243,7 +233,6 @@ codeunit 131305 "Library - ERM Country Data"
         FAExtendedPostingGroup: Record "FA Extended Posting Group";
 #endif
         GeneralLedgerSetup: Record "General Ledger Setup";
-        VATPeriod: Record "VAT Period";
         AccountingPeriod: Record "Accounting Period";
     begin
         FASetup.Get();
@@ -254,7 +243,7 @@ codeunit 131305 "Library - ERM Country Data"
 #endif
 
         GeneralLedgerSetup.Get();
-        if GeneralLedgerSetup."Use VAT Date" and VATPeriod.IsEmpty() and not AccountingPeriod.IsEmpty() then begin
+        if GeneralLedgerSetup."Use VAT Date" and not AccountingPeriod.IsEmpty() then begin
             GeneralLedgerSetup."Use VAT Date" := false;
             GeneralLedgerSetup.Modify(true);
         end;
@@ -329,7 +318,13 @@ codeunit 131305 "Library - ERM Country Data"
     var
         EntryRemainingAmount: Decimal;
     begin
-        Evaluate(EntryRemainingAmount, BankAccountLedgerEntries.Amount.Value);
+        if BankAccountLedgerEntries.Amount.Visible() then
+            EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
+        else
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+                EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
+            else
+                EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
         exit(EntryRemainingAmount);
     end;
 

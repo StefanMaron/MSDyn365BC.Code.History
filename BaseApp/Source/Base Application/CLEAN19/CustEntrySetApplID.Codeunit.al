@@ -15,7 +15,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
     begin
         CustLedgEntry.LockTable();
-        if CustLedgEntry.FindSet then begin
+        if CustLedgEntry.FindSet() then begin
             // Make Applies-to ID
             if CustLedgEntry."Applies-to ID" <> '' then
                 CustEntryApplID := ''
@@ -33,7 +33,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
             until CustLedgEntry.Next() = 0;
         end;
 
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 UpdateCustLedgerEntry(TempCustLedgEntry, ApplyingCustLedgEntry, AppliesToID);
             until TempCustLedgEntry.Next() = 0;
@@ -42,8 +42,12 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     local procedure UpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
+        IsHandled := false;
+        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID, IsHandled, CustEntryApplID);
+        if IsHandled then
+            exit;
 
         CustLedgerEntry.Copy(TempCustLedgerEntry);
         CustLedgerEntry.TestField(Open, true);
@@ -64,18 +68,24 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
 
         if CustLedgerEntry."Entry No." = ApplyingCustLedgerEntry."Entry No." then
             CustLedgerEntry."Applying Entry" := ApplyingCustLedgerEntry."Applying Entry";
+        OnUpdateCustLedgerEntryOnBeforeCustLedgerEntryModify(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
         CustLedgerEntry.Modify();
 
         OnAfterUpdateCustLedgerEntry(CustLedgerEntry, TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean; var CustEntryApplID: Code[50]);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateCustLedgerEntryOnBeforeCustLedgerEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry"; var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
     begin
     end;
 }

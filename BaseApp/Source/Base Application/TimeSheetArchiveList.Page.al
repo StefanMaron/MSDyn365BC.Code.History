@@ -6,7 +6,7 @@ page 960 "Time Sheet Archive List"
     ModifyAllowed = false;
     PageType = List;
     SourceTable = "Time Sheet Header Archive";
-    SourceTableView = SORTING("Resource No.", "Starting Date");
+    SourceTableView = SORTING("Resource No.", "Starting Date") order(descending);
     UsageCategory = History;
 
     layout
@@ -91,6 +91,7 @@ page 960 "Time Sheet Archive List"
         if UserSetup.Get(UserId) then
             CurrPage.Editable := UserSetup."Time Sheet Admin.";
         TimeSheetMgt.FilterTimeSheetsArchive(Rec, FieldNo("Owner User ID"));
+        OnAfterOnOpenPage(Rec);
     end;
 
     var
@@ -107,6 +108,11 @@ page 960 "Time Sheet Archive List"
             TimeSheetMgt.SetTimeSheetArchiveNo("No.", TimeSheetLineArchive);
             Page.Run(Page::"Time Sheet Archive", TimeSheetLineArchive);
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var TimeSheetHeaderArchive: Record "Time Sheet Header Archive")
+    begin
     end;
 }
 

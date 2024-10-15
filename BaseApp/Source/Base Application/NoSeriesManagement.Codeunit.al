@@ -141,7 +141,7 @@ codeunit 396 NoSeriesManagement
     begin
         NoSeries.Reset();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
-        if NoSeriesRelationship.FindSet then
+        if NoSeriesRelationship.FindSet() then
             repeat
                 NoSeries.Code := NoSeriesRelationship."Series Code";
                 NoSeries.Mark := true;
@@ -196,7 +196,7 @@ codeunit 396 NoSeriesManagement
             SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
             if ModifySeries and not NoSeriesLine."Allow Gaps in Nos." then
                 NoSeriesLine.LockTable();
-            if not NoSeriesLine.FindFirst then begin
+            if not NoSeriesLine.FindFirst() then begin
                 if NoErrorsOrWarnings then
                     exit('');
                 NoSeriesLine.SetRange("Starting Date");
@@ -219,7 +219,7 @@ codeunit 396 NoSeriesManagement
               NoSeries.Code, NoSeriesLine."Last Date Used");
         end;
 
-        if NoSeriesLine."Allow Gaps in Nos." then
+        if NoSeriesLine."Allow Gaps in Nos." and (LastNoSeriesLine."Series Code" = '') then
             NoSeriesLine."Last No. Used" := NoSeriesLine.GetNextSequenceNo(ModifySeries)
         else begin
             NoSeriesLine."Last Date Used" := SeriesDate;
@@ -261,9 +261,9 @@ codeunit 396 NoSeriesManagement
 
         NoSeriesLine.Validate(Open);
 
-        if ModifySeries and (not NoSeriesLine."Allow Gaps in Nos." or not NoSeriesLine.Open) then
-            ModifyNoSeriesLine(NoSeriesLine)
-        else
+        if ModifySeries and NoSeriesLine.Open and not NoSeriesLine."Allow Gaps in Nos." then
+            ModifyNoSeriesLine(NoSeriesLine);
+        if Not ModifySeries then
             LastNoSeriesLine := NoSeriesLine;
 
         OnAfterGetNextNo3(NoSeriesLine, ModifySeries);
@@ -328,11 +328,17 @@ codeunit 396 NoSeriesManagement
 
     procedure SaveNoSeries()
     begin
-        if LastNoSeriesLine."Allow Gaps in Nos." then
-            exit;
-        if LastNoSeriesLine."Series Code" <> '' then
-            LastNoSeriesLine.Modify();
-
+        if LastNoSeriesLine."Allow Gaps in Nos." then begin
+            if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
+                LastNoSeriesLine.testfield("Sequence Name");
+                if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
+                    NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
+                NumberSequence.Insert(LastNoSeriesLine."Sequence Name", LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used"), LastNoSeriesLine."Increment-by No.");
+                if NumberSequence.Next(LastNoSeriesLine."Sequence Name") > 0 then;
+            end;
+        end else
+            if LastNoSeriesLine."Series Code" <> '' then
+                LastNoSeriesLine.Modify();
         OnAfterSaveNoSeries(LastNoSeriesLine);
     end;
 
@@ -505,7 +511,7 @@ codeunit 396 NoSeriesManagement
 
         Clear(NoSeriesLine);
         SetNoSeriesLineFilter(NoSeriesLine, NoSeries.Code, SeriesDate);
-        if not NoSeriesLine.FindFirst then
+        if not NoSeriesLine.FindFirst() then
             Error(TextAssignErr, NoSeries.Code);
 
         if (DocumentNo < NoSeriesLine."Starting No.") or (DocumentNo > NoSeriesLine."Last No. Used") then

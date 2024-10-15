@@ -93,6 +93,11 @@ page 5600 "Fixed Asset Card"
                     ApplicationArea = FixedAssets;
                     Importance = Additional;
                     ToolTip = 'Specifies if the asset is for budgeting purposes.';
+
+                    trigger OnValidate()
+                    begin
+                        ShowAcquisitionNotification();
+                    end;
                 }
                 field("Serial No."; "Serial No.")
                 {
@@ -161,6 +166,7 @@ page 5600 "Fixed Asset Card"
                     Importance = Additional;
                     TableRelation = "Depreciation Book";
                     ToolTip = 'Specifies the depreciation book that is assigned to the fixed asset.';
+                    Editable = AllowEditDepBookCode;
 
                     trigger OnValidate()
                     begin
@@ -471,7 +477,7 @@ page 5600 "Fixed Asset Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -584,7 +590,7 @@ page 5600 "Fixed Asset Card"
                     CopyFA: Report "Copy Fixed Asset";
                 begin
                     CopyFA.SetFANo("No.");
-                    CopyFA.RunModal;
+                    CopyFA.RunModal();
                 end;
             }
         }
@@ -670,6 +676,7 @@ page 5600 "Fixed Asset Card"
     trigger OnOpenPage()
     begin
         Simple := true;
+        AllowEditDepBookCode := true;
         SetNoFieldVisible;
     end;
 
@@ -689,11 +696,12 @@ page 5600 "Fixed Asset Card"
         BookValue: Decimal;
         FAPostingGroupChangeDeniedMsg: Label 'The current FA posting group is %1 but the FA subclass %2 has the default FA posting group %3. \Because there are posted FA ledger entries we will not change the FA posting group.', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. Example: The current FA posting group is MACHINERY but the FA subclass TANGIBLE has the default FA posting group CAR. \Because there are posted FA ledger entries we will not change the FA posting group.';
         FAPostingGroupChangeConfirmTxt: Label 'The current FA posting group is %1, but the FA subclass %2 has the default FA posting group %3. \Do you want to update the FA posting group?', Comment = '%1 = FA Posting Group Code, %2 = FA Subclass Code, %3 = Default FA Posting Group. The current FA posting group is MACHINERY, but the FA subclass TANGIBLE has the default FA posting group CAR. \Do you want to update the FA posting group?';
+        AllowEditDepBookCode: Boolean;
 
     protected var
         FADepreciationBook: Record "FA Depreciation Book";
 
-    local procedure ShowAcquisitionNotification()
+    protected procedure ShowAcquisitionNotification()
     var
         ShowNotification: Boolean;
         IsHandled: Boolean;
@@ -704,7 +712,8 @@ page 5600 "Fixed Asset Card"
             exit;
 
         ShowNotification :=
-          (not Acquired) and FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
+          (not Acquired) and (not "Budgeted Asset") and
+          FieldsForAcquitionInGeneralGroupAreCompleted() and AtLeastOneDepreciationLineIsComplete();
         if ShowNotification and IsNullGuid(FAAcquireWizardNotificationId) then begin
             Acquirable := true;
             ShowAcquireWizardNotification();
@@ -745,7 +754,7 @@ page 5600 "Fixed Asset Card"
         end;
     end;
 
-    local procedure SetDefaultDepreciationBook()
+    protected procedure SetDefaultDepreciationBook()
     var
         FASetup: Record "FA Setup";
     begin
@@ -757,7 +766,7 @@ page 5600 "Fixed Asset Card"
         end;
     end;
 
-    local procedure SetDefaultPostingGroup()
+    protected procedure SetDefaultPostingGroup()
     var
         FALedgerEntry: Record "FA Ledger Entry";
         FASubclass: Record "FA Subclass";
@@ -769,10 +778,10 @@ page 5600 "Fixed Asset Card"
         UpdateAllowed := true;
         UpdateConfirmed := true;
 
-        if (FADepreciationBook."FA Posting Group" <> '') and 
-           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group") 
+        if (FADepreciationBook."FA Posting Group" <> '') and
+           (FADepreciationBook."FA Posting Group" <> FASubclass."Default FA Posting Group")
         then begin
-            FALedgerEntry.SetRange("FA No.","No.");  
+            FALedgerEntry.SetRange("FA No.", "No.");
             UpdateAllowed := FALedgerEntry.IsEmpty();
 
             if UpdateAllowed then
@@ -786,6 +795,7 @@ page 5600 "Fixed Asset Card"
         end;
 
         if UpdateConfirmed and UpdateAllowed then begin
+            Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             FADepreciationBook.Validate("FA Posting Group", FASubclass."Default FA Posting Group");
             if Simple then
                 SaveSimpleDepreciationBook("No.")
@@ -810,11 +820,12 @@ page 5600 "Fixed Asset Card"
         Clear(FADepreciationBookOld);
         FADepreciationBookOld.SetRange("FA No.", "No.");
         if FADepreciationBookOld.Count <= 1 then begin
-            if FADepreciationBookOld.FindFirst then begin
+            if FADepreciationBookOld.FindFirst() then begin
                 FADepreciationBookOld.CalcFields("Book Value");
                 ShowAddMoreDeprBooksLbl := true
             end;
             Simple := true;
+            AllowEditDepBookCode := FADepreciationBookOld."Depreciation Book Code" = '';
         end else
             Simple := false;
 

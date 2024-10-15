@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 26 "Vendor Card"
 {
     Caption = 'Vendor Card';
@@ -6,8 +7,8 @@ page 26 "Vendor Card"
     RefreshOnActivate = true;
     SourceTable = Vendor;
 
-    AboutTitle = 'About vendors';
-    AboutText = 'With the Vendor Card you manage information about a vendor. Including the agreed terms of business for your trade with this vendor, such as payment terms, prices and discounts.';
+    AboutTitle = 'About vendor details';
+    AboutText = 'With the **Vendor Card** you manage information about a vendor. Including the agreed terms of business for your trade with this vendor, such as payment terms, prices and discounts.';
 
     layout
     {
@@ -75,32 +76,39 @@ page 26 "Vendor Card"
                         OpenVendorLedgerEntries(false);
                     end;
                 }
+                field(BalanceAsCustomer; BalanceAsCustomer)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Balance (LCY) As Customer';
+                    Editable = false;
+                    Enabled = BalanceAsCustomerEnabled;
+                    ToolTip = 'Specifies the amount that this customer owes you. This is relevant when the customer is also a vendor. The amount is the result of netting their payable and receivable balances.';
+
+                    trigger OnDrillDown()
+                    var
+                        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+                        CustLedgerEntry: Record "Cust. Ledger Entry";
+                    begin
+                        if LinkedCustomerNo = '' then
+                            exit;
+                        DetailedCustLedgEntry.SetRange("Customer No.", LinkedCustomerNo);
+                        Rec.CopyFilter("Global Dimension 1 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 1");
+                        Rec.CopyFilter("Global Dimension 2 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 2");
+                        Rec.CopyFilter("Currency Filter", DetailedCustLedgEntry."Currency Code");
+                        CustLedgerEntry.DrillDownOnEntries(DetailedCustLedgEntry);
+                    end;
+                }
 #if not CLEAN18
-                field(BalanceOfCustomer; BalanceAsCust)
+                field(BalanceOfCustomer; BalanceAsCustomer)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance(LCY) As Customer';
                     Editable = false;
-                    Enabled = BalanceOfCustEnable;
                     ToolTip = 'Specifies the customer''s balance which is connected with certain vendor';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.1';
                     Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-                        CustLedgEntry: Record "Cust. Ledger Entry";
-                    begin
-                        // NAVCZ
-                        DtldCustLedgEntry.SetRange("Customer No.", Cust."No.");
-                        CopyFilter("Global Dimension 1 Filter", DtldCustLedgEntry."Initial Entry Global Dim. 1");
-                        CopyFilter("Global Dimension 2 Filter", DtldCustLedgEntry."Initial Entry Global Dim. 2");
-                        CopyFilter("Currency Filter", DtldCustLedgEntry."Currency Code");
-                        CustLedgEntry.DrillDownOnEntries(DtldCustLedgEntry);
-                        // NAVCZ
-                    end;
                 }
 #endif
 #if not CLEAN19
@@ -159,7 +167,7 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that you can change vendor name in the document, because the name is not used in search.';
+                    ToolTip = 'Specifies that you can change the vendor name on open purchase documents. The change applies only to the documents.';
                 }
             }
             group("Address & Contact")
@@ -356,35 +364,6 @@ page 26 "Vendor Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the default price calculation method.';
                 }
-#if not CLEAN17
-                field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date of the last check of uncertainty.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor is uncertainty payer.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Disable Uncertainty Check"; "Disable Uncertainty Check")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies that the check of VAT uncertainty payer is perform.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 group("Posting Details")
                 {
                     Caption = 'Posting Details';
@@ -448,37 +427,6 @@ page 26 "Vendor Card"
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of vendor.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-                    begin
-                        // NAVCZ
-                        CurrPage.SaveRecord;
-                        RegistrationLogMgt.AssistEditVendorRegNo(Rec);
-                        CurrPage.Update(false);
-                        // NAVCZ
-                    end;
-                }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
             group(Payments)
             {
@@ -536,16 +484,25 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies to print statements for the vendor record.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Last Statement No."; "Last Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of last statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Last Statement Date"; "Last Statement Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of last statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Preferred Bank Account Code"; "Preferred Bank Account Code")
                 {
@@ -619,6 +576,9 @@ page 26 "Vendor Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies default order adrres of vendor.';
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
             }
         }
@@ -651,27 +611,6 @@ page 26 "Vendor Card"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = FIELD("No.");
                 Visible = IsOfficeAddin;
-            }
-            part(Control17; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Vendor),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control19; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Vendor),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
             }
             part(VendorHistBuyFromFactBox; "Vendor Hist. Buy-from FactBox")
             {
@@ -796,25 +735,6 @@ page 26 "Vendor Card"
                         ApprovalsMgmt.OpenApprovalEntriesPage(RecordId);
                     end;
                 }
-#if not CLEAN18
-                action("Cross References")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross References';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '18.0';
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Vendor),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-#endif
                 action("Item References")
                 {
                     AccessByPermission = TableData "Item Reference" = R;
@@ -883,7 +803,7 @@ page 26 "Vendor Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -990,7 +910,7 @@ page 26 "Vendor Card"
                     end;
                 }
 #endif
-#if not CLEAN17
+#if not CLEAN19
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1250,7 +1170,6 @@ page 26 "Vendor Card"
                     Promoted = true;
                     PromotedCategory = Category7;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1615,7 +1534,7 @@ page 26 "Vendor Card"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new Flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetVendorTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1709,24 +1628,6 @@ page 26 "Vendor Card"
                 RunObject = Page "Purchase Journal";
                 ToolTip = 'Post any purchase transaction for the vendor. ';
             }
-#if not CLEAN17
-            action("Uncertainty VAT Payment Check")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Uncertainty VAT Payment Check';
-                Image = ElectronicPayment;
-                ToolTip = 'Checks uncertaintie vat of the vendor';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-
-                trigger OnAction()
-                begin
-                    ImportUncPayerStatus; // NAVCZ
-                end;
-            }
-#endif
             action(PayVendor)
             {
                 ApplicationArea = Basic, Suite;
@@ -1845,8 +1746,6 @@ page 26 "Vendor Card"
                 Caption = 'Vendor - Summary Aging';
                 Image = "Report";
                 Promoted = false;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
                 ToolTip = 'View a summary of the payables owed to each vendor, divided into three time periods.';
 
                 trigger OnAction()
@@ -1860,8 +1759,6 @@ page 26 "Vendor Card"
                 Caption = 'Vendor - Labels';
                 Image = "Report";
                 Promoted = false;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
                 ToolTip = 'View mailing labels with the vendors'' names and addresses.';
 
                 trigger OnAction()
@@ -1875,8 +1772,6 @@ page 26 "Vendor Card"
                 Caption = 'Vendor - Balance to Date';
                 Image = "Report";
                 Promoted = false;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
                 ToolTip = 'View a detail balance for selected vendors.';
 
                 trigger OnAction()
@@ -1884,35 +1779,24 @@ page 26 "Vendor Card"
                     RunReport(REPORT::"Vendor - Balance to Date");
                 end;
             }
-#if not CLEAN17
-            action("Balance Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Reconciliation';
-                Image = Balance;
-                Promoted = true;
-                PromotedCategory = "Report";
-                ToolTip = 'Open the report for vendor''s balance reconciliation.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                trigger OnAction()
-                begin
-                    RunReport(REPORT::"Vendor - Bal. Reconciliation");
-                end;
-            }
-#endif
         }
     }
 
     trigger OnAfterGetCurrRecord()
+    begin
+        if GuiAllowed() then
+            OnAfterGetCurrRecordFunc();
+    end;
+
+    local procedure OnAfterGetCurrRecordFunc()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        CreateVendorFromTemplate;
-        ActivateFields;
+        if NewMode then
+            CreateVendorFromTemplate()
+        else
+            StartBackgroundCalculations();
+        ActivateFields();
         OpenApprovalEntriesExistCurrUser := ApprovalsMgmt.HasOpenApprovalEntriesForCurrentUser(RecordId);
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
@@ -1931,19 +1815,6 @@ page 26 "Vendor Card"
     trigger OnAfterGetRecord()
     begin
         ActivateFields;
-#if not CLEAN18
-
-        // NAVCZ
-        if Cust.Get(GetLinkedCustomer) then begin
-            Cust.CalcFields("Balance (LCY)");
-            BalanceAsCust := Cust."Balance (LCY)";
-            BalanceOfCustEnable := true;
-        end else begin
-            BalanceAsCust := 0;
-            BalanceOfCustEnable := false;
-        end;
-        // NAVCZ
-#endif        
     end;
 
     trigger OnInit()
@@ -1962,12 +1833,17 @@ page 26 "Vendor Card"
     end;
 
     trigger OnOpenPage()
+    begin
+        if GuiAllowed() then
+            OnOpenPageFunc();
+    end;
+
+    local procedure OnOpenPageFunc()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        EmailFeature: Codeunit "Email Feature";
     begin
         ActivateFields();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1975,7 +1851,6 @@ page 26 "Vendor Card"
         IsSaaS := EnvironmentInfo.IsSaaS();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
@@ -1984,25 +1859,61 @@ page 26 "Vendor Card"
         SetOverReceiptControlsVisibility();
     end;
 
+    local procedure StartBackgroundCalculations()
     var
-#if not CLEAN18
-        Cust: Record Customer;
-#endif
+        VendorCardCalculations: Codeunit "Vendor Card Calculations";
+        Args: Dictionary of [Text, Text];
+    begin
+        if BackgroundTaskId <> 0 then
+            CurrPage.CancelBackgroundTask(BackgroundTaskId);
+
+        LinkedCustomerNo := '';
+        BalanceAsCustomer := 0;
+        BalanceAsCustomerEnabled := false;
+
+        Args.Add(VendorCardCalculations.GetVendorNoLabel(), Rec."No.");
+        Args.Add(VendorCardCalculations.GetFiltersLabel(), Rec.GetView());
+        Args.Add(VendorCardCalculations.GetWorkDateLabel(), Format(WorkDate()));
+
+        CurrPage.EnqueueBackgroundTask(BackgroundTaskId, Codeunit::"Vendor Card Calculations", Args);
+
+        Session.LogMessage('0000GC4', StrSubstNo(PageBckGrndTaskStartedTxt, Rec."No."), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
+    end;
+
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        VendorCardCalculations: Codeunit "Vendor Card Calculations";
+        DictionaryValue: Text;
+    begin
+        if TaskId = BackgroundTaskId then begin
+            if Results.Count() = 0 then
+                exit;
+
+            if TryGetDictionaryValueFromKey(Results, VendorCardCalculations.GetLinkedCustomerNoLabel(), DictionaryValue) then
+                LinkedCustomerNo := CopyStr(DictionaryValue, 1, MaxStrLen(LinkedCustomerNo));
+            BalanceAsCustomerEnabled := LinkedCustomerNo <> '';
+            if BalanceAsCustomerEnabled then
+                if TryGetDictionaryValueFromKey(Results, VendorCardCalculations.GetBalanceAsCustomerLabel(), DictionaryValue) then
+                    Evaluate(BalanceAsCustomer, DictionaryValue);
+
+            Session.LogMessage('0000GC5', PageBckGrndTaskCompletedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendorCardServiceCategoryTxt);
+        end;
+    end;
+
+    var
         OfficeMgt: Codeunit "Office Management";
         CalendarMgmt: Codeunit "Calendar Management";
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        FormatAddress: Codeunit "Format Address";
         Text001: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         Text002: Label 'Do you want to remove payment tolerance from entries that are currently open?';
-        FormatAddress: Codeunit "Format Address";
-        [InDataSet]
-        ContactEditable: Boolean;
-#if not CLEAN18
-        BalanceAsCust: Decimal;
-        [InDataSet]
-        BalanceOfCustEnable: Boolean;
-#endif
+        PageBckGrndTaskStartedTxt: Label 'Page Background Task to calculate vendor statistics for vendor %1 started.', Locked = true, Comment = '%1 = Customer No.';
+        PageBckGrndTaskCompletedTxt: Label 'Page Background Task to calculate vendor statistics completed successfully.', Locked = true;
+        VendorCardServiceCategoryTxt: Label 'Vendor Card', Locked = true;
+        LinkedCustomerNo: Code[20];
+        BalanceAsCustomer: Decimal;
         OpenApprovalEntriesExistCurrUser: Boolean;
         OpenApprovalEntriesExist: Boolean;
         ShowWorkflowStatus: Boolean;
@@ -2026,7 +1937,18 @@ page 26 "Vendor Card"
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
+        BalanceAsCustomerEnabled: Boolean;
+        BackgroundTaskId: Integer;
+
+    protected var
+        [InDataSet]
+        ContactEditable: Boolean;
+
+    [TryFunction]
+    local procedure TryGetDictionaryValueFromKey(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text; var ReturnValue: Text)
+    begin
+        ReturnValue := DictionaryToLookIn.Get(KeyToSearchFor);
+    end;
 
     local procedure ActivateFields()
     var
@@ -2130,7 +2052,7 @@ page 26 "Vendor Card"
             if Vendor."Validate EU Vat Reg. No." then begin
                 EUVATRegistrationNoCheck.SetRecordRef(Vendor);
                 Commit();
-                EUVATRegistrationNoCheck.RunModal;
+                EUVATRegistrationNoCheck.RunModal();
                 EUVATRegistrationNoCheck.GetRecordRef(VendorRecRef);
                 VendorRecRef.SetTable(Vendor);
             end;
@@ -2146,3 +2068,4 @@ page 26 "Vendor Card"
     begin
     end;
 }
+#endif

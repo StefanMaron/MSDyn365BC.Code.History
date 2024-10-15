@@ -321,6 +321,11 @@ codeunit 1535 "Approvals Mgmt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDelegateSelectedApprovalRequest(ApprovalEntry, CheckCurrentUser, IsHandled);
+        if IsHandled then
+            exit;
+
         CheckOpenStatus(ApprovalEntry, "Approval Action"::Delegate, DelegateOnlyOpenRequestsErr);
 
         if CheckCurrentUser and (not ApprovalEntry.CanCurrentUserEdit) then
@@ -365,7 +370,7 @@ codeunit 1535 "Approvals Mgmt."
         if UserSetup.Substitute = '' then
             if UserSetup."Approver ID" = '' then begin
                 ApprovalAdminUserSetup.SetRange("Approval Administrator", true);
-                if ApprovalAdminUserSetup.FindFirst then
+                if ApprovalAdminUserSetup.FindFirst() then
                     UserSetup.Get(ApprovalAdminUserSetup."User ID")
                 else
                     Error(SubstituteNotFoundErr, UserSetup."User ID");
@@ -374,6 +379,7 @@ codeunit 1535 "Approvals Mgmt."
         else
             UserSetup.Get(UserSetup.Substitute);
 
+        OnSubstituteUserIdForApprovalEntryOnBeforeAssignApproverID(ApprovalEntry, UserSetup);
         ApprovalEntry."Approver ID" := UserSetup."User ID";
         ApprovalEntry.Modify(true);
         OnDelegateApprovalRequest(ApprovalEntry);
@@ -401,7 +407,14 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     local procedure ShowPurchApprovalStatus(PurchaseHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowPurchApprovalStatus(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchaseHeader.Find;
 
         case PurchaseHeader.Status of
@@ -416,7 +429,14 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     local procedure ShowSalesApprovalStatus(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowSalesApprovalStatus(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesHeader.Find;
 
         case SalesHeader.Status of
@@ -470,6 +490,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnCancelApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
         if ApprovalEntry.FindSet() then
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -487,12 +508,19 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry: Record "Approval Entry";
         ApprovalEntryToUpdate: Record "Approval Entry";
         OldStatus: Enum "Approval Status";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRejectApprovalRequestsForRecord(RecRef, WorkflowStepInstance, IsHandled);
+        if IsHandled then
+            exit;
+
         ApprovalEntry.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetFilter(Status, '<>%1&<>%2', ApprovalEntry.Status::Rejected, ApprovalEntry.Status::Canceled);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef);
         if ApprovalEntry.FindSet() then begin
             repeat
                 OldStatus := ApprovalEntry.Status;
@@ -510,14 +538,19 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
         ApprovalEntry2: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
         ApprovalEntry.SetCurrentKey("Table ID", "Record ID to Approve", Status, "Workflow Step Instance ID", "Sequence No.");
         ApprovalEntry.SetRange("Table ID", RecRef.Number);
         ApprovalEntry.SetRange("Record ID to Approve", RecRef.RecordId);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Created);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
+        IsHandled := false;
+        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef, IsHandled);
+        if IsHandled then
+            exit;
 
-        if ApprovalEntry.FindFirst then begin
+        if ApprovalEntry.FindFirst() then begin
             ApprovalEntry2.CopyFilters(ApprovalEntry);
             ApprovalEntry2.SetRange("Sequence No.", ApprovalEntry."Sequence No.");
             if ApprovalEntry2.FindSet(true) then
@@ -532,7 +565,7 @@ codeunit 1535 "Approvals Mgmt."
         end;
 
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
-        if ApprovalEntry.FindLast then
+        if ApprovalEntry.FindLast() then
             OnApproveApprovalRequest(ApprovalEntry)
         else
             Error(NoApprovalRequestsFoundErr);
@@ -560,11 +593,12 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry2.SetCurrentKey("Table ID", "Document Type", "Document No.", "Sequence No.");
         ApprovalEntry2.SetRange("Record ID to Approve", ApprovalEntry."Record ID to Approve");
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Created);
+        OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry);
 
-        if ApprovalEntry2.FindFirst then begin
+        if ApprovalEntry2.FindFirst() then begin
             ApprovalEntry3.CopyFilters(ApprovalEntry2);
             ApprovalEntry3.SetRange("Sequence No.", ApprovalEntry2."Sequence No.");
-            if ApprovalEntry3.FindSet then
+            if ApprovalEntry3.FindSet() then
                 repeat
                     ApprovalEntry3.Validate(Status, ApprovalEntry3.Status::Open);
                     ApprovalEntry3.Modify(true);
@@ -577,7 +611,13 @@ codeunit 1535 "Approvals Mgmt."
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         ApprovalEntryArgument: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalRequests(RecRef, WorkflowStepInstance, IsHandled);
+        if IsHandled then
+            exit;
+
         PopulateApprovalEntryArgument(RecRef, WorkflowStepInstance, ApprovalEntryArgument);
 
         if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
@@ -591,6 +631,8 @@ codeunit 1535 "Approvals Mgmt."
                 else
                     OnCreateApprovalRequestsOnElseCase(WorkflowStepArgument, ApprovalEntryArgument);
             end;
+
+        OnCreateApprovalRequestsOnAfterCreateRequests(RecRef, WorkflowStepArgument, ApprovalEntryArgument);
 
         if WorkflowStepArgument."Show Confirmation Message" then
             InformUserOnStatusChange(RecRef, WorkflowStepInstance.ID);
@@ -675,7 +717,7 @@ codeunit 1535 "Approvals Mgmt."
             SetCurrentKey("Workflow User Group Code", "Sequence No.");
             SetRange("Workflow User Group Code", WorkflowStepArgument."Workflow User Group Code");
 
-            if not FindSet then
+            if not FindSet() then
                 Error(NoWFUserGroupMembersErr);
 
             repeat
@@ -692,12 +734,12 @@ codeunit 1535 "Approvals Mgmt."
         OnAfterCreateApprReqForApprTypeWorkflowUserGroup(WorkflowStepArgument, ApprovalEntryArgument);
     end;
 
-    local procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForChainOfApprovers(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, false);
     end;
 
-    local procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    procedure CreateApprovalRequestForApproverWithSufficientLimit(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
         CreateApprovalRequestForApproverChain(WorkflowStepArgument, ApprovalEntryArgument, true);
     end;
@@ -725,7 +767,8 @@ codeunit 1535 "Approvals Mgmt."
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             SetRange(Status, Status::Created);
-            if FindLast then
+            OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
+            if FindLast() then
                 ApproverId := "Approver ID"
             else
                 if (WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser") and
@@ -742,7 +785,10 @@ codeunit 1535 "Approvals Mgmt."
         if not UserSetup.Get(ApproverId) then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
 
-        OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument);
+        IsHandled := false;
+        OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+        if IsHandled then
+            exit;
 
         if not IsSufficientApprover(UserSetup, ApprovalEntryArgument) then
             repeat
@@ -750,6 +796,11 @@ codeunit 1535 "Approvals Mgmt."
                 if i > MaxCount then
                     Error(ApproverChainErr);
                 ApproverId := UserSetup."Approver ID";
+
+                IsHandled := false;
+                OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+                if IsHandled then
+                    exit;
 
                 if ApproverId = '' then
                     Error(NoSuitableApproverFoundErr);
@@ -815,7 +866,13 @@ codeunit 1535 "Approvals Mgmt."
     procedure CreateApprovalRequestForUser(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     var
         SequenceNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalRequestForUser(WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+        if IsHandled then
+            exit;
+
         SequenceNo := GetLastSequenceNo(ApprovalEntryArgument);
 
         SequenceNo += 1;
@@ -842,7 +899,13 @@ codeunit 1535 "Approvals Mgmt."
     procedure MakeApprovalEntry(ApprovalEntryArgument: Record "Approval Entry"; SequenceNo: Integer; ApproverId: Code[50]; WorkflowStepArgument: Record "Workflow Step Argument")
     var
         ApprovalEntry: Record "Approval Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMakeApprovalEntry(ApprovalEntry, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
+        if IsHandled then
+            exit;
+
         with ApprovalEntry do begin
             "Table ID" := ApprovalEntryArgument."Table ID";
             "Document Type" := ApprovalEntryArgument."Document Type";
@@ -881,7 +944,10 @@ codeunit 1535 "Approvals Mgmt."
             SetLimitType(WorkflowStepArgument, ApprovalEntry);
             "Record ID to Approve" := ApprovalEntryArgument."Record ID to Approve";
             "Approval Code" := ApprovalEntryArgument."Approval Code";
-            OnBeforeApprovalEntryInsert(ApprovalEntry, ApprovalEntryArgument, WorkflowStepArgument);
+            IsHandled := false;
+            OnBeforeApprovalEntryInsert(ApprovalEntry, ApprovalEntryArgument, WorkflowStepArgument, ApproverId, IsHandled);
+            if IsHandled then
+                exit;
             Insert(true);
         end;
     end;
@@ -903,6 +969,8 @@ codeunit 1535 "Approvals Mgmt."
           TempAmount, VAtText);
         ApprovalAmount := TotalPurchaseLine.Amount;
         ApprovalAmountLCY := TotalPurchaseLineLCY.Amount;
+
+        OnAfterCalcPurchaseDocAmount(PurchaseHeader, TotalPurchaseLine, TotalPurchaseLineLCY, ApprovalAmount, ApprovalAmountLCY);
     end;
 
     procedure CalcSalesDocAmount(SalesHeader: Record "Sales Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
@@ -1005,30 +1073,48 @@ codeunit 1535 "Approvals Mgmt."
                 OnPopulateApprovalEntryArgument(RecRef, ApprovalEntryArgument, WorkflowStepInstance);
         end;
 
-        OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled);
+        OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance, ApprovalEntryArgument, IsHandled, RecRef);
     end;
 
     procedure CreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; WorkflowStepInstance: Record "Workflow Step Instance")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
         NotificationEntry: Record "Notification Entry";
+        IsNotificationRequiredForCurrentUser: Boolean;
+        IsNotifySenderRequired: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateApprovalEntryNotification(ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             exit;
 
+        IsNotificationRequiredForCurrentUser := (ApprovalEntry."Approver ID" <> UserId) or IsBackground();
+        IsNotifySenderRequired := ((ApprovalEntry."Sender ID" <> UserId) or IsBackground()) and (ApprovalEntry."Sender ID" <> ApprovalEntry."Approver ID");
+
         ApprovalEntry.Reset();
-        if (ApprovalEntry."Approver ID" <> UserId) and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
+        if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
-        if WorkflowStepArgument."Notify Sender" and not (ApprovalEntry."Sender ID" in [UserId, ApprovalEntry."Approver ID"]) then
+        if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
                 ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", '');
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetApproverType(WorkflowStepArgument, ApprovalEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         case WorkflowStepArgument."Approver Type" of
             WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser":
                 ApprovalEntry."Approval Type" := ApprovalEntry."Approval Type"::"Sales Pers./Purchaser";
@@ -1163,17 +1249,29 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     procedure PrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforePrePostApprovalCheckSales(SalesHeader);
+        IsHandled := false;
+        OnBeforePrePostApprovalCheckSales(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if IsSalesHeaderPendingApproval(SalesHeader) then
             Error(SalesPrePostCheckErr, SalesHeader."Document Type", SalesHeader."No.");
 
         exit(true);
     end;
 
-    procedure PrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure PrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforePrePostApprovalCheckPurch(PurchaseHeader);
+        IsHandled := false;
+        OnBeforePrePostApprovalCheckPurch(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if IsPurchaseHeaderPendingApproval(PurchaseHeader) then
             Error(PurchPrePostCheckErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -1182,7 +1280,7 @@ codeunit 1535 "Approvals Mgmt."
 
     procedure IsIncomingDocApprovalsWorkflowEnabled(var IncomingDocument: Record "Incoming Document"): Boolean
     begin
-        exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode));
+        exit(WorkflowManagement.CanExecuteWorkflow(IncomingDocument, WorkflowEventHandling.RunWorkflowOnSendIncomingDocForApprovalCode()));
     end;
 
     procedure IsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header"): Boolean
@@ -1233,12 +1331,22 @@ codeunit 1535 "Approvals Mgmt."
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode));
     end;
 
-    procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure CheckPurchaseApprovalPossible(var PurchaseHeader: Record "Purchase Header") Result: Boolean
+    var
+        IsHandled: Boolean;
+        ShowNothingToApproveError: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not IsPurchaseApprovalsWorkflowEnabled(PurchaseHeader) then
             Error(NoWorkflowEnabledErr);
 
-        if not PurchaseHeader.PurchLinesExist then
+        ShowNothingToApproveError := not PurchaseHeader.PurchLinesExist;
+        OnCheckPurchaseApprovalPossibleOnAfterCalcShowNothingToApproveError(PurchaseHeader, ShowNothingToApproveError);
+        if ShowNothingToApproveError then
             Error(NothingToApproveErr);
 
         OnAfterCheckPurchaseApprovalPossible(PurchaseHeader);
@@ -1383,11 +1491,12 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
         PostedApprovalEntry: Record "Posted Approval Entry";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         ApprovalEntry.SetAutoCalcFields("Pending Approvals", "Number of Approved Requests", "Number of Rejected Requests");
         ApprovalEntry.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", ApprovedRecordID);
-        if not ApprovalEntry.FindSet then
+        if not ApprovalEntry.FindSet() then
             exit(false);
 
         repeat
@@ -1401,6 +1510,7 @@ codeunit 1535 "Approvals Mgmt."
             PostedApprovalEntry."Entry No." := 0;
             OnPostApprovalEntriesOnBeforePostedApprovalEntryInsert(PostedApprovalEntry, ApprovalEntry);
             PostedApprovalEntry.Insert(true);
+            RecordLinkManagement.CopyLinks(ApprovalEntry, PostedApprovalEntry);
         until ApprovalEntry.Next() = 0;
 
         PostApprovalCommentLines(ApprovedRecordID, PostedRecordID, PostedDocNo);
@@ -1414,7 +1524,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalCommentLine.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovedRecordID);
-        if ApprovalCommentLine.FindSet then
+        if ApprovalCommentLine.FindSet() then
             repeat
                 PostedApprovalCommentLine.Init();
                 PostedApprovalCommentLine.TransferFields(ApprovalCommentLine);
@@ -1571,6 +1681,7 @@ codeunit 1535 "Approvals Mgmt."
             else
                 SetCommonApprovalCommentLineFilters(RecRef, ApprovalEntry, ApprovalCommentLine);
         end;
+        OnShowApprovalCommentsOnAfterSetApprovalCommentLineFilters(ApprovalCommentLine, ApprovalEntry, RecRef);
 
         if IsNullGuid(WorkflowStepInstanceID) and (not IsNullGuid(ApprovalEntry."Workflow Step Instance ID")) then
             WorkflowStepInstanceID := ApprovalEntry."Workflow Step Instance ID";
@@ -1604,7 +1715,7 @@ codeunit 1535 "Approvals Mgmt."
 
         ApprovalComments.SetTableView(ApprovalCommentLine);
         ApprovalComments.SetWorkflowStepInstanceID(WorkflowStepInstanceID);
-        ApprovalComments.Run;
+        ApprovalComments.Run();
     end;
 
     procedure HasOpenApprovalEntriesForCurrentUser(RecordID: RecordID): Boolean
@@ -1615,6 +1726,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
 
         exit(not ApprovalEntry.IsEmpty());
@@ -1627,6 +1741,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         OnHasOpenApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(not ApprovalEntry.IsEmpty);
@@ -1639,6 +1756,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -1649,6 +1769,9 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -1813,6 +1936,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", RecordIDToApprove.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordIDToApprove);
+        OnDeleteApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         if not ApprovalEntry.IsEmpty() then
             ApprovalEntry.DeleteAll(true);
         DeleteApprovalCommentLines(RecordIDToApprove);
@@ -1838,7 +1962,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         FromApprovalEntry.SetRange("Table ID", FromRecID.TableNo);
         FromApprovalEntry.SetRange("Record ID to Approve", FromRecID);
-        if FromApprovalEntry.FindSet then begin
+        if FromApprovalEntry.FindSet() then begin
             repeat
                 ToApprovalEntry := FromApprovalEntry;
                 ToApprovalEntry."Entry No." := 0; // Auto increment
@@ -1850,7 +1974,7 @@ codeunit 1535 "Approvals Mgmt."
 
             FromApprovalCommentLine.SetRange("Table ID", FromRecID.TableNo);
             FromApprovalCommentLine.SetRange("Record ID to Approve", FromRecID);
-            if FromApprovalCommentLine.FindSet then begin
+            if FromApprovalCommentLine.FindSet() then begin
                 NextEntryNo := ToApprovalCommentLine.GetLastEntryNo() + 1;
                 repeat
                     ToApprovalCommentLine := FromApprovalCommentLine;
@@ -1874,7 +1998,8 @@ codeunit 1535 "Approvals Mgmt."
             SetRange("Table ID", ApprovalEntryArgument."Table ID");
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
-            if FindLast then
+            OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
+            if FindLast() then
                 exit("Sequence No.");
         end;
         exit(0);
@@ -1888,6 +2013,57 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecId);
         ApprovalEntry.SetRange("Related to Change", false);
         PAGE.RunModal(PAGE::"Approval Entries", ApprovalEntry);
+    end;
+
+    procedure OpenApprovalsSales(SalesHeader: Record "Sales Header")
+    begin
+        RunWorkflowEntriesPage(
+            SalesHeader.RecordId(), DATABASE::"Sales Header", SalesHeader."Document Type", SalesHeader."No.");
+    end;
+
+    procedure OpenApprovalsPurchase(PurchHeader: Record "Purchase Header")
+    begin
+        RunWorkflowEntriesPage(
+            PurchHeader.RecordId(), DATABASE::"Purchase Header", PurchHeader."Document Type", PurchHeader."No.");
+    end;
+
+    procedure RunWorkflowEntriesPage(RecordIDInput: RecordID; TableId: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
+    var
+        ApprovalEntry: Record "Approval Entry";
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+        Approvals: Page Approvals;
+        WorkflowWebhookEntries: Page "Workflow Webhook Entries";
+        ApprovalEntries: Page "Approval Entries";
+    begin
+        // if we are looking at a particular record, we want to see only record related workflow entries
+        if DocumentNo <> '' then begin
+            ApprovalEntry.SetRange("Record ID to Approve", RecordIDInput);
+            WorkflowWebhookEntry.SetRange("Record ID", RecordIDInput);
+            // if we have flows created by multiple applications, start generic page filtered for this RecordID
+            if not ApprovalEntry.IsEmpty() and not WorkflowWebhookEntry.IsEmpty() then begin
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end else begin
+                // otherwise, open the page filtered for this record that corresponds to the type of the flow
+                if not WorkflowWebhookEntry.IsEmpty() then begin
+                    WorkflowWebhookEntries.Setfilters(RecordIDInput);
+                    WorkflowWebhookEntries.Run();
+                    exit;
+                end;
+
+                if not ApprovalEntry.IsEmpty() then begin
+                    ApprovalEntries.SetRecordFilters(TableId, DocumentType, DocumentNo);
+                    ApprovalEntries.Run();
+                    exit;
+                end;
+
+                // if no workflow exist, show (empty) joint workflows page
+                Approvals.Setfilters(RecordIDInput);
+                Approvals.Run();
+            end
+        end else
+            // otherwise, open the page with all workflow entries
+            Approvals.Run();
     end;
 
     procedure CanCancelApprovalForRecord(RecID: RecordID) Result: Boolean
@@ -1914,7 +2090,7 @@ codeunit 1535 "Approvals Mgmt."
         if ApprovalEntryArgument."Salespers./Purch. Code" <> '' then begin
             UserSetup.SetCurrentKey("Salespers./Purch. Code");
             UserSetup.SetRange("Salespers./Purch. Code", ApprovalEntryArgument."Salespers./Purch. Code");
-            if not UserSetup.FindFirst then
+            if not UserSetup.FindFirst() then
                 Error(
                   PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
                   UserSetup."Salespers./Purch. Code");
@@ -1942,12 +2118,13 @@ codeunit 1535 "Approvals Mgmt."
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         WorkflowInstance: Query "Workflow Instance";
     begin
+        WorkflowStepInstance.SetLoadFields(Argument);
         WorkflowStepInstance.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
         WorkflowStepInstance.SetRange("Record ID", WorkflowStepInstance."Record ID");
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         WorkflowStepInstance.SetRange(Type, WorkflowInstance.Type::Response);
         WorkflowStepInstance.SetRange(Status, WorkflowInstance.Status::Completed);
-        if WorkflowStepInstance.FindSet then
+        if WorkflowStepInstance.FindSet() then
             repeat
                 if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
                     if WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Workflow User Group" then begin
@@ -1970,6 +2147,13 @@ codeunit 1535 "Approvals Mgmt."
         exit(not ApprovalEntry2.IsEmpty);
     end;
 
+    local procedure IsBackground(): Boolean
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+    begin
+        exit(ClientTypeManagement.GetCurrentClientType() in [ClientType::Background]);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnApproveApprovalRequestsForRecordOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
     begin
@@ -1977,6 +2161,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCanCancelApprovalForRecord(RecID: RecordID; var Result: Boolean; var ApprovalEntry: Record "Approval Entry"; UserSetup: Record "User Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPurchaseDocAmount(PurchaseHeader: Record "Purchase Header"; TotalPurchaseLine: Record "Purchase Line"; TotalPurchaseLineLCY: Record "Purchase Line"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
     begin
     end;
 
@@ -2016,7 +2205,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
+    local procedure OnAfterPopulateApprovalEntryArgument(WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean; var RecRef: RecordRef)
     begin
     end;
 
@@ -2026,12 +2215,32 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument")
+    local procedure OnBeforeApprovalEntryInsert(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPurchaseApprovalPossible(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalRequests(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalRequestForUser(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateApprovalRequestForApproverChain(WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; SufficientApproverOnly: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateApprovalEntryNotification(ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2046,22 +2255,42 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakeApprovalEntry(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry"; WorkflowStepArgument: Record "Workflow Step Argument"; ApproverId: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePopulateApprovalEntryArgument(WorkflowStepInstance: Record "Workflow Step Instance"; var ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforePrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetStatusToPendingApproval(var Variant: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPurchApprovalStatus(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesApprovalStatus(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2076,7 +2305,12 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeIsSufficientPurchApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Purchase Document Type"; var ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRejectApprovalRequestsForRecord(RecRef: RecordRef; WorkflowStepInstance: Record "Workflow Step Instance"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2111,6 +2345,11 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCancelApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestForApproverOnAfterCheckUserSetupUserID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
@@ -2121,7 +2360,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckApprovalEntrySenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2131,7 +2370,32 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckPurchaseApprovalPossibleOnAfterCalcShowNothingToApproveError(var PurchaseHeader: Record "Purchase Header"; var ShowNothingToApproveError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelegateSelectedApprovalRequest(var ApprovalEntry: Record "Approval Entry"; CheckCurrentUser: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteApprovalEntriesOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
     begin
     end;
 
@@ -2142,6 +2406,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindOpenApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
 
@@ -2176,12 +2445,37 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRejectApprovalRequestsForRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(var ApprovalEntry2: Record "Approval Entry"; ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnShowApprovalCommentsOnAfterSetApprovalCommentLineFilters(var ApprovalCommentLine: Record "Approval Comment Line"; ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnSubstituteUserIdForApprovalEntryOnAfterCheckUserSetupApprovalEntryApproverID(var UserSetup: Record "User Setup"; ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSubstituteUserIdForApprovalEntryOnBeforeAssignApproverID(ApprovalEntry: Record "Approval Entry"; var UserSetup: Record "User Setup")
     begin
     end;
 
@@ -2202,6 +2496,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestsOnElseCase(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestsOnAfterCreateRequests(RecRef: RecordRef; WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntryArgument: Record "Approval Entry")
     begin
     end;
 

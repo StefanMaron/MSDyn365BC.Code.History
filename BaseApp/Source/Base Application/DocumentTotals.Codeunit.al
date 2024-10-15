@@ -77,7 +77,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalSalesHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalSalesHeader."Recalculate Invoice Disc." then
-                if TotalSalesLine2.FindFirst then begin
+                if TotalSalesLine2.FindFirst() then begin
                     SalesCalcDiscount.CalculateInvoiceDiscountOnLine(TotalSalesLine2);
                     NeedRefreshSalesLine := true;
                 end;
@@ -633,7 +633,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalPurchaseHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalPurchaseHeader."Recalculate Invoice Disc." then
-                if TotalPurchaseLine2.FindFirst then begin
+                if TotalPurchaseLine2.FindFirst() then begin
                     PurchCalcDiscount.CalculateInvoiceDiscountOnLine(TotalPurchaseLine2);
                     NeedRefreshPurchaseLine := true;
                 end;
@@ -999,30 +999,6 @@ codeunit 57 "Document Totals"
         exit(PurchAdvanceLetterLine.Count <= 100);
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure CalculateCashDocumentTotals(var CashDocumentHeader: Record "Cash Document Header"; var VATAmount: Decimal; CashDocumentLine: Record "Cash Document Line")
-    begin
-        // NAVCZ
-        if CashDocumentHeader.Get(CashDocumentLine."Cash Desk No.", CashDocumentLine."Cash Document No.") then begin
-            CashDocumentHeader.CalcFields("VAT Base Amount", "Amount Including VAT");
-            VATAmount := CashDocumentHeader."Amount Including VAT" - CashDocumentHeader."VAT Base Amount";
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure CalculatePostedCashDocumentTotals(var PostedCashDocumentHeader: Record "Posted Cash Document Header"; var VATAmount: Decimal; PostedCashDocumentLine: Record "Posted Cash Document Line")
-    begin
-        // NAVCZ
-        if PostedCashDocumentHeader.Get(PostedCashDocumentLine."Cash Desk No.", PostedCashDocumentLine."Cash Document No.") then begin
-            PostedCashDocumentHeader.CalcFields("VAT Base Amount", "Amount Including VAT");
-            VATAmount := PostedCashDocumentHeader."Amount Including VAT" - PostedCashDocumentHeader."VAT Base Amount";
-        end;
-    end;
-
-#endif
     [Obsolete('Moved to Banking Documents Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalculatePaymentOrderTotals(var PaymentOrderHeader: Record "Payment Order Header"; PaymentOrderLine: Record "Payment Order Line")

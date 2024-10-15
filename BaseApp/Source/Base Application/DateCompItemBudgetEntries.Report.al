@@ -86,7 +86,7 @@ report 7139 "Date Comp. Item Budget Entries"
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(DateComprReg);
 
-                if AnalysisView.FindFirst then
+                if AnalysisView.FindFirst() then
                     if LowestEntryNo < 2147483647 then
                         UpdateAnalysisView.SetLastBudgetEntryNo(LowestEntryNo - 1);
 
@@ -108,7 +108,7 @@ report 7139 "Date Comp. Item Budget Entries"
                 DateComprReg."Ending Date" := EntrdDateComprReg."Ending Date";
                 DateComprReg."Period Length" := EntrdDateComprReg."Period Length";
 
-                if AnalysisView.FindFirst then begin
+                if AnalysisView.FindFirst() then begin
                     AnalysisView.CheckDimensionsAreRetained(3, REPORT::"Date Comp. Item Budget Entries", true);
                     if not SkipAnalysisViewUpdateCheck then
                         AnalysisView.CheckViewsAreUpdated;

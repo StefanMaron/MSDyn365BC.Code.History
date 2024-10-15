@@ -29,17 +29,17 @@ codeunit 11702 "Issue Bank Statement"
                 SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', Rec."Document Date"),
                   CalcDate('<CY>', Rec."Document Date"));
             if not IsEmpty() then begin
-                FindFirst;
+                FindFirst();
                 Error(AlreadyExistErr, FieldCaption("External Document No."), TableCaption, FieldCaption("No."), "No.");
             end;
             Reset;
         end;
 
         BankStmtLine.LockTable();
-        if BankStmtLine.FindLast then;
+        if BankStmtLine.FindLast() then;
 
         BankStmtLine.SetRange("Bank Statement No.", "No.");
-        if not BankStmtLine.FindSet then
+        if not BankStmtLine.FindSet() then
             Error(NothingToIssueErr);
         repeat
             BankStmtLine.TestField(Amount);

@@ -2,7 +2,7 @@
 report 5630 "Maintenance - Analysis"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CLEAN18/MaintenanceAnalysis.rdlc';
+    RDLCLayout = './MaintenanceAnalysis.rdlc';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Maintenance Analysis';
     UsageCategory = ReportsAndAnalysis;
@@ -438,4 +438,5 @@ report 5630 "Maintenance - Analysis"
         end;
     end;
 }
+
 #endif

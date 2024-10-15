@@ -85,18 +85,6 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
                     Visible = false;
                 }
-#if not CLEAN18
-                field("Vendor Posting Group"; "Vendor Posting Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -116,6 +104,13 @@ page 29 "Vendor Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
+                }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    Visible = false;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -553,6 +548,13 @@ page 29 "Vendor Ledger Entries"
                 ApplicationArea = Notes;
                 Visible = false;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
         }
     }
 
@@ -791,13 +793,13 @@ page 29 "Vendor Ledger Entries"
                 Promoted = true;
                 PromotedCategory = Category5;
                 Scope = Repeater;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Show Document")
@@ -897,7 +899,6 @@ page 29 "Vendor Ledger Entries"
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        StyleTxt: Text;
         HasIncomingDocument: Boolean;
         HasDocumentAttachment: Boolean;
         AmountVisible: Boolean;
@@ -914,6 +915,7 @@ page 29 "Vendor Ledger Entries"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        StyleTxt: Text;
 
     local procedure SetDimVisibility()
     var

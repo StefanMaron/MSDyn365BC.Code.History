@@ -548,12 +548,10 @@ table 15 "G/L Account"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(63; "Exchange Rate Adjustment"; Option)
+        field(63; "Exchange Rate Adjustment"; Enum "Exch. Rate Adjustment Type")
         {
             AccessByPermission = TableData Currency = R;
             Caption = 'Exchange Rate Adjustment';
-            OptionCaption = 'No Adjustment,Adjust Amount,Adjust Additional-Currency Amount';
-            OptionMembers = "No Adjustment","Adjust Amount","Adjust Additional-Currency Amount";
         }
         field(64; "Add.-Currency Debit Amount"; Decimal)
         {
@@ -649,116 +647,22 @@ table 15 "G/L Account"
             Caption = 'G/L Account Group';
             OptionCaption = ' ,Internal,Sub balance,3,4,5,6,7,8,9,10';
             OptionMembers = " ",Internal,"Sub balance","3","4","5","6","7","8","9","10";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "Apply Entries"; Boolean)
         {
             Caption = 'Apply Entries';
-        }
-#if not CLEAN17
-        field(11762; "Net Change (VAT Date)"; Decimal)
-        {
-            CalcFormula = Sum("G/L Entry".Amount WHERE("G/L Account No." = FIELD("No."),
-                                                        "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                        "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                        "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Net Change (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
-        field(11763; "Net Change ACY (VAT Date)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry"."Additional-Currency Amount" WHERE("G/L Account No." = FIELD("No."),
-                                                                              "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                                              "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Net Change ACY (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-        field(11764; "Debit Amount (VAT Date)"; Decimal)
-        {
-            CalcFormula = Sum("G/L Entry"."Debit Amount" WHERE("G/L Account No." = FIELD("No."),
-                                                                "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                                "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Debit Amount (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-        }
-        field(11765; "Debit Amount ACY (VAT Date)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry"."Add.-Currency Debit Amount" WHERE("G/L Account No." = FIELD("No."),
-                                                                              "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                                              "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Debit Amount ACY (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-        field(11766; "Credit Amount (VAT Date)"; Decimal)
-        {
-            CalcFormula = Sum("G/L Entry"."Credit Amount" WHERE("G/L Account No." = FIELD("No."),
-                                                                 "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                                 "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                 "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                 "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Credit Amount (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-        }
-        field(11767; "Credit Amount ACY (VAT Date)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            CalcFormula = Sum("G/L Entry"."Add.-Currency Debit Amount" WHERE("G/L Account No." = FIELD("No."),
-                                                                              "G/L Account No." = FIELD(FILTER(Totaling)),
-                                                                              "Business Unit Code" = FIELD("Business Unit Filter"),
-                                                                              "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
-                                                                              "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
-                                                                              "VAT Date" = FIELD("Date Filter")));
-            Caption = 'Credit Amount ACY (VAT Date)';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-#endif
         field(11792; "Full Name"; Text[100])
         {
             Caption = 'Full Name';
@@ -961,9 +865,9 @@ table 15 "G/L Account"
         else begin
             GLAccountCategory.SetRange("Account Category", "Account Category");
             GLAccountCategory.SetRange(Description, NewValue);
-            if not GLAccountCategory.FindFirst then begin
+            if not GLAccountCategory.FindFirst() then begin
                 GLAccountCategory.SetFilter(Description, '''@*' + NewValue + '*''');
-                if not GLAccountCategory.FindFirst then
+                if not GLAccountCategory.FindFirst() then
                     Error(NoAccountCategoryMatchErr, "Account Category", NewValue);
             end;
             Validate("Account Subcategory Entry No.", GLAccountCategory."Entry No.");
@@ -1004,7 +908,7 @@ table 15 "G/L Account"
         GLAccountSubAccount.SetRange(Indentation, Indentation, Indentation + 1);
         GLAccountSubAccount.SetFilter("Account Category", '%1|%2', "Account Category"::" ", xRec."Account Category");
 
-        if not GLAccountSubAccount.FindSet then
+        if not GLAccountSubAccount.FindSet() then
             exit;
 
         repeat
@@ -1075,7 +979,7 @@ table 15 "G/L Account"
         if IsHandled then
             exit;
 
-        if "Gen. Prod. Posting Group" = '' then 
+        if "Gen. Prod. Posting Group" = '' then
             ErrorMessageManagement.LogContextFieldError(
                 0,
                 StrSubstNo(GenProdPostingGroupErr, FieldCaption("Gen. Prod. Posting Group"), Name, "No."),
@@ -1185,4 +1089,3 @@ table 15 "G/L Account"
     begin
     end;
 }
-

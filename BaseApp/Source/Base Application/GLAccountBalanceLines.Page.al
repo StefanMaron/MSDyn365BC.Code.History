@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 416 "G/L Account Balance Lines"
 {
     Caption = 'Lines';
@@ -43,7 +42,7 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown(false); // NAVCZ
+                        BalanceDrillDown;
                     end;
                 }
                 field(CreditAmount; "Credit Amount")
@@ -58,7 +57,7 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown(false); // NAVCZ
+                        BalanceDrillDown();
                     end;
                 }
                 field(NetChange; "Net Change")
@@ -74,26 +73,7 @@ page 416 "G/L Account Balance Lines"
 
                     trigger OnDrillDown()
                     begin
-                        BalanceDrillDown(false); // NAVCZ
-                    end;
-                }
-                field("GLAcc.""Net Change (VAT Date)"""; "Net Change (VAT Date)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    AutoFormatType = 1;
-                    BlankZero = true;
-                    Caption = 'Net Change (VAT Date)';
-                    DrillDown = true;
-                    Editable = false;
-                    ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    begin
-                        BalanceDrillDown(true); // NAVCZ
+                        BalanceDrillDown();
                     end;
                 }
             }
@@ -167,7 +147,7 @@ page 416 "G/L Account Balance Lines"
         CurrPage.Update(false);
     end;
 
-    local procedure BalanceDrillDown(UseVATDate: Boolean)
+    local procedure BalanceDrillDown()
     var
         GLEntry: Record "G/L Entry";
         IsHandled: Boolean;
@@ -179,11 +159,6 @@ page 416 "G/L Account Balance Lines"
 
         SetDateFilter();
         GLEntry.Reset();
-        // NAVCZ
-        if UseVATDate then
-            GLEntry.SetCurrentKey("G/L Account No.", "VAT Date")
-        else
-            // NAVCZ
         GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         GLEntry.SetRange("G/L Account No.", GLAcc."No.");
         if GLAcc.Totaling <> '' then
@@ -226,11 +201,11 @@ page 416 "G/L Account Balance Lines"
 
     local procedure CalcLine()
     begin
-        SetDateFilter;
+        SetDateFilter();
         if DebitCreditTotals then
-            GLAcc.CalcFields("Net Change", "Debit Amount", "Credit Amount", "Net Change (VAT Date)") // NAVCZ
+            GLAcc.CalcFields("Net Change", "Debit Amount", "Credit Amount")
         else begin
-            GLAcc.CalcFields("Net Change", "Net Change (VAT Date)"); // NAVCZ
+            GLAcc.CalcFields("Net Change");
             if GLAcc."Net Change" > 0 then begin
                 GLAcc."Debit Amount" := GLAcc."Net Change";
                 GLAcc."Credit Amount" := 0
@@ -243,7 +218,6 @@ page 416 "G/L Account Balance Lines"
         "Debit Amount" := GLAcc."Debit Amount";
         "Credit Amount" := GLAcc."Credit Amount";
         "Net Change" := GLAcc."Net Change";
-        "Net Change (VAT Date)" := GLAcc."Net Change (VAT Date)";
 
         OnAfterCalcLine(GLAcc, Rec, ClosingEntryFilter, DebitCreditTotals);
     end;
@@ -263,4 +237,4 @@ page 416 "G/L Account Balance Lines"
     begin
     end;
 }
-#endif
+

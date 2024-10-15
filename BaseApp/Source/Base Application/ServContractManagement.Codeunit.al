@@ -26,6 +26,7 @@ codeunit 5940 ServContractManagement
         ServLine: Record "Service Line";
         ServHeader: Record "Service Header";
         ServiceRegister: Record "Service Register";
+        GenJournalTemplate: Record "Gen. Journal Template";
         Salesperson: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -394,6 +395,14 @@ codeunit 5940 ServContractManagement
         ServHeader2.SetHideValidationDialog(true);
         ServHeader2."Document Type" := ServHeader2."Document Type"::Invoice;
         ServMgtSetup.Get();
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            ServMgtSetup.TestField("Serv. Contr. Inv. Templ. Name");
+            GenJournalTemplate.Get(ServMgtSetup."Serv. Contr. Inv. Templ. Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            ServHeader2."Posting No. Series" := GenJournalTemplate."Posting No. Series";
+            ServHeader2."Journal Templ. Name" := ServMgtSetup."Serv. Contr. Inv. Templ. Name";
+        end;
         ServMgtSetup.TestField("Contract Invoice Nos.");
         OnCreateServHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup, ServContract2);
         NoSeriesMgt.InitSeries(
@@ -466,9 +475,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract2."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract2."Responsibility Center"));
-#if not CLEAN17
-        ServHeader2."VAT Currency Factor" := ServHeader2."Currency Factor"; // NAVCZ
-#endif
         OnBeforeServHeaderModify(ServHeader2, ServContract2);
         ServHeader2.Modify();
         RecordLinkManagement.CopyLinks(ServContract2, ServHeader2);
@@ -513,7 +519,7 @@ codeunit 5940 ServContractManagement
         ServLine.Reset();
         ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
         ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindLast then
+        if ServLine.FindLast() then
             ServLineNo := ServLine."Line No.";
 
         if ServContractHeader.Prepaid and not SignningContract then begin
@@ -533,7 +539,7 @@ codeunit 5940 ServContractManagement
 
         if ServiceLedgerEntry.Get(ServiceApplyEntry) then begin
             ServiceLedgerEntry.SetRange("Entry No.", ServiceApplyEntry, ServiceLedgerEntry."Apply Until Entry No.");
-            if ServiceLedgerEntry.FindSet then
+            if ServiceLedgerEntry.FindSet() then
                 repeat
                     if ServiceLedgerEntry.Prepaid then begin
                         InvFromDate := ServiceLedgerEntry."Posting Date";
@@ -589,7 +595,7 @@ codeunit 5940 ServContractManagement
         ServLineNo := 0;
         ServLine.SetRange("Document Type", ServLine."Document Type"::Invoice);
         ServLine.SetRange("Document No.", ServHeader."No.");
-        if ServLine.FindLast then begin
+        if ServLine.FindLast() then begin
             ServLineNo := ServLine."Line No.";
             NewContract := ServLine."Contract No." <> ServContractHeader."Contract No.";
             ServLine.Init();
@@ -749,6 +755,14 @@ codeunit 5940 ServContractManagement
         ServHeader2.SetHideValidationDialog(true);
         ServHeader2."Document Type" := ServHeader2."Document Type"::"Credit Memo";
         ServMgtSetup.Get();
+        GLSetup.Get();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            ServMgtSetup.TestField("Serv. Contr. Cr.M. Templ. Name");
+            GenJournalTemplate.Get(ServMgtSetup."Serv. Contr. Cr.M. Templ. Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            ServHeader2."Posting No. Series" := GenJournalTemplate."Posting No. Series";
+            ServHeader2."Journal Templ. Name" := ServMgtSetup."Serv. Contr. Cr.M. Templ. Name";
+        end;
         ServMgtSetup.TestField("Contract Credit Memo Nos.");
         OnCreateOrGetCreditHeaderOnBeforeInitSeries(ServHeader2, ServMgtSetup);
         NoSeriesMgt.InitSeries(
@@ -756,8 +770,6 @@ codeunit 5940 ServContractManagement
           ServHeader2."No.", ServHeader2."No. Series");
         InsertServiceHeader(ServHeader2, ServContract);
         ServInvoiceNo := ServHeader2."No.";
-
-        GLSetup.Get();
         ServHeader2.Correction := GLSetup."Mark Cr. Memos as Corrections";
         ServHeader2."Posting Description" := Format(ServHeader2."Document Type") + ' ' + ServHeader2."No.";
         ServHeader2.Validate("Bill-to Customer No.", ServContract."Bill-to Customer No.");
@@ -802,9 +814,6 @@ codeunit 5940 ServContractManagement
         ServHeader2."Dimension Set ID" := ServContract."Dimension Set ID";
         ServHeader2.Validate("Location Code",
           UserMgt.GetLocation(2, Cust."Location Code", ServContract."Responsibility Center"));
-#if not CLEAN17
-        ServHeader2."VAT Currency Factor" := ServHeader2."Currency Factor"; // NAVCZ
-#endif
         OnBeforeServHeaderModify(ServHeader2, ServContract);
         ServHeader2.Modify();
 
@@ -828,7 +837,7 @@ codeunit 5940 ServContractManagement
         Clear(ServLine2);
         ServLine2.SetRange("Document Type", ServHeader2."Document Type");
         ServLine2.SetRange("Document No.", CreditNo);
-        if ServLine2.FindLast then
+        if ServLine2.FindLast() then
             NextLine := ServLine2."Line No." + 10000
         else
             NextLine := 10000;
@@ -873,13 +882,7 @@ codeunit 5940 ServContractManagement
         ServLine2."Posting Date" := PeriodStarts;
         if ApplyDiscAmt then
             ServLine2.Validate("Line Discount Amount", DiscAmount);
-        ServLine2.CreateDim(
-          DimMgt.TypeToTableID5(ServLine2.Type.AsInteger()), ServLine2."No.",
-          DATABASE::Job, ServLine2."Job No.",
-          // NAVCZ
-          DATABASE::"Job Task", ServLine2."Job Task No.",
-          // NAVCZ
-          DATABASE::"Responsibility Center", ServLine2."Responsibility Center");
+        ServLine2.CreateDimFromDefaultDim(0);
         OnBeforeServLineInsert(ServLine2, ServHeader2, ServContract);
         ServLine2.Insert();
     end;
@@ -1000,7 +1003,7 @@ codeunit 5940 ServContractManagement
         ServLedgEntry.SetRange("No.", ContractNo);
         ServLedgEntry.SetRange("Moved from Prepaid Acc.", false);
         ServLedgEntry.SetRange(Prepaid, true);
-        if ServLedgEntry.FindFirst then
+        if ServLedgEntry.FindFirst() then
             exit(ServLedgEntry."Posting Date");
 
         exit(0D);
@@ -1385,14 +1388,14 @@ codeunit 5940 ServContractManagement
         with ServLedgEntry do begin
             Reset;
             LockTable();
-            if FindLast then begin
+            if FindLast() then begin
                 NextEntry := "Entry No." + 1;
             end else
                 NextEntry := 1;
 
             ServiceRegister.Reset();
             ServiceRegister.LockTable();
-            if ServiceRegister.FindLast then begin
+            if ServiceRegister.FindLast() then begin
                 ServiceRegister."No." := ServiceRegister."No." + 1;
                 KeepFromWarrEntryNo := ServiceRegister."From Warranty Entry No.";
                 KeepToWarrEntryNo := ServiceRegister."To Warranty Entry No.";
@@ -1670,12 +1673,7 @@ codeunit 5940 ServContractManagement
             "Salesperson Code" := OldSalespersonCode;
             "Currency Code" := OldCurrencyCode;
 
-            CreateDim(
-              DATABASE::Customer, "Bill-to Customer No.",
-              DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-              DATABASE::"Responsibility Center", "Responsibility Center",
-              DATABASE::"Service Contract Template", "Template No.",
-              DATABASE::"Service Order Type", "Service Order Type");
+            CreateDimFromDefaultDim(0);
 
             ServContractLine.Reset();
             ServContractLine.SetRange("Contract Type", "Contract Type");
@@ -1831,7 +1829,7 @@ codeunit 5940 ServContractManagement
         with ServiceLedgerEntry do begin
             SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
             SetRange("Entry Type", "Entry Type"::Sale);
-            if not FindSet then
+            if not FindSet() then
                 exit;
             repeat
                 TempServLedgEntry := ServiceLedgerEntry;
@@ -1856,7 +1854,7 @@ codeunit 5940 ServContractManagement
             TempServLedgEntry.SetRange("Item No. (Serviced)", ItemNo);
         TempServLedgEntry.SetRange("Posting Date", PostingDate);
 
-        if not TempServLedgEntry.FindFirst then
+        if not TempServLedgEntry.FindFirst() then
             exit(false);
 
         LineAmount := -TempServLedgEntry."Amount (LCY)";
@@ -1959,13 +1957,7 @@ codeunit 5940 ServContractManagement
                 exit;
 
             Insert;
-            CreateDim(
-              DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
-              DATABASE::Job, "Job No.",
-              // NAVCZ
-              DATABASE::"Job Task", "Job Task No.",
-              // NAVCZ
-              DATABASE::"Responsibility Center", "Responsibility Center");
+            CreateDimFromDefaultDim(0);
         end;
     end;
 
@@ -1993,7 +1985,7 @@ codeunit 5940 ServContractManagement
             Copy(ServiceContractHeader);
             SetCurrentKey("Bill-to Customer No.", "Contract Type", "Combine Invoices", "Next Invoice Date");
             SetRange("Combine Invoices", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if PrevCustNo <> "Bill-to Customer No." then begin
                         CheckCustomerCurrencyCombination(ServiceContractHeader2);
@@ -2011,7 +2003,7 @@ codeunit 5940 ServContractManagement
             Copy(ServiceContractHeader);
             SetRange("Bill-to Customer No.", ServiceContractHeader."Bill-to Customer No.");
             SetFilter("Currency Code", '<>%1', ServiceContractHeader."Currency Code");
-            if FindFirst then
+            if FindFirst() then
                 Error(ErrorSplitErr,
                   StrSubstNo(CombinedCurrenciesErr1,
                     "Bill-to Customer No.",
@@ -2118,7 +2110,7 @@ codeunit 5940 ServContractManagement
         ServLedgEntry2.SetRange("Entry Type", ServLedgEntry2."Entry Type"::Sale);
         for i := 1 to 4 do
             AccumulatedAmts[i] := 0;
-        if ServLedgEntry2.FindSet then
+        if ServLedgEntry2.FindSet() then
             repeat
                 AccumulatedAmts[AmountType::UnitCost] :=
                   AccumulatedAmts[AmountType::UnitCost] + ServLedgEntry2."Cost Amount";

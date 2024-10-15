@@ -23,7 +23,7 @@ codeunit 138002 "O365 Email as PDF UT"
     var
         FileManagement: Codeunit "File Management";
     begin
-        Initialize;
+        Initialize();
 
         // Empty server file name
         TmpResult := '';
@@ -43,45 +43,11 @@ codeunit 138002 "O365 Email as PDF UT"
     var
         FileManagement: Codeunit "File Management";
     begin
-        Initialize;
+        Initialize();
 
         Assert.AreEqual(
           '', FileManagement.StripNotsupportChrInFileName(InvalidWindowsChrStringTxt),
           'All invalid charaters needs to be deleted');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyO365FromAddressUsed()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        TempNameValueBuffer: Record "Name/Value Buffer" temporary;
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-        SMTPMail: Codeunit "SMTP Mail";
-        Mail: Codeunit Mail;
-        ExpectedMail: Text[250];
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        Initialize;
-        if SMTPMailSetup.Get then
-            SMTPMailSetup.Delete();
-
-        SMTPMail.ApplyOffice365Smtp(SMTPMailSetup);
-
-        // specify o365 account
-        ExpectedMail := 'correct@mail.com';
-        SMTPMailSetup."User ID" := ExpectedMail;
-        SMTPMailSetup."Password Key" := CreateGuid;
-        SMTPMailSetup.Insert();
-
-        Assert.IsTrue(SMTPMail.IsOffice365Setup(SMTPMailSetup), 'Setup should match o365 setup');
-
-        Mail.CollectCurrentUserEmailAddresses(TempNameValueBuffer);
-        TempNameValueBuffer.SetRange(Name, 'SMTPSetup');
-        Assert.IsTrue(TempNameValueBuffer.FindFirst, 'No emails were found');
-
-        Assert.AreEqual(ExpectedMail, TempNameValueBuffer.Value, 'The wrong email was selected');
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
     end;
 
     [Normal]
@@ -96,7 +62,7 @@ codeunit 138002 "O365 Email as PDF UT"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Email as PDF UT");
         BindActiveDirectoryMockEvents;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
     end;
 
     local procedure BindActiveDirectoryMockEvents()

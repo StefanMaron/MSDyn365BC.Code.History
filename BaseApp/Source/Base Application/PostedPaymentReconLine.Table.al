@@ -8,11 +8,7 @@ table 1296 "Posted Payment Recon. Line"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -328,4 +324,3 @@ table 1296 "Posted Payment Recon. Line"
         exit('');
     end;
 }
-

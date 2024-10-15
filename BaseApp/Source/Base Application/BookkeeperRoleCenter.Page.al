@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN20
 page 9004 "Bookkeeper Role Center"
 {
     Caption = 'Bookkeeper';
@@ -125,55 +125,12 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Report "Balance Comp. - Prev. Year";
                 ToolTip = 'View a report that shows your company''s assets, liabilities, and equity compared to the previous year.';
             }
-#if not CLEAN17
-            action("Balance Sheet")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet';
-                RunObject = Report "Balance Sheet";
-                ToolTip = 'Open the report for balance sheet.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-            action("Income Statement")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement';
-                RunObject = Report "Income Statement";
-                ToolTip = 'Open the report for income statement.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
             separator(Action1220003)
             {
-            }
-            action("Customer - Bal. Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Customer - Bal. Reconciliation';
-                RunObject = Report "Customer - Bal. Reconciliation";
-                ToolTip = 'Open the report for customer''s balance reconciliation.';
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
+                ObsoleteTag = '20.0';
             }
-            action("Vendor - Bal. Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Vendor - Bal. Reconciliation';
-                RunObject = Report "Vendor - Bal. Reconciliation";
-                ToolTip = 'Opens vendor - bal. reconciliation report';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             separator(Action49)
             {
             }
@@ -239,12 +196,14 @@ page 9004 "Bookkeeper Role Center"
                 Visible = false;
             }
 #endif
+#if not CLEAN19
             separator(Action1220006)
             {
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Orphaned page element removed.';
                 ObsoleteTag = '19.0';
             }
+#endif
             action("VAT Reg&istration No. Check")
             {
                 ApplicationArea = VAT;
@@ -318,10 +277,15 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Bank Accounts';
                 Image = BankAccount;
                 RunObject = Page "Bank Account List";
-#if not CLEAN17
-                RunPageView = WHERE("Account Type" = CONST("Bank Account"));
-#endif
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
+            }
+            action(BankDeposit)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposits Page";
+                ToolTip = 'Create a new bank deposit.';
             }
             action(Customers)
             {
@@ -372,19 +336,6 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "VAT Statement Names";
                 ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
             }
-#if not CLEAN17
-            action("VIES Declarations")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VIES Declarations';
-                RunObject = Page "VIES Declarations";
-                ToolTip = 'Specifies vies declarations list';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             action("Purchase Invoices")
             {
                 ApplicationArea = Basic, Suite;
@@ -399,6 +350,7 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Purchase Order List";
                 ToolTip = 'Create purchase orders to mirror sales documents that vendors send to you. This enables you to record the cost of purchases and to track accounts payable. Posting purchase orders dynamically updates inventory levels so that you can minimize inventory costs and provide better customer service. Purchase orders allow partial receipts, unlike with purchase invoices, and enable drop shipment directly from your vendor to your customer. Purchase orders can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature.';
             }
+#if not CLEAN19
             action("Purchase Advance Letters")
             {
                 ApplicationArea = Basic, Suite;
@@ -409,6 +361,7 @@ page 9004 "Bookkeeper Role Center"
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                 ObsoleteTag = '19.0';
             }
+#endif
             action("Sales Invoices")
             {
                 ApplicationArea = Basic, Suite;
@@ -425,6 +378,7 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Sales Order List";
                 ToolTip = 'Record your agreements with customers to sell certain products on certain delivery and payment terms. Sales orders, unlike sales invoices, allow you to ship partially, deliver directly from your vendor to your customer, initiate warehouse handling, and print various customer-facing documents. Sales invoicing is integrated in the sales order process.';
             }
+#if not CLEAN19
             action("Sales Advance Letters")
             {
                 ApplicationArea = Basic, Suite;
@@ -435,6 +389,7 @@ page 9004 "Bookkeeper Role Center"
                 ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                 ObsoleteTag = '19.0';
             }
+#endif
             action(Approvals)
             {
                 ApplicationArea = Basic, Suite;
@@ -511,9 +466,12 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Posted Sales Invoices';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Invoices";
+#if not CLEAN19
                     RunPageView = WHERE("Prepayment Invoice" = CONST(false));
+#endif
                     ToolTip = 'Open the list of posted sales invoices.';
                 }
+#if not CLEAN19
                 action("Prepayment Invoices")
                 {
                     ApplicationArea = Prepayments;
@@ -525,6 +483,7 @@ page 9004 "Bookkeeper Role Center"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 action("Posted Return Receipts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -539,9 +498,12 @@ page 9004 "Bookkeeper Role Center"
                     Caption = 'Posted Sales Credit Memos';
                     Image = PostedOrder;
                     RunObject = Page "Posted Sales Credit Memos";
+#if not CLEAN19
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
+#endif
                     ToolTip = 'Open the list of posted sales credit memos.';
                 }
+#if not CLEAN19
                 action("Prepayment Credit Memos")
                 {
                     ApplicationArea = Prepayments;
@@ -553,6 +515,7 @@ page 9004 "Bookkeeper Role Center"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 action("Posted Purchase Receipts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -565,9 +528,12 @@ page 9004 "Bookkeeper Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Invoices';
                     RunObject = Page "Posted Purchase Invoices";
+#if not CLEAN19
                     RunPageView = WHERE("Prepayment Invoice" = CONST(false));
+#endif
                     ToolTip = 'Open the list of posted purchase invoices.';
                 }
+#if not CLEAN19
                 action(Action1220014)
                 {
                     ApplicationArea = Prepayments;
@@ -579,6 +545,7 @@ page 9004 "Bookkeeper Role Center"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 action("Posted Return Shipments")
                 {
                     ApplicationArea = Basic, Suite;
@@ -591,9 +558,12 @@ page 9004 "Bookkeeper Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
+#if not CLEAN19                    
                     RunPageView = WHERE("Prepayment Credit Memo" = CONST(false));
+#endif
                     ToolTip = 'Open the list of posted purchase credit memos.';
                 }
+#if not CLEAN19
                 action(Action1220015)
                 {
                     ApplicationArea = Prepayments;
@@ -605,6 +575,7 @@ page 9004 "Bookkeeper Role Center"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 action("Issued Reminders")
                 {
                     ApplicationArea = Suite;
@@ -627,6 +598,12 @@ page 9004 "Bookkeeper Role Center"
                     Image = GLRegisters;
                     RunObject = Page "G/L Registers";
                     ToolTip = 'View posted G/L entries.';
+                }
+                action("Posted Bank Deposit List")
+                {
+                    Caption = 'Posted Bank Deposit List';
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
                 }
             }
             group(Action22)
@@ -769,26 +746,6 @@ page 9004 "Bookkeeper Role Center"
                 RunPageMode = Create;
                 ToolTip = 'Create new purchase invoice.';
             }
-#if not CLEAN17
-            separator(Action1220017)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-            }
-            action("VIES Declaration")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VIES Declaration';
-                Image = PrintVAT;
-                RunObject = Page "VIES Declaration";
-                ToolTip = 'Specifies prepayment invoces';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
         }
         area(processing)
         {
@@ -824,20 +781,6 @@ page 9004 "Bookkeeper Role Center"
             separator(Action77)
             {
             }
-#if not CLEAN17
-            action("Phys. Invt. Counting Document")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Phys. Invt. Counting Document';
-                Image = PhysicalInventory;
-                RunObject = Report "Phys. Invt. Counting Document";
-                ToolTip = 'Open the report for physical invt. counting document.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             action("Payment Reconciliation Journals")
             {
                 ApplicationArea = Basic, Suite;
@@ -885,20 +828,6 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Report "Calc. and Post VAT Settlement";
                 ToolTip = 'Close open VAT entries and transfers purchase and sales VAT amounts to the VAT settlement account. For every VAT posting group, the batch job finds all the VAT entries in the VAT Entry table that are included in the filters in the definition window.';
             }
-#if not CLEAN17
-            action(Action1220019)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VIES Declarations';
-                Image = PrintVAT;
-                RunObject = Page "VIES Declarations";
-                ToolTip = 'Specifies vies declarations list';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             separator(Action84)
             {
                 Caption = 'Administration';
@@ -912,20 +841,6 @@ page 9004 "Bookkeeper Role Center"
                 RunObject = Page "Sales & Receivables Setup";
                 ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
             }
-#if not CLEAN17
-            action("Statutory Reporting Setup")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Statutory Reporting Setup';
-                Image = HumanResources;
-                RunObject = Page "Company Officials Card";
-                ToolTip = 'Specifies statutory reporting setup page';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             separator(History)
             {
                 Caption = 'History';
@@ -937,7 +852,7 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

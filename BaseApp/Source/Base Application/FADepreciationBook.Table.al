@@ -130,7 +130,7 @@ table 5612 "FA Depreciation Book"
             trigger OnValidate()
             begin
                 ModifyDeprFields;
-                if ("Straight-Line %" <> 0) and not LinearMethod then
+                if ("Straight-Line %" <> 0) and not LinearMethod() then
                     DeprMethodError;
                 AdjustLinearMethod("No. of Depreciation Years", "Fixed Depr. Amount");
             end;
@@ -820,7 +820,7 @@ table 5612 "FA Depreciation Book"
                 DepreciationGroup.Reset();
                 DepreciationGroup.SetRange(Code, "Depreciation Group Code");
                 DepreciationGroup.SetRange("Starting Date", 0D, WorkDate);
-                if DepreciationGroup.FindLast then
+                if DepreciationGroup.FindLast() then
                     if DepreciationGroup."Depreciation Type" = DepreciationGroup."Depreciation Type"::"Straight-line Intangible" then
                         Validate("No. of Depreciation Months", DepreciationGroup."No. of Depreciation Months");
             end;
@@ -979,8 +979,6 @@ table 5612 "FA Depreciation Book"
         Text002: Label '%1 is later than %2.';
         Text003: Label 'must not be %1';
         Text004: Label 'untitled';
-        FA: Record "Fixed Asset";
-        DeprBook: Record "Depreciation Book";
         FAMoveEntries: Codeunit "FA MoveEntries";
         FADateCalc: Codeunit "FA Date Calculation";
         DepreciationCalc: Codeunit "Depreciation Calculation";
@@ -992,6 +990,10 @@ table 5612 "FA Depreciation Book"
         FAPostingGroupCanNotBeChangedErr: Label 'FA Posting Group can not be changed if there is at least one FA Entry for Fixed Asset and Deprecation Book.';
 #endif
         FiscalYear365Err: Label 'An ending date for depreciation cannot be calculated automatically when the Fiscal Year 365 Days option is chosen. You must manually enter the ending date.';
+
+    protected var
+        FA: Record "Fixed Asset";
+        DeprBook: Record "Depreciation Book";
 
     local procedure AdjustLinearMethod(var Amount1: Decimal; var Amount2: Decimal)
     begin
@@ -1078,7 +1080,7 @@ table 5612 "FA Depreciation Book"
         exit(DeprBook."Default Exchange Rate");
     end;
 
-    local procedure LinearMethod(): Boolean
+    protected procedure LinearMethod(): Boolean
     begin
         exit(
           "Depreciation Method" in
@@ -1087,7 +1089,7 @@ table 5612 "FA Depreciation Book"
            "Depreciation Method"::"DB2/SL"]);
     end;
 
-    local procedure DecliningMethod(): Boolean
+    protected procedure DecliningMethod(): Boolean
     begin
         exit(
           "Depreciation Method" in
@@ -1097,12 +1099,12 @@ table 5612 "FA Depreciation Book"
            "Depreciation Method"::"DB2/SL"]);
     end;
 
-    local procedure UserDefinedMethod(): Boolean
+    protected procedure UserDefinedMethod(): Boolean
     begin
         exit("Depreciation Method" = "Depreciation Method"::"User-Defined");
     end;
 
-    local procedure TestHalfYearConventionMethod()
+    protected procedure TestHalfYearConventionMethod()
     begin
         if "Depreciation Method" in
            ["Depreciation Method"::"Declining-Balance 2",

@@ -44,6 +44,24 @@ table 91 "User Setup"
         {
             Caption = 'Register Time';
         }
+        field(5; "Allow Deferral Posting From"; Date)
+        {
+            Caption = 'Allow Deferral Posting From';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
+        }
+        field(6; "Allow Deferral Posting To"; Date)
+        {
+            Caption = 'Allow Deferral Posting To';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
+        }
         field(10; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
@@ -282,13 +300,9 @@ table 91 "User Setup"
         {
             Caption = 'Cash Resp. Ctr. Filter';
             TableRelation = "Responsibility Center";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11760; "Check Document Date(work date)"; Boolean)
         {
@@ -381,24 +395,16 @@ table 91 "User Setup"
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11790; "Allow Complete Job"; Boolean)
         {
@@ -505,24 +511,16 @@ table 91 "User Setup"
         {
             BlankZero = true;
             Caption = 'Cash Desk Amt. Approval Limit';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31113; "Unlimited Cash Desk Approval"; Boolean)
         {
             Caption = 'Unlimited Cash Desk Approval';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -565,7 +563,7 @@ table 91 "User Setup"
         if "User ID" <> '' then
             exit;
         User.SetRange("User Name", "User ID");
-        if User.FindFirst then
+        if User.FindFirst() then
             "E-Mail" := CopyStr(User."Contact Email", 1, MaxStrLen("E-Mail"));
     end;
 
@@ -596,14 +594,11 @@ table 91 "User Setup"
 #if not CLEAN19        
         // NAVCZ
         ApprovalUserSetup.Validate("Bank Amount Approval Limit", GetDefaultBankApprovalLimit);
-#if not CLEAN17
-        ApprovalUserSetup.Validate("Cash Desk Amt. Approval Limit", GetDefaultCashDeskApprovalLimit);
-#endif
         // NAVCZ
 #endif
         ApprovalUserSetup.Validate("E-Mail", User."Contact Email");
         UserSetup.SetRange("Sales Amount Approval Limit", UserSetup.GetDefaultSalesAmountApprovalLimit);
-        if UserSetup.FindFirst then
+        if UserSetup.FindFirst() then
             ApprovalUserSetup.Validate("Approver ID", UserSetup."Approver ID");
         if ApprovalUserSetup.Insert() then;
     end;
@@ -620,7 +615,7 @@ table 91 "User Setup"
 
         UserSetup.SetCurrentKey("Salespers./Purch. Code");
         UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
-        if UserSetup.FindFirst then
+        if UserSetup.FindFirst() then
             Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
     end;
 
@@ -632,7 +627,7 @@ table 91 "User Setup"
     begin
         UserSetup.SetRange("Unlimited Sales Approval", false);
 
-        if UserSetup.FindFirst then begin
+        if UserSetup.FindFirst() then begin
             DefaultApprovalLimit := UserSetup."Sales Amount Approval Limit";
             LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Sales Amount Approval Limit", DefaultApprovalLimit);
@@ -652,7 +647,7 @@ table 91 "User Setup"
     begin
         UserSetup.SetRange("Unlimited Purchase Approval", false);
 
-        if UserSetup.FindFirst then begin
+        if UserSetup.FindFirst() then begin
             DefaultApprovalLimit := UserSetup."Purchase Amount Approval Limit";
             LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Purchase Amount Approval Limit", DefaultApprovalLimit);
@@ -676,35 +671,10 @@ table 91 "User Setup"
         // NAVCZ
         UserSetup.SetRange("Unlimited Bank Approval", false);
 
-        if UserSetup.FindFirst then begin
+        if UserSetup.FindFirst() then begin
             DefaultApprovalLimit := UserSetup."Bank Amount Approval Limit";
             LimitedApprovers := UserSetup.Count();
             UserSetup.SetRange("Bank Amount Approval Limit", DefaultApprovalLimit);
-            if LimitedApprovers = UserSetup.Count then
-                exit(DefaultApprovalLimit);
-        end;
-
-        // Return 0 if no user setup exists or no default value is found
-        exit(0);
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetDefaultCashDeskApprovalLimit(): Integer
-    var
-        UserSetup: Record "User Setup";
-        DefaultApprovalLimit: Integer;
-        LimitedApprovers: Integer;
-    begin
-        // NAVCZ
-        UserSetup.SetRange("Unlimited Cash Desk Approval", false);
-
-        if UserSetup.FindFirst then begin
-            DefaultApprovalLimit := UserSetup."Cash Desk Amt. Approval Limit";
-            LimitedApprovers := UserSetup.Count();
-            UserSetup.SetRange("Cash Desk Amt. Approval Limit", DefaultApprovalLimit);
             if LimitedApprovers = UserSetup.Count then
                 exit(DefaultApprovalLimit);
         end;
@@ -799,7 +769,7 @@ table 91 "User Setup"
         UserSetupLine.DeleteAll();
 
         FromUserSetupLine.SetRange("User ID", "User ID");
-        if FromUserSetupLine.FindSet then
+        if FromUserSetupLine.FindSet() then
             repeat
                 UserSetupLine := FromUserSetupLine;
                 UserSetupLine."User ID" := ToUserId;
@@ -814,7 +784,7 @@ table 91 "User Setup"
         FromSelectedDimension.SetRange("User ID", "User ID");
         FromSelectedDimension.SetRange("Object Type", 1);
         FromSelectedDimension.SetRange("Object ID", DATABASE::"User Setup");
-        if FromSelectedDimension.FindSet then
+        if FromSelectedDimension.FindSet() then
             repeat
                 SelectedDimension := FromSelectedDimension;
                 SelectedDimension."User ID" := ToUserId;
@@ -830,6 +800,14 @@ table 91 "User Setup"
     begin
     end;
 #endif
+
+    procedure CheckAllowedDeferralPostingDates(NotificationType: Option Error,Notification)
+    begin
+        UserSetupManagement.CheckAllowedPostingDatesRange(
+          "Allow Deferral Posting From", "Allow Deferral Posting To", NotificationType, DATABASE::"User Setup",
+          FieldCaption("Allow Deferral Posting From"), FieldCaption("Allow Deferral Posting To"));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEnsureUniqueSalesPersonPurchCode(var UserSetup: Record "User Setup"; var IsHandled: Boolean)
     begin
@@ -840,4 +818,3 @@ table 91 "User Setup"
     begin
     end;
 }
-

@@ -525,14 +525,14 @@ codeunit 378 "Transfer Extended Text"
         ExtTextHeader.SetFilter("Ending Date", '%1..|%2', DocDate, 0D);
         if LanguageCode = '' then begin
             ExtTextHeader.SetRange("Language Code", '');
-            if not ExtTextHeader.FindSet then
+            if not ExtTextHeader.FindSet() then
                 exit;
         end else begin
             ExtTextHeader.SetRange("Language Code", LanguageCode);
-            if not ExtTextHeader.FindSet then begin
+            if not ExtTextHeader.FindSet() then begin
                 ExtTextHeader.SetRange("All Language Codes", true);
                 ExtTextHeader.SetRange("Language Code", '');
-                if not ExtTextHeader.FindSet then
+                if not ExtTextHeader.FindSet() then
                     exit;
             end;
         end;
@@ -542,7 +542,7 @@ codeunit 378 "Transfer Extended Text"
             ExtTextLine.SetRange("No.", ExtTextHeader."No.");
             ExtTextLine.SetRange("Language Code", ExtTextHeader."Language Code");
             ExtTextLine.SetRange("Text No.", ExtTextHeader."Text No.");
-            if ExtTextLine.FindSet then begin
+            if ExtTextLine.FindSet() then begin
                 repeat
                     TempExtTextLine := ExtTextLine;
                     TempExtTextLine.Insert();
@@ -699,7 +699,9 @@ codeunit 378 "Transfer Extended Text"
                 ToServiceLine.Description := TempExtTextLine.Text;
                 ToServiceLine."Attached to Line No." := ServiceLine."Line No.";
                 ToServiceLine."Service Item No." := ServiceLine."Service Item No.";
+#if not CLEAN20            
                 OnBeforeToServiceLineInsert(ServiceLine, ToServiceLine, TempExtTextLine, NextLineNo, LineSpacing);
+#endif                
                 OnInsertServExtTextOnBeforeToServiceLineInsert(ServiceLine, ToServiceLine, TempExtTextLine, NextLineNo, LineSpacing);
                 ToServiceLine.Insert(true);
             until TempExtTextLine.Next() = 0;
@@ -747,12 +749,13 @@ codeunit 378 "Transfer Extended Text"
     begin
     end;
 
+#if not CLEAN20     
     [IntegrationEvent(false, false)]
     [Obsolete('Replaced with OnInsertServExtTextOnBeforeToServiceLineInsert', '20.0')]
     local procedure OnBeforeToServiceLineInsert(var ToServLine: Record "Service Line"; ServLine: Record "Service Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnInsertServExtTextOnBeforeToServiceLineInsert(var ServLine: Record "Service Line"; var ToServLine: Record "Service Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
     begin

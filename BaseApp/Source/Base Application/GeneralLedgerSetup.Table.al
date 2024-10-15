@@ -9,12 +9,7 @@
                   TableData "Sales Cr.Memo Header" = m,
                   TableData "Purch. Inv. Header" = m,
                   TableData "Purch. Cr. Memo Hdr." = m,
-#if CLEAN17
                   TableData "VAT Entry" = m;
-#else
-                  TableData "VAT Entry" = m,
-                  TableData "Posted Cash Document Header" = m;
-#endif
 #endif
 
     fields
@@ -44,6 +39,24 @@
         field(4; "Register Time"; Boolean)
         {
             Caption = 'Register Time';
+        }
+        field(5; "Allow Deferral Posting From"; Date)
+        {
+            Caption = 'Allow Deferral Posting From';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
+        }
+        field(6; "Allow Deferral Posting To"; Date)
+        {
+            Caption = 'Allow Deferral Posting To';
+
+            trigger OnValidate()
+            begin
+                CheckAllowedDeferralPostingDates(0);
+            end;
         }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
         {
@@ -105,14 +118,14 @@
                 if not "Unrealized VAT" then begin
                     VATPostingSetup.SetFilter(
                       "Unrealized VAT Type", '>=%1', VATPostingSetup."Unrealized VAT Type"::Percentage);
-                    if VATPostingSetup.FindFirst then
+                    if VATPostingSetup.FindFirst() then
                         Error(
                           Text000, VATPostingSetup.TableCaption,
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Unrealized VAT Type"), VATPostingSetup."Unrealized VAT Type");
                     TaxJurisdiction.SetFilter(
                       "Unrealized VAT Type", '>=%1', TaxJurisdiction."Unrealized VAT Type"::Percentage);
-                    if TaxJurisdiction.FindFirst then
+                    if TaxJurisdiction.FindFirst() then
                         Error(
                           Text001, TaxJurisdiction.TableCaption,
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Unrealized VAT Type"),
@@ -135,13 +148,13 @@
                     TestField("VAT Tolerance %", 0);
                 end else begin
                     VATPostingSetup.SetRange("Adjust for Payment Discount", true);
-                    if VATPostingSetup.FindFirst then
+                    if VATPostingSetup.FindFirst() then
                         Error(
                           Text002, VATPostingSetup.TableCaption,
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Adjust for Payment Discount"));
                     TaxJurisdiction.SetRange("Adjust for Payment Discount", true);
-                    if TaxJurisdiction.FindFirst then
+                    if TaxJurisdiction.FindFirst() then
                         Error(
                           Text003, TaxJurisdiction.TableCaption,
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Adjust for Payment Discount"));
@@ -295,7 +308,7 @@
                    ("Additional Reporting Currency" <> '')
                 then begin
                     AdjAddReportingCurr.SetAddCurr("Additional Reporting Currency");
-                    AdjAddReportingCurr.RunModal;
+                    AdjAddReportingCurr.RunModal();
                     if not AdjAddReportingCurr.IsExecuted then
                         "Additional Reporting Currency" := xRec."Additional Reporting Currency";
                 end;
@@ -344,11 +357,9 @@
                     "Local Currency Description" := CopyStr(Currency.ResolveCurrencyDescription("LCY Code"), 1, MaxStrLen("Local Currency Description"));
             end;
         }
-        field(72; "VAT Exchange Rate Adjustment"; Option)
+        field(72; "VAT Exchange Rate Adjustment"; Enum "Exch. Rate Adjustment Type")
         {
             Caption = 'VAT Exchange Rate Adjustment';
-            OptionCaption = 'No Adjustment,Adjust Amount,Adjust Additional-Currency Amount';
-            OptionMembers = "No Adjustment","Adjust Amount","Adjust Additional-Currency Amount";
         }
         field(73; "Amount Rounding Precision"; Decimal)
         {
@@ -568,6 +579,11 @@
         {
             Caption = 'Bill-to/Sell-to VAT Calc.';
         }
+        field(104; "Block Deletion of G/L Accounts"; Boolean)
+        {
+            Caption = 'Block Deletion of G/L Accounts';
+            InitValue = true;
+        }
         field(110; "Acc. Sched. for Balance Sheet"; Code[10])
         {
             Caption = 'Acc. Sched. for Balance Sheet';
@@ -614,14 +630,14 @@
                 if not "Prepayment Unrealized VAT" then begin
                     VATPostingSetup.SetFilter(
                       "Unrealized VAT Type", '>=%1', VATPostingSetup."Unrealized VAT Type"::Percentage);
-                    if VATPostingSetup.FindFirst then
+                    if VATPostingSetup.FindFirst() then
                         Error(
                           Text000, VATPostingSetup.TableCaption,
                           VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
                           VATPostingSetup.FieldCaption("Unrealized VAT Type"), VATPostingSetup."Unrealized VAT Type");
                     TaxJurisdiction.SetFilter(
                       "Unrealized VAT Type", '>=%1', TaxJurisdiction."Unrealized VAT Type"::Percentage);
-                    if TaxJurisdiction.FindFirst then
+                    if TaxJurisdiction.FindFirst() then
                         Error(
                           Text001, TaxJurisdiction.TableCaption,
                           TaxJurisdiction.Code, TaxJurisdiction.FieldCaption("Unrealized VAT Type"),
@@ -633,12 +649,13 @@
         {
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             Caption = 'Use Legacy G/L Entry Locking';
             ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
-            ObsoleteTag = '18.0';
         }
         field(160; "Payroll Trans. Import Format"; Code[20])
         {
@@ -683,30 +700,89 @@
         {
             Caption = 'SEPA Export w/o Bank Acc. Data';
         }
+        field(175; "Journal Templ. Name Mandatory"; Boolean)
+        {
+            Caption = 'Journal Templ. Name Mandatory';
+        }
+        field(176; "Hide Payment Method Code"; Boolean)
+        {
+            Caption = 'Hide Payment Method Code';
+        }
+        field(177; "Enable Data Check"; Boolean)
+        {
+            Caption = 'Enable Data Check';
+        }
+        field(180; "Apply Jnl. Template Name"; Code[10])
+        {
+            Caption = 'Apply Jnl. Template Name';
+            TableRelation = "Gen. Journal Template";
+        }
+        field(181; "Apply Jnl. Batch Name"; Code[10])
+        {
+            Caption = 'Apply Jnl. Batch Name';
+            TableRelation = IF ("Apply Jnl. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Apply Jnl. Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Apply Jnl. Template Name");
+            end;
+        }
+        field(182; "Job WIP Jnl. Template Name"; Code[10])
+        {
+            Caption = 'Job WIP Jnl. Template Name';
+            TableRelation = "Gen. Journal Template";
+        }
+        field(183; "Job WIP Jnl. Batch Name"; Code[10])
+        {
+            Caption = 'Job WIP Jnl. Batch Name';
+            TableRelation = IF ("Job WIP Jnl. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Job WIP Jnl. Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Job WIP Jnl. Template Name");
+            end;
+        }
+        field(184; "Adjust ARC Jnl. Template Name"; Code[10])
+        {
+            Caption = 'Adjust Add. Rep. Currency Jnl. Template Name';
+            TableRelation = "Gen. Journal Template";
+        }
+        field(185; "Adjust ARC Jnl. Batch Name"; Code[10])
+        {
+            Caption = 'Adjust Add. Rep. Currency Jnl. Batch Name';
+            TableRelation = IF ("Adjust ARC Jnl. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Adjust ARC Jnl. Template Name"));
+
+            trigger OnValidate()
+            begin
+                TestField("Adjust ARC Jnl. Template Name");
+            end;
+        }
+        field(186; "Bank Acc. Recon. Template Name"; Code[10])
+        {
+            Caption = 'Bank Acc. Recon. Template Name';
+            TableRelation = "Gen. Journal Template";
+        }
+        field(187; "Bank Acc. Recon. Batch Name"; Code[10])
+        {
+            Caption = 'Bank Acc. Recon. Template Name';
+            TableRelation = IF ("Bank Acc. Recon. Template Name" = FILTER(<> '')) "Gen. Journal Batch".Name WHERE("Journal Template Name" = FIELD("Bank Acc. Recon. Template Name"));
+        }
         field(11730; "Cash Desk Nos."; Code[20])
         {
             Caption = 'Cash Desk Nos.';
             TableRelation = "No. Series";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11731; "Cash Payment Limit (LCY)"; Decimal)
         {
             Caption = 'Cash Payment Limit (LCY)';
             DecimalPlaces = 0 : 2;
             MinValue = 0;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11760; "Closed Period Entry Pos.Date"; Date)
         {
@@ -771,38 +847,16 @@
         field(11768; "Allow VAT Posting From"; Date)
         {
             Caption = 'Allow VAT Posting From';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestField("Use VAT Date");
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11769; "Allow VAT Posting To"; Date)
         {
             Caption = 'Allow VAT Posting To';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestField("Use VAT Date");
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11770; "Use VAT Date"; Boolean)
         {
@@ -814,47 +868,6 @@
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech. (Prolonged to support Advance Letters)';
             ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                SalesSetup: Record "Sales & Receivables Setup";
-                ServiceSetup: Record "Service Mgt. Setup";
-                PurchSetup: Record "Purchases & Payables Setup";
-                ConfirmManagement: Codeunit "Confirm Management";
-            begin
-                case "Use VAT Date" of
-                    true:
-                        if ConfirmManagement.GetResponseOrDefault(
-                            StrSubstNo(InitVATDateQst,
-                                FieldCaption("Use VAT Date"),
-                                GLEntry.FieldCaption("VAT Date"),
-                                GLEntry.FieldCaption("Posting Date")), true)
-                        then
-                            InitVATDate
-                        else
-                            "Use VAT Date" := xRec."Use VAT Date";
-                    false:
-                        begin
-                            GLEntry.Reset();
-                            GLEntry.SetFilter("VAT Date", '>%1', 0D);
-                            if GLEntry.FindFirst then
-                                Error(Text018, FieldCaption("Use VAT Date"));
-                            if ConfirmManagement.GetResponseOrDefault(DisableVATDateQst, false) then begin
-                                "Allow VAT Posting From" := 0D;
-                                "Allow VAT Posting To" := 0D;
-                                if PurchSetup.Get then
-                                    PurchSetup."Default VAT Date" := 0;
-                                if SalesSetup.Get then
-                                    SalesSetup."Default VAT Date" := 0;
-                                if ServiceSetup.Get then
-                                    ServiceSetup."Default VAT Date" := 0;
-                            end else
-                                "Use VAT Date" := xRec."Use VAT Date";
-                        end;
-                end;
-            end;
-#endif
         }
         field(11771; "Check VAT Identifier"; Boolean)
         {
@@ -889,13 +902,9 @@
         {
             Caption = 'Company Officials Nos.';
             TableRelation = "No. Series";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11775; "Correction As Storno"; Boolean)
         {
@@ -911,13 +920,9 @@
         field(11776; "Dont Check Dimension"; Boolean)
         {
             Caption = 'Dont Check Dimension';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11790; "User Checks Allowed"; Boolean)
         {
@@ -1066,10 +1071,6 @@
 #endif
         ErrorMessage: Boolean;
         DependentFieldActivatedErr: Label 'You cannot change %1 because %2 is selected.';
-#if not CLEAN17
-        DisableVATDateQst: Label 'Are you sure you want to disable VAT Date functionality?';
-        InitVATDateQst: Label 'If you check field %1 you will let system post using %2 different from %3. Field %2 will be initialized from field %3 in all tables. It may take some time and you will not be able to undo this change after posting entries. Do you really want to continue?', Comment = '%1 = fieldcaption of Use VAT Date; %2 = fieldcaption of VAT Date; %3 = fieldcaption of Posting Date';
-#endif        
         ObsoleteErr: Label 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
         RecordHasBeenRead: Boolean;
 
@@ -1293,18 +1294,11 @@
         InitVATDateFromRecord(DATABASE::"Service Cr.Memo Header");
         InitVATDateFromRecord(DATABASE::"Cust. Ledger Entry");
         InitVATDateFromRecord(DATABASE::"Vendor Ledger Entry");
-#if not CLEAN17
-        InitVATDateFromRecord(DATABASE::"Cash Document Header");
-        InitVATDateFromRecord(DATABASE::"Posted Cash Document Header");
-#endif
 #if not CLEAN19
         InitVATDateFromRecord(DATABASE::"Sales Advance Letter Header");
         InitVATDateFromRecord(DATABASE::"Sales Advance Letter Entry");
         InitVATDateFromRecord(DATABASE::"Purch. Advance Letter Header");
         InitVATDateFromRecord(DATABASE::"Purch. Advance Letter Entry");
-#endif
-#if not CLEAN17
-        InitVATDateFromRecord(DATABASE::"VAT Control Report Line");
 #endif
     end;
 
@@ -1365,7 +1359,7 @@
         if not GeneralLedgerSetupRecordRef.FieldExist(UseVATFieldNo) then
             exit(true);
 
-        if not GeneralLedgerSetupRecordRef.FindFirst then
+        if not GeneralLedgerSetupRecordRef.FindFirst() then
             exit(false);
 
         UseVATFieldRef := GeneralLedgerSetupRecordRef.Field(UseVATFieldNo);
@@ -1376,6 +1370,13 @@
     begin
         UserSetupManagement.CheckAllowedPostingDatesRange("Allow Posting From",
           "Allow Posting To", NotificationType, DATABASE::"General Ledger Setup");
+    end;
+
+    procedure CheckAllowedDeferralPostingDates(NotificationType: Option Error,Notification)
+    begin
+        UserSetupManagement.CheckAllowedPostingDatesRange(
+          "Allow Deferral Posting From", "Allow Deferral Posting To", NotificationType, DATABASE::"User Setup",
+          FieldCaption("Allow Deferral Posting From"), FieldCaption("Allow Deferral Posting To"));
     end;
 
     procedure GetPmtToleranceVisible(): Boolean
@@ -1393,4 +1394,3 @@
     begin
     end;
 }
-

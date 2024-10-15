@@ -37,7 +37,7 @@ codeunit 136901 "Marketing Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Reports");
 
-        LibraryService.SetupServiceMgtNoSeries;
+        LibraryService.SetupServiceMgtNoSeries();
 
         isInitialized := true;
         Commit();
@@ -55,7 +55,7 @@ codeunit 136901 "Marketing Reports"
         // Test Cost (LCY) and Estimated Value (LCY) on Segment Contacts Report.
 
         // 1. Setup: Find Contact, Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -80,7 +80,7 @@ codeunit 136901 "Marketing Reports"
 
         // 1. Setup: Create Contact with Salesperson, Activity, Activity Step, Sales Cycle, Sales Cycle Stage and Create Opportunity
         // for the Contact.
-        Initialize;
+        Initialize();
         CreateContactWithSalesperson(Contact);
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
@@ -114,7 +114,7 @@ codeunit 136901 "Marketing Reports"
         // Test that Contact of Type Peson related to another contact, seen properly in Contact Company Summary.
 
         // 1. Setup: Create two Contacts, one as Company and another as Person.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         CreateContactAsPerson(Contact2);
         UpdateCompanyNo(Contact2, Contact."No.");
@@ -124,7 +124,7 @@ codeunit 136901 "Marketing Reports"
         Contact.SetRange("No.", Contact."No.");
         ContactCompanySummary.SetTableView(Contact);
         Commit();
-        ContactCompanySummary.Run;
+        ContactCompanySummary.Run();
 
         // 3. Verify: Check that Contact of Type Peson related to another contact, seen properly in Contact Company Summary.
         LibraryReportDataset.LoadDataSetFile;
@@ -151,23 +151,23 @@ codeunit 136901 "Marketing Reports"
 
         // 1. Setup: Create new Campaign Status and Campaign. Link the Campaign Status to the Campaign.Create Segment Header and also
         // Create new Interaction Template with Unit Cost (LCY) and Unit Duration (Min.).Create Interaction for a Contact.
-        Initialize;
+        Initialize();
         CreateCampaignWithStatus(Campaign);
         CreateSegmentHeader(SegmentHeader, Campaign."No.");
         CreateInteractionTemplate(InteractionTemplate);
         Contact.SetFilter("Salesperson Code", '<>%1', '');
-        Contact.FindFirst;
+        Contact.FindFirst();
         ContactNo2 := Contact."No.";  // Assign Global variable for page handler.
         Contact.CreateInteraction;
         CampaignEntry.SetRange("Campaign No.", Campaign."No.");
-        CampaignEntry.FindFirst;
+        CampaignEntry.FindFirst();
 
         // 2. Exercise: Generate Campaign - Details Report.
         Clear(CampaignDetails);
         Campaign.SetRange("No.", Campaign."No.");
         CampaignDetails.SetTableView(Campaign);
         Commit();
-        CampaignDetails.Run;
+        CampaignDetails.Run();
 
         // 3. Verify: Verify that the Campaign - Details Report print the correct Campaign and Segment Header Values.
         VerifyCampaign(Campaign, SegmentHeader, CampaignEntry);
@@ -190,7 +190,7 @@ codeunit 136901 "Marketing Reports"
         // Test Task details for Salesperson on Salesperson To Dos Report.
 
         // 1. Setup: Create Contact with Salesperson, Activity, Activity Step, Sales Cycle, Opportunity and Create Task.
-        Initialize;
+        Initialize();
         CreateContactWithSalesperson(Contact);
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
@@ -198,7 +198,7 @@ codeunit 136901 "Marketing Reports"
         LibraryVariableStorage.Enqueue(SalesCycleStage."Sales Cycle Code");
         CreateOpportunity(Contact."No.");
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         OpportunityNo := Opportunity."No.";  // Assign Global Variable for page handler.
         Task.SetRange("Contact No.", Contact."No.");
         TempTask.CreateTaskFromTask(Task);
@@ -208,10 +208,10 @@ codeunit 136901 "Marketing Reports"
         Task.SetRange("Salesperson Code", Contact."Salesperson Code");
         SalespersonTasks.SetTableView(Task);
         Commit();
-        SalespersonTasks.Run;
+        SalespersonTasks.Run();
 
         // 3. Verify: Verify Task details on Salesperson To Dos Report.
-        Task.FindFirst;
+        Task.FindFirst();
         VerifyTaskDetails(Task);
         LibraryReportDataset.AssertCurrentRowValueEquals('Task__Opportunity_No__', Task."Opportunity No.");
 
@@ -234,7 +234,7 @@ codeunit 136901 "Marketing Reports"
 
         // 1. Setup: Create Contact with Salesperson, Activity, Activity Step, Sales Cycle, Sales Cycle Stage, Create and Update
         // Opportunity.
-        Initialize;
+        Initialize();
         CreateContactWithSalesperson(Contact);
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
@@ -249,7 +249,7 @@ codeunit 136901 "Marketing Reports"
         Clear(SalespersonOpportunities);
         Opportunity.SetRange("Salesperson Code", Contact."Salesperson Code");
         SalespersonOpportunities.SetTableView(Opportunity);
-        SalespersonOpportunities.Run;
+        SalespersonOpportunities.Run();
 
         // 3. Verify: Verify Opportunity details on Salesperson Opportunities Report.
         VerifyOpportunityDetails(Contact."Salesperson Code");
@@ -271,7 +271,7 @@ codeunit 136901 "Marketing Reports"
         // Test Task details for Team on Team To Dos Report.
 
         // 1. Setup: Create Team, Contact with Salesperson and Create Task.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateTeam(Team);
         CreateContactWithSalesperson(Contact);
         TeamCode := Team.Code;  // Set global variable for Page Handler.
@@ -283,10 +283,10 @@ codeunit 136901 "Marketing Reports"
         Commit();
         Task.SetRange("Team Code", Team.Code);
         TeamTasks.SetTableView(Task);
-        TeamTasks.Run;
+        TeamTasks.Run();
 
         // 3. Verify: Verify Task details on Team To Dos Report.
-        Task.FindFirst;
+        Task.FindFirst();
         VerifyTaskDetails(Task);
         LibraryReportDataset.AssertCurrentRowValueEquals('Task__Salesperson_Code_', Task."Salesperson Code");
     end;
@@ -318,7 +318,7 @@ codeunit 136901 "Marketing Reports"
         QuestionnaireHandouts: Report "Questionnaire - Handouts";
     begin
         // 1. Setup: Create Questionnaire Header and Questionnaire Line with Multiple Answers as per parameter.
-        Initialize;
+        Initialize();
         CreateQuestionnaire(ProfileQuestionnaireLine);
         ModifyQuestionnaireLine(ProfileQuestionnaireLine, MultipleAnswers);
 
@@ -327,7 +327,7 @@ codeunit 136901 "Marketing Reports"
         Commit();
         ProfileQuestionnaireHeader.SetRange(Code, ProfileQuestionnaireLine."Profile Questionnaire Code");
         QuestionnaireHandouts.SetTableView(ProfileQuestionnaireHeader);
-        QuestionnaireHandouts.Run;
+        QuestionnaireHandouts.Run();
 
         // 3. Verify: Verify Questionnaire details on Questionnaire Handouts Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -350,7 +350,7 @@ codeunit 136901 "Marketing Reports"
         // Test Questionnaire details on Questionnaire Test Report.
 
         // 1. Setup: Create Questionnaire Header and Questionnaire Line.
-        Initialize;
+        Initialize();
         CreateQuestionnaire(ProfileQuestionnaireLine);
         ModifyQuestionnaireLine(ProfileQuestionnaireLine, false);
 
@@ -359,7 +359,7 @@ codeunit 136901 "Marketing Reports"
         Clear(QuestionnaireTest);
         ProfileQuestionnaireHeader.SetRange(Code, ProfileQuestionnaireLine."Profile Questionnaire Code");
         QuestionnaireTest.SetTableView(ProfileQuestionnaireHeader);
-        QuestionnaireTest.Run;
+        QuestionnaireTest.Run();
 
         // 3. Verify: Verify Questionnaire details on Questionnaire Test Report.
         VerifyQuestionnaireDetails(ProfileQuestionnaireLine);
@@ -380,7 +380,7 @@ codeunit 136901 "Marketing Reports"
         // Test To Do and Interaction details on Contact Person Summary Report.
 
         // 1. Setup: Create Contact with Type Person, To Do and Interaction for Contact.
-        Initialize;
+        Initialize();
         CreateContactAsPerson(Contact);
         Task.SetRange("Contact No.", Contact."No.");
         TempTask.CreateTaskFromTask(Task);
@@ -394,10 +394,10 @@ codeunit 136901 "Marketing Reports"
         Clear(ContactPersonSummary);
         Contact.SetRange("No.", Contact."No.");
         ContactPersonSummary.SetTableView(Contact);
-        ContactPersonSummary.Run;
+        ContactPersonSummary.Run();
 
         // 3. Verify: Verify To Do and Interaction details on Contact Person Summary Report.
-        Task.FindFirst;
+        Task.FindFirst();
         VerifyTaskOnPersonSummary(Task);
         VerifyInteractionLogEntry(Contact."No.");
     end;
@@ -414,7 +414,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with Texts.
 
         // 1. Setup: Find Contact and Create Texts.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateTexts(Text);
 
@@ -424,7 +424,7 @@ codeunit 136901 "Marketing Reports"
         Clear(ContactCoverSheet);
         ContactCoverSheet.SetTableView(Contact);
         ContactCoverSheet.InitializeText(Text[1], Text[2], Text[3], Text[4], Text[5]);
-        ContactCoverSheet.Run;
+        ContactCoverSheet.Run();
 
         // 3. Verify: Verify Texts on Contact Cover Sheet Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -443,7 +443,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with As Agreed upon True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with As Agreed upon True.
@@ -465,7 +465,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with For Your Information True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with For Your Information True.
@@ -487,7 +487,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with Your Comments Please True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with Your Comments Please True.
@@ -509,7 +509,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with For Your Approval True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with For Your Approval True.
@@ -531,7 +531,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with Please Call True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with Please Call True.
@@ -553,7 +553,7 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with Returned After Use True.
 
         // 1. Setup: Find Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
 
         // 2. Exercise: Run Contact Cover Sheet Report with Returned After Use True.
@@ -577,9 +577,9 @@ codeunit 136901 "Marketing Reports"
         // Test Contact Cover Sheet Report with Custom Remarks.
 
         // 1. Setup: Find Contact and Create Text.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
-        Text := LibraryUtility.GenerateGUID;
+        Text := LibraryUtility.GenerateGUID();
 
         // 2. Exercise: Run Contact Cover Sheet Report with Custom Remarks.
         Commit();
@@ -587,7 +587,7 @@ codeunit 136901 "Marketing Reports"
         Clear(ContactCoverSheet);
         ContactCoverSheet.SetTableView(Contact);
         ContactCoverSheet.InitializeCustomRemarks(true, Text);
-        ContactCoverSheet.Run;
+        ContactCoverSheet.Run();
 
         // 3. Verify: Verify Custom Remarks on Contact Cover Sheet Report.
         VerifyRemarkOnContactReport(7, Contact."No.");
@@ -606,7 +606,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with Texts.
 
         // 1. Setup: Create Segment Header, Segment Line with Contact and Create Texts.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
         CreateTexts(Text);
@@ -617,7 +617,7 @@ codeunit 136901 "Marketing Reports"
         Clear(SegmentCoverSheet);
         SegmentCoverSheet.SetTableView(SegmentHeader);
         SegmentCoverSheet.InitializeText(Text[1], Text[2], Text[3], Text[4], Text[5]);
-        SegmentCoverSheet.Run;
+        SegmentCoverSheet.Run();
 
         // 3. Verify: Verify Texts on Segment Cover Sheet Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -637,7 +637,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with As Agreed Upon True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -661,7 +661,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with For Your Information True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -685,7 +685,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with Your Comments Please True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -709,7 +709,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with For Your Approval True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -733,7 +733,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with Please Call True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -757,7 +757,7 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with Returned After Use True.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
 
@@ -783,10 +783,10 @@ codeunit 136901 "Marketing Reports"
         // Test Segment Cover Sheet Report with Custom Remarks.
 
         // 1. Setup: Create Segment Header and Segment Line with Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.FindContact(Contact);
         CreateSegmentWithContact(SegmentHeader, Contact."No.");
-        Text := LibraryUtility.GenerateGUID;
+        Text := LibraryUtility.GenerateGUID();
 
         // 2. Exercise: Run Segment Cover Sheet Report with Custom Remarks.
         Commit();
@@ -794,7 +794,7 @@ codeunit 136901 "Marketing Reports"
         Clear(SegmentCoverSheet);
         SegmentCoverSheet.SetTableView(SegmentHeader);
         SegmentCoverSheet.InitializeCustomRemarks(true, Text);
-        SegmentCoverSheet.Run;
+        SegmentCoverSheet.Run();
 
         // 3. Verify: Verify Custom Remarks on Segment Cover Sheet Report.
         VerifyRemarkOnSegmentCoverSheetReport(7, Contact."No.");
@@ -816,7 +816,7 @@ codeunit 136901 "Marketing Reports"
 
         // 1. Setup: Create Contact with Salesperson, Interaction Template, Interaction from Contact, Activity, Activity Step,
         // Sales Cycle Stage, Opportunity from Contact, Update Opportunity.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreateContactWithSalesperson(Contact);
         CreateInteractionTemplate(InteractionTemplate);
@@ -838,7 +838,7 @@ codeunit 136901 "Marketing Reports"
         Contact.SetRange("No.", Contact."No.");
         Clear(ContactList);
         ContactList.SetTableView(Contact);
-        ContactList.Run;
+        ContactList.Run();
 
         // 3. Verify: Verify Values on Contact List Report.
         VerifyValuesonContactList(Contact);
@@ -863,7 +863,7 @@ codeunit 136901 "Marketing Reports"
 
         // 1. Setup: Create Contact with Salesperson, Interaction Template, Interaction from Contact, Activity, Activity Step,
         // Sales Cycle Stage, Opportunity from Contact, Update Opportunity.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         CreateContactWithSalesperson(Contact);
         CreateInteractionTemplate(InteractionTemplate);
@@ -885,10 +885,10 @@ codeunit 136901 "Marketing Reports"
         Opportunity.SetRange("Contact No.", Contact."No.");
         Clear(OpportunityList);
         OpportunityList.SetTableView(Opportunity);
-        OpportunityList.Run;
+        OpportunityList.Run();
 
         // 3. Verify: Verify Values on Opportunity List Report.
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         VerifyValuesonOpportunityList(Opportunity);
 
         LibraryVariableStorage.AssertEmpty();
@@ -905,7 +905,7 @@ codeunit 136901 "Marketing Reports"
         SalesCycleStage: Record "Sales Cycle Stage";
     begin
         // [SCENARIO 332702] Run report "Opportunity - List" with saving results to Excel file.
-        Initialize;
+        Initialize();
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
         // [GIVEN] Sales Cycle Stage, Opportunity.
@@ -950,7 +950,7 @@ codeunit 136901 "Marketing Reports"
         // 1. Setup: Create Activity, Activity Step, Sales Cycle, First Sales Cycle Stage, First Contact with Salesperson,
         // Opportunity from first Contact, Update Opportunity, Second Contact with Salesperson, Opportunity from Second Contact,
         // Update Opportunity, Second Sales Cycle Stage, Update Opportunity.
-        Initialize;
+        Initialize();
         InitGlobalVariables;
         LibraryMarketing.CreateActivity(Activity);
         LibraryMarketing.CreateActivityStep(ActivityStep, Activity.Code);
@@ -984,7 +984,7 @@ codeunit 136901 "Marketing Reports"
         SalesCycle.SetRange(Code, SalesCycle.Code);
         Clear(SalesCycleAnalysis);
         SalesCycleAnalysis.SetTableView(SalesCycle);
-        SalesCycleAnalysis.Run;
+        SalesCycleAnalysis.Run();
 
         // 3. Verify: Verify Values on Sales Cycle Analysis Report.
         LibraryReportDataset.LoadDataSetFile;
@@ -1005,7 +1005,7 @@ codeunit 136901 "Marketing Reports"
         Contact: Record Contact;
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         Commit();  // Commit required for Request Page Handler.
@@ -1115,7 +1115,7 @@ codeunit 136901 "Marketing Reports"
         Counter: Integer;
     begin
         for Counter := 1 to ArrayLen(Text) do
-            Text[Counter] := LibraryUtility.GenerateGUID;
+            Text[Counter] := LibraryUtility.GenerateGUID();
     end;
 
     local procedure CreateQuestionnaire(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line")
@@ -1162,7 +1162,7 @@ codeunit 136901 "Marketing Reports"
         OpportunityDetails.SetTableView(Opportunity);
         // LibraryReportValidation.SetFileName(ContactNo);
         // OpportunityDetails.SAVEASEXCEL(LibraryReportValidation.GetFileName);
-        OpportunityDetails.Run;
+        OpportunityDetails.Run();
     end;
 
     local procedure RunSegmentContactsReport(No: Code[20])
@@ -1174,7 +1174,7 @@ codeunit 136901 "Marketing Reports"
         Commit();
         SegmentHeader.SetRange("No.", No);
         SegmentContacts.SetTableView(SegmentHeader);
-        SegmentContacts.Run;
+        SegmentContacts.Run();
     end;
 
     local procedure UpdateCompanyNo(var Contact: Record Contact; CompanyNo: Code[20])
@@ -1188,7 +1188,7 @@ codeunit 136901 "Marketing Reports"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.UpdateOpportunity;
     end;
 
@@ -1197,7 +1197,7 @@ codeunit 136901 "Marketing Reports"
         ActivityStep: Record "Activity Step";
     begin
         ActivityStep.SetRange("Activity Code", ActivityCode);
-        ActivityStep.FindFirst;
+        ActivityStep.FindFirst();
         LibraryReportDataset.AssertCurrentRowValueEquals('Priority_ActivityStep', Format(ActivityStep.Priority));
     end;
 
@@ -1245,7 +1245,7 @@ codeunit 136901 "Marketing Reports"
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
         InteractionLogEntry.SetRange("Contact No.", ContactNo);
-        InteractionLogEntry.FindFirst;
+        InteractionLogEntry.FindFirst();
 
         LibraryReportDataset.SetRange(
           'Interaction_Log_Entry___Entry_No__',
@@ -1268,7 +1268,7 @@ codeunit 136901 "Marketing Reports"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Salesperson Code", SalespersonCode);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('Opportunity__No__', Opportunity."No.");
@@ -1482,11 +1482,7 @@ codeunit 136901 "Marketing Reports"
         TempSegmentLine.Validate("Campaign No.", CampaignNo2);
         TempSegmentLine.Validate("Information Flow", TempSegmentLine."Information Flow"::Outbound);
         TempSegmentLine.Validate("Initiated By", TempSegmentLine."Initiated By"::Us);
-#if CLEAN17
         TempSegmentLine.FinishSegLineWizard(true);
-#else
-        TempSegmentLine.FinishWizard(true);
-#endif
     end;
 
     [ModalPageHandler]
@@ -1657,7 +1653,7 @@ codeunit 136901 "Marketing Reports"
           PleaseCall,
           ReturnedAfterUse);
 
-        ContactCoverSheet.Run;
+        ContactCoverSheet.Run();
     end;
 
     [RequestPageHandler]
@@ -1684,7 +1680,7 @@ codeunit 136901 "Marketing Reports"
           PleaseCall,
           ReturnedAfterUse);
 
-        SegmentCoverSheet.Run;
+        SegmentCoverSheet.Run();
     end;
 
     [RequestPageHandler]

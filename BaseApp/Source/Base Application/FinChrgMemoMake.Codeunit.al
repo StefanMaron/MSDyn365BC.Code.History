@@ -1,3 +1,4 @@
+#if not CLEAN20 
 codeunit 394 "FinChrgMemo-Make"
 {
 
@@ -228,10 +229,10 @@ codeunit 394 "FinChrgMemo-Make"
 
                     OnMakeLines2OnBeforeCheckInsertFinChrgMemoLine(FinChrgMemoLine, Checking);
                     if FinChrgMemoLine.Amount <> 0 then
-                        // NAVCZ
                         if not Checking then
                             FinChrgMemoLine.Insert
                         else begin
+                            // NAVCZ
                             DtldFinChargeMemoLine.SetRange("Finance Charge Memo No.", FinChrgMemoLine."Finance Charge Memo No.");
                             DtldFinChargeMemoLine.SetRange("Fin. Charge. Memo Line No.", FinChrgMemoLine."Line No.");
                             if not DtldFinChargeMemoLine.IsEmpty() then
@@ -250,7 +251,7 @@ codeunit 394 "FinChrgMemo-Make"
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
     begin
         FinanceChargeMemoLine.SetRange("Finance Charge Memo No.", MemoNo);
-        if FinanceChargeMemoLine.FindLast then;
+        if FinanceChargeMemoLine.FindLast() then;
         exit(FinanceChargeMemoLine."Line No.");
     end;
 
@@ -305,3 +306,4 @@ codeunit 394 "FinChrgMemo-Make"
     end;
 }
 
+#endif

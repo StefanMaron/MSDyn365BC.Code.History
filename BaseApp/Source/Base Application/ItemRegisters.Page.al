@@ -180,32 +180,6 @@ page 117 "Item Registers"
             ObsoleteState = Pending;
             ObsoleteReason = 'Merge to W1.';
             ObsoleteTag = '19.0';
-#if not CLEAN17
-            action("Item Register - Quantity")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Item Register - Quantity';
-                Image = GLRegisters;
-                Promoted = true;
-                PromotedCategory = "Report";
-                ToolTip = 'Open the report for item register quantity.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                visible = false;
-
-                trigger OnAction()
-                var
-                    ItemReg: Record "Item Register";
-                begin
-                    // NAVCZ
-                    ItemReg.Copy(Rec);
-                    ItemReg.SetRecFilter;
-                    REPORT.Run(REPORT::"Item Register - Quantity", true, false, ItemReg);
-                    // NAVCZ
-                end;
-            }
-#endif
         }
     }
 }

@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 9008 "Whse. Basic Role Center"
 {
     Caption = 'Inventory Manager';
@@ -622,6 +621,15 @@ page 9008 "Whse. Basic Role Center"
                     Caption = 'Blanket Purchase Order Archives';
                     RunObject = page "Blanket Purch. Order Archives";
                 }
+                action("Navi&gate")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Find entries...';
+                    Image = Navigate;
+                    RunObject = Page Navigate;
+                    ShortCutKey = 'Ctrl+Alt+Q';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                }
             }
 #if not CLEAN18
             group(SetupAndExtensions)
@@ -792,18 +800,6 @@ page 9008 "Whse. Basic Role Center"
                 RunObject = Page "Item Tracing";
                 ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
             }
-            action("Phys. Invt. Counting Document")
-            {
-                ApplicationArea = Warehouse;
-                Caption = 'Phys. Invt. Counting Document';
-                Image = PhysicalInventory;
-                RunObject = Report "Phys. Invt. Counting Document";
-                ToolTip = 'Open the report for physical invt. counting document.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.5';
-                Visible = false;
-            }
             action("P&ut-away Worksheet")
             {
                 ApplicationArea = Warehouse;
@@ -861,4 +857,3 @@ page 9008 "Whse. Basic Role Center"
     }
 }
 
-#endif

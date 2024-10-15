@@ -36,7 +36,7 @@ codeunit 350 IntraJnlManagement
                     Commit();
                 end;
             1:
-                IntraJnlTemplate.FindFirst;
+                IntraJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, IntraJnlTemplate) = ACTION::LookupOK;
         end;
@@ -96,9 +96,9 @@ codeunit 350 IntraJnlManagement
         IntrastatJnlBatch.FilterGroup(0);
 
         if not IntrastatJnlBatch.Find('-') then begin
-            if not IntraJnlTemplate.FindFirst then
+            if not IntraJnlTemplate.FindFirst() then
                 TemplateSelection(0, IntrastatJnlLine, JnlSelected);
-            if IntraJnlTemplate.FindFirst then
+            if IntraJnlTemplate.FindFirst() then
                 CheckTemplateName(IntraJnlTemplate.Name, IntrastatJnlBatch.Name);
         end;
         IntrastatJnlBatch.Find('-');
@@ -107,7 +107,7 @@ codeunit 350 IntraJnlManagement
             IntraJnlTemplate.SetRange(Name, IntrastatJnlBatch.GetFilter("Journal Template Name"));
         case IntraJnlTemplate.Count of
             1:
-                IntraJnlTemplate.FindFirst;
+                IntraJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, IntraJnlTemplate) = ACTION::LookupOK;
         end;
@@ -123,10 +123,16 @@ codeunit 350 IntraJnlManagement
     var
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
         IntrastatJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not IntrastatJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not IntrastatJnlBatch.FindFirst then begin
+            if not IntrastatJnlBatch.FindFirst() then begin
                 IntraJnlTemplate.Get(CurrentJnlTemplateName);
                 IntrastatJnlBatch.Init();
                 IntrastatJnlBatch."Journal Template Name" := IntraJnlTemplate.Name;
@@ -311,6 +317,8 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), '');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
     end;
 
     local procedure CreateAdvancedChecklistFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
@@ -353,6 +361,11 @@ codeunit 350 IntraJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRoundTotalWeight(var IsHandled: Boolean; var TotalWeight: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckTemplateName(CurrentJnlTemplateName: Code[10]; var CurrentJnlBatchName: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

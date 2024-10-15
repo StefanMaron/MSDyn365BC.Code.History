@@ -333,7 +333,7 @@ codeunit 900 "Assembly-Post"
         AssemblyHeader.LockTable();
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 
@@ -738,7 +738,7 @@ codeunit 900 "Assembly-Post"
             SetCurrentKey("Item No.", Positive);
             SetRange(Positive, true);
             SetRange(Open, true);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -1202,7 +1202,7 @@ codeunit 900 "Assembly-Post"
             Insert();
 
             CopyCommentLines(
-              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type".AsInteger(),
+              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type",
               PostedAsmHeader."No.", "No.");
 
             RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type".AsInteger(), "Due Date", 0D);

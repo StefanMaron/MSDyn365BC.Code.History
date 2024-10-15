@@ -25,7 +25,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
     [Scope('OnPrem')]
     procedure DateCompressionByDay()
     begin
-        Initialize;
+        Initialize();
         DateCompressionScenario(DateComprRegister."Period Length"::Day);
     end;
 
@@ -34,7 +34,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
     [Scope('OnPrem')]
     procedure DateCompressionByWeek()
     begin
-        Initialize;
+        Initialize();
         DateCompressionScenario(DateComprRegister."Period Length"::Week);
     end;
 
@@ -43,7 +43,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
     [Scope('OnPrem')]
     procedure DateCompressionByMonth()
     begin
-        Initialize;
+        Initialize();
         DateCompressionScenario(DateComprRegister."Period Length"::Month);
     end;
 
@@ -52,7 +52,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
     [Scope('OnPrem')]
     procedure DateCompressionByYear()
     begin
-        Initialize;
+        Initialize();
         DateCompressionScenario(DateComprRegister."Period Length"::Year);
     end;
 
@@ -61,7 +61,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
     [Scope('OnPrem')]
     procedure DateCompressionByPeriod()
     begin
-        Initialize;
+        Initialize();
         DateCompressionScenario(DateComprRegister."Period Length"::Period);
     end;
 
@@ -102,7 +102,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         AgeGLBudget(ToBudget, Date2DMY(LibraryFiscalYear.GetFirstPostingDate(true), 3));
 
         GLBudgetEntry.SetRange("Budget Name", ToBudget);
-        GLBudgetEntry.FindFirst;
+        GLBudgetEntry.FindFirst();
         // Extract budget year
         BudgetYear := Date2DMY(GLBudgetEntry.Date, 3);
 
@@ -141,7 +141,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         CopyGLBudget.InitializeRequest(FromSource::"G/L Budget Entry", FromGLBudgetName, '', '', FromClosingEntryFilter::Include, '',
           ToGlBudgetName, '', AdjFactor, '', DateChangeFormula, ToDateCompression::None);
         CopyGLBudget.UseRequestPage(false);
-        CopyGLBudget.Run;
+        CopyGLBudget.Run();
     end;
 
     local procedure RunDateCompressBudget(BudgetName: Code[10]; Year: Integer; PeriodLength: Option)
@@ -158,7 +158,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         EndingDate := DMY2Date(31, 12, Year);
         DateComprGLBudgetEntries.InitializeRequest(StartingDate, EndingDate, PeriodLength, '', false, InsertDimSelectionBuffer);
         DateComprGLBudgetEntries.UseRequestPage(false);
-        DateComprGLBudgetEntries.Run;
+        DateComprGLBudgetEntries.Run();
     end;
 
     local procedure ValidateBudgetEntry(BudgetName: Code[10]; BeforeCompressEntryCount: Integer; ExpectedEntrySum: Decimal)
@@ -190,12 +190,12 @@ codeunit 134037 "ERM Date Compression GL Budget"
     begin
         // [FEATURE] [G/L Budget Entry]
         // [SCENARIO 262033] It is possible to copy G/L Budget to itself with time shift
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Budget with 5 entries of 1000
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         BudgetDate := WorkDate;
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         NumOfPeriods := LibraryRandom.RandIntInRange(3, 10);
         BudgetAmount := LibraryRandom.RandDecInRange(100, 1000, 1);
         AdjFactor := LibraryRandom.RandDecInRange(1, 3, 1);
@@ -232,10 +232,10 @@ codeunit 134037 "ERM Date Compression GL Budget"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Date Compression GL Budget");
         LibraryFiscalYear.CreateClosedAccountingPeriods();
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         // Find a budget
-        GLBudgetName.FindFirst;
+        GLBudgetName.FindFirst();
         CopyFromBudgetName := GLBudgetName.Name;
 
         GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);

@@ -167,6 +167,8 @@ codeunit 570 "G/L Account Category Mgt."
             CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, VehicleExpensesTxt, false, 0);
             CategoryID[2] := AddCategory(0, CategoryID[1], "Account Category"::Expense, BadDebtExpenseTxt, false, 0);
         end;
+
+        OnAfterInitializeAccountCategories();
     end;
 
     procedure AddCategory(InsertAfterEntryNo: Integer; ParentEntryNo: Integer; AccountCategory: Option; NewDescription: Text[80]; SystemGenerated: Boolean; CashFlowActivity: Option): Integer
@@ -348,7 +350,7 @@ codeunit 570 "G/L Account Category Mgt."
 
         AccountSchedule.InitAccSched;
         AccountSchedule.SetAccSchedNameNonEditable(AccSchedName);
-        AccountSchedule.Run;
+        AccountSchedule.Run();
     end;
 
     procedure ConfirmAndRunGenerateAccountSchedules()
@@ -639,7 +641,7 @@ codeunit 570 "G/L Account Category Mgt."
     begin
         GLAccountCategory.SetRange("Account Category", Category);
         GLAccountCategory.SetRange(Description, SubcategoryDescription);
-        if GLAccountCategory.FindFirst then
+        if GLAccountCategory.FindFirst() then
             exit(GLAccountCategory."Entry No.");
     end;
 
@@ -714,7 +716,7 @@ codeunit 570 "G/L Account Category Mgt."
             EntryNoFilter := CopyStr(EntryNoFilter, 1, StrLen(EntryNoFilter) - 1);
             GLAccount.SetRange("Account Category", GLAccountCategory."Account Category");
             GLAccount.SetFilter("Account Subcategory Entry No.", EntryNoFilter);
-            if not GLAccount.FindFirst then begin
+            if not GLAccount.FindFirst() then begin
                 GLAccount.SetRange("Account Category", 0);
                 GLAccount.SetRange("Account Subcategory Entry No.", 0);
             end;
@@ -775,6 +777,11 @@ codeunit 570 "G/L Account Category Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupGLAccount(TableNo: Integer; FieldNo: Integer; var AccountNo: Code[20]; var AccountCategory: Option; var AccountSubcategoryFilter: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitializeAccountCategories()
     begin
     end;
 }

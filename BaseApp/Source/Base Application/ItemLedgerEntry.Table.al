@@ -289,10 +289,11 @@ table 32 "Item Ledger Entry"
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
 #if not CLEAN19
             ObsoleteState = Pending;
+            ObsoleteTag = '17.0';
 #else
             ObsoleteState = Removed;
+            ObsoleteTag = '20.0';
 #endif
-            ObsoleteTag = '17.0';
         }
         field(5701; "Originally Ordered No."; Code[20])
         {
@@ -598,9 +599,6 @@ table 32 "Item Ledger Entry"
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if not CLEAN17
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-#endif            
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -1002,7 +1000,7 @@ table 32 "Item Ledger Entry"
         ItemApplnEntry.SetCurrentKey("Inbound Item Entry No.");
         ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemLedgEntryNo);
         RemQty := 0;
-        if ItemApplnEntry.FindSet then
+        if ItemApplnEntry.FindSet() then
             repeat
                 if ItemApplnEntry."Posting Date" <= PostingDate then
                     RemQty += ItemApplnEntry.Quantity;
@@ -1061,7 +1059,7 @@ table 32 "Item Ledger Entry"
         ValueEntry.SetFilter("Entry Type", '<>%1', ValueEntry."Entry Type"::Rounding);
         if not IncludeExpectedCost then
             ValueEntry.SetRange("Expected Cost", false);
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 if ValueEntry."Entry Type" = ValueEntry."Entry Type"::Revaluation then
                     TotalQty := ValueEntry."Valued Quantity"
@@ -1086,7 +1084,7 @@ table 32 "Item Ledger Entry"
         // NAVCZ
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", "Entry No.");
-        if ValueEntry.FindFirst then
+        if ValueEntry.FindFirst() then
             exit(ValueEntry."G/L Correction");
     end;
 
@@ -1166,15 +1164,6 @@ table 32 "Item Ledger Entry"
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by SetTrackingFrom procedures.', '17.0')]
-    procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        SetRange("Serial No.", SerialNo);
-        SetRange("Lot No.", LotNo);
-    end;
-#endif
 
     procedure SetTrackingFilterFromItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry")
     begin
@@ -1342,4 +1331,3 @@ table 32 "Item Ledger Entry"
     begin
     end;
 }
-

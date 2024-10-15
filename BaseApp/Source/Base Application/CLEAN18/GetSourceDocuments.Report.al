@@ -57,7 +57,9 @@ report 5753 "Get Source Documents"
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                         if not IsHandled then begin
                                             if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                                CreateShptHeader;
+                                                CreateShptHeader();
+                                                WhseShptHeader."Shipment Date" := "Sales Header"."Shipment Date";
+                                                WhseShptHeader.Modify();
                                                 OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header", "Sales Line", "Warehouse Request");
                                             end;
                                             if not CreateActivityFromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
@@ -75,22 +77,12 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Type, Type::Item);
-                        if (("Warehouse Request".Type = "Warehouse Request".Type::Outbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Sales Order")) or
-                           (("Warehouse Request".Type = "Warehouse Request".Type::Inbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Sales Return Order"))
-                        then
-                            SetFilter("Outstanding Quantity", '>0')
-                        else
-                            SetFilter("Outstanding Quantity", '<0');
-                        SetRange("Drop Shipment", false);
-                        SetRange("Job No.", '');
+                        SetSalesLineFilters("Sales Line", "Warehouse Request");
 
                         OnAfterSalesLineOnPreDataItem("Sales Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
                     end;
@@ -100,7 +92,13 @@ report 5753 "Get Source Documents"
                 var
                     SkipRecord: Boolean;
                     BreakReport: Boolean;
+                    IsHandled: Boolean;
                 begin
+                    IsHandled := false;
+                    OnBeforeSalesHeaderOnAfterGetRecord("Sales Header", SalesHeaderCounted, IsHandled);
+                    if IsHandled then
+                        CurrReport.Skip();
+
                     TestField("Sell-to Customer No.");
                     Cust.Get("Sell-to Customer No.");
                     if not SkipBlockedCustomer then
@@ -188,22 +186,12 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
                     begin
-                        SetRange(Type, Type::Item);
-                        if (("Warehouse Request".Type = "Warehouse Request".Type::Inbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Purchase Order")) or
-                           (("Warehouse Request".Type = "Warehouse Request".Type::Outbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Purchase Return Order"))
-                        then
-                            SetFilter("Outstanding Quantity", '>0')
-                        else
-                            SetFilter("Outstanding Quantity", '<0');
-                        SetRange("Drop Shipment", false);
-                        SetRange("Job No.", '');
+                        SetPurchLineFilters("Purchase Line", "Warehouse Request");
 
                         OnAfterPurchaseLineOnPreDataItem("Purchase Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
                     end;
@@ -216,7 +204,7 @@ report 5753 "Get Source Documents"
                 begin
                     BreakReport := false;
                     SkipRecord := false;
-                    OnAfterPurchaseHeaderOnAfterGetRecord("Purchase Header", SkipRecord, BreakReport, "Warehouse Request");
+                    OnAfterPurchaseHeaderOnAfterGetRecord("Purchase Header", SkipRecord, BreakReport, "Warehouse Request", WhseReceiptHeader, OneHeaderCreated);
                     if BreakReport then
                         CurrReport.Break();
                     if SkipRecord then
@@ -293,7 +281,7 @@ report 5753 "Get Source Documents"
                             CheckFillQtyToHandle;
                         end;
 
-                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated);
+                        OnAfterProcessDocumentLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
                     end;
 
                     trigger OnPreDataItem()
@@ -349,7 +337,7 @@ report 5753 "Get Source Documents"
                         if IsHandled then
                             CurrReport.Skip();
 
-                        if "Location Code" = "Warehouse Request"."Location Code" then
+                        if ("Location Code" = "Warehouse Request"."Location Code") and IsInventoriableItem() then
                             case RequestType of
                                 RequestType::Ship:
                                     if WhseActivityCreate.CheckIfFromServiceLine2ShptLin("Service Line") then begin
@@ -498,7 +486,7 @@ report 5753 "Get Source Documents"
 
     trigger OnPostReport()
     begin
-        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine);
+        OnBeforePostReport("Warehouse Request", RequestType, OneHeaderCreated, WhseShptHeader, WhseHeaderCreated, ErrorOccured, LineCreated, ActivitiesCreated, Location, WhseShptLine, WhseReceiptHeader, HideDialog);
         if not HideDialog then
             case RequestType of
                 RequestType::Receive:
@@ -575,6 +563,36 @@ report 5753 "Get Source Documents"
         DoNotFillQtytoHandle := DoNotFillQtytoHandle2;
     end;
 
+    procedure SetSalesLineFilters(var SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+        SalesLine.SetRange(Type, "Sales Line Type"::Item);
+        if ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Sales Order")) or
+            ((WarehouseRequest.Type = "Warehouse Request".Type::Inbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Sales Return Order"))
+        then
+            SalesLine.SetFilter("Outstanding Quantity", '>0')
+        else
+            SalesLine.SetFilter("Outstanding Quantity", '<0');
+        SalesLine.SetRange("Drop Shipment", false);
+        SalesLine.SetRange("Job No.", '');
+    end;
+
+    procedure SetPurchLineFilters(var PurchLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request")
+    begin
+        PurchLine.SetRange(Type, "Purchase Line Type"::Item);
+        if ((WarehouseRequest.Type = WarehouseRequest.Type::Inbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Order")) or
+            ((WarehouseRequest.Type = WarehouseRequest.Type::Outbound) and
+            (WarehouseRequest."Source Document" = WarehouseRequest."Source Document"::"Purchase Return Order"))
+        then
+            PurchLine.SetFilter("Outstanding Quantity", '>0')
+        else
+            PurchLine.SetFilter("Outstanding Quantity", '<0');
+        PurchLine.SetRange("Drop Shipment", false);
+        PurchLine.SetRange("Job No.", '');
+    end;
+
     procedure GetLastShptHeader(var WhseShptHeader2: Record "Warehouse Shipment Header")
     begin
         RequestType := RequestType::Ship;
@@ -608,7 +626,7 @@ report 5753 "Get Source Documents"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line", IsHandled, Location, WhseShptLine, ActivitiesCreated, WhseHeaderCreated);
+        OnBeforeCreateShptHeader(WhseShptHeader, "Warehouse Request", "Sales Line", IsHandled, Location, WhseShptLine, ActivitiesCreated, WhseHeaderCreated, RequestType);
         if IsHandled then
             exit;
 
@@ -619,8 +637,10 @@ report 5753 "Get Source Documents"
             WhseShptHeader."Bin Code" := Location."Shipment Bin Code";
         WhseShptHeader."External Document No." := "Warehouse Request"."External Document No.";
         WhseShptHeader."Shipment Method Code" := "Warehouse Request"."Shipment Method Code";
+        WhseShptHeader."Shipping Agent Code" := "Warehouse Request"."Shipping Agent Code";
+        WhseShptHeader."Shipping Agent Service Code" := "Warehouse Request"."Shipping Agent Service Code";
         WhseShptLine.LockTable();
-        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line");
+        OnBeforeWhseShptHeaderInsert(WhseShptHeader, "Warehouse Request", "Sales Line", "Transfer Line", "Sales Header");
         WhseShptHeader.Insert(true);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
@@ -646,7 +666,7 @@ report 5753 "Get Source Documents"
         WhseReceiptLine.LockTable();
         OnBeforeWhseReceiptHeaderInsert(WhseReceiptHeader, "Warehouse Request");
         WhseReceiptHeader.Insert(true);
-        OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated);
+        OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader, ActivitiesCreated, RequestType);
         ActivitiesCreated := ActivitiesCreated + 1;
         WhseHeaderCreated := true;
         if not SuppressCommit then
@@ -657,6 +677,7 @@ report 5753 "Get Source Documents"
 
     local procedure UpdateReceiptHeaderStatus()
     begin
+        OnBeforeUpdateReceiptHeaderStatus(WhseReceiptHeader);
         with WhseReceiptHeader do begin
             if "No." = '' then
                 exit;
@@ -685,7 +706,7 @@ report 5753 "Get Source Documents"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled);
+        OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled, SkipBlockedItem);
         if not IsHandled then
             VerifyItemNotBlocked(SalesLine."No.")
     end;
@@ -704,7 +725,13 @@ report 5753 "Get Source Documents"
     procedure ShowReceiptDialog()
     var
         SpecialHandlingMessage: Text[1024];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowReceiptDialog(IsHandled, ErrorOccured, ActivitiesCreated, LineCreated);
+        if IsHandled then
+            exit;
+
         if not LineCreated then
             Error(Text000);
 
@@ -827,7 +854,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean)
+    local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
@@ -842,7 +869,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchaseHeaderOnAfterGetRecord(PurchaseHeader: Record "Purchase Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request")
+    local procedure OnAfterPurchaseHeaderOnAfterGetRecord(PurchaseHeader: Record "Purchase Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; OneHeaderCreated: Boolean)
     begin
     end;
 
@@ -897,7 +924,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; Location: Record Location; var WhseShptLine: Record "Warehouse Shipment Line"; var ActivitiesCreated: Integer; var WhseHeaderCreated: Boolean)
+    local procedure OnBeforeCreateShptHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; Location: Record Location; var WhseShptLine: Record "Warehouse Shipment Line"; var ActivitiesCreated: Integer; var WhseHeaderCreated: Boolean; var RequestType: Option Receive,Ship)
     begin
     end;
 
@@ -908,6 +935,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePurchaseLineOnAfterGetRecord(PurchaseLine: Record "Purchase Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderOnAfterGetRecord(var SalesHeader: Record "Sales Header"; var SalesHeaderCounted: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -927,7 +959,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifySalesItemNotBlocked(SalesHeaer: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeVerifySalesItemNotBlocked(SalesHeaer: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; SkipBlockedItem: Boolean)
     begin
     end;
 
@@ -942,7 +974,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; TransferLine: Record "Transfer Line")
+    local procedure OnBeforeWhseShptHeaderInsert(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; SalesLine: Record "Sales Line"; TransferLine: Record "Transfer Line"; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -1027,12 +1059,17 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader: Record "Warehouse Receipt Header"; ActivitiesCreated: Integer)
+    local procedure OnCreateReceiptHeaderOnAfterWhseReceiptHeaderInsert(WhseReceiptHeader: Record "Warehouse Receipt Header"; ActivitiesCreated: Integer; var RequestType: Option Receive,Ship)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line")
+    local procedure OnBeforePostReport(WhseRequest: Record "Warehouse Request"; RequestType: Option; OneHeaderCreated: Boolean; var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseHeaderCreated: Boolean; var ErrorOccured: Boolean; var LineCreated: Boolean; var ActivitiesCreated: Integer; Location: record Location; var WhseShptLine: record "Warehouse Shipment Line"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowReceiptDialog(var IsHandled: Boolean; ErrorOccured: Boolean; ActivitiesCreated: Integer; LineCreated: Boolean)
     begin
     end;
 
@@ -1058,6 +1095,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnPostDataItemTransferLine(var WhseReceiptHeader: Record "Warehouse Receipt Header"; RequestType: Option Receive,Ship; OneHeaderCreated: Boolean; WhseHeaderCreated: Boolean; LineCreated: Boolean; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateReceiptHeaderStatus(var WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 

@@ -54,7 +54,7 @@ page 96 "Sales Cr. Memo Subform"
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
 
                     trigger OnValidate()
@@ -66,39 +66,11 @@ page 96 "Sales Cr. Memo Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -108,7 +80,10 @@ page 96 "Sales Cr. Memo Subform"
                         InsertExtendedText(false);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+#if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
+#endif                        
+                        OnItemReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
@@ -154,6 +129,12 @@ page 96 "Sales Cr. Memo Subform"
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -168,7 +149,7 @@ page 96 "Sales Cr. Memo Subform"
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies a description of the entry, which is based on the contents of the Type and No. fields.';
 
                     trigger OnValidate()
@@ -183,6 +164,50 @@ page 96 "Sales Cr. Memo Subform"
                         UpdateTypeText();
                         DeltaUpdateTotals();
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -225,7 +250,7 @@ page 96 "Sales Cr. Memo Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
 
                     trigger OnValidate()
@@ -278,7 +303,7 @@ page 96 "Sales Cr. Memo Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the price for one unit on the sales line.';
 
                     trigger OnValidate()
@@ -323,7 +348,7 @@ page 96 "Sales Cr. Memo Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()
@@ -894,7 +919,7 @@ page 96 "Sales Cr. Memo Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -919,6 +944,70 @@ page 96 "Sales Cr. Memo Subform"
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal();
                     end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of sales lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all sales lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+            }
+            group("Page")
+            {
+                Caption = 'Page';
+
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category8;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        EditinExcel: Codeunit "Edit in Excel";
+                    begin
+                        EditinExcel.EditPageInExcel(
+                            'Sales_Cr_Memo_Line',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo(EditInExcelFilterTxt, Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
+                    end;
+
                 }
             }
         }
@@ -964,7 +1053,7 @@ page 96 "Sales Cr. Memo Subform"
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Sales);
-        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
+        IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -983,8 +1072,12 @@ page 96 "Sales Cr. Memo Subform"
 
     trigger OnOpenPage()
     begin
+        SetOpenPage();
+
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -997,11 +1090,13 @@ page 96 "Sales Cr. Memo Subform"
         DocumentTotals: Codeunit "Document Totals";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         AmountWithDiscountAllowed: Decimal;
-        UnitofMeasureCodeIsChangeable: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
+        ExcelFileNameTxt: Label 'Sales Credit Memo %1 - Lines', Comment = '%1 = document number, ex. 10000';
+        EditInExcelFilterTxt: Label 'Document_No eq ''%1''', Locked = true;
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1019,11 +1114,26 @@ page 96 "Sales Cr. Memo Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
         VATAmount: Decimal;
+        UnitofMeasureCodeIsChangeable: Boolean;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        OnBeforeSetOpenPage();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1046,10 +1156,8 @@ page 96 "Sales Cr. Memo Subform"
         if IsHandled then
             exit;
 
-        // Set default type Item
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     procedure CalcInvDisc()
@@ -1078,11 +1186,6 @@ page 96 "Sales Cr. Memo Subform"
             UpdateForm(true);
     end;
 
-    local procedure OpenItemTrackingLines()
-    begin
-        OpenItemTrackingLines();
-    end;
-
     local procedure ItemChargeAssgnt()
     begin
         ShowItemChargeAssgnt();
@@ -1091,11 +1194,6 @@ page 96 "Sales Cr. Memo Subform"
     procedure UpdateForm(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
-    end;
-
-    local procedure ShowLineComments()
-    begin
-        ShowLineComments();
     end;
 
     procedure NoOnAfterValidate()
@@ -1142,7 +1240,9 @@ page 96 "Sales Cr. Memo Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable();
-        InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable :=
+            CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1161,6 +1261,11 @@ page 96 "Sales Cr. Memo Subform"
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     procedure RedistributeTotalsOnAfterValidate()
     var
         SalesHeader: Record "Sales Header";
@@ -1175,6 +1280,11 @@ page 96 "Sales Cr. Memo Subform"
     local procedure GetTotalSalesHeader()
     begin
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
+    end;
+
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
     end;
 
     local procedure ValidateInvoiceDiscountAmount()
@@ -1220,14 +1330,16 @@ page 96 "Sales Cr. Memo Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
@@ -1259,8 +1371,25 @@ page 96 "Sales Cr. Memo Subform"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnItemReferenceNoOnLookup', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+#endif
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

@@ -146,7 +146,7 @@ page 868 "Cash Flow Forecast Statistics"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntriesFromSource("Source Type Filter"::"Sales Advance Letters"); // NAVCZ
+                        DrillDownSourceTypeEntries("Cash Flow Source Type"::"Sales Advance Letters"); // NAVCZ
                     end;
                 }
                 field(PurchaseAdvances; CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::"Purchase Advance Letters"))
@@ -160,7 +160,7 @@ page 868 "Cash Flow Forecast Statistics"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntriesFromSource("Source Type Filter"::"Purchase Advance Letters"); // NAVCZ
+                        DrillDownSourceTypeEntries("Cash Flow Source Type"::"Purchase Advance Letters"); // NAVCZ
                     end;
                 }
                 field(Job; CalcSourceTypeAmount(CashFlowForecastEntry."Source Type"::Job))

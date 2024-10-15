@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 page 403 "Purchase Order Statistics"
 {
     Caption = 'Purchase Order Statistics';
@@ -526,19 +526,13 @@ page 403 "Purchase Order Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.';
-        TotalPurchLine: array[3] of Record "Purchase Line";
-        TotalPurchLineLCY: array[3] of Record "Purchase Line";
         Vend: Record Vendor;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
         TempVATAmountLine3: Record "VAT Amount Line" temporary;
         TempVATAmountLine4: Record "VAT Amount Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
-        PurchPost: Codeunit "Purch.-Post";
         VATLinesForm: Page "VAT Amount Lines";
-        TotalAmount1: array[3] of Decimal;
-        TotalAmount2: array[3] of Decimal;
-        VATAmount: array[3] of Decimal;
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
         PrepmtTotalAmount2: Decimal;
@@ -558,6 +552,14 @@ page 403 "Purchase Order Statistics"
         Text008: Label 'Prepmt. Amt. Deducted';
         Text009: Label 'Prepmt. Amt. to Deduct';
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
+
+    protected var
+        TotalPurchLine: array[3] of Record "Purchase Line";
+        TotalPurchLineLCY: array[3] of Record "Purchase Line";
+        PurchPost: Codeunit "Purch.-Post";
+        TotalAmount1: array[3] of Decimal;
+        TotalAmount2: array[3] of Decimal;
+        VATAmount: array[3] of Decimal;
 
     local procedure RefreshOnAfterGetRecord()
     var
@@ -653,7 +655,7 @@ page 403 "Purchase Order Statistics"
         end else
             TotalAmount2[IndexNo] := TotalAmount1[IndexNo] + VATAmount[IndexNo];
 
-        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec);
+        OnUpdateHeaderInfoAfterCalcTotalAmount(Rec, IndexNo);
 
         if Rec."Prices Including VAT" then
             TotalPurchLineLCY[IndexNo].Amount := TotalAmount2[IndexNo]
@@ -868,7 +870,7 @@ page 403 "Purchase Order Statistics"
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 
@@ -888,7 +890,7 @@ page 403 "Purchase Order Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnUpdateHeaderInfoAfterCalcTotalAmount(var PurchaseHeader: Record "Purchase Header"; var IndexNo: Integer)
     begin
     end;
 }

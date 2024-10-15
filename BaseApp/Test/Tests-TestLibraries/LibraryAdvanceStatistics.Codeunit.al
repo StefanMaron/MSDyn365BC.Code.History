@@ -146,7 +146,7 @@ codeunit 143041 "Library - Advance Statistics"
     [Scope('OnPrem')]
     procedure SetPurchAdvLetter(var NewPurchAdvLetterHeader: Record "Purch. Advance Letter Header")
     begin
-        Initialize;
+        Initialize();
         PurchAdvLetterHeader := NewPurchAdvLetterHeader;
         OpenPurchAdvLetterStatistics;
     end;

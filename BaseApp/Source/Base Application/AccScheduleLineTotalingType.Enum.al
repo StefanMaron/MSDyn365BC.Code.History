@@ -36,6 +36,10 @@ enum 85 "Acc. Schedule Line Totaling Type"
     {
         Caption = 'Cash Flow Total Accounts';
     }
+    value(10; "Account Category")
+    {
+        Caption = 'Account Category';
+    }
     value(14; Custom)
     {
         Caption = 'Custom (Obsolete)';

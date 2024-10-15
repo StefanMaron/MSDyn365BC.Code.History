@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 31085 "Acc. Schedule Filter Lines"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 31085 "Acc. Schedule Filter Lines"
     DataCaptionFields = "Export Acc. Schedule Name";
     PageType = List;
     SourceTable = "Acc. Schedule Filter Line";
+    ObsoleteReason = 'The functionality will be removed and this page should not be used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -155,4 +159,4 @@ page 31085 "Acc. Schedule Filter Lines"
         exit(false);
     end;
 }
-
+#endif

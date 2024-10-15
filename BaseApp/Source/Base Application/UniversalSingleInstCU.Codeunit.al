@@ -13,7 +13,6 @@ codeunit 11792 "Universal Single Inst. CU"
     var
         IntrastatTemplate: Code[20];
         IntrastatBatch: Code[20];
-        CashDeskNo: Code[20];
 
     [Obsolete('This function is replaced by standard way of passing the recod to the called target object.', '18.0')]
     [Scope('OnPrem')]
@@ -33,22 +32,5 @@ codeunit 11792 "Universal Single Inst. CU"
         IntrastatTemplate := '';
         IntrastatBatch := '';
     end;
-#if not CLEAN17
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure setCashDeskNo(CashDeskNo2: Code[20])
-    begin
-        if (CashDeskNo2 <> CashDeskNo) and (CashDeskNo2 <> '') then
-            CashDeskNo := CashDeskNo2;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure getCashDeskNo(): Code[20]
-    begin
-        exit(CashDeskNo);
-    end;
-#endif
 }
 #endif

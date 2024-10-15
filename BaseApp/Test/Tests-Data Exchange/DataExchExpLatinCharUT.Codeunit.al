@@ -38,7 +38,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorPaymentLineWithNonLatinCharsPreserve(GenJournalLine);
@@ -63,7 +63,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         StringConversionManagement: Codeunit StringConversionManagement;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorPaymentLineWithNonLatinCharsDoNotPreserve(GenJournalLine);
@@ -91,7 +91,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         PmtExportMgtVendLedgEntry: Codeunit "Pmt Export Mgt Vend Ledg Entry";
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendLedgEntryPaymentWithNonLatinCharsPreserve(VendorLedgerEntry);
@@ -119,7 +119,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         StringConversionManagement: Codeunit StringConversionManagement;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendLedgEntryPaymentWithNonLatinCharsDoNotPreserve(VendorLedgerEntry);
@@ -149,7 +149,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         PmtExportMgtCustLedgEntry: Codeunit "Pmt Export Mgt Cust Ledg Entry";
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustLedgEntryPaymentWithNonLatinCharsPreserve(CustLedgerEntry);
@@ -177,7 +177,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         StringConversionManagement: Codeunit StringConversionManagement;
         LineNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustLedgEntryPaymentWithNonLatinCharsDoNotPreserve(CustLedgerEntry);
@@ -205,7 +205,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         PaymentExportData: Record "Payment Export Data";
         DataExch: Record "Data Exch.";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorPaymentLineWithNonLatinCharsPreserve(GenJournalLine);
@@ -216,7 +216,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Verify
         PaymentExportData.SetRange("Data Exch Entry No.", GenJournalLine."Data Exch. Entry No.");
-        PaymentExportData.FindFirst;
+        PaymentExportData.FindFirst();
         Assert.AreEqual(PaymentExportData."Document No.", GenJournalLine."Document No.",
           'The non-latin characters were not preserved');
     end;
@@ -230,7 +230,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
         DataExch: Record "Data Exch.";
         StringConversionManagement: Codeunit StringConversionManagement;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorPaymentLineWithNonLatinCharsDoNotPreserve(GenJournalLine);
@@ -241,7 +241,7 @@ codeunit 132557 "Data Exch. Exp. Latin Char UT"
 
         // Verify
         PaymentExportData.SetRange("Data Exch Entry No.", GenJournalLine."Data Exch. Entry No.");
-        PaymentExportData.FindFirst;
+        PaymentExportData.FindFirst();
         Assert.AreNotEqual(PaymentExportData."Document No.", GenJournalLine."Document No.",
           'The non-latin characters were not preserved');
         Assert.AreEqual(PaymentExportData."Document No.",

@@ -39,9 +39,6 @@ table 31122 "EET Cash Register"
         field(12; "Register No."; Code[20])
         {
             Caption = 'Register No.';
-#if not CLEAN17
-            TableRelation = IF ("Register Type" = CONST("Cash Desk")) "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-#endif
 #if not CLEAN18
 
             trigger OnValidate()
@@ -128,9 +125,8 @@ table 31122 "EET Cash Register"
         EETCashRegister.SetCurrentKey("Register Type", "Register No.");
         EETCashRegister.SetRange("Register Type", "Register Type");
         EETCashRegister.SetRange("Register No.", "Register No.");
-        if EETCashRegister.FindFirst then
+        if EETCashRegister.FindFirst() then
             Error(RegisterDuplicatedErr, "Register No.", EETCashRegister."Business Premises Code", EETCashRegister.Code);
     end;
 #endif    
 }
-

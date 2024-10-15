@@ -387,7 +387,7 @@ page 11775 "Apply General Ledger Entries"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
@@ -465,7 +465,7 @@ page 11775 "Apply General Ledger Entries"
             GLEntry.SetRange("Applies-to ID", GLApplID);
             GLEntry.SetRange(Closed, false);
             GLEntry.SetRange("Applying Entry", true);
-            if GLEntry.FindFirst then
+            if GLEntry.FindFirst() then
                 SetApplyingGLEntry(GLEntry."Entry No.");
         end;
         CalcApplnAmount;
@@ -528,7 +528,7 @@ page 11775 "Apply General Ledger Entries"
         GLEntry.Reset();
         GLEntry.Copy(Rec);
         GLEntry.SetRange("Applies-to ID", GLApplID);
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 ApplyingAmount := ApplyingAmount + GLEntry."Amount to Apply";
             until GLEntry.Next() = 0;

@@ -47,7 +47,7 @@ table 31061 "Intrastat Currency Exch. Rate"
         Reset;
         SetRange("Currency Code", CurrencyCode);
         SetRange("Starting Date", 0D, Date);
-        if FindLast then
+        if FindLast() then
             exit("Exchange Rate Amount");
         exit(1);
     end;
@@ -60,7 +60,7 @@ table 31061 "Intrastat Currency Exch. Rate"
         Reset;
         SetRange("Currency Code", Currencycode);
         SetRange("Starting Date", PeriodStartDate, Date1);
-        FindLast;
+        FindLast();
         exit("Exchange Rate Amount");
     end;
 }

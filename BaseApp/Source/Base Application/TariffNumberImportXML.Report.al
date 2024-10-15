@@ -135,7 +135,7 @@ report 31062 "Tariff Number Import (XML)"
                         if ("Supplem. Unit of Measure Code" <> '') and ("Supplem. Unit of Measure Code" <> Text_uomc) then begin
                             lreTariffNumber."Supplementary Units" := true;
                             lreTUOM.SetRange("Tariff Number UOM Code", "Supplem. Unit of Measure Code");
-                            if lreTUOM.FindFirst then
+                            if lreTUOM.FindFirst() then
                                 lreTariffNumber."Supplem. Unit of Measure Code" := lreTUOM.Code;
                         end;
                         lreTariffNumber.Insert(true);

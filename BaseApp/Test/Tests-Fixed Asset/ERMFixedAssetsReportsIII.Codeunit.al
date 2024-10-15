@@ -67,7 +67,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Check Fixed Asset Journal Test Report with Different Types of Warning Message.
 
         // Setup: Create FA Journal Line with Modification of Some fields.
-        Initialize;
+        Initialize();
         SelectFAJournalBatch(FAJournalBatch);
         LibraryFixedAsset.CreateFAJournalLine(FAJournalLine, FAJournalBatch."Journal Template Name", FAJournalBatch.Name);
         ModifyFAJournalLine(FAJournalLine);
@@ -76,7 +76,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Clear(FixedAssetJournalTest);
         FixedAssetJournalTest.SetTableView(FAJournalBatch);
         Commit();
-        FixedAssetJournalTest.Run;
+        FixedAssetJournalTest.Run();
 
         // Verify: Verify different warnings on Fixed Asset Journal Test Report.
         VerifyFAJournalTestReportWarning(FAJournalLine);
@@ -94,7 +94,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Check Insurance Journal Test Report with Different Types of Warning Message.
 
         // Setup: Create Insurance Journal Line with Modification of Some fields.
-        Initialize;
+        Initialize();
         SelectInsuranceJournalBatch(InsuranceJournalBatch);
         LibraryFixedAsset.CreateInsuranceJournalLine(
           InsuranceJournalLine, InsuranceJournalBatch."Journal Template Name", InsuranceJournalBatch.Name);
@@ -104,7 +104,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Clear(InsuranceJournalTest);
         InsuranceJournalTest.SetTableView(InsuranceJournalBatch);
         Commit();
-        InsuranceJournalTest.Run;
+        InsuranceJournalTest.Run();
 
         // Verify: Verify different warnings on Insurance Journal Test Report.
         VerifyInsuranceJournalTestReportWarning(InsuranceJournalLine);
@@ -123,7 +123,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Program populate value on Custom 1 and Custom 2 section on FA Book Value 02 Report after posting the FA G/L Journal.
 
         // 1. Setup: Create and Post FA GL Journal for Custom 1 and Custom 2.
-        Initialize;
+        Initialize();
         AcquisitionCost := CreateFixedAssetWithAcquisitionCost(FixedAsset);
         CreateGeneralJournalBatch(GenJournalBatch);
 
@@ -158,7 +158,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify amounts are displayed as per the Date Filter applied in the FA Posting Types Overview Matrix.
 
         // Setup: Create and Post FA GL Journal for Acquisition Cost.
-        Initialize;
+        Initialize();
         AcquisitionCost := CreateFixedAssetWithAcquisitionCost(FixedAsset);
 
         // Enqueue values for FAPostingTypesOvervMatrixPageHandler.
@@ -194,7 +194,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     local procedure FAAcquisitionListReportDateError(StartingDate: Date; EndingDate: Date; ExpectedError: Text[50])
     begin
         // Setup: Enqueue values for FixedAssetAcquisitionListHandler.
-        Initialize;
+        Initialize();
         EnqueueValuesForForFixedAssetReport('', StartingDate, EndingDate, false);  // '' for Fixed Asset No and FALSE for FixedAssetsAcquired.
 
         // Exercise.
@@ -214,7 +214,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Fixed Asset Acquisition List Report for Fixed Asset not yet Acquired.
 
         // Setup: Create Fixed Asset.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, true);  // TRUE for FixedAssetsAcquired.
         Commit();  // Commit required for running report.
@@ -237,7 +237,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Fixed Asset Acquisition List Report for Acquired Fixed Asset.
 
         // Setup: Create Fixed Asset with Acquisition.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, false);  // FALSE for FixedAssetsAcquired.
         Commit();  // Commit required for running report.
@@ -260,7 +260,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify error on 'Fixed Asset Posting Group Net Change' report for blank Starting date and ending date.
 
         // Setup:
-        Initialize;
+        Initialize();
         EnqueueValuesForForFixedAssetReport('', 0D, 0D, false);  // 0D for starting Date and Ending Date, '' for Fixed Asset No., FALSE for TotalPerGLAccount.
 
         // Exercise:
@@ -282,7 +282,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify 'Fixed Asset Posting Group Net Change' report for Acquired Fixed Asset.
 
         // Setup: Create Fixed Asset with Acquisition.
-        Initialize;
+        Initialize();
         AcquisitionCost := CreateFixedAssetWithAcquisitionCost(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, false);  // FALSE for FixedAssetsAcquired.
 
@@ -309,7 +309,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify 'Fixed Asset Posting Group Net Change' report for Acquired Fixed Asset with Totals as per G/L Account TRUE.
 
         // Setup: Create Fixed Asset and post its Acquisition and depreciation.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         EnqueueValuesForForFixedAssetReport(FixedAsset."No.", WorkDate, WorkDate, true);  // TRUE for FixedAssetsAcquired.
         CreateAndPostFAJournalLine(
@@ -337,7 +337,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify error on Fixed Asset List report for blank Depreciation Book Code.
 
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForFixedAssetListReport('', false, '');  // '' for Depreciation Book Code and Fixed Asset No., FALSE for New Page Per Asset.
 
         // Exercise.
@@ -358,7 +358,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Fixed Asset List report with New Page per Asset FALSE.
 
         // Setup: Create Fixed Asset, create FA Depreciation Book.
-        Initialize;
+        Initialize();
         CreateAndModifyFixedAsset(FixedAsset);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", LibraryFixedAsset.GetDefaultDeprBook);
         EnqueueValuesForFixedAssetListReport(FADepreciationBook."Depreciation Book Code", false, FixedAsset."No.");  // FALSE for New Page Per Asset.
@@ -384,7 +384,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Fixed Asset List report with New Page per Asset TRUE.
 
         // Setup: Create Fixed Asset, create FA Depreciation Book.
-        Initialize;
+        Initialize();
         CreateAndModifyFixedAsset(FixedAsset);
         CreateAndModifyFixedAsset(FixedAsset2);
         CreateFADepreciationBook(
@@ -414,7 +414,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify error on Maintenance Analysis report for blank Depreciation Book Code.
 
         // Setup:
-        Initialize;
+        Initialize();
         EnqueueValuesForMaintenanceAnalysisReport('', 0D, 0D, '');  // '' for Depreciation Book code, maintenance code, 0D for Starting Date and Ending date.
         Commit();  // Commit required for running report.
 
@@ -435,7 +435,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify error on Maintenance Analysis report for blank Starting Date.
 
         // Setup:
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         EnqueueValuesForMaintenanceAnalysisReport(DepreciationBook.Code, 0D, 0D, '');  // '' for Maintenance code.
         Commit();  // Commit required for running report.
@@ -461,13 +461,13 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Maintenance Analysis report for Fixed Asset after posting its Acquisition and Maintenance.
 
         // Setup:
-        Initialize;
+        Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         LibraryFixedAsset.CreateMaintenance(Maintenance);
         Amount := LibraryRandom.RandDec(100, 2);  // Take random Amount.
         CreateAndPostFAJournalLine(FixedAsset."No.", GenJournalLine."FA Posting Type"::Maintenance, Maintenance.Code, Amount);
         FADepreciationBook.SetRange("FA No.", FixedAsset."No.");
-        FADepreciationBook.FindFirst;
+        FADepreciationBook.FindFirst();
         EnqueueValuesForMaintenanceAnalysisReport(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate, Maintenance.Code);
         Commit();  // Commit required for running report.
 
@@ -493,7 +493,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Report Maintenance - Detail exclude Reversed entries.
 
         // Setup: Create and Post FA GL Journal for Acquisition Cost. Post Maintenance Entries. Reverse Maintenance Ledger Entries.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateMaintenance(Maintenance);
         AcquisitionCost := CreatePostMaintenanceEntryAndReverse(Maintenance.Code, false);
 
@@ -516,7 +516,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Report Maintenance - Detail include Reversed entries.
 
         // Setup: Create and Post FA GL Journal for Acquisition Cost. Post Maintenance Entries. Reverse Maintenance Ledger Entries.
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateMaintenance(Maintenance);
         AcquisitionCost := CreatePostMaintenanceEntryAndReverse(Maintenance.Code, true);
 
@@ -545,14 +545,14 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Document Entries Report for FA Ledger Entry.
 
         // Setup: Create Fixed Asset and post Acquisition Cost for It.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         FALedgerEntries.OpenView;
         FALedgerEntries.FILTER.SetFilter("FA No.", FixedAsset."No.");
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         CollectDocEntries(FALedgerEntry, TempDocumentEntry);
         DocumentEntries.TransferDocEntries(TempDocumentEntry);
         DocumentEntries.TransferFilters(FALedgerEntry."Document No.", Format(FALedgerEntry."Posting Date"));
@@ -562,7 +562,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryReportDataset.LoadDataSetFile;
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, FALedgerEntry.TableCaption, NoOfRecordsCap, FALedgerEntry.Count);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         VerifyDocumentEntries(FALedgEntryDocNoCap, FALedgerEntry."Document No.", FALedgEntryAmountCap, FALedgerEntry.Amount);
     end;
 
@@ -581,7 +581,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Document Entries Report for Maintenance Ledger Entry.
 
         // Setup: Create Fixed Asset and post Acquisition Cost and Maintenance Entry for It.
-        Initialize;
+        Initialize();
         CreateFixedAssetWithAcquisitionCost(FixedAsset);
         CreateAndPostFAJournalLine(
           FixedAsset."No.", GenJournalLine."FA Posting Type"::Maintenance, '', LibraryRandom.RandDec(100, 2));  // Take Random Amount.
@@ -590,7 +590,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
         MaintenanceLedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         CollectDocEntries(MaintenanceLedgerEntry, TempDocumentEntry);
         DocumentEntries.TransferDocEntries(TempDocumentEntry);
         DocumentEntries.TransferFilters(MaintenanceLedgerEntry."Document No.", Format(MaintenanceLedgerEntry."Posting Date"));
@@ -600,7 +600,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryReportDataset.LoadDataSetFile;
         MaintenanceLedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, MaintenanceLedgerEntry.TableCaption, NoOfRecordsCap, MaintenanceLedgerEntry.Count);
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         VerifyDocumentEntries(
           MaintLedgEntryDocNoCap, MaintenanceLedgerEntry."Document No.", MaintLedgEntryAmountCap, MaintenanceLedgerEntry.Amount);
     end;
@@ -621,7 +621,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // Verify Document Entries Report for Insurance Coverage Ledger Entry.
 
         // Setup: Create Fixed Asset and post Insurance for it.
-        Initialize;
+        Initialize();
         CreateAndModifyFixedAsset(FixedAsset);
         ModifyInsuranceJournalBatch(InsuranceJournalBatch);
         LibraryFixedAsset.CreateInsuranceJournalLine(
@@ -633,7 +633,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         // Exercise: Run Document Entries Report as if from NavigatePage.
         InsCoverageLedgerEntry.SetRange("FA No.", FixedAsset."No.");
-        InsCoverageLedgerEntry.FindFirst;
+        InsCoverageLedgerEntry.FindFirst();
         CollectDocEntries(InsCoverageLedgerEntry, TempDocumentEntry);
         DocumentEntries.TransferDocEntries(TempDocumentEntry);
         DocumentEntries.TransferFilters(InsCoverageLedgerEntry."Document No.", Format(InsCoverageLedgerEntry."Posting Date"));
@@ -643,7 +643,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryReportDataset.LoadDataSetFile;
         InsCoverageLedgerEntry.SetRange("FA No.", FixedAsset."No.");
         VerifyDocumentEntries(TableNameCap, InsCoverageLedgerEntry.TableCaption, NoOfRecordsCap, InsCoverageLedgerEntry.Count);
-        InsCoverageLedgerEntry.FindFirst;
+        InsCoverageLedgerEntry.FindFirst();
         VerifyDocumentEntries(
           InsCoverageLedgEntryDocNoCap, InsCoverageLedgerEntry."Document No.",
           InsCoverageLedgEntryAmountCap, InsCoverageLedgerEntry.Amount);
@@ -662,7 +662,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         // [FEATURE] [Fixed Asset - List]
         // [SCENARIO 275371] Global Dimensions on report "Fixed Asset - List" have correct captions
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Global Dimension 1 Caption = 'X', Global Dimension 2 Caption = 'Y'
         LibraryDimension.CreateDimension(Dimension);
@@ -699,7 +699,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     begin
         // [FEATURE] [Fixed Asset - List]
         // [SCENARIO 325988] "Fixed Asset - List" runs correctly with GeneralLedgerSetup."Global Dimension 2 Code" = ''
-        Initialize;
+        Initialize();
         // [GIVEN] GeneralLedgerSetup."Global Dimension 2 Code" = ''
         DimensionCode := LibraryERM.GetGlobalDimensionCode(2);
         LibraryERM.SetGlobalDimensionCode(2, '');
@@ -727,12 +727,12 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateLocalData();
 
         IsInitialized := true;
@@ -745,7 +745,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     begin
         GLAccount.SetRange("No.", GLAccountNo);
         GLAccount.SetFilter("Date Filter", '%1', WorkDate);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         GLAccount.CalcFields("Net Change");
         exit(GLAccount."Net Change");
     end;
@@ -941,7 +941,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         FAPostingGroup.Validate("Custom 1 Account", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Validate("Custom 2 Account", LibraryERM.CreateGLAccountNo);
         FAPostingGroup.Modify(true);
@@ -955,7 +955,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     begin
         MaintenanceLedgerEntry.SetRange("FA No.", FANo);
         MaintenanceLedgerEntry.SetRange("Maintenance Code", '');
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
     end;
@@ -970,7 +970,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         FixedAssetBookValue02.SetTableView(FixedAsset);
         FixedAssetBookValue02.SetMandatoryFields(LibraryFixedAsset.GetDefaultDeprBook, WorkDate, WorkDate);
         Commit();
-        FixedAssetBookValue02.Run;
+        FixedAssetBookValue02.Run();
     end;
 
     local procedure SelectFAJournalBatch(var FAJournalBatch: Record "FA Journal Batch")
@@ -991,7 +991,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     var
         InsuranceJournalLine: Record "Insurance Journal Line";
     begin
-        InsuranceJournalBatch.FindFirst;
+        InsuranceJournalBatch.FindFirst();
         InsuranceJournalLine.SetRange("Journal Template Name", InsuranceJournalBatch."Journal Template Name");
         InsuranceJournalLine.SetRange("Journal Batch Name", InsuranceJournalBatch.Name);
         InsuranceJournalLine.DeleteAll(true);

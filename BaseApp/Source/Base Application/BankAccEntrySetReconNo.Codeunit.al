@@ -15,6 +15,10 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         UninitializedLineCountTxt: Label 'Uninitialized line count.', Locked = true;
         UnexpectedLineNumberTxt: Label 'Unexpected line number.', Locked = true;
         CategoryTxt: Label 'Reconciliation', Locked = true;
+        BankAccountLedgerEntryInvalidStateErr: Label 'Cannot apply the statement line to bank account ledger entry %1 because its statement status is %2. Choose another bank account ledger entry.', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
+        CheckLedgerEntryInvalidStateErr: Label 'Cannot apply the statement line to check ledger entry %1 because its statement status is %2. Choose another check ledger entry.', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
+        BankAccountLedgerEntryInvalidStateQst: Label 'No statement lines have been applied to bank account ledger entry %1, but its statement status is %2. Do you want to apply the statement line to it?', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
+        CheckLedgerEntryInvalidStateQst: Label 'No statement lines have been applied to check ledger entry %1, but its statement status is %2. Do you want to apply the statement line to it?', Comment = '%1 - Ledger entry number; %2 - Statement status, option caption';
 
     procedure ApplyEntries(var BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var BankAccLedgEntry: Record "Bank Account Ledger Entry"; Relation: Option "One-to-One","One-to-Many","Many-to-One"): Boolean
     var
@@ -209,10 +213,18 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
     procedure SetReconNo(var BankAccLedgEntry: Record "Bank Account Ledger Entry"; var BankAccReconLine: Record "Bank Acc. Reconciliation Line")
     begin
         BankAccLedgEntry.TestField(Open, true);
-        BankAccLedgEntry.TestField("Statement Status", BankAccLedgEntry."Statement Status"::Open);
         BankAccLedgEntry.TestField("Statement No.", '');
         BankAccLedgEntry.TestField("Statement Line No.", 0);
         BankAccLedgEntry.TestField("Bank Account No.", BankAccReconLine."Bank Account No.");
+        if BankAccLedgEntry."Statement Status" = BankAccLedgEntry."Statement Status"::Closed then
+            Error(BankAccountLedgerEntryInvalidStateErr, BankAccLedgEntry."Entry No.", Format(BankAccLedgEntry."Statement Status"));
+        // this confirm is introduced because there can be ledger entries whose statement status is corrupt because of a bug with undo bank account statement
+        if BankAccLedgEntry."Statement Status" <> BankAccLedgEntry."Statement Status"::Open then begin
+            if not GuiAllowed then
+                Error(BankAccountLedgerEntryInvalidStateErr, BankAccLedgEntry."Entry No.", Format(BankAccLedgEntry."Statement Status"));
+            if not Confirm(StrSubstNo(BankAccountLedgerEntryInvalidStateQst, BankAccLedgEntry."Entry No.", Format(BankAccLedgEntry."Statement Status"))) then
+                Error('');
+        end;
         BankAccLedgEntry."Statement Status" :=
           BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied";
         BankAccLedgEntry."Statement No." := BankAccReconLine."Statement No.";
@@ -225,9 +237,17 @@ codeunit 375 "Bank Acc. Entry Set Recon.-No."
         CheckLedgEntry.SetRange(Open, true);
         if CheckLedgEntry.Find('-') then
             repeat
-                CheckLedgEntry.TestField("Statement Status", CheckLedgEntry."Statement Status"::Open);
                 CheckLedgEntry.TestField("Statement No.", '');
                 CheckLedgEntry.TestField("Statement Line No.", 0);
+                if CheckLedgEntry."Statement Status" = CheckLedgEntry."Statement Status"::Closed then
+                    Error(CheckLedgerEntryInvalidStateErr, CheckLedgEntry."Entry No.", Format(CheckLedgEntry."Statement Status"));
+                // this confirm is introduced because there can be ledger entries whose statement status is corrupt because of a bug with undo bank account statement
+                if CheckLedgEntry."Statement Status" <> CheckLedgEntry."Statement Status"::Open then begin
+                    if not GuiAllowed then
+                        Error(CheckLedgerEntryInvalidStateErr, CheckLedgEntry."Entry No.", Format(CheckLedgEntry."Statement Status"));
+                    if not Confirm(StrSubstNo(CheckLedgerEntryInvalidStateQst, CheckLedgEntry."Entry No.", Format(CheckLedgEntry."Statement Status"))) then
+                        Error('');
+                end;
                 CheckLedgEntry."Statement Status" :=
                   CheckLedgEntry."Statement Status"::"Bank Acc. Entry Applied";
                 CheckLedgEntry."Statement No." := '';

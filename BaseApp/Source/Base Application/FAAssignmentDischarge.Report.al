@@ -130,7 +130,7 @@ report 31039 "FA Assignment/Discharge"
                     ReportType := Text005Cap;
                     PrintDate := Format(Today, 0, 4);
                     if "FA History Entry".Type = "FA History Entry".Type::Location then begin
-                        if FALocation.FindLast then begin
+                        if FALocation.FindLast() then begin
                             Code := FALocation.Code;
                             FirstName := Text001Cap;
                             FirstName2 := FALocation.Name;
@@ -146,7 +146,7 @@ report 31039 "FA Assignment/Discharge"
                             end else
                                 CurrReport.Break();
                     end else begin
-                        if Employee.FindLast then begin
+                        if Employee.FindLast() then begin
                             Code := Employee."No.";
                             FirstName := Text002Cap;
                             FirstName2 := Employee."First Name";
@@ -284,7 +284,7 @@ report 31039 "FA Assignment/Discharge"
                 begin
                     ReportType := Text004Cap;
                     if "FA History Entry".Type = "FA History Entry".Type::Location then begin
-                        if FALocation.FindLast then begin
+                        if FALocation.FindLast() then begin
                             Code := FALocation.Code;
                             FirstName := Text001Cap;
                             FirstName2 := FALocation.Name;
@@ -292,7 +292,7 @@ report 31039 "FA Assignment/Discharge"
                             LastName2 := '';
                         end;
                     end else begin
-                        if Employee.FindLast then begin
+                        if Employee.FindLast() then begin
                             Code := Employee."No.";
                             FirstName := Text002Cap;
                             FirstName2 := Employee."First Name";
@@ -389,7 +389,7 @@ report 31039 "FA Assignment/Discharge"
     begin
         FixedAsset.Reset();
         FixedAsset.SetRange("No.", "FA History Entry"."FA No.");
-        if FixedAsset.FindLast then begin
+        if FixedAsset.FindLast() then begin
             Description := FixedAsset.Description;
             SerialNo := FixedAsset."Serial No.";
         end;

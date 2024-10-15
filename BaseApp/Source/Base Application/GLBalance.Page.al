@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 414 "G/L Balance"
 {
     Caption = 'G/L Balance';
@@ -142,16 +141,6 @@ page 414 "G/L Balance"
                     ToolTip = 'Specifies the net change in the account balance during the time period in the Date Filter field.';
                     Visible = false;
                 }
-                field("Net Change (VAT Date)"; "Net Change (VAT Date)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    BlankZero = true;
-                    ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
             }
         }
         area(factboxes)
@@ -283,9 +272,9 @@ page 414 "G/L Balance"
     begin
         NameIndent := 0;
         if DebitCreditTotals then
-            CalcFields("Net Change", "Debit Amount", "Credit Amount", "Net Change (VAT Date)") // NAVCZ
+            CalcFields("Net Change", "Debit Amount", "Credit Amount")
         else begin
-            CalcFields("Net Change", "Net Change (VAT Date)"); // NAVCZ
+            CalcFields("Net Change");
             if "Net Change" > 0 then begin
                 "Debit Amount" := "Net Change";
                 "Credit Amount" := 0
@@ -464,4 +453,4 @@ page 414 "G/L Balance"
         BalanceatDateAmountTypeOnPush;
     end;
 }
-#endif
+

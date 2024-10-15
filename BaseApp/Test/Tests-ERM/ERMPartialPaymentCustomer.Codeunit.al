@@ -32,7 +32,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Invoices and a Payment entry for a New Customer from General Journal Line and verify Remaining Amount
         // and Open status value.
-        Initialize;
+        Initialize();
         ApplyAmountToAllClose(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 1);
     end;
 
@@ -44,7 +44,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Credit Memos and a Refund entry for a New Customer from General Journal Line and Verify all customer
         // entries close.
-        Initialize;
+        Initialize();
         ApplyAmountToAllClose(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
@@ -81,7 +81,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Invoices and a Payment entry for a New Customer from General Journal Line and verify Remaining Amount
         // for all Customer entries.
-        Initialize;
+        Initialize();
         ApplyAmountToAllOpen(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 1);
     end;
 
@@ -93,7 +93,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Credit Memos and a Refund entry for a New Customer from General Journal Line verify Remaining Amount for
         // all Customer entries.
-        Initialize;
+        Initialize();
         ApplyAmountToAllOpen(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
@@ -138,7 +138,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Invoices and a Payment entry for a New Customer from General Journal Line and verify all Invoice open
         // and only Payment entry close.
-        Initialize;
+        Initialize();
         ApplyAmoutToPartialClose(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 1);
     end;
 
@@ -150,7 +150,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make multiple Credit Memos and a Refund entry for a New Customer from General Journal Line and Verify Refund entry close
         // and all Credit Memos Open.
-        Initialize;
+        Initialize();
         ApplyAmoutToPartialClose(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
@@ -189,7 +189,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make an Invoice and multiple Payments entry for a New Customer from General Journal Line and verify Payment line
         // Remaining Amount.
-        Initialize;
+        Initialize();
         ApplyAmoutToSameDocumentType(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 1);
     end;
 
@@ -201,7 +201,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Make a Credit Memo and multiple Refunds entry for half of Credit Memo value for a New Customer from General Journal Line
         // Verify Refund line Remaining Amount.
-        Initialize;
+        Initialize();
         ApplyAmoutToSameDocumentType(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
@@ -228,7 +228,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         DeltaAssert.Init();
         CalcRmngAmtForApplOnSameEntry(DeltaAssert, TempGenJournalLine);
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");  // Filter applying entry.
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
           DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
           CustLedgerEntry.Amount - (ApplAmount * AmountSign));
@@ -251,7 +251,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Apply Payment to Invoice and validate Amount to Apply field.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetAppliesIDOnCustomerEntry(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(1000, 2));
     end;
@@ -265,7 +265,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Apply Refund to Credit Memo and validate Amount to Apply field.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetAppliesIDOnCustomerEntry(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(1000, 2));
     end;
@@ -303,7 +303,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Application Amount must be equal to Payment Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         PmtAmount := LibraryRandom.RandDec(1000, 2);  // Use Random Number Generator to generate payment Amount.
         ChangeAmountToApply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, PmtAmount * 2, PmtAmount, PmtAmount);
@@ -321,7 +321,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Amount must be greater than Payment Amount and less than Invoice Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         InvAmount := 100 * LibraryRandom.RandInt(10);  // Use Random Number Generator to generate Invoice Amount.
         ChangeAmountToApply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, LibraryRandom.RandInt(50),
@@ -339,7 +339,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Use Random Number Generator for Invoice Amount and Application Amount must be less than Payment Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         InvAmount := LibraryRandom.RandDec(100, 2);  // Use Random Number Generator to generate Invoice Amount.
         ChangeAmountToApply(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvAmount, InvAmount, InvAmount - InvAmount / 2);
@@ -357,7 +357,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // than Credit Memo Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         RefundAmount := -LibraryRandom.RandDec(1000, 2);
         ChangeAmountToApply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, RefundAmount * 2, RefundAmount,
@@ -376,7 +376,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // must be greater than Refund Amount and less than Credit Memo Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreditMemoAmount := -100 * LibraryRandom.RandDec(10, 2);  // Use Random Number Generator to generate Credit Memo Amount.
         ChangeAmountToApply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, CreditMemoAmount,
@@ -394,7 +394,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Use Random Number Generator for Credit Memo Amount, Application Amount must be less than Refund Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreditMemoAmount := -(100 * LibraryRandom.RandDec(100, 2));  // Use Random Number Generator to generate Credit Memo Amount.
         ChangeAmountToApply(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, CreditMemoAmount, CreditMemoAmount,
@@ -432,7 +432,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Use Random Number Generator for Invoice Amount, Application Amount must be greater than Invoice Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(100, 2);
         LargeAmountApplicationError(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, InvoiceAmount, InvoiceAmount * 2);
@@ -449,7 +449,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Use Random Number Generator for Credit Memo Amount, Application Amount must be greater than Credit Memo Amount.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreditMemoAmount := LibraryRandom.RandDec(100, 2);
         LargeAmountApplicationError(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -CreditMemoAmount, -CreditMemoAmount * 2);
@@ -468,7 +468,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // To find Application Amount using Payment Tolerance % from General Ledger Setup fix the Seed value till 499.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         InvoiceAmount := LibraryRandom.RandDec(499, 2);
         UpdateGeneralLedgerSetup(1, 5);
         ApplyAmount := InvoiceAmount + InvoiceAmount * 1 / 100;
@@ -491,7 +491,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // To find Application Amount using Maximum Payment Tolerance Amount from General Ledger Setup fix the Seed value above 500.
 
         // Setup: Update General Ledger Setup.
-        Initialize;
+        Initialize();
         CreditMemoAmount := -500 * LibraryRandom.RandDec(100, 2);
         UpdateGeneralLedgerSetup(1, 5);
 
@@ -508,7 +508,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Apply Payment to Invoice and change Amount to Apply to negative Amount and validate Error Message.
-        Initialize;
+        Initialize();
         SameSignApplicationError(
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
@@ -520,7 +520,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Apply Refund to Credit Memo and change Amount to Apply to Positive Amount and validate Error Message.
-        Initialize;
+        Initialize();
         SameSignApplicationError(
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -LibraryRandom.RandDec(100, 2));
     end;
@@ -552,7 +552,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Apply Payment against the Invoices and show Only Applied Entries for Customer.
-        Initialize;
+        Initialize();
         SetApplyIdToDocument(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment, 1);
     end;
 
@@ -563,7 +563,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Apply Refund against the Credit Memo and Show Only Applied Entries for Customer.
-        Initialize;
+        Initialize();
         SetApplyIdToDocument(GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1);
     end;
 
@@ -599,7 +599,7 @@ codeunit 134002 "ERM Partial Payment Customer"
 
         // Setup: Set CreditWarnings to No Warning on Sales Receivable Setup.
         // Create and Post General Journal Line with Document Type as Invoice.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -623,7 +623,7 @@ codeunit 134002 "ERM Partial Payment Customer"
 
         // Setup: Set CreditWarnings to No Warning on Sales Receivable Setup.
         // Create and Post General Journal Line with Document Type as Credit Memo.
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -695,16 +695,16 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -759,7 +759,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.SetApplyCustomerEntry(ApplyingCustLedgerEntry, AmountToApply);
 
         // Find Posted Customer Ledger Entries.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         CustLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
         CustLedgerEntry.SetRange("Applying Entry", false);
         CustLedgerEntry.FindSet();
@@ -871,7 +871,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
               DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
               CustLedgerEntry.Amount + ApplAmount);
@@ -883,9 +883,9 @@ codeunit 134002 "ERM Partial Payment Customer"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // Watch Remaining Amount expected value should be change after Delta amount application.
-        TempGenJournalLine.FindFirst;
+        TempGenJournalLine.FindFirst();
         CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         DeltaAssert.AddWatch(
           DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"),
           CustLedgerEntry.Amount - ApplAmount * NoOfLines);
@@ -899,7 +899,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             DeltaAssert.AddWatch(
               DATABASE::"Cust. Ledger Entry", CustLedgerEntry.GetPosition, CustLedgerEntry.FieldNo("Remaining Amount"), 0);
         until TempGenJournalLine.Next = 1;
@@ -969,7 +969,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure LargeAmountApplicationError(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; AmountToApply: Decimal)
@@ -1029,7 +1029,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         TempGenJournalLine.FindSet();
         repeat
             CustLedgerEntry.SetRange("Document No.", TempGenJournalLine."Document No.");
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             CustLedgerEntry.TestField(Open, Open);
         until TempGenJournalLine.Next = 0;
     end;

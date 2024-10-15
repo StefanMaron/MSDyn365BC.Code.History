@@ -1,4 +1,3 @@
-#if not CLEAN17
 report 742 "VAT Report Request Page"
 {
     Caption = 'VAT Report Request Page';
@@ -23,7 +22,6 @@ report 742 "VAT Report Request Page"
                 VATStatement: Report "VAT Statement";
                 Base: Decimal;
                 Amount: Decimal;
-                SettlementNoFilter2: Text[50];
             begin
                 Copy(Rec);
 
@@ -39,13 +37,11 @@ report 742 "VAT Report Request Page"
                 VATStatementLine.FindSet();
 
                 VATStatement.InitializeRequest(
-                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency",
-                  SettlementNoFilter2); // NAVCZ
+                  VATStatementName, VATStatementLine, Selection, PeriodSelection, false, "Amounts in Add. Rep. Currency");
 
                 VATStatementReportLine.SetRange("VAT Report No.", "No.");
                 VATStatementReportLine.SetRange("VAT Report Config. Code", "VAT Report Config. Code");
                 VATStatementReportLine.DeleteAll();
-
                 repeat
                     VATStatement.CalcLineTotalWithBase(VATStatementLine, Amount, Base, 0);
                     if VATStatementLine."Print with" = VATStatementLine."Print with"::"Opposite Sign" then begin
@@ -165,16 +161,16 @@ report 742 "VAT Report Request Page"
             VATStatementName: Record "VAT Statement Name";
         begin
             CopyFilters("VAT Report Header");
-            FindFirst;
+            FindFirst();
 
             if VATStatementTemplate.Count = 1 then begin
-                VATStatementTemplate.FindFirst;
+                VATStatementTemplate.FindFirst();
                 "Statement Template Name" := VATStatementTemplate.Name;
                 Modify;
 
                 VATStatementName.SetRange("Statement Template Name", VATStatementTemplate.Name);
                 if VATStatementName.Count = 1 then begin
-                    VATStatementName.FindFirst;
+                    VATStatementName.FindFirst();
                     "Statement Name" := VATStatementName.Name;
                     Modify;
                 end;
@@ -200,4 +196,4 @@ report 742 "VAT Report Request Page"
     begin
     end;
 }
-#endif
+

@@ -112,17 +112,6 @@ Page 1 "Company Information"
                     Importance = Additional;
                     ToolTip = 'Specifies the company''s industrial classification code.';
                 }
-#if not CLEAN17
-                field("Primary Business Activity"; "Primary Business Activity")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the branche of primary business activity.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field(Picture; Picture)
                 {
                     ApplicationArea = Basic, Suite;
@@ -159,30 +148,62 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies your company''s web site.';
                 }
+#if not CLEAN20
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies your company''s intercompany partner code.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("IC Inbox Type"; "IC Inbox Type")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies what type of intercompany inbox you have, either File Location or Database.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("IC Inbox Details"; "IC Inbox Details")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies details about the location of your intercompany inbox, which can transfer intercompany transactions into your company.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("Auto. Send Transactions"; "Auto. Send Transactions")
                 {
                     ApplicationArea = Intercompany;
                     Importance = Additional;
                     ToolTip = 'Specifies that as soon as transactions arrive in the intercompany outbox, they will be sent to the intercompany partner.';
+                    ObsoleteReason = 'Replaced by the same field from "Intercompany Setup" page.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+                field(OpenNewICSetupPageTxt; OpenNewICSetupPageTxt)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ShowCaption = false;
+                    Style = StrongAccent;
+                    StyleExpr = true;
+                    ToolTip = 'Run new Intercompany Setup page.';
+                    ObsoleteReason = 'Temporary control';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+
+                    trigger OnDrillDown()
+                    begin
+                        CurrPage.Update(true);
+                        Page.Run(Page::"Intercompany Setup");
+                    end;
+                }
+#endif
             }
             group(Payments)
             {
@@ -192,17 +213,6 @@ Page 1 "Company Information"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you are allowed to create a sales invoice without filling the setup fields on this FastTab.';
                 }
-#if not CLEAN17
-                field("Default Bank Account Code"; "Default Bank Account Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default bank account code for payment.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Bank Name"; "Bank Name")
                 {
                     ApplicationArea = Basic, Suite;
@@ -220,17 +230,6 @@ Page 1 "Company Information"
                         SetShowMandatoryConditions
                     end;
                 }
-#if not CLEAN17
-                field("Branch Name"; "Branch Name")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the branch name of bank.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Bank Account No."; "Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -273,17 +272,6 @@ Page 1 "Company Information"
                         SetShowMandatoryConditions
                     end;
                 }
-#if not CLEAN17
-                field("Bank Account Format Check"; "Bank Account Format Check")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the bank account will be check.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field(BankAccountPostingGroup; BankAcctPostingGroup)
                 {
                     ApplicationArea = Basic, Suite;
@@ -448,98 +436,6 @@ Page 1 "Company Information"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of tax registration.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Registration Date"; "Registration Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration date of company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Equity Capital"; "Equity Capital")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of equity capital.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Paid Equity Capital"; "Paid Equity Capital")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the value of paid equity capital.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Company Type"; "Company Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the company type.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("General Manager No."; "General Manager No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of general manager.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Accounting Manager No."; "Accounting Manager No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of accounting manager.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Finance Manager No."; "Finance Manager No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of finance manager.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Tax Authority No."; "Tax Authority No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of tax authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Court Authority No."; "Court Authority No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the court authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
             group("User Experience")
             {
@@ -700,61 +596,21 @@ Page 1 "Company Information"
                     RunObject = Page "Permission Sets";
                     ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
                 }
-                action("SMTP Mail Setup")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'SMTP Mail Setup';
-                    Image = MailSetup;
-                    RunObject = Page "SMTP Mail Setup";
-                    ToolTip = 'Set up the integration and security of the mail server at your site that handles email.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with the ''Email Account Setup'' action';
-                    ObsoleteTag = '17.0';
-                    Visible = not IsEmailFeatureEnabled;
-                }
+#if not CLEAN20
                 action("Email Account Setup")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The action is not being used and will be removed';
+                    ObsoleteTag = '20.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Email Account Setup';
                     Image = MailSetup;
                     RunObject = page "Email Accounts";
                     ToolTip = 'Set up email accounts used in the product.';
-                    Visible = IsEmailFeatureEnabled;
-                }
-            }
-#if not CLEAN17
-            group("O&ther")
-            {
-                Caption = 'O&ther';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.5';
-                action(Officials)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Officials';
-                    Image = UserCertificate;
-                    RunObject = Page "Company Officials";
-                    ToolTip = 'Contains the list of officials whitch represent the company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
-                action("Document Footers")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Document Footers';
-                    Image = CreateDocuments;
-                    RunObject = Page "Document Footers";
-                    ToolTip = 'Allows the setup of document footers for printout.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-            }
 #endif
+            }
             group(Currencies)
             {
                 Caption = 'Currencies';
@@ -854,8 +710,6 @@ Page 1 "Company Information"
     end;
 
     trigger OnInit()
-    var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         SetShowMandatoryConditions;
     end;
@@ -863,17 +717,15 @@ Page 1 "Company Information"
     trigger OnOpenPage()
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        EmailFeature: Codeunit "Email Feature";
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
     begin
-        IsEmailFeatureEnabled := EmailFeature.IsEnabled();
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset;
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        CountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        CountyVisible := FormatAddress.UseCounty(Rec."Country/Region Code");
 
         ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(Experience);
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
@@ -885,7 +737,6 @@ Page 1 "Company Information"
         CalendarMgmt: Codeunit "Calendar Management";
         CompanyInformationMgt: Codeunit "Company Information Mgt.";
         FormatAddress: Codeunit "Format Address";
-        EnvironmentInfo: Codeunit "Environment Information";
         Experience: Text;
         SystemIndicatorText: Code[4];
         [InDataSet]
@@ -896,7 +747,9 @@ Page 1 "Company Information"
         CountyVisible: Boolean;
         SystemIndicatorChanged: Boolean;
         CompanyBadgeRefreshPageTxt: Label 'The Company Badge settings have changed. Refresh the browser (Ctrl+F5) to update the badge.';
-        IsEmailFeatureEnabled: Boolean;
+#if not CLEAN20
+        OpenNewICSetupPageTxt: Label 'Open new Intercompany Setup page';
+#endif
 
     local procedure UpdateSystemIndicator()
     var

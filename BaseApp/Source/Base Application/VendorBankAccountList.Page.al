@@ -93,11 +93,7 @@ page 426 "Vendor Bank Account List"
                     Visible = false;
                 }
 #if not CLEAN18
-#if CLEAN17
                 field("UncertPayerMgmt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; DummyBooleanValue)
-#else
-                field("UncertPayerMgmt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgmt.IsPublicBankAccount("Vendor No.", "Vendor VAT Registration No.", "Bank Account No.", IBAN))
-#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Public Bank Account';
@@ -107,13 +103,10 @@ page 426 "Vendor Bank Account List"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#if CLEAN17
                 field("Third Party Bank Account"; DummyBooleanValue)
-#else
-                field("Third Party Bank Account"; "Third Party Bank Account")
-#endif
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Third Party Bank Account';
                     ToolTip = 'Specifies if the account is third party bank account.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
@@ -150,11 +143,7 @@ page 426 "Vendor Bank Account List"
     end;
 
     var
-#if CLEAN17
         DummyBooleanValue: Boolean;
-#else
-        UncertPayerMgmt: Codeunit "Unc. Payer Mgt.";
-#endif
 }
 
 #endif

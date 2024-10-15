@@ -122,7 +122,7 @@ page 31017 "Linked Prepayments"
     [Scope('OnPrem')]
     procedure InsertCustEntries(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 "Entry No." := CustLedgEntry."Entry No.";
                 "CV No." := CustLedgEntry."Customer No.";
@@ -141,7 +141,7 @@ page 31017 "Linked Prepayments"
     [Scope('OnPrem')]
     procedure InsertVendEntries(var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 "Entry No." := VendLedgEntry."Entry No.";
                 "CV No." := VendLedgEntry."Vendor No.";
@@ -166,7 +166,7 @@ page 31017 "Linked Prepayments"
         AdvanceLink.SetRange("CV Ledger Entry No.", "Entry No.");
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         LinksToAdvanceLetter.SetTableView(AdvanceLink);
-        LinksToAdvanceLetter.RunModal;
+        LinksToAdvanceLetter.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -175,7 +175,7 @@ page 31017 "Linked Prepayments"
         NavigatePage: Page Navigate;
     begin
         NavigatePage.SetDoc("Posting Date", "Document No.");
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 }
 #endif

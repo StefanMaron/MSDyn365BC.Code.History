@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 320 "VAT Statement Names"
 {
     Caption = 'VAT Statement Names';
@@ -22,24 +21,6 @@ page 320 "VAT Statement Names"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT statement name.';
-                }
-                field(Control1220034; Comments)
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the number of comments for VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field(Control1220035; Attachments)
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the number of attachments for VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
             }
         }
@@ -71,7 +52,7 @@ page 320 "VAT Statement Names"
                 PromotedCategory = Process;
                 ToolTip = 'View or edit how to calculate your VAT settlement amount for a period.';
 
-                trigger Onaction()
+                trigger OnAction()
                 begin
                     VATStmtManagement.TemplateSelectionFromBatch(Rec);
                 end;
@@ -86,42 +67,10 @@ page 320 "VAT Statement Names"
                 PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
-                trigger Onaction()
+                trigger OnAction()
                 begin
                     ReportPrint.PrintVATStmtName(Rec);
                 end;
-            }
-            action(Comments)
-            {
-                ApplicationArea = VAT;
-                Caption = 'Comments';
-                Image = ViewComments;
-                Promoted = true;
-                PromotedCategory = Process;
-                RunObject = Page "VAT Statement Comment Sheet";
-                RunPageLink = "VAT Statement Template Name" = field("Statement Template Name"),
-                              "VAT Statement Name" = field(Name);
-                ToolTip = 'Specifies VAT statement comments.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-            }
-            action(Attachments)
-            {
-                ApplicationArea = VAT;
-                Caption = 'Attachments';
-                Image = Attachments;
-                Promoted = true;
-                PromotedCategory = Process;
-                RunObject = Page "VAT Statement Attachment Sheet";
-                RunPageLink = "VAT Statement Template Name" = field("Statement Template Name"),
-                              "VAT Statement Name" = field(Name);
-                ToolTip = 'Specifies VAT statement attachments.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
             }
         }
         area(reporting)
@@ -162,4 +111,4 @@ page 320 "VAT Statement Names"
                         exit(VATStmtTmpl.Name + ' ' + VATStmtTmpl.Description);
     end;
 }
-#endif
+

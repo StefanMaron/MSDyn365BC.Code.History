@@ -36,7 +36,7 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Payment Proposal UT 2");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
@@ -50,10 +50,10 @@ codeunit 134268 "Payment Proposal UT 2"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Payment Proposal UT 2");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
         Commit();
@@ -74,7 +74,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -116,7 +116,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -161,7 +161,7 @@ codeunit 134268 "Payment Proposal UT 2"
         I: Integer;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -221,7 +221,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -271,7 +271,7 @@ codeunit 134268 "Payment Proposal UT 2"
         I: Integer;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -302,7 +302,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference := 0;
         AppliedAmount := TotalAmount;
 
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
 
         // Excercise - Uncheck one by one
         for I := 1 to NoOfEntries do begin
@@ -339,7 +339,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -380,7 +380,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Amount: Decimal;
         AppliedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -410,7 +410,7 @@ codeunit 134268 "Payment Proposal UT 2"
         I: Integer;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -476,7 +476,7 @@ codeunit 134268 "Payment Proposal UT 2"
         I: Integer;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -511,7 +511,7 @@ codeunit 134268 "Payment Proposal UT 2"
         end;
 
         // Excercise and verify multiple applications
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
             NewAppliedAmount := Round(TempPaymentApplicationProposal."Applied Amount" / 2, LibraryERM.GetAmountRoundingPrecision);
             Difference += TempPaymentApplicationProposal."Applied Amount" - NewAppliedAmount;
@@ -548,7 +548,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -600,7 +600,7 @@ codeunit 134268 "Payment Proposal UT 2"
         I: Integer;
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         NoOfEntries := 3;
         TotalAmount := 0;
@@ -635,7 +635,7 @@ codeunit 134268 "Payment Proposal UT 2"
         end;
 
         // Excercise and verify multiple applications
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
         for I := 1 to NoOfEntries do begin
             Difference += TempPaymentApplicationProposal."Applied Amount";
             AppliedAmount -= TempPaymentApplicationProposal."Applied Amount";
@@ -672,7 +672,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -725,7 +725,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -777,7 +777,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountAmount: Decimal;
         NewDiscountDueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -829,7 +829,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -893,7 +893,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -955,7 +955,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1017,7 +1017,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1078,7 +1078,7 @@ codeunit 134268 "Payment Proposal UT 2"
         NewDiscountDueDate: Date;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1138,7 +1138,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1332,7 +1332,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1381,7 +1381,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1432,7 +1432,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1482,7 +1482,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1538,7 +1538,7 @@ codeunit 134268 "Payment Proposal UT 2"
         FirstLineAmount: Decimal;
         SecondLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
 
@@ -1580,7 +1580,7 @@ codeunit 134268 "Payment Proposal UT 2"
         FirstLineAmount: Decimal;
         SecondLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1617,7 +1617,7 @@ codeunit 134268 "Payment Proposal UT 2"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1644,7 +1644,7 @@ codeunit 134268 "Payment Proposal UT 2"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
@@ -1676,7 +1676,7 @@ codeunit 134268 "Payment Proposal UT 2"
         PaymentDiscDueDate: Date;
         NewPaymentDiscToleranceDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
@@ -1721,7 +1721,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Difference: Decimal;
         NoOfEntries: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1753,7 +1753,7 @@ codeunit 134268 "Payment Proposal UT 2"
 
     local procedure CreateVLEAndBankRecLine(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; var AppliedAmount: Decimal; var Amount: Decimal)
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := -LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1850,7 +1850,7 @@ codeunit 134268 "Payment Proposal UT 2"
         TempPaymentApplicationProposal.SetFilter("Account Type", '<>%1',
           TempPaymentApplicationProposal."Account Type"::"G/L Account");
         // NAVCZ
-        TempPaymentApplicationProposal.FindFirst;
+        TempPaymentApplicationProposal.FindFirst();
     end;
 
     local procedure CreateBankReconciliationLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Amount: Decimal; TransactionText: Text[140]; AdditionalTransactionInfo: Text[100])
@@ -1906,7 +1906,7 @@ codeunit 134268 "Payment Proposal UT 2"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount");
     end;
 

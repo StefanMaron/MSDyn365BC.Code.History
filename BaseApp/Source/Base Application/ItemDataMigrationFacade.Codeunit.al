@@ -1,4 +1,4 @@
-#if not CLEAN18
+#if not CLEAN20
 codeunit 6113 "Item Data Migration Facade"
 {
     TableNo = "Data Migration Parameters";
@@ -118,7 +118,7 @@ codeunit 6113 "Item Data Migration Facade"
         SalesLineDiscount.SetRange(Code, CodeToSet);
         SalesLineDiscount.SetRange("Line Discount %", LineDiscountPercentToSet);
 
-        if SalesLineDiscount.FindFirst then
+        if SalesLineDiscount.FindFirst() then
             exit(false);
 
         SalesLineDiscount.Init();
@@ -300,6 +300,8 @@ codeunit 6113 "Item Data Migration Facade"
         PriceListLine.Insert(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Use CreateTariffNumberIfNeeded(NoToSet: Code[20]; DescriptionToSet: Text[50]; SupplementaryUnitToSet: Boolean): Boolean instead.','20.0')]
     procedure CreateTariffNumberIfNeeded(NoToSet: Code[20]; DescriptionToSet: Text[50]): Boolean
     var
         TariffNumber: Record "Tariff Number";
@@ -310,6 +312,22 @@ codeunit 6113 "Item Data Migration Facade"
         TariffNumber.Init();
         TariffNumber.Validate("No.", NoToSet);
         TariffNumber.Validate(Description, DescriptionToSet);
+        TariffNumber.Insert(true);
+        exit(true);
+    end;
+#endif
+
+    procedure CreateTariffNumberIfNeeded(NoToSet: Code[20]; DescriptionToSet: Text[50]; SupplementaryUnitToSet: Boolean): Boolean
+    var
+        TariffNumber: Record "Tariff Number";
+    begin
+        if TariffNumber.Get(NoToSet) then
+            exit(false);
+
+        TariffNumber.Init();
+        TariffNumber.Validate("No.", NoToSet);
+        TariffNumber.Validate(Description, DescriptionToSet);
+        TariffNumber.Validate("Supplementary Units", SupplementaryUnitToSet);
         TariffNumber.Insert(true);
         exit(true);
     end;
@@ -398,7 +416,7 @@ codeunit 6113 "Item Data Migration Facade"
         ItemJournalBatch.SetRange(Name, ItemJournalBatchCode);
         ItemJournalBatch.SetRange("No. Series", NoSeriesCode);
         ItemJournalBatch.SetRange("Posting No. Series", PostingNoSeriesCode);
-        if not ItemJournalBatch.FindFirst then begin
+        if not ItemJournalBatch.FindFirst() then begin
             ItemJournalBatch.Init();
             ItemJournalBatch.Validate("Journal Template Name", TemplateName);
             ItemJournalBatch.SetupNewBatch;
@@ -416,7 +434,7 @@ codeunit 6113 "Item Data Migration Facade"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        if not ItemJournalTemplate.FindFirst then begin
+        if not ItemJournalTemplate.FindFirst() then begin
             ItemJournalTemplate.Init();
             ItemJournalTemplate.Validate(Name, ItemJournalBatchCode);
             ItemJournalTemplate.Validate(Type, ItemJournalTemplate.Type::Item);
@@ -437,7 +455,7 @@ codeunit 6113 "Item Data Migration Facade"
 
         ItemJournalLineCurrent.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLineCurrent.SetRange("Journal Batch Name", ItemJournalBatch.Name);
-        if ItemJournalLineCurrent.FindLast then
+        if ItemJournalLineCurrent.FindLast() then
             LineNum := ItemJournalLineCurrent."Line No." + 10000
         else
             LineNum := 10000;
@@ -535,7 +553,7 @@ codeunit 6113 "Item Data Migration Facade"
             Error(InternalItemNotSetErr);
 
         BOMComponent.SetRange("Parent Item No.", GlobalItem."No.");
-        if BOMComponent.FindLast then
+        if BOMComponent.FindLast() then
             LineNo := BOMComponent."Line No." + 1000
         else
             LineNo := 1000;

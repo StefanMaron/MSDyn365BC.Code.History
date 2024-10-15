@@ -1,4 +1,3 @@
-#if not CLEAN17
 codeunit 5882 "Phys. Invt. Order-Reopen"
 {
     TableNo = "Phys. Invt. Order Header";
@@ -53,7 +52,6 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
                         PhysInvtOrderLine."Neg. Qty. (Base)" := 0;
                         PhysInvtOrderLine."Quantity (Base)" := 0;
                         PhysInvtOrderLine."Entry Type" := PhysInvtOrderLine."Entry Type"::" ";
-                        PhysInvtOrderLine.Validate("Whse. Net Change Template", ''); // NAVCZ
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
                         PhysInvtOrderLine.Modify();
                     end;
@@ -79,4 +77,4 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
     begin
     end;
 }
-#endif
+

@@ -37,7 +37,7 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time.
-        Initialize;
+        Initialize();
         Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(5)) + 'D>');
         CreateBaseCalendar(BaseCalendar);
         LibraryInventory.CreateBaseCalendarChange(
@@ -66,7 +66,7 @@ codeunit 137050 "SCM Sales Order Management"
         Shippingtime: DateFormula;
     begin
         // Setup: Create Shipping agent services with random shipping time and Create Sales Header and Calculate Dates.
-        Initialize;
+        Initialize();
         Evaluate(Shippingtime, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         CreateItem(Item);
         CreateShippingAgentWithService(ShippingAgentServices, Shippingtime, '');
@@ -95,7 +95,7 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time and Create Sales Header and calculate dates.
-        Initialize;
+        Initialize();
         Evaluate(ShippingTime, '<0D>');
         CreateItem(Item);
         CreateBaseCalendar(BaseCalendar);
@@ -127,7 +127,7 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time and Calculate Dates.
-        Initialize;
+        Initialize();
         Evaluate(ShippingTime, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
         CreateBaseCalendar(BaseCalendar);
         CreateShippingAgentWithService(ShippingAgentServices, ShippingTime, BaseCalendar.Code);
@@ -161,7 +161,7 @@ codeunit 137050 "SCM Sales Order Management"
         ShippingTime: DateFormula;
     begin
         // Setup: Create Shipping agent and its services. Take random shipping time.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateBaseCalendar(BaseCalendar);
         LibraryInventory.CreateBaseCalendarChange(
@@ -201,7 +201,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [SCENARIO 361950] Shipment Date in Sales order is calculated as "Planned Shipment Date" - "Outbound Whse. Shipping Time" with Location calendar, but not with Shipping Agent's one.
 
         // [GIVEN] Create Shipping Agent Service with custom calendar, 1 working day a week.
-        Initialize;
+        Initialize();
         Evaluate(Shippingtime, '<0D>');  // Evaluating Shipping Time to Blank.
         CreateItem(Item);
 
@@ -239,7 +239,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [FEATURE] [Sales Order] [Item Charge]
         // [SCENARIO 231399] Suggesting item charge assignment must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new Item and random stock of it, then post sale of the item
         SalesShpmtNo := CreateItemStockAndSalesShipment(Customer, Item);
@@ -269,7 +269,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [FEATURE] [Sales Order] [Item Charge]
         // [SCENARIO 231399] Creating item charge assignment by Get Shipment Lines action must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Sales Order with single line of "Charge (Item)" type
         LibrarySales.CreateCustomer(Customer);
@@ -299,7 +299,7 @@ codeunit 137050 "SCM Sales Order Management"
         // [FEATURE] [Sales Order] [Item Charge]
         // [SCENARIO 231399] Filling in Qty. to Assign field in existing item charge assignment must lead to "Qty. to Invoice must have a value." error when Qty to Invoice is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new Item and random stock of it, then post sale of the item
         SalesShpmtNo := CreateItemStockAndSalesShipment(Customer, Item);
@@ -332,7 +332,7 @@ codeunit 137050 "SCM Sales Order Management"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 292658] Sales Line Planned Shipment Date is not affected by Customer Calendar
-        Initialize;
+        Initialize();
 
         Evaluate(ShippingTime, '<1D>');
 
@@ -377,7 +377,7 @@ codeunit 137050 "SCM Sales Order Management"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 292658] Sales Line Planned Shipment Date uses Location Calendar
-        Initialize;
+        Initialize();
 
         Evaluate(ShippingTime, '<1D>');
 
@@ -424,7 +424,7 @@ codeunit 137050 "SCM Sales Order Management"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 292658] When calculating Sales Line Planned Shipment Date use only Agent's calendar for Shipping Time.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Shipping Agent with Base Calendar where 17-01-2020 in non-working and Shipping Time 2D
         LibraryService.CreateBaseCalendar(BaseCalendar[2]);
@@ -467,7 +467,7 @@ codeunit 137050 "SCM Sales Order Management"
         ErrorMessagesPage: TestPage "Error Messages";
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         BindSubscription(SCMSalesOrderManagement);
 
         // [GIVEN] Customer with Base Calendar, using Shipping Agent
@@ -498,8 +498,8 @@ codeunit 137050 "SCM Sales Order Management"
         if IsInitialised then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Sales Order Management");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialised := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Sales Order Management");
@@ -544,7 +544,7 @@ codeunit 137050 "SCM Sales Order Management"
         CreateItemChargeSalesOrder(SalesLine, CustomerNo, Quantity);
 
         SalesShipmentLine.SetRange("Document No.", SalesShpmtNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         CreateItemChargeAssignmentSales(ItemChargeAssignmentSales, SalesLine, SalesShpmtNo, SalesShipmentLine."Line No.", ItemNo, 1);
     end;
 

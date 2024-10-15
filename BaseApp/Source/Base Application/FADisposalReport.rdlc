@@ -440,31 +440,6 @@
                                 <VerticalAlign>Middle</VerticalAlign>
                               </Style>
                             </Textbox>
-                            <Textbox Name="CompanyInfo__Tax_Registration_No__Caption2">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!CompanyInfo__Tax_Registration_No__Caption.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style />
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>1.99254in</Top>
-                              <Left>4.09924in</Left>
-                              <Height>0.16654in</Height>
-                              <Width>1.32696in</Width>
-                              <ZIndex>16</ZIndex>
-                              <Style>
-                                <Border />
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
                             <Textbox Name="ReceiptNoCaption">
                               <KeepTogether>true</KeepTogether>
                               <Paragraphs>
@@ -484,7 +459,7 @@
                               <Left>4.09924in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.32696in</Width>
-                              <ZIndex>17</ZIndex>
+                              <ZIndex>16</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -509,7 +484,7 @@
                               <Left>4.09924in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.32696in</Width>
-                              <ZIndex>18</ZIndex>
+                              <ZIndex>17</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -534,7 +509,7 @@
                               <Left>4.09924in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.32696in</Width>
-                              <ZIndex>19</ZIndex>
+                              <ZIndex>18</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -559,7 +534,7 @@
                               <Left>4.09924in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.32696in</Width>
-                              <ZIndex>20</ZIndex>
+                              <ZIndex>19</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -584,7 +559,7 @@
                               <Left>4.09924in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.32696in</Width>
-                              <ZIndex>21</ZIndex>
+                              <ZIndex>20</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -609,7 +584,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>22</ZIndex>
+                              <ZIndex>21</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -634,7 +609,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>23</ZIndex>
+                              <ZIndex>22</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -659,7 +634,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>24</ZIndex>
+                              <ZIndex>23</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -684,32 +659,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>25</ZIndex>
-                              <Style>
-                                <Border />
-                                <VerticalAlign>Middle</VerticalAlign>
-                              </Style>
-                            </Textbox>
-                            <Textbox Name="CompanyInfo__Tax_Registration_No__2">
-                              <KeepTogether>true</KeepTogether>
-                              <Paragraphs>
-                                <Paragraph>
-                                  <TextRuns>
-                                    <TextRun>
-                                      <Value>=Fields!CompanyInfo__Tax_Registration_No__.Value</Value>
-                                      <Style>
-                                        <FontSize>9pt</FontSize>
-                                      </Style>
-                                    </TextRun>
-                                  </TextRuns>
-                                  <Style />
-                                </Paragraph>
-                              </Paragraphs>
-                              <Top>1.99254in</Top>
-                              <Left>5.49564in</Left>
-                              <Height>0.16654in</Height>
-                              <Width>1.59097in</Width>
-                              <ZIndex>26</ZIndex>
+                              <ZIndex>24</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -736,7 +686,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>27</ZIndex>
+                              <ZIndex>25</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -764,7 +714,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>28</ZIndex>
+                              <ZIndex>26</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -791,7 +741,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>29</ZIndex>
+                              <ZIndex>27</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -818,7 +768,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>30</ZIndex>
+                              <ZIndex>28</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -845,7 +795,7 @@
                               <Left>5.49564in</Left>
                               <Height>0.16654in</Height>
                               <Width>1.59097in</Width>
-                              <ZIndex>31</ZIndex>
+                              <ZIndex>29</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -869,7 +819,7 @@
                               <Top>2.34746in</Top>
                               <Height>0.16654in</Height>
                               <Width>1.1811in</Width>
-                              <ZIndex>32</ZIndex>
+                              <ZIndex>30</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -896,7 +846,7 @@
                               <Left>1.25055in</Left>
                               <Height>0.16654in</Height>
                               <Width>2.2158in</Width>
-                              <ZIndex>33</ZIndex>
+                              <ZIndex>31</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -920,7 +870,7 @@
                               <Top>2.514in</Top>
                               <Height>0.16654in</Height>
                               <Width>1.1811in</Width>
-                              <ZIndex>34</ZIndex>
+                              <ZIndex>32</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -947,7 +897,7 @@
                               <Left>1.25055in</Left>
                               <Height>0.16654in</Height>
                               <Width>2.2158in</Width>
-                              <ZIndex>35</ZIndex>
+                              <ZIndex>33</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -971,7 +921,7 @@
                               <Top>2.68054in</Top>
                               <Height>0.16654in</Height>
                               <Width>1.1811in</Width>
-                              <ZIndex>36</ZIndex>
+                              <ZIndex>34</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -998,7 +948,7 @@
                               <Left>1.25055in</Left>
                               <Height>0.16654in</Height>
                               <Width>2.2158in</Width>
-                              <ZIndex>37</ZIndex>
+                              <ZIndex>35</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -1022,7 +972,7 @@
                               <Top>2.84708in</Top>
                               <Height>0.16654in</Height>
                               <Width>1.1811in</Width>
-                              <ZIndex>38</ZIndex>
+                              <ZIndex>36</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -1049,7 +999,7 @@
                               <Left>1.25055in</Left>
                               <Height>0.16654in</Height>
                               <Width>2.2158in</Width>
-                              <ZIndex>39</ZIndex>
+                              <ZIndex>37</ZIndex>
                               <Style>
                                 <Border />
                                 <VerticalAlign>Middle</VerticalAlign>
@@ -1878,7 +1828,7 @@
                               <Top>8.70105cm</Top>
                               <Height>11.35298cm</Height>
                               <Width>18cm</Width>
-                              <ZIndex>40</ZIndex>
+                              <ZIndex>38</ZIndex>
                               <Visibility>
                                 <Hidden>=Fields!FA_Depreciation_Book_Depreciation_Book_Code.Value = ""</Hidden>
                               </Visibility>
@@ -2056,9 +2006,6 @@ End Function
         <Field Name="CompanyInfo__Registration_No__">
           <DataField>CompanyInfo__Registration_No__</DataField>
         </Field>
-        <Field Name="CompanyInfo__Tax_Registration_No__">
-          <DataField>CompanyInfo__Tax_Registration_No__</DataField>
-        </Field>
         <Field Name="Employee_FullNameCaption">
           <DataField>Employee_FullNameCaption</DataField>
         </Field>
@@ -2106,9 +2053,6 @@ End Function
         </Field>
         <Field Name="CompanyInfo__Registration_No__Caption">
           <DataField>CompanyInfo__Registration_No__Caption</DataField>
-        </Field>
-        <Field Name="CompanyInfo__Tax_Registration_No__Caption">
-          <DataField>CompanyInfo__Tax_Registration_No__Caption</DataField>
         </Field>
         <Field Name="FA_Depreciation_Book__Book_Value_on_Disposal_">
           <DataField>FA_Depreciation_Book__Book_Value_on_Disposal_</DataField>

@@ -296,9 +296,7 @@ page 9308 "Purchase Invoices"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action("Co&mments")
@@ -350,9 +348,9 @@ page 9308 "Purchase Invoices"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(Vendor)
@@ -519,7 +517,7 @@ page 9308 "Purchase Invoices"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
 
                     trigger OnAction()
                     begin
@@ -639,8 +637,7 @@ page 9308 "Purchase Invoices"
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -660,11 +657,11 @@ page 9308 "Purchase Invoices"
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", "No.");
         PurchInvHeader.SetRange("Order No.", '');
-        if PurchInvHeader.FindFirst then
+        if PurchInvHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseInvQst, PurchInvHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Invoices");
     end;
 
     procedure VerifyTotal(PurchaseHeader: Record "Purchase Header")
@@ -676,7 +673,7 @@ page 9308 "Purchase Invoices"
     [IntegrationEvent(true, false)]
     local procedure OnPostBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 
 #endif

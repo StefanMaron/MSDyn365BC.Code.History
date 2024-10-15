@@ -269,7 +269,7 @@ page 31055 "Cust. Ledg. Entries Subform"
                 begin
                     CustLedgEntry2 := Rec;
                     CurrPage.SetSelectionFilter(CustLedgEntry);
-                    if CustLedgEntry.FindSet then
+                    if CustLedgEntry.FindSet() then
                         repeat
                             Rec := CustLedgEntry;
                             Mark := not Mark;
@@ -299,7 +299,7 @@ page 31055 "Cust. Ledg. Entries Subform"
         Clear(ValueBalance);
         CustLedgEntry.Copy(Rec);
         CustLedgEntry.MarkedOnly(true);
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 ValueBalance += CustLedgEntry."Remaining Amt. (LCY)";

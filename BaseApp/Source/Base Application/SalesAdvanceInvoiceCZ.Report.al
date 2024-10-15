@@ -123,21 +123,12 @@ report 31001 "Sales - Advance Invoice CZ"
             column(VATRegistrationNo_SalesInvoiceHeader; "VAT Registration No.")
             {
             }
-#if CLEAN17
             column(RegistrationNo_SalesInvoiceHeaderCaption; FieldCaptionDictionary.Get(RegistrationNoFldTok))
             {
             }
             column(RegistrationNo_SalesInvoiceHeader; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#else
-            column(RegistrationNo_SalesInvoiceHeaderCaption; FieldCaption("Registration No."))
-            {
-            }
-            column(RegistrationNo_SalesInvoiceHeader; "Registration No.")
-            {
-            }
-#endif
 #if CLEAN18
             column(BankAccountNo_SalesInvoiceHeaderCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
@@ -183,21 +174,12 @@ report 31001 "Sales - Advance Invoice CZ"
             column(DocumentDate_SalesInvoiceHeader; "Document Date")
             {
             }
-#if CLEAN17
             column(VATDate_SalesInvoiceHeaderCaption; FieldCaptionDictionary.Get(VATDateFldTok))
             {
             }
             column(VATDate_SalesInvoiceHeader; FieldValueDictionary.Get(VATDateFldTok))
             {
             }
-#else
-            column(VATDate_SalesInvoiceHeaderCaption; FieldCaption("VAT Date"))
-            {
-            }
-            column(VATDate_SalesInvoiceHeader; "VAT Date")
-            {
-            }
-#endif
             column(PaymentTerms; PaymentTerms.Description)
             {
             }
@@ -430,15 +412,7 @@ report 31001 "Sales - Advance Invoice CZ"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-#if CLEAN17
-                DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
-#else
-                DocFooter.SetFilter("Language Code", '%1|%2', '', "Language Code");
-                if DocFooter.FindLast then
-                    DocFooterText := DocFooter."Footer Text"
-                else
-                    DocFooterText := '';
-#endif
+                DocFooterText := FormatDocument.GetDocumentFooterTextByLanguage("Language Code");
 
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
@@ -463,10 +437,8 @@ report 31001 "Sales - Advance Invoice CZ"
                     PaymentMethod.Init
                 else
                     PaymentMethod.Get("Payment Method Code");
-#if CLEAN17
                 EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
                 ExtensionFieldsManagement.GetRecordExtensionFields("Sales Invoice Header".RecordId, FieldValueDictionary, FieldCaptionDictionary);
-#endif
             end;
         }
     }
@@ -506,21 +478,16 @@ report 31001 "Sales - Advance Invoice CZ"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN17
-        DocFooter: Record "Document Footer";
-#endif
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-#if CLEAN17
         FormatDocument: Codeunit "Format Document";
         ExtensionFieldsManagement: Codeunit "Extension Fields Management";
         FieldValueDictionary: Dictionary of [Text[30], Text];
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#endif
 #if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
@@ -560,7 +527,6 @@ report 31001 "Sales - Advance Invoice CZ"
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
-#if CLEAN17
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
@@ -574,6 +540,5 @@ report 31001 "Sales - Advance Invoice CZ"
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;
-#endif
 }
 #endif

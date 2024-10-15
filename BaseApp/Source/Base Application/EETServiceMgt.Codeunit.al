@@ -59,7 +59,7 @@ codeunit 31120 "EET Service Mgt."
         ResponseContentXmlDoc: DotNet XmlDocument;
         ResponseXmlDoc: DotNet XmlDocument;
     begin
-        Initialize;
+        Initialize();
 
         LoadValidCertificate(EETEntry.GetCertificateCode, DotNetX509Certificate2);
         if not CheckEETEntry(EETEntry, DotNetX509Certificate2) then
@@ -580,7 +580,7 @@ codeunit 31120 "EET Service Mgt."
             exit(GetLastErrorText);
 
         TempErrorMessage.Reset();
-        TempErrorMessage.FindFirst;
+        TempErrorMessage.FindFirst();
         exit(TempErrorMessage.Description);
     end;
 

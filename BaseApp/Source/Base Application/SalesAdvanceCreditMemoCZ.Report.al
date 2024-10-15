@@ -123,21 +123,12 @@ report 31002 "Sales - Advance Credit Memo CZ"
             column(VATRegistrationNo_SalesCrMemoHeader; "VAT Registration No.")
             {
             }
-#if CLEAN17
             column(RegistrationNo_SalesCrMemoHeaderCaption; FieldCaptionDictionary.Get(RegistrationNoFldTok))
             {
             }
             column(RegistrationNo_SalesCrMemoHeader; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#else
-            column(RegistrationNo_SalesCrMemoHeaderCaption; FieldCaption("Registration No."))
-            {
-            }
-            column(RegistrationNo_SalesCrMemoHeader; "Registration No.")
-            {
-            }
-#endif
 #if CLEAN18
             column(BankAccountNo_SalesCrMemoHeaderCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
@@ -183,21 +174,12 @@ report 31002 "Sales - Advance Credit Memo CZ"
             column(DocumentDate_SalesCrMemoHeader; "Document Date")
             {
             }
-#if CLEAN17
             column(VATDate_SalesCrMemoHeaderCaption; FieldCaptionDictionary.Get(VATDateFldTok))
             {
             }
             column(VATDate_SalesCrMemoHeader; FieldValueDictionary.Get(VATDateFldTok))
             {
             }
-#else
-            column(VATDate_SalesCrMemoHeaderCaption; FieldCaption("VAT Date"))
-            {
-            }
-            column(VATDate_SalesCrMemoHeader; "VAT Date")
-            {
-            }
-#endif
             column(PaymentTerms; PaymentTerms.Description)
             {
             }
@@ -436,15 +418,7 @@ report 31002 "Sales - Advance Credit Memo CZ"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-#if CLEAN17
-                DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
-#else
-                DocFooter.SetFilter("Language Code", '%1|%2', '', "Language Code");
-                if DocFooter.FindLast then
-                    DocFooterText := DocFooter."Footer Text"
-                else
-                    DocFooterText := '';
-#endif                
+                DocFooterText := FormatDocument.GetDocumentFooterTextByLanguage("Language Code");
 
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
@@ -471,13 +445,11 @@ report 31002 "Sales - Advance Credit Memo CZ"
                     PaymentMethod.Get("Payment Method Code");
 
                 SalesInvoiceHeader.SetRange("Reversed By Cr. Memo No.", "No.");
-                if not SalesInvoiceHeader.FindFirst then
+                if not SalesInvoiceHeader.FindFirst() then
                     SalesInvoiceHeader.Init();
-#if CLEAN17
 
                 EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
                 ExtensionFieldsManagement.GetRecordExtensionFields("Sales Cr.Memo Header".RecordId, FieldValueDictionary, FieldCaptionDictionary);
-#endif
             end;
         }
     }
@@ -517,22 +489,17 @@ report 31002 "Sales - Advance Credit Memo CZ"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN17
-        DocFooter: Record "Document Footer";
-#endif
         VATClause: Record "VAT Clause";
         VATPostingSetup: Record "VAT Posting Setup";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-#if CLEAN17
         FormatDocument: Codeunit "Format Document";
         ExtensionFieldsManagement: Codeunit "Extension Fields Management";
         FieldValueDictionary: Dictionary of [Text[30], Text];
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#endif
 #if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
@@ -573,7 +540,6 @@ report 31002 "Sales - Advance Credit Memo CZ"
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
-#if CLEAN17
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
@@ -587,6 +553,5 @@ report 31002 "Sales - Advance Credit Memo CZ"
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;
-#endif
 }
 #endif

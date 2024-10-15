@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 1237 "Transformation Rule"
 {
     Caption = 'Transformation Rule';
@@ -199,12 +198,6 @@ table 1237 "Transformation Rule"
         USDATETIMEFORMATDescTxt: Label 'U.S. Date/Time Format';
         DeleteNOTPROVIDEDTxt: Label 'DELETE_NOTPROVIDED', Comment = 'NOTPROVIDED should stay in english because it is a constant value. DELETE should be translated.';
         DeleteNOTPROVIDEDDescriptionTxt: Label 'Delete NOTPROVIDED value', Comment = 'NOTPROVIDED should stay in english because it is a constant value. ''Delete'' and ''value'' should be translated.';
-        CZDATEFORMATTxt: Label 'CZ_DATE_FORMAT', Comment = 'Assigned to Transformation.Code field for getting date formatting rule from Czech dates';
-        CZDATEFORMATDescTxt: Label 'CZ Date Format';
-        CZDATETIMEFORMATTxt: Label 'CZ_DATETIME_FORMAT', Comment = 'Assigned to Transformation.Code field for getting date formatting rule from Czech date/time';
-        CZDATETIMEFORMATDescTxt: Label 'Czech Date/Time Format';
-        CZNUMBERFORMATTxt: Label 'CZ_DECIMAL_FORMAT', Comment = 'Assigned to Transformation.Code field for getting decimal formatting rule for Czech numbers';
-        CZNUMBERFORMATDescTxt: Label 'Czech Decimal Format';
 
     procedure CreateDefaultTransformations()
     begin
@@ -219,11 +212,6 @@ table 1237 "Transformation Rule"
         InsertRec(DKNUMBERFORMATTxt, DKNUMBERFORMATDescTxt, "Transformation Type"::"Decimal Formatting", 0, 0, '', 'da-DK');
         InsertRec(USDATEFORMATTxt, USDATEFORMATDescTxt, "Transformation Type"::"Date Formatting", 0, 0, '', 'en-US');
         InsertRec(USDATETIMEFORMATTxt, USDATETIMEFORMATDescTxt, "Transformation Type"::"Date and Time Formatting", 0, 0, '', 'en-US');
-        // NAVCZ
-        InsertRec(CZNUMBERFORMATTxt, CZNUMBERFORMATDescTxt, "Transformation Type"::"Decimal Formatting", 0, 0, '', 'cs-CZ');
-        InsertRec(CZDATEFORMATTxt, CZDATEFORMATDescTxt, "Transformation Type"::"Date and Time Formatting", 0, 0, '', 'cs-CZ');
-        InsertRec(CZDATETIMEFORMATTxt, CZDATETIMEFORMATDescTxt, "Transformation Type"::"Date and Time Formatting", 0, 0, '', 'cs-CZ');
-        // NAVCZ
         OnCreateTransformationRules();
         InsertFindAndReplaceRule(
           DeleteNOTPROVIDEDTxt, DeleteNOTPROVIDEDDescriptionTxt, "Transformation Type"::"Regular Expression - Replace",
@@ -572,27 +560,6 @@ table 1237 "Transformation Rule"
         exit(DeleteNOTPROVIDEDTxt);
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetCZDateFormatCode(): Code[20]
-    begin
-        exit(CZDATEFORMATTxt); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetCZDateTimeFormatCode(): Code[20]
-    begin
-        exit(CZDATETIMEFORMATTxt); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetCzechDecimalFormatCode(): Code[20]
-    begin
-        exit(CZNUMBERFORMATTxt); // NAVCZ
-    end;
-
     local procedure RemoveLeadingAndEndingQuotes(InputText: Text): Text
     var
         QuotedText: Boolean;
@@ -692,4 +659,3 @@ table 1237 "Transformation Rule"
     end;
 }
 
-#endif

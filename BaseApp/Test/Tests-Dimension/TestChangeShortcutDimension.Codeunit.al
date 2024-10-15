@@ -43,7 +43,7 @@ codeunit 134482 "Test Change Shortcut Dimension"
         DimNo := 2;
         with GeneralLedgerSetup do begin
             Get;
-            if Dimension.FindSet then
+            if Dimension.FindSet() then
                 repeat
                     if not (Dimension.Code in ["Global Dimension 1 Code", "Global Dimension 2 Code"]) then begin
                         DimNo += 1;
@@ -246,13 +246,13 @@ codeunit 134482 "Test Change Shortcut Dimension"
         if DimCode = '' then
             exit;
         DimensionValue.SetRange("Dimension Code", DimCode);
-        if DimensionValue.FindSet then
+        if DimensionValue.FindSet() then
             repeat
                 Assert.AreEqual(DimNo, DimensionValue."Global Dimension No.", '');
             until DimensionValue.Next = 0;
 
         DimensionSetEntry.SetRange("Dimension Code", DimCode);
-        if DimensionSetEntry.FindSet then
+        if DimensionSetEntry.FindSet() then
             repeat
                 Assert.AreEqual(DimNo, DimensionSetEntry."Global Dimension No.", '');
             until DimensionSetEntry.Next = 0;

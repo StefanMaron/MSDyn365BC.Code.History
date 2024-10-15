@@ -40,7 +40,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine: Record "Gen. Journal Line";
         ReversalEntry: Record "Reversal Entry";
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Gen. Jnl. Line with VAT. G/L Entry - VAT Entry Link entry exists.
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Invoice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -69,11 +69,11 @@ codeunit 134131 "ERM Reverse GL Entries"
 
         // Setup: Set "Force Doc. Balance" value FALSE in Geneal Journal Template, Create and Post General Journal Line with
         // blank Balancing Account.
-        Initialize;
+        Initialize();
         LibraryERM.SelectGenJnlBatch(GenJournalBatch);
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         ForceDocBalance := UpdateGenJournalTemplate(GenJournalBatch."Journal Template Name", false);
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         CreateGenJournalLineDocNo(
           GenJournalLine, GenJournalBatch, GLAccountNo, GenJournalLine."Document No.", LibraryRandom.RandInt(100));
         CreateGenJournalLineDocNo(
@@ -103,7 +103,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Check Reversal Error after posting Payment from General Journal Line for G/L Account and Blocking G/L Account.
 
         // Setup: Find a GL Account. Post Payment entry from General Journal Line. Block Account after Posting.
-        Initialize;
+        Initialize();
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         BlockGLAccount(GenJournalLine."Account No.", true);
@@ -125,7 +125,7 @@ codeunit 134131 "ERM Reverse GL Entries"
 
         // Setup: Make Payment entry for G/L Account and added G/L Account in Balancing Account. Post General Journal and
         // Blocked the Account that is used as Balancing Account.
-        Initialize;
+        Initialize();
         CreateGenJnlLine(GenJournalLine, GenJournalLine."Document Type"::Payment);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
@@ -150,7 +150,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Create and Post Sales Invoice and and Blocked Sales Account. Verify Reversal Error Message from G/L Entry.
 
         // Setup: Create a Sales Invoice and Post. Find Sales Account from General Posting Setup and set Block the account.
-        Initialize;
+        Initialize();
         DocumentNo := ReverseSalesEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
@@ -173,11 +173,11 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Create and Post Sales Invoice and and Blocked Sales Account. Verify Reversal Error Message from G/L Register.
 
         // Setup: Create a Sales Invoice and Post. Find Sales Account from General Posting Setup and set Block the account.
-        Initialize;
+        Initialize();
         ReverseSalesEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Register.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -195,7 +195,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccountNo: Code[20];
     begin
         // Setup: Create a Purchase Invoice and Post. Find Purchase Account from General Posting Setup and set Block the account.
-        Initialize;
+        Initialize();
         DocumentNo := ReversePurchEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
@@ -216,12 +216,12 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccountNo: Code[20];
     begin
         // Setup: Create a Purchase Invoice and Post. Find Purchase Account from General Posting Setup and set Block the account.
-        Initialize;
+        Initialize();
         ReversePurchEntrySetup(GLAccountNo);
 
         // Exercise: Reverse Posted Entry from G/L Register.
         LibraryLowerPermissions.AddAccountReceivables;
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -236,7 +236,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // Create and Post Payment Entry form General Journal Line before Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Entry.
-        Initialize;
+        Initialize();
 
         LibraryLowerPermissions.AddAccountReceivables;
         AllowPeriodTransaction(CalcDate('<-1D>', WorkDate));
@@ -249,7 +249,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // Create and Post Payment Entry form General Journal Line after Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Entry.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.AddAccountReceivables;
         AllowPeriodTransaction(CalcDate('<1D>', WorkDate));
     end;
@@ -263,7 +263,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccountNo: Code[20];
     begin
         // Setup: Create Genenral Journal Line and Post. Update Allow Period field in General Ledger Setup.
-        Initialize;
+        Initialize();
         DocumentNo := ReverseAllowPeriodSetup(GLAccountNo, AllowPostingFrom, AllowPostingTo, PostingDate);
 
         // Exercise: Reverse Posted Entry from G/L Entry.
@@ -281,7 +281,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // Create and Post Payment Entry form General Journal Line before Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Register.
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.AddAccountReceivables;
         AllowPeriodFromRegister(CalcDate('<-1D>', WorkDate));
     end;
@@ -293,7 +293,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // Create and Post Payment Entry form General Journal Line after Allow Period Date Range, update General Ledger Setup
         // Allow Period. Reverse and Verify Error for before allow Period Date transaction from GL Register.
-        Initialize;
+        Initialize();
         AllowPeriodFromRegister(CalcDate('<1D>', WorkDate));
     end;
 
@@ -307,11 +307,11 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccountNo: Code[20];
     begin
         // Setup: Create Genenral Journal Line and Post. Update Allow Period field in General Ledger Setup.
-        Initialize;
+        Initialize();
         DocumentNo := ReverseAllowPeriodSetup(GLAccountNo, AllowPostingFrom, AllowPostingTo, PostingDate);
 
         // Exercise: Reverse Posted Entry from G/L Register.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No.");
 
@@ -333,7 +333,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // Test Date Compress G/L Entries
         // Setup: Create and Post Line for Customer, Vendor, Bank and Fixed Asset from General Journal Line, Run Date Compress batch job.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
 
@@ -356,7 +356,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from G/L Register.
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseRegister(GLRegister."No." - 1);
 
@@ -377,7 +377,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Customer from General Journal Line, Run Date Compress batch job.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
@@ -409,7 +409,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Vendor from General Journal Line, Run Date Compress batch job.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
@@ -441,7 +441,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Bank Account from General Journal Line, Run Date Compress batch job.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
@@ -454,7 +454,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Exercise: Reverse Posted Entry from Bank Ledger Entry.
         BankAccountLedgerEntry.SetRange("Bank Account No.", GenJournalLine."Account No.");
         BankAccountLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        BankAccountLedgerEntry.FindFirst;
+        BankAccountLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(BankAccountLedgerEntry."Transaction No.");
 
@@ -475,7 +475,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Fixed Asset from General Journal Line, Run Date Compress batch job.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
@@ -490,7 +490,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Exercise: Reverse Posted Entry from Maintenance Ledger Entry.
         MaintenanceLedgerEntry.SetRange("FA No.", GenJournalLine."Account No.");
         MaintenanceLedgerEntry.SetRange("Document No.", GenJournalLine."Document No.");
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
 
@@ -510,7 +510,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify the check ledger entry when we unapply and apply the vendor ledger entries with Unapply and void check value.
 
         // Setup: Create and post invoice and payment for vendor and then unapply and apply vendor ledger entries.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -541,7 +541,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify the check ledger entry when we unapply and apply the customer ledger entries with Unapply and void check value.
 
         // Setup: Create and post credit memo and refund for customer and then Unapply and apply customer ledger entries
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -572,7 +572,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify the check ledger entry when we unapply and apply the employee ledger entries with Unapply and void check value.
 
         // Setup: Create and post invoice and payment for employee and then unapply and apply vendor ledger entries.
-        Initialize;
+        Initialize();
 
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Employee, LibraryHumanResource.CreateEmployeeNoWithBankAccount,
@@ -611,7 +611,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify the error message when we void check with option Unapply and void check value in case of vendor
 
         // Setup: Create and post invoice and payment for vendor and then unapply ledger entries.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo,
@@ -639,7 +639,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify the error message when we void check with option Unapply and void check value in case of customer.
 
         // Setup: Create and post credit memo and refund for customer and then Unapply customer ledger entries.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo",
           GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
@@ -666,7 +666,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         VoidType: Option "Unapply and void check","Void check only";
     begin
         // Verify the error message when we void check with option Unapply and void check value in case of employee
-        Initialize;
+        Initialize();
 
         CreateGenJournalLine(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Employee, LibraryHumanResource.CreateEmployeeNoWithBankAccount,
@@ -708,7 +708,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // [FEATURE] [Purchase] [FCY]
         // [SCENARIO 213654] Void check of vendor payment applied to purchase invoice with gain/losses and dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency Code with exchange rates on 01 jan and 01 feb
         PaymentDate := LibraryRandom.RandDate(5);
@@ -754,7 +754,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // [FEATURE] [Sales] [FCY]
         // [SCENARIO 213654] Void check of customer refund applied to sales credit memo with gain/losses and dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency Code with exchange rates on 01 jan and 01 feb
         PaymentDate := LibraryRandom.RandDate(5);
@@ -796,7 +796,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         // Verify that void checks clears Document No and Document Date
 
         // [GIVEN] Create a Payment Ledger entry and Check Entry ledger
-        Initialize;
+        Initialize();
         CreatePaymentLedgerEntryWithCheckEntry(GenJournalBatch);
 
         // [WHEN] Void check ledger entry.
@@ -817,7 +817,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 342488] Action "Reverse Register" enabled for register from posted G/L journal line
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L register entry from posted G/L journal line
         PrepareGLRegisterEntry(GLRegister);
@@ -839,7 +839,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 342488] Action "Reverse Register" disabled when register already reversed
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L register entry XXX with Reversed = true
         PrepareGLRegisterEntry(GLRegister);
@@ -863,7 +863,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 342488] Action "Reverse Register" disabled when "Journal Batch Name" is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L register entry XXX with empty "Journal Batch Name" 
         PrepareGLRegisterEntry(GLRegister);
@@ -884,18 +884,18 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reverse GL Entries");
         // Lazy Setup.
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibraryVariableStorage.Clear;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries");
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryFiscalYear.CreateFiscalYear();
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries");
@@ -1057,7 +1057,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         BankAccount: Record "Bank Account";
         BankAccountPostingGroup: Record "Bank Account Posting Group";
     begin
-        BankAccountPostingGroup.FindFirst;
+        BankAccountPostingGroup.FindFirst();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Bank Acc. Posting Group", BankAccountPostingGroup.Code);
         BankAccount.Validate("Last Statement No.", Format(LibraryRandom.RandInt(10)));  // Take Random Value.
@@ -1138,7 +1138,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
@@ -1146,7 +1146,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         LibraryDimension.CreateDefaultDimensionVendor(DefaultDimension, VendNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
@@ -1175,7 +1175,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         CheckLedgerEntry2.LockTable();
         CheckLedgerEntry2.Reset();
-        if CheckLedgerEntry2.FindLast then
+        if CheckLedgerEntry2.FindLast() then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
@@ -1200,7 +1200,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         CheckLedgerEntry2.LockTable();
         CheckLedgerEntry2.Reset();
-        if CheckLedgerEntry2.FindLast then
+        if CheckLedgerEntry2.FindLast() then
             NextCheckEntryNo := CheckLedgerEntry2."Entry No." + 1
         else
             NextCheckEntryNo := 1;
@@ -1224,15 +1224,22 @@ codeunit 134131 "ERM Reverse GL Entries"
     var
         GLEntry: Record "G/L Entry";
         DateComprRegister: Record "Date Compr. Register";
+        DateComprRetainFields: Record "Date Compr. Retain Fields";
         DateCompressGeneralLedger: Report "Date Compress General Ledger";
     begin
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         GLEntry.SetRange("Document No.", DocumentNo);
         DateCompressGeneralLedger.SetTableView(GLEntry);
+        DateComprRetainFields."Retain Document Type" := false;
+        DateComprRetainFields."Retain Document No." := true;
+        DateComprRetainFields."Retain Job No." := false;
+        DateComprRetainFields."Retain Business Unit Code" := false;
+        DateComprRetainFields."Retain Quantity" := false;
+        DateComprRetainFields."Retain Journal Template Name" := false;	
         DateCompressGeneralLedger.InitializeRequest(
-          WorkDate, WorkDate, DateComprRegister."Period Length"::Day, '', false, true, false, false, false, InsertDimSelectionBuffer);
+          WorkDate, WorkDate, DateComprRegister."Period Length"::Day, '', DateComprRetainFields, InsertDimSelectionBuffer, false);
         DateCompressGeneralLedger.UseRequestPage(false);
-        DateCompressGeneralLedger.Run;
+        DateCompressGeneralLedger.Run();
     end;
 
     local procedure FindBankAccount(): Code[20]
@@ -1241,7 +1248,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         BankAccount.SetRange(Blocked, false);
         BankAccount.SetFilter("Bank Acc. Posting Group", '<>''''');
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         exit(BankAccount."No.");
     end;
 
@@ -1260,7 +1267,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         FixedAsset.SetRange(Blocked, false);
         FixedAsset.SetFilter("FA Subclass Code", '<>''''');
-        FixedAsset.FindFirst;
+        FixedAsset.FindFirst();
         exit(FixedAsset."No.");
     end;
 
@@ -1270,7 +1277,7 @@ codeunit 134131 "ERM Reverse GL Entries"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."Transaction No.");
     end;
 
@@ -1368,7 +1375,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         ConfirmFinancialVoid: Page "Confirm Financial Void";
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckManagement.FinancialVoidCheck(CheckLedgerEntry);
         ConfirmFinancialVoid.SetCheckLedgerEntry(CheckLedgerEntry);
     end;
@@ -1389,7 +1396,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         CheckLedgerEntry.SetRange("Document No.", DocumentNo);
-        CheckLedgerEntry.FindFirst;
+        CheckLedgerEntry.FindFirst();
         CheckLedgerEntry.TestField("Entry Status", CheckLedgerEntry."Entry Status"::"Financially Voided");
         CheckLedgerEntry.TestField("Original Entry Status", CheckLedgerEntry."Original Entry Status"::Posted);
     end;
@@ -1408,7 +1415,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLEntry: Record "G/L Entry";
     begin
         GLEntry.SetRange("Transaction No.", GetGLEntryTransactionNo(DocumentNo, GLAccountNo));
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreEqual(StrSubstNo(ReversalErrorForPeriod, GLEntry.TableCaption, GLEntry."Entry No."), GetLastErrorText, ErrorsMustMatch);
     end;
 
@@ -1422,12 +1429,12 @@ codeunit 134131 "ERM Reverse GL Entries"
             SetRange("Document No.", DocumentNo);
             SetRange("G/L Account No.", GLAccountNo);
             SetRange(Reversed, true);
-            FindFirst;
+            FindFirst();
         end;
         with VATEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange(Reversed, true);
-            FindFirst;
+            FindFirst();
         end;
         Assert.IsTrue(
           GLEntryVATEntryLink.Get(GLEntry."Entry No.", VATEntry."Entry No."), GLEntryVATEntryLinkErr);

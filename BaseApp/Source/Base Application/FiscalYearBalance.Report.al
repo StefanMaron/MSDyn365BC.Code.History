@@ -399,7 +399,7 @@ report 36 "Fiscal Year Balance"
 
                 AccountingPeriod.SetFilter("Starting Date", '<=%1', PeriodStartingDate);
                 AccountingPeriod.SetRange("New Fiscal Year", true);
-                AccountingPeriod.FindLast;
+                AccountingPeriod.FindLast();
                 FYStartingDate := AccountingPeriod."Starting Date";
             end;
         }
@@ -474,7 +474,7 @@ report 36 "Fiscal Year Balance"
         begin
             AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate);
             AccountingPeriod.SetRange("New Fiscal Year", true);
-            if AccountingPeriod.FindLast then
+            if AccountingPeriod.FindLast() then
                 PeriodStartingDate := AccountingPeriod."Starting Date";
 
             SetEndingDate;
@@ -543,7 +543,7 @@ report 36 "Fiscal Year Balance"
     begin
         AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', PeriodStartingDate);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         PeriodEndingDate := AccountingPeriod."Starting Date" - 1;
     end;
 

@@ -140,28 +140,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Image Analysis Setup';
                         RunObject = page "Image Analysis Setup";
                     }
-#if not CLEAN17
-                    action("Excel Templates")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Excel Templates';
-                        RunObject = page "Excel Template";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
-                    action("Electronically Govern. Setup")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Electronically Govern. Setup';
-                        RunObject = page "Electronically Govern. Setup";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
-#endif
 #if not CLEAN18
                     action("Certificates Codes")
                     {
@@ -346,18 +324,6 @@ page 8900 "Administrator Main Role Center"
                         Visible = false;
                     }
 #endif
-#if not CLEAN17
-                    action("Report Selection-Cash Desk")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Report Selection-Cash Desk';
-                        RunObject = page "Report Selection - Cash Desk";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                        ObsoleteTag = '17.5';
-                        Visible = false;
-                    }
-#endif
                 }
                 group("Group7")
                 {
@@ -463,18 +429,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Responsibility Centers';
                         RunObject = page "Responsibility Center List";
                     }
-#if not CLEAN17
-                    action("Company Officials")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Company Officials';
-                        RunObject = page "Company Officials";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
-#endif
                 }
                 group("Group10")
                 {
@@ -858,21 +812,25 @@ page 8900 "Administrator Main Role Center"
                     RunObject = page "CRM Connection Setup";
                     AccessByPermission = TableData "CRM Connection Setup" = IM;
                 }
-                action("Social Listening Setup")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Social Engagement Setup';
-                    RunObject = page "Social Listening Setup";
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                    ObsoleteTag = '17.0';
-                }
+#if not CLEAN20
                 action("SMTP Mail Setup")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Mail Setup';
-                    RunObject = codeunit "Open Mail Setup Page";
+                    RunObject = Page "Email Account Wizard";
+                    Visible = false;
+                    ObsoleteReason = 'Action is replaced with "Email Account Setup".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                }
+#endif
+                action("Email Account Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Account Setup';
+                    Image = MailSetup;
+                    RunObject = Page "Email Accounts";
+                    ToolTip = 'Set up email accounts used in the product.';
                 }
 #if not CLEAN19
                 action("SharePoint Connection Setup")
@@ -962,18 +920,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'VAT Registration Service (VIES) Setting';
                     RunObject = page "VAT Registration Config";
                 }
-#if not CLEAN17
-                action("Reg. No. Validation Service Setup")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Reg. No. Validation Service (ARES) Setting';
-                    RunObject = page "Registration Config";
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 action("API Setup")
                 {
                     ApplicationArea = Basic, Suite;

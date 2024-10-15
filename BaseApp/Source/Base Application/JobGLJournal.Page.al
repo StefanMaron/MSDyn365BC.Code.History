@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 1020 "Job G/L Journal"
 {
     AdditionalSearchTerms = 'project general ledger posting';
@@ -199,6 +200,9 @@ page 1020 "Job G/L Journal"
                 {
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("VAT Difference"; "VAT Difference")
                 {
@@ -730,7 +734,7 @@ page 1020 "Job G/L Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action("Test Report")
@@ -964,6 +968,7 @@ page 1020 "Job G/L Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1046,7 +1051,7 @@ page 1020 "Job G/L Journal"
     begin
         if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -1063,4 +1068,4 @@ page 1020 "Job G/L Journal"
     begin
     end;
 }
-
+#endif

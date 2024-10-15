@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 11790 "Detailed Issued Reminder Lines"
 {
     Caption = 'Detailed Issued Reminder Lines';
     Editable = false;
     PageType = List;
     SourceTable = "Detailed Issued Reminder Line";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
 
     layout
     {
@@ -91,3 +95,4 @@ page 11790 "Detailed Issued Reminder Lines"
     }
 }
 
+#endif

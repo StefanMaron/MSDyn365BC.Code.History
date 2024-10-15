@@ -1,4 +1,4 @@
-﻿table 901 "Assembly Line"
+table 901 "Assembly Line"
 {
     Caption = 'Assembly Line';
     DrillDownPageID = "Assembly Lines";
@@ -12,7 +12,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(2; "Document No."; Code[20])
@@ -22,7 +22,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(3; "Line No."; Integer)
@@ -38,13 +38,13 @@
             begin
                 TestField("Consumed Quantity", 0);
                 VerifyReservationChange(Rec, xRec);
-                TestStatusOpen;
+                TestStatusOpen();
 
                 "No." := '';
                 "Variant Code" := '';
                 "Location Code" := '';
                 "Bin Code" := '';
-                InitResourceUsageType;
+                InitResourceUsageType();
                 "Inventory Posting Group" := '';
                 "Gen. Prod. Posting Group" := '';
                 Clear("Lead-Time Offset");
@@ -66,26 +66,26 @@
                 if "No." <> '' then
                     CheckItemAvailable(FieldNo("No."));
                 VerifyReservationChange(Rec, xRec);
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if "No." <> xRec."No." then begin
                     "Variant Code" := '';
-                    InitResourceUsageType;
+                    InitResourceUsageType();
                 end;
 
                 if "No." = '' then
-                    Init
+                    Init()
                 else begin
-                    GetHeader;
+                    GetHeader();
                     "Due Date" := AssemblyHeader."Starting Date";
 #if not CLEAN18
                     "Gen. Bus. Posting Group" := AssemblyHeader."Gen. Bus. Posting Group"; // NAVCZ
 #endif
                     case Type of
                         Type::Item:
-                            CopyFromItem;
+                            CopyFromItem();
                         Type::Resource:
-                            CopyFromResource;
+                            CopyFromResource();
                     end
                 end;
             end;
@@ -107,10 +107,10 @@
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 CheckItemAvailable(FieldNo("Variant Code"));
                 VerifyReservationChange(Rec, xRec);
-                TestStatusOpen;
+                TestStatusOpen();
 
                 if "Variant Code" = '' then begin
-                    GetItemResource;
+                    GetItemResource();
                     Description := Item.Description;
                     "Description 2" := Item."Description 2"
                 end else begin
@@ -119,8 +119,8 @@
                     "Description 2" := ItemVariant."Description 2";
                 end;
 
-                GetDefaultBin;
-                "Unit Cost" := GetUnitCost;
+                GetDefaultBin();
+                "Unit Cost" := GetUnitCost();
                 "Cost Amount" := CalcCostAmount(Quantity, "Unit Cost");
             end;
         }
@@ -138,7 +138,7 @@
 
             trigger OnValidate()
             begin
-                GetHeader;
+                GetHeader();
                 ValidateLeadTimeOffset(AssemblyHeader, "Lead-Time Offset", true);
             end;
         }
@@ -158,7 +158,7 @@
                 else
                     TestField("Resource Usage Type", "Resource Usage Type"::" ");
 
-                GetHeader;
+                GetHeader();
                 Validate(Quantity, CalcQuantity("Quantity per", AssemblyHeader.Quantity));
             end;
         }
@@ -176,12 +176,13 @@
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 CheckItemAvailable(FieldNo("Location Code"));
                 VerifyReservationChange(Rec, xRec);
-                TestStatusOpen;
+                TestStatusOpen();
 
-                GetDefaultBin;
+                GetDefaultBin();
 
-                "Unit Cost" := GetUnitCost;
+                "Unit Cost" := GetUnitCost();
                 "Cost Amount" := CalcCostAmount(Quantity, "Unit Cost");
+                CreateDimFromDefaultDim(AssemblyHeader."Dimension Set ID");
             end;
         }
         field(21; "Shortcut Dimension 1 Code"; Code[20])
@@ -233,7 +234,7 @@
                 WMSManagement: Codeunit "WMS Management";
                 WhseIntegrationMgt: Codeunit "Whse. Integration Management";
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 TestField(Type, Type::Item);
                 if "Bin Code" <> '' then begin
                     TestField("Location Code");
@@ -244,7 +245,7 @@
                       FieldCaption("Bin Code"),
                       "Location Code",
                       "Bin Code", 0);
-                    CheckBin;
+                    CheckBin();
                 end;
             end;
         }
@@ -315,8 +316,8 @@
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 OnValidateQuantityOnAfterCalcBaseQty(Rec, xRec, CurrFieldNo);
-                InitRemainingQty;
-                InitQtyToConsume;
+                InitRemainingQty();
+                InitQtyToConsume();
 
                 CheckItemAvailable(FieldNo(Quantity));
                 VerifyReservationQuantity(Rec, xRec);
@@ -410,7 +411,9 @@
             CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(901),
+#pragma warning disable
                                                                    "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                    "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
@@ -422,7 +425,9 @@
             CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(901),
+#pragma warning disable
                                                                             "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                             "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
@@ -450,7 +455,7 @@
 
             trigger OnValidate()
             begin
-                GetHeader;
+                GetHeader();
                 ValidateDueDate(AssemblyHeader, "Due Date", true);
             end;
         }
@@ -470,7 +475,7 @@
                     TestField("Reserved Qty. (Base)", 0);
 
                 if xRec.Reserve = Reserve::Always then begin
-                    GetItemResource;
+                    GetItemResource();
                     if Item.Reserve = Item.Reserve::Always then
                         TestField(Reserve, Reserve::Always);
                 end;
@@ -484,14 +489,14 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
                 if Type = Type::" " then
                     Error(Text99000002, FieldCaption("Quantity per"), FieldCaption(Type), Type::" ");
                 RoundQty("Quantity per");
                 OnValidateQuantityPerOnAfterRoundQty(Rec);
 
-                GetHeader;
+                GetHeader();
                 Validate(Quantity, CalcQuantity("Quantity per", AssemblyHeader.Quantity));
                 Validate(
                   "Quantity to Consume",
@@ -517,7 +522,7 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(65; "Unit Cost"; Decimal)
@@ -531,9 +536,9 @@
                 SkuItemUnitCost: Decimal;
             begin
                 TestField("No.");
-                GetItemResource;
+                GetItemResource();
                 if Type = Type::Item then begin
-                    SkuItemUnitCost := GetUnitCost;
+                    SkuItemUnitCost := GetUnitCost();
                     if Item."Costing Method" = Item."Costing Method"::Standard then
                         if "Unit Cost" <> SkuItemUnitCost then
                             Error(
@@ -567,9 +572,9 @@
                 UOMMgt: Codeunit "Unit of Measure Management";
             begin
                 WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
-                TestStatusOpen;
+                TestStatusOpen();
 
-                GetItemResource;
+                GetItemResource();
                 case Type of
                     Type::Item:
                         begin
@@ -584,7 +589,7 @@
                 end;
 
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
-                "Unit Cost" := GetUnitCost;
+                "Unit Cost" := GetUnitCost();
                 Validate(Quantity);
             end;
         }
@@ -628,7 +633,9 @@
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                   "Source Type" = CONST(901),
+#pragma warning disable
                                                                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                                   "Source No." = FIELD("Document No."),
                                                                                   "Source Line No." = FIELD("Line No."),
                                                                                   "Source Subline No." = CONST(0),
@@ -645,7 +652,9 @@
         {
             CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                          "Source Type" = CONST(901),
+#pragma warning disable
                                                                                          "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                                          "Source No." = FIELD("Document No."),
                                                                                          "Source Line No." = FIELD("Line No."),
                                                                                          "Source Subline No." = CONST(0),
@@ -718,7 +727,7 @@
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         WhseValidateSourceLine.AssemblyLineDelete(Rec);
         WhseAssemblyRelease.DeleteLine(Rec);
         AssemblyLineReserve.DeleteLine(Rec);
@@ -731,7 +740,7 @@
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         VerifyReservationQuantity(Rec, xRec);
     end;
 
@@ -781,7 +790,7 @@
     begin
         OnBeforeInitQtyToConsume(Rec, xRec, CurrFieldNo);
 
-        GetHeader;
+        GetHeader();
         "Quantity to Consume" :=
           MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
         RoundQty("Quantity to Consume");
@@ -821,7 +830,7 @@
     var
         UnitCost: Decimal;
     begin
-        GetItemResource;
+        GetItemResource();
 
         case Type of
             Type::Item:
@@ -845,7 +854,7 @@
 
     local procedure RoundUnitAmount(UnitAmount: Decimal): Decimal
     begin
-        GetGLSetup;
+        GetGLSetup();
 
         exit(Round(UnitAmount, GLSetup."Unit-Amount Rounding Precision"));
     end;
@@ -900,7 +909,7 @@
         exit("Avail. Warning");
     end;
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         AssemblySetup: Record "Assembly Setup";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
@@ -911,7 +920,7 @@
         if IsHandled then
             exit;
 
-        if not UpdateAvailWarning then
+        if not UpdateAvailWarning() then
             exit;
 
         if "Document Type" <> "Document Type"::Order then
@@ -926,7 +935,7 @@
            ((CalledByFieldNo = FieldNo(Quantity)) and (CurrFieldNo = FieldNo("Quantity per")))
         then
             if ItemCheckAvail.AssemblyLineCheck(Rec) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
     end;
 
     [Scope('OnPrem')]
@@ -937,11 +946,11 @@
         TestField(Type, Type::Item);
 
         if "Due Date" = 0D then begin
-            GetHeader;
+            GetHeader();
             if AssemblyHeader."Due Date" <> 0D then
                 Validate("Due Date", AssemblyHeader."Due Date")
             else
-                Validate("Due Date", WorkDate);
+                Validate("Due Date", WorkDate());
         end;
 
         ItemCheckAvail.AssemblyLineCheck(Rec);
@@ -1073,12 +1082,12 @@
             TestField("Due Date");
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Quantity (Base)");
-            Find;
+            Find();
             if not FullAutoReservation and (CurrFieldNo <> 0) then
                 if Confirm(Text001, true) then begin
                     Commit();
                     ShowReservation();
-                    Find;
+                    Find();
                 end;
         end;
     end;
@@ -1108,7 +1117,7 @@
         TestReservationDateConflict := NewTestReservationDateConflict;
     end;
 
-    local procedure GetHeader()
+    procedure GetHeader()
     var
         IsHandled: Boolean;
     begin
@@ -1182,6 +1191,8 @@
         OnAfterShowDimensions(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; HeaderDimensionSetID: Integer)
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1190,6 +1201,7 @@
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
         DimensionSetIDArr: array[10] of Integer;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         if SkipVerificationsThatChangeDatabase then
             exit;
@@ -1198,6 +1210,7 @@
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
@@ -1207,7 +1220,7 @@
                 begin
                     DimensionSetIDArr[1] :=
                       DimMgt.GetRecDefaultDimID(
-                        Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Assembly,
+                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
                         "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                         0, 0);
                     DimensionSetIDArr[2] := HeaderDimensionSetID;
@@ -1216,7 +1229,51 @@
                 begin
                     DimensionSetIDArr[2] :=
                       DimMgt.GetRecDefaultDimID(
-                        Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Assembly,
+                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
+                        "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+                        0, 0);
+                    DimensionSetIDArr[1] := HeaderDimensionSetID;
+                end;
+        end;
+
+        "Dimension Set ID" :=
+          DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; HeaderDimensionSetID: Integer)
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        AssemblySetup: Record "Assembly Setup";
+        DimMgt: Codeunit DimensionManagement;
+        DimensionSetIDArr: array[10] of Integer;
+    begin
+        if SkipVerificationsThatChangeDatabase then
+            exit;
+
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        AssemblySetup.Get();
+        case AssemblySetup."Copy Component Dimensions from" of
+            AssemblySetup."Copy Component Dimensions from"::"Order Header":
+                begin
+                    DimensionSetIDArr[1] :=
+                      DimMgt.GetRecDefaultDimID(
+                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
+                        "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+                        0, 0);
+                    DimensionSetIDArr[2] := HeaderDimensionSetID;
+                end;
+            AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card":
+                begin
+                    DimensionSetIDArr[2] :=
+                      DimMgt.GetRecDefaultDimID(
+                        Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
                         "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                         0, 0);
                     DimensionSetIDArr[1] := HeaderDimensionSetID;
@@ -1278,7 +1335,7 @@
 
     procedure CalcQuantityPer(Qty: Decimal): Decimal
     begin
-        GetHeader;
+        GetHeader();
         AssemblyHeader.TestField(Quantity);
 
         if FixedUsage then
@@ -1312,7 +1369,7 @@
 
     procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
     begin
-        Reset;
+        Reset();
         SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Location Code");
         SetRange("Document Type", DocumentType);
         SetRange(Type, Type::Item);
@@ -1328,27 +1385,11 @@
         OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
-    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
-    begin
-        SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
-    end;
-#endif
-
     procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
         SetItemToPlanFilters(Item, DocumentType);
         exit(Find('-'));
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by FindItemToPlanLines().', '17.0')]
-    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
-    begin
-        exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
-    end;
-#endif
 
     procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
@@ -1356,17 +1397,9 @@
         exit(not IsEmpty);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by ItemToPlanLinesExist().', '17.0')]
-    procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
-    begin
-        exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
-    end;
-#endif
-
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(
           "Document Type", Type, "No.", "Variant Code", "Location Code", "Due Date");
         SetRange("Document Type", DocumentType);
@@ -1432,7 +1465,7 @@
         ReservedReceipt: Decimal;
         ReservedRequirement: Decimal;
         QtyAvailable: Decimal;
-        PeriodType: Option Day,Week,Month,Quarter,Year;
+        PeriodType: Enum "Analysis Period Type";
         LookaheadDateFormula: DateFormula;
     begin
         OnBeforeCalcAvailQuantities(Rec);
@@ -1453,14 +1486,14 @@
 
             GrossRequirement :=
               GrossRequirement +
-              AvailableToPromise.CalculateLookahead(
+              AvailableToPromise.CalculateForward(
                 Item, PeriodType,
                 AvailabilityDate + 1,
-                AvailableToPromise.AdjustedEndingDate(CalcDate(LookaheadDateFormula, AvailabilityDate), PeriodType));
+                AvailableToPromise.GetPeriodEndingDate(CalcDate(LookaheadDateFormula, AvailabilityDate), PeriodType));
         end;
 
         EarliestDate :=
-          AvailableToPromise.EarliestAvailabilityDate(
+          AvailableToPromise.CalcEarliestAvailabilityDate(
             Item, "Remaining Quantity (Base)", "Due Date",
             OldAssemblyLine."Remaining Quantity (Base)", OldAssemblyLine."Due Date",
             QtyAvailable,
@@ -1652,7 +1685,7 @@
         if StatusCheckSuspended then
             exit;
 
-        GetHeader;
+        GetHeader();
         if Type in [Type::Item, Type::Resource] then
             AssemblyHeader.TestField(Status, AssemblyHeader.Status::Open);
     end;
@@ -1728,7 +1761,7 @@
         OrderTracking: Page "Order Tracking";
     begin
         OrderTracking.SetAsmLine(Rec);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     local procedure OrderLineExists(var AssemblyLine: Record "Assembly Line"): Boolean
@@ -1783,7 +1816,7 @@
         OnBeforeValidateDueDate(Rec, AsmHeader, NewDueDate, ShowDueDateBeforeWorkDateMsg);
 
         "Due Date" := NewDueDate;
-        TestStatusOpen;
+        TestStatusOpen();
 
         MaxDate := LatestPossibleDueDate(AsmHeader."Starting Date");
         if "Due Date" > MaxDate then
@@ -1804,7 +1837,7 @@
         ZeroDF: DateFormula;
     begin
         "Lead-Time Offset" := NewLeadTimeOffset;
-        TestStatusOpen;
+        TestStatusOpen();
 
         if Type <> Type::Item then
             TestField("Lead-Time Offset", ZeroDF);
@@ -1828,7 +1861,7 @@
     begin
         OnBeforeCopyFromItem(Rec);
 
-        GetItemResource;
+        GetItemResource();
         if IsInventoriableItem then begin
             "Location Code" := AssemblyHeader."Location Code";
             Item.TestField("Inventory Posting Group");
@@ -1836,12 +1869,12 @@
 
         "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
         "Inventory Posting Group" := Item."Inventory Posting Group";
-        GetDefaultBin;
+        GetDefaultBin();
         Description := Item.Description;
         "Description 2" := Item."Description 2";
-        "Unit Cost" := GetUnitCost;
+        "Unit Cost" := GetUnitCost();
         Validate("Unit of Measure Code", Item."Base Unit of Measure");
-        CreateDim(DATABASE::Item, "No.", AssemblyHeader."Dimension Set ID");
+        CreateDimFromDefaultDim(AssemblyHeader."Dimension Set ID");
         Reserve := Item.Reserve;
         Validate(Quantity);
         Validate("Quantity to Consume",
@@ -1854,15 +1887,15 @@
     begin
         OnBeforeCopyFromResource(Rec);
 
-        GetItemResource;
+        GetItemResource();
         Resource.TestField("Gen. Prod. Posting Group");
         "Gen. Prod. Posting Group" := Resource."Gen. Prod. Posting Group";
         "Inventory Posting Group" := '';
         Description := Resource.Name;
         "Description 2" := Resource."Name 2";
-        "Unit Cost" := GetUnitCost;
+        "Unit Cost" := GetUnitCost();
         Validate("Unit of Measure Code", Resource."Base Unit of Measure");
-        CreateDim(DATABASE::Resource, "No.", AssemblyHeader."Dimension Set ID");
+        CreateDimFromDefaultDim(AssemblyHeader."Dimension Set ID");
         Validate(Quantity);
         Validate("Quantity to Consume",
           MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
@@ -1876,8 +1909,73 @@
             exit(false);
         if "No." = '' then
             exit(false);
-        GetItemResource;
+        GetItemResource();
         exit(Item.IsInventoriableType);
+    end;
+
+    procedure CreateDimFromDefaultDim(HeaderDimensionSetID: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource, HeaderDimensionSetID);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID4(Rec.Type.AsInteger()), Rec."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Assembly Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Assembly Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Assembly Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var AssemblyLine: Record "Assembly Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var AssemblyLine: Record "Assembly Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -1895,10 +1993,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var AssemblyLine: Record "Assembly Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var AssemblyLine: Record "Assembly Line"; Item: Record Item; DocumentType: Option)

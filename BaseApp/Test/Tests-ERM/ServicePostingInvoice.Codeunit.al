@@ -52,7 +52,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1 Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Two Service Orders - Service Item, Service Header, Service Line with Type as Item, Resource and Cost.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
 
@@ -93,7 +93,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
         // Create Two Service Order - Service Item, Service Header, Service Line with Type as Item, Resource, Cost and G/L Account.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
 
@@ -126,7 +126,7 @@ codeunit 136108 "Service Posting - Invoice"
         Type: Option ,Item,Resource,Both;
     begin
         // 1 Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         LibraryERM.SetAllowPostingFromTo(WorkDate, WorkDate);
 
@@ -154,7 +154,7 @@ codeunit 136108 "Service Posting - Invoice"
         // The test case checks that on posting the Service Order the application generates an error if Quantity Shipped is Zero.
 
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
 
         // 2. Exercise: Create Service Order - Service Item, Service Header, Service Line with Type Item, Resource, Cost and G/L Account.
@@ -259,7 +259,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup,
         // Create Service Order - Service Item, Service Header, Service Line with Type as Item and Post with Ship Option.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -287,7 +287,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup,
         // Create Service Order - Service Item, Service Header, Service Line with Type as Resource, Cost and G/L Account.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Both);
 
@@ -320,7 +320,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup,
         // Create Service Order - Service Item, Service Header, Service Line with Type as Resource, Cost and G/L Account,
         // Post Service Order as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Both);
 
@@ -356,7 +356,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Automatic Cost Posting as FALSE and Expected Cost Posting to G/L as FALSE on Inventory Setup,
         // Create Service Order - Service Item, Service Header, Service Line with Type as Item and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -453,7 +453,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup, Create Service Order, Service Line with Type Item and Modify Qty. to Invoice field
         // on Service Line.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -521,7 +521,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup, Create Service Order, Service Line with Type Item and Modify Qty. to Invoice field
         // on Service Line.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
 
@@ -555,7 +555,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Account.
 
         // 1. Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Resource, Cost and G/L Account.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Both);
 
@@ -594,7 +594,7 @@ codeunit 136108 "Service Posting - Invoice"
         // The test case checks posting with ship partially in two parts and then Invoice with type as Resource, Cost and G/L Account.
 
         // 1. Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Resource, Cost and G/L Account.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
 
@@ -694,7 +694,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Modify Qty. to Ship
         // and Post partially as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
 
@@ -728,7 +728,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Modify Qty. to Ship
         // and Post partially as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
 
@@ -829,7 +829,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Modify Qty. to Ship
         // and Post partially as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
 
@@ -861,7 +861,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Modify Inventory Setup. Create Service Order - Service Line with Type as Item, Modify Qty. to Ship
         // and Post partially as Ship.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
 
@@ -901,7 +901,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Resource, Cost and G/L Account, Modify Qty.
         // to Ship and Post as Ship and Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1008,7 +1008,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Item and Post as Ship and Modify Qty. to Invoice
         // Post with Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -1092,7 +1092,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Resource, Cost and G/L Account, Modify Qty. to
         // Ship and Post partially as Ship and Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1216,7 +1216,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Item and Post as Ship and Modify Qty. to Invoice
         // Post with Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1247,7 +1247,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Resource, Cost and G/L Account, Modify Qty. to
         // Ship and Post partially as Ship and Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Resource);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1352,7 +1352,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Item and Post as Ship and Invoice with
         // Modification on Qty. to Ship and Qty. to Invoice field.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1442,7 +1442,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Setup: Modify Inventory Setup. Create Service Order-Service Line with Type as Resource, Cost and G/L Account, Modify Qty. to
         // Ship and Post partially as Ship and Invoice.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(AutomaticCostPosting, ExpectedCostPosting);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
         ModifyQtyToShipOnServiceLine(ServiceHeader."No.");
@@ -1476,7 +1476,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Create Service Order having Service Line with Type as Resource, Modify Qty. to Ship field and Post as Ship, Modify Qty.
         // to Ship, Qty. to Consume and Post as Ship and Consume.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
         CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
@@ -1520,7 +1520,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Create Service Order having Service Line with Type as Resource, Modify Qty. to Ship field and Post as Ship, Modify Qty.
         // to Ship, Qty. to Consume and Post as Ship and Consume.
-        Initialize;
+        Initialize();
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
         CreateServiceLineWithResource(ServiceLine, ServiceHeader, ServiceItem."No.");
@@ -1568,7 +1568,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1.Setup: Create Service Order having Service Line with Type as Resource, Modify Sales and Receivables setup for Cal. Inv
         // Discount field as False and Automatic Cost Posting as False and Expected Cost Posting to G/L as False on Inventory Setup and
         // Modify Qty. to Ship on Service Line and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
@@ -1587,7 +1587,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Zero.
         ServiceShipmentLine.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentLine.SetRange("Qty. Shipped Not Invoiced", 0);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         asserterror UndoServiceShipmentLine.Run(ServiceShipmentLine);
         Assert.AreEqual(StrSubstNo(UndoShipmentErrorforService, ServiceShipmentLine.Quantity,
             ServiceShipmentLine.FieldCaption("Document No."), ServiceShipmentLine."Document No.",
@@ -1614,7 +1614,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1. Setup: Create Service Order having Service Line with Type as Resource, Modify Sales and Receivables setup for Cal. Inv
         // Discount field as False and Automatic Cost Posting as False and Expected Cost Posting to G/L as False on Inventory Setup and
         // Modify Qty. to Ship on Service Line and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
@@ -1632,7 +1632,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 3. Verify: Undo Consume on Service Shipment Line and Check that no error comes on undo consumption.
         ServiceShipmentLine.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentLine.SetFilter("Quantity Consumed", '>0');
-        ServiceShipmentLine.FindLast;
+        ServiceShipmentLine.FindLast();
         UndoServiceConsumptionLine.Run(ServiceShipmentLine);
     end;
 
@@ -1656,7 +1656,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1. Setup: Create Service Order having Service Line with Type as Resource, Modify Sales and Receivables setup for Cal. Inv
         // Discount field as False and Automatic Cost Posting as False and Expected Cost Posting to G/L as False on Inventory Setup and
         // Modify Qty. to Ship on Service Line and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
@@ -1665,7 +1665,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 2. Exercise: Undo Service Shipment Line.
         ServiceShipmentLine.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         UndoServiceShipmentLine.Run(ServiceShipmentLine);
 
         // 3. Verify: Try to post the Service Order as Invoice while there is no Qty. in Invoice field.
@@ -1691,7 +1691,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1. Setup: Create Service Order having Service Line with Type as Resource, Modify Sales and Receivables setup for Cal. Inv
         // Discount field as False and Automatic Cost Posting as False and Expected Cost Posting to G/L as False on Inventory Setup and
         // Modify Qty. to Ship on Service Line and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
@@ -1734,7 +1734,7 @@ codeunit 136108 "Service Posting - Invoice"
         // 1. Setup: Create Service Order having Service Line with Type as Resource and Item, Modify Sales and Receivables setup for
         // Cal. Inv Discount field as False and Automatic Cost Posting as False and Expected Cost Posting to G/L as False on
         // Inventory Setup and Modify Qty. to Ship on Service Line and Post as Ship.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         ModifyCostPostngInventorySetup(false, false);
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::" ");
@@ -1755,7 +1755,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Undo Service Consumption.
         ServiceShipmentLine.SetRange("Order No.", ServiceHeader."No.");
         ServiceShipmentLine.SetFilter("Quantity Consumed", '>0');
-        ServiceShipmentLine.FindLast;
+        ServiceShipmentLine.FindLast();
         UndoServiceConsumptionLine.Run(ServiceShipmentLine);
         VerifyItemLedgerAndValueEntriesAfterUndoConsumption(TempServiceLineBeforePosting);
 
@@ -1785,7 +1785,7 @@ codeunit 136108 "Service Posting - Invoice"
         // without the option Replace Posting Date, Replace Document Date.
 
         // 1. Setup: Create Service Invoice - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -1812,7 +1812,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Test that the Posting Date is replaced on running the report Batch Post Service Invoice with the option Replace Posting Date.
 
         // 1. Setup: Create Service Invoice - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -1838,7 +1838,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Test that the Document Date is replaced on running the report Batch Post Service Invoice with the option Replace Document Date.
 
         // 1. Setup: Create Service Invoice - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -1867,7 +1867,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Invoice - Service Header, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::Invoice);
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
@@ -1894,7 +1894,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Invoice - Service Header, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::Invoice);
 
         // 2. Exercise: Run the Batch Post Service Invoices with any random date greater than work date.
@@ -1919,7 +1919,7 @@ codeunit 136108 "Service Posting - Invoice"
         // without the option Replace Posting Date, Replace Document Date.
 
         // 1. Setup: Create Service Credit Memo - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -1946,7 +1946,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Test that the Posting Date is replaced on running the report Batch Post Service Cr. Memos with the option Replace Posting Date.
 
         // 1. Setup: Create Service Credit Memo - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -1972,7 +1972,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Test that the Document Date is replaced on running the report Batch Post Service Cr. Memos with the option Replace Document Date.
 
         // 1. Setup: Create Service Credit Memo - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -2001,7 +2001,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Credit Memo - Service Header, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::"Credit Memo");
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
@@ -2028,7 +2028,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Credit Memo - Service Header, Service Line with Type as Item.
-        Initialize;
+        Initialize();
         CreateMultipleServiceLineAndInvoiceDiscount(ServiceHeader, CustInvoiceDisc, ServiceHeader."Document Type"::"Credit Memo");
 
         // 2. Exercise: Run the Batch Post Service Cr. Memos with any random date greater than work date.
@@ -2051,7 +2051,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Service Cr. Memos with the option Replace Posting Date and blank posting date.
 
         // 1. Setup: Create Service Credit Memo - Service Header, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         CreateMultipleServiceLines(ServiceHeader, '');
         Commit();  // Commit is required to run the batch job.
@@ -2080,7 +2080,7 @@ codeunit 136108 "Service Posting - Invoice"
         // without the option Replace Posting Date, Replace Document Date.
 
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -2113,7 +2113,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Test that the Posting Date is replaced on running the report Batch Post Service Orders with the option Replace Posting Date.
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithMultipleLines(ServiceHeader);
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date greater than work date.
@@ -2140,7 +2140,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // Test that the Document Date is replaced on running the report Batch Post Service Orders with the option Replace Document Date.
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         CreateServiceHeaderWithMultipleLines(ServiceHeader);
 
         // 2. Exercise: Run the Batch Post Service Orders with any random date less than work date.
@@ -2173,7 +2173,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 0);  // Minimum amount is 0.
@@ -2212,7 +2212,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // 1. Setup: Setup Invoice Discount. Create a new Customer, Customer Invoice Discount. Input non-zero percent in line.
         // Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         ModifyInvoiceDiscount;
         LibrarySales.CreateCustomer(Customer);
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", '', 0);  // Minimum amount is 0.
@@ -2247,7 +2247,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Service Orders with the option Replace Posting Date and blank posting date.
 
         // 1. Setup: Create Service Order - Service Item, Service Header, Service Item Line, multiple Service Lines with Type as Item.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -2277,7 +2277,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Verify that source no is correct in value entry when bill-to customer no is defined.
 
         // Setup: Create Service Invoce with Bill-to Customer No.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(BillToCustomer);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
@@ -2304,7 +2304,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [Invoice] [Payment Method]
         // [SCENARIO 363865] Payment Method is populated from posted Service Invoice to Customer Ledger Entry
-        Initialize;
+        Initialize();
         LibraryERM.CreatePaymentMethod(PaymentMethod);
 
         // [GIVEN] Service Invoice with "Payment Method Code" = "PM"
@@ -2318,7 +2318,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // [THEN] "Customer Ledger Entry"."Payment Method Code" = "PM"
         CustLedgerEntry.SetRange("Customer No.", ServiceHeader."Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(
           PaymentMethod.Code, CustLedgerEntry."Payment Method Code", CustLedgerEntry.FieldCaption("Payment Method Code"));
     end;
@@ -2337,7 +2337,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
     begin
         // [SCENARIO 376766] Service Order with Text Service Line that have empty Posting Date should be posted when Allowed Posting Dates are defined
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set Allowed Posting Dates in GLSetup
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate));
@@ -2367,7 +2367,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // [THEN] Posted Service Shipment Line with empty type has Description = "D"
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::" ");
         FindServiceInvoiceLines(ServiceInvoiceLine, ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.TestField(Description, ServiceItemLine."Service Item No.");
@@ -2410,7 +2410,7 @@ codeunit 136108 "Service Posting - Invoice"
         // [SCENARIO 220803] Service Header's "Salesperson Code" is copied when perform GenJournalLine.CopyFromServiceHeader()
         ServiceHeader.Init();
         GenJournalLine.Init();
-        ServiceHeader."Salesperson Code" := LibraryUtility.GenerateGUID;
+        ServiceHeader."Salesperson Code" := LibraryUtility.GenerateGUID();
 
         GenJournalLine.CopyFromServiceHeader(ServiceHeader);
 
@@ -2427,7 +2427,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [Customer]
         // [SCENARIO 220803] Customer Ledger Entry's "Salesperson Code" has a value after post Service Invoice for a customer with "Salesperson Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "Salesperson Code" = "X"
         CreateCustomerWithSalesPersonCode(Customer);
@@ -2483,13 +2483,13 @@ codeunit 136108 "Service Posting - Invoice"
         ResourceNo: Code[20];
     begin
         // [SCENARIO 230253] When "Shipment on Invoice" is TRUE in Service Setup and Service Invoice is posted, then entry Type "Usage" is created in Res. Ledger Entry for Posted Service Shipment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable "Shipment on Invoice" in Service Mgt. Setup
         LibraryService.SetShipmentOnInvoice(true);
 
         // [GIVEN] Service Invoice with Resource
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         CreateServiceInvoiceWithResource(ServiceHeader, ResourceNo);
 
         // [WHEN] Post Service Invoice
@@ -2509,13 +2509,13 @@ codeunit 136108 "Service Posting - Invoice"
         PreAssignedNo: Code[20];
     begin
         // [SCENARIO 230253] When "Shipment on Invoice" is FALSE in Service Setup and Service Invoice is posted, then entry Type "Usage" is created in Res. Ledger Entry for Posted Service Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Disable "Shipment on Invoice" in Service Mgt. Setup
         LibraryService.SetShipmentOnInvoice(false);
 
         // [GIVEN] Service Invoice with Resource
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         PreAssignedNo := CreateServiceInvoiceWithResource(ServiceHeader, ResourceNo);
 
         // [WHEN] Post Service Invoice
@@ -2524,7 +2524,7 @@ codeunit 136108 "Service Posting - Invoice"
         // [THEN] Resource Ledger Entry with with type "Usage" is created with "Document No" = Posted Service Invoice "No."
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
         Assert.RecordCount(ServiceInvoiceHeader, 1);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VerifyResourceLedgerEntryTypeUsage(ServiceInvoiceHeader."No.", ResourceNo);
     end;
 
@@ -2541,7 +2541,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [Batch Posting] [Allowed Posting Period]
         // [SCENARIO 276974] "Replace Posting Date" is TRUE, posting date of document is replaced and document is posted correctly, because new posting date is inside allowed posting date period
-        Initialize;
+        Initialize();
 
         // [GIVEN] A service order with a line
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
@@ -2573,7 +2573,7 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [Batch Posting] [Allowed Posting Period]
         // [SCENARIO 276974] "Replace Posting Date" is TRUE, posting date of document is replaced and document is not posted, because new posting date is outside of allowed posting date period
-        Initialize;
+        Initialize();
 
         // [GIVEN] A service order with a line
         CreateServiceOrder(ServiceHeader, ServiceItemLine, ServiceLine, ServiceItem, Type::Item);
@@ -2602,13 +2602,13 @@ codeunit 136108 "Service Posting - Invoice"
     begin
         // [FEATURE] [External Document No.]
         // [SCENARIO 287958] External Document No. processing does not depend on SalesSetup.Ext. Doc. No. Mandatory
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set SalesSetup.Ext. Doc. No. Mandatory = No
         SetSalesSetupExtDocNoMandatory(false);
 
         // [GIVEN] Create sales invoice with line
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, CustomerNo);
         CreateServiceLine(ServiceHeader);
 
@@ -2617,7 +2617,7 @@ codeunit 136108 "Service Posting - Invoice"
 
         // [THEN] Created customer ledger entry has External Document No. = ServiceHeader."No."
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("External Document No.", ServiceHeader."No.");
     end;
 
@@ -2728,18 +2728,18 @@ codeunit 136108 "Service Posting - Invoice"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Posting - Invoice");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Invoice");
 
         // Setup demonstration data.
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -2759,7 +2759,7 @@ codeunit 136108 "Service Posting - Invoice"
         BatchPostServiceCrMemos.SetTableView(ServiceHeader);
         BatchPostServiceCrMemos.InitializeRequest(PostingDate, ReplacePostingDate, ReplaceDocumentDate, CalculateInvoiceDiscount);
         BatchPostServiceCrMemos.UseRequestPage(false);
-        BatchPostServiceCrMemos.Run;
+        BatchPostServiceCrMemos.Run();
     end;
 
     local procedure BatchPostServiceInvoices(ServiceHeader: Record "Service Header"; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean; CalculateInvoiceDiscount: Boolean)
@@ -2772,7 +2772,7 @@ codeunit 136108 "Service Posting - Invoice"
         BatchPostServiceInvoices.SetTableView(ServiceHeader);
         BatchPostServiceInvoices.InitializeRequest(PostingDate, ReplacePostingDate, ReplaceDocumentDate, CalculateInvoiceDiscount);
         BatchPostServiceInvoices.UseRequestPage(false);
-        BatchPostServiceInvoices.Run;
+        BatchPostServiceInvoices.Run();
     end;
 
     local procedure BatchPostServiceOrder(ServiceHeader: Record "Service Header"; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean; CalculateInvoiceDiscount: Boolean)
@@ -2785,7 +2785,7 @@ codeunit 136108 "Service Posting - Invoice"
         BatchPostServiceOrders.SetTableView(ServiceHeader);
         BatchPostServiceOrders.InitializeRequest(true, true, PostingDate, ReplacePostingDate, ReplaceDocumentDate, CalculateInvoiceDiscount);
         BatchPostServiceOrders.UseRequestPage(false);
-        BatchPostServiceOrders.Run;
+        BatchPostServiceOrders.Run();
     end;
 
     local procedure CalculateTotlAmountShippedLine(OrderNo: Code[20]) TotalAmount: Decimal
@@ -2794,7 +2794,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.FindSet();
         repeat
@@ -2984,7 +2984,7 @@ codeunit 136108 "Service Posting - Invoice"
     local procedure FindServiceCreditMemoHeader(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; PreAssignedNo: Code[20])
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
     end;
 
     local procedure FindServiceCreditMemoLines(var ServiceCrMemoLine: Record "Service Cr.Memo Line"; DocumentNo: Code[20])
@@ -2996,13 +2996,13 @@ codeunit 136108 "Service Posting - Invoice"
     local procedure FindServiceInvoiceFromOrder(var ServiceInvoiceHeader: Record "Service Invoice Header"; OrderNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceHeader(var ServiceInvoiceHeader: Record "Service Invoice Header"; PreAssignedNo: Code[20])
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure FindServiceInvoiceLines(var ServiceInvoiceLine: Record "Service Invoice Line"; DocumentNo: Code[20])
@@ -3014,7 +3014,7 @@ codeunit 136108 "Service Posting - Invoice"
     local procedure FindServiceShipmentHeader(var ServiceShipmentHeader: Record "Service Shipment Header"; OrderNo: Code[20])
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
     end;
 
     local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup")
@@ -3028,7 +3028,7 @@ codeunit 136108 "Service Posting - Invoice"
         with CustLedgerEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -3146,7 +3146,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         TempServiceLine := ServiceLine;
         TempServiceLine.Insert();
         ServicePost.PostWithLines(ServiceHeader, TempServiceLine, Ship, Consume, Invoice);
@@ -3222,10 +3222,10 @@ codeunit 136108 "Service Posting - Invoice"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure VerifyDetailedCustLedgerEntry(OrderNo: Code[20]; TotalAmount: Decimal)
@@ -3234,7 +3234,7 @@ codeunit 136108 "Service Posting - Invoice"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
         DetailedCustLedgEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         DetailedCustLedgEntry.FindSet();
@@ -3313,12 +3313,12 @@ codeunit 136108 "Service Posting - Invoice"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Resource);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField(Quantity, -ServiceInvoiceLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
         ResLedgerEntry.TestField("Order No.", ServiceInvoiceHeader."Order No.");
@@ -3341,7 +3341,7 @@ codeunit 136108 "Service Posting - Invoice"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
@@ -3359,12 +3359,12 @@ codeunit 136108 "Service Posting - Invoice"
         VATEntry: Record "VAT Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Base, -ServiceInvoiceLine."VAT Base Amount");
     end;
 
@@ -3385,7 +3385,7 @@ codeunit 136108 "Service Posting - Invoice"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Item No.", ItemNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TESTFIELD("Source No. 2", SourceCode); // NAVCZ
     end;
 
@@ -3409,10 +3409,10 @@ codeunit 136108 "Service Posting - Invoice"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ServiceShipmentLine.SetRange("Order No.", OrderNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Item No.", ServiceShipmentLine."No.");
         ItemLedgerEntry.TestField("Invoiced Quantity", -ServiceShipmentLine."Quantity Invoiced");
     end;
@@ -3426,12 +3426,12 @@ codeunit 136108 "Service Posting - Invoice"
         ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Service Shipment");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Service);
         ItemLedgerEntry.SetRange("Order No.", OrderNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ServiceShipmentLine.SetRange("Order No.", ItemLedgerEntry."Order No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Valued Quantity", -ServiceShipmentLine.Quantity);
     end;
 
@@ -3443,9 +3443,9 @@ codeunit 136108 "Service Posting - Invoice"
         VatBaseAmount: Decimal;
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceLine."Document No.");
         VATEntry.FindSet();
@@ -3494,7 +3494,7 @@ codeunit 136108 "Service Posting - Invoice"
         ItemLedgerEntry.SetRange(Correction, false);
         repeat
             ItemLedgerEntry.SetRange("Order Line No.", TempServiceLineBeforePosting."Line No.");
-            ItemLedgerEntry.FindLast;  // Find the Item Ledger Entry for the second action.
+            ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             Assert.AreNearlyEqual(
               ItemLedgerEntry.Quantity, -TempServiceLineBeforePosting."Qty. to Consume", Tolerance,
               'Quantity and Quantity Consumed are nearly equal');
@@ -3502,7 +3502,7 @@ codeunit 136108 "Service Posting - Invoice"
               ItemLedgerEntry."Invoiced Quantity", -TempServiceLineBeforePosting."Qty. to Consume", Tolerance,
               'Quantity Consumed and Invoiced Quantity are nearly equal');
             RelatedItemLedgerEntry.SetRange("Applies-to Entry", ItemLedgerEntry."Applies-to Entry");
-            RelatedItemLedgerEntry.FindFirst;
+            RelatedItemLedgerEntry.FindFirst();
             ItemLedgerEntry.TestField("Cost Amount (Actual)", -RelatedItemLedgerEntry."Cost Amount (Actual)");
             ItemLedgerEntry.TestField("Sales Amount (Actual)", 0);
             VerifyValueEntryAfterUndoConsumption(ItemLedgerEntry);
@@ -3516,7 +3516,7 @@ codeunit 136108 "Service Posting - Invoice"
         // Verify that the value ofthe field Valued Quantity of the Value Entry is equal to the value of the field Qty. to Ship of
         // the relevant Service Line.
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
-        ValueEntry.FindLast;
+        ValueEntry.FindLast();
         ValueEntry.TestField("Valued Quantity", ItemLedgerEntry.Quantity);
         ValueEntry.TestField("Item Ledger Entry Type", ItemLedgerEntry."Entry Type");
         ItemLedgerEntry.TestField("Cost Amount (Actual)", ItemLedgerEntry."Cost Amount (Actual)");
@@ -3527,7 +3527,7 @@ codeunit 136108 "Service Posting - Invoice"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure VerifyNotPostedServiceOrder(OrderNo: Code[20])

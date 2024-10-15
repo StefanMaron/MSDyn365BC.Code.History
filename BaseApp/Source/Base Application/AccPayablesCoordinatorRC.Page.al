@@ -108,19 +108,6 @@ page 9002 "Acc. Payables Coordinator RC"
                 RunObject = Report "Purchase Statistics";
                 ToolTip = 'View a list of amounts for purchases, invoice discount and payment discount in $ for each vendor.';
             }
-#if not CLEAN17
-            action("V&endor - Bal. Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'V&endor - Bal. Reconciliation';
-                RunObject = Report "Vendor - Bal. Reconciliation";
-                ToolTip = 'Opens vendor - bal. reconciliation report';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
             separator(Action63)
             {
             }
@@ -203,9 +190,6 @@ page 9002 "Acc. Payables Coordinator RC"
                 Caption = 'Bank Accounts';
                 Image = BankAccount;
                 RunObject = Page "Bank Account List";
-#if not CLEAN17
-                RunPageView = WHERE("Account Type" = CONST("Bank Account"));
-#endif
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
             action(Items)
@@ -426,7 +410,7 @@ page 9002 "Acc. Payables Coordinator RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

@@ -29,7 +29,7 @@ codeunit 132516 "Unrealized VAT Part"
 
         TestCodeunitID := 132516;
         LibraryERM.SetUnrealizedVAT(true);
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATBus := VATPostingSetup."VAT Bus. Posting Group";
         VATProd := VATPostingSetup."VAT Prod. Posting Group";
@@ -42,7 +42,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure PercentageFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'Percentagefull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Percentage);
 
@@ -55,7 +55,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure PercentageLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'PercentageLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Percentage);
 
@@ -68,7 +68,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Percentage2Low()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'Percentage2Low';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Percentage);
 
@@ -81,7 +81,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Percentage2Full()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'Percentage2Full';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Percentage);
 
@@ -94,7 +94,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -107,7 +107,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Firstfull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -120,7 +120,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure First2PayLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'First2PayLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -133,7 +133,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure First2PayFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'First2PayFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -146,7 +146,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure First2PayOver()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'First2Payover';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -159,7 +159,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstReverseChargeLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstRevergeChargeLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::First);
 
@@ -173,7 +173,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstFullyFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFullyFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
 
@@ -186,7 +186,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Firstfullylow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFullyLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
 
@@ -199,7 +199,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstFully2PayLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFully2PayLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
 
@@ -212,7 +212,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstFully2PayFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFully2PayFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
 
@@ -225,7 +225,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure FirstFullyReverseChargeLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'FirstFullyReverseChargeLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"First (Fully Paid)");
 
@@ -239,7 +239,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -252,7 +252,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastUnder()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastUnder';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -265,7 +265,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -278,7 +278,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Last2PayLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'Last2PayLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -291,7 +291,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure Last2PayFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'Last2PayFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -304,7 +304,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastReverseChargeLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastReverseChargeLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -318,7 +318,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastReverseChargeFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::Last);
 
@@ -332,7 +332,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastFullyFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFullyFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
 
@@ -345,7 +345,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastFullyunder()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFullyUnder';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
 
@@ -358,7 +358,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastfullyLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFullyLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
 
@@ -371,7 +371,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastFullyReverseChargeLow()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFullyLow';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
 
@@ -385,7 +385,7 @@ codeunit 132516 "Unrealized VAT Part"
     [Scope('OnPrem')]
     procedure LastFullyReverseChargeFull()
     begin
-        Initialize;
+        Initialize();
         TestMethodName := 'LastFullyFull';
         SetUnrealizedVATType(VATBus, VATProd, VATPostingSetup."Unrealized VAT Type"::"Last (Fully Paid)");
 

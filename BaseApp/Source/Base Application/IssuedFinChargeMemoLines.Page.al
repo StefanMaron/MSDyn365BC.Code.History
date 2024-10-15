@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 451 "Issued Fin. Charge Memo Lines"
 {
     AutoSplitKey = true;
@@ -79,12 +80,16 @@ page 451 "Issued Fin. Charge Memo Lines"
                     Style = Strong;
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency of the finance charge memo.';
-                    Visible = false;
+                    Visible = ReplaceMulIntRateEnabled;
                 }
                 field("Interest Amount"; "Interest Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the finance charge memo lines.';
+                    Visible = not ReplaceMulIntRateEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
                 }
             }
         }
@@ -93,6 +98,11 @@ page 451 "Issued Fin. Charge Memo Lines"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    begin
+        ReplaceMulIntRateEnabled := ReplaceMulIntRateMgt.IsEnabled();
+    end;
 
     trigger OnAfterGetRecord()
     begin
@@ -103,6 +113,7 @@ page 451 "Issued Fin. Charge Memo Lines"
     end;
 
     var
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
         [InDataSet]
         DescriptionEmphasize: Boolean;
         [InDataSet]
@@ -111,6 +122,7 @@ page 451 "Issued Fin. Charge Memo Lines"
         RemainingAmountEmphasize: Boolean;
         [InDataSet]
         AmountEmphasize: Boolean;
+        ReplaceMulIntRateEnabled: Boolean;
 
     local procedure DescriptionOnFormat()
     begin
@@ -130,3 +142,4 @@ page 451 "Issued Fin. Charge Memo Lines"
     end;
 }
 
+#endif

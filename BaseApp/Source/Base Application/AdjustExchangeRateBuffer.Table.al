@@ -113,13 +113,6 @@ table 331 "Adjust Exchange Rate Buffer"
         {
             Caption = 'Advance';
             DataClassification = SystemMetadata;
-#if not CLEAN19
-            ObsoleteState = Pending;
-#else
-            ObsoleteState = Removed;
-#endif
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
         }
     }
 
@@ -128,9 +121,6 @@ table 331 "Adjust Exchange Rate Buffer"
         key(Key1; "Currency Code", "Posting Group", "Dimension Entry No.", "Posting Date", "IC Partner Code", Advance, "Initial G/L Account No.")
         {
             Clustered = true;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Advance" is removed and cannot be used in an active key.';
-            ObsoleteTag = '19.0';
         }
     }
 

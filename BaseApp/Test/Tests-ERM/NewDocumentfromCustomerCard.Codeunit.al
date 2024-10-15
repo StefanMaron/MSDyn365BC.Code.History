@@ -42,7 +42,7 @@ codeunit 134771 "New Document from CustomerCard"
         BlanketSalesOrder: TestPage "Blanket Sales Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -72,7 +72,7 @@ codeunit 134771 "New Document from CustomerCard"
         SalesQuote: TestPage "Sales Quote";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -99,7 +99,7 @@ codeunit 134771 "New Document from CustomerCard"
         SalesInvoice: TestPage "Sales Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -126,7 +126,7 @@ codeunit 134771 "New Document from CustomerCard"
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -154,7 +154,7 @@ codeunit 134771 "New Document from CustomerCard"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -181,7 +181,7 @@ codeunit 134771 "New Document from CustomerCard"
         SalesReturnOrder: TestPage "Sales Return Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -210,7 +210,7 @@ codeunit 134771 "New Document from CustomerCard"
         ServiceQuote: TestPage "Service Quote";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -239,7 +239,7 @@ codeunit 134771 "New Document from CustomerCard"
         ServiceInvoice: TestPage "Service Invoice";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -268,7 +268,7 @@ codeunit 134771 "New Document from CustomerCard"
         ServiceOrder: TestPage "Service Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -296,7 +296,7 @@ codeunit 134771 "New Document from CustomerCard"
         ServiceCreditMemo: TestPage "Service Credit Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -323,7 +323,7 @@ codeunit 134771 "New Document from CustomerCard"
         Reminder: TestPage Reminder;
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -349,7 +349,7 @@ codeunit 134771 "New Document from CustomerCard"
         FinanceChargeMemo: TestPage "Finance Charge Memo";
     begin
         // Setup
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
 
         // Execute
@@ -379,7 +379,7 @@ codeunit 134771 "New Document from CustomerCard"
         // Cover TFS ID 102659
 
         // [GIVEN] Opening Customer card
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CustomerCard.OpenEdit;
         CustomerCard.GotoRecord(Customer);

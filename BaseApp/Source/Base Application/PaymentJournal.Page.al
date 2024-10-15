@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN20
 page 256 "Payment Journal"
 {
     AdditionalSearchTerms = 'print check,payment file export,electronic payment';
@@ -48,17 +48,6 @@ page 256 "Payment Journal"
                     StyleExpr = HasPmtFileErr;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -267,6 +256,7 @@ page 256 "Payment Journal"
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
+#if not CLEAN19
                 field("Advance VAT Base Amount"; "Advance VAT Base Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -276,6 +266,7 @@ page 256 "Payment Journal"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 field("VAT Difference"; "VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
@@ -436,6 +427,7 @@ page 256 "Payment Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that an error occurred when you used the Export Payments to File function in the Payment Journal window.';
                 }
+#if not CLEAN19
                 field(Prepayment; Prepayment)
                 {
                     ApplicationArea = Prepayments;
@@ -445,13 +437,22 @@ page 256 "Payment Journal"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
+#endif
+#if not CLEAN19
                 field(LinkedAdvances; GetLinkedAdvanceLetters(Rec."Account Type", Rec."Advance Letter Link Code"))
+#else
+                field(LinkedAdvances; '')
+#endif
                 {
                     Caption = 'Linked Advances';
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Shows the number of the advances with which the journal line is linked.';
                     Editable = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '20.0';
                 }
+#if not CLEAN19
                 field("Prepayment Type"; "Prepayment Type")
                 {
                     ApplicationArea = Prepayments;
@@ -461,6 +462,7 @@ page 256 "Payment Journal"
                     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                     ObsoleteTag = '19.0';
                 }
+#endif
                 field("Job Queue Status"; "Job Queue Status")
                 {
                     ApplicationArea = All;
@@ -843,7 +845,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestVendorPayments);
                         SuggestVendorPayments.SetGenJnlLine(Rec);
-                        SuggestVendorPayments.RunModal;
+                        SuggestVendorPayments.RunModal();
                     end;
                 }
                 action(SuggestEmployeePayments)
@@ -863,7 +865,7 @@ page 256 "Payment Journal"
                     begin
                         Clear(SuggestEmployeePayments);
                         SuggestEmployeePayments.SetGenJnlLine(Rec);
-                        SuggestEmployeePayments.RunModal;
+                        SuggestEmployeePayments.RunModal();
                     end;
                 }
                 action(PreviewCheck)
@@ -924,7 +926,7 @@ page 256 "Payment Journal"
 
                             Window.Open(GeneratingPaymentsMsg);
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.ExportPaymentFile;
                             Window.Close;
                         end;
@@ -943,7 +945,7 @@ page 256 "Payment Journal"
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.VoidPaymentFile;
                         end;
                     }
@@ -961,7 +963,7 @@ page 256 "Payment Journal"
                         trigger OnAction()
                         begin
                             GenJnlLine.CopyFilters(Rec);
-                            if GenJnlLine.FindFirst then
+                            if GenJnlLine.FindFirst() then
                                 GenJnlLine.TransmitPaymentFile;
                         end;
                     }
@@ -1030,6 +1032,25 @@ page 256 "Payment Journal"
                     PromotedCategory = Category4;
                     RunObject = Page "Credit Transfer Registers";
                     ToolTip = 'View or edit the payment files that have been exported in connection with credit transfers.';
+                }
+                action(NetCustomerVendorBalances)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Net Customer/Vendor Balances';
+                    Image = Balance;
+                    ToolTip = 'Create journal lines to consolidate customer and vendor balances as of a specified date. This is relevant when you do business with a company that is both a customer and a vendor. Depending on which is larger, the balance will be netted for either the payable or receivable amount.';
+                    Promoted = true;
+                    PromotedCategory = Category5;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+
+                    trigger OnAction()
+                    var
+                        NetCustomerVendorBalances: Report "Net Customer/Vendor Balances";
+                    begin
+                        NetCustomerVendorBalances.SetGenJnlLine(Rec);
+                        NetCustomerVendorBalances.RunModal();
+                    end;
                 }
             }
             action(Approvals)
@@ -1105,6 +1126,7 @@ page 256 "Payment Journal"
                     RunObject = Codeunit "Adjust Gen. Journal Balance";
                     ToolTip = 'Insert a rounding correction line in the journal. This rounding correction line will balance in LCY when amounts in the foreign currency also balance. You can then post the journal.';
                 }
+#if not CLEAN19
                 action("Link Advance Letters")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1152,6 +1174,7 @@ page 256 "Payment Journal"
                         UnLinkWholeLetter; // NAVCZ
                     end;
                 }
+#endif
                 action(PositivePayExport)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1227,7 +1250,7 @@ page 256 "Payment Journal"
                     trigger OnAction()
                     begin
                         GLReconcile.SetGenJnlLine(Rec);
-                        GLReconcile.Run;
+                        GLReconcile.Run();
                     end;
                 }
                 action(PreCheck)
@@ -1430,7 +1453,7 @@ page 256 "Payment Journal"
                     begin
                         // Opens page 6400 where the user can use filtered templates to create new flows.
                         FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetJournalTemplateFilter);
-                        FlowTemplateSelector.Run;
+                        FlowTemplateSelector.Run();
                     end;
                 }
                 action(SeeFlows)
@@ -1704,6 +1727,7 @@ page 256 "Payment Journal"
         DocPrint: Codeunit "Document-Print";
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1790,12 +1814,14 @@ page 256 "Payment Journal"
     local procedure EnableApplyEntriesAction()
     begin
         ApplyEntriesActionEnabled :=
-          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) or
-          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]);
+          ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::Employee]) or
+          ("Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::Employee]);
+#if not CLEAN19
         // NAVCZ
         ApplyEntriesActionEnabled := ApplyEntriesActionEnabled or
           ("Account Type" = "Account Type"::"G/L Account") or ("Bal. Account Type" = "Bal. Account Type"::"G/L Account");
         // NAVCZ
+#endif
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -1829,7 +1855,7 @@ page 256 "Payment Journal"
         WorkflowWebhookManagement.GetCanRequestAndCanCancelJournalBatch(
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -1899,7 +1925,7 @@ page 256 "Payment Journal"
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
     end;
-
+#if not CLEAN19
     local procedure GetLinkedAdvanceLetters(AccountType: Enum "Gen. Journal Account Type"; LinkCode: Code[30]) Result: Code[250]
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
@@ -1939,6 +1965,7 @@ page 256 "Payment Journal"
             else
                 Result := CopyStr(Result + ',' + AdvanceLetterCode, 1, 250);
     end;
+#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterOnAfterGetRecord(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlManagement: Codeunit GenJnlManagement; var AccName: Text[100]; var BalAccName: Text[100])

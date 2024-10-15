@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 254 "Purchase Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
@@ -54,26 +55,6 @@ page 254 "Purchase Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date of the original document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -154,6 +135,10 @@ page 254 "Purchase Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting group that will be used in posting the journal line.The field is used only if the account type is either customer or vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field(Description; Description)
                 {
@@ -260,11 +245,17 @@ page 254 "Purchase Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Debit Amount"; "Debit Amount")
                 {
@@ -1249,6 +1240,7 @@ page 254 "Purchase Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ClientTypeManagement: Codeunit "Client Type Management";
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1363,7 +1355,7 @@ page 254 "Purchase Journal"
     begin
         if not GenJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
             exit;
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -1437,4 +1429,4 @@ page 254 "Purchase Journal"
     begin
     end;
 }
-
+#endif

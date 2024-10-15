@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 167 "Item Ledger Entries Preview"
 {
     Caption = 'Item Ledger Entries Preview';
@@ -96,7 +97,7 @@ page 167 "Item Ledger Entries Preview"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies a package number if the posted item carries such a number.';
-                    Visible = ItemTrackingVisible;
+                    Visible = PackageTrackingVisible;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
@@ -248,6 +249,9 @@ page 167 "Item Ledger Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source number used on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
 #if not CLEAN18
                 field("Source No. 2"; "Source No. 2")
@@ -512,9 +516,6 @@ page 167 "Item Ledger Entries Preview"
         CostAmountExpectedACY: Decimal;
         CostAmountActualACY: Decimal;
         CostAmountNonInvtblACY: Decimal;
-        ItemTrackingVisible: Boolean;
-        [InDataSet]
-        PackageTrackingVisible: Boolean;
 
     protected var
         Dim1Visible: Boolean;
@@ -525,6 +526,10 @@ page 167 "Item Ledger Entries Preview"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        [InDataSet]
+        ItemTrackingVisible: Boolean;
+        [InDataSet]
+        PackageTrackingVisible: Boolean;
 
     local procedure SetDimVisibility()
     var
@@ -583,4 +588,4 @@ page 167 "Item Ledger Entries Preview"
         PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
-
+#endif

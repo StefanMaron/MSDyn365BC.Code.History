@@ -321,7 +321,7 @@ page 31024 "Purch. Adv. Letter Statistics"
 #if not CLEAN18
                     VATAmountLines.SetCurrencyFactor("Currency Factor");
 #endif
-                    VATAmountLines.RunModal;
+                    VATAmountLines.RunModal();
                     VATAmountLines.GetTempVATAmountLine(VATAmountLine);
                 end;
             2:
@@ -332,7 +332,7 @@ page 31024 "Purch. Adv. Letter Statistics"
 #if not CLEAN18
                     VATAmountLines2.SetCurrencyFactor("Currency Factor");
 #endif
-                    VATAmountLines2.RunModal;
+                    VATAmountLines2.RunModal();
                     VATAmountLines2.GetTempVATAmountLine(VATAmountLine);
                 end;
         end;

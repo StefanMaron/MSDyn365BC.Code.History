@@ -457,6 +457,11 @@ table 110 "Sales Shipment Header"
             Caption = 'Quote No.';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -542,11 +547,7 @@ table 110 "Sales Shipment Header"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -613,24 +614,16 @@ table 110 "Sales Shipment Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -688,13 +681,9 @@ table 110 "Sales Shipment Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -758,7 +747,6 @@ table 110 "Sales Shipment Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        TrackingInternetAddr: Text;
 
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
@@ -814,7 +802,7 @@ table 110 "Sales Shipment Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure StartTrackingSite()
@@ -826,7 +814,9 @@ table 110 "Sales Shipment Header"
         if IsHandled then
             exit;
 
-        HyperLink(GetTrackingInternetAddr());
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure ShowDimensions()
@@ -899,21 +889,6 @@ table 110 "Sales Shipment Header"
         exit(SalesSetup.GetLegalStatement());
     end;
 
-    [Obsolete('Moved to table 291 Shipping Agent GetTrackingInternetAddr()', '17.0')]
-    procedure GetTrackingInternetAddr(): Text
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled);
-        if IsHandled then
-            exit;
-
-        TestField("Shipping Agent Code");
-        ShippingAgent.Get("Shipping Agent Code");
-        exit(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
-    end;
-
     procedure GetWorkDescription(): Text
     var
         TypeHelper: Codeunit "Type Helper";
@@ -944,12 +919,6 @@ table 110 "Sales Shipment Header"
     begin
     end;
 
-    [Obsolete('Moved to table 291 Shipping Agent OnBeforeGetTrackingInternetAddr', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
     begin
@@ -960,4 +929,3 @@ table 110 "Sales Shipment Header"
     begin
     end;
 }
-

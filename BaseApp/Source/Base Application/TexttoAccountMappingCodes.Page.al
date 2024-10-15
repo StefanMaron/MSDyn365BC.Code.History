@@ -1,11 +1,18 @@
-#if not CLEAN19
+#if not CLEAN20
 page 11705 "Text-to-Account Mapping Codes"
 {
-    ApplicationArea = Basic, Suite;
     Caption = 'Text-to-Account Mapping Codes';
     PageType = List;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
+    ObsoleteTag = '20.0';
+#if not CLEAN19
+    ApplicationArea = Basic, Suite;
     SourceTable = "Text-to-Account Mapping Code";
     UsageCategory = Administration;
+#else
+    SourceTable = Integer;
+#endif
 
     layout
     {
@@ -39,12 +46,20 @@ page 11705 "Text-to-Account Mapping Codes"
                 Promoted = true;
                 PromotedCategory = Process;
                 PromotedIsBig = true;
+#if not CLEAN19
                 RunObject = Page "Text-to-Account Mapping";
                 RunPageLink = "Text-to-Account Mapping Code" = FIELD(Code);
+#endif
                 ToolTip = 'Specifies rules';
             }
         }
     }
+
+#if CLEAN19
+    var
+        Code: Code[20];
+        Description: Text;
+#endif
 }
 
 #endif

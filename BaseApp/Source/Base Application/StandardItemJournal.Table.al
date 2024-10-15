@@ -1,3 +1,4 @@
+#if not CLEAN20
 table 752 "Standard Item Journal"
 {
     Caption = 'Standard Item Journal';
@@ -75,7 +76,7 @@ table 752 "Standard Item Journal"
         LastItemJnlLine.SetRange("Journal Template Name", StdItemJnl."Journal Template Name");
         LastItemJnlLine.SetRange("Journal Batch Name", JnlBatchName);
 
-        if LastItemJnlLine.FindLast then;
+        if LastItemJnlLine.FindLast() then;
     end;
 
     procedure CreateItemJnlFromStdJnl(StdItemJnl: Record "Standard Item Journal"; JnlBatchName: Code[10])
@@ -145,6 +146,7 @@ table 752 "Standard Item Journal"
         end;
     end;
 
+    [Obsolete('The functionality will be removed and this action should not be used.', '20.0')]
     [Scope('OnPrem')]
     procedure CreateTransfJnlFromStdJnl(StdItemJnl: Record "Standard Item Journal"; JnlBatchName: Code[10])
     var
@@ -169,4 +171,4 @@ table 752 "Standard Item Journal"
     begin
     end;
 }
-
+#endif

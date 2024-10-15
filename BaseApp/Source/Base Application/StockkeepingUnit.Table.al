@@ -527,7 +527,7 @@ table 5700 "Stockkeeping Unit"
                 FromSKU.SetRange("Location Code", "Transfer-from Code");
                 FromSKU.SetRange("Item No.", "Item No.");
                 FromSKU.SetRange("Variant Code", "Variant Code");
-                if not FromSKU.FindFirst then
+                if not FromSKU.FindFirst() then
                     "Transfer-Level Code" := -1
                 else
                     "Transfer-Level Code" := FromSKU."Transfer-Level Code" - 1;
@@ -683,13 +683,9 @@ table 5700 "Stockkeeping Unit"
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(99000750; "Routing No."; Code[20])
         {
@@ -1080,4 +1076,3 @@ table 5700 "Stockkeeping Unit"
     begin
     end;
 }
-

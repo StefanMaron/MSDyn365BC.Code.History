@@ -15,7 +15,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
     begin
         CustLedgEntry.LockTable();
-        if CustLedgEntry.FindSet then begin
+        if CustLedgEntry.FindSet() then begin
             // Make Applies-to ID
             if CustLedgEntry."Applies-to ID" <> '' then
                 CustEntryApplID := ''
@@ -33,7 +33,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
             until CustLedgEntry.Next() = 0;
         end;
 
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 UpdateCustLedgerEntry(TempCustLedgEntry, ApplyingCustLedgEntry, AppliesToID);
             until TempCustLedgEntry.Next() = 0;

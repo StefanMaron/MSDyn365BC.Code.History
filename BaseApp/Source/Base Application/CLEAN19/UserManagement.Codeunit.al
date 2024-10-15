@@ -102,7 +102,7 @@ codeunit 418 "User Management"
         Text002Err: Label 'The account %1 already exists.', Comment = '%1 username';
         Text003Err: Label 'You do not have permissions for this action on the table %1.', Comment = '%1 table name';
         BasicAuthDepricationDescriptionTok: Label 'Web Service Access Key';
-        BasicAuthDepricationTok: Label 'Web Service Access Key has been deprecated for Business Central online. Please use OAuth.';
+        BasicAuthDepricationTok: Label 'Web Service Access Key is no longer supported in Business Central online. Integrations using this technology will stop working. Please use OAuth instead.';
         DontShowAgainTok: Label 'Don''t show me again';
         ShowMoreLinkTok: Label 'Show more';
         CurrentUserQst: Label 'You are signed in with the %1 account. Changing the account will refresh your session. Do you want to continue?', Comment = 'USERID';
@@ -116,7 +116,7 @@ codeunit 418 "User Management"
         User.FilterGroup(2);
         User.SetRange("User Name", Username);
         User.FilterGroup(0);
-        if not User.FindLast then
+        if not User.FindLast() then
             exit;
         OpenUserPageForSelectedUser(User);
     end;
@@ -128,7 +128,7 @@ codeunit 418 "User Management"
         User.FilterGroup(2);
         User.SetRange("User Security ID", SID);
         User.FilterGroup(0);
-        if not User.FindLast then
+        if not User.FindLast() then
             exit;
         OpenUserPageForSelectedUser(User);
     end;
@@ -139,7 +139,7 @@ codeunit 418 "User Management"
     begin
         UserLookup.Editable := false;
         UserLookup.SetTableView(User);
-        UserLookup.RunModal;
+        UserLookup.RunModal();
     end;
 
     procedure ValidateUserName(NewUser: Record User; OldUser: Record User; WindowsUserName: Text)
@@ -150,7 +150,7 @@ codeunit 418 "User Management"
         if NewUser."User Name" <> OldUser."User Name" then begin
             User.SetRange("User Name", NewUser."User Name");
             User.SetFilter("User Security ID", '<>%1', OldUser."User Security ID");
-            if User.FindFirst then
+            if User.FindFirst() then
                 Error(Text002Err, NewUser."User Name");
 
             if NewUser."Windows Security ID" <> '' then
@@ -324,10 +324,8 @@ codeunit 418 "User Management"
         MyNotifications: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        if not EnvironmentInfo.IsSaaS() then
-            exit;
         MyNotifications.InsertDefault(
-          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, true);
+          BasicAuthDepricationNotificationId(), BasicAuthDepricationDescriptionTok, BasicAuthDepricationTok, EnvironmentInfo.IsSaaS());
     end;
 
     [Scope('OnPrem')]
@@ -379,7 +377,7 @@ codeunit 418 "User Management"
         Field.SetRange(RelationTableNo, DATABASE::User);
         Field.SetRange(RelationFieldNo, User.FieldNo("User Name"));
         Field.SetFilter(Type, '%1|%2', Field.Type::Code, Field.Type::Text);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 Company.FindSet();
                 repeat
@@ -403,7 +401,7 @@ codeunit 418 "User Management"
                         end else begin
                             TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
                             TableInformation.SetRange("Table No.", Field.TableNo);
-                            if TableInformation.FindFirst then
+                            if TableInformation.FindFirst() then
                                 if TableInformation."No. of Records" > 0 then
                                     Error(Text003Err, Field.TableName);
                         end;
@@ -448,6 +446,9 @@ codeunit 418 "User Management"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
+        if User.IsTemporary() then
+            exit;
+
         if EnvironmentInfo.IsSaaS then begin
             if not (User."License Type" in [User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application]) then
                 Error(UnsupportedLicenseTypeOnSaasErr, User."License Type"::"Full User", User."License Type"::"External User", User."License Type"::Application);

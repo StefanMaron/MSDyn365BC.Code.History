@@ -184,7 +184,7 @@ report 502 "Intrastat - Checklist"
                     IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
                     IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
                     IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                    if not IntrastatJnlLineTemp.FindFirst then begin
+                    if not IntrastatJnlLineTemp.FindFirst() then begin
                         IntrastatJnlLineTemp := "Intrastat Jnl. Line";
                         IntrastatJnlLineTemp.Insert();
                         NoOfRecordsRTC += 1;

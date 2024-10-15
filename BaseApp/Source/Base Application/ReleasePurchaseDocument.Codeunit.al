@@ -1,8 +1,9 @@
-﻿#if not CLEAN18
+#if not CLEAN18
 codeunit 415 "Release Purchase Document"
 {
     TableNo = "Purchase Header";
-    Permissions = TableData "Purchase Header" = rm;
+    Permissions = TableData "Purchase Header" = rm,
+                  TableData "Purchase Line" = r;
 
     trigger OnRun()
     begin

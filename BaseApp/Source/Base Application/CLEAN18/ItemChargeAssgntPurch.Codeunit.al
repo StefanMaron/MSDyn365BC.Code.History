@@ -1,4 +1,4 @@
-﻿#if CLEAN18
+#if CLEAN18
 codeunit 5805 "Item Charge Assgnt. (Purch.)"
 {
     Permissions = TableData "Purchase Header" = r,
@@ -63,36 +63,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch.Insert();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer)
-    begin
-        InsertItemChargeAssignment(
-          ItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer)
-    begin
-        InsertItemChargeAssignmentWithValues(
-            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
-            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
-    begin
-        InsertItemChargeAssignmentWithValuesTo(
-            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
-            QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch);
-    end;
-#endif
-
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
         with TempToItemChargeAssignmentPurch do begin
             SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Item Charge No." <> ToItemChargeAssignmentPurch."Item Charge No.") or
                        ("Applies-to Doc. No." <> ToItemChargeAssignmentPurch."Applies-to Doc. No.") or
@@ -360,7 +335,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-        if ItemChargeAssgntPurch.FindFirst() then
+
+        if ItemChargeAssgntPurch.FindFirst() then begin
+            ItemChargeAssgntPurch.ModifyAll("Amount to Assign", 0);
+            ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
+
             case SelectionTxt of
                 AssignEquallyMenuText():
                     AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -377,6 +356,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                             Error(ItemChargesNotAssignedErr);
                     end;
             end;
+        end;
     end;
 
     procedure AssignEquallyMenuText(): Text
@@ -458,10 +438,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     ItemChargeAssgntPurch."Applies-to Doc. Type"::"Return Order",
                     ItemChargeAssgntPurch."Applies-to Doc. Type"::"Credit Memo":
                         begin
-                            PurchLine.Get(
-                              ItemChargeAssgntPurch."Applies-to Doc. Type",
-                              ItemChargeAssgntPurch."Applies-to Doc. No.",
-                              ItemChargeAssgntPurch."Applies-to Doc. Line No.");
+                            GetPurchLineForItemChargeAssgntPurch(PurchLine, ItemChargeAssgntPurch);
                             TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" :=
                               Abs(PurchLine."Line Amount");
                         end;
@@ -526,7 +503,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                                     Abs(ReturnRcptLine."Item Charge Base Amount"));
                         end;
                 end;
-                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
+                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntPurch.Insert
                 else begin
@@ -564,6 +541,18 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 end;
             until TempItemChargeAssgntPurch.Next() = 0;
         TempItemChargeAssgntPurch.DeleteAll();
+    end;
+
+    local procedure GetPurchLineForItemChargeAssgntPurch(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetPurchLineForItemChargeAssgntPurch(PurchaseLine, ItemChargeAssgntPurch, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseLine.Get(ItemChargeAssgntPurch."Applies-to Doc. Type", ItemChargeAssgntPurch."Applies-to Doc. No.", ItemChargeAssgntPurch."Applies-to Doc. Line No.");
     end;
 
     local procedure AssignByWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; TotalQtyToAssign: Decimal)
@@ -764,7 +753,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     end;
                 until ItemChargeAssignmentPurch.Next() = 0;
 
-                if TempItemChargeAssgntPurch.FindSet then begin
+                if TempItemChargeAssgntPurch.FindSet() then begin
                     repeat
                         ItemChargeAssignmentPurch.Get(
                           TempItemChargeAssgntPurch."Document Type",
@@ -898,6 +887,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchLineForItemChargeAssgntPurch(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAssignItemCharges(SelectionTxt: Text; var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; Currency: Record Currency; PurchaseHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; var ItemChargesAssigned: Boolean)
     begin
     end;
@@ -943,7 +937,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary);
+    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal);
     begin
     end;
 }

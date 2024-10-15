@@ -1,10 +1,9 @@
-#if not CLEAN17
 report 13 "VAT Register"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATRegister.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Register (Obsolete)';
+    Caption = 'VAT Register';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
 
@@ -69,7 +68,7 @@ report 13 "VAT Register"
             dataitem("VAT Entry"; "VAT Entry")
             {
                 DataItemTableView = SORTING("Entry No.");
-                column(PostingDate_VatEntry; Format("VAT Date"))
+                column(PostingDate_VatEntry; Format("Posting Date"))
                 {
                 }
                 column(DocumentType_VatEntry; "Document Type")
@@ -211,4 +210,4 @@ report 13 "VAT Register"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
     end;
 }
-#endif
+

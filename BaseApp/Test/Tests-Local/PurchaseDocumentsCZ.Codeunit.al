@@ -17,7 +17,7 @@ codeunit 145009 "Purchase Documents CZ"
     local procedure Initialize()
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -39,7 +39,7 @@ codeunit 145009 "Purchase Documents CZ"
         PostedDocumentNo: array[2] of Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // create and post sales invoice
         CreatePurchaseDocument(PurchHdr, PurchLn, PurchHdr."Document Type"::Invoice);
@@ -85,7 +85,7 @@ codeunit 145009 "Purchase Documents CZ"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure PostPurchaseDocument(var PurchHdr: Record "Purchase Header"): Code[20]

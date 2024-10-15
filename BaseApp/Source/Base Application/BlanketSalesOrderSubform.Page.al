@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 page 508 "Blanket Sales Order Subform"
 {
     AutoSplitKey = true;
@@ -40,30 +40,6 @@ page 508 "Blanket Sales Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; Rec."Cross-Reference No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        Rec.CrossReferenceNoLookUp();
-                        InsertExtendedText(false);
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        InsertExtendedText(false);
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -118,6 +94,44 @@ page 508 "Blanket Sales Order Subform"
                         ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+
                 }
                 field("Description 2"; Rec."Description 2")
                 {
@@ -295,26 +309,6 @@ page 508 "Blanket Sales Order Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Tariff No."; Rec."Tariff No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the item''s tariff number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Statistic Indication"; Rec."Statistic Indication")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the statistic indication code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Net Weight"; Rec."Net Weight")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1180,7 +1174,7 @@ page 508 "Blanket Sales Order Subform"
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(
             2, Rec."Document No.", Rec."Line No.", Rec."Blanket Order No.", Rec."Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     procedure RedistributeTotalsOnAfterValidate()

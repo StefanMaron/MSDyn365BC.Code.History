@@ -120,7 +120,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
                 begin
                     PurchAdvanceLetterLine2 := Rec;
                     CurrPage.SetSelectionFilter(PurchAdvanceLetterLine);
-                    if PurchAdvanceLetterLine.FindSet then
+                    if PurchAdvanceLetterLine.FindSet() then
                         repeat
                             Rec := PurchAdvanceLetterLine;
                             Mark := not Mark;
@@ -219,7 +219,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
     begin
         TempPurchHeader := PurchHeader;
         TempPurchHeader.Insert();
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
                 TempPurchAdvanceLetterLine.Insert();
@@ -230,7 +230,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
     [Scope('OnPrem')]
     procedure UpdateLetters(var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 if TempPurchAdvanceLetterLine.Get(PurchAdvanceLetterLine."Letter No.", PurchAdvanceLetterLine."Line No.") then begin
                     TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
@@ -247,7 +247,7 @@ page 31034 "Purch. Letter Line - Adv.Link."
     begin
         TempPurchAdvanceLetterLine.Copy(Rec);
         TempPurchAdvanceLetterLine.MarkedOnly(true);
-        if TempPurchAdvanceLetterLine.FindSet then
+        if TempPurchAdvanceLetterLine.FindSet() then
             repeat
                 PurchAdvanceLetterLine := TempPurchAdvanceLetterLine;
                 PurchAdvanceLetterLine.Insert();

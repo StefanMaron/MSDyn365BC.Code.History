@@ -1,4 +1,4 @@
-#if not CLEAN18
+#if not CLEAN20
 page 5805 "Item Charge Assignment (Purch)"
 {
     AutoSplitKey = true;
@@ -267,13 +267,13 @@ page 5805 "Item Charge Assignment (Purch)"
                         OnGetReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, PurchRcptLine, PurchLine);
 
                         ReceiptLines.SetTableView(PurchRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         ReceiptLines.LookupMode(true);
-                        ReceiptLines.RunModal;
+                        ReceiptLines.RunModal();
                     end;
                 }
                 action(GetTransferReceiptLines)
@@ -300,13 +300,13 @@ page 5805 "Item Charge Assignment (Purch)"
                         OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, TransferRcptLine, PurchLine);
 
                         PostedTransferReceiptLines.SetTableView(TransferRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             PostedTransferReceiptLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             PostedTransferReceiptLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         PostedTransferReceiptLines.LookupMode(true);
-                        PostedTransferReceiptLines.RunModal;
+                        PostedTransferReceiptLines.RunModal();
                     end;
                 }
                 action(GetReturnShipmentLines)
@@ -328,13 +328,13 @@ page 5805 "Item Charge Assignment (Purch)"
                         OnGetReturnShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnShptLine, PurchLine);
 
                         ShipmentLines.SetTableView(ReturnShptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ShipmentLines.Initialize(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ShipmentLines.Initialize(Rec, PurchLine2."Unit Cost");
 
                         ShipmentLines.LookupMode(true);
-                        ShipmentLines.RunModal;
+                        ShipmentLines.RunModal();
                     end;
                 }
                 action(GetSalesShipmentLines)
@@ -356,13 +356,13 @@ page 5805 "Item Charge Assignment (Purch)"
                         OnGetSalesShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, SalesShptLine, PurchLine);
 
                         SalesShipmentLines.SetTableView(SalesShptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             SalesShipmentLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             SalesShipmentLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
 
                         SalesShipmentLines.LookupMode(true);
-                        SalesShipmentLines.RunModal;
+                        SalesShipmentLines.RunModal();
                     end;
                 }
                 action(GetReturnReceiptLines)
@@ -384,35 +384,40 @@ page 5805 "Item Charge Assignment (Purch)"
                         OnGetReturnReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnRcptLine, PurchLine);
 
                         ReturnRcptLines.SetTableView(ReturnRcptLine);
-                        if ItemChargeAssgntPurch.FindLast then
+                        if ItemChargeAssgntPurch.FindLast() then
                             ReturnRcptLines.InitializePurchase(ItemChargeAssgntPurch, PurchLine2."Unit Cost")
                         else
                             ReturnRcptLines.InitializePurchase(Rec, PurchLine2."Unit Cost");
 
                         ReturnRcptLines.LookupMode(true);
-                        ReturnRcptLines.RunModal;
+                        ReturnRcptLines.RunModal();
                     end;
                 }
-#if not CLEAN17
                 action("Get Pos. Adj. Ledger Entry")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Get Pos. Adj. Ledger Entry';
                     Image = ReceiveLoaner;
                     ToolTip = 'Open the page for the selection of the posting item ledger entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Discontinued action.';
+                    ObsoleteTag = '20.0';
 
                     trigger OnAction()
+#if not CLEAN19
                     var
                         ItemLedgerEntry: Record "Item Ledger Entry";
                         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
                         AssignItemChargePurch: Codeunit "Item Charge Assgnt. (Purch.)";
                         ItemLedgerEntriesPage: Page "Item Ledger Entries";
+#endif
                     begin
+#if not CLEAN19
                         // NAVCZ
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
-                        if not ItemChargeAssgntPurch.FindLast then
+                        if not ItemChargeAssgntPurch.FindLast() then
                             ItemChargeAssgntPurch := Rec;
                         ItemLedgerEntry.FilterGroup(2);
                         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::"Positive Adjmt.");
@@ -422,15 +427,17 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemLedgerEntriesPage.LookupMode(true);
                         if ItemLedgerEntriesPage.RunModal = ACTION::LookupOK then begin
                             ItemLedgerEntriesPage.GetSelectionEntries(ItemLedgerEntry);
-                            if ItemLedgerEntry.FindFirst then begin
+                            if ItemLedgerEntry.FindFirst() then begin
                                 ItemChargeAssgntPurch."Unit Cost" := PurchLine2."Unit Cost";
                                 AssignItemChargePurch.CreateItemEntryChargeAssgnt(ItemLedgerEntry, ItemChargeAssgntPurch);
                             end;
                         end;
                         // NAVCZ
+#else
+                        exit;
+#endif
                     end;
                 }
-#endif
                 action(SuggestItemChargeAssignment)
                 {
                     AccessByPermission = TableData "Item Charge" = R;
@@ -496,12 +503,6 @@ page 5805 "Item Charge Assignment (Purch)"
     var
         Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
         PurchLine: Record "Purchase Line";
-        PurchLine2: Record "Purchase Line";
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        ReturnShptLine: Record "Return Shipment Line";
-        TransferRcptLine: Record "Transfer Receipt Line";
-        SalesShptLine: Record "Sales Shipment Line";
-        ReturnRcptLine: Record "Return Receipt Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         AssignableQty: Decimal;
         TotalQtyToAssign: Decimal;
@@ -509,14 +510,22 @@ page 5805 "Item Charge Assignment (Purch)"
         AssgntAmount: Decimal;
         TotalAmountToAssign: Decimal;
         RemAmountToAssign: Decimal;
-        QtyToReceiveBase: Decimal;
-        QtyReceivedBase: Decimal;
-        QtyToShipBase: Decimal;
-        QtyShippedBase: Decimal;
         DataCaption: Text[250];
         Text001: Label 'The remaining amount to assign is %1. It must be zero before you can post %2 %3.\ \Are you sure that you want to close the window?', Comment = '%2 = Document Type, %3 = Document No.';
         GrossWeight: Decimal;
         UnitVolume: Decimal;
+
+    protected var
+        PurchLine2: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ReturnShptLine: Record "Return Shipment Line";
+        TransferRcptLine: Record "Transfer Receipt Line";
+        SalesShptLine: Record "Sales Shipment Line";
+        ReturnRcptLine: Record "Return Receipt Line";
+        QtyToReceiveBase: Decimal;
+        QtyReceivedBase: Decimal;
+        QtyToShipBase: Decimal;
+        QtyShippedBase: Decimal;
 
     local procedure UpdateQtyAssgnt()
     var

@@ -123,7 +123,7 @@ page 31029 "P.Adv. Letters History Subform"
     begin
         PurchAdvanceLetterHeader.SetRange("No.", "Letter No.");
         PurchAdvanceLetter.SetTableView(PurchAdvanceLetterHeader);
-        PurchAdvanceLetter.Run;
+        PurchAdvanceLetter.Run();
     end;
 
     [Scope('OnPrem')]
@@ -134,7 +134,7 @@ page 31029 "P.Adv. Letters History Subform"
         PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.CopyFilters(Rec);
         PurchAdvanceLetterLine.SetRange("Letter No.", "Letter No.");
-        if PurchAdvanceLetterLine.FindFirst then
+        if PurchAdvanceLetterLine.FindFirst() then
             exit(PurchAdvanceLetterLine."Line No." = "Line No.");
         exit(true);
     end;

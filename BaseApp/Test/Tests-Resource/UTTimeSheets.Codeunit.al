@@ -86,7 +86,7 @@ codeunit 136500 "UT Time Sheets"
         CreateTimeSheetResource(Resource, false);
 
         // try to use it in job journal
-        Job.FindFirst;
+        Job.FindFirst();
         JobJnlLine.Init();
         JobJnlLine.Validate("Job No.", Job."No.");
         JobJnlLine.Type := JobJnlLine.Type::Resource;
@@ -118,7 +118,7 @@ codeunit 136500 "UT Time Sheets"
         CreateTimeSheets(FromTimeSheetHeader."Ending Date" + 1, 1, FromTimeSheetHeader."Resource No.");
 
         ToTimeSheetHeader.SetRange("Resource No.", FromTimeSheetHeader."Resource No.");
-        ToTimeSheetHeader.FindLast;
+        ToTimeSheetHeader.FindLast();
 
         // run Copy lines function
         TimeSheetMgt.CopyPrevTimeSheetLines(ToTimeSheetHeader);
@@ -470,7 +470,7 @@ codeunit 136500 "UT Time Sheets"
 
         // delete service order lines
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        if ServiceLine.FindFirst then
+        if ServiceLine.FindFirst() then
             ServiceLine.Delete();
 
         // create lines from time sheet
@@ -498,14 +498,14 @@ codeunit 136500 "UT Time Sheets"
         // set quantities for lines
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         TimeSheetLine.SetRange(Status, TimeSheetLine.Status::Open);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 LibraryTimeSheet.CreateTimeSheetDetail(
                   TimeSheetLine, TimeSheetHeader."Starting Date", LibraryTimeSheet.GetRandomDecimal);
             until TimeSheetLine.Next = 0;
 
         // submit and approve
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 TimeSheetApprovalMgt.Submit(TimeSheetLine);
                 TimeSheetApprovalMgt.Approve(TimeSheetLine);
@@ -598,7 +598,7 @@ codeunit 136500 "UT Time Sheets"
         ManagerTSbyJob.Approve.Invoke;
 
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindFirst;
+        TimeSheetLine.FindFirst();
         TimeSheetLine.TestField("Work Type Code", GlobalWorkTypeCode);
         TimeSheetLine.TestField(Chargeable, GlobalChargeable);
 
@@ -637,7 +637,7 @@ codeunit 136500 "UT Time Sheets"
 
         // compare table and page results
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
-        TimeSheetLine.FindFirst;
+        TimeSheetLine.FindFirst();
         TimeSheetLine.TestField("Work Type Code", GlobalWorkTypeCode);
         TimeSheetLine.TestField(Chargeable, GlobalChargeable);
 
@@ -950,40 +950,6 @@ codeunit 136500 "UT Time Sheets"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestTeamMemberRequestToApprove()
-    var
-        ApprovalEntry: Record "Approval Entry";
-        ApprovalCommentLine: Record "Approval Comment Line";
-        Customer: Record Customer;
-        WorkflowRecordChange: Record "Workflow - Record Change";
-        WorkflowInstanceId: Guid;
-        OldValue: Decimal;
-        Comment: Text[80];
-    begin
-        // [FEATURE] [Teammember Role Center]
-        // [SCENARIO 174526] Stan can initiate Time Sheets cues
-
-        // [GIVEN] A workflow instance.
-        // [GIVEN] A customer record.
-        // [WHEN] An approval entry related to the customer record and the workflow instance is created
-        VerifyTeamMemberRequestToApproveStatus(0);
-
-        WorkflowInstanceId := CreateGuid;
-        OldValue := LibraryRandom.RandDec(1000, 2);
-
-        Comment := CreateGuid;
-        LibrarySales.CreateCustomer(Customer);
-        CreateApprovalEntry(ApprovalEntry, Customer.RecordId, UserId, WorkflowInstanceId);
-        CreateApprovalComment(ApprovalCommentLine, ApprovalEntry, Comment);
-        CreateRecordChange(WorkflowRecordChange, Customer.RecordId,
-          Customer.FieldNo("Credit Limit (LCY)"), Format(OldValue, 0, 9), WorkflowInstanceId);
-
-        // [THEN] Verify the Request to Appprove Cue in the Team Member is updated
-        VerifyTeamMemberRequestToApproveStatus(1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestTimeSheetListFilters()
     var
         TimeSheetHeader: Record "Time Sheet Header";
@@ -1015,7 +981,6 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetList.OpenEdit;
 
         // [THEN] The correct Time Sheet Header will be display.
-        Assert.AreEqual('APPROVED', TimeSheetList."No.".Value, 'Unexpected record for Open Time Sheet');
         Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
         Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
         Assert.IsTrue(TimeSheetList.Next, 'Expected record in repeater for Open Time Sheet');
@@ -1045,7 +1010,7 @@ codeunit 136500 "UT Time Sheets"
     begin
         CreateTimeSheets.InitParameters(StartDate, TimeSheetsQty, ResourceNo, false, true);
         CreateTimeSheets.UseRequestPage(false);
-        CreateTimeSheets.Run;
+        CreateTimeSheets.Run();
     end;
 
     [Test]
@@ -1680,7 +1645,7 @@ codeunit 136500 "UT Time Sheets"
         ChangeTimeSheetChartShowBy(TimeSheetChartSetup, BusChartBuf, TimeSheetChartSetup."Show by"::Status);
 
         with BusChartBuf do begin
-            if FindFirstColumn(BusChartMapColumn) and Resource.FindSet then
+            if FindFirstColumn(BusChartMapColumn) and Resource.FindSet() then
                 repeat
                     Assert.AreEqual(Resource."No.", BusChartMapColumn.Name, 'Incorrect time sheet chart column name.');
                 until not NextColumn(BusChartMapColumn) and (Resource.Next = 0);
@@ -1811,18 +1776,18 @@ codeunit 136500 "UT Time Sheets"
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
         ServiceLine.SetRange("No.", ResourceNo);
         ServiceLine.SetRange(Type, ServiceLine.Type::Resource);
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 // find resource's dimensions by service line
                 DimensionSetEntry.SetRange("Dimension Set ID", ServiceLine."Dimension Set ID");
-                if DimensionSetEntry.FindSet then begin
+                if DimensionSetEntry.FindSet() then begin
                     DimensionSetEntryQty := 0;
                     EqualDimensionQty := 0;
                     repeat
                         // find resource's dimensions by resource no.
                         DefaultDimension.SetRange("Table ID", DATABASE::Resource);
                         DefaultDimension.SetRange("No.", ResourceNo);
-                        if DefaultDimension.FindSet then
+                        if DefaultDimension.FindSet() then
                             repeat
                                 if DefaultDimension."Dimension Code" = DimensionSetEntry."Dimension Code" then
                                     EqualDimensionQty := EqualDimensionQty + 1;
@@ -1849,7 +1814,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceLine.SetRange("Document No.", ServiceOrderNo);
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
         // type
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 ServiceLineQtyCon := ServiceLineQtyCon + ServiceLine."Qty. to Consume";
                 ServiceLineQty := ServiceLineQty + ServiceLine.Quantity;
@@ -1857,13 +1822,13 @@ codeunit 136500 "UT Time Sheets"
 
         // calc time sheet quantity
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetNo);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 Chargable := TimeSheetLine.Chargeable;
                 TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetNo);
                 TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
                 TimeSheetDetail.SetRange("Service Order No.", ServiceOrderNo);
-                if TimeSheetDetail.FindSet then
+                if TimeSheetDetail.FindSet() then
                     repeat
                         if Chargable then
                             TimeSheetCharQty := TimeSheetCharQty + TimeSheetDetail.Quantity
@@ -1889,7 +1854,7 @@ codeunit 136500 "UT Time Sheets"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Order);
 
         // type
-        if ServiceLine.FindSet then
+        if ServiceLine.FindSet() then
             repeat
                 ServiceLineQtyCon := ServiceLineQtyCon + ServiceLine."Qty. to Consume";
                 ServiceLineQty := ServiceLineQty + ServiceLine.Quantity;
@@ -1927,12 +1892,12 @@ codeunit 136500 "UT Time Sheets"
     begin
         // calc time sheet quantity
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetNo);
-        if TimeSheetLine.FindSet then
+        if TimeSheetLine.FindSet() then
             repeat
                 TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetNo);
                 TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
                 TimeSheetDetail.SetRange("Service Order No.", ServiceOrderNo);
-                if TimeSheetDetail.FindSet then
+                if TimeSheetDetail.FindSet() then
                     repeat
                         if TimeSheetLine.Chargeable then
                             QtyChargLines := QtyChargLines + TimeSheetDetail.Quantity
@@ -1945,7 +1910,7 @@ codeunit 136500 "UT Time Sheets"
     local procedure CreateJobWithBlocked(var Job: Record Job; BlockedOption: Enum "Job Blocked")
     begin
         Job.Init();
-        Job."No." := LibraryUtility.GenerateGUID;
+        Job."No." := LibraryUtility.GenerateGUID();
         Job.Blocked := BlockedOption;
         Job.Insert();
     end;
@@ -1955,7 +1920,7 @@ codeunit 136500 "UT Time Sheets"
         ResCapacityEntry: Record "Res. Capacity Entry";
         EntryNo: Integer;
     begin
-        if ResCapacityEntry.FindLast then;
+        if ResCapacityEntry.FindLast() then;
         EntryNo := ResCapacityEntry."Entry No." + 1;
         ResCapacityEntry.Init();
         ResCapacityEntry."Entry No." := EntryNo;
@@ -1981,7 +1946,7 @@ codeunit 136500 "UT Time Sheets"
         LibraryTimeSheet.FindJobTask(Job."No.", JobTask);
         // job's responsible person (resource) must have Owner ID filled in
         Resource.SetRange("No.", TimeSheetHeader."Resource No.");
-        Resource.FindFirst;
+        Resource.FindFirst();
         Resource.Get(Job."Person Responsible");
         Resource."Time Sheet Owner User ID" := UserId;
         Resource.Modify();
@@ -2159,7 +2124,7 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetQty: Integer;
     begin
         Initialize();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         // create resource and link it to the user
         CreateTimeSheetResource(Resource, true);
@@ -2170,9 +2135,9 @@ codeunit 136500 "UT Time Sheets"
 
         // find numbers of initial and target time sheets
         TimeSheetHeader.SetRange("Resource No.", Resource."No.");
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
         TimeSheetNo := TimeSheetHeader."No.";
-        TimeSheetHeader.FindLast;
+        TimeSheetHeader.FindLast();
         TargetTimeSheetNo := TimeSheetHeader."No.";
         LibraryVariableStorage.Enqueue(TargetTimeSheetNo);
     end;
@@ -2220,7 +2185,7 @@ codeunit 136500 "UT Time Sheets"
         InitLookupTimeSheetScenario(TimeSheetHeader, TimeSheetNo, TargetTimeSheetNo);
 
         // copy time sheets to archive
-        TimeSheetHeader.FindFirst;
+        TimeSheetHeader.FindFirst();
         repeat
             TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
             TimeSheetHeaderArchive.Insert();
@@ -2257,7 +2222,7 @@ codeunit 136500 "UT Time Sheets"
         Date.SetRange("Period Type", Date."Period Type"::Date);
         Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
         Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-        Date.FindFirst;
+        Date.FindFirst();
 
         exit(Date."Period Start");
     end;
@@ -2291,17 +2256,6 @@ codeunit 136500 "UT Time Sheets"
           StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Rejected Time Sheets")));
         Assert.AreEqual(ApprovedExists, TeamMemberCue."Approved Time Sheets",
           StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Approved Time Sheets")));
-    end;
-
-    local procedure VerifyTeamMemberRequestToApproveStatus(ReqestToApproveExists: Integer)
-    var
-        TeamMemberCue: Record "Team Member Cue";
-    begin
-        TeamMemberCue."User ID Filter" := UserId;
-        TeamMemberCue.CalcFields("Requests to Approve");
-
-        Assert.AreEqual(ReqestToApproveExists, TeamMemberCue."Requests to Approve",
-          StrSubstNo('Time Sheet field %1 value is incorrect.', TeamMemberCue.FieldCaption("Requests to Approve")));
     end;
 
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; RecId: RecordID; ApproverId: Code[50]; WorkflowInstanceId: Guid)

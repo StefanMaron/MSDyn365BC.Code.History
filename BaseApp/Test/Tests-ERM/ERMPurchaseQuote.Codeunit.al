@@ -40,7 +40,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test that a Purchase Quote Header and Lines exist after Purchase Quote creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Purchase Quote.
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
@@ -63,7 +63,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test VAT Amount calculated correctly on Purchase Quote.
 
         // Setup: Create a Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
         // Exercise: Calculate VAT Amount on VAT Amount Line from Purchase Line.
@@ -92,7 +92,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test that a Report generated from Purchase Quote.
 
         // Setup: Create a Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
         // Exercise: Generate Purchase Quote Report and save it as external file.
@@ -117,7 +117,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test that a Purchase Order created from Purchase Quote.
 
         // Setup: Create Purchase Quote and save the line count into a variable.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Quote);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
@@ -143,7 +143,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test that a Purchase Quote can be created for a Contact.
 
         // Setup:  Find a Contact Business Relation.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, Contact."No.", BusinessRelation.Code);
@@ -173,7 +173,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Test the Buy From Vendor No. after changing it on Purchase Quote.
 
         // Setup: Create a Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
         // Exercise: Change the Buy From Vendor No. of Purchase Quote.
@@ -199,7 +199,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Check Invoice Discount has been flow correctly on Purchase Order after Make Order from Purchase Quote.
 
         // Setup: Create Purchase Quote and Calculate Invoice Discount.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendorInvDiscount(CreateVendor));
         CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchaseLine);
         PurchaseLine.Get(PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseLine."Line No.");
@@ -228,7 +228,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Check that field 'VAT Amount' is not editable on Purchase Quote Statistics page.
 
         // Setup: Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
         PurchaseQuote.OpenEdit;
         PurchaseQuote.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -251,7 +251,7 @@ codeunit 134325 "ERM Purchase Quote"
         // Check that blank Posting Date is populating on created Purchase Order from Purchase Quote while Default Posting Date is set to No Date on the Purchase & Payables Setup.
 
         // Setup: Update Purchase & Payables Setup and create Purchase Quote.
-        Initialize;
+        Initialize();
         UpdatePurchasePayablesSetup(OldDefaultPostingDate, PurchasesPayablesSetup."Default Posting Date"::"No Date");
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
 
@@ -274,10 +274,10 @@ codeunit 134325 "ERM Purchase Quote"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Quote Page not editable if no vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Quote page is opened
-        PurchaseQuote.OpenNew;
+        PurchaseQuote.OpenNew();
 
         // [THEN] Contact Field is not editable
         Assert.IsFalse(PurchaseQuote."Buy-from Contact".Editable, ContactShouldNotBeEditableErr);
@@ -294,7 +294,7 @@ codeunit 134325 "ERM Purchase Quote"
         // [FEATURE] [UI]
         // [Scenario] Contact Field on Purchase Quote Page  editable if vendor selected
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Quote
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
@@ -318,7 +318,7 @@ codeunit 134325 "ERM Purchase Quote"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Quote Page not editable if vendor selected equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Quote
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
@@ -348,7 +348,7 @@ codeunit 134325 "ERM Purchase Quote"
         // [FEATURE] [UI]
         // [Scenario] Pay-to Address Fields on Purchase Quote Page editable if vendor selected not equals pay-to vendor
         // [Given]
-        Initialize;
+        Initialize();
 
         // [Given] A sample Purchase Quote
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
@@ -378,7 +378,7 @@ codeunit 134325 "ERM Purchase Quote"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 277993] User changes Prices including VAT, page refreshes and shows appropriate captions
-        Initialize;
+        Initialize();
 
         // [GIVEN] Page with Prices including VAT disabled was open
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Quote, '');
@@ -406,7 +406,7 @@ codeunit 134325 "ERM Purchase Quote"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 304297] User is suggested to open order which was created with Make Order action
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote "PQ" opened with Purchase Quote page
         CreatePurchaseQuote(PurchaseHeader, PurchaseLine, CreateVendor);
@@ -529,7 +529,7 @@ codeunit 134325 "ERM Purchase Quote"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purchase Quote");
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
@@ -606,10 +606,10 @@ codeunit 134325 "ERM Purchase Quote"
         PurchaseHeader: Record "Purchase Header";
     begin
         PurchaseHeader.SetRange("Quote No.", QuoteNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure UpdatePurchasePayablesSetup(var OldDefaultPostingDate: Enum "Default Posting Date"; DefaultPostingDate: Enum "Default Posting Date")
@@ -626,7 +626,7 @@ codeunit 134325 "ERM Purchase Quote"
     begin
         PurchaseHeader.SetRange("Quote No.", PurchaseHeader."No.");
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         PurchaseHeader.TestField("Posting Date", 0D);
     end;
 

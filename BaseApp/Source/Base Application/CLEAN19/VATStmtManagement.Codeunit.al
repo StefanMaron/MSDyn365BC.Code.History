@@ -35,7 +35,7 @@ codeunit 340 VATStmtManagement
                     Commit();
                 end;
             1:
-                VATStmtTmpl.FindFirst;
+                VATStmtTmpl.FindFirst();
             else
                 StmtSelected := PAGE.RunModal(0, VATStmtTmpl) = ACTION::LookupOK;
         end;
@@ -95,9 +95,9 @@ codeunit 340 VATStmtManagement
         VATStmtName.FilterGroup(0);
 
         if not VATStmtName.Find('-') then begin
-            if not VATStmtTmpl.FindFirst then
+            if not VATStmtTmpl.FindFirst() then
                 TemplateSelection(0, VATStmtLine, JnlSelected);
-            if VATStmtTmpl.FindFirst then
+            if VATStmtTmpl.FindFirst() then
                 CheckTemplateName(VATStmtTmpl.Name, VATStmtName.Name);
         end;
         VATStmtName.Find('-');
@@ -106,7 +106,7 @@ codeunit 340 VATStmtManagement
             VATStmtTmpl.SetRange(Name, VATStmtName.GetFilter("Statement Template Name"));
         case VATStmtTmpl.Count of
             1:
-                VATStmtTmpl.FindFirst;
+                VATStmtTmpl.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, VATStmtTmpl) = ACTION::LookupOK;
         end;
@@ -125,7 +125,7 @@ codeunit 340 VATStmtManagement
     begin
         VATStmtName.SetRange("Statement Template Name", CurrentStmtTemplateName);
         if not VATStmtName.Get(CurrentStmtTemplateName, CurrentStmtName) then begin
-            if not VATStmtName.FindFirst then begin
+            if not VATStmtName.FindFirst() then begin
                 VATStmtTmpl.Get(CurrentStmtTemplateName);
                 VATStmtName.Init();
                 VATStmtName."Statement Template Name" := VATStmtTmpl.Name;

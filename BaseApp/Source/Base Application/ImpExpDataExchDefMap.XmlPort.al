@@ -1,4 +1,3 @@
-#if not CLEAN17
 xmlport 1225 "Imp / Exp Data Exch Def & Map"
 {
     Caption = 'Imp / Exp Data Exch Def & Map';
@@ -470,14 +469,6 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                             TransformationRule := 'US_DATE_FORMAT';
                                         TransformationRuleRec.GetUSDateTimeFormatCode:
                                             TransformationRule := 'US_DATETIME_FORMAT';
-                                            // NAVCZ
-                                        TransformationRuleRec.GetCzechDecimalFormatCode:
-                                            TransformationRule := 'CZ_DECIMAL_FORMAT';
-                                        TransformationRuleRec.GetCZDateFormatCode:
-                                            TransformationRule := 'CZ_DATE_FORMAT';
-                                        TransformationRuleRec.GetCZDateTimeFormatCode:
-                                            TransformationRule := 'CZ_DATETIME_FORMAT';
-                                            // NAVCZ
                                         TransformationRuleRec.GetDeleteNOTPROVIDEDCode:
                                             TransformationRule := 'DELETE_NOTPROVIDED';
                                         else begin
@@ -514,14 +505,6 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateFormatCode);
                                         'US_DATETIME_FORMAT':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetUSDateTimeFormatCode);
-                                        // NAVCZ
-                                        'CZ_DECIMAL_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCzechDecimalFormatCode);
-                                        'CZ_DATE_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCZDateFormatCode);
-                                        'CZ_DATETIME_FORMAT':
-                                            "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetCZDateTimeFormatCode);
-                                        // NAVCZ
                                         'DELETE_NOTPROVIDED':
                                             "Data Exch. Field Mapping".Validate("Transformation Rule", TransformationRuleRec.GetDeleteNOTPROVIDEDCode);
                                         else
@@ -627,4 +610,3 @@ xmlport 1225 "Imp / Exp Data Exch Def & Map"
     end;
 }
 
-#endif

@@ -1,6 +1,14 @@
 table 11774 "Enhanced Currency Buffer"
 {
     Caption = 'Enhanced Currency Buffer';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif  
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
 
     fields
     {

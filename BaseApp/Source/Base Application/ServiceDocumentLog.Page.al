@@ -121,7 +121,7 @@ page 5920 "Service Document Log"
                         ServOrderLog.SetRange("Document Type", "Document Type");
                         ServOrderLog.SetRange("Document No.", "Document No.");
                         DeleteServOrderLog.SetTableView(ServOrderLog);
-                        DeleteServOrderLog.RunModal;
+                        DeleteServOrderLog.RunModal();
 
                         if DeleteServOrderLog.GetOnPostReportStatus then begin
                             ServOrderLog.Reset();

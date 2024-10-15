@@ -37,7 +37,7 @@ codeunit 5656 InsuranceJnlManagement
                     Commit();
                 end;
             1:
-                InsuranceJnlTempl.FindFirst;
+                InsuranceJnlTempl.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, InsuranceJnlTempl) = ACTION::LookupOK;
         end;
@@ -99,9 +99,9 @@ codeunit 5656 InsuranceJnlManagement
         InsuranceJnlBatch.FilterGroup(0);
 
         if not InsuranceJnlBatch.Find('-') then begin
-            if not InsuranceJnlTemplate.FindFirst then
+            if not InsuranceJnlTemplate.FindFirst() then
                 TemplateSelection(0, InsuranceJnlLine, JnlSelected);
-            if InsuranceJnlTemplate.FindFirst then
+            if InsuranceJnlTemplate.FindFirst() then
                 CheckTemplateName(InsuranceJnlTemplate.Name, InsuranceJnlBatch.Name);
         end;
         InsuranceJnlBatch.Find('-');
@@ -110,7 +110,7 @@ codeunit 5656 InsuranceJnlManagement
             InsuranceJnlTemplate.SetRange(Name, InsuranceJnlBatch.GetFilter("Journal Template Name"));
         case InsuranceJnlTemplate.Count of
             1:
-                InsuranceJnlTemplate.FindFirst;
+                InsuranceJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, InsuranceJnlTemplate) = ACTION::LookupOK;
         end;
@@ -159,7 +159,7 @@ codeunit 5656 InsuranceJnlManagement
     begin
         if not InsuranceJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
             InsuranceJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
-            if not InsuranceJnlBatch.FindFirst then begin
+            if not InsuranceJnlBatch.FindFirst() then begin
                 InsuranceJnlBatch.Init();
                 InsuranceJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 InsuranceJnlBatch.SetupNewBatch;

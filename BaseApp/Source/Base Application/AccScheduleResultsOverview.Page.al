@@ -156,7 +156,7 @@ page 31089 "Acc. Schedule Results Overview"
                         ExpAccSchedResToExcel: Report "Exp. Acc. Sched. Res. to Excel";
                     begin
                         ExpAccSchedResToExcel.SetOptions("Result Code", false);
-                        ExpAccSchedResToExcel.Run;
+                        ExpAccSchedResToExcel.Run();
                     end;
                 }
             }
@@ -224,7 +224,7 @@ page 31089 "Acc. Schedule Results Overview"
             MATRIX_SetWanted::Initial:
                 begin
                     MATRIX_SetWanted := MATRIX_SetWanted::Same;
-                    if AccSchedResultColumn.FindFirst then begin
+                    if AccSchedResultColumn.FindFirst() then begin
                         Clear(MATRIX_ColumnSet);
                         ClearMATRIX_ColumnCaption;
                         for StackCounter := 1 to 4 do begin
@@ -242,7 +242,7 @@ page 31089 "Acc. Schedule Results Overview"
                         AccSchedResultColumn.SetFilter("Line No.", '%1..', MATRIX_ColumnSet[4])
                     else
                         exit;
-                    if AccSchedResultColumn.FindFirst then
+                    if AccSchedResultColumn.FindFirst() then
                         for StackCounter := 1 to 4 do begin
                             if AccSchedResultColumn.Next() = 0 then
                                 exit;
@@ -261,7 +261,7 @@ page 31089 "Acc. Schedule Results Overview"
                         AccSchedResultColumn.SetFilter("Line No.", '..%1', MATRIX_ColumnSet[1])
                     else
                         exit;
-                    if AccSchedResultColumn.FindLast then
+                    if AccSchedResultColumn.FindLast() then
                         AccSchedResultColumn.Next := -4;
                     if AccSchedResultColumn."Line No." <> MATRIX_ColumnSet[1] then begin
                         Clear(MATRIX_ColumnSet);
@@ -284,7 +284,7 @@ page 31089 "Acc. Schedule Results Overview"
     begin
         AccSchedResultCol.SetRange("Result Code", "Result Code");
         AccSchedResultCol.SetRange("Line No.", ColumnNo);
-        if AccSchedResultCol.FindFirst then
+        if AccSchedResultCol.FindFirst() then
             exit(AccSchedResultCol."Column Header");
         exit('');
     end;

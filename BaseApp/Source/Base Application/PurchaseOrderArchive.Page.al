@@ -129,17 +129,6 @@ page 5167 "Purchase Order Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Vendor Order No."; "Vendor Order No.")
                 {
                     ApplicationArea = Suite;
@@ -470,26 +459,6 @@ page 5167 "Purchase Order Archive"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies whether the document is part of a three-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the purchase header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
             group(Version)
             {

@@ -40,13 +40,13 @@ codeunit 31032 "Prepayment Links Management"
 
             // Set Pointers
             SetFilters(AdvanceLinkBuf);
-            if FindFirst then
+            if FindFirst() then
                 TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
             Reset;
             if not IsEmpty() then begin
                 AdvanceLinkBuf := AdvanceLinkBufDefEntry;
                 if not Find then
-                    FindFirst;
+                    FindFirst();
                 TempAdvanceLinkBuf := AdvanceLinkBuf;
                 SetLinkingEntry(AdvanceLinkBuf, false);
             end;
@@ -206,7 +206,7 @@ codeunit 31032 "Prepayment Links Management"
 
             SetFilters(AdvanceLinkBuf);
             if TempAdvanceLinkBufCurrLn."Entry No." = 0 then
-                if FindFirst then
+                if FindFirst() then
                     TempAdvanceLinkBufCurrLn := AdvanceLinkBuf;
         end;
     end;
@@ -244,7 +244,7 @@ codeunit 31032 "Prepayment Links Management"
             if IsEmpty() then
                 exit(false);
 
-            FindFirst;
+            FindFirst();
             "Links-To ID" := TempAdvanceLinkBuf."Document No.";
             Modify;
 
@@ -340,7 +340,7 @@ codeunit 31032 "Prepayment Links Management"
                 SetFilter("Links-To ID", TempAdvanceLinkBuf."Document No.");
             end;
             SetRange("Linking Entry", false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     Balance := Balance + "Amount To Link";
                 until Next() = 0;
@@ -409,7 +409,7 @@ codeunit 31032 "Prepayment Links Management"
             TestField("Open For Advance Letter", true);
             SetAdvanceLink.SetLinkingCustPayment(CustLedgEntry);
             SetAdvanceLink.LookupMode(false);
-            SetAdvanceLink.RunModal;
+            SetAdvanceLink.RunModal();
         end;
     end;
 
@@ -424,7 +424,7 @@ codeunit 31032 "Prepayment Links Management"
             TestField("Open For Advance Letter", true);
             SetAdvanceLink.SetLinkingVendPayment(VendLedgEntry);
             SetAdvanceLink.LookupMode(false);
-            SetAdvanceLink.RunModal;
+            SetAdvanceLink.RunModal();
         end;
     end;
 
@@ -438,7 +438,7 @@ codeunit 31032 "Prepayment Links Management"
             TestField(Status, Status::"Pending Advance Payment");
             SetAdvanceLink.SetLinkingSalesLetterLine(SalesAdvanceLetterLine);
             SetAdvanceLink.LookupMode(false);
-            SetAdvanceLink.RunModal;
+            SetAdvanceLink.RunModal();
         end;
     end;
 
@@ -452,7 +452,7 @@ codeunit 31032 "Prepayment Links Management"
             TestField(Status, Status::"Pending Advance Payment");
             SetAdvanceLink.SetLinkingPurchLetterLine(PurchAdvanceLetterLine);
             SetAdvanceLink.LookupMode(false);
-            SetAdvanceLink.RunModal;
+            SetAdvanceLink.RunModal();
         end;
     end;
 
@@ -469,7 +469,7 @@ codeunit 31032 "Prepayment Links Management"
             SalesAdvanceLetterLine.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
             SalesAdvanceLetterLine.SetFilter("Amount To Link", '>%1', 0);
             OnCollectSalesLettersOnAfterSetSalesAdvanceLetterLineFilters(SalesAdvanceLetterLine);
-            if SalesAdvanceLetterLine.FindSet then
+            if SalesAdvanceLetterLine.FindSet() then
                 repeat
                     Init;
                     "Entry No." := SalesAdvanceLetterLine."Line No.";
@@ -532,7 +532,7 @@ codeunit 31032 "Prepayment Links Management"
             PurchAdvanceLetterLine.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
             PurchAdvanceLetterLine.SetFilter("Amount To Link", '>%1', 0);
             OnCollectPurchLettersOnAfterSetPurchAdvanceLetterLineFilters(PurchAdvanceLetterLine);
-            if PurchAdvanceLetterLine.FindSet then
+            if PurchAdvanceLetterLine.FindSet() then
                 repeat
                     Init;
                     "Entry No." := PurchAdvanceLetterLine."Line No.";
@@ -598,7 +598,7 @@ codeunit 31032 "Prepayment Links Management"
                 CustLedgEntry.SetRange("Customer No.", AdvanceLinkBufDefEntry."CV No.");
                 CustLedgEntry.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
                 CustLedgEntry.SetRange(Positive, false);
-                if CustLedgEntry.FindSet then
+                if CustLedgEntry.FindSet() then
                     repeat
                         Init;
                         "Entry No." := CustLedgEntry."Entry No.";
@@ -647,7 +647,7 @@ codeunit 31032 "Prepayment Links Management"
                 VendLedgEntry.SetRange("Vendor No.", AdvanceLinkBufDefEntry."CV No.");
                 VendLedgEntry.SetRange("Currency Code", AdvanceLinkBufDefEntry."Currency Code");
                 VendLedgEntry.SetRange(Positive, true);
-                if VendLedgEntry.FindSet then
+                if VendLedgEntry.FindSet() then
                     repeat
                         Init;
                         "Entry No." := VendLedgEntry."Entry No.";
@@ -715,7 +715,7 @@ codeunit 31032 "Prepayment Links Management"
             Reset;
             SetCurrentKey("Links-To ID", "Linking Entry");
             SetRange("Linking Entry", false);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Cust then begin
                         if SalesAdvanceLetterLine.Get("Document No.", "Entry No.") then begin
@@ -781,7 +781,7 @@ codeunit 31032 "Prepayment Links Management"
             exit;
         SalesAdvanceLetterLine.SetCurrentKey("Link Code");
         SalesAdvanceLetterLine.SetRange("Link Code", LinkCode);
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine2 := SalesAdvanceLetterLine;
                 SalesAdvanceLetterLine2."Link Code" := '';
@@ -830,7 +830,7 @@ codeunit 31032 "Prepayment Links Management"
             exit;
         PurchAdvanceLetterLine.SetCurrentKey("Link Code");
         PurchAdvanceLetterLine.SetRange("Link Code", LinkCode);
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 PurchAdvanceLetterLine2 := PurchAdvanceLetterLine;
                 PurchAdvanceLetterLine2."Link Code" := '';
@@ -839,71 +839,6 @@ codeunit 31032 "Prepayment Links Management"
             until PurchAdvanceLetterLine.Next() = 0;
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure LinkCashDocLine(var CashDocLine: Record "Cash Document Line")
-    var
-        CashDocHeader: Record "Cash Document Header";
-        LinkCode: Code[30];
-        AmountToLink: Decimal;
-        PostingGroup: Code[20];
-    begin
-        CashDocLine.TestField("Advance Letter Link Code", '');
-        case CashDocLine."Cash Document Type" of
-            CashDocLine."Cash Document Type"::Receipt:
-                CashDocLine.TestField("Account Type", CashDocLine."Account Type"::Customer);
-            CashDocLine."Cash Document Type"::Withdrawal:
-                CashDocLine.TestField("Account Type", CashDocLine."Account Type"::Vendor);
-        end;
-        CashDocLine.TestField("Account No.");
-
-        LinkCode := CashDocLine."Cash Document No." + ' ' + Format(CashDocLine."Line No.");
-        CashDocHeader.Get(CashDocLine."Cash Desk No.", CashDocLine."Cash Document No.");
-        case CashDocLine."Account Type" of
-            CashDocLine."Account Type"::Customer:
-                AmountToLink := LinkWholeSalesLetter(CashDocLine."Account No.", CashDocHeader."Currency Code",
-                    LinkCode, PostingGroup);
-            CashDocLine."Account Type"::Vendor:
-                AmountToLink := LinkWholePurchLetter(CashDocLine."Account No.", CashDocHeader."Currency Code",
-                    LinkCode, PostingGroup);
-        end;
-
-        if AmountToLink <> 0 then begin
-            CashDocLine.Validate(Prepayment, true);
-            CashDocLine.TestField("Prepayment Type", CashDocLine."Prepayment Type"::Advance);
-            CashDocLine.Validate(Amount, AmountToLink);
-            CashDocLine.Validate("Advance Letter Link Code", LinkCode);
-            CashDocLine.Validate("Posting Group", PostingGroup);
-            OnLinkCashDocLineOnBeforeModifyCashDocLine(CashDocLine);
-            CashDocLine.Modify();
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure UnLinkCashDocLine(var CashDocLine: Record "Cash Document Line")
-    begin
-        CashDocLine.TestField("Advance Letter Link Code");
-        case CashDocLine."Cash Document Type" of
-            CashDocLine."Cash Document Type"::Receipt:
-                CashDocLine.TestField("Account Type", CashDocLine."Account Type"::Customer);
-            CashDocLine."Cash Document Type"::Withdrawal:
-                CashDocLine.TestField("Account Type", CashDocLine."Account Type"::Vendor);
-        end;
-        CashDocLine.TestField("Account No.");
-
-        case CashDocLine."Account Type" of
-            CashDocLine."Account Type"::Customer:
-                UnLinkWholeSalesLetter(CashDocLine."Advance Letter Link Code");
-            CashDocLine."Account Type"::Vendor:
-                UnLinkWholePurchLetter(CashDocLine."Advance Letter Link Code");
-        end;
-        CashDocLine.Validate("Advance Letter Link Code", '');
-        CashDocLine.Modify();
-    end;
-
-#endif
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure LinkGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
@@ -975,7 +910,7 @@ codeunit 31032 "Prepayment Links Management"
         if IsCust then begin
             SalesAdvanceLetterLine.SetCurrentKey("Link Code");
             SalesAdvanceLetterLine.SetRange("Link Code", LinkCode);
-            if SalesAdvanceLetterLine.FindSet then
+            if SalesAdvanceLetterLine.FindSet() then
                 repeat
                     SalesAdvanceLetterHeader.Get(SalesAdvanceLetterLine."Letter No.");
                     if SalesAdvanceLetterHeader."Template Code" <> '' then begin
@@ -994,7 +929,7 @@ codeunit 31032 "Prepayment Links Management"
         end else begin
             PurchAdvanceLetterLine.SetCurrentKey("Link Code");
             PurchAdvanceLetterLine.SetRange("Link Code", LinkCode);
-            if PurchAdvanceLetterLine.FindSet then
+            if PurchAdvanceLetterLine.FindSet() then
                 repeat
                     PurchAdvanceLetterHeader.Get(PurchAdvanceLetterLine."Letter No.");
                     if PurchAdvanceLetterHeader."Template Code" <> '' then begin
@@ -1023,14 +958,6 @@ codeunit 31032 "Prepayment Links Management"
     begin
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [IntegrationEvent(false, false)]
-    local procedure OnLinkCashDocLineOnBeforeModifyCashDocLine(var CashDocLine: Record "Cash Document Line")
-    begin
-    end;
-
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnLinkWholePurchLetterOnAfterSetPurchAdvanceLetterHeaderFilters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin

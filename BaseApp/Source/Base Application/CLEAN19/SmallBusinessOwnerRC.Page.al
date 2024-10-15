@@ -128,6 +128,20 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Salesperson - Sales Statistics";
                 ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
             }
+#if not CLEAN19
+            action("Price &List")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Price &List';
+                Image = "Report";
+                RunPageView = WHERE("Object Type" = CONST(Report), "Object ID" = CONST(715)); // "Price List";
+                RunObject = Page "Role Center Page Dispatcher";
+                ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '19.0';
+            }
+#else
             action("Price &List")
             {
                 ApplicationArea = Basic, Suite;
@@ -135,6 +149,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Item Price List";
                 ToolTip = 'View a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
             }
+#endif
             separator(Action93)
             {
             }
@@ -503,6 +518,13 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Issued Fin. Charge Memo List";
                     ToolTip = 'View the list of issued finance charge memos.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
             group(Finance)
             {
@@ -560,6 +582,16 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Bank Account Posting Groups';
                     RunObject = Page "Bank Account Posting Groups";
                     ToolTip = 'Set up posting groups, so that payments in and out of each bank account are posted to the specified general ledger account.';
+                }
+            }
+            group("Cash Management")
+            {
+                Caption = 'Cash Management';
+                action("Deposits to Post")
+                {
+                    Caption = 'Bank Deposits to Post';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'View the list of bank deposits that are ready to post.';
                 }
             }
             group(Marketing)
@@ -668,6 +700,19 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
+#if not CLEAN19
+                action("Resource Price Changes")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Resource Price Changes';
+                    Image = ResourcePrice;
+                    RunObject = Page "Resource Price Changes";
+                    ToolTip = 'Edit or update alternate resource prices, by running either the Suggest Res. Price Chg. (Res.) batch job or the Suggest Res. Price Chg. (Price) batch job.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
+                }
+#endif
                 action("Resource Registers")
                 {
                     ApplicationArea = Basic, Suite;
@@ -802,6 +847,13 @@ page 9020 "Small Business Owner RC"
                 RunPageMode = Create;
                 ToolTip = 'Create a reminder to remind a customer of overdue payment.';
             }
+            action(Deposit)
+            {
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
+            }
             separator(Action5)
             {
             }
@@ -853,6 +905,44 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Pay your vendors by filling the payment journal automatically according to payments due, and potentially export all payment to your bank for automatic processing.';
             }
+#if not CLEAN19
+            action("Sales Price &Worksheet")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales Price &Worksheet';
+                Image = PriceWorksheet;
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7023)); // "Sales Price Worksheet";
+                RunObject = Page "Role Center Page Dispatcher";
+                ToolTip = 'Manage sales prices for individual customers, for a group of customers, for all customers, or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
+            }
+            action("Sales P&rices")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales P&rices';
+                Image = SalesPrices;
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7002)); // "Sales Prices";
+                RunObject = Page "Role Center Page Dispatcher";
+                ToolTip = 'View or edit special sales prices that you grant when certain conditions are met, such as customer, quantity, or ending date. The price agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
+            }
+            action("Sales &Line Discounts")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Sales &Line Discounts';
+                Image = SalesLineDisc;
+                RunPageView = WHERE("Object Type" = CONST(Page), "Object ID" = CONST(7004)); // "Sales Line Discounts";
+                RunObject = Page "Role Center Page Dispatcher";
+                ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                ObsoleteTag = '17.0';
+            }
+#else
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = RelationshipMgmt;
@@ -869,6 +959,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Sales Price Lists";
                 ToolTip = 'View or set up sales price lists for products that you sell to the customer. A product price is automatically granted on invoice lines when the specified criteria are met, such as customer, quantity, or ending date.';
             }
+#endif
             separator(Action19)
             {
             }
@@ -894,7 +985,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("Adjust &Item Costs/Prices")
@@ -963,7 +1054,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

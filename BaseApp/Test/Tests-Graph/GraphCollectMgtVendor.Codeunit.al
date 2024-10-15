@@ -112,8 +112,8 @@ codeunit 134632 "Graph Collect Mgt Vendor"
     var
         CountryRegion: Record "Country/Region";
     begin
-        Vendor.FindFirst;
-        CountryRegion.FindLast;
+        Vendor.FindFirst();
+        CountryRegion.FindLast();
         Vendor.Address := RandomCode10;
         Vendor."Address 2" := RandomCode10;
         Vendor.City := RandomCode10;
@@ -124,7 +124,7 @@ codeunit 134632 "Graph Collect Mgt Vendor"
 
     local procedure RandomCode10(): Code[10]
     begin
-        exit(LibraryUtility.GenerateGUID);
+        exit(LibraryUtility.GenerateGUID());
     end;
 
     local procedure VerifyMatchingPostalAddress(ActualJSON: Text; Vendor: Record Vendor)

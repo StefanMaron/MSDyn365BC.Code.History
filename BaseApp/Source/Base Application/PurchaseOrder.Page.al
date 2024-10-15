@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 50 "Purchase Order"
 {
     Caption = 'Purchase Order';
@@ -194,26 +195,6 @@ page 50 "Purchase Order"
                         SaveInvoiceDiscountAmount;
                     end;
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the VAT date of the original document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Suite;
@@ -357,17 +338,6 @@ page 50 "Purchase Order"
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies whether the document is part of a three-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Expected Receipt Date"; "Expected Receipt Date")
                 {
                     ApplicationArea = Suite;
@@ -389,26 +359,13 @@ page 50 "Purchase Order"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-#if not CLEAN17
-                field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
+                field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date of the last check of uncertainty.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
                 }
-                field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor is uncertainty payer.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Suite;
@@ -420,6 +377,7 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -451,6 +409,12 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -484,17 +448,6 @@ page 50 "Purchase Order"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
-#if not CLEAN18
-                field("Vendor Posting Group"; "Vendor Posting Group")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field("On Hold"; "On Hold")
                 {
                     ApplicationArea = Suite;
@@ -844,17 +797,6 @@ page 50 "Purchase Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the purchase header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
@@ -870,75 +812,40 @@ page 50 "Purchase Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the registration number of vendor.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
-                }
-#if not CLEAN17
-                field(VATCurrencyCode; "Currency Code")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'VAT Currency Code';
-                    Editable = false;
-                    ToolTip = 'Specifies vat currency code of purchase credit memo';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
-
-                    trigger OnAssistEdit()
-                    begin
-                        // NAVCZ
-                        Clear(ChangeExchangeRate);
-                        if "VAT Date" <> 0D then
-                            ChangeExchangeRate.SetParameter("Currency Code", "VAT Currency Factor", "VAT Date")
-                        else
-                            ChangeExchangeRate.SetParameter("Currency Code", "VAT Currency Factor", WorkDate);
-
-                        if ChangeExchangeRate.RunModal = ACTION::OK then begin
-                            Validate("VAT Currency Factor", ChangeExchangeRate.GetParameter);
-                            CurrPage.Update();
-                        end;
-                        Clear(ChangeExchangeRate);
-                        // NAVCZ
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        CurrencyCodeOnAfterValidate; // NAVCZ
-                    end;
                 }
-#endif
             }
+#if not CLEAN20
             group(Control1900201301)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Will be replaced by standard group Prepayment.';
+                ObsoleteTag = '20.0';
+#else
+            group(Prepayment)
+            {
+#endif
                 Caption = 'Prepayment';
                 field("Prepayment %"; "Prepayment %")
                 {
@@ -1012,13 +919,6 @@ page 50 "Purchase Order"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
-#if not CLEAN17
-
-                    trigger OnValidate()
-                    begin
-                        CalcFields("Third Party Bank Account"); // NAVCZ
-                    end;
-#endif
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -1083,33 +983,19 @@ page 50 "Purchase Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
-                {
-                    ApplicationArea = Suite;
-                    Caption = 'Public Bank Account';
-                    Editable = false;
-                    ToolTip = 'Specifies if the vendor''s bank account is public.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Third Party Bank Account"; "Third Party Bank Account")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies if the account is third party bank account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
 #endif
         }
         area(factboxes)
         {
+            part(PurchaseDocCheckFactbox; "Purch. Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = PurchaseDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -1302,7 +1188,7 @@ page 50 "Purchase Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1426,7 +1312,9 @@ page 50 "Purchase Order"
                     Image = ReceiptLines;
                     RunObject = Page "Whse. Receipt Lines";
                     RunPageLink = "Source Type" = CONST(39),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse receipts for the document, in advanced warehouse configurations.';
@@ -1671,7 +1559,7 @@ page 50 "Purchase Order"
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }
@@ -1873,7 +1761,7 @@ page 50 "Purchase Order"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetPurchasingTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -2325,6 +2213,8 @@ page 50 "Purchase Order"
         ShowOverReceiptNotification();
         BuyFromContact.GetOrClear("Buy-from Contact No.");
         PayToContact.GetOrClear("Pay-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -2335,12 +2225,11 @@ page 50 "Purchase Order"
 
     trigger OnInit()
     var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        JobQueueUsed := PurchasesPayablesSetup.JobQueueActive;
-        SetExtDocNoMandatoryCondition;
-        ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled or ApplicationAreaMgmtFacade.IsAllDisabled;
+        JobQueueUsed := PurchSetup.JobQueueActive();
+        SetExtDocNoMandatoryCondition();
+        ShowShippingOptionsWithLocation := ApplicationAreaMgmtFacade.IsLocationEnabled() or ApplicationAreaMgmtFacade.IsAllDisabled();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -2358,6 +2247,9 @@ page 50 "Purchase Order"
         SetOpenPage();
 
         ActivateFields();
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2377,6 +2269,8 @@ page 50 "Purchase Order"
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        PurchSetup: Record "Purchases & Payables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -2386,9 +2280,6 @@ page 50 "Purchase Order"
         ChangeExchangeRate: Page "Change Exchange Rate";
         [InDataSet]
         JobQueueVisible: Boolean;
-#if not CLEAN17
-        UncertPayerMgt: Codeunit "Unc. Payer Mgt.";
-#endif
 #if not CLEAN19
         CancelAllRelationsQst: Label 'Are you sure to cancel all advance payment relations?';
 #endif
@@ -2412,6 +2303,12 @@ page 50 "Purchase Order"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        PurchaseDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
         ShouldSearchForVendByName: Boolean;
 
     protected var
@@ -2440,6 +2337,9 @@ page 50 "Purchase Order"
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
@@ -2451,13 +2351,11 @@ page 50 "Purchase Order"
     var
         PurchaseHeader: Record "Purchase Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
         SendToPosting(PostingCodeunitID);
 
@@ -2558,6 +2456,7 @@ page 50 "Purchase Order"
         PurchPostPrepmtYesNo.Preview(Rec, 3);
     end;
 
+    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
     local procedure CurrencyCodeOnAfterValidate()
     begin
         CurrPage.PurchLines.PAGE.UpdateForm(true); // NAVCZ
@@ -2599,16 +2498,15 @@ page 50 "Purchase Order"
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
-    var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get();
-        VendorInvoiceNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
+        PurchSetup.GetRecordOnce();
+        VendorInvoiceNoMandatory := PurchSetup."Ext. Doc. No. Mandatory";
     end;
 
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         WorkflowWebhookMgt: Codeunit "Workflow Webhook Management";
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
@@ -2621,7 +2519,28 @@ page 50 "Purchase Order"
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
         ShouldSearchForVendByName := ShouldSearchForVendorByName("Buy-from Vendor No.");
+        PurchaseDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+
         OnAfterSetControlAppearance();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.PurchaseDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        PurchSetup.GetRecordOnce();
+        IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -2632,11 +2551,11 @@ page 50 "Purchase Order"
     begin
         if not OrderPurchaseHeader.Get("Document Type", "No.") then begin
             PurchInvHeader.SetRange("No.", "Last Posting No.");
-            if PurchInvHeader.FindFirst then
+            if PurchInvHeader.FindFirst() then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchaseOrderQst, PurchInvHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)
                 then
-                    PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
+                    InstructionMgt.ShowPostedDocument(PurchInvHeader, Page::"Purchase Order");
         end;
     end;
 
@@ -2646,13 +2565,13 @@ page 50 "Purchase Order"
             ShipToOptions::"Default (Company Address)",
             ShipToOptions::"Custom Address":
                 begin
-                    Validate("Location Code", '');
                     Validate("Sell-to Customer No.", '');
+                    Validate("Location Code", '');
                 end;
             ShipToOptions::Location:
                 begin
-                    Validate("Location Code");
                     Validate("Sell-to Customer No.", '');
+                    Validate("Location Code");
                 end;
             ShipToOptions::"Customer Address":
                 begin
@@ -2719,6 +2638,11 @@ page 50 "Purchase Order"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnPostDocumentOnBeforePurchaseHeaderInsert(var PurchaseHeader: Record "Purchase Header")
     begin
@@ -2744,4 +2668,4 @@ page 50 "Purchase Order"
     begin
     end;
 }
-
+#endif

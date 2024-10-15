@@ -764,11 +764,7 @@ table 5109 "Purchase Header Archive"
             Caption = 'Bank Account Code';
             TableRelation = IF ("Document Type" = FILTER(Quote | Order | Invoice | "Blanket Order")) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."))
             ELSE
-#if CLEAN17
             IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Bank Account"."No.";
-#else
-            IF ("Document Type" = FILTER("Credit Memo" | "Return Order")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -874,13 +870,9 @@ table 5109 "Purchase Header Archive"
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -888,13 +880,9 @@ table 5109 "Purchase Header Archive"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -906,24 +894,16 @@ table 5109 "Purchase Header Archive"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11793; "Quote Validity"; Date)
         {
@@ -986,24 +966,16 @@ table 5109 "Purchase Header Archive"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31067; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -1081,4 +1053,3 @@ table 5109 "Purchase Header Archive"
     begin
     end;
 }
-

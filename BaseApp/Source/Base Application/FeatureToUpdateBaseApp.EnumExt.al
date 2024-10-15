@@ -1,3 +1,4 @@
+#if not CLEAN20
 enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
 {
 #if not CLEAN19
@@ -24,4 +25,16 @@ enumextension 2611 "Feature To Update - BaseApp" extends "Feature To Update"
     {
         Implementation = "Feature Data Update" = "Feature Map Currency Symbol";
     }
+    value(5408; OptionMapping)
+    {
+        Implementation = "Feature Data Update" = "Feature - Option Mapping";
+    }
+    value(31429; ReplaceMultipleInterestRateCZ)
+    {
+        Implementation = "Feature Data Update" = "Feature Replace Mul. Int. Rate";
+        ObsoleteState = Pending;
+        ObsoleteReason = 'Feature Multiple Interest Rate CZ will be replaced by Finance Charge Interest Rate by default.';
+        ObsoleteTag = '20.0';
+    }
 }
+#endif

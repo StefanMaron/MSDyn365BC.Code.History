@@ -15,7 +15,6 @@ codeunit 31111 "Workflow Response Handling CZ"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         SetStatusToApprovedTxt: Label 'Set document status to Approved (Obsolete)';
         CheckReleaseDocumentTxt: Label 'Check release the document (Obsolete)';
-        UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = 'Record type Customer is not supported by this workflow response.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]
     local procedure AddWorkflowResponsesToLibrary()
@@ -32,22 +31,11 @@ codeunit 31111 "Workflow Response Handling CZ"
                 WorkflowResponseHandling.AddResponsePredecessor(
                   SetStatusToApprovedCode,
                   WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode);
-#if not CLEAN17
-            CheckReleaseDocumentCode:
-                WorkflowResponseHandling.AddResponsePredecessor(
-                  CheckReleaseDocumentCode,
-                  WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
-#endif
             WorkflowResponseHandling.SetStatusToPendingApprovalCode:
                 begin
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN17
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SetStatusToPendingApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SetStatusToPendingApprovalCode,
@@ -65,11 +53,6 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN17
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CreateApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CreateApprovalRequestsCode,
@@ -87,11 +70,6 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode);
-#if not CLEAN17
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.SendApprovalRequestForApprovalCode,
@@ -109,11 +87,6 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
-#if not CLEAN17
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.OpenDocumentCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelCashDocApprovalRequestCode);
-#endif
 #if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.OpenDocumentCode,
@@ -131,11 +104,6 @@ codeunit 31111 "Workflow Response Handling CZ"
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
                       WorkflowEventHandlingCZ.RunWorkflowOnCancelPaymentOrderApprovalRequestCode);
-#if not CLEAN17
-                    WorkflowResponseHandling.AddResponsePredecessor(
-                      WorkflowResponseHandling.CancelAllApprovalRequestsCode,
-                      WorkflowEventHandlingCZ.RunWorkflowOnCancelCashDocApprovalRequestCode);
-#endif
 #if not CLEAN18
                     WorkflowResponseHandling.AddResponsePredecessor(
                       WorkflowResponseHandling.CancelAllApprovalRequestsCode,
@@ -160,13 +128,6 @@ codeunit 31111 "Workflow Response Handling CZ"
                     SetStatusToApproved(Variant);
                     ResponseExecuted := true;
                 end;
-#if not CLEAN17
-            CheckReleaseDocumentCode:
-                begin
-                    CheckReleaseDocument(Variant);
-                    ResponseExecuted := true;
-                end;
-#endif
         end;
     end;
 
@@ -188,27 +149,6 @@ codeunit 31111 "Workflow Response Handling CZ"
     begin
         ApprovalsMgmt.SetStatusToApproved(Variant);
     end;
-#if not CLEAN17
-
-    local procedure CheckReleaseDocument(var Variant: Variant)
-    var
-        CashDocumentHeader: Record "Cash Document Header";
-        CashDocumentRelease: Codeunit "Cash Document-Release";
-        RecRef: RecordRef;
-    begin
-        RecRef.GetTable(Variant);
-
-        case RecRef.Number of
-            DATABASE::"Cash Document Header":
-                begin
-                    CashDocumentHeader := Variant;
-                    CashDocumentRelease.CheckCashDocument(CashDocumentHeader);
-                end;
-            else
-                Error(UnsupportedRecordTypeErr, RecRef.Caption);
-        end;
-    end;
-#endif
 }
 
 #endif

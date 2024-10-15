@@ -197,12 +197,6 @@
         {
             Caption = 'Customer Posting Group';
             TableRelation = "Customer Posting Group";
-#if not CLEAN17
-            trigger OnValidate()
-            begin
-                CheckOpenCustomerLedgerEntries; // NAVCZ
-            end;
-#endif
         }
         field(22; "Currency Code"; Code[10])
         {
@@ -1015,16 +1009,16 @@
                         CustLedgEntry.SetCurrentKey("Customer No.");
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     CustLedgEntry.SetRange(Open, true);
-                    if CustLedgEntry.FindLast then
+                    if CustLedgEntry.FindLast() then
                         Error(Text012, FieldCaption("IC Partner Code"), TableCaption);
 
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
-                    if AccountingPeriod.FindFirst then begin
+                    if AccountingPeriod.FindFirst() then begin
                         CustLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-                        if CustLedgEntry.FindFirst then
+                        if CustLedgEntry.FindFirst() then
                             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text011, TableCaption), true) then
                                 "IC Partner Code" := xRec."IC Partner Code";
                     end;
@@ -1602,45 +1596,28 @@
         {
             Caption = 'Last Statement Date';
             Editable = false;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                if "Registration No." <> xRec."Registration No." then
-                    RegistrationNoValidation;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif        
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                RegistrationNoMgt: Codeunit "Registration No. Mgt.";
-            begin
-                RegistrationNoMgt.CheckTaxRegistrationNo("Tax Registration No.", "No.", DATABASE::Customer);
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11792; "Registered Name"; Text[250])
         {
@@ -1827,14 +1804,6 @@
         key(Key13; Contact)
         {
         }
-#if not CLEAN17
-        key(Key14; "Registration No.")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-#endif
         key(Key16; Blocked)
         {
         }
@@ -1860,7 +1829,7 @@
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "Registration No.", "VAT Registration No.")
+        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "VAT Registration No.")
         {
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
@@ -1873,7 +1842,6 @@
         CampaignTargetGr: Record "Campaign Target Group";
         ContactBusRel: Record "Contact Business Relation";
         Job: Record Job;
-        SocialListeningSearchTopic: Record "Social Listening Search Topic";
         StdCustSalesCode: Record "Standard Customer Sales Code";
         CustomReportSelection: Record "Custom Report Selection";
         MyCustomer: Record "My Customer";
@@ -1882,9 +1850,6 @@
         CampaignTargetGrMgmt: Codeunit "Campaign Target Group Mgt";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
-#if not CLEAN17
-        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-#endif
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1895,7 +1860,7 @@
         ApprovalsMgmt.OnCancelCustomerApprovalRequest(Rec);
 
         ServiceItem.SetRange("Customer No.", "No.");
-        if ServiceItem.FindFirst then
+        if ServiceItem.FindFirst() then
             if ConfirmManagement.GetResponseOrDefault(
                  StrSubstNo(Text008, TableCaption, "No.", ServiceItem.FieldCaption("Customer No.")), true)
             then
@@ -1927,21 +1892,16 @@
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty() then begin
-            SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Customer, "No.");
-            SocialListeningSearchTopic.DeleteAll();
-        end;
-
         SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesOrderLine.SetRange("Bill-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst then
+        if SalesOrderLine.FindFirst() then
             Error(
               Text000,
               TableCaption, "No.", SalesOrderLine."Document Type");
 
         SalesOrderLine.SetRange("Bill-to Customer No.");
         SalesOrderLine.SetRange("Sell-to Customer No.", "No.");
-        if SalesOrderLine.FindFirst then
+        if SalesOrderLine.FindFirst() then
             Error(
               Text000,
               TableCaption, "No.", SalesOrderLine."Document Type");
@@ -1951,7 +1911,7 @@
         if CampaignTargetGr.Find('-') then begin
             ContactBusRel.SetRange("Link to Table", ContactBusRel."Link to Table"::Customer);
             ContactBusRel.SetRange("No.", "No.");
-            ContactBusRel.FindFirst;
+            ContactBusRel.FindFirst();
             repeat
                 CampaignTargetGrMgmt.ConverttoContact(Rec, ContactBusRel."Contact No.");
             until CampaignTargetGr.Next() = 0;
@@ -1985,12 +1945,6 @@
         DimMgt.DeleteDefaultDim(DATABASE::Customer, "No.");
 
         CalendarManagement.DeleteCustomizedBaseCalendarData(CustomizedCalendarChange."Source Type"::Customer, "No.");
-#if not CLEAN17
-
-        // NAVCZ
-        RegistrationLogMgt.DeleteCustomerLog(Rec);
-        // NAVCZ
-#endif
     end;
 
     trigger OnInsert()
@@ -2071,7 +2025,6 @@
         ShippingAgentService: Record "Shipping Agent Services";
         RMSetup: Record "Marketing Setup";
         SalesPrepmtPct: Record "Sales Prepayment %";
-        ServContract: Record "Service Contract Header";
         ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
@@ -2097,7 +2050,6 @@
         Text015: Label 'You cannot delete %1 %2 because there is at least one %3 associated to this customer.';
         AllowPaymentToleranceQst: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         RemovePaymentRoleranceQst: Label 'Do you want to remove payment tolerance from entries that are currently open?';
-        ChangeErr: Label ' cannot be changed';
         CreateNewCustTxt: Label 'Create a new customer card for %1', Comment = '%1 is the name to be used to create the customer. ';
         SelectCustErr: Label 'You must select an existing customer.';
         CustNotRegisteredTxt: Label 'This customer is not registered. To continue, choose one of the following options:';
@@ -2167,7 +2119,7 @@
             ContBusRel.SetCurrentKey("Link to Table", "No.");
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
             ContBusRel.SetRange("No.", "No.");
-            if not ContBusRel.FindFirst then begin
+            if not ContBusRel.FindFirst() then begin
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text002, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromCust.InsertNewContact(Rec, false);
@@ -2287,7 +2239,13 @@
             Action := Text004
         else
             Action := Text005;
-        Error(Text006, Action, Cust2."No.", Cust2.Blocked);
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(
+                    Text006, Action, Cust2."No.", Cust2.Blocked),
+                true,
+                Cust2,
+                Cust2.FieldNo(Blocked)));
     end;
 
     procedure CustPrivacyBlockedErrorMessage(Cust2: Record Customer; Transaction: Boolean)
@@ -2299,7 +2257,12 @@
         else
             Action := Text005;
 
-        Error(PrivacyBlockedActionErr, Action, Cust2."No.");
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(
+                    PrivacyBlockedActionErr, Action, Cust2."No."),
+                true,
+                Cust2));
     end;
 
     procedure GetPrivacyBlockedGenericErrorText(Cust2: Record Customer): Text[250]
@@ -2313,7 +2276,7 @@
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Customer, GetPosition)
         else
             Message(Text014);
@@ -2604,42 +2567,6 @@
         end;
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetLinkedVendor(): Code[20]
-    var
-        ContBusRel: Record "Contact Business Relation";
-    begin
-        // NAVCZ
-        ContBusRel.SetCurrentKey("Link to Table", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        ContBusRel.SetRange("No.", "No.");
-        if ContBusRel.FindFirst then begin
-            ContBusRel.SetRange("Contact No.", ContBusRel."Contact No.");
-            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
-            ContBusRel.SetRange("No.");
-            if ContBusRel.FindFirst then
-                exit(ContBusRel."No.");
-        end;
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure CheckOpenCustomerLedgerEntries()
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        // NAVCZ
-        CustLedgerEntry.SetCurrentKey("Customer No.", Open);
-        CustLedgerEntry.SetRange("Customer No.", "No.");
-        CustLedgerEntry.SetRange(Open, true);
-        if not CustLedgerEntry.IsEmpty() then
-            FieldError("Customer Posting Group", ChangeErr);
-    end;
-
-#endif
     procedure GetBillToCustomerNo(): Code[20]
     begin
         if "Bill-to Customer No." <> '' then
@@ -2692,6 +2619,28 @@
         exit(false);
     end;
 
+    procedure GetBalanceAsVendor(var LinkedVendorNo: Code[20]) BalanceAsVendor: Decimal;
+    var
+        Vendor: Record Vendor;
+    begin
+        BalanceAsVendor := 0;
+        LinkedVendorNo := GetLinkedVendor();
+        if Vendor.Get(LinkedVendorNo) then begin
+            Vendor.CalcFields("Balance (LCY)");
+            BalanceAsVendor := Vendor."Balance (LCY)";
+        end;
+    end;
+
+    procedure GetLinkedVendor(): Code[20];
+    var
+        ContBusRel: Record "Contact Business Relation";
+    begin
+        exit(
+            ContBusRel.GetLinkedTables(
+                "Contact Business Relation Link To Table"::Customer, "No.",
+                "Contact Business Relation Link To Table"::Vendor))
+    end;
+
     procedure GetCustNo(CustomerText: Text): Text
     begin
         exit(GetCustNoOpenCard(CustomerText, true, true));
@@ -2722,7 +2671,7 @@
         OnGetCustNoOpenCardOnBeforeFilterCustomer(Customer);
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         Customer.SetRange(Name, CustomerText);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
 
         Customer.SetCurrentKey(Name);
@@ -2730,7 +2679,7 @@
         CustomerWithoutQuote := ConvertStr(CustomerText, '''', '?');
         Customer.SetFilter(Name, '''@' + CustomerWithoutQuote + '''');
         OnGetCustNoOpenCardOnBeforeCustomerFindSet(Customer);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
         Customer.SetRange(Name);
 
@@ -2742,7 +2691,7 @@
         Customer.SetFilter(Name, CustomerFilterFromStart);
         OnGetCustNoOpenCardOnAfterOnAfterCustomerFilterFromStart(Customer);
 
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(Customer."No.");
 
         CustomerFilterContains := '''@*' + CustomerWithoutQuote + '*''';
@@ -2759,7 +2708,7 @@
             MarkCustomersWithSimilarName(Customer, CustomerText);
 
         if Customer.Count = 1 then begin
-            Customer.FindFirst;
+            Customer.FindFirst();
             exit(Customer."No.");
         end;
 
@@ -2816,7 +2765,7 @@
         Customer.Ascending(false); // most likely to search for newest customers
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 CustomerCount += 1;
                 if Abs(CustomerTextLength - StrLen(Customer.Name)) <= Treshold then
@@ -2901,11 +2850,11 @@
 
     local procedure MarkCustomersByFilters(var Customer: Record Customer)
     begin
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 Customer.Mark(true);
             until Customer.Next() = 0;
-        if Customer.FindFirst then;
+        if Customer.FindFirst() then;
         Customer.MarkedOnly := true;
     end;
 
@@ -2993,13 +2942,7 @@
           (County <> xRec.County) or
           ("E-Mail" <> xRec."E-Mail") or
           ("Home Page" <> xRec."Home Page") or
-#if CLEAN17
           (Contact <> xRec.Contact);
-#else
-          (Contact <> xRec.Contact) or
-          ("Registration No." <> xRec."Registration No.") or
-          ("Tax Registration No." <> xRec."Tax Registration No.");
-#endif          
 
         if not UpdateNeeded and not IsTemporary then
             UpdateNeeded := CustContUpdate.ContactNameIsBlank("No.");
@@ -3030,17 +2973,17 @@
         HasAnyDocs: Boolean;
     begin
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             exit(true);
 
         SalesLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesLine.SetRange("Bill-to Customer No.", "No.");
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             exit(true);
 
         SalesLine.SetRange("Bill-to Customer No.");
         SalesLine.SetRange("Sell-to Customer No.", "No.");
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             exit(true);
 
         CustLedgerEntry.SetRange("Customer No.", "No.");
@@ -3114,7 +3057,7 @@
         Cont.Image.ExportFile(ExportPath);
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, TemporaryPath);
         TempNameValueBuffer.SetFilter(Name, StrSubstNo('%1*', ExportPath));
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         Clear(Image);
         Image.ImportFile(TempNameValueBuffer.Name, '');
@@ -3149,10 +3092,10 @@
             Validate("Salesperson Code", UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure SetLastModifiedDateTime()
+    protected procedure SetLastModifiedDateTime()
     begin
-        "Last Modified Date Time" := CurrentDateTime;
-        "Last Date Modified" := Today;
+        "Last Modified Date Time" := CurrentDateTime();
+        "Last Date Modified" := Today();
         OnAfterSetLastModifiedDateTime(Rec);
     end;
 
@@ -3207,43 +3150,12 @@
         MailManagement.CheckValidEmailAddresses("E-Mail");
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure RegistrationNoValidation()
-    var
-        RegistrationLog: Record "Registration Log";
-        RegNoSrvConfig: Record "Reg. No. Srv Config";
-        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-        RegistrationNoMgt: Codeunit "Registration No. Mgt.";
-        ResultRecordRef: RecordRef;
-    begin
-        // NAVCZ
-        if not RegistrationNoMgt.CheckRegistrationNo("Registration No.", "No.", DATABASE::Customer) then
-            exit;
-        RegistrationLogMgt.LogCustomer(Rec);
-        if RegNoSrvConfig.RegNoSrvIsEnabled then begin
-            RegistrationLogMgt.ValidateRegNoWithARES(
-              ResultRecordRef, Rec, "No.", RegistrationLog."Account Type"::Customer);
-            ResultRecordRef.SetTable(Rec);
-        end;
-    end;
-
-#endif
     procedure VerifyAndUpdateFromVIES()
     begin
         // NAVCZ
         VATRegistrationValidation;
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure VerifyAndUpdateFromARES()
-    begin
-        // NAVCZ
-        RegistrationNoValidation;
-    end;
-
-#endif
     procedure SetAddress(CustomerAddress: Text[100]; CustomerAddress2: Text[50]; CustomerPostCode: Code[20]; CustomerCity: Text[30]; CustomerCounty: Text[30]; CustomerCountryCode: Code[10]; CustomerContact: Text[100])
     begin
         Address := CustomerAddress;
@@ -3263,12 +3175,12 @@
         MarketingSetup: Record "Marketing Setup";
     begin
         Customer.SetRange("E-Mail", Email);
-        if Customer.FindFirst then
+        if Customer.FindFirst() then
             exit(true);
 
         Customer.SetRange("E-Mail");
         LocalContact.SetRange("E-Mail", Email);
-        if LocalContact.FindSet then begin
+        if LocalContact.FindSet() then begin
             MarketingSetup.Get();
             repeat
                 if ContactBusinessRelation.Get(LocalContact."No.", MarketingSetup."Bus. Rel. Code for Customers") then begin

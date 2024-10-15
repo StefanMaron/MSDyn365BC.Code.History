@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 5200 Employee
 {
     Caption = 'Employee';
@@ -379,17 +378,6 @@ table 5200 Employee
         field(57; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
-
-            trigger OnValidate()
-            var
-                CompanyInfo: Record "Company Information";
-            begin
-                // NAVCZ
-                CompanyInfo.Get();
-                if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                    CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
-                // NAVCZ
-            end;
         }
         field(58; IBAN; Code[50])
         {
@@ -632,7 +620,7 @@ table 5200 Employee
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
         else
             Message(Text000);
@@ -685,7 +673,7 @@ table 5200 Employee
     begin
         Employee.SetFilter("No.", '<>%1', "No.");
         Employee.SetRange("Resource No.", ResourceNo);
-        if Employee.FindFirst then
+        if Employee.FindFirst() then
             Error(EmployeeLinkedToResourceErr, Employee."No.");
     end;
 
@@ -720,4 +708,3 @@ table 5200 Employee
     end;
 }
 
-#endif

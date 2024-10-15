@@ -695,7 +695,7 @@ codeunit 225 "Gen. Jnl.-Apply"
             GLEntry.SetRange("G/L Account No.", AccNo);
             GLEntry.SetRange(Closed, false);
             GLEntry.SetRange("Applies-to ID", "Applies-to ID");
-            if GLEntry.FindSet then begin
+            if GLEntry.FindSet() then begin
                 if Amount = 0 then begin
                     repeat
                         if Abs(GLEntry."Amount to Apply") >= Abs(GLEntry.RemainingAmount) then

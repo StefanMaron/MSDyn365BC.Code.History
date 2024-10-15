@@ -160,7 +160,8 @@ table 297 "Issued Reminder Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Issued Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
-                                                                               "Line Type" = CONST("Reminder Line")));
+                                                                               "Line Type" = CONST("Reminder Line"),
+                                                                               "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -171,7 +172,8 @@ table 297 "Issued Reminder Header"
             AutoFormatType = 1;
             CalcFormula = Sum("Issued Reminder Line".Amount WHERE("Reminder No." = FIELD("No."),
                                                                    Type = CONST("Customer Ledger Entry"),
-                                                                   "Line Type" = CONST("Reminder Line")));
+                                                                   "Line Type" = CONST("Reminder Line"),
+                                                                   "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Interest Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -190,7 +192,8 @@ table 297 "Issued Reminder Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Issued Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No.")));
+            CalcFormula = Sum("Issued Reminder Line"."VAT Amount" WHERE("Reminder No." = FIELD("No."),
+                                                                         "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'VAT Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -273,6 +276,11 @@ table 297 "Issued Reminder Header"
             Caption = 'Canceled By Document No.';
             DataClassification = CustomerContent;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -287,35 +295,79 @@ table 297 "Issued Reminder Header"
         field(11700; "Bank No."; Code[20])
         {
             Caption = 'Bank No.';
-#if CLEAN17
             TableRelation = "Bank Account";
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
 #else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
 #endif
         }
         field(11701; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11702; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11703; "Specific Symbol"; Code[10])
         {
             Caption = 'Specific Symbol';
             CharAllowed = '09';
             Editable = false;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11704; "Variable Symbol"; Code[10])
         {
             Caption = 'Variable Symbol';
             CharAllowed = '09';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11705; "Constant Symbol"; Code[10])
         {
             Caption = 'Constant Symbol';
             CharAllowed = '09';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
 #if not CLEAN18
 
             TableRelation = "Constant Symbol";
@@ -325,44 +377,76 @@ table 297 "Issued Reminder Header"
         {
             Caption = 'Transit No.';
             Editable = false;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11707; IBAN; Code[50])
         {
             Caption = 'IBAN';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11708; "SWIFT Code"; Code[20])
         {
             Caption = 'SWIFT Code';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11709; "Bank Name"; Text[100])
         {
             Caption = 'Bank Name';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11761; "Multiple Interest Rates"; Boolean)
         {
             Caption = 'Multiple Interest Rates';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -386,7 +470,9 @@ table 297 "Issued Reminder Header"
 
     trigger OnDelete()
     begin
+#if not CLEAN20
         ReminderIssue.IsDocumentDeletionAllowed("Posting Date"); // NAVCZ
+#endif
         TestField("No. Printed");
         LockTable();
         ReminderIssue.DeleteIssuedReminderLines(Rec);
@@ -421,7 +507,7 @@ table 297 "Issued Reminder Header"
             if (not HideDialog) and (IssuedReminderHeader.Count > 1) then
                 if Confirm(SuppresSendDialogQst) then
                     HideDialog := true;
-            if IssuedReminderHeader.FindSet then
+            if IssuedReminderHeader.FindSet() then
                 repeat
                     IssuedReminderHeaderToSend.Copy(IssuedReminderHeader);
                     IssuedReminderHeaderToSend.SetRecFilter;
@@ -443,7 +529,7 @@ table 297 "Issued Reminder Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure IncrNoPrinted()

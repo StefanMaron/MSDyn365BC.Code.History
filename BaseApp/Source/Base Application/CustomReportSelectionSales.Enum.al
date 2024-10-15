@@ -1,3 +1,4 @@
+#if not CLEAN20
 enum 9657 "Custom Report Selection Sales"
 {
     Extensible = true;
@@ -11,7 +12,8 @@ enum 9657 "Custom Report Selection Sales"
     value(5; "Job Quote") { Caption = 'Job Quote'; }
     value(6; "Reminder") { Caption = 'Reminder'; }
     value(7; "Shipment") { Caption = 'Shipment'; }
-    value(37; "Adv. Letter") { Caption = 'Adv. Letter'; }
-    value(38; "Adv. Invoice") { Caption = 'Adv. Invoice'; }
-    value(39; "Adv. Cr.Memo") { Caption = 'Adv. Cr.Memo'; }
+    value(37; "Adv. Letter") { Caption = 'Adv. Letter (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '20.0'; }
+    value(38; "Adv. Invoice") { Caption = 'Adv. Invoice (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '20.0'; }
+    value(39; "Adv. Cr.Memo") { Caption = 'Adv. Cr.Memo (Obsolete)'; ObsoleteState = Pending; ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.'; ObsoleteTag = '20.0'; }
 }
+#endif

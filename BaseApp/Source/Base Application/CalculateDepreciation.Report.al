@@ -173,9 +173,6 @@ report 5692 "Calculate Depreciation"
                             LineNo := LineNo + 1;
                             Window.Update(3, LineNo);
                             "Posting Date" := PostingDate;
-#if not CLEAN17
-                            "VAT Date" := PostingDate; // NAVCZ
-#endif
                             "FA Posting Date" := DeprUntilDate;
                             if "Posting Date" = "FA Posting Date" then
                                 "FA Posting Date" := 0D;
@@ -350,7 +347,7 @@ report 5692 "Calculate Depreciation"
                 if ConfirmMgt.GetResponse(StrSubstNo(CompletionStatsFAJnlQst, FAJnlLineCreatedCount), true) then begin
                     PageFAJnlLine.SetRange("Journal Template Name", FAJnlLine."Journal Template Name");
                     PageFAJnlLine.SetRange("Journal Batch Name", FAJnlLine."Journal Batch Name");
-                    PageFAJnlLine.FindFirst;
+                    PageFAJnlLine.FindFirst();
                     PAGE.Run(PAGE::"Fixed Asset Journal", PageFAJnlLine);
                 end;
         end;
@@ -362,7 +359,7 @@ report 5692 "Calculate Depreciation"
                 if ConfirmMgt.GetResponse(StrSubstNo(CompletionStatsGenJnlQst, GenJnlLineCreatedCount), true) then begin
                     PageGenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                     PageGenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                    PageGenJnlLine.FindFirst;
+                    PageGenJnlLine.FindFirst();
                     PAGE.Run(PAGE::"Fixed Asset G/L Journal", PageGenJnlLine);
                 end;
         end;
@@ -425,16 +422,8 @@ report 5692 "Calculate Depreciation"
         Custom1Amount: Decimal;
         NumberOfDays: Integer;
         Custom1NumberOfDays: Integer;
-        DeprUntilDate: Date;
-        UseForceNoOfDays: Boolean;
-        DaysInPeriod: Integer;
-        PostingDate: Date;
-        DocumentNo: Code[20];
         DocumentNo2: Code[20];
         NoSeries: Code[20];
-        PostingDescription: Text[100];
-        DeprBookCode: Code[10];
-        BalAccount: Boolean;
         ErrorNo: Integer;
         Custom1ErrorNo: Integer;
         FAJnlNextLineNo: Integer;
@@ -448,6 +437,16 @@ report 5692 "Calculate Depreciation"
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         DeprUntilDateModified: Boolean;
+
+    protected var
+        DeprBookCode: Code[10];
+        DeprUntilDate: Date;
+        UseForceNoOfDays: Boolean;
+        DaysInPeriod: Integer;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+        PostingDescription: Text[100];
+        BalAccount: Boolean;
 
     procedure InitializeRequest(DeprBookCodeFrom: Code[10]; DeprUntilDateFrom: Date; UseForceNoOfDaysFrom: Boolean; DaysInPeriodFrom: Integer; PostingDateFrom: Date; DocumentNoFrom: Code[20]; PostingDescriptionFrom: Text[100]; BalAccountFrom: Boolean)
     begin

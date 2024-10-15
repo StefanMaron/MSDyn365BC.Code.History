@@ -242,7 +242,7 @@ page 776 "Analysis Report Chart Matrix"
         AnalysisReportChartSetup.SetLinkToLines(Rec);
         case AnalysisReportChartSetup."Base X-Axis on" of
             AnalysisReportChartSetup."Base X-Axis on"::Period:
-                if FindFirst then
+                if FindFirst() then
                     SetRange("Analysis Column Line No.", "Analysis Column Line No.");
             AnalysisReportChartSetup."Base X-Axis on"::Line,
           AnalysisReportChartSetup."Base X-Axis on"::Column:
@@ -260,7 +260,7 @@ page 776 "Analysis Report Chart Matrix"
         Clear(ColumnCaptions);
         AnalysisReportChartSetup.FilterAnalysisColumn(AnalysisColumn);
 
-        if AnalysisColumn.FindSet then
+        if AnalysisColumn.FindSet() then
             repeat
                 ColumnNo := ColumnNo + 1;
                 ColumnCaptions[ColumnNo] := AnalysisColumn."Column Header";

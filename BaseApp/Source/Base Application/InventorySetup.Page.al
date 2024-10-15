@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -104,6 +104,7 @@ page 461 "Inventory Setup"
                     ObsoleteState = Pending;
                     ObsoleteTag = '19.0';
                     ToolTip = 'Specifies if you want to use item references in purchase and sales documents.';
+                    Visible = false;
                 }
 #endif
 #if not CLEAN18
@@ -318,35 +319,23 @@ page 461 "Inventory Setup"
                     Visible = PackageVisible;
                 }
             }
-#if not CLEAN17
-            group("Phys. Inventory")
+            group("Gen. Journal Templates")
             {
-                Caption = 'Phys. Inventory';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
+                Caption = 'Journal Templates';
+                Visible = IsJournalTemplatesVisible;
 
-                field("Def.Template for Phys.Pos.Adj"; "Def.Template for Phys.Pos.Adj")
+                field("Invt. Cost Jnl. Template Name";
+                Rec."Invt. Cost Jnl. Template Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for template for phy.pos.adj.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
+                    ToolTip = 'Specifies the name of the journal template to use for automatic and expected cost posting.';
                 }
-                field("Def.Template for Phys.Neg.Adj"; "Def.Template for Phys.Neg.Adj")
+                field("Invt. Cost Jnl. Batch Name"; Rec."Invt. Cost Jnl. Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for template for phys.neg.adj.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
+                    ToolTip = 'Specifies the name of the journal batch to use for automatic and expected cost posting.';
                 }
             }
-#endif
         }
         area(factboxes)
         {
@@ -481,14 +470,19 @@ page 461 "Inventory Setup"
         SetPackageVisibility();
         SetAdjustCostWizardActionVisibility();
 
+        GLSetup.Get();
+        IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         PackageMgt: Codeunit "Package Management";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
         [InDataSet]
         PackageVisible: Boolean;
         AdjustCostWizardVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplatesVisible: Boolean;
 
     local procedure SetPackageVisibility()
     begin

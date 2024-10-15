@@ -78,9 +78,6 @@ table 254 "VAT Entry"
                 if "Bill-to/Pay-to No." = '' then begin
                     "Country/Region Code" := '';
                     "VAT Registration No." := '';
-#if not CLEAN17
-                    "Registration No." := ''; // NAVCZ
-#endif
                 end else
                     case Type of
                         Type::Purchase:
@@ -88,18 +85,12 @@ table 254 "VAT Entry"
                                 Vend.Get("Bill-to/Pay-to No.");
                                 "Country/Region Code" := Vend."Country/Region Code";
                                 "VAT Registration No." := Vend."VAT Registration No.";
-#if not CLEAN17
-                                "Registration No." := Vend."Registration No."; // NAVCZ
-#endif
                             end;
                         Type::Sale:
                             begin
                                 Cust.Get("Bill-to/Pay-to No.");
                                 "Country/Region Code" := Cust."Country/Region Code";
                                 "VAT Registration No." := Cust."VAT Registration No.";
-#if not CLEAN17
-                                "Registration No." := Cust."Registration No."; // NAVCZ
-#endif
                             end;
                     end;
             end;
@@ -111,12 +102,6 @@ table 254 "VAT Entry"
             trigger OnValidate()
             begin
                 Validate(Type);
-#if not CLEAN17
-                // NAVCZ
-                if not "EU 3-Party Trade" then
-                    "EU 3-Party Intermediate Role" := false;
-                // NAVCZ
-#endif                
             end;
         }
         field(14; "User ID"; Code[50])
@@ -392,6 +377,14 @@ table 254 "VAT Entry"
             Caption = 'Base Before Pmt. Disc.';
             Editable = false;
         }
+        field(78; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+        }
+        field(79; "Journal Batch Name"; Code[10])
+        {
+            Caption = 'Journal Batch Name';
+        }
         field(81; "Realized Amount"; Decimal)
         {
             AutoFormatType = 1;
@@ -425,13 +418,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11763; "Postponed VAT"; Boolean)
         {
@@ -445,13 +434,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Delay';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11765; "VAT % (Non Deductible)"; Decimal)
         {
@@ -483,13 +468,9 @@ table 254 "VAT Entry"
         {
             Caption = 'VAT Settlement No.';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11770; "Primary Entry No."; Integer)
         {
@@ -553,13 +534,9 @@ table 254 "VAT Entry"
         {
             Caption = 'Registration No.';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -658,55 +635,17 @@ table 254 "VAT Entry"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                if "EU 3-Party Intermediate Role" then
-                    "EU 3-Party Trade" := true;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
-#if not CLEAN17
-        field(31099; "VAT Control Report No."; Code[20])
-        {
-            CalcFormula = Lookup("VAT Ctrl.Rep. - VAT Entry Link"."Control Report No." WHERE("VAT Entry No." = FIELD("Entry No.")));
-            Caption = 'VAT Control Report No.';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-        }
-        field(31100; "VAT Control Report Line No."; Integer)
-        {
-            CalcFormula = Lookup("VAT Ctrl.Rep. - VAT Entry Link"."Line No." WHERE("VAT Entry No." = FIELD("Entry No.")));
-            Caption = 'VAT Control Report Line No.';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-        }
-#endif
         field(31101; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -741,15 +680,6 @@ table 254 "VAT Entry"
         {
             MaintainSQLIndex = false;
         }
-#if not CLEAN17
-        key(Key9; Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role", "VAT Date", "Prepayment Type", "Advance Letter No.", "Perform. Country/Region Code", "VAT Settlement No.")
-        {
-            SumIndexFields = Base, Amount, "Unrealized Amount", "Unrealized Base", "Additional-Currency Base", "Additional-Currency Amount", "Add.-Currency Unrealized Amt.", "Add.-Currency Unrealized Base", "Remaining Unrealized Amount", "Advance Base";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
-            ObsoleteTag = '17.5';
-        }
-#endif
 #if not CLEAN19
         key(Key10; Type, "Advance Letter No.", "Advance Letter Line No.")
         {
@@ -757,15 +687,6 @@ table 254 "VAT Entry"
             ObsoleteState = Pending;
             ObsoleteReason = 'Fields "Advance Letter No." and "Advance Letter Line No." are removed and cannot be used in an active key.';
             ObsoleteTag = '19.0';
-        }
-#endif
-#if not CLEAN17
-        key(Key11; Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Date")
-        {
-            SumIndexFields = Base, "Additional-Currency Base";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'This key is discontinued due to obsolete fields.';
-            ObsoleteTag = '17.5';
         }
 #endif
         key(Key12; "Unrealized VAT Entry No.")
@@ -903,15 +824,9 @@ table 254 "VAT Entry"
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
         CopyPostingGroupsFromGenJnlLine(GenJnlLine);
-        "Posting Date" := GenJnlLine."Posting Date";
-        "Document Date" := GenJnlLine."Document Date";
-        "Document No." := GenJnlLine."Document No.";
-        "External Document No." := GenJnlLine."External Document No.";
-        "Document Type" := GenJnlLine."Document Type";
+        CopyPostingDataFromGenJnlLine(GenJnlLine);
         Type := GenJnlLine."Gen. Posting Type";
         "VAT Calculation Type" := GenJnlLine."VAT Calculation Type";
-        "Source Code" := GenJnlLine."Source Code";
-        "Reason Code" := GenJnlLine."Reason Code";
         "Ship-to/Order Address Code" := GenJnlLine."Ship-to/Order Address Code";
         "EU 3-Party Trade" := GenJnlLine."EU 3-Party Trade";
         "User ID" := UserId;
@@ -920,19 +835,21 @@ table 254 "VAT Entry"
         "Bill-to/Pay-to No." := GenJnlLine."Bill-to/Pay-to No.";
         "Country/Region Code" := GenJnlLine."Country/Region Code";
         "VAT Registration No." := GenJnlLine."VAT Registration No.";
-#if not CLEAN17
-        // NAVCZ
-        "VAT Date" := GenJnlLine."VAT Date";
-        "VAT Delay" := GenJnlLine."VAT Delay";
-        "EU 3-Party Intermediate Role" := GenJnlLine."EU 3-Party Intermediate Role";
-        "Registration No." := GenJnlLine."Registration No.";
-        "Original Document VAT Date" := GenJnlLine."Original Document VAT Date";
-        if "Bill-to/Pay-to No." = '' then
-            "Bill-to/Pay-to No." := GenJnlLine."Original Document Partner No.";
-        // NAVCZ
-#endif
 
         OnAfterCopyFromGenJnlLine(Rec, GenJnlLine);
+    end;
+
+    procedure CopyPostingDataFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
+    begin
+        "Posting Date" := GenJnlLine."Posting Date";
+        "Document Type" := GenJnlLine."Document Type";
+        "Document Date" := GenJnlLine."Document Date";
+        "Document No." := GenJnlLine."Document No.";
+        "External Document No." := GenJnlLine."External Document No.";
+        "Source Code" := GenJnlLine."Source Code";
+        "Reason Code" := GenJnlLine."Reason Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
+        "Journal Batch Name" := GenJnlLine."Journal Batch Name";
     end;
 
     local procedure CopyPostingGroupsFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")

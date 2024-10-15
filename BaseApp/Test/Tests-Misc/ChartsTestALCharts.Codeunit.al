@@ -322,7 +322,7 @@ codeunit 134210 "Charts - Test AL Charts"
     var
         BusChartBuf: Record "Business Chart Buffer";
     begin
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         BusChartBuf.SetXAxis('Date', BusChartBuf."Data Type"::DateTime);
         BusChartBuf.AddColumn(Today);
 
@@ -396,37 +396,6 @@ codeunit 134210 "Charts - Test AL Charts"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestChartTableToXML()
-    var
-        BusChartBuf: Record "Business Chart Buffer";
-        XMLDoc: DotNet XmlDocument;
-        XMLNode: DotNet XmlNode;
-        XMLNode2: DotNet XmlNode;
-        XMLNodeList1: DotNet XmlNodeList;
-        XMLElement: DotNet XmlElement;
-        i: Integer;
-        j: Integer;
-    begin
-        CreateChart(BusChartBuf, 2, 3);
-
-        XMLDoc := XMLDoc.XmlDocument;
-        BusChartBuf.WriteToXML(XMLDoc);
-
-        XMLElement := XMLDoc.DocumentElement;
-        XMLNodeList1 := XMLElement.SelectNodes('DocumentElement/DataTable');
-        for i := 1 to XMLNodeList1.Count do begin
-            XMLNode := XMLNodeList1.Item(i - 1);
-            XMLNode2 := XMLNode.SelectSingleNode('Column_No.');
-            Assert.AreEqual(XMLNode2.InnerXml, GetColumnName(i), StrSubstNo('Expected value: %1', GetColumnName(i)));
-            for j := 1 to 2 do begin
-                XMLNode2 := XMLNode.SelectSingleNode(GetMeasureName(j));
-                Assert.AreEqual(XMLNode2.InnerXml, Format(j * i), StrSubstNo('Expected value: %1', j * i));
-            end;
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestOutOfIndex()
     var
         BusChartBuf: Record "Business Chart Buffer";
@@ -435,41 +404,6 @@ codeunit 134210 "Charts - Test AL Charts"
 
         asserterror BusChartBuf.SetValueByIndex(-1, -1, 1);
         asserterror BusChartBuf.SetValueByIndex(1, 1, 1);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestXAxisOnChart760()
-    var
-        BusChartBuf: Record "Business Chart Buffer";
-        TrailingSalesOrdersSetup: Record "Trailing Sales Orders Setup";
-        TrailingSalesOrdersMgt: Codeunit "Trailing Sales Orders Mgt.";
-        PeriodPageManagement: Codeunit PeriodPageManagement;
-        XMLDoc: DotNet XmlDocument;
-        XMLNode: DotNet XmlNode;
-        XMLNode2: DotNet XmlNode;
-        XMLNodeList1: DotNet XmlNodeList;
-        XMLElement: DotNet XmlElement;
-        Map: array[4] of Integer;
-        i: Integer;
-    begin
-        TrailingSalesOrdersMgt.OnOpenPage(TrailingSalesOrdersSetup);
-        TrailingSalesOrdersMgt.UpdateData(BusChartBuf);
-        XMLDoc := XMLDoc.XmlDocument;
-        BusChartBuf.WriteToXML(XMLDoc);
-
-        XMLElement := XMLDoc.DocumentElement;
-        XMLNodeList1 := XMLElement.SelectNodes('DocumentElement/DataTable');
-        Assert.AreEqual(XMLNodeList1.Count, 5, 'Expected 5 columns in Chart 760');
-
-        TrailingSalesOrdersMgt.CreateMap(Map);
-        for i := 1 to XMLNodeList1.Count do begin
-            XMLNode := XMLNodeList1.Item(i - 1);
-            XMLNode2 := XMLNode.SelectSingleNode(Format(BusChartBuf."Period Length"));
-            Assert.AreEqual(
-              PeriodPageManagement.CreatePeriodFormat(BusChartBuf."Period Length", BusChartBuf.GetXValueAsDate(i - 1)), XMLNode2.InnerXml,
-              'Expected XAxisLabel is same as date value on the X coordinate');
-        end;
     end;
 
     [Test]
@@ -513,7 +447,7 @@ codeunit 134210 "Charts - Test AL Charts"
         BusChartBuf: Record "Business Chart Buffer";
         ErrMsg: Text;
     begin
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         BusChartBuf."Data Type" := DataType;
         BusChartBuf.SetXAxis('Date', BusChartBuf."Data Type");
 
@@ -531,7 +465,7 @@ codeunit 134210 "Charts - Test AL Charts"
         i: Integer;
         j: Integer;
     begin
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         BusChartBuf.SetXAxis('Column_No.', BusChartBuf."Data Type"::String);
         for i := 1 to MeasuresCount do
             BusChartBuf.AddIntegerMeasure(GetMeasureName(i), i, BusChartBuf."Chart Type"::Point);
@@ -556,7 +490,7 @@ codeunit 134210 "Charts - Test AL Charts"
     var
         BusChartBuf: Record "Business Chart Buffer";
     begin
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         BusChartBuf.AddMeasure(GetMeasureName(0), 0, DataType, 0);
     end;
 }

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 16 "Chart of Accounts"
 {
     ApplicationArea = Basic, Suite;
@@ -11,7 +12,7 @@ page 16 "Chart of Accounts"
     UsageCategory = Lists;
 
     AboutTitle = 'About the chart of accounts';
-    AboutText = 'The chart of accounts is the core of the financials used to group income and expenses in the income statement and balance sheet. Define indentation levels for a structured overview of your financials. The chart of accounts should reflect how the business is organized.';
+    AboutText = 'The chart of accounts is the core of the financials. It''s used to group income and expenses in the income statement and balance sheet. Define indentation levels for a structured overview of your financials. The chart of accounts should reflect how the business is organized.';
 
     layout
     {
@@ -139,17 +140,6 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
-#if not CLEAN17
-                field("Net Change (VAT Date)"; "Net Change (VAT Date)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Balance at Date"; "Balance at Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -178,17 +168,6 @@ page 16 "Chart of Accounts"
                     ToolTip = 'Specifies the balance on this account, in the additional reporting currency.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Net Change ACY (VAT Date)"; "Net Change ACY (VAT Date)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the net change VAT date for the general ledger account. This amount is in additional reporting currency.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-                }
-#endif
                 field("Consol. Debit Acc."; "Consol. Debit Acc.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -223,6 +202,9 @@ page 16 "Chart of Accounts"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Default Deferral Template Code"; "Default Deferral Template Code")
                 {
@@ -331,7 +313,7 @@ page 16 "Chart of Accounts"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                     action(SetDimensionFilter)
@@ -588,7 +570,7 @@ page 16 "Chart of Accounts"
                 RunObject = Report "Trial Balance";
                 ToolTip = 'View the chart of accounts that have balances and net changes.';
                 AboutTitle = 'Get the financial overview';
-                AboutText = 'With the Trial Balance reports you get the balance sheet, income statement, or the full trial balance.';
+                AboutText = 'With the **Trial Balance** reports you get the balance sheet, income statement, or the full trial balance.';
             }
             action("Trial Balance by Period")
             {
@@ -656,4 +638,4 @@ page 16 "Chart of Accounts"
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 }
-
+#endif

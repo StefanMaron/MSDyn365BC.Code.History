@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN20
 codeunit 368 "Format Document"
 {
 
@@ -299,73 +299,18 @@ codeunit 368 "Format Document"
     begin
     end;
 
-#if CLEAN17
-    [Obsolete('Merge to W1.', '19.0')]
-    internal procedure GetDocumentFooterText(LanguageCode: Code[10]) DocumentFooterText: Text[250]
+#pragma warning disable AS0074, AS0022
+    internal procedure GetDocumentFooterTextByLanguage(LanguageCode: Code[10]) DocumentFooterText: Text[250]
     begin
-        OnGetDocumentFooterText(LanguageCode, DocumentFooterText);
-    end;
-#else
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure GetDocumentFooterText(LanguageCode: Code[10]): Text[250]
-    var
-        DocumentFooter: Record "Document Footer";
-    begin
-        // NAVCZ
-        DocumentFooter.SetFilter("Language Code", '%1|%2', '', LanguageCode);
-        if DocumentFooter.FindLast then
-            exit(DocumentFooter."Footer Text");
-        exit('');
+        OnGetDocumentFooterTextByLanguage(LanguageCode, DocumentFooterText);
     end;
 
-#endif
-#if CLEAN17
-    [Obsolete('Merge to W1.', '19.0')]
-    internal procedure SetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
+    internal procedure SetPaymentSymbolsArray(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
     begin
-        OnSetPaymentSymbols(PaymentSymbol, PaymentSymbolLabel, VariableSymbol, VariableSymbolCaption, ConstantSymbol, ConstantSymbolCaption, SpecificSymbol, SpecificSymbolCaption)
+        OnSetPaymentSymbolsArray(PaymentSymbol, PaymentSymbolLabel, VariableSymbol, VariableSymbolCaption, ConstantSymbol, ConstantSymbolCaption, SpecificSymbol, SpecificSymbolCaption)
     end;
-#else
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure SetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
-    var
-        TempPaymentSymbol: array[3] of Text;
-        TempPaymentSymbolLabel: array[3] of Text;
-    begin
-        // NAVCZ
-        Clear(PaymentSymbol);
-        Clear(PaymentSymbolLabel);
+#pragma warning restore
 
-        if VariableSymbol <> '' then begin
-            TempPaymentSymbolLabel[1] := VariableSymbolCaption;
-            TempPaymentSymbol[1] := VariableSymbol;
-        end;
-        if ConstantSymbol <> '' then begin
-            TempPaymentSymbolLabel[2] := ConstantSymbolCaption;
-            TempPaymentSymbol[2] := ConstantSymbol;
-        end;
-        if SpecificSymbol <> '' then begin
-            TempPaymentSymbolLabel[3] := SpecificSymbolCaption;
-            TempPaymentSymbol[3] := SpecificSymbol;
-        end;
-
-        CompressArray(TempPaymentSymbol);
-        CompressArray(TempPaymentSymbolLabel);
-
-        if TempPaymentSymbolLabel[3] <> '' then begin
-            TempPaymentSymbolLabel[2] :=
-              StrSubstNo('%1. / %2. %3',
-                CopyStr(TempPaymentSymbolLabel[2], 1, 5),
-                CopyStr(TempPaymentSymbolLabel[3], 1, 4),
-                CopyStr(TempPaymentSymbolLabel[3], StrPos(TempPaymentSymbolLabel[3], ' ') + 1));
-            TempPaymentSymbol[2] := StrSubstNo('%1 / %2', TempPaymentSymbol[2], TempPaymentSymbol[3]);
-        end;
-
-        CopyArray(PaymentSymbol, TempPaymentSymbol, 1, 2);
-        CopyArray(PaymentSymbolLabel, TempPaymentSymbolLabel, 1, 2);
-    end;
-
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetSalesLine(var SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text);
     begin
@@ -415,20 +360,18 @@ codeunit 368 "Format Document"
     local procedure OnBeforeSetSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line");
     begin
     end;
-#if CLEAN17
-    
-    [Obsolete('Merge to W1.', '19.0')]
+
+    [Obsolete('Merge to W1.', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnGetDocumentFooterText(LanguageCode: Code[10]; var DocumentFooterText: Text[250]);
+    local procedure OnGetDocumentFooterTextByLanguage(LanguageCode: Code[10]; var DocumentFooterText: Text[250]);
     begin
     end;
 
-    [Obsolete('Merge to W1.', '19.0')]
+    [Obsolete('Merge to W1.', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnSetPaymentSymbols(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
+    local procedure OnSetPaymentSymbolsArray(var PaymentSymbol: array[2] of Text; var PaymentSymbolLabel: array[2] of Text; VariableSymbol: Code[10]; VariableSymbolCaption: Text[80]; ConstantSymbol: Code[10]; ConstantSymbolCaption: Text[80]; SpecificSymbol: Code[10]; SpecificSymbolCaption: Text[80])
     begin
     end;
-#endif
 }
 
 #endif

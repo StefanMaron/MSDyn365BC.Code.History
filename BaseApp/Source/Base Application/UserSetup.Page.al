@@ -41,26 +41,16 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post to the company.';
                 }
-#if not CLEAN17
-                field("Allow VAT Posting From"; "Allow VAT Posting From")
+                field("Allow Deferral Posting From"; Rec."Allow Deferral Posting From")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the earliest VAT date on which the user is allowed to post to the company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
+                    ToolTip = 'Specifies the earliest date on which the user is allowed to post deferrals to the company.';
                 }
-                field("Allow VAT Posting To"; "Allow VAT Posting To")
+                field("Allow Deferral Posting To"; Rec."Allow Deferral Posting To")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the last VAT date on which the user is allowed to post to the company.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
+                    ToolTip = 'Specifies the last date on which the user is allowed to post deferrals to the company.';
                 }
-#endif
                 field("Register Time"; "Register Time")
                 {
                     ApplicationArea = Basic, Suite;
@@ -100,17 +90,6 @@ page 119 "User Setup"
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
-                }
-#endif
-#if not CLEAN17
-                field("Cash Resp. Ctr. Filter"; "Cash Resp. Ctr. Filter")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies cash resp. ctr. Filter';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
                 }
 #endif
                 field("Check Payment Orders"; "Check Payment Orders")
@@ -367,7 +346,7 @@ page 119 "User Setup"
                     begin
                         // NAVCZ
                         CopyUserSetup.SetFromUserId("User ID");
-                        CopyUserSetup.RunModal;
+                        CopyUserSetup.RunModal();
                     end;
                 }
 #endif

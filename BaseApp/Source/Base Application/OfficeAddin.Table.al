@@ -2,6 +2,7 @@ table 1610 "Office Add-in"
 {
     Caption = 'Office Add-in';
     DataPerCompany = false;
+    ReplicateData = false;
 
     fields
     {

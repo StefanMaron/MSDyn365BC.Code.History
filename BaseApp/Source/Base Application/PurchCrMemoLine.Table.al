@@ -538,7 +538,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -551,7 +551,7 @@ table 125 "Purch. Cr. Memo Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -565,7 +565,7 @@ table 125 "Purch. Cr. Memo Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -577,7 +577,7 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN18
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -687,25 +687,16 @@ table 125 "Purch. Cr. Memo Line"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
@@ -864,7 +855,7 @@ table 125 "Purch. Cr. Memo Line"
 
         FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Return Shipment" then
@@ -891,7 +882,7 @@ table 125 "Purch. Cr. Memo Line"
 
         FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 TempItemLedgEntry := ItemLedgEntry;
@@ -1065,4 +1056,3 @@ table 125 "Purch. Cr. Memo Line"
     begin
     end;
 }
-

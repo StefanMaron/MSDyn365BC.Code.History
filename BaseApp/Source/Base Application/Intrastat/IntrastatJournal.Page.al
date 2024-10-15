@@ -377,7 +377,7 @@ page 311 "Intrastat Journal"
                     end;
 
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }
@@ -406,7 +406,7 @@ page 311 "Intrastat Journal"
                 begin
                     // NAVCZ
                     TestReport.SetIntrastatJnlLine(Rec);
-                    TestReport.RunModal;
+                    TestReport.RunModal();
                     // NAVCZ
                 end;
 
@@ -534,7 +534,7 @@ page 311 "Intrastat Journal"
                     end else begin
                         Clear(IntrastatDeclExport);
                         IntrastatDeclExport.InitParameters("Journal Template Name", "Journal Batch Name");
-                        IntrastatDeclExport.RunModal;
+                        IntrastatDeclExport.RunModal();
                     end;
                     // NAVCZ
                 end;

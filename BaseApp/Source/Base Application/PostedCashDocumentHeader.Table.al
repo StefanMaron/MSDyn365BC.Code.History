@@ -2,34 +2,15 @@ table 11735 "Posted Cash Document Header"
 {
     Caption = 'Posted Cash Document Header';
     DataCaptionFields = "Cash Desk No.", "Cash Document Type", "No.", "Pay-to/Receive-from Name";
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "Posted Cash Document List";
-    LookupPageID = "Posted Cash Document List";
-    Permissions = TableData "Posted Cash Document Line" = rd;
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
         field(1; "Cash Desk No."; Code[20])
         {
             Caption = 'Cash Desk No.';
-#if not CLEAN17
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-
-            trigger OnLookup()
-            var
-                CashDesk: Record "Bank Account";
-            begin
-                if not CashDesk.Get("Cash Desk No.") then
-                    CashDesk."Account Type" := CashDesk."Account Type"::"Cash Desk";
-                CashDesk.Lookup;
-            end;
-#endif
         }
         field(2; "No."; Code[20])
         {
@@ -47,7 +28,6 @@ table 11735 "Posted Cash Document Header"
         {
             Caption = 'Posting Date';
         }
-#if not CLEAN17
         field(7; Amount; Decimal)
         {
             CalcFormula = Sum("Posted Cash Document Line".Amount WHERE("Cash Desk No." = FIELD("Cash Desk No."),
@@ -62,7 +42,6 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Amount (LCY)';
             FieldClass = FlowField;
         }
-#endif
         field(13; "Cash Desk Report No."; Code[20])
         {
             Caption = 'Cash Desk Report No.';
@@ -154,7 +133,6 @@ table 11735 "Posted Cash Document Header"
         {
             Caption = 'Amounts Including VAT';
         }
-#if not CLEAN17
         field(51; "VAT Base Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -191,7 +169,6 @@ table 11735 "Posted Cash Document Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(60; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
@@ -269,13 +246,6 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Dimension Set ID';
             Editable = false;
             TableRelation = "Dimension Set Entry";
-#if not CLEAN17
-
-            trigger OnLookup()
-            begin
-                ShowDimensions();
-            end;
-#endif
         }
         field(31123; "EET Entry No."; Integer)
         {
@@ -326,72 +296,4 @@ table 11735 "Posted Cash Document Header"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    trigger OnDelete()
-    var
-        PostedCashDocumentLine: Record "Posted Cash Document Line";
-    begin
-        PostedCashDocumentLine.SetRange("Cash Desk No.", "Cash Desk No.");
-        PostedCashDocumentLine.SetRange("Cash Document No.", "No.");
-        PostedCashDocumentLine.DeleteAll();
-    end;
-
-    var
-        PostedCashDocHeader: Record "Posted Cash Document Header";
-        DimMgt: Codeunit DimensionManagement;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure PrintRecords(ShowRequestForm: Boolean)
-    var
-        ReportSelection: Record "Cash Desk Report Selections";
-    begin
-        TestField("Cash Document Type");
-        with PostedCashDocHeader do begin
-            Copy(Rec);
-            case "Cash Document Type" of
-                "Cash Document Type"::Receipt:
-                    ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.C.Rcpt");
-                "Cash Document Type"::Withdrawal:
-                    ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.C.Wdrwl");
-            end;
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.FindSet();
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PostedCashDocHeader);
-            until ReportSelection.Next() = 0;
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure Navigate()
-    var
-        NavigateForm: Page Navigate;
-    begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.SetCashDesk("Cash Desk No.");
-        NavigateForm.Run;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure ShowDimensions()
-    begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure ShowEETEntry()
-    var
-        EETEntry: Record "EET Entry";
-    begin
-        TestField("EET Entry No.");
-        EETEntry.Get("EET Entry No.");
-        PAGE.Run(PAGE::"EET Entry Card", EETEntry);
-    end;
-#endif
 }
-

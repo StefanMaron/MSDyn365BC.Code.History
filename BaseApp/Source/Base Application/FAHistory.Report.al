@@ -234,7 +234,7 @@ report 31049 "FA History"
 
                                 if FAHistory.GetFilter("Entry No.") = '' then begin
                                     TempFAHistory.SetRange("Entry No.", "Entry No.");
-                                    if not TempFAHistory.FindFirst then
+                                    if not TempFAHistory.FindFirst() then
                                         CurrReport.Break();
                                 end else
                                     if FAHistory.GetFilter("Entry No.") <> Format("Entry No.") then
@@ -258,7 +258,7 @@ report 31049 "FA History"
                         TempFAHistory.Reset();
                         TempFAHistory.SetFilter("FA No.", "No.");
                         TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
-                        if not TempFAHistory.FindFirst then
+                        if not TempFAHistory.FindFirst() then
                             CurrReport.Skip();
                     end;
 
@@ -277,7 +277,7 @@ report 31049 "FA History"
                     TempFAHistory.Reset();
                     TempFAHistory.SetFilter("New Value", Code);
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
-                    if not TempFAHistory.FindFirst then
+                    if not TempFAHistory.FindFirst() then
                         CurrReport.Skip();
                 end;
 
@@ -431,7 +431,7 @@ report 31049 "FA History"
 
                                 if FAHistory.GetFilter("Entry No.") = '' then begin
                                     TempFAHistory.SetRange("Entry No.", "Entry No.");
-                                    if not TempFAHistory.FindFirst then
+                                    if not TempFAHistory.FindFirst() then
                                         CurrReport.Break();
                                 end else
                                     if FAHistory.GetFilter("Entry No.") <> Format("Entry No.") then
@@ -462,7 +462,7 @@ report 31049 "FA History"
                         TempFAHistory.Reset();
                         TempFAHistory.SetFilter("FA No.", "No.");
                         TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
-                        if not TempFAHistory.FindFirst then
+                        if not TempFAHistory.FindFirst() then
                             CurrReport.Skip();
                     end;
 
@@ -481,7 +481,7 @@ report 31049 "FA History"
                     TempFAHistory.Reset();
                     TempFAHistory.SetFilter("New Value", "No.");
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
-                    if not TempFAHistory.FindFirst then
+                    if not TempFAHistory.FindFirst() then
                         CurrReport.Skip();
                 end;
 
@@ -620,7 +620,7 @@ report 31049 "FA History"
             SetRange(Type, FAType);
             SetRange("FA No.", FANo);
             SetRange("Creation Date", 0D, EndDate);
-            if FindLast then
+            if FindLast() then
                 repeat
                     if Disposal then begin
                         if not DisposalCancelled then
@@ -649,7 +649,7 @@ report 31049 "FA History"
         TempFAHistory2.Reset();
         TempFAHistory2.CopyFilters(TempFAHistory);
         OK := false;
-        if TempFAHistory2.FindSet then
+        if TempFAHistory2.FindSet() then
             repeat
                 if IsWholeTable then
                     TypeCode := TempFAHistory2."New Value";

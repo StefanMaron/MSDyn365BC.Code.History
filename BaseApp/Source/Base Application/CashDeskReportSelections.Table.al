@@ -1,13 +1,9 @@
 table 11759 "Cash Desk Report Selections"
 {
     Caption = 'Cash Desk Report Selections';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -53,21 +49,4 @@ table 11759 "Cash Desk Report Selections"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    var
-        CashDeskReportSelections: Record "Cash Desk Report Selections";
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure NewRecord()
-    begin
-        CashDeskReportSelections.SetRange(Usage, Usage);
-        if CashDeskReportSelections.FindLast and (CashDeskReportSelections.Sequence <> '') then
-            Sequence := IncStr(CashDeskReportSelections.Sequence)
-        else
-            Sequence := '1';
-    end;
-#endif
 }
-

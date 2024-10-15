@@ -163,7 +163,7 @@ table 298 "Issued Reminder Line"
                 CustLedgEntry.SetRange("Customer No.", IssuedReminderHeader."Customer No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-To Document Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-To Document No.");
-                if CustLedgEntry.FindLast then;
+                if CustLedgEntry.FindLast() then;
                 PAGE.RunModal(0, CustLedgEntry);
             end;
         }
@@ -184,18 +184,39 @@ table 298 "Issued Reminder Line"
         field(11761; Days; Integer)
         {
             Caption = 'Days';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
         field(11762; "Multiple Interest Rate"; Decimal)
         {
             Caption = 'Multiple Interest Rate';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#if not CLEAN20
         field(11763; "Interest Amount"; Decimal)
         {
             CalcFormula = Sum ("Detailed Issued Reminder Line"."Interest Amount" WHERE("Issued Reminder No." = FIELD("Reminder No."),
                                                                                        "Issued Reminder Line No." = FIELD("Line No.")));
             Caption = 'Interest Amount';
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';        
         }
+#endif
     }
 
     keys

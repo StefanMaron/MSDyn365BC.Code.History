@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 40 "Item Journal"
 {
     AdditionalSearchTerms = 'increase inventory,decrease inventory,adjust inventory';
@@ -27,6 +28,7 @@ page 40 "Item Journal"
                 begin
                     CurrPage.SaveRecord;
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -50,17 +52,6 @@ page 40 "Item Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Whse. Net Change Template"; "Whse. Net Change Template")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the template for item''s whse. net change.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
@@ -428,6 +419,15 @@ page 40 "Item Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Item Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             part(Control1903326807; "Item Replenishment FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -479,7 +479,7 @@ page 40 "Item Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -654,7 +654,7 @@ page 40 "Item Journal"
                     trigger OnAction()
                     begin
                         CalcWhseAdjmt.SetItemJnlLine(Rec);
-                        CalcWhseAdjmt.RunModal;
+                        CalcWhseAdjmt.RunModal();
                         Clear(CalcWhseAdjmt);
                     end;
                 }
@@ -703,7 +703,7 @@ page 40 "Item Journal"
 
                         ItemJnlBatch.Get("Journal Template Name", CurrentJnlBatchName);
                         SaveAsStdItemJnl.Initialise(ItemJnlLines, ItemJnlBatch);
-                        SaveAsStdItemJnl.RunModal;
+                        SaveAsStdItemJnl.RunModal();
                         if not SaveAsStdItemJnl.GetStdItemJournal(StdItemJnl) then
                             exit;
 
@@ -808,6 +808,44 @@ page 40 "Item Journal"
                         ODataUtility.EditJournalWorksheetInExcel(CurrPage.Caption, CurrPage.ObjectId(false), "Journal Batch Name", "Journal Template Name");
                     end;
                 }
+                group(Errors)
+                {
+                    Caption = 'Issues';
+                    Image = ErrorLog;
+                    Visible = BackgroundErrorCheck;
+                    action(ShowLinesWithErrors)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show Lines with Issues';
+                        Image = Error;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = not ShowAllLinesEnabled;
+                        ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                    action(ShowAllLines)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Show All Lines';
+                        Image = ExpandAll;
+                        Promoted = true;
+                        PromotedCategory = Category4;
+                        Visible = BackgroundErrorCheck;
+                        Enabled = ShowAllLinesEnabled;
+                        ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                        trigger OnAction()
+                        begin
+                            SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                        end;
+                    }
+                }
             }
         }
     }
@@ -869,11 +907,14 @@ page 40 "Item Journal"
         ReportPrint: Codeunit "Test Report-Print";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ClientTypeManagement: Codeunit "Client Type Management";
+        ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         CurrentJnlBatchName: Code[10];
         ItemDescription: Text[100];
         Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
         ExtendedPriceEnabled: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
@@ -892,6 +933,7 @@ page 40 "Item Journal"
     begin
         CurrPage.SaveRecord;
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
@@ -908,12 +950,14 @@ page 40 "Item Journal"
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         ItemJnlMgt.TemplateSelection(PAGE::"Item Journal", 0, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
 
         OnAfterOpenJournal(CurrentJnlBatchName, JnlSelected, ItemJnlMgt);
     end;
@@ -943,6 +987,20 @@ page 40 "Item Journal"
         Clear(DimMgt);
     end;
 
+    local procedure SetControlAppearanceFromBatch()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not ItemJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        ItemJournalErrorsMgt.SetFullBatchCheck(true);
+    end;
+
     local procedure CheckEntryType()
     begin
         if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
@@ -964,4 +1022,4 @@ page 40 "Item Journal"
     begin
     end;
 }
-
+#endif

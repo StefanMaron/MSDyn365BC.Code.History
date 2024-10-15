@@ -1,4 +1,4 @@
-﻿#if CLEAN18
+#if CLEAN18
 report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries';
@@ -19,7 +19,7 @@ report 594 "Get Item Ledger Entries"
                     ItemLedgEntry: Record "Item Ledger Entry";
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Entry Type" in ["Entry Type"::Sale, "Entry Type"::Purchase] then begin
@@ -32,7 +32,7 @@ report 594 "Get Item Ledger Entries"
                                                "Document Type"::"Purchase Receipt", "Document Type"::"Purchase Return Shipment"]
                         then begin
                             ItemLedgEntry.SetRange("Document Type", "Document Type");
-                            if ItemLedgEntry.FindSet then
+                            if ItemLedgEntry.FindSet() then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
@@ -75,6 +75,7 @@ report 594 "Get Item Ledger Entries"
                           "Item Ledger Entry Type"::Purchase,
                           "Item Ledger Entry Type"::Transfer);
                     end;
+                    OnAfterItemLedgerEntryOnPreDataItem("Item Ledger Entry");
                 end;
             }
             dataitem("Job Ledger Entry"; "Job Ledger Entry")
@@ -110,7 +111,7 @@ report 594 "Get Item Ledger Entries"
             begin
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
@@ -215,7 +216,7 @@ report 594 "Get Item Ledger Entries"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
     end;
 
     trigger OnPreReport()
@@ -223,7 +224,7 @@ report 594 "Get Item Ledger Entries"
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlLine.LockTable();
-        if IntrastatJnlLine.FindLast then;
+        if IntrastatJnlLine.FindLast() then;
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
@@ -239,7 +240,6 @@ report 594 "Get Item Ledger Entries"
     var
         Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
         Item: Record Item;
@@ -249,17 +249,20 @@ report 594 "Get Item Ledger Entries"
         CompanyInfo: Record "Company Information";
         Currency: Record Currency;
         UOMMgt: Codeunit "Unit of Measure Management";
-        StartDate: Date;
-        EndDate: Date;
-        IndirectCostPctReq: Decimal;
         TotalAmt: Decimal;
         AddCurrencyFactor: Decimal;
         AverageCost: Decimal;
         AverageCostACY: Decimal;
         GLSetupRead: Boolean;
-        ShowBlank: Boolean;
+
+    protected var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        StartDate: Date;
+        EndDate: Date;
+        IndirectCostPctReq: Decimal;
         SkipRecalcZeroAmounts: Boolean;
         SkipZeroAmounts: Boolean;
+        ShowBlank: Boolean;
         ShowItemCharges: Boolean;
 
     procedure SetIntrastatJnlLine(NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -429,12 +432,18 @@ report 594 "Get Item Ledger Entries"
         exit(true);
     end;
 
-    local procedure HasCrossedBorder(ItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure HasCrossedBorder(ItemLedgEntry: Record "Item Ledger Entry") Result: Boolean
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
         Location: Record Location;
         Include: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeHasCrossedBorder(ItemLedgEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ItemLedgEntry do
             case true of
                 "Drop Shipment":
@@ -448,7 +457,7 @@ report 594 "Get Item Ledger Entries"
                             ItemLedgEntry2.SetRange("Item No.", "Item No.");
                             ItemLedgEntry2.SetRange("Posting Date", "Posting Date");
                             ItemLedgEntry2.SetRange("Applies-to Entry", "Entry No.");
-                            ItemLedgEntry2.FindFirst;
+                            ItemLedgEntry2.FindFirst();
                         end else
                             ItemLedgEntry2.Get("Applies-to Entry");
                         if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and
@@ -474,7 +483,7 @@ report 594 "Get Item Ledger Entries"
                             ItemLedgEntry2.SetRange("Order No.", "Order No.");
                             ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
                             ItemLedgEntry2.SetFilter("Location Code", '<>%1', '');
-                            if ItemLedgEntry2.FindSet then
+                            if ItemLedgEntry2.FindSet() then
                                 repeat
                                     Location.Get(ItemLedgEntry2."Location Code");
                                     if Location."Use As In-Transit" then
@@ -789,6 +798,16 @@ report 594 "Get Item Ledger Entries"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterItemLedgerEntryOnPreDataItem(var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeHasCrossedBorder(ItemLedgerEntry: Record "Item Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertItemJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -809,4 +828,5 @@ report 594 "Get Item Ledger Entries"
     begin
     end;
 }
+
 #endif

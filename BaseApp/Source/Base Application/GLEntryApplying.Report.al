@@ -136,7 +136,7 @@ report 11767 "G/L Entry Applying"
                             Clear(ApplyGLEntry);
 
                             DetailedGLEntry.Reset();
-                            if DetailedGLEntry.FindLast then
+                            if DetailedGLEntry.FindLast() then
                                 LastEntry := DetailedGLEntry."Entry No.";
 
                             ApplyGLEntry.NotUseRequestForm;
@@ -145,7 +145,7 @@ report 11767 "G/L Entry Applying"
 
                             DetailedGLEntry.Reset();
                             DetailedGLEntry.SetFilter("Entry No.", '>%1', LastEntry);
-                            if DetailedGLEntry.FindSet then begin
+                            if DetailedGLEntry.FindSet() then begin
                                 repeat
                                     if (DetailedGLEntry."Applied G/L Entry No." = OriginalEntry."Entry No.") and
                                        (DetailedGLEntry."G/L Entry No." <> OriginalEntry."Entry No.")

@@ -101,6 +101,21 @@ page 509 "Blanket Purchase Order"
                         Caption = 'Contact No.';
                         Importance = Additional;
                         ToolTip = 'Specifies the number of your contact at the vendor.';
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        begin
+                            if not BuyfromContactLookup() then
+                                exit(false);
+                            Text := Rec."Buy-from Contact No.";
+                            CurrPage.Update();
+                            exit(true);
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if xRec."Buy-from Contact No." <> Rec."Buy-from Contact No." then
+                                CurrPage.Update();
+                        end;
                     }
                     field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
                     {
@@ -268,6 +283,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -318,6 +334,12 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -604,8 +626,7 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     begin
-                        OpenPurchaseOrderStatistics;
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenPurchaseOrderStatistics();
                     end;
                 }
                 action(Card)
@@ -663,9 +684,9 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -684,7 +705,7 @@ page 509 "Blanket Purchase Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -834,6 +855,7 @@ page 509 "Blanket Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -852,6 +874,7 @@ page 509 "Blanket Purchase Order"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }
@@ -962,8 +985,8 @@ page 509 "Blanket Purchase Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -984,12 +1007,17 @@ page 509 "Blanket Purchase Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
+
+        GLSetup.Get();
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1002,6 +1030,10 @@ page 509 "Blanket Purchase Order"
         CanCancelApprovalForRecord: Boolean;
         [InDataSet]
         StatusStyleTxt: Text;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     local procedure ApproveCalcInvDisc()
     begin
@@ -1034,6 +1066,7 @@ page 509 "Blanket Purchase Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

@@ -1,7 +1,11 @@
+#if not CLEAN20
 report 31081 "Filtered Acc. Schedule Export"
 {
     Caption = 'Filtered Acc. Schedule Export';
     ProcessingOnly = true;
+    ObsoleteReason = 'The functionality will be removed and this report should not be used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     dataset
     {
@@ -38,7 +42,7 @@ report 31081 "Filtered Acc. Schedule Export"
                 RowNo += 3;
                 StartRowCaptions := RowNo;
 
-                if AccSchedLine.FindSet then begin
+                if AccSchedLine.FindSet() then begin
                     ColumnNo := 1;
                     if ExportAccLineNo then begin
                         EnterCell(RowNo, ColumnNo, AccSchedLine.FieldCaption("Row No."), false, false, false);
@@ -59,7 +63,7 @@ report 31081 "Filtered Acc. Schedule Export"
                 end;
 
                 ColumnNo += 1;
-                if AccSchedFilterLine.FindSet then
+                if AccSchedFilterLine.FindSet() then
                     repeat
                         RecNo += 1;
                         Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
@@ -75,7 +79,7 @@ report 31081 "Filtered Acc. Schedule Export"
                                 EnterCell(RowNo, ColumnNo, GetDimensionFilter(AccSchedLine), false, false, false);
                                 RowNo += 1;
                                 StartColumn := ColumnNo;
-                                if ColumnLayout.FindSet then
+                                if ColumnLayout.FindSet() then
                                     repeat
                                         EnterCell(RowNo, ColumnNo, ColumnLayout."Column Header", false, false, false);
                                         ColumnNo += 1;
@@ -83,10 +87,10 @@ report 31081 "Filtered Acc. Schedule Export"
 
                                 RowNo := StartRowLine;
                                 ColumnNo := StartColumn;
-                                if AccSchedLine.FindSet then
+                                if AccSchedLine.FindSet() then
                                     repeat
                                         ColumnNo := StartColumn;
-                                        if ColumnLayout.FindSet then
+                                        if ColumnLayout.FindSet() then
                                             repeat
                                                 if AccSchedLine.Totaling = '' then
                                                     ColumnValue := 0
@@ -361,4 +365,4 @@ report 31081 "Filtered Acc. Schedule Export"
         end;
     end;
 }
-
+#endif

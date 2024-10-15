@@ -58,36 +58,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales.Insert();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer)
-    begin
-        InsertItemChargeAssignment(
-            ItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer)
-    begin
-        InsertItemChargeAssignmentWithValues(
-            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
-            QtyToAssign, AmountToAssign, NextLineNo);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)")
-    begin
-        InsertItemChargeAssignmentWithValuesTo(
-            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
-            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales);
-    end;
-#endif
-
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
         with TempToItemChargeAssignmentSales do begin
             SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Item Charge No." <> ToItemChargeAssignmentSales."Item Charge No.") or
                        ("Applies-to Doc. No." <> ToItemChargeAssignmentSales."Applies-to Doc. No.") or
@@ -264,7 +239,10 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales.SetRange("Document Type", SalesLine."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesLine."Document No.");
         ItemChargeAssgntSales.SetRange("Document Line No.", SalesLine."Line No.");
-        if ItemChargeAssgntSales.FindFirst() then
+        if ItemChargeAssgntSales.FindFirst() then begin
+            ItemChargeAssgntSales.ModifyAll("Amount to Assign", 0);
+            ItemChargeAssgntSales.ModifyAll("Qty. to Assign", 0);
+
             case SelectionTxt of
                 AssignEquallyMenuText:
                     AssignEqually(ItemChargeAssgntSales, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -281,6 +259,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                             Error(ItemChargesNotAssignedErr);
                     end;
             end;
+        end;
     end;
 
     procedure AssignEquallyMenuText(): Text
@@ -362,11 +341,13 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Return Order",
                     ItemChargeAssignmentSales."Applies-to Doc. Type"::"Credit Memo":
                         begin
+                            IsHandled := false;
                             OnAssignByAmountOnBeforeGetSalesLine(SalesLine, ItemChargeAssignmentSales, IsHandled);
-                            SalesLine.Get(
-                              ItemChargeAssignmentSales."Applies-to Doc. Type",
-                              ItemChargeAssignmentSales."Applies-to Doc. No.",
-                              ItemChargeAssignmentSales."Applies-to Doc. Line No.");
+                            if not IsHandled then
+                                SalesLine.Get(
+                                  ItemChargeAssignmentSales."Applies-to Doc. Type",
+                                  ItemChargeAssignmentSales."Applies-to Doc. No.",
+                                  ItemChargeAssignmentSales."Applies-to Doc. Line No.");
                             TempItemChargeAssgntSales."Applies-to Doc. Line Amount" :=
                               Abs(SalesLine."Line Amount");
                         end;
@@ -468,7 +449,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
             until TempItemChargeAssgntSales.Next() = 0;
-        OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(ItemChargeAssignmentSales, QtyRemaining, TotalQtyToAssign);
+        OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(ItemChargeAssignmentSales, QtyRemaining, TotalQtyToAssign, Currency);
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
@@ -605,7 +586,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     end;
                 until ItemChargeAssignmentSales.Next() = 0;
 
-                if TempItemChargeAssgntSales.FindSet then begin
+                if TempItemChargeAssgntSales.FindSet() then begin
                     repeat
                         ItemChargeAssignmentSales.Get(
                           TempItemChargeAssgntSales."Document Type",
@@ -681,7 +662,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal)
+    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal; Currency: Record Currency)
     begin
     end;
 

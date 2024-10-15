@@ -155,7 +155,7 @@ table 31044 "FA History Entry"
                 FAHistoryEntry."User ID" := UserId;
                 FAHistoryEntry."Creation Time" := Time;
                 FAHistoryEntry."Closed by Entry No." := 0;
-                if FADeprBook.FindLast then
+                if FADeprBook.FindLast() then
                     if FADeprBook."Disposal Date" > 0D then
                         FAHistoryEntry.Disposal := true
                     else

@@ -364,11 +364,27 @@ table 13 "Salesperson/Purchaser"
         field(11795; "Instant Messaging"; Text[250])
         {
             Caption = 'Instant Messaging';
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
         field(11796; "Mobile Phone No."; Text[30])
         {
             Caption = 'Mobile Phone No.';
             ExtendedDatatype = PhoneNo;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
         }
     }
 
@@ -391,7 +407,7 @@ table 13 "Salesperson/Purchaser"
 
     fieldgroups
     {
-        fieldgroup(Dropdown; "Code", Name)
+        fieldgroup(DropDown; "Code", Name)
         {
         }
         fieldgroup(Brick; "Code", Name, Image)

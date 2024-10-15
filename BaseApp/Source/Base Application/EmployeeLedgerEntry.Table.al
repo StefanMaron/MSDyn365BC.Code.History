@@ -159,6 +159,11 @@ table 5222 "Employee Ledger Entry"
                 TestField(Open, true);
             end;
         }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            DataClassification = SystemMetadata;
+        }
         field(49; "Journal Batch Name"; Code[10])
         {
             Caption = 'Journal Batch Name';
@@ -496,6 +501,7 @@ table 5222 "Employee Ledger Entry"
         "Salespers./Purch. Code" := GenJnlLine."Salespers./Purch. Code";
         "Source Code" := GenJnlLine."Source Code";
         "Reason Code" := GenJnlLine."Reason Code";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "User ID" := UserId;
         "Bal. Account Type" := GenJnlLine."Bal. Account Type";
@@ -546,6 +552,7 @@ table 5222 "Employee Ledger Entry"
         "Closed at Date" := CVLedgerEntryBuffer."Closed at Date";
         "Closed by Amount" := CVLedgerEntryBuffer."Closed by Amount";
         "Applies-to ID" := CVLedgerEntryBuffer."Applies-to ID";
+        "Journal Templ. Name" := CVLedgerEntryBuffer."Journal Templ. Name";
         "Journal Batch Name" := CVLedgerEntryBuffer."Journal Batch Name";
         "Bal. Account Type" := CVLedgerEntryBuffer."Bal. Account Type";
         "Bal. Account No." := CVLedgerEntryBuffer."Bal. Account No.";

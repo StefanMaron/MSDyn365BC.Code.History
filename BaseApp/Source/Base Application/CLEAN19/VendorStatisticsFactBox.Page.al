@@ -37,6 +37,28 @@ page 9094 "Vendor Statistics FactBox"
                     VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
                 end;
             }
+            field(BalanceAsCustomer; BalanceAsCustomer)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Balance (LCY) As Customer';
+                Editable = false;
+                Enabled = BalanceAsCustomerEnabled;
+                ToolTip = 'Specifies the amount that this customer owes you. This is relevant when the customer is also a vendor. The amount is the result of netting their payable and receivable balances.';
+
+                trigger OnDrillDown()
+                var
+                    DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+                    CustLedgerEntry: Record "Cust. Ledger Entry";
+                begin
+                    if LinkedCustomerNo = '' then
+                        exit;
+                    DetailedCustLedgEntry.SetRange("Customer No.", LinkedCustomerNo);
+                    Rec.CopyFilter("Global Dimension 1 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 1");
+                    Rec.CopyFilter("Global Dimension 2 Filter", DetailedCustLedgEntry."Initial Entry Global Dim. 2");
+                    Rec.CopyFilter("Currency Filter", DetailedCustLedgEntry."Currency Code");
+                    CustLedgerEntry.DrillDownOnEntries(DetailedCustLedgEntry);
+                end;
+            }
             field("Outstanding Orders (LCY)"; "Outstanding Orders (LCY)")
             {
                 ApplicationArea = Basic, Suite;
@@ -181,15 +203,17 @@ page 9094 "Vendor Statistics FactBox"
 
     var
         Text000: Label 'Overdue Amounts (LCY) as of %1';
-        ShowVendorNo: Boolean;
         TaskIdCalculateCue: Integer;
         CurrVendorNo: Code[20];
+        LinkedCustomerNo: Code[20];
+        BalanceAsCustomerEnabled: Boolean;
 
     protected var
         TotalAmountLCY: Decimal;
         LastPaymentDate: Date;
         InvoicedPrepmtAmountLCY: Decimal;
         OverdueBalance: Decimal;
+        BalanceAsCustomer: Decimal;
 
     procedure CalculateFieldValues(VendorNo: Code[20])
     var
@@ -202,6 +226,9 @@ page 9094 "Vendor Statistics FactBox"
         Clear(LastPaymentDate);
         Clear(OverdueBalance);
         Clear(InvoicedPrepmtAmountLCY);
+        Clear(LinkedCustomerNo);
+        Clear(BalanceAsCustomer);
+        Clear(BalanceAsCustomerEnabled);
 
         if VendorNo = '' then
             exit;
@@ -227,6 +254,13 @@ page 9094 "Vendor Statistics FactBox"
 
             if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetInvoicedPrepmtAmountLCYLabel(), DictionaryValue) then
                 Evaluate(InvoicedPrepmtAmountLCY, DictionaryValue);
+
+            if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetLinkedCustomerNoLabel(), DictionaryValue) then
+                LinkedCustomerNo := CopyStr(DictionaryValue, 1, MaxStrLen(LinkedCustomerNo));
+            BalanceAsCustomerEnabled := LinkedCustomerNo <> '';
+            if BalanceAsCustomerEnabled then
+                if TryGetDictionaryValueFromKey(Results, CalculateVendorStats.GetBalanceAsCustomerLabel(), DictionaryValue) then
+                    Evaluate(BalanceAsCustomer, DictionaryValue);
         end;
     end;
 
@@ -239,12 +273,6 @@ page 9094 "Vendor Statistics FactBox"
     local procedure ShowDetails()
     begin
         PAGE.Run(PAGE::"Vendor Card", Rec);
-    end;
-
-    [Obsolete('Visibility of the Vendor No. can be controlled through personalizaition or PTE', '17.0')]
-    procedure SetVendorNoVisibility(Visible: Boolean)
-    begin
-        ShowVendorNo := Visible;
     end;
 
     local procedure SetFilterLastPaymentDateEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")

@@ -1,14 +1,10 @@
-#if not CLEAN17
 report 5706 "Create Stockkeeping Unit"
 {
     AdditionalSearchTerms = 'create sku';
     ApplicationArea = Warehouse;
-    Caption = 'Create Stockkeeping Unit (Obsolete)';
+    Caption = 'Create Stockkeeping Unit';
     ProcessingOnly = true;
     UsageCategory = Administration;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -143,16 +139,6 @@ report 5706 "Create Stockkeeping Unit"
                         Caption = 'Replace Previous SKUs';
                         ToolTip = 'Specifies if you want the batch job to replace all previous created stockkeeping units on the items you have included in the batch job.';
                     }
-                    field(OnlyIfTemplateExists; OnlyIfTemplateExists)
-                    {
-                        ApplicationArea = Warehouse;
-                        Caption = 'For SKU Templates Only';
-                        ToolTip = 'Specifies if the stockkeeping unit will be created only for the sku templates ';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
                 }
             }
         }
@@ -179,11 +165,9 @@ report 5706 "Create Stockkeeping Unit"
         SaveFilters: Boolean;
         LocationFilter: Code[1024];
         VariantFilter: Code[1024];
-        OnlyIfTemplateExists: Boolean;
 
     procedure CreateSKUIfRequired(var Item2: Record Item; LocationCode: Code[10]; VariantCode: Code[10])
     var
-        StockkeepingUnitTemplate: Record "Stockkeeping Unit Template";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -191,46 +175,12 @@ report 5706 "Create Stockkeeping Unit"
         if IsHandled then
             exit;
 
-        // NAVCZ
-        if OnlyIfTemplateExists and
-           (not StockkeepingUnitTemplate.Get(Item2."Item Category Code", LocationCode))
-        then
-            exit;
-        // NAVCZ
-
         Item2.CalcFields(Inventory);
         if (ItemInInventoryOnly and (Item2.Inventory > 0)) or
            (not ItemInInventoryOnly)
         then
-            if not StockkeepingUnit.Get(LocationCode, Item2."No.", VariantCode) then begin
+            if not StockkeepingUnit.Get(LocationCode, Item2."No.", VariantCode) then
                 CreateSKU(Item2, LocationCode, VariantCode);
-
-                // NAVCZ
-                if StockkeepingUnitTemplate.Get(Item2."Item Category Code", StockkeepingUnit."Location Code") then
-                    UpdateFromTemplate(StockkeepingUnit, StockkeepingUnitTemplate);
-                // NAVCZ
-            end;
-    end;
-
-    local procedure UpdateFromTemplate(var StockkeepingUnit: Record "Stockkeeping Unit"; StockkeepingUnitTemplate: Record "Stockkeeping Unit Template")
-    begin
-        // NAVCZ
-        with StockkeepingUnitTemplate do begin
-            if "Components at Location" <> '' then
-                StockkeepingUnit.Validate("Components at Location", "Components at Location");
-            if "Replenishment System" <> "Replenishment System"::"From Item Card" then
-                StockkeepingUnit.Validate("Replenishment System", "Replenishment System");
-            if "Reordering Policy" <> "Reordering Policy"::"From Item Card" then
-                StockkeepingUnit.Validate("Reordering Policy", "Reordering Policy");
-            if "Include Inventory" then
-                StockkeepingUnit.Validate("Include Inventory", "Include Inventory");
-            if "Transfer-from Code" <> '' then
-                StockkeepingUnit.Validate("Transfer-from Code", "Transfer-from Code");
-            if "Gen. Prod. Posting Group" <> '' then
-                StockkeepingUnit.Validate("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-        end;
-
-        StockkeepingUnit.Modify();
     end;
 
     procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean)
@@ -238,14 +188,6 @@ report 5706 "Create Stockkeeping Unit"
         SKUCreationMethod := CreatePerOption;
         ItemInInventoryOnly := NewItemInInventoryOnly;
         ReplacePreviousSKUs := NewReplacePreviousSKUs;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean; NewOnlyIfTemplateExists: Boolean)
-    begin
-        //NAVCZ
-        InitializeRequest(CreatePerOption, NewItemInInventoryOnly, NewReplacePreviousSKUs);
-        OnlyIfTemplateExists := NewOnlyIfTemplateExists;
     end;
 
     [IntegrationEvent(false, false)]
@@ -291,4 +233,4 @@ report 5706 "Create Stockkeeping Unit"
     begin
     end;
 }
-#endif
+

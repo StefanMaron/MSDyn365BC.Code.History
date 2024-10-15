@@ -164,7 +164,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, ShowWarning,
                       DateFilter, ItemFilter, LocationFilter);
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
         }
@@ -413,4 +413,5 @@ page 5845 "Inventory - G/L Reconciliation"
         CurrPage.Update();
     end;
 }
+
 #endif

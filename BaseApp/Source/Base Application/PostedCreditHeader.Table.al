@@ -4,12 +4,13 @@ table 31057 "Posted Credit Header"
     DataCaptionFields = "No.", Description;
 #if CLEAN18
     ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
 #else
     LookupPageID = "Posted Credits List";
     ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
 #endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     fields
     {
@@ -96,7 +97,6 @@ table 31057 "Posted Credit Header"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
-#if not CLEAN18
         field(90; "Balance (LCY)"; Decimal)
         {
             CalcFormula = Sum("Posted Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
@@ -104,7 +104,6 @@ table 31057 "Posted Credit Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(100; Type; Option)
         {
             Caption = 'Type';
@@ -146,7 +145,7 @@ table 31057 "Posted Credit Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -157,7 +156,7 @@ table 31057 "Posted Credit Header"
     begin
         with PstdCreditHeader do begin
             Copy(Rec);
-            FindFirst;
+            FindFirst();
             CreditReportSelections.SetRange(Usage, CreditReportSelections.Usage::"Posted Credit");
             CreditReportSelections.SetFilter("Report ID", '<>0');
             CreditReportSelections.Find('-');

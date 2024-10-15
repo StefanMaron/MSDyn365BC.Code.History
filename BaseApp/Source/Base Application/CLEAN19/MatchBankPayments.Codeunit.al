@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 codeunit 1255 "Match Bank Payments"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -78,6 +78,7 @@ codeunit 1255 "Match Bank Payments"
         TotalLedgerEntriesSummaryTxt: Label 'Count: Cust. Ledg. Entries: %1, Vendor Ledg. Entries: %2, Bank Ledg. Entries: %3.', Locked = true;
         TotalTimeSummaryTxt: Label 'TimeSummary: Total Time: Customer Ledger Entries: %1, Vendor Ledger Entries: %2, Employee Ledger Entries: %3, Bank Ledger Entries: %4, TextMappings: %5.', Locked = true;
         SpecificTaskSummaryTxt: Label 'Specific Task Summary: TotalTimeDirectCollection: %1, TotalTimeRelatedPartyMatching: %2, TotalTimeDocumentNoMatching: %3, TotalTimeAmountMatching: %4, TotalTimeStringNearness: %5, TotalTimeDocumentNoMatchingForBankLedgerEntry: %6, TotalTimeSearchingDocumentNoInLedgerEntries: %7, HitCountClosingDocumentMatches: %8 out of %9', Locked = true;
+        MissingRelatedPartyTelemetryMsg: Label 'The ledger entries contain the entries that do not exist in master data. This is indication of corrupted ledger entries. Master data type %1.', Locked = true, Comment = '%1 Master Data Type';
         TotalTimeMatchingCustomerLedgerEntriesPerLine: Duration;
         TotalTimeMatchingVendorLedgerEntriesPerLine: Duration;
         TotalTimeMatchingEmployeeLedgerEntriesPerLine: Duration;
@@ -91,6 +92,7 @@ codeunit 1255 "Match Bank Payments"
         TotalTimeDocumentNoMatchingForBankLedgerEntry: Duration;
         TotalTimeSearchingDocumentNoInLedgerEntries: Duration;
         BankLedgerEntriesClosingDocumentNumbers: Dictionary of [Integer, List of [Code[35]]];
+        MissingDataTypeTelemetrySent: List of [Integer];
         TotalNoClosingDocumentMatches: Integer;
         HitCountClosingDocumentMatches: Integer;
 
@@ -479,16 +481,16 @@ codeunit 1255 "Match Bank Payments"
           BankAccReconciliationLine."Match Confidence"::Accepted, BankAccReconciliationLine."Match Confidence"::High);
 
         if BankAccReconciliationLine.FindSet() then begin
-            BankAccReconciliation.Get(
-              BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
-              BankAccReconciliationLine."Statement No.");
             repeat
                 SetFilterToBankAccReconciliation(AppliedPaymentEntry, BankAccReconciliationLine);
-                if FindTextMappings(BankAccReconciliationLine) then begin
+                if FindTextMappings(BankAccReconciliationLine) then
                     BankAccReconciliationLine.RejectAppliedPayment;
-                    CreateAppliedEntries(BankAccReconciliation);
-                end;
             until BankAccReconciliationLine.Next() = 0;
+
+            BankAccReconciliation.Get(
+                BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
+                BankAccReconciliationLine."Statement No.");
+            CreateAppliedEntries(BankAccReconciliation);
 
             // Update match details for lines matched by text mapper
             BankAccReconciliationLine.SetRange(
@@ -745,7 +747,7 @@ codeunit 1255 "Match Bank Payments"
         TotalTimeRelatedPartyMatching += CurrentDateTime() - StartTime;
 
         IsHandled := false;
-        OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
+        OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled, TempBankStatementMatchingBuffer, AccountType, TotalTimeDocumentNoMatching, TotalTimeDocumentNoMatchingForBankLedgerEntry, DocumentMatchedInfoText, LogInfoText);
         if not IsHandled then
             if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then begin
                 StartTime := CurrentDateTime();
@@ -758,12 +760,22 @@ codeunit 1255 "Match Bank Payments"
                 TotalTimeDocumentNoMatchingForBankLedgerEntry += CurrentDateTime() - StartTime;
             end;
 
-        StartTime := CurrentDateTime();
-        RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
+        IsHandled := false;
+        OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(
+            BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer,
+            AccountType, TempBankStatementMatchingBuffer, TotalTimeRelatedPartyMatching,
+            TotalTimeAmountMatching, RemainingAmount, RelatedPartyMatchedInfoText,
+            LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, OneToManyTempBankStatementMatchingBuffer,
+            TempCustomerLedgerEntryMatchingBuffer, TempVendorLedgerEntryMatchingBuffer,
+            TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer, IsHandled);
+        if not IsHandled then begin
+            StartTime := CurrentDateTime();
+            RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
 
-        AmountInclToleranceMatching(
-          BankPmtApplRule, BankAccReconciliationLine, AccountType, RemainingAmount);
-        TotalTimeAmountMatching += CurrentDateTime() - StartTime;
+            AmountInclToleranceMatching(
+              BankPmtApplRule, BankAccReconciliationLine, AccountType, RemainingAmount);
+            TotalTimeAmountMatching += CurrentDateTime() - StartTime;
+        end;
     end;
 
     local procedure CalcRemainingAmount(var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line") RemainingAmount: Decimal
@@ -960,20 +972,24 @@ codeunit 1255 "Match Bank Payments"
                 end;
 
                 if Nearness >= GetExactMatchTreshold() then begin
+                    // Customers could post the expense via Journal. In this case there is a risk that we will create double entries.
+                    // We will seach for existing bank ledger entries with similar text in the similar range and mapp to that
                     if FindBankAccLedgerEntry(BankAccLedgerEntry, BankAccReconciliationLine, TextToAccMapping, AccountNo) then begin
                         EntryNo := BankAccLedgerEntry."Entry No.";
                         AccountType := TempBankStatementMatchingBuffer."Account Type"::"Bank Account";
                         AccountNo := BankAccLedgerEntry."Bank Account No.";
+                        Score := TempBankPmtApplRule.GetTextMapperScore();
                     end else begin
                         EntryNo := -TextToAccMapping."Line No."; // mark negative to identify text-mapper
                         AccountType := "Gen. Journal Account Type".FromInteger(TextToAccMapping."Bal. Source Type");
+                        Score := TempBankPmtApplRule.GetTextMapperScore();
                     end;
 
-                    Score := TempBankPmtApplRule.GetTextMapperScore();
-                    TempBankStatementMatchingBuffer.AddMatchCandidate(
-                      BankAccReconciliationLine."Statement Line No.", EntryNo,
-                      Score, AccountType, AccountNo);
                     TextMapperMatched := true;
+
+                    TempBankStatementMatchingBuffer.AddMatchCandidate(
+                        BankAccReconciliationLine."Statement Line No.", EntryNo,
+                        Score, AccountType, AccountNo);
 
                     if (TrackApplicableRules) then begin
                         TempTextToAccMapping.TransferFields(TextToAccMapping, true);
@@ -985,15 +1001,38 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     local procedure FindBankAccLedgerEntry(var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20]): Boolean
+    var
+        RecordMatchMgt: Codeunit "Record Match Mgt.";
+        BlankDate: Date;
+        Nearness: Integer;
+        Found: Boolean;
+        Handled: Boolean;
     begin
-        with BankAccLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
-            SetRange(Open, true);
-            SetRange("Bal. Account Type", TextToAccountMapping."Bal. Source Type");
-            SetRange("Bal. Account No.", BalAccountNo);
-            SetRange("Remaining Amount", BankAccReconciliationLine."Statement Amount");
-            exit(FindFirst());
-        end;
+        OnFindBankAccLedgerEntryForTextToAccountMapping(Handled, Found, BankAccLedgerEntry, BankAccReconciliationLine, TextToAccountMapping, BalAccountNo);
+
+        if Handled then
+            exit(Found);
+
+        BankAccLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
+        BankAccLedgerEntry.SetRange(Open, true);
+        BankAccLedgerEntry.SetRange("Bal. Account Type", TextToAccountMapping."Bal. Source Type");
+        BankAccLedgerEntry.SetRange("Bal. Account No.", BalAccountNo);
+        BankAccLedgerEntry.SetRange("Remaining Amount", BankAccReconciliationLine."Statement Amount");
+
+        if BankAccReconciliationLine."Transaction Date" = BlankDate then
+            exit(false);
+
+        BankAccLedgerEntry.SetFilter("Posting Date", '>=%1&<=%2', CalcDate('<-2D>', BankAccReconciliationLine."Transaction Date"), CalcDate('<+2D>', BankAccReconciliationLine."Transaction Date"));
+
+        if not BankAccLedgerEntry.FindSet() then
+            exit(false);
+
+        repeat
+            Nearness := RecordMatchMgt.CalculateStringNearness(RecordMatchMgt.Trim(TextToAccountMapping."Mapping Text"), BankAccLedgerEntry.Description, StrLen(BankAccLedgerEntry.Description), GetNormalizingFactor());
+            if Nearness >= GetExactMatchTreshold() then
+                exit(true);
+        until BankAccLedgerEntry.Next() = 0;
+        exit(false);
     end;
 
     local procedure CreateAppliedEntries(BankAccReconciliation: Record "Bank Acc. Reconciliation")
@@ -1128,14 +1167,19 @@ codeunit 1255 "Match Bank Payments"
         Customer: Record Customer;
     begin
         if IsCustomerBankAccountMatching(
-             BankAccReconciliationLine."Related-Party Bank Acc. No.", AccountNo)
+             BankAccReconciliationLine."Related-Party Bank Acc. No.", AccountNo, BankAccReconciliationLine."Bank Account No.")
         then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
             exit;
         end;
 
-        Customer.Get(AccountNo);
+        if not Customer.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Customer);
+            exit;
+        end;
+
         RelatedPartyInfoMatching(
           BankPmtApplRule, BankAccReconciliationLine, Customer.Name, Customer.Address, Customer.City, AccountType);
     end;
@@ -1144,8 +1188,13 @@ codeunit 1255 "Match Bank Payments"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(AccountNo);
-        if IsVendorBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Vendor."No.") then begin
+        if not Vendor.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Vendor);
+            exit;
+        end;
+
+        if IsVendorBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Vendor."No.", BankAccReconciliationLine."Bank Account No.") then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
             exit;
@@ -1159,7 +1208,12 @@ codeunit 1255 "Match Bank Payments"
     var
         Employee: Record Employee;
     begin
-        Employee.Get(AccountNo);
+        if not Employee.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Employee);
+            exit;
+        end;
+
         if IsEmployeeBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Employee) then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
@@ -1228,6 +1282,15 @@ codeunit 1255 "Match Bank Payments"
                 AppendText(RelatedPartyMatchedInfoText, RelatedPartyNameIsUniqueMsg);
                 exit;
             end;
+    end;
+
+    local procedure SendMissingRelatedPartyTelemetry(GenJournalAccountType: Enum "Gen. Journal Account Type")
+    begin
+        if MissingDataTypeTelemetrySent.Contains(GenJournalAccountType.AsInteger()) then
+            exit;
+
+        Session.LogMessage('0000FT3', StrSubstNo(MissingRelatedPartyTelemetryMsg, GenJournalAccountType), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+        MissingDataTypeTelemetrySent.Add(GenJournalAccountType.AsInteger());
     end;
 
     local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35]; PaymentReference: Code[50])
@@ -1441,7 +1504,9 @@ codeunit 1255 "Match Bank Payments"
         StartTime := CurrentDateTime;
         BankPmtApplRule."Direct Debit Collect. Matched" := BankPmtApplRule."Direct Debit Collect. Matched"::"Not Considered";
 
-        if BankAccReconciliationLine."Transaction ID" = '' then
+        if (BankAccReconciliationLine."Transaction ID" = '') or
+           (StrLen(BankAccReconciliationLine."Transaction ID") > MaxStrLen(TempDirectDebitCollectionEntryBuffer."Transaction ID"))
+        then
             exit;
 
         TempDirectDebitCollectionEntryBuffer.Reset();
@@ -1547,10 +1612,16 @@ codeunit 1255 "Match Bank Payments"
         exit(Nearness);
     end;
 
-    local procedure IsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]): Boolean
+    local procedure IsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]; BankAccountNo: Code[20]) Result: Boolean
     var
         CustomerBankAccount: Record "Customer Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsCustomerBankAccountMatching(ValueFromBankStatement, CustomerNo, BankAccountNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ValueFromBankStatement := BankAccountNoWithoutSpecialChars(ValueFromBankStatement);
         if ValueFromBankStatement = '' then
             exit(false);
@@ -1565,10 +1636,16 @@ codeunit 1255 "Match Bank Payments"
         exit(false);
     end;
 
-    local procedure IsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]): Boolean
+    local procedure IsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]; BankAccountNo: Code[20]) Result: Boolean
     var
         VendorBankAccount: Record "Vendor Bank Account";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsVendorBankAccountMatching(ValueFromBankStatement, VendorNo, BankAccountNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ValueFromBankStatement := BankAccountNoWithoutSpecialChars(ValueFromBankStatement);
         if ValueFromBankStatement = '' then
             exit(false);
@@ -1762,7 +1839,7 @@ codeunit 1255 "Match Bank Payments"
         TempBankPmtApplRule.SetCurrentKey(Score);
         TempBankPmtApplRule.Ascending(false);
         Score := 0;
-        if TempBankPmtApplRule.FindLast then
+        if TempBankPmtApplRule.FindLast() then
             Score := TempBankPmtApplRule.Score;
 
         TempBankPmtApplRule.Reset();
@@ -1868,6 +1945,7 @@ codeunit 1255 "Match Bank Payments"
         BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliationLine2.CopyFilters(BankAccReconciliationLine);
+        OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(BankAccReconciliationLine2, BankAccReconciliationLine);
 
         if BankAccReconciliationLine2.FindSet() then
             repeat
@@ -1887,6 +1965,7 @@ codeunit 1255 "Match Bank Payments"
         PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(PaymentMatchingDetails, BankAccReconciliation);
         PaymentMatchingDetails.DeleteAll(true);
     end;
 
@@ -1899,6 +1978,7 @@ codeunit 1255 "Match Bank Payments"
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         if not Overwrite then
             AppliedPaymentEntry.SetFilter("Match Confidence", '<>%1&<>%2', AppliedPaymentEntry."Match Confidence"::Accepted, AppliedPaymentEntry."Match Confidence"::Manual);
+        OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(AppliedPaymentEntry, BankAccReconciliation);
         AppliedPaymentEntry.DeleteAll(true);
     end;
 
@@ -1964,7 +2044,7 @@ codeunit 1255 "Match Bank Payments"
         // Get Entry No.
         TempBankStatementMatchingBuffer.SetRange("Line No.", BankAccReconciliationLine."Statement Line No.");
         TempBankStatementMatchingBuffer.SetRange(Quality, BankAccReconciliationLine."Match Quality");
-        TempBankStatementMatchingBuffer.FindFirst;
+        TempBankStatementMatchingBuffer.FindFirst();
         EntryNo := TempBankStatementMatchingBuffer."Entry No.";
 
         MinRangeValue := BankPmtApplRule.GetLowestScoreInRange(BankAccReconciliationLine."Match Quality");
@@ -2001,7 +2081,7 @@ codeunit 1255 "Match Bank Payments"
     begin
         SplitLineNo := BankAccReconciliationLine."Statement Line No." + 1;
         BankAccReconciliationLine.SetRange("Parent Line No.", ParentLineNo);
-        if BankAccReconciliationLine.FindLast then
+        if BankAccReconciliationLine.FindLast() then
             SplitLineNo := BankAccReconciliationLine."Statement Line No." + 1;
         exit(SplitLineNo)
     end;
@@ -2046,7 +2126,8 @@ codeunit 1255 "Match Bank Payments"
           BankAccReconciliationLine.GetAppliesToID);
     end;
 
-    procedure SetApplicationDataInCVLedgEntry(AccountType: Enum "Gen. Journal Account Type"; EntryNo: Integer; AppliesToID: Code[50])
+    procedure SetApplicationDataInCVLedgEntry(AccountType: Enum "Gen. Journal Account Type"; EntryNo: Integer;
+                                                               AppliesToID: Code[50])
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin
@@ -2173,12 +2254,22 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsCustomerBankAccountMatching(ValueFromBankStatement: Text; CustomerNo: Code[20]; BankAccountNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsVendorBankAccountMatching(ValueFromBankStatement: Text; VendorNo: Code[20]; BankAccountNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDocumentMatchingForBankLedgerEntryOnBeforeMatch(SearchText: Text; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var BankPmtApplRule: Record "Bank Pmt. Appl. Rule")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    local procedure OnFindMatchingEntryOnBeforeDocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer"; AccountType: Enum "Gen. Journal Account Type"; var TotalTimeDocumentNoMatching: Duration; var TotalTimeDocumentNoMatchingForBankLedgerEntry: Duration; var DocumentMatchedInfoText: Text; LogInfoText: Boolean)
     begin
     end;
 
@@ -2228,6 +2319,16 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(var PaymentMatchingDetails: Record "Payment Matching Details"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(var AppliedPaymentEntry: Record "Applied Payment Entry"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDisableMatchBankLedgerEntriesFromClosingLedgerEntries(var Disable: boolean)
     begin
     end;
@@ -2258,7 +2359,22 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TotalTimeRelatedPartyMatching: Duration; var TotalTimeAmountMatching: Duration; var RemainingAmount: Decimal; var RelatedPartyMatchedInfoText: Text; LogInfoText: Boolean; var TotalTimeStringNearness: Duration; UsePaymentDiscounts: Boolean; OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempEmployeeLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRelatedPartyInfoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Name: Text[100]; Address: Text[100]; City: Text[30]; AccountType: Enum "Gen. Journal Account Type"; var RelatedPartyMatchedInfoText: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindBankAccLedgerEntryForTextToAccountMapping(Handled: Boolean; Found: Boolean; var BankAccLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TextToAccountMapping: Record "Text-to-Account Mapping"; BalAccountNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(var BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

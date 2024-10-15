@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 page 161 "Purchase Statistics"
 {
     Caption = 'Purchase Statistics';
@@ -431,10 +431,6 @@ page 161 "Purchase Statistics"
 #if not CLEAN18
         // NAVCZ
         CurrPage.SubForm.PAGE.SetCurrencyFactor(Rec."Currency Factor");
-#if not CLEAN17
-        if Rec."Currency Factor" <> Rec."VAT Currency Factor" then
-            CurrPage.SubForm.PAGE.SetVATCurrencyFactor(Rec."VAT Currency Factor");
-#endif
         // NAVCZ
 #endif
     end;
@@ -567,11 +563,7 @@ page 161 "Purchase Statistics"
 #if not CLEAN18
         VATAmountLines.SetCurrencyFactor("Currency Factor");
 #endif
-#if not CLEAN17
-        if "Currency Factor" <> "VAT Currency Factor" then
-            VATAmountLines.SetVATCurrencyFactor("VAT Currency Factor");
-#endif
-        VATAmountLines.RunModal;
+        VATAmountLines.RunModal();
         VATAmountLines.GetTempVATAmountLine(VATAmountLine);
         // NAVCZ
     end;
@@ -592,7 +584,7 @@ page 161 "Purchase Statistics"
     begin
         // NAVCZ
         with VATAmountLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
@@ -632,7 +624,7 @@ page 161 "Purchase Statistics"
         Clear(VATAmount);
         Clear(VATBaseAmount);
 
-        if VATAmountLine.FindSet then
+        if VATAmountLine.FindSet() then
             repeat
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";

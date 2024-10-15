@@ -353,7 +353,7 @@ page 1292 "Payment Application"
                         SetRange("Account No.");
                         SetRange(Type, Type::"Bank Account Ledger Entry", Type::"Check Ledger Entry");
 
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
                 action(SortEntriesBasedOnProbability)
@@ -406,7 +406,7 @@ page 1292 "Payment Application"
                         end;
                         SetRange(Type, Type::"Bank Account Ledger Entry", Type::"Check Ledger Entry");
 
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
                 action(AppliedEntries)
@@ -425,7 +425,7 @@ page 1292 "Payment Application"
                         SetRange("Account No.");
                         SetRange(Type, Type::"Bank Account Ledger Entry", Type::"Check Ledger Entry");
 
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
                 action(AllOpenBankTransactions)
@@ -444,7 +444,7 @@ page 1292 "Payment Application"
                         SetRange("Account No.");
                         SetRange(Type, Type::"Bank Account Ledger Entry");
 
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
                 action(AllOpenPayments)
@@ -462,7 +462,7 @@ page 1292 "Payment Application"
                         SetRange("Account Type", "Account Type"::"Bank Account");
                         SetRange("Account No.");
                         SetRange(Type, Type::"Check Ledger Entry");
-                        if FindFirst then;
+                        if FindFirst() then;
                     end;
                 }
             }
@@ -499,7 +499,7 @@ page 1292 "Payment Application"
         SetCurrentKey("Sorting Order", "Stmt To Rem. Amount Difference");
         Ascending(true);
 
-        if FindFirst then;
+        if FindFirst() then;
 
         if not BankPmtApplSettings."Apply Man. Disable Suggestions" then begin
             TimePassed := CurrentDateTime - StartTime;

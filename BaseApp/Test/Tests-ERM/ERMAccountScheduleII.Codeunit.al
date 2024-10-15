@@ -19,6 +19,7 @@ codeunit 134994 "ERM Account Schedule II"
         CopySuccessMsg: Label 'The new account schedule has been created successfully.';
         DimensionValueErr: Label 'Dimension Value record does not exist.';
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
         DimFilterErr: Label 'Wrong Dimension filter.';
@@ -31,6 +32,7 @@ codeunit 134994 "ERM Account Schedule II"
         TargetNameMissingErr: Label 'You must specify a name for the new account schedule.';
         LibraryCostAccounting: Codeunit "Library - Cost Accounting";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
+        IsInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('RHAccountSchedule')]
@@ -47,7 +49,7 @@ codeunit 134994 "ERM Account Schedule II"
         // Test Account Schedule Report with max number of columns.
         // It compares column layout setup and report result; use this test to verify setup changing.
         // 1.Setup: Create new Account Schedule with lines and Column Layout with max number of columns.
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         RowCount := LibraryRandom.RandInt(100);
         CreateLines(AccScheduleName, Format(LibraryRandom.RandInt(10)), AccScheduleLine."Totaling Type"::Formula, RowCount);
@@ -80,7 +82,7 @@ codeunit 134994 "ERM Account Schedule II"
         // Test Account Schedule Report with 0 columns.
         // This report could be saved.
         // 1.Setup: Create new Account Schedule with lines and Column Layout without any columns.
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         RowCount := LibraryRandom.RandInt(100);
         CreateLines(AccScheduleName, Format(LibraryRandom.RandInt(10)), AccScheduleLine."Totaling Type"::Formula, RowCount);
@@ -92,7 +94,7 @@ codeunit 134994 "ERM Account Schedule II"
         // 3.Verify: Verify that the report was saved successfully.
         LibraryReportDataset.LoadDataSetFile;
         AccScheduleLine.SetRange("Schedule Name", AccScheduleName.Name);
-        AccScheduleLine.FindFirst;
+        AccScheduleLine.FindFirst();
         LibraryReportDataset.AssertElementWithValueExists('AccScheduleName_Name', AccScheduleLine."Schedule Name");
     end;
 
@@ -110,7 +112,7 @@ codeunit 134994 "ERM Account Schedule II"
         // Test that report header is correct.
         // It searches settings of report header in the Excel document (Account Schedule Name and Column Layout Name).
         // 1.Setup: Create new Account Schedule with lines and Column Layout with columns.
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         RowCount := LibraryRandom.RandInt(10);
         CreateLines(AccScheduleName, Format(LibraryRandom.RandInt(10)), AccScheduleLine."Totaling Type"::Formula, RowCount);
@@ -135,7 +137,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
 
         LibraryVariableStorage.Enqueue(AccScheduleName.Name);
@@ -157,7 +159,7 @@ codeunit 134994 "ERM Account Schedule II"
         DimensionValue: Record "Dimension Value";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateAnalysisView(AnalysisView);
@@ -186,7 +188,7 @@ codeunit 134994 "ERM Account Schedule II"
         ColumnLayoutName: Record "Column Layout Name";
         ColumnLayout: Record "Column Layout";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -202,7 +204,7 @@ codeunit 134994 "ERM Account Schedule II"
         // Verify
         LibraryReportDataset.LoadDataSetFile;
         ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName.Name);
-        if ColumnLayout.FindSet then
+        if ColumnLayout.FindSet() then
             repeat
                 LibraryReportDataset.AssertElementWithValueExists('Header', ColumnLayout."Column Header");
             until ColumnLayout.Next = 0;
@@ -217,7 +219,7 @@ codeunit 134994 "ERM Account Schedule II"
         ColumnLayoutName: Record "Column Layout Name";
     begin
         // Verify request page has data after setfilter and open page
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
@@ -241,10 +243,10 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
         // Verify account schedule export to Excel can fill Excel Buffer
-        Initialize;
+        Initialize();
         AccScheduleName.SetFilter("Analysis View Name", '<>%1', '');
         AccScheduleName.SetFilter("Default Column Layout", '<>%1', '');
-        if AccScheduleName.FindFirst then begin
+        if AccScheduleName.FindFirst() then begin
             LibraryReportValidation.SetFileName(AccScheduleName.Name);
 
             // Export to Excel buffer
@@ -265,7 +267,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule: TestPage "Account Schedule";
     begin
         // [SCENARIO] Account schedule lines can be indented (individually) to provide a nicer layout.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An account schedule with one line
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -368,7 +370,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382369] Report 25 "Account Schedule" prints all lines when line option "Show" = "Yes"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GLNull" with zero Net Change value
         // [GIVEN] G/L Account "GLPos" with positive NetChange value
@@ -402,7 +404,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382369] Report 25 "Account Schedule" doesn't print lines when line option "Show" = "No"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GLNull" with zero Net Change value
         // [GIVEN] G/L Account "GLPos" with positive NetChange value
@@ -436,7 +438,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382369] Report 25 "Account Schedule" prints only lines with non-zero amount when line option "Show" = "If Any Column Not Zero"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GLNull" with zero Net Change value
         // [GIVEN] G/L Account "GLPos" with positive NetChange value
@@ -470,7 +472,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382369] Report 25 "Account Schedule" prints only lines with negative amount when line option "Show" = "When Negative Balance"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GLNull" with zero Net Change value
         // [GIVEN] G/L Account "GLPos" with positive NetChange value
@@ -504,7 +506,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Report]
         // [SCENARIO 382369] Report 25 "Account Schedule" prints only lines with positive amount when line option "Show" = "When Positive Balance"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "GLNull" with zero Net Change value
         // [GIVEN] G/L Account "GLPos" with positive NetChange value
@@ -537,7 +539,7 @@ codeunit 134994 "ERM Account Schedule II"
         Result: Decimal;
         ExpectedResult: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
         CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name, AccScheduleLine."Totaling Type"::"Posting Accounts", '');
@@ -566,7 +568,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 208312] Account Schedule must be exported to excel values with filters of dimensions
-        Initialize;
+        Initialize();
 
         // [GIVEN] 4 Dimensions with Dimension Values:
         // [GIVEN] First - "DIM1" with "DIMVALUE1"
@@ -602,7 +604,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 208852] Account Schedule must be exported to excel if Dimensions of Analysis View are not specified and Dimensions filtes are blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule with Analysis View without dimensions
         CreateAccScheduleNameWithViewAndDimensions(AccScheduleName, DimensionValue);
@@ -625,7 +627,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 211157] Account Schedule must be exported to excel values with filters of dimensions if "Analisys View Name" is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account Schedule with "Analysis View Name" = ''
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -633,10 +635,10 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName.Modify();
 
         // [GIVEN] 4 Dimensions Code with Dimensions Value
-        DimFilterValue[1] := LibraryUtility.GenerateGUID;
-        DimFilterValue[2] := LibraryUtility.GenerateGUID;
-        DimFilterValue[3] := LibraryUtility.GenerateGUID;
-        DimFilterValue[4] := LibraryUtility.GenerateGUID;
+        DimFilterValue[1] := LibraryUtility.GenerateGUID();
+        DimFilterValue[2] := LibraryUtility.GenerateGUID();
+        DimFilterValue[3] := LibraryUtility.GenerateGUID();
+        DimFilterValue[4] := LibraryUtility.GenerateGUID();
         LibraryReportValidation.SetFileName(AccScheduleName.Name);
 
         // [WHEN] Run export Account Schedule to Excel - Report 29 (Export Acc. Sched. to Excel) with Dimensions Filter
@@ -659,7 +661,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 217970] Account Schedule must be exported to excel values without filters of dimensions if "Analisys View Name" is blank and Global Dimensions are blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Global Dimensions 1 and 2 are blank
         GeneralLedgerSetup.Get();
@@ -694,7 +696,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Excel]
         // [SCENARIO 311088] Account Schedule must be exported to excel values with addtional filters
-        Initialize;
+        Initialize();
 
         // [GIVEN] Cost Center "Center"
         LibraryCostAccounting.CreateCostCenter(CostCenter);
@@ -737,12 +739,12 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         NewAccountScheduleName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
         CreateAccScheduleLineWithGLAcc(AccScheduleLine, AccScheduleName.Name, LibraryERM.CreateGLAccountNo, AccScheduleLine.Show::Yes);
-        NewAccountScheduleName := LibraryUtility.GenerateGUID;
+        NewAccountScheduleName := LibraryUtility.GenerateGUID();
 
         // Exercise
         Commit();
@@ -765,7 +767,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -787,7 +789,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleName: Record "Acc. Schedule Name";
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -813,11 +815,11 @@ codeunit 134994 "ERM Account Schedule II"
         MissingAccountScheduleName: Code[10];
         NewAccountScheduleName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        MissingAccountScheduleName := LibraryUtility.GenerateGUID;
-        NewAccountScheduleName := LibraryUtility.GenerateGUID;
+        MissingAccountScheduleName := LibraryUtility.GenerateGUID();
+        NewAccountScheduleName := LibraryUtility.GenerateGUID();
 
         // Exercise
         Commit();
@@ -841,7 +843,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccScheduleLine: Record "Acc. Schedule Line";
         AccScheduleLine2: Record "Acc. Schedule Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -871,7 +873,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountScheduleNames: TestPage "Account Schedule Names";
         OriginalCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         OriginalCount := AccScheduleName.Count();
@@ -898,11 +900,11 @@ codeunit 134994 "ERM Account Schedule II"
         AccountScheduleNames: TestPage "Account Schedule Names";
         NewAccountScheduleName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GeneralLedgerSetup.Get();
-        NewAccountScheduleName := LibraryUtility.GenerateGUID;
+        NewAccountScheduleName := LibraryUtility.GenerateGUID();
 
         // Excecise
         Commit();
@@ -933,11 +935,11 @@ codeunit 134994 "ERM Account Schedule II"
         AccountScheduleNames: TestPage "Account Schedule Names";
         NewAccountScheduleName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         GeneralLedgerSetup.Get();
-        NewAccountScheduleName := LibraryUtility.GenerateGUID;
+        NewAccountScheduleName := LibraryUtility.GenerateGUID();
 
         // Excecise
         Commit();
@@ -977,7 +979,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Dimension] [Analysis View]
         // [SCENARIO 297118] Totaling dimension values of dimensions set up in Analysis View can be used as filters in Account Schedule report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Four custom dimensions.
         // [GIVEN] Each dimension has a standard value and a totaling value.
@@ -1037,7 +1039,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         // [FEATURE] [Dimension]
         // [SCENARIO 297118] Totaling dimension values of global dimensions can be used as filters in Account Schedule report.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create a new standard value to each of two global dimensions.
         // [GIVEN] Create a a new totaling value to each of two global dimensions.
@@ -1089,7 +1091,7 @@ codeunit 134994 "ERM Account Schedule II"
         exit; // NAVCZ Czech Localization has Account Schedule Formula Drill-Down Page
         // [FEATURE] [UI]
         // [SCENARIO 316821] Variance drill down shows column layout formula when both account schedule and column layout contains formula.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Account schedule with formula totaling type and column layout with formula column type.
         LibraryERM.CreateAccScheduleName(AccScheduleName);
@@ -1136,6 +1138,570 @@ codeunit 134994 "ERM Account Schedule II"
 
         // [THEN] Show validated correctly and equal to Always
         ColumnLayoutPage.Show.AssertEquals(ColumnLayout.Show::Always);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetSkipEmptyLinesRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportForEmptyTotalingSkipEmptyLinesYes()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 316070] Account Schedule report prints lines with empty Totaling and Show=Yes when SkipEmptyLines = true
+        Initialize();
+
+        // [GIVEN] Account Schedule Name 
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        // [GIVEN] Line 10000 with empty Totaling and Show=Yes
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.TestField(Totaling, '');
+        AccScheduleLine.TestField(Show, "Acc. Schedule Line Show"::Yes);
+
+        Commit();
+        AccScheduleName.SetRecFilter();
+
+        // [WHEN] Run Account Schedule report with "Show Zero Amount Lines" = yes
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] LineSkipped = false for line 10000
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineSkipped', false);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        LocalCurrencySymbol: Text[10];
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report prints currency symbol for the amounts if "Show Currency Symbol" = yes
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        LocalCurrencySymbol := UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create G/L Account account "A" and post entry with amount 100
+        Amount := LibraryRandom.RandDec(100, 2);
+        AccountNo := CreateGLAccountWithNetChange(Amount);
+
+        // [GIVEN] Create account schedule line for account "A"
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "$100"
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', StrSubstNo('%1%2', LocalCurrencySymbol, Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportAdditionalCurrencySymbol()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        GLSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+        GLAccount: Record "G/L Account";
+        ExchRate: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report prints currency symbol for the amounts if "Show Currency Symbol" = yes and "Show Amounts in Add. Reporting Currency" = yes
+        Initialize();
+
+        // [GIVEN] Additional currency "USD" with symbol "$" specified for GLSetup
+        ExchRate := LibraryRandom.RandDecInRange(2, 10, 2);
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchRate, ExchRate));
+        Currency.Validate(Symbol, '$');
+        Currency.Modify();
+        UpdateGLSetupAddReportingCurrency(Currency.Code);
+
+        // [GIVEN] Create G/L Account account "A" and post entry with Add. Currency Amount = 100
+        GLAccount.Get(CreateGLAccountWithNetChange(LibraryRandom.RandDec(100, 2)));
+        GLAccount.CalcFields("Additional-Currency Net Change");
+
+        // [GIVEN] Create account schedule line for account "A"
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, GLAccount."No.");
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes and "Show Amounts in Add. Reporting Currency" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(true); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "$100"
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', StrSubstNo('%1%2', Currency.Symbol, GLAccount."Additional-Currency Net Change"));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintZeroAmountRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol_ZeroAmount_EmptyTotaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for empty Totaling line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
+        Initialize();
+
+        // [GIVEN] Create account schedule line 1 with empty Totaling
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.TestField(Totaling, '');
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Blank);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints empty value
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintZeroAmountRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol_ZeroAmount_ShowEmptyAmountTypeBlank()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for zero cell value line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
+        Initialize();
+
+        // [GIVEN] Create account schedule line for account "A" with zero balance
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes and "Show Empty Amount Type" = Blank
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Blank);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints empty value for line 2
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintZeroAmountRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol_ZeroAmount_ShowEmptyAmountTypeDash()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for zero cell value line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Dash
+        Initialize();
+
+        // [GIVEN] Create account schedule line for account "A" with zero balance
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes and "Show Empty Amount Type" = Dash
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Dash);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints dash for line 2
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', '-');
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintZeroAmountRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol_ZeroAmount_ShowEmptyAmountTypeZero_EmptyTotaling()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report does not Show Currency Symbol for empty line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Zero
+        Initialize();
+
+        // [GIVEN] Create account schedule line 1 with empty Totaling
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.TestField(Totaling, '');
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes and "Show Empty Amount Type" = Zero
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Zero);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints empty value for line 1
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('ColumnValuesAsText', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintZeroAmountRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbol_ZeroAmount_ShowEmptyAmountTypeZero_CellValueZero()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        LocalCurrencySymbol: Text[10];
+        MatrixMgt: Codeunit "Matrix Management";
+        AccountNo: Code[20];
+        Amount: Decimal;
+        ZeroDecimal: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report prints currency symbol for zero cell value line if "Show Currency Symbol" = yes and "Show Empty Amount Type" = Zero
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        LocalCurrencySymbol := UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create account schedule line for account "A" with zero balance
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        AccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Zero);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "$0"
+        LibraryReportDataset.Reset();
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+            'ColumnValuesAsText',
+            StrSubstNo(
+                '%1%2',
+                LocalCurrencySymbol,
+                Format(ZeroDecimal, 0, MatrixMgt.FormatRoundingFactor("Analysis Rounding Factor"::None, false))));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbolLineAmountFormula()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        LocalCurrencySymbol: Text[10];
+        AccountNo: array[2] of Code[20];
+        Amount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for line simple formula which calculates amount
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        LocalCurrencySymbol := UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create G/L Account accounts "A" and post entry with amount 100, "B" with amount 200
+        for i := 1 to 2 do begin
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+            AccountNo[i] := CreateGLAccountWithNetChange(Amount[i]);
+        end;
+        // [GIVEN] Create account schedule lines for account "A" and "B"
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        for i := 1 to 2 do begin
+            LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+            AccScheduleLine."Row No." := Format(i);
+            AccScheduleLine.Validate(Totaling, AccountNo[i]);
+            AccScheduleLine.Modify();
+        end;
+        // [GIVEN] Create account schedule line with formula
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", "Acc. Schedule Line Totaling Type"::Formula);
+        AccScheduleLine.Validate(Totaling, '-1-2');
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "-$300" without currency symbol
+        LibraryReportDataset.AssertElementWithValueExists(
+            'ColumnValuesAsText',
+            StrSubstNo(
+                '%1%2',
+                    LocalCurrencySymbol,
+                    Format(-Amount[1] - Amount[2])));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSkipCurrencySymbolLineFormula()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        AccountNo: array[2] of Code[20];
+        Amount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report does not show Currency Symbol for line formula with "Hide Currency Symbol" = Yes
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create G/L Account accounts "A" and post entry with amount 100, "B" with amount 200
+        for i := 1 to 2 do begin
+            Amount[i] := LibraryRandom.RandDec(100, 2);
+            AccountNo[i] := CreateGLAccountWithNetChange(Amount[i]);
+        end;
+        // [GIVEN] Create account schedule lines for account "A" and "B"
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        for i := 1 to 2 do begin
+            LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+            AccScheduleLine."Row No." := Format(i);
+            AccScheduleLine.Validate(Totaling, AccountNo[i]);
+            AccScheduleLine.Modify();
+        end;
+        // [GIVEN] Create account schedule line with formula 1/2 and "Hide Currency Symbol" = Yes
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate("Totaling Type", "Acc. Schedule Line Totaling Type"::Formula);
+        AccScheduleLine.Validate(Totaling, '1/2');
+        AccScheduleLine.Validate("Hide Currency Symbol", true);
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "0.5" without currency symbol
+        LibraryReportDataset.AssertElementWithValueExists('ColumnValuesAsText', Format(Round(Amount[1] / Amount[2])));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportCurrencySymbolColumnFormula()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        LocalCurrencySymbol: Text[10];
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for column formula 
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        LocalCurrencySymbol := UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create G/L Account account "A" and post entry with amount 100
+        Amount := LibraryRandom.RandDec(100, 2);
+        AccountNo := CreateGLAccountWithNetChange(Amount);
+
+        // [GIVEN] Create account schedule line for account "A" 
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [GIVEN] Create column "C1" with Net Change type
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout."Column No." := 'C1';
+        ColumnLayout.Modify();
+        // [GIVEN] Create column "C2" with formula -C1
+        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayout."Column Layout Name");
+        ColumnLayout."Column Type" := "Column Layout Type"::Formula;
+        ColumnLayout."Column No." := 'C2';
+        ColumnLayout.Formula := '-C1';
+        ColumnLayout.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "$-100" without currency symbol
+        LibraryReportDataset.AssertElementWithValueExists(
+            'ColumnValuesAsText',
+            StrSubstNo(
+                '%1%2',
+                    LocalCurrencySymbol,
+                    Format(-Amount)));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSetPrintCurrSymbolRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSkipCurrencySymbolColumnFormula()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+        LocalCurrencySymbol: Text[10];
+        AccountNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 365423] Account Schedule report shows Currency Symbol for simple column formula does not show Currency Symbol for column formula and "Hide Currency Symbol" = Yes
+        Initialize();
+
+        // [GIVEN] GLSetup with local currency symbol '$' specified
+        LocalCurrencySymbol := UpdateGLSetupLocalCurrencySymbol();
+
+        // [GIVEN] Create G/L Account account "A" and post entry with amount 100
+        Amount := LibraryRandom.RandDec(100, 2);
+        AccountNo := CreateGLAccountWithNetChange(Amount);
+
+        // [GIVEN] Create account schedule line for account "A" 
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, AccountNo);
+        AccScheduleLine.Modify();
+
+        // [GIVEN] Create column "C1" with Net Change type
+        CreateColumnLayout(ColumnLayout);
+        ColumnLayout."Column No." := 'C1';
+        ColumnLayout.Modify();
+        // [GIVEN] Create column "C2" with formula C1 / 100 * 18 and "Hide Currency Symbol" = Yes
+        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayout."Column Layout Name");
+        ColumnLayout."Column Type" := "Column Layout Type"::Formula;
+        ColumnLayout."Column No." := 'C2';
+        ColumnLayout.Formula := 'C1 / 100 * 18';
+        ColumnLayout.Validate("Hide Currency Symbol", true);
+        ColumnLayout.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Currency Symbol" = yes
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue(false); // Use additionan currency amounts
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] The report prints "18" without currency symbol
+        LibraryReportDataset.AssertElementWithValueExists('ColumnValuesAsText', Format(Round(Amount * 0.18)));
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountScheduleSkipEmptyLinesShowEmptyAmountTypeRequestHandler')]
+    [Scope('OnPrem')]
+    procedure AccountScheduleReportSkipEmptyLinesYes_ShowEmptyAmountTypeZero()
+    var
+        AccScheduleName: Record "Acc. Schedule Name";
+        AccScheduleLine: Record "Acc. Schedule Line";
+        ColumnLayout: Record "Column Layout";
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 316070] Account Schedule report does not print line with zero balance when SkipEmptyLines = true and "Show Empty Amount Type" = Zero
+        Initialize();
+
+        // [GIVEN] Create account schedule line for account "A" wit zero balance
+        CreateColumnLayout(ColumnLayout);
+        LibraryERM.CreateAccScheduleName(AccScheduleName);
+        LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName.Name);
+        AccScheduleLine.Validate(Totaling, LibraryERM.CreateGLAccountNo());
+        AccScheduleLine.Modify();
+
+        // [WHEN] Run Account Schedule report with "Show Zero Amount Lines" = yes and "Show Empty Amount Type" = Zero
+        Commit();
+        AccScheduleName.SetRecFilter();
+        LibraryVariableStorage.Enqueue(AccScheduleName.Name);
+        LibraryVariableStorage.Enqueue(ColumnLayout."Column Layout Name");
+        LibraryVariableStorage.Enqueue("Show Empty Amount Type"::Zero);
+        RunAccountScheduleReportAndLoad(AccScheduleName);
+
+        // [THEN] LineSkipped = true for line 10000
+        LibraryReportDataset.MoveToRow(LibraryReportDataset.FindRow('Acc__Schedule_Line_Line_No', AccScheduleLine."Line No.") + 1);
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineSkipped', true);
     end;
 
     [Test]
@@ -1194,8 +1760,16 @@ codeunit 134994 "ERM Account Schedule II"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
+        LibrarySetupStorage.Restore();
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        Commit();
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
     local procedure CreateAccScheduleWithFourLines(var AccountScheduleName: Code[10]; var ColLayoutName: Code[10]; var LineDescription: array[4] of Text; ShowOption: Enum "Acc. Schedule Line Show")
@@ -1208,7 +1782,7 @@ codeunit 134994 "ERM Account Schedule II"
         i: Integer;
     begin
         GLAccountNo[1] := '';
-        GLAccountNo[2] := LibraryERM.CreateGLAccountNo;
+        GLAccountNo[2] := LibraryERM.CreateGLAccountNo();
         GLAccountNo[3] := CreateGLAccountWithNetChange(LibraryRandom.RandDecInRange(1000, 2000, 2));
         GLAccountNo[4] := CreateGLAccountWithNetChange(-LibraryRandom.RandDecInRange(1000, 2000, 2));
 
@@ -1253,20 +1827,28 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         LibraryERM.CreateAccScheduleLine(AccScheduleLine, AccScheduleName);
         with AccScheduleLine do begin
-            Validate("Row No.", LibraryUtility.GenerateGUID);
-            Validate(Description, LibraryUtility.GenerateGUID);
+            Validate("Row No.", LibraryUtility.GenerateGUID());
+            Validate(Description, LibraryUtility.GenerateGUID());
             Validate("Totaling Type", NewTotalingTypeValue);
             Validate(Totaling, NewTotalingValue);
             Modify(true);
         end;
     end;
 
+    local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout")
+    var
+        ColumnLayoutName: Record "Column Layout Name";
+    begin
+        LibraryERM.CreateColumnLayoutName(ColumnLayoutName);
+        LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName.Name);
+    end;
+
     local procedure CreateColumnLayoutLine(var ColumnLayout: Record "Column Layout"; ColumnLayoutName: Code[10]; NewColumnTypeValue: Enum "Column Layout Type"; NewFormulaValue: Code[80])
     begin
         LibraryERM.CreateColumnLayout(ColumnLayout, ColumnLayoutName);
         with ColumnLayout do begin
-            Validate("Column No.", LibraryUtility.GenerateGUID);
-            Validate("Column Header", LibraryUtility.GenerateGUID);
+            Validate("Column No.", LibraryUtility.GenerateGUID());
+            Validate("Column Header", LibraryUtility.GenerateGUID());
             Validate("Column Type", NewColumnTypeValue);
             Validate(Formula, NewFormulaValue);
             Modify(true);
@@ -1295,7 +1877,7 @@ codeunit 134994 "ERM Account Schedule II"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        GLAccountNo := LibraryERM.CreateGLAccountNo;
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
         with GenJournalLine do
             LibraryJournals.CreateGenJournalLineWithBatch(
               GenJournalLine, "Document Type"::" ", "Account Type"::"G/L Account", GLAccountNo, NetChange);
@@ -1328,7 +1910,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetColumnLayoutName(ColumnLayoutName);
         AccountSchedule.SetFilters(Format(WorkDate), '', '', '', '', '', '', '');
         Commit();
-        AccountSchedule.Run;
+        AccountSchedule.Run();
     end;
 
     local procedure RunAccountScheduleReportWithDims(ScheduleName: Code[10]; ColumnLayoutName: Code[10]; DimensionValue: array[4] of Record "Dimension Value")
@@ -1341,7 +1923,7 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetFilters(
           Format(WorkDate), '', '', '', DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code);
         Commit();
-        AccountSchedule.Run;
+        AccountSchedule.Run();
     end;
 
     local procedure RunAccountScheduleReportSaveAsExcel(ScheduleName: Code[10]; ColumnLayoutName: Code[10])
@@ -1376,7 +1958,7 @@ codeunit 134994 "ERM Account Schedule II"
         ExportAccSchedToExcel.SetOptions(AccScheduleLine, AccScheduleName."Default Column Layout", false);
         ExportAccSchedToExcel.SetTestMode(true);
         ExportAccSchedToExcel.UseRequestPage(false);
-        ExportAccSchedToExcel.Run;
+        ExportAccSchedToExcel.Run();
     end;
 
     [Scope('OnPrem')]
@@ -1388,6 +1970,33 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.SetAccSchedName(AccScheduleName.Name);
         AccountSchedule.SetFilters(Format(WorkDate), '', '', '', DimFilterValue[1], DimFilterValue[2], DimFilterValue[3], DimFilterValue[4]);
         AccountSchedule.SaveAsExcel(LibraryReportValidation.GetFileName);
+    end;
+
+    local procedure RunAccountScheduleReportAndLoad(AccScheduleName: Record "Acc. Schedule Name")
+    var
+        RequestPageXML: Text;
+    begin
+        RequestPageXML := REPORT.RunRequestPage(REPORT::"Account Schedule", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(REPORT::"Account Schedule", AccScheduleName, RequestPageXML);
+    end;
+
+    local procedure UpdateGLSetupAddReportingCurrency(CurrencyCode: Code[10])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Additional Reporting Currency" := CurrencyCode;
+        GeneralLedgerSetup.Modify();
+    end;
+
+    local procedure UpdateGLSetupLocalCurrencySymbol(): Text[10]
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Local Currency Symbol" := '$';
+        GeneralLedgerSetup.Modify();
+        exit(GeneralLedgerSetup."Local Currency Symbol");
     end;
 
     local procedure VerifyDimensionsAndValueInExcel(DimensionValue: array[4] of Record "Dimension Value")
@@ -1500,6 +2109,18 @@ codeunit 134994 "ERM Account Schedule II"
         exit(ColumnLayoutName.Name);
     end;
 
+    local procedure OpenAccountScheduleOverviewPage(Name: Code[10])
+    var
+        AccountScheduleNames: TestPage "Account Schedule Names";
+        AccountSchedulePage: TestPage "Account Schedule";
+    begin
+        AccountScheduleNames.OpenEdit;
+        AccountScheduleNames.FILTER.SetFilter(Name, Name);
+        AccountSchedulePage.Trap;
+        AccountScheduleNames.EditAccountSchedule.Invoke;
+        AccountSchedulePage.Overview.Invoke;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RHAccountSchedule(var AccountSchedule: TestRequestPage "Account Schedule")
@@ -1527,7 +2148,7 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         LibraryVariableStorage.Dequeue(DimensionFilter);
         DimensionValue.SetRange("Dimension Code", DimensionFilter);
-        DimensionValue.FindFirst;
+        DimensionValue.FindFirst();
         Assert.IsTrue(DimensionValueList.GotoRecord(DimensionValue), DimensionValueErr);
     end;
 
@@ -1593,6 +2214,61 @@ codeunit 134994 "ERM Account Schedule II"
     begin
         AccountSchedule.CurrentSchedName.AssertEquals(CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(AccScheduleName.Name)));
         AccountSchedule.Show.SetValue(AccScheduleLine.Show::No);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSetSkipEmptyLinesRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.AccSchedNam.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ColumnLayoutNames.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.SkipEmptyLines.SetValue(true);
+        LibraryVariableStorage.AssertEmpty();
+        AccountSchedule.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSkipEmptyLinesShowEmptyAmountTypeRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.AccSchedNam.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ColumnLayoutNames.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ShowEmptyAmountTypeCtrl.SetValue(LibraryVariableStorage.DequeueInteger());
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.SkipEmptyLines.SetValue(true);
+        LibraryVariableStorage.AssertEmpty();
+        AccountSchedule.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSetPrintCurrSymbolRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.AccSchedNam.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ColumnLayoutNames.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.UseAmtsInAddCurr.SetValue(LibraryVariableStorage.DequeueBoolean());
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.ShowCurrencySymbolCtrl.SetValue(true);
+        LibraryVariableStorage.AssertEmpty();
+        AccountSchedule.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure AccountScheduleSetPrintZeroAmountRequestHandler(var AccountSchedule: TestRequestPage "Account Schedule")
+    begin
+        AccountSchedule.AccSchedNam.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ColumnLayoutNames.SetValue(LibraryVariableStorage.DequeueText());
+        AccountSchedule.ShowEmptyAmountTypeCtrl.SetValue(LibraryVariableStorage.DequeueInteger());
+        AccountSchedule.StartDate.SetValue(WorkDate());
+        AccountSchedule.EndDate.SetValue(WorkDate());
+        AccountSchedule.ShowCurrencySymbolCtrl.SetValue(true);
+        LibraryVariableStorage.AssertEmpty();
+        AccountSchedule.OK().Invoke();
     end;
 
     [ConfirmHandler]

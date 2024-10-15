@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 page 311 "Intrastat Journal"
 {
     ApplicationArea = BasicEU;
@@ -66,6 +66,7 @@ page 311 "Intrastat Journal"
                     ApplicationArea = BasicEU;
                     StyleExpr = LineStyleExpression;
                     ToolTip = 'Specifies the name of the item.';
+                    Caption = 'Item Name';
                 }
                 field("Tariff No."; "Tariff No.")
                 {
@@ -75,12 +76,29 @@ page 311 "Intrastat Journal"
                 field("Item Description"; "Item Description")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a description of the item.';
+                    ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
+                    Caption = 'Tariff No. Description';
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country/region of the address.';
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                }
+                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
+                }
+                field("Area"; Area)
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -102,12 +120,6 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the code of either the port of entry where the items passed into your country/region or the port of exit.';
-                    Visible = false;
-                }
-                field("Area"; Area)
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Supplementary Units"; "Supplementary Units")
@@ -171,18 +183,6 @@ page 311 "Intrastat Journal"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the item''s shipment method.';
-                }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a code for the country/region where the item was produced or processed.';
-                    Visible = false;
-                }
-                field("Partner VAT ID"; "Partner VAT ID")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -273,14 +273,14 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;
                     end;
 
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }
@@ -299,7 +299,7 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Validate Codeunit ID", Rec);
                         CurrPage.Update();
@@ -342,7 +342,7 @@ page 311 "Intrastat Journal"
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                        (VATReportsConfiguration."Content Codeunit ID" <> 0)
                     then begin
@@ -508,17 +508,18 @@ page 311 "Intrastat Journal"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeUpdateErrors(IsHandled);
+        IsHandled := false;
+        OnBeforeUpdateErrors(IsHandled, Rec);
         if IsHandled then
             exit;
 
         CurrPage.ErrorMessagesPart.PAGE.SetRecordID(Rec.RecordId);
         CurrPage.ErrorMessagesPart.PAGE.GetStyleOfRecord(Rec, LineStyleExpression);
-        Rec.Mark(ErrorsExistOnCurrentLine);
+        Rec.Mark(ErrorsExistOnCurrentLine());
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeUpdateErrors(var IsHandled: boolean)
+    local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
 }

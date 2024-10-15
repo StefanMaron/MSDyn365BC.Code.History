@@ -64,7 +64,7 @@ table 31087 "Acc. Schedule Result Value"
         AccScheduleResultHistory.SetRange("Result Code", "Result Code");
         AccScheduleResultHistory.SetRange("Row No.", "Row No.");
         AccScheduleResultHistory.SetRange("Column No.", "Column No.");
-        if AccScheduleResultHistory.FindLast then;
+        if AccScheduleResultHistory.FindLast() then;
         VariantNo := AccScheduleResultHistory."Variant No." + 1;
 
         AccScheduleResultHistory.Init();

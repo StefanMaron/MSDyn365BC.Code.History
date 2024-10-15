@@ -1,4 +1,4 @@
-﻿#if CLEAN19
+#if CLEAN19
 page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -261,6 +261,23 @@ page 461 "Inventory Setup"
                     Visible = PackageVisible;
                 }
             }
+            group("Gen. Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = IsJournalTemplatesVisible;
+
+                field("Invt. Cost Jnl. Template Name";
+                Rec."Invt. Cost Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template to use for automatic and expected cost posting.';
+                }
+                field("Invt. Cost Jnl. Batch Name"; Rec."Invt. Cost Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch to use for automatic and expected cost posting.';
+                }
+            }
         }
         area(factboxes)
         {
@@ -281,6 +298,21 @@ page 461 "Inventory Setup"
     {
         area(navigation)
         {
+            action("Schedule Cost Adjustment and Posting")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Schedule Cost Adjustment and Posting';
+                Image = AdjustItemCost;
+                Promoted = true;
+                PromotedCategory = Category4;
+                PromotedIsBig = true;
+                Visible = AdjustCostWizardVisible;
+                ToolTip = 'Get help with creating job queue entries for item entry cost adjustments and posting costs to G/L tasks.';
+                trigger OnAction()
+                begin
+                    Page.RunModal(Page::"Cost Adj. Scheduling Wizard");
+                end;
+            }
             action("Inventory Periods")
             {
                 ApplicationArea = Basic, Suite;
@@ -380,14 +412,19 @@ page 461 "Inventory Setup"
         SetPackageVisibility();
         SetAdjustCostWizardActionVisibility();
 
+        GLSetup.Get();
+        IsJournalTemplatesVisible := GLSetup."Journal Templ. Name Mandatory";
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
         PackageMgt: Codeunit "Package Management";
         SchedulingManager: Codeunit "Cost Adj. Scheduling Manager";
         [InDataSet]
         PackageVisible: Boolean;
         AdjustCostWizardVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplatesVisible: Boolean;
 
     local procedure SetPackageVisibility()
     begin

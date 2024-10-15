@@ -184,7 +184,7 @@ codeunit 1530 "Request Page Parameters Helper"
 
         DynamicRequestPageEntity.SetRange(Name, EntityName);
         DynamicRequestPageEntity.SetRange("Table ID", TableID);
-        if DynamicRequestPageEntity.FindSet then
+        if DynamicRequestPageEntity.FindSet() then
             repeat
                 if not TableList.Contains(DynamicRequestPageEntity."Related Table ID") then
                     TableList.Add(DynamicRequestPageEntity."Related Table ID");
@@ -198,7 +198,7 @@ codeunit 1530 "Request Page Parameters Helper"
         DynamicRequestPageField: Record "Dynamic Request Page Field";
     begin
         DynamicRequestPageField.SetRange("Table ID", TableID);
-        if DynamicRequestPageField.FindSet then
+        if DynamicRequestPageField.FindSet() then
             repeat
                 FilterPageBuilder.AddFieldNo(Name, DynamicRequestPageField."Field ID");
             until DynamicRequestPageField.Next() = 0;

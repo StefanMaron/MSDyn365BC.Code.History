@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 123 "VAT Entries Preview"
 {
     Caption = 'VAT Entries Preview';
@@ -40,26 +41,6 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT entry''s posting date.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT entry''s VAT date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT entry''s Original Document VAT Date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -75,6 +56,9 @@ page 123 "VAT Entries Preview"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the external document number on the VAT entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Document Type"; "Document Type")
                 {
@@ -147,24 +131,36 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unrealized amount of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Unrealized Base"; "Unrealized Base")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unrealized base of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Remaining Unrealized Amount"; "Remaining Unrealized Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining unrealized amount of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Remaining Unrealized Base"; "Remaining Unrealized Base")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the remaining unrealized base of the VAT entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("VAT Calculation Type"; "VAT Calculation Type")
                 {
@@ -198,17 +194,6 @@ page 123 "VAT Entries Preview"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the entry was part of a 3-party intermediate role.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
@@ -248,26 +233,6 @@ page 123 "VAT Entries Preview"
                     ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("VAT Settlement No."; "VAT Settlement No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT settlement number of the VAT settlement that the entry is linked to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("VAT Control Report Line No."; "VAT Control Report Line No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT control report line number of the VAT control line that the entry is linked to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
         }
     }
@@ -278,11 +243,11 @@ page 123 "VAT Entries Preview"
 
     procedure Set(var TempVATEntry: Record "VAT Entry" temporary)
     begin
-        if TempVATEntry.FindSet then
+        if TempVATEntry.FindSet() then
             repeat
                 Rec := TempVATEntry;
                 Insert;
             until TempVATEntry.Next() = 0;
     end;
 }
-
+#endif

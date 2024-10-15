@@ -19,7 +19,7 @@ codeunit 145005 "Foreign Currencies"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     [Test]
@@ -45,7 +45,7 @@ codeunit 145005 "Foreign Currencies"
         DocumentNo: array[3] of Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         CurrExchRateDate[1] := WorkDate;
         CurrExchRateDate[2] := CalcDate('<1D>', CurrExchRateDate[1]);
@@ -85,7 +85,7 @@ codeunit 145005 "Foreign Currencies"
         DocumentNo: Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         CurrExchRateDate[1] := WorkDate;
         CurrExchRateDate[2] := CalcDate('<1D>', CurrExchRateDate[1]);
@@ -126,7 +126,7 @@ codeunit 145005 "Foreign Currencies"
         DocumentNo: Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         CurrExchRateDate[1] := WorkDate;
         CurrExchRateDate[2] := CalcDate('<1D>', CurrExchRateDate[1]);
@@ -144,12 +144,12 @@ codeunit 145005 "Foreign Currencies"
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Unrealized Loss");
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
 
         DetailedVendLedgEntry.Reset();
         DetailedVendLedgEntry.SetRange("Entry Type", DetailedVendLedgEntry."Entry Type"::"Unrealized Gain");
         DetailedVendLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 145005 "Foreign Currencies"
         OriginalAmountLCY: Decimal;
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         CurrExchRateDate[1] := WorkDate;
         CurrExchRateDate[2] := CalcDate('<1D>', CurrExchRateDate[1]);
@@ -200,13 +200,13 @@ codeunit 145005 "Foreign Currencies"
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Invoice);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         OriginalAmountLCY := DetailedCustLedgEntry."Amount (LCY)";
 
         DetailedCustLedgEntry.Reset();
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Unrealized Loss");
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreEqual(
           (1 / CurrExchRate.GetCurrentCurrencyFactor(CurrencyCode)) * Amount,
           OriginalAmountLCY + DetailedCustLedgEntry."Amount (LCY)", AmountErr);
@@ -322,7 +322,7 @@ codeunit 145005 "Foreign Currencies"
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
         AdjustExchangeRates.UseRequestPage(true);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
     end;
 
     [RequestPageHandler]

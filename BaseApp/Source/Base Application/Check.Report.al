@@ -1,4 +1,4 @@
-﻿report 1401 Check
+report 1401 Check
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Check.rdlc';
@@ -194,7 +194,6 @@
                                                     begin
                                                         CustUpdateAmounts(CustLedgEntry, RemainingAmount);
                                                         FoundLast := (CustLedgEntry.Next() = 0) or (RemainingAmount <= 0);
-                                                        AddedRemainingAmount := not (FoundLast and (RemainingAmount > 0));
                                                         if FoundLast and not FoundNegative then begin
                                                             CustLedgEntry.SetRange(Positive, false);
                                                             FoundLast := not CustLedgEntry.Find('-');
@@ -205,7 +204,6 @@
                                                     begin
                                                         VendUpdateAmounts(VendLedgEntry, RemainingAmount);
                                                         FoundLast := (VendLedgEntry.Next() = 0) or (RemainingAmount <= 0);
-                                                        AddedRemainingAmount := not (FoundLast and (RemainingAmount > 0));
                                                         if FoundLast and not FoundNegative then begin
                                                             VendLedgEntry.SetRange(Positive, false);
                                                             FoundLast := not VendLedgEntry.Find('-');
@@ -287,7 +285,7 @@
                                                                 EmployeeLedgerEntry.SetRange("Document No.", GenJnlLine2."Applies-to Doc. No.");
                                                                 EmployeeLedgerEntry.SetRange("Employee No.", BalancingNo);
                                                             end;
-                                                            EmployeeLedgerEntry.FindFirst;
+                                                            EmployeeLedgerEntry.FindFirst();
                                                             EmployeeUpdateAmounts(EmployeeLedgerEntry, CurrentLineAmount);
                                                             LineAmount := CurrentLineAmount;
                                                         end;
@@ -805,11 +803,7 @@
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Account';
-#if CLEAN17
                         TableRelation = "Bank Account";
-#else
-                        TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
                         ToolTip = 'Specifies the bank account that the printed checks will be drawn from.';
 
                         trigger OnValidate()
@@ -1337,7 +1331,7 @@
         CustLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         CustLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         CustLedgEntry1.SetRange("Customer No.", BalancingNo);
-        CustLedgEntry1.FindFirst;
+        CustLedgEntry1.FindFirst();
         CustUpdateAmounts(CustLedgEntry1, RemainingAmount);
     end;
 
@@ -1348,7 +1342,7 @@
         VendLedgEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         VendLedgEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         VendLedgEntry1.SetRange("Vendor No.", BalancingNo);
-        VendLedgEntry1.FindFirst;
+        VendLedgEntry1.FindFirst();
         VendUpdateAmounts(VendLedgEntry1, RemainingAmount);
     end;
 
@@ -1359,7 +1353,7 @@
         EmployeeLedgerEntry1.SetRange("Document Type", GenJnlLine."Applies-to Doc. Type");
         EmployeeLedgerEntry1.SetRange("Document No.", GenJnlLine."Applies-to Doc. No.");
         EmployeeLedgerEntry1.SetRange("Employee No.", BalancingNo);
-        EmployeeLedgerEntry1.FindFirst;
+        EmployeeLedgerEntry1.FindFirst();
         EmployeeUpdateAmounts(EmployeeLedgerEntry1, RemainingAmount);
     end;
 

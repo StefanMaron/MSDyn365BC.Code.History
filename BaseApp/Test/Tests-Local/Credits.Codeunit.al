@@ -17,7 +17,7 @@ codeunit 145000 Credits
     local procedure Initialize()
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -51,7 +51,7 @@ codeunit 145000 Credits
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         CreateCreditHeader(CreditHeader);
 
@@ -121,7 +121,7 @@ codeunit 145000 Credits
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         CreateCreditHeader(CreditHeader);
 
@@ -172,7 +172,7 @@ codeunit 145000 Credits
         Amount: array[2] of Decimal;
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         CreateCreditHeader(CreditHeader);
 
@@ -214,7 +214,7 @@ codeunit 145000 Credits
         SalesLine: Record "Sales Line";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // create first credit document
         CreateCreditHeader(CreditHeader1);
@@ -352,11 +352,11 @@ codeunit 145000 Credits
     begin
         CreditsSetup.Get();
         CreditsSetup."Credit Nos." := LibraryERM.CreateNoSeriesCode;
-        CreditsSetup."Credit Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        CreditsSetup."Credit Bal. Account No." := LibraryERM.CreateGLAccountNo();
         CreditsSetup."Credit Proposal By" := CreditsSetup."Credit Proposal By"::"Registration No.";
         CreditsSetup."Max. Rounding Amount" := 1;
-        CreditsSetup."Debit Rounding Account" := LibraryERM.CreateGLAccountNo;
-        CreditsSetup."Credit Rounding Account" := LibraryERM.CreateGLAccountNo;
+        CreditsSetup."Debit Rounding Account" := LibraryERM.CreateGLAccountNo();
+        CreditsSetup."Credit Rounding Account" := LibraryERM.CreateGLAccountNo();
         CreditsSetup.Modify();
     end;
 

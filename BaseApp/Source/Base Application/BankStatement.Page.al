@@ -304,7 +304,7 @@ page 11706 "Bank Statement"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         IssuedBankStatementHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if IssuedBankStatementHeader.FindFirst then
+        if IssuedBankStatementHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(OpenIssuedBankStmtQst, InstructionMgt.ShowIssuedConfirmationMessageCode) then
                 PAGE.Run(PAGE::"Issued Bank Statement", IssuedBankStatementHeader);
     end;
@@ -325,7 +325,7 @@ page 11706 "Bank Statement"
         BankStmtHdr.Get("No.");
         BankStmtHdr.SetRecFilter;
         CopyPaymentOrder.SetBankStmtHdr(BankStmtHdr);
-        CopyPaymentOrder.RunModal;
+        CopyPaymentOrder.RunModal();
         CurrPage.Update(false);
     end;
 

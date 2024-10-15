@@ -30,6 +30,7 @@ codeunit 442 "Sales-Post Prepayments"
         SpecifyCrNoSerieTok: Label 'Specify the code for the number series that will be used to assign numbers to posted sales prepayment credit memos.';
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
         TempSalesLine: Record "Sales Line" temporary;
+        GenJournalTemplate: Record "Gen. Journal Template";
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Text011: Label '%1 %2 -> Credit Memo %3';
@@ -94,13 +95,14 @@ codeunit 442 "Sales-Post Prepayments"
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempSalesLines: Record "Sales Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
         SrcCode: Code[10];
         PostingNoSeriesCode: Code[20];
         ModifyHeader: Boolean;
+        IsHandled: Boolean;
+        ShouldSetPendingPrepaymentStatus: Boolean;
         CalcPmtDiscOnCrMemos: Boolean;
         PostingDescription: Text[100];
         GenJnlLineDocType: Enum "Gen. Journal Document Type";
@@ -175,34 +177,18 @@ codeunit 442 "Sales-Post Prepayments"
 
             // Create Lines
             TempPrepmtInvLineBuffer.DeleteAll();
-            CalcVATAmountLines(SalesHeader, SalesLine, TempVATAmountLine, DocumentType);
-            TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
-            UpdateVATOnLines(SalesHeader, SalesLine, TempVATAmountLine, DocumentType);
-            BuildInvLineBuffer(SalesHeader, SalesLine, DocumentType, TempPrepmtInvLineBuffer, true);
-            TempPrepmtInvLineBuffer.Find('-');
-            repeat
-                LineCount := LineCount + 1;
-                Window.Update(2, LineCount);
-                if TempPrepmtInvLineBuffer."Line No." <> 0 then
-                    LineNo := PrevLineNo + TempPrepmtInvLineBuffer."Line No."
-                else
-                    LineNo := PrevLineNo + 10000;
-                case DocumentType of
-                    DocumentType::Invoice:
-                        begin
-                            InsertSalesInvLine(SalesInvHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
-                            PostedDocTabNo := DATABASE::"Sales Invoice Line";
-                        end;
-                    DocumentType::"Credit Memo":
-                        begin
-                            InsertSalesCrMemoLine(SalesCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
-                            PostedDocTabNo := DATABASE::"Sales Cr.Memo Line";
-                        end;
-                end;
-                PrevLineNo := LineNo;
-                InsertExtendedText(
-                  PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
-            until TempPrepmtInvLineBuffer.Next() = 0;
+
+            IsHandled := false;
+            OnCodeOnBeforeCalcAndUpdateVATAmountLines(SalesHeader, SalesLine, TempPrepmtInvLineBuffer, DocumentType, IsHandled);
+            if not IsHandled then begin
+                CalcVATAmountLines(SalesHeader, SalesLine, TempVATAmountLine, DocumentType);
+                TempVATAmountLine.DeductVATAmountLine(TempVATAmountLineDeduct);
+                UpdateVATOnLines(SalesHeader, SalesLine, TempVATAmountLine, DocumentType);
+                BuildInvLineBuffer(SalesHeader, SalesLine, DocumentType, TempPrepmtInvLineBuffer, true);
+            end;
+            OnCodeOnAfterBuildInvLineBuffer(TempVATAmountLine, TempPrepmtInvLineBuffer);
+
+            CreateLinesFromBuffer(SalesHeader, SalesLine, TempPrepmtInvLineBuffer, SalesInvHeader, SalesCrMemoHeader, PrevLineNo, LineCount, PostedDocTabNo, LineNo, DocumentType, Window, GenJnlLineDocNo);
 
             if "Compress Prepayment" then
                 case DocumentType of
@@ -252,13 +238,7 @@ codeunit 442 "Sales-Post Prepayments"
 
             UpdatePostedSalesDocument(DocumentType, GenJnlLineDocNo);
 
-            CustLedgEntry.FindLast();
-            CustLedgEntry.CalcFields(Amount);
-            If SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-                SalesLine.CalcSums("Amount Including VAT");
-                PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
-                    SalesLine."Amount Including VAT", CustLedgEntry.Amount, SalesHeader."Currency Code", SalesSetup."Invoice Rounding");
-            end;
+            SalesAssertPrepmtAmountNotMoreThanDocAmount(CustLedgEntry, SalesHeader, SalesLine);
 
             // Balancing account
             if "Bal. Account No." <> '' then begin
@@ -270,7 +250,9 @@ codeunit 442 "Sales-Post Prepayments"
 
             // Update lines & header
             UpdateSalesDocument(SalesHeader, SalesLine, DocumentType, GenJnlLineDocNo);
-            if TestStatusIsNotPendingPrepayment then
+            ShouldSetPendingPrepaymentStatus := TestStatusIsNotPendingPrepayment;
+            OnCodeOnAfterCalcShouldSetPendingPrepaymentStatus(SalesHeader, SalesInvHeader, SalesCrMemoHeader, DocumentType, PreviewMode, ShouldSetPendingPrepaymentStatus);
+            if ShouldSetPendingPrepaymentStatus then
                 Status := Status::"Pending Prepayment";
             Modify;
         end;
@@ -286,6 +268,58 @@ codeunit 442 "Sales-Post Prepayments"
         SalesHeader2 := SalesHeader;
 
         OnAfterPostPrepayments(SalesHeader2, DocumentType, SuppressCommit, SalesInvHeader, SalesCrMemoHeader);
+    end;
+
+    local procedure CreateLinesFromBuffer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PrevLineNo: Integer; var LineCount: Integer; var PostedDocTabNo: Integer; var LineNo: Integer; DocumentType: Option Invoice,"Credit Memo"; var Window: Dialog; GenJnlLineDocNo: Code[20])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateLinesFromBuffer(SalesHeader, SalesLine, TempPrepmtInvLineBuffer, LineCount, SalesInvHeader, SalesCrMemoHeader, PostedDocTabNo, DocumentType, LineNo, GenJnlLineDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesHeader do begin
+            TempPrepmtInvLineBuffer.Find('-');
+            repeat
+                LineCount := LineCount + 1;
+                Window.Update(2, LineCount);
+                LineNo := PrevLineNo + 10000;
+                case DocumentType of
+                    DocumentType::Invoice:
+                        begin
+                            InsertSalesInvLine(SalesInvHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
+                            PostedDocTabNo := DATABASE::"Sales Invoice Line";
+                        end;
+                    DocumentType::"Credit Memo":
+                        begin
+                            InsertSalesCrMemoLine(SalesCrMemoHeader, LineNo, TempPrepmtInvLineBuffer, SalesHeader);
+                            PostedDocTabNo := DATABASE::"Sales Cr.Memo Line";
+                        end;
+                end;
+                PrevLineNo := LineNo;
+                InsertExtendedText(PostedDocTabNo, GenJnlLineDocNo, TempPrepmtInvLineBuffer."G/L Account No.", "Document Date", "Language Code", PrevLineNo);
+            until TempPrepmtInvLineBuffer.Next() = 0;
+        end;
+    end;
+
+    local procedure SalesAssertPrepmtAmountNotMoreThanDocAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSalesAssertPrepmtAmountNotMoreThanDocAmount(CustLedgEntry, SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        CustLedgEntry.FindLast();
+        CustLedgEntry.CalcFields(Amount);
+        If SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            SalesLine.CalcSums("Amount Including VAT");
+            PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
+                SalesLine."Amount Including VAT", CustLedgEntry.Amount, SalesHeader."Currency Code", SalesSetup."Invoice Rounding");
+        end;
     end;
 
     procedure CheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
@@ -304,8 +338,11 @@ codeunit 442 "Sales-Post Prepayments"
             TestField("Bill-to Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
+            GLSetup.GetRecordOnce();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                TestField("Journal Templ. Name");
             ErrorMessageMgt.PushContext(ErrorContextElement, SalesHeader.RecordId, 0, '');
-            if GenJnlCheckLine.IsDateNotAllowed("Posting Date", SetupRecID) then
+            if GenJnlCheckLine.DateNotAllowed("Posting Date", "Journal Templ. Name") then
                 ErrorMessageMgt.LogContextFieldError(
                   FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
@@ -315,7 +352,7 @@ codeunit 442 "Sales-Post Prepayments"
                 Error(Text001);
 
             CheckDimensions.CheckSalesPrepmtDim(SalesHeader);
-            ErrorMessageMgt.Finish(SalesHeader.RecordId);
+            ErrorMessageMgt.Finish(RecordId);
             CheckSalesPostRestrictions();
             Cust.Get("Sell-to Customer No.");
             Cust.CheckBlockedCustOnDocs(Cust, "Sales Document Type".FromInteger(PrepmtDocTypeToDocType(DocumentType)), false, true);
@@ -329,9 +366,6 @@ codeunit 442 "Sales-Post Prepayments"
 
     local procedure UpdateDocNos(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean)
     var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        ErrorContextElement: Codeunit "Error Context Element";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -347,22 +381,9 @@ codeunit 442 "Sales-Post Prepayments"
                         TestField("Prepayment Due Date");
                         TestField("Prepmt. Cr. Memo No.", '');
                         if "Prepayment No." = '' then
-                            if not PreviewMode then begin
-                                if "Prepayment No. Series" = '' then begin
-                                    SalesReceivablesSetup.Get();
-                                    ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
-                                    if SalesReceivablesSetup."Posted Prepmt. Inv. Nos." = '' then
-                                        ErrorMessageMgt.LogContextFieldError(
-                                                     SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), SpecifyInvNoSerieTok,
-                                                     SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), '');
-                                    ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
-                                    "Prepayment No. Series" := SalesReceivablesSetup."Posted Prepmt. Inv. Nos.";
-                                    ModifyHeader := true;
-                                end;
-                                TestField("Prepayment No. Series");
-                                "Prepayment No." := NoSeriesMgt.GetNextNo("Prepayment No. Series", "Posting Date", true);
-                                ModifyHeader := true;
-                            end else
+                            if not PreviewMode then
+                                UpdateInvoiceDocNos(SalesHeader, ModifyHeader)
+                            else
                                 "Prepayment No." := '***';
                         DocNo := "Prepayment No.";
                         NoSeriesCode := "Prepayment No. Series";
@@ -371,24 +392,9 @@ codeunit 442 "Sales-Post Prepayments"
                     begin
                         TestField("Prepayment No.", '');
                         if "Prepmt. Cr. Memo No." = '' then
-                            if not PreviewMode then begin
-                                if "Prepmt. Cr. Memo No. Series" = '' then begin
-                                    SalesReceivablesSetup.Get();
-                                    ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
-                                    if SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos." = '' then
-                                        ErrorMessageMgt.LogContextFieldError(
-                                                     SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
-                                                     SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
-                                    ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
-                                    "Prepayment No. Series" := SalesReceivablesSetup."Posted Credit Memo Nos.";
-                                    SalesReceivablesSetup.testfield("Posted Prepmt. Cr. Memo Nos.");
-                                    "Prepmt. Cr. Memo No. Series" := SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.";
-                                    ModifyHeader := true;
-                                end;
-                                TestField("Prepmt. Cr. Memo No. Series");
-                                "Prepmt. Cr. Memo No." := NoSeriesMgt.GetNextNo("Prepmt. Cr. Memo No. Series", "Posting Date", true);
-                                ModifyHeader := true;
-                            end else
+                            if not PreviewMode then
+                                UpdateCrMemoDocNos(SalesHeader, ModifyHeader)
+                            else
                                 "Prepmt. Cr. Memo No." := '***';
                         DocNo := "Prepmt. Cr. Memo No.";
                         NoSeriesCode := "Prepmt. Cr. Memo No. Series";
@@ -396,10 +402,84 @@ codeunit 442 "Sales-Post Prepayments"
             end;
     end;
 
+    local procedure UpdateInvoiceDocNos(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            SalesReceivablesSetup.GetRecordOnce();
+            SalesReceivablesSetup.TestField("S. Prep. Inv. Template Name");
+            GenJournalTemplate.Get(SalesReceivablesSetup."S. Prep. Inv. Template Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            SalesHeader."Prepayment No." :=
+                NoSeriesMgt.GetNextNo(GenJournalTemplate."Posting No. Series", SalesHeader."Posting Date", true);
+            ModifyHeader := true;
+        end else begin
+            if SalesHeader."Prepayment No. Series" = '' then begin
+                SalesReceivablesSetup.Get();
+                ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
+                if SalesReceivablesSetup."Posted Prepmt. Inv. Nos." = '' then
+                    ErrorMessageMgt.LogContextFieldError(
+                        SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), SpecifyInvNoSerieTok,
+                        SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), '');
+                ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
+                SalesHeader."Prepayment No. Series" := SalesReceivablesSetup."Posted Prepmt. Inv. Nos.";
+                ModifyHeader := true;
+            end;
+            SalesHeader.TestField("Prepayment No. Series");
+            SalesHeader."Prepayment No." :=
+                NoSeriesMgt.GetNextNo(SalesHeader."Prepayment No. Series", SalesHeader."Posting Date", true);
+            ModifyHeader := true;
+        end;
+    end;
+
+    local procedure UpdateCrMemoDocNos(var SalesHeader: Record "Sales Header"; var ModifyHeader: Boolean)
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            SalesReceivablesSetup.GetRecordOnce();
+            SalesReceivablesSetup.TestField("S. Prep. Cr.Memo Template Name");
+            GenJournalTemplate.Get(SalesReceivablesSetup."S. Prep. Cr.Memo Template Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            SalesHeader."Prepmt. Cr. Memo No." :=
+                NoSeriesMgt.GetNextNo(GenJournalTemplate."Posting No. Series", SalesHeader."Posting Date", true);
+            ModifyHeader := true;
+        end else begin
+            if SalesHeader."Prepmt. Cr. Memo No. Series" = '' then begin
+                SalesReceivablesSetup.Get();
+                ErrorMessageMgt.PushContext(ErrorContextElement, SalesReceivablesSetup.RecordId, 0, '');
+                if SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos." = '' then
+                    ErrorMessageMgt.LogContextFieldError(
+                        SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
+                        SalesReceivablesSetup.RecordId, SalesReceivablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
+                ErrorMessageMgt.Finish(SalesReceivablesSetup.RecordId);
+                SalesHeader."Prepayment No. Series" := SalesReceivablesSetup."Posted Credit Memo Nos.";
+                SalesReceivablesSetup.Testfield("Posted Prepmt. Cr. Memo Nos.");
+                SalesHeader."Prepmt. Cr. Memo No. Series" := SalesReceivablesSetup."Posted Prepmt. Cr. Memo Nos.";
+                ModifyHeader := true;
+            end;
+            SalesHeader.TestField("Prepmt. Cr. Memo No. Series");
+            SalesHeader."Prepmt. Cr. Memo No." :=
+                NoSeriesMgt.GetNextNo(SalesHeader."Prepmt. Cr. Memo No. Series", SalesHeader."Posting Date", true);
+            ModifyHeader := true;
+        end;
+    end;
+
     procedure CheckOpenPrepaymentLines(SalesHeader: Record "Sales Header"; DocumentType: Option) Found: Boolean
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckOpenPrepaymentLines(SalesHeader, DocumentType, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
         with SalesLine do begin
             ApplyFilter(SalesHeader, DocumentType, SalesLine);
             if Find('-') then
@@ -433,6 +513,10 @@ codeunit 442 "Sales-Post Prepayments"
                 "VAT Amount" := "Amount Incl. VAT" - Amount;
                 if "VAT Base Amount" <> 0 then
                     "VAT Base Amount" := Amount;
+                "Orig. Pmt. Disc. Possible" :=
+                  AmountToLCY(
+                    SalesHeader,
+                    TotalPrepmtInvLineBuf."Orig. Pmt. Disc. Possible", TotalPrepmtInvLineBufLCY."Orig. Pmt. Disc. Possible");
             end;
 
         OnRoundAmountsOnBeforeIncrAmounts(SalesHeader, PrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
@@ -489,6 +573,7 @@ codeunit 442 "Sales-Post Prepayments"
                 then
                     TempPrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
         end;
+        ErrorMessageMgt.FinishTopContext();
 
         OnAfterBuildInvLineBuffer(TempPrepmtInvLineBuf);
     end;
@@ -536,7 +621,7 @@ codeunit 442 "Sales-Post Prepayments"
                 Ratio[VAT] := 0
             else
                 Ratio[VAT] := PrepmtInvBufAmount[VAT] / TotalAmount[VAT];
-        if TempGlobalPrepmtInvLineBuf.FindSet then
+        if TempGlobalPrepmtInvLineBuf.FindSet() then
             repeat
                 TempGlobalPrepmtInvLineBuf.AmountsToArray(LineAmount);
                 PrepmtAmountRnded[VAT::Base] :=
@@ -675,6 +760,7 @@ codeunit 442 "Sales-Post Prepayments"
             "VAT Amount" := SalesLine."Prepmt. Amt. Incl. VAT" - SalesLine."Prepayment Amount";
             "VAT Amount (ACY)" := SalesLine."Prepmt. Amt. Incl. VAT" - SalesLine."Prepayment Amount";
             "VAT Base Before Pmt. Disc." := -SalesLine."Prepayment Amount";
+            "Orig. Pmt. Disc. Possible" := SalesLine."Prepmt. Pmt. Discount Amount";
         end;
 
         OnAfterFillInvLineBuffer(PrepmtInvLineBuf, SalesLine);
@@ -691,6 +777,7 @@ codeunit 442 "Sales-Post Prepayments"
                 "Line No." := PrevLineNo + 10000;
                 "Invoice Rounding" := true;
                 "G/L Account No." := SalesLine."No.";
+                Description := SalesLine.Description;
 
                 CopyFromSalesLine(SalesLine);
                 "Gen. Bus. Posting Group" := SalesHeader."Gen. Bus. Posting Group";
@@ -830,6 +917,7 @@ codeunit 442 "Sales-Post Prepayments"
                             SalesInvLine."Document No." := DocNo;
                             SalesInvLine."Line No." := NextLineNo;
                             SalesInvLine.Description := TempExtTextLine.Text;
+                            OnInsertExtendedTextOnBeforeSalesInvLineInsert(SalesInvLine, TabNo, DocNo, NextLineNo, TempExtTextLine);
                             SalesInvLine.Insert();
                         end;
                     DATABASE::"Sales Cr.Memo Line":
@@ -838,6 +926,7 @@ codeunit 442 "Sales-Post Prepayments"
                             SalesCrMemoLine."Document No." := DocNo;
                             SalesCrMemoLine."Line No." := NextLineNo;
                             SalesCrMemoLine.Description := TempExtTextLine.Text;
+                            OnInsertExtendedTextOnBeforeSalesCrMemoLineInsert(SalesCrMemoLine, TabNo, DocNo, NextLineNo, TempExtTextLine);
                             SalesCrMemoLine.Insert();
                         end;
                 end;
@@ -855,6 +944,7 @@ codeunit 442 "Sales-Post Prepayments"
         NewAmount: Decimal;
         NewAmountIncludingVAT: Decimal;
         NewVATBaseAmount: Decimal;
+        NewPmtDiscAmount: Decimal;
         VATAmount: Decimal;
         VATDifference: Decimal;
         PrepmtAmtToInvTotal: Decimal;
@@ -867,7 +957,7 @@ codeunit 442 "Sales-Post Prepayments"
             LockTable();
             CalcSums("Prepmt. Line Amount", "Prepmt. Amt. Inv.");
             PrepmtAmtToInvTotal := "Prepmt. Line Amount" - "Prepmt. Amt. Inv.";
-            if FindSet then
+            if FindSet() then
                 repeat
                     PrepmtAmt := PrepmtAmount(SalesLine, DocumentType);
                     if PrepmtAmt <> 0 then begin
@@ -932,7 +1022,7 @@ codeunit 442 "Sales-Post Prepayments"
 
                             if (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") = 0 then
                                 VATDifference := 0
-                            else
+                            else begin
                                 if PrepmtAmtToInvTotal = 0 then
                                     VATDifference :=
                                       VATAmountLine."VAT Difference" * ("Prepmt. Line Amount" - "Prepmt. Amt. Inv.") /
@@ -941,8 +1031,13 @@ codeunit 442 "Sales-Post Prepayments"
                                     VATDifference :=
                                       VATAmountLine."VAT Difference" * ("Prepmt. Line Amount" - "Prepmt. Amt. Inv.") /
                                       PrepmtAmtToInvTotal;
+                                NewPmtDiscAmount :=
+                                  TempVATAmountLineRemainder."Pmt. Discount Amount" +
+                                  NewAmount * SalesHeader."Payment Discount %" / 100;
+                            end;
 
                             "Prepayment VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                            "Prepmt. Pmt. Discount Amount" := Round(NewPmtDiscAmount, Currency."Amount Rounding Precision");
                             OnUpdateVATOnLinesOnBeforeSalesLineModify(SalesHeader, SalesLine, TempVATAmountLineRemainder, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
                             Modify;
 
@@ -950,6 +1045,7 @@ codeunit 442 "Sales-Post Prepayments"
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "Prepayment VAT Difference";
+                            TempVATAmountLineRemainder."Pmt. Discount Amount" := NewPmtDiscAmount - Round(NewPmtDiscAmount);
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
@@ -1003,7 +1099,7 @@ codeunit 442 "Sales-Post Prepayments"
           NewAmount, Currency, SalesHeader."Currency Factor", SalesHeader."Prices Including VAT",
           SalesHeader."VAT Base Discount %", SalesHeader."Tax Area Code", SalesHeader."Tax Liable", SalesHeader."Posting Date");
 
-        OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, DocumentType);
+        OnAfterCalcVATAmountLines(SalesHeader, SalesLine, VATAmountLine, DocumentType, Currency);
     end;
 
     procedure SumPrepmt(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; var TotalAmount: Decimal; var TotalVATAmount: Decimal; var VATAmountText: Text[30])
@@ -1056,7 +1152,7 @@ codeunit 442 "Sales-Post Prepayments"
                 UpdateVATOnLines(SalesHeader, ToSalesLine, TempVATAmountLine, 2);
                 ToSalesLine.CalcSums("Prepmt. Amt. Incl. VAT");
                 TotalAmt := ToSalesLine."Prepmt. Amt. Incl. VAT";
-                ToSalesLine.FindLast;
+                ToSalesLine.FindLast();
                 if InitInvoiceRoundingLine(SalesHeader, TotalAmt, InvRoundingSalesLine) then
                     with ToSalesLine do begin
                         NextLineNo := "Line No." + 1;
@@ -1127,6 +1223,9 @@ codeunit 442 "Sales-Post Prepayments"
             Correction :=
               (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
 
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
+
             OnBeforePostPrepmtInvLineBuffer(GenJnlLine, PrepmtInvLineBuffer, SuppressCommit);
             RunGenJnlPostLine(GenJnlLine);
             OnAfterPostPrepmtInvLineBuffer(GenJnlLine, PrepmtInvLineBuffer, SuppressCommit, GenJnlPostLine);
@@ -1155,7 +1254,12 @@ codeunit 442 "Sales-Post Prepayments"
 
             Correction := (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
 
-            OnBeforePostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
+            "Orig. Pmt. Disc. Possible" := -TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
+            "Orig. Pmt. Disc. Possible(LCY)" := -TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
+
+            OnBeforePostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader, DocumentType);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
 
             OnAfterPostCustomerEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
@@ -1197,14 +1301,22 @@ codeunit 442 "Sales-Post Prepayments"
             "Applies-to Doc. Type" := DocType;
             "Applies-to Doc. No." := DocNo;
 
-            OnBeforePostBalancingEntry(GenJnlLine, CustLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
+            "Orig. Pmt. Disc. Possible" := TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
+            "Orig. Pmt. Disc. Possible(LCY)" := TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
+#if not CLEAN20
+            OnBeforePostBalancingEntry(GenJnlLine, CustLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader, DocumentType);
+#endif
+            OnPostBalancingEntryOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, CustLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader, DocType);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
-            OnAfterPostBalancingEntry(GenJnlLine, CustLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
+            OnAfterPostBalancingEntry(GenJnlLine, CustLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit, SalesHeader);
         end;
     end;
 
     local procedure RunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
+        OnBeforeRunGenJnlPostLine(GenJnlLine);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
@@ -1258,21 +1370,17 @@ codeunit 442 "Sales-Post Prepayments"
     var
         SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
-        TableID[1] := DATABASE::"G/L Account";
-        No[1] := SalesLine."No.";
-        TableID[2] := DATABASE::Job;
-        No[2] := SalesLine."Job No.";
-        TableID[3] := DATABASE::"Responsibility Center";
-        No[3] := SalesLine."Responsibility Center";
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SalesLine."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, SalesLine."Job No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SalesLine."Responsibility Center");
         SalesLine."Shortcut Dimension 1 Code" := '';
         SalesLine."Shortcut Dimension 2 Code" := '';
         SalesLine."Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            SalesLine, 0, TableID, No, SourceCodeSetup.Sales,
+            SalesLine, 0, DefaultDimSource, SourceCodeSetup.Sales,
             SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code", SalesLine."Dimension Set ID", DATABASE::Customer);
     end;
 
@@ -1292,7 +1400,7 @@ codeunit 442 "Sales-Post Prepayments"
         SalesLine: Record "Sales Line";
     begin
         ApplyFilter(SalesHeader, 1, SalesLine);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if (PrepmtAmount(SalesLine, 0) <> 0) and (PrepmtAmount(SalesLine, 1) <> 0) then begin
                     SalesLines := SalesLine;
@@ -1316,6 +1424,7 @@ codeunit 442 "Sales-Post Prepayments"
 
     local procedure UpdateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocNo: Code[20])
     begin
+        OnBeforeUpdateSalesDocument(SalesHeader, SalesLine, DocumentType, GenJnlLineDocNo);
         with SalesHeader do begin
             SalesLine.Reset();
             SalesLine.SetRange("Document Type", "Document Type");
@@ -1366,13 +1475,19 @@ codeunit 442 "Sales-Post Prepayments"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePostedSalesDocument(CustLedgerEntry, SalesInvoiceHeader, SalesCrMemoHeader, DocumentType, IsHandled, DocumentNo);
+        if IsHandled then
+            exit;
+
         case DocumentType of
             DocumentType::Invoice:
                 begin
                     CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                     CustLedgerEntry.SetRange("Document No.", DocumentNo);
-                    CustLedgerEntry.FindFirst;
+                    CustLedgerEntry.FindFirst();
                     SalesInvoiceHeader.Get(DocumentNo);
                     SalesInvoiceHeader."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
                     SalesInvoiceHeader.Modify();
@@ -1381,7 +1496,7 @@ codeunit 442 "Sales-Post Prepayments"
                 begin
                     CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
                     CustLedgerEntry.SetRange("Document No.", DocumentNo);
-                    CustLedgerEntry.FindFirst;
+                    CustLedgerEntry.FindFirst();
                     SalesCrMemoHeader.Get(DocumentNo);
                     SalesCrMemoHeader."Cust. Ledger Entry No." := CustLedgerEntry."Entry No.";
                     SalesCrMemoHeader.Modify();
@@ -1409,7 +1524,7 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvHeader."Prepayment Invoice" := true;
             SalesInvHeader."Prepayment Order No." := "No.";
             SalesInvHeader."No. Series" := PostingNoSeriesCode;
-            OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
+            OnBeforeSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit, GenJnlLineDocNo);
             SalesInvHeader.Insert();
             CopyHeaderCommentLines("No.", DATABASE::"Sales Invoice Header", GenJnlLineDocNo);
             OnAfterSalesInvHeaderInsert(SalesInvHeader, SalesHeader, SuppressCommit);
@@ -1452,6 +1567,7 @@ codeunit 442 "Sales-Post Prepayments"
             SalesInvLine."VAT Calculation Type" := "VAT Calculation Type";
             SalesInvLine."VAT Base Amount" := "VAT Base Amount";
             SalesInvLine."VAT Identifier" := "VAT Identifier";
+            SalesInvLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
             OnBeforeSalesInvLineInsert(SalesInvLine, SalesInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesInvLine.Insert();
             if not SalesHeader."Compress Prepayment" then
@@ -1527,6 +1643,7 @@ codeunit 442 "Sales-Post Prepayments"
             SalesCrMemoLine."VAT Calculation Type" := "VAT Calculation Type";
             SalesCrMemoLine."VAT Base Amount" := "VAT Base Amount";
             SalesCrMemoLine."VAT Identifier" := "VAT Identifier";
+            SalesCrMemoLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
             OnBeforeSalesCrMemoLineInsert(SalesCrMemoLine, SalesCrMemoHeader, PrepmtInvLineBuffer, SuppressCommit);
             SalesCrMemoLine.Insert();
             if not SalesHeader."Compress Prepayment" then
@@ -1593,7 +1710,7 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic)
+    local procedure OnAfterCalcVATAmountLines(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; DocumentType: Option Invoice,"Credit Memo",Statistic; Currency: Record Currency)
     begin
     end;
 
@@ -1628,7 +1745,7 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -1683,6 +1800,16 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckOpenPrepaymentLines(SalesHeader: Record "Sales Header"; DocumentType: Option; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateLinesFromBuffer(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary; var LineCount: Integer; var SalesInvHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var PostedDocTabNo: Integer; DocumentType: Option; var LastLineNo: Integer; GenJnlLineDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInvoice(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
@@ -1708,7 +1835,12 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean; GenJnlDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesAssertPrepmtAmountNotMoreThanDocAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1727,13 +1859,26 @@ codeunit 442 "Sales-Post Prepayments"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnPostBalancingEntryOnBeforeGenJnlPostLineRunWithCheck', '20.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean; SalesHeader: Record "Sales Header"; DocumentType: enum "Gen. Journal Document Type")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean; SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostCustomerEntry(var GenJnlLine: Record "Gen. Journal Line"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; GenJnlLineDocNo: Code[20])
     begin
     end;
 
@@ -1743,7 +1888,42 @@ codeunit 442 "Sales-Post Prepayments"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePostedSalesDocument(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean; DocumentNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepmtInvLineBuffer(var GenJnlLine: Record "Gen. Journal Line"; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterBuildInvLineBuffer(var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeCalcAndUpdateVATAmountLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterCalcShouldSetPendingPrepaymentStatus(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentType: Option Invoice,"Credit Memo"; PreviewMode: Boolean; var ShouldSetPendingPrepaymentStatus: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertExtendedTextOnBeforeSalesInvLineInsert(var SalesInvoiceLine: Record "Sales Invoice Line"; TabNo: Integer; DocNo: Code[20]; NextLineNo: Integer; var TempExtendedTextLine: Record "Extended Text Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertExtendedTextOnBeforeSalesCrMemoLineInsert(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; TabNo: Integer; DocNo: Code[20]; NextLineNo: Integer; var TempExtendedTextLine: Record "Extended Text Line" temporary);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostBalancingEntryOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean; SalesHeader: Record "Sales Header"; DocType: enum "Gen. Journal Document Type")
     begin
     end;
 

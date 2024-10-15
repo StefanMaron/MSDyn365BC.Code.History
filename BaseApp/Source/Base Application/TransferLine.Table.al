@@ -66,16 +66,13 @@ table 5741 "Transfer Line"
 #if not CLEAN18
                 // NAVCZ
                 "Tariff No." := Item."Tariff No.";
-#if not CLEAN17
-                "Statistic Indication" := Item."Statistic Indication";
-#endif
                 "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
                 // NAVCZ
 #endif
 
                 OnAfterAssignItemValues(Rec, Item);
 
-                CreateDim(DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim();
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
             end;
         }
@@ -274,7 +271,7 @@ table 5741 "Transfer Line"
 
                 if ("Item No." <> '') and (not ItemDescriptionIsNo) and (Description <> '') then begin
                     Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
-                    if not Item.FindFirst then
+                    if not Item.FindFirst() then
                         exit;
                     if Item."No." = "Item No." then
                         exit;
@@ -941,9 +938,6 @@ table 5741 "Transfer Line"
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if not CLEAN17
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -1056,7 +1050,7 @@ table 5741 "Transfer Line"
         if not IsHandled then begin
             TransLine2.Reset();
             TransLine2.SetFilter("Document No.", TransHeader."No.");
-            if TransLine2.FindLast then
+            if TransLine2.FindLast() then
                 "Line No." := TransLine2."Line No." + 10000;
         end;
         TransferLineReserve.VerifyQuantity(Rec, xRec);
@@ -1104,6 +1098,8 @@ table 5741 "Transfer Line"
         LedgEntryWillBeOpenedMsg: Label 'When posting the Applied to Ledger Entry %1 will be opened first.', Comment = '%1 = Entry No.';
         ShippingMoreUnitsThanReceivedErr: Label 'You cannot ship more than the %1 units that you have received for document no. %2.', Comment = '%1 = Quantity Value, %2 = Document No.';
         AnotherItemWithSameDescrQst: Label 'We found an item with the description "%2" (No. %1).\Did you mean to change the current item to %1?', Comment = '%1=Item no., %2=item description';
+
+    protected var
         StatusCheckSuspended: Boolean;
 
     procedure InitOutstandingQty()
@@ -1271,6 +1267,8 @@ table 5741 "Transfer Line"
         OnAfterShowDimensions(Rec, xRec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -1287,6 +1285,24 @@ table 5741 "Transfer Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Transfer,
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", TransHeader."Dimension Set ID", DATABASE::Item);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Transfer,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", TransHeader."Dimension Set ID", DATABASE::Item);
     end;
 
@@ -1335,7 +1351,7 @@ table 5741 "Transfer Line"
         DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
     end;
 
-    local procedure CheckItemAvailable(CalledByFieldNo: Integer)
+    procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
@@ -1827,8 +1843,15 @@ table 5741 "Transfer Line"
     local procedure GetTransferHeaderNoVerification()
     begin
         TestField("Document No.");
+        GetTransferHeader();
+    end;
+
+    procedure GetTransferHeader(): Record "Transfer Header"
+    begin
         if "Document No." <> TransHeader."No." then
             TransHeader.Get("Document No.");
+
+        exit(TransHeader);
     end;
 
     procedure DateConflictCheck()
@@ -1837,11 +1860,13 @@ table 5741 "Transfer Line"
             CheckDateConflict.TransferLineCheck(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var TransferLine: Record "Transfer Line"; FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     local procedure ItemExists(ItemNo: Code[20]): Boolean
     var
         IEItem: Record Item;
@@ -1885,6 +1910,56 @@ table 5741 "Transfer Line"
         ItemLedgEntry.SetRange(Open, true);
 
         OnAfterSetItemLedgerEntryFilters(ItemLedgEntry, Rec);
+    end;
+
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Transfer Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Transfer Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Transfer Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var TransferLine: Record "Transfer Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -2137,4 +2212,3 @@ table 5741 "Transfer Line"
     begin
     end;
 }
-

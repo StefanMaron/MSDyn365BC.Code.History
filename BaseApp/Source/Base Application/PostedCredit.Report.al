@@ -304,7 +304,7 @@ report 31057 "Posted Credit"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not TempPstdLineBuffer.FindSet then
+                                if not TempPstdLineBuffer.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if TempPstdLineBuffer.Next() = 0 then
@@ -339,7 +339,7 @@ report 31057 "Posted Credit"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not TempPstdLineBuffer2.FindSet then
+                                if not TempPstdLineBuffer2.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if TempPstdLineBuffer2.Next() = 0 then
@@ -435,10 +435,6 @@ report 31057 "Posted Credit"
             }
 
             trigger OnAfterGetRecord()
-            var
-                Vend: Record Vendor;
-                Cust: Record Customer;
-                Cont: Record Contact;
             begin
                 Clear(Name);
                 Clear(Addr);
@@ -454,29 +450,6 @@ report 31057 "Posted Credit"
                     Addr := Addr + ' ' + "Company Address 2";
                 if ("Company Post Code" <> '') or ("Company City" <> '') then
                     Addr := Addr + ', ' + "Company Post Code" + ' ' + "Company City";
-#if not CLEAN17
-
-                case Type of
-                    Type::Vendor:
-                        begin
-                            if not Vend.Get("Company No.") then
-                                Clear(Vend);
-                            RegNo := Vend."Registration No.";
-                        end;
-                    Type::Customer:
-                        begin
-                            if not Cust.Get("Company No.") then
-                                Clear(Cust);
-                            RegNo := Cust."Registration No.";
-                        end;
-                    Type::Contact:
-                        begin
-                            if not Cont.Get("Company No.") then
-                                Clear(Cont);
-                            RegNo := Cont."Registration No.";
-                        end;
-                end;
-#endif
             end;
 
             trigger OnPreDataItem()

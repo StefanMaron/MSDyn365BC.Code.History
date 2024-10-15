@@ -101,18 +101,7 @@ table 287 "Customer Bank Account"
             Caption = 'Bank Account No.';
 
             trigger OnValidate()
-#if not CLEAN17
-            var
-                CompanyInfo: Record "Company Information";
-#endif
             begin
-#if not CLEAN17
-                // NAVCZ
-                CompanyInfo.Get();
-                if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                    CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
-                // NAVCZ
-#endif
 		        OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
@@ -318,4 +307,3 @@ table 287 "Customer Bank Account"
     begin
     end;
 }
-

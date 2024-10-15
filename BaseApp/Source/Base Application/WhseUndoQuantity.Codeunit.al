@@ -132,7 +132,7 @@ codeunit 7320 "Whse. Undo Quantity"
             WhseManagement.SetSourceFilterForPostedWhseRcptLine(PostedWhseRcptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             SetRange("Posted Source No.", UndoID);
             OnFindPostedWhseRcptLineOnAfterSetFilters(PostedWhseRcptLine);
-            if FindFirst then begin
+            if FindFirst() then begin
                 if Count > 1 then
                     Error(Text000, TableCaption); // Assert: only one posted line.
                 Ok := true;
@@ -165,7 +165,7 @@ codeunit 7320 "Whse. Undo Quantity"
             WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShptLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             SetRange("Posted Source No.", UndoID);
             OnFindPostedWhseShptLineOnAfterSetFilters(PostedWhseShptLine);
-            if FindFirst then begin
+            if FindFirst() then begin
                 PostedWhseShptLine2.CopyFilters(PostedWhseShptLine);
                 PostedWhseShptLine2.SetFilter("No.", '<>%1', "No.");
                 PostedWhseShptLine2.SetFilter("Line No.", '<>%1', "Line No.");
@@ -354,7 +354,7 @@ codeunit 7320 "Whse. Undo Quantity"
 
         with PostedWhseShptLine do begin
             WhseShptLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
-            if WhseShptLine.FindFirst then begin
+            if WhseShptLine.FindFirst() then begin
                 WhseShptLine.Validate("Qty. Shipped", WhseShptLine."Qty. Shipped" - Quantity);
                 WhseShptLine.Validate("Qty. Outstanding", WhseShptLine."Qty. Outstanding" + Quantity);
                 if WhseShptLine."Qty. Shipped" = 0 then begin

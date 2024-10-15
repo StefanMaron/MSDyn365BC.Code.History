@@ -10,22 +10,26 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
     trigger OnRun()
     begin
-        Window.Open(
-          '#1#################################\\' +
-          Text000);
-        Window.Update(1, StrSubstNo('%1 %2', "Bank Account No.", "Statement No."));
+        if GuiAllowed and not PreviewMode then begin
+            Window.Open('#1#################################\\' + PostingLinesTxt);
+            Window.Update(1, StrSubstNo('%1 %2', "Bank Account No.", "Statement No."));
+        end;
 
         InitPost(Rec);
         Post(Rec);
         FinalizePost(Rec);
 
-        Window.Close;
+        if PreviewMode then
+            exit;
+
+        if GuiAllowed then
+            Window.Close();
 
         Commit();
     end;
 
     var
-        Text000: Label 'Posting lines              #2######';
+        PostingLinesTxt: Label 'Posting lines              #2######';
         Text001: Label '%1 is not equal to Total Balance.';
         Text002: Label 'There is nothing to post.';
         Text003: Label 'The application is not correct. The total amount applied is %1; it should be %2.';
@@ -34,6 +38,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
         CheckLedgEntry: Record "Check Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
+        GLSetup: Record "General Ledger Setup";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         Window: Dialog;
@@ -46,6 +51,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         TotalDiff: Decimal;
         Lines: Integer;
         Difference: Decimal;
+        PreviewMode: Boolean;
         ExcessiveAmtErr: Label 'You must apply the excessive amount of %1 %2 manually.', Comment = '%1 a decimal number, %2 currency code';
         PostPerLineQst: Label 'Post per line in %1 %2 is disabled.\\Do you want to continue?', Comment = '%1=BankAcc.TABLECAPTION,%2=BankAcc."No."';
         MustBeTheSameErr: Label '%1 must be the same for all lines.', Comment = '%1=FIELDCAPTION("Transaction Date")';
@@ -55,9 +61,21 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         LineNoTAppliedErr: Label 'The line with transaction date %1 and transaction text ''%2'' is not applied. You must apply all lines.', Comment = '%1 - transaction date, %2 - arbitrary text';
         TransactionAlreadyReconciledErr: Label 'The line with transaction date %1 and transaction text ''%2'' is already reconciled.\\You must remove it from the payment reconciliation journal before posting.', Comment = '%1 - transaction date, %2 - arbitrary text';
 
+    [Scope('OnPrem')]
+    [CommitBehavior(CommitBehavior::Ignore)]
+    procedure RunPreview(var BankAccReconciliation: Record "Bank Acc. Reconciliation"): Boolean
+    begin
+        PreviewMode := true;
+        InitPost(BankAccReconciliation);
+        Post(BankAccReconciliation);
+        FinalizePost(BankAccReconciliation);
+        exit(true);
+    end;
+
     local procedure InitPost(var BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
         OnBeforeInitPost(BankAccRecon);
+        GLSetup.Get();
         with BankAccRecon do
             case "Statement Type" of
                 "Statement Type"::"Bank Reconciliation":
@@ -70,6 +88,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                         SourceCodeSetup.Get();
                         SourceCode := SourceCodeSetup."Payment Reconciliation Journal";
                         PostPaymentsOnly := "Post Payments Only";
+                        if PreviewMode then
+                            exit;
                         if not PostPaymentsOnly then
                             if GuiAllowed then begin
                                 if PAGE.RunModal(Page::"Post Pmts and Rec. Bank Acc.", BankAccRecon) <> ACTION::LookupOK then
@@ -82,6 +102,28 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             end;
     end;
 
+    local procedure StoreFieldsPrePosting(BankAccRecon: Record "Bank Acc. Reconciliation"; var PrePostingOutstdPayments: Decimal; var PrePostingOutstdBankTransactions: Decimal; var PrePostingGLBalance: Decimal; var PrePostingTotalPositiveDifference: Decimal; var PrePostingTotalNegativeDifference: Decimal)
+    var
+        PreBankAcc: Record "Bank Account";
+        BankAccReconTest: Codeunit "Bank Acc. Recon. Test";
+    begin
+        BankAccRecon.CalcFields(
+            "Total Applied Amount",
+            "Total Applied Amount Payments",
+            "Total Outstd Bank Transactions",
+            "Total Outstd Payments",
+            "Total Unposted Applied Amount"
+        );
+        PrePostingOutstdPayments := BankAccReconTest.TotalOutstandingPayments(BankAccRecon);
+        PrePostingOutstdBankTransactions := BankAccReconTest.TotalOutstandingBankTransactions(BankAccRecon);
+        PrePostingTotalPositiveDifference := BankAccReconTest.TotalPositiveDifference(BankAccRecon);
+        PrePostingTotalNegativeDifference := BankAccReconTest.TotalNegativeDifference(BankAccRecon);
+        PreBankAcc.SetFilter("Date Filter", '..%1', BankAccRecon."Statement Date");
+        PreBankAcc.SetAutoCalcFields("Balance at Date");
+        if PreBankAcc.Get(BankAccRecon."Bank Account No.") then
+            PrePostingGLBalance := PreBankAcc."Balance at Date";
+    end;
+
     local procedure Post(BankAccRecon: Record "Bank Acc. Reconciliation")
     var
         BankAcc: Record "Bank Account";
@@ -92,9 +134,15 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         SalesPostAdvances: Codeunit "Sales-Post Advances";
         PurchPostAdvances: Codeunit "Purchase-Post Advances";
         AppliedAmount: Decimal;
+        PrePostingOutstdPayments: Decimal;
+        PrePostingOutstdBankTransactions: Decimal;
+        PrePostingGLBalance: Decimal;
+        PrePostingTotalPositiveDifference: Decimal;
+        PrePostingTotalNegativeDifference: Decimal;
         TotalTransAmtNotAppliedErr: Text;
     begin
         OnBeforePost(BankAccRecon, BankAccReconLine);
+        StoreFieldsPrePosting(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
         with BankAccRecon do begin
             // Run through lines
             BankAccReconLine.FilterBankRecLines(BankAccRecon);
@@ -122,10 +170,12 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
             PostedStamentNo := GetPostedStamentNo(BankAccRecon);
 
-            if BankAccReconLine.FindSet then
+            if BankAccReconLine.FindSet() then
                 repeat
                     Lines := Lines + 1;
-                    Window.Update(2, Lines);
+                    if GuiAllowed then
+                        if not PreviewMode then
+                            Window.Update(2, Lines);
                     AppliedAmount := 0;
 
                     BankAccReconLine.FilterManyToOneMatches(BankAccRecMatchBuffer);
@@ -193,23 +243,26 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             if Difference <> TotalDiff then
                 Error(Text004, Difference, TotalDiff);
 
+            if PreviewMode then
+                exit;
+
             // Get bank
             if not PostPaymentsOnly then
                 UpdateBank(BankAccRecon, TotalAmount);
 
             case "Statement Type" of
                 "Statement Type"::"Bank Reconciliation":
-                    TransferToBankStmt(BankAccRecon);
+                    TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
                 "Statement Type"::"Payment Application":
                     begin
                         UpdateIssuedBankStatement(BankAccRecon); // NAVCZ
-                        HandlePaymentApplicationTransfer(BankAccRecon);
+                        HandlePaymentApplicationTransfer(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
                     end;
             end;
         end;
     end;
 
-    local procedure HandlePaymentApplicationTransfer(BankAccRecon: Record "Bank Acc. Reconciliation")
+    local procedure HandlePaymentApplicationTransfer(BankAccRecon: Record "Bank Acc. Reconciliation"; PrePostingOutstdPayments: Decimal; PrePostingOutstdBankTransactions: Decimal; PrePostingGLBalance: Decimal; PrePostingTotalPositiveDifference: Decimal; PrePostingTotalNegativeDifference: Decimal)
     var
         IsHandled: Boolean;
     begin
@@ -220,7 +273,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
         TransferToPostPmtAppln(BankAccRecon);
         if not BankAccRecon."Post Payments Only" then
-            TransferToBankStmt(BankAccRecon);
+            TransferToBankStmt(BankAccRecon, PrePostingOutstdPayments, PrePostingOutstdBankTransactions, PrePostingGLBalance, PrePostingTotalPositiveDifference, PrePostingTotalNegativeDifference);
     end;
 
     local procedure FinalizePost(BankAccRecon: Record "Bank Acc. Reconciliation")
@@ -228,6 +281,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         AppliedPmtEntry: Record "Applied Payment Entry";
     begin
+        if PreviewMode then
+            exit;
         OnBeforeFinalizePost(BankAccRecon);
         with BankAccRecon do begin
             if BankAccReconLine.LinesExist(BankAccRecon) then
@@ -402,7 +457,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                     CheckLedgEntry2.SetRange("Check Type", CheckLedgEntry2."Check Type"::"Partial Check");
                     CheckLedgEntry2.SetRange(
                       "Statement Status", CheckLedgEntry2."Statement Status"::"Check Entry Applied");
-                    if not CheckLedgEntry2.FindFirst then
+                    if not CheckLedgEntry2.FindFirst() then
                         BankAccLedgEntry."Statement Status" := BankAccLedgEntry."Statement Status"::Open;
                 end;
                 BankAccLedgEntry.Modify();
@@ -414,7 +469,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         AppliedPmtEntry: Record "Applied Payment Entry";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
-        GLSetup: Record "General Ledger Setup";
         BankAccountBal: Record "Bank Account";
         DimensionManagement: Codeunit DimensionManagement;
         PaymentLineAmount: Decimal;
@@ -436,7 +490,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 Error(LineNoTAppliedErr, BankAccReconLine."Transaction Date", BankAccReconLine."Transaction Text");
             BankAcc.Get(BankAccReconLine."Bank Account No.");
 
-            Init;
+            Init();
             SetSuppressCommit(true);
             "Posting Date" := BankAccReconLine."Transaction Date";
 
@@ -460,11 +514,8 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             "Dimension Set ID" := BankAccReconLine."Dimension Set ID";
             DimensionManagement.UpdateGlobalDimFromDimSetID(
               BankAccReconLine."Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-#if not CLEAN17
-            "VAT Date" := BankAccReconLine."Transaction Date"; // NAVCZ
-            "Original Document VAT Date" := BankAccReconLine."Transaction Date"; // NAVCZ
-#endif
-            Description := BankAccReconLine.GetDescription;
+
+            Description := BankAccReconLine.GetDescription();
 
             "Document No." := PostedStamentNo;
             if BankAcc."Post Per Line" and (BankAccReconLine."Currency Code" = BankAcc."Currency Code") then begin // NAVCZ
@@ -479,7 +530,13 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             "Source Code" := SourceCode;
             "Allow Zero-Amount Posting" := true;
 
-            "Applies-to ID" := BankAccReconLine.GetAppliesToID;
+            "Applies-to ID" := BankAccReconLine.GetAppliesToID();
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                GLSetup.TestField("Bank Acc. Recon. Template Name");
+                GLSetup.TestField("Bank Acc. Recon. Batch Name");
+                "Journal Template Name" := GLSetup."Bank Acc. Recon. Template Name";
+                "Journal Batch Name" := GLSetup."Bank Acc. Recon. Batch Name";
+            end;
 
             // NAVCZ
 #if not CLEAN18
@@ -643,7 +700,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         StatementDate := BankAccRecon."Statement Date";
         if StatementDate = 0D then begin
             BankAccReconLine.FilterBankRecLines(BankAccRecon);
-            BankAccReconLine.FindFirst;
+            BankAccReconLine.FindFirst();
             StatementDate := BankAccReconLine."Transaction Date";
         end;
 
@@ -653,9 +710,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 Init;
                 SetSuppressCommit(true); // NAVCZ
                 "Posting Date" := StatementDate;
-#if not CLEAN17
-                "VAT Date" := StatementDate;
-#endif
                 "Account Type" := "Account Type"::"Bank Account";
                 "Account No." := BankAccRecon."Bank Account No.";
                 "Document No." := BankAccRecon."Statement No.";
@@ -674,9 +728,6 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 Init;
                 SetSuppressCommit(true); // NAVCZ
                 "Posting Date" := StatementDate;
-#if not CLEAN17
-                "VAT Date" := StatementDate;
-#endif
                 "Account Type" := "Account Type"::"Bank Account";
                 "Account No." := BankAccRecon."Bank Account No.";
                 "Document No." := BankAccRecon."Statement No.";
@@ -704,7 +755,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         end;
     end;
 
-    local procedure TransferToBankStmt(BankAccRecon: Record "Bank Acc. Reconciliation")
+    local procedure TransferToBankStmt(BankAccRecon: Record "Bank Acc. Reconciliation"; PrePostingOutstdPayments: Decimal; PrePostingOutstdBankTransactions: Decimal; PrePostingGLBalance: Decimal; PrePostingTotalPositiveDifference: Decimal; PrePostingTotalNegativeDifference: Decimal)
     var
         BankAccStmt: Record "Bank Account Statement";
         BankAccStmtLine: Record "Bank Account Statement Line";
@@ -731,6 +782,11 @@ codeunit 370 "Bank Acc. Reconciliation Post"
         BankAccStmtLine.SetRange("Bank Account No.", BankAccStmt."Bank Account No.");
         BankAccStmtLine.SetRange("Statement No.", BankAccStmt."Statement No.");
         BankAccStmtLine.CalcSums("Statement Amount");
+        BankAccStmt."G/L Balance at Posting Date" := PrePostingGLBalance;
+        BankAccStmt."Outstd. Payments at Posting" := PrePostingOutstdPayments;
+        BankAccStmt."Outstd. Transact. at Posting" := PrePostingOutstdBankTransactions;
+        BankAccStmt."Total Pos. Diff. at Posting" := PrePostingTotalPositiveDifference;
+        BankAccStmt."Total Neg. Diff. at Posting" := PrePostingTotalNegativeDifference;
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();
@@ -807,8 +863,17 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
             end;
 
-            CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
+            if PreviewMode then
+                CustEntryEditNoCommit(CustLedgEntry)
+            else
+                CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgEntry);
         end;
+    end;
+
+    [CommitBehavior(CommitBehavior::Ignore)]
+    local procedure CustEntryEditNoCommit(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Cust. Entry-Edit", CustLedgerEntry);
     end;
 
     procedure ApplyVendLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal)
@@ -832,8 +897,17 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
             end;
 
-            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
+            if PreviewMode then
+                VendEntryEditNoCommit(VendLedgEntry)
+            else
+                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
         end;
+    end;
+
+    [CommitBehavior(CommitBehavior::Ignore)]
+    local procedure VendEntryEditNoCommit(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendorLedgerEntry);
     end;
 
     procedure ApplyEmployeeLedgEntry(AppliedPmtEntry: Record "Applied Payment Entry"; AppliesToID: Code[50]; PostingDate: Date; PmtDiscDueDate: Date; PmtDiscToleranceDate: Date; RemPmtDiscPossible: Decimal)
@@ -849,7 +923,10 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 "Amount to Apply" := AppliedPmtEntry.CalcAmountToApply(PostingDate);
             end;
 
-            CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
+            if PreviewMode then
+                EmplEntryEditNoCommit(EmployeeLedgerEntry)
+            else
+                CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
         end;
     end;
 
@@ -868,6 +945,12 @@ codeunit 370 "Bank Acc. Reconciliation Post"
 
             CODEUNIT.Run(CODEUNIT::"G/L Entry - Edit CZ", GLEntry);
         end;
+    end;
+
+    [CommitBehavior(CommitBehavior::Ignore)]
+    local procedure EmplEntryEditNoCommit(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+        CODEUNIT.Run(CODEUNIT::"Empl. Entry-Edit", EmployeeLedgerEntry);
     end;
 
     local procedure CloseBankAccountLedgerEntry(EntryNo: Integer; AppliedAmount: Decimal)
@@ -889,7 +972,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
             CheckLedgerEntry.SetRange(
               "Bank Account Ledger Entry No.", "Entry No.");
             CheckLedgerEntry.SetRange(Open, true);
-            if CheckLedgerEntry.FindSet then
+            if CheckLedgerEntry.FindSet() then
                 repeat
                     CheckLedgerEntry.Open := false;
                     CheckLedgerEntry."Statement Status" := CheckLedgerEntry."Statement Status"::Closed;
@@ -936,7 +1019,7 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                 if not IsEmpty() then
                     Error(MustBeEqualErr, FieldCaption("Transaction Date"), BankAccRecon."Statement Date");
             end else begin
-                FindFirst;
+                FindFirst();
                 SetFilter("Transaction Date", '<>%1', "Transaction Date");
                 if not IsEmpty() then
                     Error(MustBeTheSameErr, FieldCaption("Transaction Date"));
@@ -999,6 +1082,25 @@ codeunit 370 "Bank Acc. Reconciliation Post"
                     until PurchAdvanceLetterLine.Next() = 0;
             end;
         end;
+    end;
+
+    procedure Preview(var BankAccReconciliationSource: Record "Bank Acc. Reconciliation")
+    var
+        BankAccReconPostPreview: Codeunit "Bank. Acc. Recon. Post Preview";
+        BankAccountReconciliationPost: Codeunit "Bank Acc. Reconciliation Post";
+    begin
+        BankAccReconPostPreview.Preview(BankAccountReconciliationPost, BankAccReconciliationSource);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Bank. Acc. Recon. Post Preview", 'OnRunPreview', '', false, false)]
+    local procedure OnRunPreview(var Result: Boolean; var Subscriber: Codeunit "Bank Acc. Reconciliation Post"; var BankAccReconciliationSource: Record "Bank Acc. Reconciliation")
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccountReconciliationPost: Codeunit "Bank Acc. Reconciliation Post";
+    begin
+        BankAccountReconciliationPost := Subscriber;
+        BankAccReconciliation.Copy(BankAccReconciliationSource);
+        Result := not BankAccountReconciliationPost.RunPreview(BankAccReconciliation);
     end;
 
     [IntegrationEvent(false, false)]

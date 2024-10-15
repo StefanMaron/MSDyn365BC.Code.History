@@ -198,7 +198,7 @@ page 1288 "Payment-to-Entry Match"
             BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankAccReconciliationLine.GetBankPmtApplRuleCode); // NAVCZ
 #endif
             BankPmtApplRule.SetRange(Score, Quality);
-            if not BankPmtApplRule.FindFirst then
+            if not BankPmtApplRule.FindFirst() then
                 BankPmtApplRule."Match Confidence" := BankPmtApplRule."Match Confidence"::None;
         end;
 

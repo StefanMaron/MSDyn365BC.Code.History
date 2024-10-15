@@ -82,9 +82,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -110,9 +110,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -178,9 +178,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoices: TestPage "Posted Purchase Invoices";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -207,9 +207,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
         PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -239,13 +239,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LastItemLedgEntry: Record "Item Ledger Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vend, 1, 1, PurchInvHeader);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(1, LastItemLedgEntry."Remaining Quantity", '');
 
         // EXERCISE
@@ -289,9 +289,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         StrPosition: Integer;
     begin
         // [FEATURE] [Corrective Credit Memo]
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -308,7 +308,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseHeaderCorrection."No.");
 
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ExpectedAmount := 0;
         StrPosition := StrPos(PurchaseLine.Description, PurchInvHeader."No.");
 
@@ -316,7 +316,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
 
         // Last Purchase Line expect to be the Item created.
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         ExpectedAmount := 1;
         DescText := Item.Description;
         Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Purchase Line');
@@ -340,9 +340,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         StrPosition: Integer;
     begin
         // [FEATURE] [Corrective Credit Memo]
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -359,7 +359,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // VERIFY: New Purchase Credit Memo must match Posted Purchase Invoice
         PurchaseHeaderCorrection.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
         PurchaseHeaderCorrection.SetRange("Applies-to Doc. Type", PurchaseHeaderCorrection."Applies-to Doc. Type"::Invoice);
-        PurchaseHeaderCorrection.FindFirst;
+        PurchaseHeaderCorrection.FindFirst();
 
         // Created customer match Purchase Header
         Assert.AreEqual(Vendor."No.", PurchaseHeaderCorrection."Pay-to Vendor No.", 'Wrong Vendor for Credit Memo');
@@ -368,7 +368,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Credit Memo");
         PurchaseLine.SetRange("Document No.", PurchaseHeaderCorrection."No.");
 
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         ExpectedAmount := 0;
         StrPosition := StrPos(PurchaseLine.Description, PurchInvHeader."No.");
 
@@ -376,7 +376,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Assert.AreEqual(ExpectedAmount, PurchaseLine.Amount, 'Wrong amount for Credit Memo Purchase Line');
 
         // Last Purchase Line expect to be the Item created.
-        PurchaseLine.FindLast;
+        PurchaseLine.FindLast();
         ExpectedAmount := 1;
         DescText := Item.Description;
         Assert.AreEqual(DescText, PurchaseLine.Description, 'Wrong description text for Credit Memo Purchase Line');
@@ -400,9 +400,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -441,9 +441,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -483,9 +483,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         NoOfCancellationsOnSameInvoice: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
@@ -496,7 +496,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
                 CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
                 CheckEverythingIsReverted(Item, Vendor, GLEntry);
             end else begin
-                if GLEntry.FindLast then;
+                if GLEntry.FindLast() then;
                 PurchInvHeader.Find;
                 // VERIFY : It should not be possible to cancel a posted invoice twice
                 asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -536,9 +536,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         NoOfRecreatedInvoices: Integer;
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Type, Vendor, 1, 1, PurchInvHeader);
 
@@ -568,9 +568,9 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
@@ -580,7 +580,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckSomethingIsPosted(Item, PayToVendor);
 
         PayToVendor.Find;
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         PayToVendor.Validate("Currency Code", CurrencyExchangeRate."Currency Code");
         PayToVendor.Modify(true);
         Commit();
@@ -603,7 +603,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 0, 1, PurchInvHeader);
 
@@ -612,7 +612,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Vendor.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
@@ -639,7 +639,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
 
@@ -652,7 +652,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PayToVendor.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
 
@@ -676,7 +676,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 0, 1, PurchInvHeader);
 
@@ -685,7 +685,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Vendor.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
@@ -712,7 +712,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
 
@@ -725,7 +725,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PayToVendor.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
 
@@ -749,7 +749,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
 
@@ -758,7 +758,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Item.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -784,7 +784,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLAcc: Record "G/L Account";
         InvtPostingSetup: Record "Inventory Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
@@ -812,7 +812,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLAcc: Record "G/L Account";
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
 
@@ -840,7 +840,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLAcc: Record "G/L Account";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
@@ -868,7 +868,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GenPostingSetup: Record "General Posting Setup";
         TempGLAcc: Record "G/L Account" temporary;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Cost Type");
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
@@ -906,13 +906,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         StandardText: Record "Standard Text";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         CreatePurchaseInvForNewItemAndVendor(Item, Vendor, 1, 1, PurchaseHeader, PurchaseLine);
 
-        StandardText.FindFirst;
+        StandardText.FindFirst();
 
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, 1);
         PurchaseLine.Validate(Type, PurchaseLine.Type::" ");
@@ -1013,7 +1013,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
 
@@ -1022,7 +1022,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLSetup.Modify(true);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
@@ -1050,7 +1050,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
 
@@ -1064,7 +1064,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         InvtPeriod.Insert();
         Commit();
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderTmp);
@@ -1088,7 +1088,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderTmp: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 0, -1, PurchInvHeader);
 
@@ -1114,12 +1114,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 0);
         LibrarySmallBusiness.CreateVendor(Vendor);
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -1139,14 +1139,14 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Commit();
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
 
         // VERIFY
         CheckNothingIsCreated(Vendor."No.", GLEntry);
 
         // CHECK: IT SHOULD NOT BE POSSIBLE TO UNDO WHEN EXTERNAL DOC IS MANDATORY
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
 
         // VERIFY
@@ -1173,11 +1173,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
         LibraryPurch: Codeunit "Library - Purchase";
     begin
-        Initialize;
+        Initialize();
         // Create an Item and assign a Global Dimension Code to it
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vend, 1, 1, PurchInvHeader);
 
-        LastItemLedgEntry.FindLast;
+        LastItemLedgEntry.FindLast();
         Assert.AreEqual(1, LastItemLedgEntry."Remaining Quantity", '');
 
         LibrarySmallBusiness.CreatePurchaseCrMemoHeader(PurchHeader, Vend);
@@ -1190,7 +1190,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         LastItemLedgEntry.Find;
         Assert.AreEqual(0, LastItemLedgEntry."Remaining Quantity", '');
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // CHECK:
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderCorrection);
@@ -1218,7 +1218,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchaseHeaderCorrection: Record "Purchase Header";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        Initialize;
+        Initialize();
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
 
@@ -1230,7 +1230,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader.CalcFields(Closed);
         Assert.IsTrue(PurchInvHeader.Closed, 'Cash Payment should have closed the Posted Invoice');
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -1271,7 +1271,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         // [FEATURE] [UT] [UI] [Purchase] [Invoice]
         // [SCENARIO] "Correct" and "Cancel" actions are not visible on "Posted Purchase Invoice" page if invoice is cancelled.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Insert();
         LibrarySmallBusiness.MockCancelledDocument(Database::"Purch. Inv. Header", PurchInvHeader."No.", '');
@@ -1296,7 +1296,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         // [FEATURE] [UT] [UI] [Purchase] [Invoice]
         // [SCENARIO] "Correct" and "Cancel" actions are not visible on "Posted Purchase Invoices" list page if invoice is cancelled.
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         PurchInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchInvHeader.Insert();
         LibrarySmallBusiness.MockCancelledDocument(Database::"Purch. Inv. Header", PurchInvHeader."No.", '');
@@ -1325,8 +1325,8 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         // [FEATURE] [UI] [Order] [Cancel Invoice]
         // [SCENARIO 213632] Stan can cancel posted purchase invoice created from purchase order.
-        Initialize;
-        if GLEntry.FindLast then;
+        Initialize();
+        if GLEntry.FindLast() then;
         LibraryVariableStorage.Enqueue(true); // Confirm to cancel invoice
         LibraryVariableStorage.Enqueue(false); // Do not confirm to open credit memo
 
@@ -1707,7 +1707,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         BlockGLAcc(GLAcc);
 
-        GLEntry.FindLast;
+        GLEntry.FindLast();
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -1735,7 +1735,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         AddMandatoryDimToAcc(DATABASE::"G/L Account", GLAcc."No.", DefaultDim);
         Commit();
 
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
@@ -1888,7 +1888,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         GLEntry: Record "G/L Entry";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
     begin
-        if GLEntry.FindLast then;
+        if GLEntry.FindLast() then;
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderCorrection);
         CheckNothingIsCreated(PurchInvHeader."Pay-to Vendor No.", GLEntry);
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
@@ -1902,7 +1902,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         // Get a Cash Payment method
         PaymentMethod.SetRange("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
         PaymentMethod.SetFilter("Bal. Account No.", '<>%1', '');
-        if not PaymentMethod.FindFirst then begin
+        if not PaymentMethod.FindFirst() then begin
             LibraryERM.CreatePaymentMethod(PaymentMethod);
             PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
             PaymentMethod.Modify(true);
@@ -2072,7 +2072,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         ProductionBOMLine: Record "Production BOM Line";
         Resource: Record Resource;
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Cost Type":
                 CostType.DeleteAll();

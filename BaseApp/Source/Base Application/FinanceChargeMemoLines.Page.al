@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 447 "Finance Charge Memo Lines"
 {
     AutoSplitKey = true;
@@ -25,13 +26,12 @@ page 447 "Finance Charge Memo Lines"
                     begin
                         TypeOnAfterValidate;
                         NoOnAfterValidate();
-                        SetShowMandatoryConditions
                     end;
                 }
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsGLAccount;
+                    ShowMandatory = Type = Type::"G/L Account";
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
 
                     trigger OnValidate()
@@ -54,7 +54,7 @@ page 447 "Finance Charge Memo Lines"
                 field("Document Type"; "Document Type")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsCustomerLedgerEntry;
+                    ShowMandatory = Type = Type::"Customer Ledger Entry";
                     ToolTip = 'Specifies the document type of the customer ledger entry this finance charge memo line is for.';
 
                     trigger OnValidate()
@@ -65,7 +65,7 @@ page 447 "Finance Charge Memo Lines"
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = TypeIsCustomerLedgerEntry;
+                    ShowMandatory = Type = Type::"Customer Ledger Entry";
                     ToolTip = 'Specifies the document number of the customer ledger entry this finance charge memo line is for.';
 
                     trigger OnLookup(var Text: Text): Boolean
@@ -110,12 +110,16 @@ page 447 "Finance Charge Memo Lines"
                     Style = Strong;
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency that is represented by the currency code on the finance charge memo header.';
-                    Visible = false;
+                    Visible = ReplaceMulIntRateEnabled;
                 }
                 field("Interests Amount"; "Interests Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the finance charge memo lines.';
+                    Visible = not ReplaceMulIntRateEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
                 }
             }
         }
@@ -146,9 +150,9 @@ page 447 "Finance Charge Memo Lines"
         }
     }
 
-    trigger OnAfterGetCurrRecord()
+    trigger OnOpenPage()
     begin
-        SetShowMandatoryConditions;
+        ReplaceMulIntRateEnabled := ReplaceMulIntRateMgt.IsEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -161,6 +165,7 @@ page 447 "Finance Charge Memo Lines"
 
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
         [InDataSet]
         DescriptionEmphasize: Boolean;
         [InDataSet]
@@ -169,8 +174,7 @@ page 447 "Finance Charge Memo Lines"
         RemainingAmountEmphasize: Boolean;
         [InDataSet]
         AmountEmphasize: Boolean;
-        TypeIsGLAccount: Boolean;
-        TypeIsCustomerLedgerEntry: Boolean;
+        ReplaceMulIntRateEnabled: Boolean;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
     begin
@@ -233,15 +237,10 @@ page 447 "Finance Charge Memo Lines"
         AmountEmphasize := not "Detailed Interest Rates Entry";
     end;
 
-    local procedure SetShowMandatoryConditions()
-    begin
-        TypeIsGLAccount := Type = Type::"G/L Account";
-        TypeIsCustomerLedgerEntry := Type = Type::"Customer Ledger Entry"
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertExtendedText(var FinanceChargeMemoLine: Record "Finance Charge Memo Line")
     begin
     end;
 }
 
+#endif

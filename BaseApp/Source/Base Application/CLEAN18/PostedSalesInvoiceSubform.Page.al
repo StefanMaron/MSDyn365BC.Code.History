@@ -32,22 +32,11 @@ page 133 "Posted Sales Invoice Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("IC Partner Code"; "IC Partner Code")
                 {
@@ -65,6 +54,13 @@ page 133 "Posted Sales Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -433,7 +429,7 @@ page 133 "Posted Sales Invoice Subform"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -460,15 +456,12 @@ page 133 "Posted Sales Invoice Subform"
     trigger OnOpenPage()
     begin
         SetDimensionsVisibility();
-        SetItemReferenceVisibility();
     end;
 
     var
         DocumentTotals: Codeunit "Document Totals";
         VATAmount: Decimal;
         IsFoundation: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         TotalSalesInvoiceHeader: Record "Sales Invoice Header";
@@ -489,7 +482,7 @@ page 133 "Posted Sales Invoice Subform"
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(
           6, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", "Order No.", "Order Line No.");
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -509,13 +502,13 @@ page 133 "Posted Sales Invoice Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility()
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 

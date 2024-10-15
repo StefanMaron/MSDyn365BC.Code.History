@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 1259 "Certificate Management"
 {
 
@@ -147,6 +148,7 @@ codeunit 1259 "Certificate Management"
         exit(CertString);
     end;
 
+    [Obsolete('The function will be removed. Use the function GetCertAsDotNet instead.', '20.0')]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure GetCertAsDotNetX509Certificate2(IsolatedCertificate: Record "Isolated Certificate"; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
@@ -226,6 +228,7 @@ codeunit 1259 "Certificate Management"
         end;
     end;
 
+    [Obsolete('The function will be removed. Use the function ConvertCertToDotNetFromBase64 instead.', '20.0')]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ConvertBase64StringToDotNetX509Certificate2(Base64String: Text; Password: Text; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
@@ -240,6 +243,7 @@ codeunit 1259 "Certificate Management"
         DotNetX509Certificate2.X509Certificate2(DotNetArrayBytes, Password, DotNetX509KeyStorageFlags);
     end;
 
+    [Obsolete('The function will be removed. Use the function GetRawCertDataAsBase64String instead.', '20.0')]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean): Text
@@ -257,6 +261,7 @@ codeunit 1259 "Certificate Management"
         exit(Convert.ToBase64String(Bytes));
     end;
 
+    [Obsolete('The function will be removed.', '20.0')]
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ConvertDotNetX509Certificate2ToBytes(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean; var DotNetArrayBytes: Codeunit DotNet_Array): Boolean
@@ -279,6 +284,7 @@ codeunit 1259 "Certificate Management"
         exit(not IsNull(Bytes));
     end;
 
+    [Obsolete('The function will be removed. Use the function GetCertSimpleName instead.', '20.0')]
     [Scope('OnPrem')]
     procedure GetCertificateCommonName(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2): Text
     var
@@ -293,6 +299,7 @@ codeunit 1259 "Certificate Management"
         exit(X509Certificate2.GetNameInfo(X509NameType.SimpleName, false));
     end;
 
+    [Obsolete('The function will be removed.', '20.0')]
     [NonDebuggable]
     procedure SignData(DataText: Text; SignatureOutStream: OutStream; IsolatedCertificate: Record "Isolated Certificate"; ElectronicSignatureProvider: Interface "Electronic Signature Provider")
     var
@@ -307,12 +314,11 @@ codeunit 1259 "Certificate Management"
         SignData(DataInStream, SignatureOutStream, IsolatedCertificate, ElectronicSignatureProvider);
     end;
 
+    [Obsolete('The function will be removed.', '20.0')]
     [NonDebuggable]
     procedure SignData(DataInStream: InStream; SignatureOutStream: OutStream; IsolatedCertificate: Record "Isolated Certificate"; ElectronicSignatureProvider: Interface "Electronic Signature Provider")
     var
-#if not CLEAN19
         SignatureKey: Record "Signature Key";
-#endif
         DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
         DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
     begin
@@ -320,15 +326,12 @@ codeunit 1259 "Certificate Management"
         IsolatedCertificate.TestField("Has Private Key");
         GetCertAsDotNetX509Certificate2(IsolatedCertificate, DotNetX509Certificate2);
         DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
-#if CLEAN19
-        ElectronicSignatureProvider.GetSignature(DataInStream, DotNetAsymmetricAlgorithm.ToXmlString(true), SignatureOutStream);
-#else
         SignatureKey."Signature Algorithm" := Enum::SignatureAlgorithm::RSA;
         SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
         ElectronicSignatureProvider.GetSignature(DataInStream, SignatureKey, SignatureOutStream);
-#endif
     end;
 
+    [Obsolete('The function will be removed. Use the function GetCertAsBase64String instead.', '20.0')]
     [NonDebuggable]
     procedure GetCertAsBase64StringWithoutPrivateKey(IsolatedCertificate: Record "Isolated Certificate"): Text
     var
@@ -339,6 +342,7 @@ codeunit 1259 "Certificate Management"
         exit(ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2, '', false));
     end;
 
+    [Obsolete('The function will be removed. Use the function VerifyCertFromBase64 instead.', '20.0')]
     [NonDebuggable]
     procedure VerifyCertificate(CertBase64Value: Text): Boolean
     var
@@ -355,6 +359,7 @@ codeunit 1259 "Certificate Management"
         exit(X509Chain.Build(X509Certificate2));
     end;
 
+    [Obsolete('The function will be removed. Use the function GetCertSimpleName instead.', '20.0')]
     [NonDebuggable]
     procedure GetCertificateCommonName(IsolatedCertificate: Record "Isolated Certificate"): Text
     var
@@ -364,4 +369,76 @@ codeunit 1259 "Certificate Management"
         GetCertAsDotNetX509Certificate2(IsolatedCertificate, DotNetX509Certificate2);
         exit(GetCertificateCommonName(DotNetX509Certificate2));
     end;
+
+    [NonDebuggable]
+    procedure GetRawCertDataAsBase64String(IsolatedCertificate: Record "Isolated Certificate"): Text
+    var
+        X509Certificate2: DotNet X509Certificate2;
+        Convert: DotNet Convert;
+    begin
+        GetCertAsDotNet(IsolatedCertificate, DotNet_X509Certificate2);
+        DotNet_X509Certificate2.GetX509Certificate2(X509Certificate2);
+        exit(Convert.ToBase64String(X509Certificate2.GetRawCertData()));
+    end;
+
+    [NonDebuggable]
+    local procedure ConvertCertToDotNetFromBase64(Base64String: Text; Password: Text; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    var
+        DotNetArrayBytes: Codeunit DotNet_Array;
+        DotNetX509KeyStorageFlags: Codeunit DotNet_X509KeyStorageFlags;
+        Convert: DotNet Convert;
+    begin
+        DotNetArrayBytes.SetArray(Convert.FromBase64String(Base64String));
+        DotNetX509KeyStorageFlags.Exportable();
+        DotNetX509Certificate2.X509Certificate2(DotNetArrayBytes, Password, DotNetX509KeyStorageFlags);
+    end;
+
+    [NonDebuggable]
+    procedure VerifyCertFromBase64(Base64String: Text): Boolean
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        X509Certificate2: DotNet X509Certificate2;
+        X509Chain: DotNet X509Chain;
+        X509RevocationMode: DotNet X509RevocationMode;
+    begin
+        ConvertCertToDotNetFromBase64(Base64String, '', DotNetX509Certificate2);
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        X509Chain := X509Chain.X509Chain();
+        X509Chain.ChainPolicy.RevocationMode := X509RevocationMode.NoCheck;
+        exit(X509Chain.Build(X509Certificate2));
+    end;
+
+    [NonDebuggable]
+    local procedure GetCertAsDotNet(IsolatedCertificate: Record "Isolated Certificate"; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
+    begin
+        ConvertCertToDotNetFromBase64(
+            GetCertAsBase64String(IsolatedCertificate), GetPassword(IsolatedCertificate), DotNetX509Certificate2);
+    end;
+
+    [NonDebuggable]
+    procedure GetCertSimpleName(IsolatedCertificate: Record "Isolated Certificate"): Text
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        X509Certificate2: DotNet X509Certificate2;
+        X509NameType: DotNet X509NameType;
+    begin
+        GetCertAsDotNet(IsolatedCertificate, DotNetX509Certificate2);
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        if IsNull(X509Certificate2) then
+            exit('');
+        exit(X509Certificate2.GetNameInfo(X509NameType.SimpleName, false));
+    end;
+
+    [NonDebuggable]
+    procedure GetCertPrivateKey(IsolatedCertificate: Record "Isolated Certificate"; var SignatureKey: Codeunit "Signature Key")
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
+    begin
+        IsolatedCertificate.TestField("Has Private Key");
+        GetCertAsDotNet(IsolatedCertificate, DotNetX509Certificate2);
+        DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
+        SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
+    end;
 }
+#endif

@@ -31,7 +31,7 @@ codeunit 31080 AccSchedExtensionManagement
         AccSchedMgt.SetDateParameters(StartDate, EndDate);
         with AccSchedExtension do begin
             SetFilter(Code, NewAccSchedLine.Totaling);
-            if FindFirst then
+            if FindFirst() then
                 case "Source Table" of
                     "Source Table"::"VAT Entry":
                         Value := GetVATEntryValue;
@@ -207,7 +207,7 @@ codeunit 31080 AccSchedExtensionManagement
     begin
         CustLedgEntry.SetCurrentKey("Document Type", "Customer No.", "Posting Date", "Currency Code");
         SetCustLedgEntryFilters(CustLedgEntry);
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 CustLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 case AccSchedExtension."Amount Sign" of
@@ -233,7 +233,7 @@ codeunit 31080 AccSchedExtensionManagement
     begin
         VendLedgEntry.SetCurrentKey("Document Type", "Vendor No.", "Posting Date", "Currency Code");
         SetVendLedgEntryFilters(VendLedgEntry);
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 case AccSchedExtension."Amount Sign" of

@@ -25,9 +25,6 @@ permissionset 2345 "Intrastat - Edit"
                   tabledata "Specific Movement" = R,
                   tabledata "Stat. Reporting Setup" = R,
 #endif
-#if not CLEAN17
-                  tabledata "Statistic Indication" = R,
-#endif
                   tabledata "Tariff Number" = R,
                   tabledata "Transaction Specification" = R,
                   tabledata "Transaction Type" = R,

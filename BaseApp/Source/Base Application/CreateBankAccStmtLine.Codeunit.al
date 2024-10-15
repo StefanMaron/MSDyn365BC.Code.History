@@ -13,13 +13,13 @@ codeunit 11719 "Create Bank Acc. Stmt Line"
         LineNo: Integer;
     begin
         BankStmtLn.SetRange("Bank Statement No.", "Statement No.");
-        if BankStmtLn.FindLast then
+        if BankStmtLn.FindLast() then
             LineNo := BankStmtLn."Line No.";
 
         BankAccReconLn.SetRange("Statement Type", "Statement Type");
         BankAccReconLn.SetRange("Bank Account No.", "Bank Account No.");
         BankAccReconLn.SetRange("Statement No.", "Statement No.");
-        if BankAccReconLn.FindSet then
+        if BankAccReconLn.FindSet() then
             repeat
                 LineNo += 10000;
                 BankStmtLn.Init();

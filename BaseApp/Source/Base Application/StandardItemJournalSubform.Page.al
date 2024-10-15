@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 755 "Standard Item Journal Subform"
 {
     AutoSplitKey = true;
@@ -15,18 +16,6 @@ page 755 "Standard Item Journal Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-#if not CLEAN17
-                field("Whse. Net Change Template"; "Whse. Net Change Template")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the template for item''s whse. net change.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-
-                }
-#endif
                 field("Entry Type"; "Entry Type")
                 {
                     ApplicationArea = Suite;
@@ -64,6 +53,9 @@ page 755 "Standard Item Journal Subform"
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code of the location that you are transferring items to.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Bin Code"; "Bin Code")
                 {
@@ -331,4 +323,4 @@ page 755 "Standard Item Journal Subform"
         Clear(DimMgt);
     end;
 }
-
+#endif

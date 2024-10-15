@@ -181,6 +181,14 @@ table 5747 "Transfer Receipt Line"
         field(11761; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {

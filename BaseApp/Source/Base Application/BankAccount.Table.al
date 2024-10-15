@@ -16,11 +16,7 @@ table 270 "Bank Account"
             begin
                 if "No." <> xRec."No." then begin
                     GLSetup.Get();
-#if CLEAN17
                     NoSeriesMgt.TestManual(GLSetup."Bank Account Nos.");
-#else
-                    NoSeriesMgt.TestManual(GetNoSeriesCode()); // NAVCZ
-#endif
                     "No. Series" := '';
                 end;
             end;
@@ -89,18 +85,7 @@ table 270 "Bank Account"
             Caption = 'Bank Account No.';
 
             trigger OnValidate()
-#if not CLEAN17
-            var
-                CompanyInfo: Record "Company Information";
-#endif
             begin
-#if not CLEAN17
-                // NAVCZ
-                CompanyInfo.Get();
-                if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                    CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
-                // NAVCZ
-#endif
                 OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
@@ -151,16 +136,6 @@ table 270 "Bank Account"
         {
             Caption = 'Bank Acc. Posting Group';
             TableRelation = "Bank Account Posting Group";
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if "Bank Acc. Posting Group" <> xRec."Bank Acc. Posting Group" then
-                    CheckOpenBankAccLedgerEntries;
-                // NAVCZ
-            end;
-#endif
         }
         field(22; "Currency Code"; Code[10])
         {
@@ -188,7 +163,7 @@ table 270 "Bank Account"
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
                 BankAccLedgEntry.SetRange(Open, true);
-                if BankAccLedgEntry.FindLast then
+                if BankAccLedgEntry.FindLast() then
                     Error(
                       Text000,
                       FieldCaption("Currency Code"));
@@ -282,6 +257,7 @@ table 270 "Bank Account"
         }
         field(58; Balance; Decimal)
         {
+            AccessByPermission = TableData "Bank Account Ledger Entry" = R;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
@@ -293,6 +269,7 @@ table 270 "Bank Account"
         }
         field(59; "Balance (LCY)"; Decimal)
         {
+            AccessByPermission = TableData "Bank Account Ledger Entry" = R;
             AutoFormatType = 1;
             CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -334,6 +311,15 @@ table 270 "Bank Account"
             Caption = 'Total on Checks';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(70; "Use as Default for Currency"; Boolean)
+        {
+            Caption = 'Use as Default for Currency';
+            trigger OnValidate()
+            begin
+                if "Use as Default for Currency" = true then
+                    EnsureUniqueForCurrency();
+            end;
         }
         field(84; "Fax No."; Text[30])
         {
@@ -972,62 +958,42 @@ table 270 "Bank Account"
             Caption = 'Max. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11731; "Min. Balance Checking"; Option)
         {
             Caption = 'Min. Balance Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11732; "Allow VAT Difference"; Boolean)
         {
             Caption = 'Allow VAT Difference';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11733; "Payed To/By Checking"; Option)
         {
             Caption = 'Payed To/By Checking';
             OptionCaption = 'No Checking,Warning,Blocking';
             OptionMembers = "No Checking",Warning,Blocking;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11734; "Reason Code"; Code[10])
         {
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11735; "User ID"; Code[50])
         {
@@ -1037,71 +1003,47 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11736; "Amounts Including VAT"; Boolean)
         {
             Caption = 'Amounts Including VAT';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11737; "Confirm Inserting of Document"; Boolean)
         {
             Caption = 'Confirm Inserting of Document';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11738; "Debit Rounding Account"; Code[20])
         {
             Caption = 'Debit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11739; "Credit Rounding Account"; Code[20])
         {
             Caption = 'Credit Rounding Account';
             TableRelation = "G/L Account"."No." WHERE("Account Type" = CONST(Posting));
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11740; "Rounding Method Code"; Code[10])
         {
             Caption = 'Rounding Method Code';
             TableRelation = "Rounding Method";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11741; "Responsibility ID (Release)"; Code[50])
         {
@@ -1111,22 +1053,9 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                UserSelection: Codeunit "User Selection";
-            begin
-                UserSelection.ValidateUserName("User ID");
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11742; "Responsibility ID (Post)"; Code[50])
         {
@@ -1136,34 +1065,17 @@ table 270 "Bank Account"
             //This property is currently not supported
             //TestTableRelation = false;
             ValidateTableRelation = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                UserSelection: Codeunit "User Selection";
-            begin
-                UserSelection.ValidateUserName("User ID");
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11743; "Responsibility Center"; Code[10])
         {
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11760; "Amount Rounding Precision"; Decimal)
         {
@@ -1171,115 +1083,69 @@ table 270 "Bank Account"
             DecimalPlaces = 2 : 5;
             InitValue = 1;
             MinValue = 0;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "CashReg Document Copies"; Integer)
         {
             Caption = 'CashReg Document Copies';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11762; "Direct Posting"; Boolean)
         {
             Caption = 'Direct Posting';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11763; "Account Type"; Option)
         {
             Caption = 'Account Type';
             OptionCaption = 'Bank Account,Cash Desk';
             OptionMembers = "Bank Account","Cash Desk";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-            trigger OnValidate()
-            var
-                ChangeAccountTypeErr: Label 'You cannot change %1.', Comment = '%1 = Account Type FieldCaption';
-            begin
-                if CurrFieldNo = FieldNo("Account Type") then
-                    if "Account Type" <> xRec."Account Type" then
-                        Error(ChangeAccountTypeErr, FieldCaption("Account Type"));
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11764; "Max. Balance"; Decimal)
         {
             Caption = 'Max. Balance';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11765; "Cash Document Receipt Nos."; Code[20])
         {
             Caption = 'Cash Document Receipt Nos.';
             TableRelation = "No. Series";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11766; "Cash Document Withdrawal Nos."; Code[20])
         {
             Caption = 'Cash Document Withdrawal Nos.';
             TableRelation = "No. Series";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11767; "Cash Receipt Limit"; Decimal)
         {
             Caption = 'Cash Receipt Limit';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11768; "Cash Withdrawal Limit"; Decimal)
         {
             Caption = 'Cash Withdrawal Limit';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11769; "Exclude from Exch. Rate Adj."; Boolean)
         {
@@ -1307,13 +1173,9 @@ table 270 "Bank Account"
         {
             Caption = 'Cashier No.';
             TableRelation = Employee;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11779; "Run Apply Automatically"; Boolean)
         {
@@ -1475,12 +1337,6 @@ table 270 "Bank Account"
     }
 
     trigger OnDelete()
-#if not CLEAN17
-    var
-        CashDocHdr: Record "Cash Document Header";
-        CashDeskUser: Record "Cash Desk User";
-        CashDeskEvent: Record "Cash Desk Event";
-#endif
     begin
         CheckDeleteBalancingBankAccount;
 
@@ -1493,40 +1349,16 @@ table 270 "Bank Account"
         UpdateContFromBank.OnDelete(Rec);
 
         DimMgt.DeleteDefaultDim(DATABASE::"Bank Account", "No.");
-#if not CLEAN17
-
-        // NAVCZ
-        if "Account Type" = "Account Type"::"Cash Desk" then begin
-            CashDocHdr.SetRange("Cash Desk No.", "No.");
-            if not CashDocHdr.IsEmpty() then
-                Error(CannotDeleteErr, "Account Type", "No.", CashDocHdr.TableCaption);
-            CashDeskUser.SetRange("Cash Desk No.", "No.");
-            CashDeskUser.DeleteAll();
-            CashDeskEvent.SetRange("Cash Desk No.", "No.");
-            CashDeskEvent.DeleteAll();
-        end;
-        // NAVCZ
-#endif
     end;
 
     trigger OnInsert()
     begin
         if "No." = '' then begin
-#if CLEAN17
             GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
             NoSeriesMgt.InitSeries(GLSetup."Bank Account Nos.", xRec."No. Series", 0D, "No.", "No. Series");
-#else
-            // NAVCZ
-            TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", 0D, "No.", "No. Series");
-            // NAVCZ
-#endif
         end;
 
-#if not CLEAN17
-        if "Account Type" <> "Account Type"::"Cash Desk" then // NAVCZ
-#endif
         if not InsertFromContact then
             UpdateContFromBank.OnInsert(Rec);
 
@@ -1568,14 +1400,10 @@ table 270 "Bank Account"
         MoveEntries: Codeunit MoveEntries;
         UpdateContFromBank: Codeunit "BankCont-Update";
         DimMgt: Codeunit DimensionManagement;
-#if not CLEAN17
-        CashDeskMgt: Codeunit CashDeskManagement;
-#endif    
         InsertFromContact: Boolean;
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
 #if not CLEAN19
         ExcludeEntriesQst: Label 'All entries will be excluded from Exchange Rates Adjustment. Do you want to continue?';
-        CannotDeleteErr: Label 'You cannot delete %1 %2, beacause %3 exist.', Comment = '%1 = account type, %2 = number, %3 = tablecaption';
         CurrExchRateIsEmptyErr: Label 'There is no Currency Exchange Rate within the filter. Filters: %1.', Comment = '%1 = filters';
 #endif
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a %1 or an %2.';
@@ -1599,16 +1427,11 @@ table 270 "Bank Account"
     begin
         with BankAcc do begin
             BankAcc := Rec;
-#if CLEAN17
             GLSetup.Get();
             GLSetup.TestField("Bank Account Nos.");
             if NoSeriesMgt.SelectSeries(GLSetup."Bank Account Nos.", OldBankAcc."No. Series", "No. Series") then begin
                 GLSetup.Get();
                 GLSetup.TestField("Bank Account Nos.");
-#else
-            TestNoSeries(); // NAVCZ
-            if NoSeriesMgt.SelectSeries(GetNoSeriesCode(), OldBankAcc."No. Series", "No. Series") then begin // NAVCZ
-#endif
                 NoSeriesMgt.SetSeries("No.");
                 Rec := BankAcc;
                 exit(true);
@@ -1640,11 +1463,11 @@ table 270 "Bank Account"
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
         ContBusRel.SetRange("No.", "No.");
-        if not ContBusRel.FindFirst then begin
+        if not ContBusRel.FindFirst() then begin
             if not Confirm(Text003, false, TableCaption, "No.") then
                 exit;
             UpdateContFromBank.InsertNewContact(Rec, false);
-            ContBusRel.FindFirst;
+            ContBusRel.FindFirst();
         end;
         Commit();
 
@@ -1657,6 +1480,15 @@ table 270 "Bank Account"
     procedure SetInsertFromContact(FromContact: Boolean)
     begin
         InsertFromContact := FromContact;
+    end;
+
+    procedure CopyBankFieldsFromCompanyInfo(CompanyInformation: Record "Company Information")
+    begin
+        "Bank Account No." := CompanyInformation."Bank Account No.";
+        "Bank Branch No." := CompanyInformation."Bank Branch No.";
+        Name := CompanyInformation."Bank Name";
+        IBAN := CompanyInformation.IBAN;
+        "SWIFT Code" := CompanyInformation."SWIFT Code";
     end;
 
     procedure GetPaymentExportCodeunitID(): Integer
@@ -1722,13 +1554,22 @@ table 270 "Bank Account"
         exit(NoSeriesManagement.GetNextNo("Direct Debit Msg. Nos.", Today, true));
     end;
 
+    procedure GetDefaultBankAccountNoForCurrency(CurrencyCode: Code[20]) BankAccountNo: Code[20]
+    begin
+        SetLoadFields("Currency Code", "Use as Default for Currency");
+        SetRange("Currency Code", CurrencyCode);
+        SetRange("Use as Default for Currency", true);
+        if FindFirst() then;
+        exit("No.");
+    end;
+
     procedure DisplayMap()
     var
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
         else
             Message(Text004);
@@ -1789,196 +1630,6 @@ table 270 "Bank Account"
         TestField(Balance, 0);
         TestField("Balance (LCY)", 0);
     end;
-#endif
-#if not CLEAN17
-    local procedure CheckOpenBankAccLedgerEntries()
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        // NAVCZ
-        BankAccount.Get("No.");
-        BankAccount.CalcFields(Balance, "Balance (LCY)");
-        BankAccount.TestField(Balance, 0);
-        BankAccount.TestField("Balance (LCY)", 0);
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    procedure TestNoSeries()
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        case "Account Type" of
-            "Account Type"::"Bank Account":
-                GLSetup.TestField("Bank Account Nos.");
-            "Account Type"::"Cash Desk":
-                GLSetup.TestField("Cash Desk Nos.");
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
-    procedure GetNoSeriesCode(): Code[20]
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        case "Account Type" of
-            "Account Type"::"Bank Account":
-                exit(GLSetup."Bank Account Nos.");
-            "Account Type"::"Cash Desk":
-                exit(GLSetup."Cash Desk Nos.");
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure Lookup()
-    var
-        CashDeskList: Page "Cash Desk List";
-        BankList: Page "Bank List";
-    begin
-        // NAVCZ
-        case "Account Type" of
-            "Account Type"::"Bank Account":
-                begin
-                    BankList.LookupMode(true);
-                    BankList.SetRecord(Rec);
-                    if BankList.RunModal = ACTION::LookupOK then
-                        BankList.GetRecord(Rec);
-                end;
-            "Account Type"::"Cash Desk":
-                begin
-                    CashDeskList.LookupMode(true);
-                    CashDeskList.SetRecord(Rec);
-                    if CashDeskList.RunModal = ACTION::LookupOK then
-                        CashDeskList.GetRecord(Rec);
-                end;
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CardPageRun()
-    var
-        BankAccount: Record "Bank Account";
-        CashDesksFilter: Text;
-    begin
-        // NAVCZ
-        BankAccount.Copy(Rec);
-        case "Account Type" of
-            "Account Type"::"Bank Account":
-                PAGE.Run(PAGE::"Bank Account Card", BankAccount);
-            "Account Type"::"Cash Desk":
-                begin
-                    CheckCashDesks;
-                    CashDesksFilter := CashDeskMgt.GetCashDesksFilter;
-
-                    BankAccount.FilterGroup(2);
-                    if CashDesksFilter <> '' then
-                        BankAccount.SetFilter("No.", CashDesksFilter);
-                    BankAccount.FilterGroup(0);
-
-                    PAGE.Run(PAGE::"Cash Desk Card", BankAccount);
-                end;
-        end;
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcBalance(): Decimal
-    begin
-        // NAVCZ
-        exit(CalcOpenedReceipts + CalcOpenedWithdrawals + CalcPostedReceipts + CalcPostedWithdrawals);
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcOpenedWithdrawals(): Decimal
-    var
-        CashDocHeader: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        exit(CalcOpenedNetChanges(CashDocHeader."Cash Document Type"::Withdrawal));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcOpenedReceipts(): Decimal
-    var
-        CashDocHeader: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        exit(CalcOpenedNetChanges(CashDocHeader."Cash Document Type"::Receipt));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    local procedure CalcOpenedNetChanges(CashDocumentType: Option): Decimal
-    var
-        CashDocHeader: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        CopyFilter("Date Filter", CashDocHeader."Posting Date");
-        CashDocHeader.SetRange("Cash Desk No.", "No.");
-        CashDocHeader.SetRange("Cash Document Type", CashDocumentType);
-        CashDocHeader.SetRange(Status, CashDocHeader.Status::Released);
-        CashDocHeader.CalcSums("Released Amount");
-
-        if CashDocumentType = CashDocHeader."Cash Document Type"::Withdrawal then
-            exit(-CashDocHeader."Released Amount");
-
-        exit(CashDocHeader."Released Amount");
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcPostedWithdrawals(): Decimal
-    var
-        CashDocHeader: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        exit(CalcPostedNetChanges(CashDocHeader."Cash Document Type"::Withdrawal));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcPostedReceipts(): Decimal
-    var
-        CashDocHeader: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        exit(CalcPostedNetChanges(CashDocHeader."Cash Document Type"::Receipt));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    local procedure CalcPostedNetChanges(CashDocumentType: Option): Decimal
-    var
-        PostedCashDocLine: Record "Posted Cash Document Line";
-        PostedCashDocHeader: Record "Posted Cash Document Header";
-        TotalNetChange: Decimal;
-    begin
-        // NAVCZ
-        if GetFilter("Date Filter") = '' then begin
-            PostedCashDocLine.SetRange("Cash Desk No.", "No.");
-            PostedCashDocLine.SetRange("Cash Document Type", CashDocumentType);
-            PostedCashDocLine.CalcSums("Amount Including VAT");
-            TotalNetChange += PostedCashDocLine."Amount Including VAT";
-        end else begin
-            CopyFilter("Date Filter", PostedCashDocHeader."Posting Date");
-            PostedCashDocHeader.SetRange("Cash Desk No.", "No.");
-            if PostedCashDocHeader.FindSet then
-                repeat
-                    PostedCashDocLine.SetRange("Cash Document No.", PostedCashDocHeader."No.");
-                    PostedCashDocLine.SetRange("Cash Desk No.", "No.");
-                    PostedCashDocLine.SetRange("Cash Document Type", CashDocumentType);
-                    PostedCashDocLine.CalcSums("Amount Including VAT");
-                    TotalNetChange += PostedCashDocLine."Amount Including VAT";
-                until PostedCashDocHeader.Next() = 0;
-        end;
-
-        if CashDocumentType = PostedCashDocHeader."Cash Document Type"::Withdrawal then
-            exit(-TotalNetChange);
-
-        exit(TotalNetChange);
-    end;
-
 #endif
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
@@ -2163,7 +1814,7 @@ table 270 "Bank Account"
     var
         BankAccount: Record "Bank Account";
     begin
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
@@ -2176,13 +1827,25 @@ table 270 "Bank Account"
     var
         BankAccount: Record "Bank Account";
     begin
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 if BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next() = 0;
+    end;
+
+    local procedure EnsureUniqueForCurrency()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.SetLoadFields("Currency Code", "Use as Default for Currency");
+        BankAccount.SetRange("Currency Code", "Currency Code");
+        BankAccount.SetFilter("No.", '<>%1', "No.");
+        BankAccount.SetRange("Use as Default for Currency", true);
+        if BankAccount.FindFirst() then
+            BankAccount.TestField("Use as Default for Currency", false);
     end;
 
     local procedure SelectBankLinkingService(): Text
@@ -2210,7 +1873,7 @@ table 270 "Bank Account"
             exit;
 
         TempNameValueBuffer.SetRange(Value, SelectStr(OptionNo, OptionStr));
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         exit(TempNameValueBuffer.Name);
     end;
@@ -2275,7 +1938,7 @@ table 270 "Bank Account"
         JobQueueEntry: Record "Job Queue Entry";
     begin
         SetAutomaticImportJobQueueEntryFilters(JobQueueEntry);
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 
@@ -2327,7 +1990,7 @@ table 270 "Bank Account"
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
     begin
         OnGetStatementProvidersEvent(TempNameValueBuffer);
-        if TempNameValueBuffer.FindSet then
+        if TempNameValueBuffer.FindSet() then
             repeat
                 OnDisableStatementProviderEvent(TempNameValueBuffer.Name);
             until TempNameValueBuffer.Next() = 0;
@@ -2454,18 +2117,6 @@ table 270 "Bank Account"
         // The subscriber of this event should insert a unique identifier (Name) and friendly name of the provider (Value)
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
-    [Scope('OnPrem')]
-    procedure CheckCashDesks()
-    begin
-        // NAVCZ
-        if "No." <> '' then
-            CashDeskMgt.CheckCashDesk("No.");
-        CashDeskMgt.CheckCashDesks;
-    end;
-
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnDisableStatementProviderEvent(ProviderName: Text)
     begin
@@ -2499,4 +2150,3 @@ table 270 "Bank Account"
     begin
     end;
 }
-

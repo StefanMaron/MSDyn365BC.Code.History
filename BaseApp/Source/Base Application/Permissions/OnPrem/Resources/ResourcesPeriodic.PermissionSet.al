@@ -27,10 +27,5 @@ permissionset 9338 "Resources - Periodic"
 #endif
                   tabledata "Resource Register" = Rd,
                   tabledata "Rounding Method" = R,
-#if CLEAN17
                   tabledata "Source Code Setup" = R;
-#else
-                  tabledata "Source Code Setup" = R,
-                  tabledata "VAT Period" = R;
-#endif
 }

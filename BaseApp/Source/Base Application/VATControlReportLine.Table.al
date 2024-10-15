@@ -1,22 +1,15 @@
 table 31101 "VAT Control Report Line"
 {
     Caption = 'VAT Control Report Line';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
         field(1; "Control Report No."; Code[20])
         {
             Caption = 'Control Report No.';
-#if not CLEAN17
-            TableRelation = "VAT Control Report Header";
-#endif
         }
         field(2; "Line No."; Integer)
         {
@@ -25,9 +18,6 @@ table 31101 "VAT Control Report Line"
         field(5; "VAT Control Rep. Section Code"; Code[20])
         {
             Caption = 'VAT Control Rep. Section Code';
-#if not CLEAN17
-            TableRelation = "VAT Control Report Section";
-#endif
         }
         field(11; "Posting Date"; Date)
         {
@@ -111,9 +101,6 @@ table 31101 "VAT Control Report Line"
         field(41; "Commodity Code"; Code[10])
         {
             Caption = 'Commodity Code';
-#if not CLEAN17
-            TableRelation = Commodity;
-#endif
         }
         field(42; "Supplies Mode Code"; Option)
         {
@@ -187,71 +174,4 @@ table 31101 "VAT Control Report Line"
     {
     }
 
-#if not CLEAN17
-    trigger OnDelete()
-    var
-        VATCtrlRepVATEntryLink: Record "VAT Ctrl.Rep. - VAT Entry Link";
-    begin
-        TestStatusOpen;
-
-        VATCtrlRepVATEntryLink.SetRange("Control Report No.", "Control Report No.");
-        VATCtrlRepVATEntryLink.SetRange("Line No.", "Line No.");
-        VATCtrlRepVATEntryLink.DeleteAll();
-    end;
-
-    trigger OnInsert()
-    begin
-        TestStatusOpen;
-    end;
-
-    trigger OnModify()
-    begin
-        TestStatusOpen;
-    end;
-
-    var
-        VATCtrlRptHdr: Record "VAT Control Report Header";
-
-    local procedure TestStatusOpen()
-    begin
-        VATCtrlRptHdr.Get("Control Report No.");
-        VATCtrlRptHdr.TestField(Status, VATCtrlRptHdr.Status::Open);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure Navigate()
-    var
-        NavigateForm: Page Navigate;
-    begin
-        NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure ChangeVATControlRepSection()
-    var
-        VATCtrlRptSection: Record "VAT Control Report Section";
-        VATCtrlRptSections: Page "VAT Control Report Sections";
-    begin
-        VATCtrlRptSections.LookupMode := true;
-        if VATCtrlRptSections.RunModal <> ACTION::LookupOK then
-            exit;
-        VATCtrlRptSection.Init();
-        VATCtrlRptSections.GetRecord(VATCtrlRptSection);
-        ChangeVATControlRepSectionCode(VATCtrlRptSection.Code);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure ChangeVATControlRepSectionCode(VATCtrlRptSectionCode: Code[20])
-    var
-        VATCtrlRptLn: Record "VAT Control Report Line";
-    begin
-        VATCtrlRptLn.Copy(Rec);
-        VATCtrlRptLn.ModifyAll("VAT Control Rep. Section Code", VATCtrlRptSectionCode);
-    end;
-#endif
 }
-

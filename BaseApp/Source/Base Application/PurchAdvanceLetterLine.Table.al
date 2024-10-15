@@ -3,11 +3,12 @@ table 31021 "Purch. Advance Letter Line"
     Caption = 'Purch. Advance Letter Line';
 #if not CLEAN19
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -402,7 +403,6 @@ table 31021 "Purch. Advance Letter Line"
             end;
 #endif
         }
-#if not CLEAN19
         field(31016; "Vendor Posting Group"; Code[20])
         {
             CalcFormula = Lookup("Purch. Advance Letter Header"."Vendor Posting Group" WHERE("No." = FIELD("Letter No.")));
@@ -411,12 +411,10 @@ table 31021 "Purch. Advance Letter Line"
             FieldClass = FlowField;
             TableRelation = "Vendor Posting Group";
         }
-#endif
         field(31017; "Link Code"; Code[30])
         {
             Caption = 'Link Code';
         }
-#if not CLEAN19
         field(31018; "Document Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -436,7 +434,6 @@ table 31021 "Purch. Advance Letter Line"
             FieldClass = FlowFilter;
             TableRelation = "Purchase Header"."No.";
         }
-#endif
         field(31020; "Semifinished Linked Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -444,7 +441,6 @@ table 31021 "Purch. Advance Letter Line"
             BlankZero = true;
             Caption = 'Semifinished Linked Amount';
         }
-#if not CLEAN19
         field(31021; "Document Linked Inv. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -458,7 +454,6 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31022; "Advance G/L Account No."; Code[20])
         {
             Caption = 'Advance G/L Account No.';
@@ -473,7 +468,6 @@ table 31021 "Purch. Advance Letter Line"
             end;
 #endif
         }
-#if not CLEAN19
         field(31023; "Document Linked Ded. Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -500,7 +494,6 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31025; "VAT Difference Inv."; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -530,7 +523,6 @@ table 31021 "Purch. Advance Letter Line"
             BlankZero = true;
             Caption = 'VAT Amount To Refund';
         }
-#if not CLEAN19
         field(31031; "Amount on Payment Order (LCY)"; Decimal)
         {
             CalcFormula = - Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
@@ -541,7 +533,6 @@ table 31021 "Purch. Advance Letter Line"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31032; "VAT Amount Inv. (LCY)"; Decimal)
         {
             AutoFormatType = 1;
@@ -681,7 +672,7 @@ table 31021 "Purch. Advance Letter Line"
         PurchCommentLine.SetRange("No.", "Letter No.");
         PurchCommentLine.SetRange("Document Line No.", "Line No.");
         PurchCommentSheet.SetTableView(PurchCommentLine);
-        PurchCommentSheet.RunModal;
+        PurchCommentSheet.RunModal();
     end;
 
     local procedure GetLetterHeader()
@@ -736,7 +727,7 @@ table 31021 "Purch. Advance Letter Line"
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount Including VAT", '<>0');
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
                     if VATAmountLine.Modified then begin
@@ -808,7 +799,7 @@ table 31021 "Purch. Advance Letter Line"
         with PurchAdvanceLetterLine2 do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount Including VAT", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     IncTotalLine(PurchAdvanceLetterLine, PurchAdvanceLetterLine2);
                     VATFactor := "VAT Amount" / "Amount Including VAT";
@@ -848,7 +839,7 @@ table 31021 "Purch. Advance Letter Line"
         end;
 #if not CLEAN18
         with VATAmountLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     if (PrevVatAmountLine."VAT Identifier" <> "VAT Identifier") or
                        (PrevVatAmountLine."VAT Calculation Type" <> "VAT Calculation Type") or
@@ -944,7 +935,7 @@ table 31021 "Purch. Advance Letter Line"
         with PurchAdvanceLetterLine2 do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount Including VAT", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     IncTotalLine(PurchAdvanceLetterLine, PurchAdvanceLetterLine2);
                     VATFactor := "VAT Amount" / "Amount Including VAT";
@@ -984,7 +975,7 @@ table 31021 "Purch. Advance Letter Line"
         end;
 
         with VATAmountLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     "VAT Amount" :=
                         "VAT Difference" +
@@ -1024,7 +1015,7 @@ table 31021 "Purch. Advance Letter Line"
     begin
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if "Amount To Invoice" <> 0 then begin
                         TempPurchAdvanceLetterLine.Init();
@@ -1080,7 +1071,7 @@ table 31021 "Purch. Advance Letter Line"
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount To Invoice", '<>0');
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
 #if CLEAN18
@@ -1291,7 +1282,7 @@ table 31021 "Purch. Advance Letter Line"
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount Including VAT", '<>0');
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not TempVATAmountLine.Get(
                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
@@ -1328,7 +1319,7 @@ table 31021 "Purch. Advance Letter Line"
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter(Amount, '<>0');
             LockTable();
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
                     if TempVATAmountLine.Modified then begin

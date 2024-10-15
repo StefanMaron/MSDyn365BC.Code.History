@@ -1,4 +1,4 @@
-﻿page 22 "Customer List"
+page 22 "Customer List"
 {
     ApplicationArea = Basic, Suite, Service;
     Caption = 'Customers';
@@ -12,7 +12,7 @@
     UsageCategory = Lists;
 
     AboutTitle = 'About customers';
-    AboutText = 'Here you overview all registered customers, their balances, and the sales statistics. With customer templates you can quickly create new customers having common details defined by the template.';
+    AboutText = 'Here you overview all registered customers, their balances, and the sales statistics. With [Customer Templates](?page=1381 "Opens the Customer Templates") you can quickly create new customers having common details defined by the template.';
 
     layout
     {
@@ -265,29 +265,14 @@
                 SubPageLink = "No." = FIELD("No.");
                 Visible = CRMIsCoupledToRecord and CRMIntegrationEnabled;
             }
-#if not CLEAN17
-            part(Control35; "Social Listening FactBox")
+            part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
+                Caption = 'Attachments';
+                SubPageLink = "Table ID" = CONST(18),
+                              "No." = FIELD("No.");
+                Visible = NOT IsOfficeAddin;
             }
-            part(Control33; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-#endif
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -411,7 +396,7 @@
                         begin
                             CurrPage.SetSelectionFilter(Cust);
                             DefaultDimMultiple.SetMultiRecord(Cust, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -457,25 +442,6 @@
                         ShowContact;
                     end;
                 }
-#if not CLEAN19
-                action("Cross Re&ferences")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                    Promoted = true;
-                    PromotedCategory = Category7;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Customer),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-#endif
                 action("Item References")
                 {
                     AccessByPermission = TableData "Item Reference" = R;
@@ -821,7 +787,6 @@
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1155,11 +1120,15 @@
         }
         area(processing)
         {
-#if not CLEAN19
+#if not CLEAN20
             group(Action104)
             {
                 Caption = 'History';
                 Image = History;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Duplicated action of CustomerLedgerEntries';
+                ObsoleteTag = '20.0';
+#if not CLEAN19
                 action(CustomerLedgerEntriesHistory)
                 {
                     ApplicationArea = Advanced;
@@ -1176,6 +1145,7 @@
                     ObsoleteReason = 'Duplicated action of CustomerLedgerEntries';
                     ObsoleteTag = '19.0';
                 }
+#endif                         
             }
 #endif            
             group(PricesAndDiscounts)
@@ -1689,22 +1659,6 @@
                     ToolTip = 'View a list of item sales for each customer during a selected time period. The report contains information on quantity, sales amount, profit, and possible discounts. It can be used, for example, to analyze a company''s customer groups.';
                 }
             }
-#if not CLEAN17
-            action("Balance Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Reconciliation';
-                Image = Balance;
-                Promoted = true;
-                PromotedCategory = "Report";
-                RunObject = Report "Customer - Bal. Reconciliation";
-                ToolTip = 'Open the report for customer''s balance reconciliation.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-            }
-#endif
         }
     }
 
@@ -1745,9 +1699,8 @@
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        EmailFeature: Codeunit "Email Feature";
+        OfficeManagement: Codeunit "Office Management";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
@@ -1756,6 +1709,7 @@
 
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetRange("Date Filter", 0D, WorkDate());
+        IsOfficeAddin := OfficeManagement.IsAvailable();
     end;
 
     var
@@ -1773,9 +1727,9 @@
         PowerBIVisible: Boolean;
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
+        IsOfficeAddin: Boolean;
         EventFilter: Text;
         CaptionTxt: Text;
-        EmailImprovementFeatureEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var
@@ -1832,4 +1786,3 @@
     begin
     end;
 }
-

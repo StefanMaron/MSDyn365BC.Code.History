@@ -246,13 +246,13 @@ page 5814 "Item Charge Assignment (Sales)"
                         ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
 
                         ShipmentLines.SetTableView(SalesShptLine);
-                        if ItemChargeAssgntSales.FindLast then
+                        if ItemChargeAssgntSales.FindLast() then
                             ShipmentLines.InitializeSales(ItemChargeAssgntSales, SalesLine2."Sell-to Customer No.", UnitCost)
                         else
                             ShipmentLines.InitializeSales(Rec, SalesLine2."Sell-to Customer No.", UnitCost);
 
                         ShipmentLines.LookupMode(true);
-                        ShipmentLines.RunModal;
+                        ShipmentLines.RunModal();
                     end;
                 }
                 action(GetReturnReceiptLines)
@@ -273,13 +273,13 @@ page 5814 "Item Charge Assignment (Sales)"
                         ItemChargeAssgntSales.SetRange("Document Line No.", "Document Line No.");
 
                         ReceiptLines.SetTableView(ReturnRcptLine);
-                        if ItemChargeAssgntSales.FindLast then
+                        if ItemChargeAssgntSales.FindLast() then
                             ReceiptLines.InitializeSales(ItemChargeAssgntSales, SalesLine2."Sell-to Customer No.", UnitCost)
                         else
                             ReceiptLines.InitializeSales(Rec, SalesLine2."Sell-to Customer No.", UnitCost);
 
                         ReceiptLines.LookupMode(true);
-                        ReceiptLines.RunModal;
+                        ReceiptLines.RunModal();
                     end;
                 }
                 action(SuggestItemChargeAssignment)
@@ -335,24 +335,24 @@ page 5814 "Item Charge Assignment (Sales)"
     var
         Text000: Label 'The sign of %1 must be the same as the sign of %2 of the item charge.';
         SalesLine: Record "Sales Line";
-        SalesLine2: Record "Sales Line";
-        ReturnRcptLine: Record "Return Receipt Line";
-        SalesShptLine: Record "Sales Shipment Line";
         AssignableQty: Decimal;
         TotalQtyToAssign: Decimal;
         RemQtyToAssign: Decimal;
         AssignableAmount: Decimal;
         TotalAmountToAssign: Decimal;
         RemAmountToAssign: Decimal;
-        QtyToRetReceiveBase: Decimal;
-        QtyRetReceivedBase: Decimal;
-        QtyToShipBase: Decimal;
-        QtyShippedBase: Decimal;
         GrossWeight: Decimal;
         UnitVolume: Decimal;
         DataCaption: Text[250];
 
     protected var
+        SalesLine2: Record "Sales Line";
+        ReturnRcptLine: Record "Return Receipt Line";
+        SalesShptLine: Record "Sales Shipment Line";
+        QtyToRetReceiveBase: Decimal;
+        QtyRetReceivedBase: Decimal;
+        QtyToShipBase: Decimal;
+        QtyShippedBase: Decimal;
         UnitCost: Decimal;
 
     local procedure UpdateQtyAssgnt()
@@ -425,6 +425,8 @@ page 5814 "Item Charge Assignment (Sales)"
                     UnitVolume := SalesLine."Unit Volume";
                 end;
         end;
+
+        OnAfterUpdateQty(Rec, QtyToShipBase, QtyShippedBase, QtyToRetReceiveBase, QtyRetReceivedBase, GrossWeight, UnitVolume);
     end;
 
     procedure Initialize(NewSalesLine: Record "Sales Line"; NewLineAmt: Decimal)
@@ -438,6 +440,11 @@ page 5814 "Item Charge Assignment (Sales)"
     begin
         CurrPage.Update(false);
         UpdateQtyAssgnt;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateQty(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var QtyToShipBase: Decimal; var QtyShippedBase: Decimal; var QtyToRetReceiveBase: Decimal; var QtyRetReceivedBase: Decimal; var GrossWeight: Decimal; var UnitVolume: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

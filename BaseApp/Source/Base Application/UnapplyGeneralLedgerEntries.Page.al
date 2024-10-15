@@ -147,7 +147,7 @@ page 11776 "Unapply General Ledger Entries"
         DtldGLEntry2.SetRange("Transaction No.", DtldGLEntry."Transaction No.");
         DtldGLEntry2.SetRange("G/L Account No.", DtldGLEntry."G/L Account No.");
         DeleteAll();
-        if DtldGLEntry2.FindSet then
+        if DtldGLEntry2.FindSet() then
             repeat
                 Rec := DtldGLEntry2;
                 Insert;

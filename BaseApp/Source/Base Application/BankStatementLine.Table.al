@@ -56,11 +56,7 @@ table 11705 "Bank Statement Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor."No."
             ELSE
-#if CLEAN17
             IF (Type = CONST("Bank Account")) "Bank Account"."No.";
-#else
-            IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
-#endif
 
             trigger OnValidate()
             var
@@ -75,9 +71,6 @@ table 11705 "Bank Statement Line"
                         begin
                             if not BankAcc.Get("No.") then
                                 BankAcc.Init();
-#if not CLEAN17
-                            BankAcc.TestField("Account Type", BankAcc."Account Type"::"Bank Account");
-#endif
                             "Account No." := BankAcc."Bank Account No.";
                             Name := BankAcc.Name;
                         end;
@@ -139,17 +132,10 @@ table 11705 "Bank Statement Line"
 
             trigger OnValidate()
             var
-#if not CLEAN17
-                CompanyInfo: Record "Company Information";
-#endif
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
                 BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
 
-#if not CLEAN17
-                CompanyInfo.Get();
-                CompanyInfo.CheckCzBankAccountNo("Account No.");
-#endif
                 if "Account No." <> xRec."Account No." then begin
                     Type := Type::" ";
                     "No." := '';
@@ -412,4 +398,3 @@ table 11705 "Bank Statement Line"
     end;
 #endif
 }
-

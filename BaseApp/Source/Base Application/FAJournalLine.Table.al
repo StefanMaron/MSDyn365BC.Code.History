@@ -51,7 +51,7 @@ table 5621 "FA Journal Line"
             trigger OnValidate()
             begin
                 if "FA No." = '' then begin
-                    CreateDim(DATABASE::"Fixed Asset", "FA No.");
+                    CreateDimFromDefaultDim();
                     exit;
                 end;
 
@@ -71,7 +71,7 @@ table 5621 "FA Journal Line"
                 end;
                 OnValidateFANoOnAfterInitFields(Rec);
 
-                CreateDim(DATABASE::"Fixed Asset", "FA No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(7; "FA Posting Date"; Date)
@@ -409,7 +409,7 @@ table 5621 "FA Journal Line"
         FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         FAJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         FAJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if FAJnlLine.FindFirst then begin
+        if FAJnlLine.FindFirst() then begin
             "FA Posting Date" := LastFAJnlLine."FA Posting Date";
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
@@ -426,6 +426,8 @@ table 5621 "FA Journal Line"
         OnAfterSetUpNewLine(Rec, FAJnlTemplate, FAJnlBatch, LastFAJnlLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
@@ -444,6 +446,28 @@ table 5621 "FA Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        if RunEventOnAfterCreateDimTableIDs(DefaultDimSource) then
+            exit;
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
@@ -489,10 +513,72 @@ table 5621 "FA Journal Line"
             if TemplateFilter <> '' then
                 FAJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             FAJournalBatch.SetFilter(Name, BatchFilter);
-            FAJournalBatch.FindFirst;
+            FAJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Fixed Asset", Rec."FA No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"FA Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"FA Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]) IsHandled: Boolean
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"FA Journal Line") then
+            exit;
+
+        IsHandled := false;
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No, IsHandled);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var FAJournalLine: Record "FA Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var FAJournalLine: Record "FA Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -500,11 +586,13 @@ table 5621 "FA Journal Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var FAJournalLine: Record "FA Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var IsHandled: Boolean)
     begin
     end;
-
+#endif
 #if not CLEAN19
     [Obsolete('This procedure is discontinued. Use FAJnlManagement event OnBeforeOpenJournal.', '19.0')]
     procedure CheckFAJournalLineUserRestriction()

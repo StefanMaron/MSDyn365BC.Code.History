@@ -1,17 +1,16 @@
-#if not CLEAN17
 report 31 "VAT Exceptions"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATExceptions.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Exceptions (Obsolete)';
+    Caption = 'VAT Exceptions';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
     {
         dataitem("VAT Entry"; "VAT Entry")
         {
-            RequestFilterFields = "VAT Date";
+            RequestFilterFields = "Posting Date";
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -29,7 +28,7 @@ report 31 "VAT Exceptions"
             column(AddCurrAmt_VatEntry; AddCurrAmtTxt)
             {
             }
-            column(PostingDate_VatEntry; Format("VAT Date"))
+            column(PostingDate_VatEntry; Format("Posting Date"))
             {
             }
             column(DocumentType_VatEntry; "Document Type")
@@ -209,7 +208,7 @@ report 31 "VAT Exceptions"
         GenProdPostingGrpCaptionLbl: Label 'Gen. Prod. Posting Group';
         GenBusPostingGrpCaptionLbl: Label 'Gen. Bus. Posting Group';
         DocumentTypeCaptionLbl: Label 'Document Type';
-        PostingDateCaptionLbl: Label 'VAT Date';
+        PostingDateCaptionLbl: Label 'Posting Date';
 
     local procedure GetCurrency(): Code[10]
     begin
@@ -226,4 +225,4 @@ report 31 "VAT Exceptions"
         MinVATDifference := Abs(Round(NewMinVATDifference));
     end;
 }
-#endif
+

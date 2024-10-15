@@ -31,9 +31,9 @@ codeunit 11705 "Bank Statement Management"
 
         case BankAcc.Count of
             0:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             1:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             else
                 StatSelected := PAGE.RunModal(PAGE::"Bank List", BankAcc) = ACTION::LookupOK;
         end;
@@ -72,9 +72,9 @@ codeunit 11705 "Bank Statement Management"
 
         case BankAcc.Count of
             0:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             1:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             else
                 StatSelected := PAGE.RunModal(PAGE::"Bank List", BankAcc) = ACTION::LookupOK;
         end;

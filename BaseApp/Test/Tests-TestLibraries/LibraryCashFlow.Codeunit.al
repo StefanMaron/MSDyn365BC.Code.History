@@ -13,13 +13,13 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure FindCashFlowCard(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
-        CashFlowForecast.FindFirst;
+        CashFlowForecast.FindFirst();
     end;
 
     procedure FindCashFlowAccount(var CashFlowAccount: Record "Cash Flow Account")
     begin
         CashFlowAccount.SetRange("Account Type", CashFlowAccount."Account Type"::Entry);
-        CashFlowAccount.FindFirst;
+        CashFlowAccount.FindFirst();
     end;
 
     procedure FindCashFlowAnalysisView(var AnalysisView: Record "Analysis View")
@@ -27,7 +27,7 @@ codeunit 131331 "Library - Cash Flow"
         with AnalysisView do begin
             Reset;
             SetRange("Account Source", "Account Source"::"Cash Flow Account");
-            FindFirst;
+            FindFirst();
         end
     end;
 
@@ -57,7 +57,7 @@ codeunit 131331 "Library - Cash Flow"
         CFWorksheetLine.Init();
         SuggestWorksheetLines.InitializeRequest(ConsiderSource, CFNo, '', GroupByDocumentType);
         SuggestWorksheetLines.UseRequestPage := false;
-        SuggestWorksheetLines.Run;
+        SuggestWorksheetLines.Run();
     end;
 
     procedure FillBudgetJournal(CFFunds: Boolean; CFNo: Code[20]; GLBudgetName: Code[10])
@@ -72,7 +72,7 @@ codeunit 131331 "Library - Cash Flow"
         ConsiderSource[SourceType::"G/L Budget"] := true;
         SuggestWorksheetLines.InitializeRequest(ConsiderSource, CFNo, GLBudgetName, false);
         SuggestWorksheetLines.UseRequestPage := false;
-        SuggestWorksheetLines.Run;
+        SuggestWorksheetLines.Run();
     end;
 
     procedure ClearJournal()

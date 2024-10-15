@@ -178,7 +178,7 @@ page 11709 "Bank Statement List"
         BankStmtHdr.Get("No.");
         BankStmtHdr.SetRecFilter;
         CopyPaymentOrder.SetBankStmtHdr(BankStmtHdr);
-        CopyPaymentOrder.RunModal;
+        CopyPaymentOrder.RunModal();
         CurrPage.Update(false);
     end;
 

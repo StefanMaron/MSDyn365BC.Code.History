@@ -537,7 +537,7 @@ codeunit 99000774 "Calculate Routing Line"
             ProdOrderCapNeed2.SetRange("Routing No.", "Routing No.");
             ProdOrderCapNeed2.SetRange("Routing Reference No.", "Routing Reference No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst then
+            if ProdOrderCapNeed2.FindFirst() then
                 exit(false);
 
             // calculate Starting Date/Time for the last lot of the next line by going back from Ending Date/Time of the line
@@ -837,7 +837,7 @@ codeunit 99000774 "Calculate Routing Line"
             ProdOrderCapNeed2.SetRange("Routing No.", "Routing No.");
             ProdOrderCapNeed2.SetRange("Routing Reference No.", "Routing Reference No.");
             ProdOrderCapNeed2.SetRange("Operation No.", "Operation No.");
-            if ProdOrderCapNeed2.FindFirst then
+            if ProdOrderCapNeed2.FindFirst() then
                 exit(false);
 
             // calculate Starting Date/Time of current line using Setup/Run/Wait/Move Time for the first send-ahead lot from previous line
@@ -1134,7 +1134,6 @@ codeunit 99000774 "Calculate Routing Line"
         ActualOperOutput: Decimal;
         TotalQtyPerOperation: Decimal;
         TotalCapacityPerOperation: Decimal;
-        ConCurrCapacity: Decimal;
         IsHandled: Boolean;
     begin
         MfgSetup.Get();
@@ -1682,7 +1681,7 @@ codeunit 99000774 "Calculate Routing Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpProdOrderRtngLine.FindSet then begin
+        if TmpProdOrderRtngLine.FindSet() then begin
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;
@@ -1703,7 +1702,7 @@ codeunit 99000774 "Calculate Routing Line"
     begin
         xTotalLotSize := TotalLotSize;
         xSendAheadLotSize := SendAheadLotSize;
-        if TmpProdOrderRtngLine.FindSet then begin
+        if TmpProdOrderRtngLine.FindSet() then begin
             repeat
                 TotalLotSize := xTotalLotSize;
                 SendAheadLotSize := xSendAheadLotSize;

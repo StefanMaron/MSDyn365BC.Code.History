@@ -48,9 +48,9 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimension: Record "Default Dimension";
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         GetGLBalancedBatch(GenJournalBatch);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Create default dimension codes for Customer and G/L Account
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
@@ -82,9 +82,9 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimension: Record "Default Dimension";
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         GetGLBalancedBatch(GenJournalBatch);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Create default dimension codes for Customer and G/L Account
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
@@ -116,7 +116,7 @@ codeunit 134381 "ERM Dimension Priority"
         // Test setup default dimension priority.
 
         // Setup: Find Source Code.
-        Initialize;
+        Initialize();
         SourceCode := LibraryERM.FindGeneralJournalSourceCode;
 
         // Exercise: Create default dimension priority 1 for Customer, 1 for Vendor and  2 for G/L Account with source code.
@@ -138,7 +138,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // Test that purchase order created by carry out action from requisition worskeet has correct dimensions according to dimension in requisition worksheet
 
-        Initialize;
+        Initialize();
         SetupDimensionPriorityForPurchSrcCode;
         DimensionCode := CreateDimensionValues(DimValueArray);
         VendNo := CreateVendorWithPurchaserAndDefDim(DimensionCode, DimValueArray);
@@ -164,7 +164,7 @@ codeunit 134381 "ERM Dimension Priority"
         // [SCENARIO] purchase order line created by carry out action from requisition worskeet with changed dimension has dimension value from requisition worksheet
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryDimension.InitGlobalDimChange;
         SetupDimensionPriorityForPurchSrcCode;
         DimensionCode := CreateDimensionValues(DimValueArray);
@@ -361,7 +361,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Service Order]
         // [SCENARIO 380432] Inherit Sales Person's dimension if Sales Person Dimension priority is higher then Service Contract one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Person "SP" with default dimension "DD1" where Priority = 1
         SetServiceDimensionPriorities(1, 2);
@@ -397,7 +397,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Service Order]
         // [SCENARIO 380432] Inherit Service Contract dimension if Service Contract Dimension priority is higher then Sales Person's one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Person "SP" with default dimension "DD1" where Priority = 2
         SetServiceDimensionPriorities(2, 1);
@@ -433,7 +433,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Service Order]
         // [SCENARIO 380432] Inherit Service Contract dimension if Service Contract Dimension priority it the same as Sales Person's one
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Person "SP" with default dimension "DD1" where Priority = 1
         SetServiceDimensionPriorities(1, 1);
@@ -467,7 +467,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Dimension] [Job] [Purchase]
         // [SCENARIO 257952] Purchase line with job sets the Item Dimension Value if it has the highest Dimension Priority.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities for Source Code = PURCHASE are set as 1 for Item and 2 for Job.
         SetPurchaseDimensionPriorities(1, 2);
@@ -500,7 +500,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Dimension] [Job] [Purchase]
         // [SCENARIO 257952] Purchase line with job sets the Job Dimension Value if it has the highest Dimension Priority.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities for Source Code = PURCHASE are set as 1 for Job and 2 for Item.
         SetPurchaseDimensionPriorities(2, 1);
@@ -536,7 +536,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Dimension] [Job] [Sales]
         // [SCENARIO 257952] Sales line created from Job Planning Line sets the Item Dimension Value if it has the highest Dimension Priority.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities for Source Code = SALES are set as 1 for Item and 2 for Job.
         SetSalesDimensionPriorities(1, 2);
@@ -577,7 +577,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         // [FEATURE] [Dimension] [Job] [Sales]
         // [SCENARIO 257952] Sales line created from Job Planning Line sets the Job Dimension Value if it has the highest Dimension Priority.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Default Dimension Priorities for Source Code = SALES are set as 1 for Job and 2 for Item.
         SetSalesDimensionPriorities(2, 1);
@@ -613,8 +613,8 @@ codeunit 134381 "ERM Dimension Priority"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Priority");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         ClearDimensionCombinations;
 
         isInitialized := true;
@@ -629,9 +629,9 @@ codeunit 134381 "ERM Dimension Priority"
         DefaultDimension: Record "Default Dimension";
         CustomerNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         GetGLBalancedBatch(GenJournalBatch);
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
 
         // Create default dimension codes for Customer and G/L Account
         CreateDefaultDimensionCodes(CustomerNo, GenJournalBatch."Bal. Account No.");
@@ -663,7 +663,7 @@ codeunit 134381 "ERM Dimension Priority"
         DimensionCode: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         SetupDimensionPriorityForJobJnlSrcCode(TableIDs, Priorities);
         DimensionCode := CreateDimensionValues(DimValueArray);
@@ -1074,7 +1074,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         Item.Get(ItemNo);
         LibraryPlanning.CalculatePlanForReqWksh(Item, ReqWkshTemplate.Name, RequisitionWkshName.Name, WorkDate, WorkDate);
@@ -1085,7 +1085,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         ReqLine.SetRange(Type, ReqLine.Type::Item);
         ReqLine.SetRange("No.", ItemNo);
-        ReqLine.FindFirst;
+        ReqLine.FindFirst();
     end;
 
     local procedure FindPurchLine(var PurchLine: Record "Purchase Line"; VendNo: Code[20])
@@ -1094,12 +1094,12 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
         PurchHeader.SetRange("Buy-from Vendor No.", VendNo);
-        PurchHeader.FindLast;
+        PurchHeader.FindLast();
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1121,10 +1121,10 @@ codeunit 134381 "ERM Dimension Priority"
             SetRange("Job Task No.", JobPlanningLine."Job Task No.");
             SetRange("Job Planning Line No.", JobPlanningLine."Line No.");
             SetRange("Document Type", "Document Type"::Invoice);
-            FindFirst;
+            FindFirst();
             SalesLine.SetRange("Document No.", "Document No.");
             SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
         end
     end;
 
@@ -1143,7 +1143,7 @@ codeunit 134381 "ERM Dimension Priority"
         repeat
             DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
             DimensionSetEntry.SetRange("Dimension Code", DefaultDimension."Dimension Code");
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
             Assert.AreEqual(DimensionSetEntry."Dimension Value Code", DefaultDimension."Dimension Value Code", 'Dimension value mismatch');
         until DefaultDimension.Next = 0;
     end;
@@ -1161,7 +1161,7 @@ codeunit 134381 "ERM Dimension Priority"
     begin
         DefaultDimensionPriority.SetRange("Source Code", SourceCode);
         DefaultDimensionPriority.SetRange("Table ID", TableID);
-        DefaultDimensionPriority.FindFirst;
+        DefaultDimensionPriority.FindFirst();
     end;
 
     local procedure SetDefaultDimensionPriority(SourceCode: Code[10])

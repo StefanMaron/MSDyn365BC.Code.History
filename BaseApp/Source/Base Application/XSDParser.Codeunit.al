@@ -89,7 +89,7 @@ codeunit 9610 "XSD Parser"
         InitializeTempBuffers(XMLSchema);
         TempAllXMLSchemaElement.SetRange("XML Schema Code", XMLSchemaElement."Defintion XML Schema Code");
         TempAllXMLSchemaElement.SetRange(ID, XMLSchemaElement."Definition XML Schema ID");
-        TempAllXMLSchemaElement.FindFirst;
+        TempAllXMLSchemaElement.FindFirst();
 
         TempCurrentXMLSchemaElement.Copy(TempAllXMLSchemaElement);
         TempCurrentXMLSchemaElement.Insert();
@@ -97,14 +97,14 @@ codeunit 9610 "XSD Parser"
         SchemaPrefix := '';
 
         LastXMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
-        LastXMLSchemaElement.FindLast;
+        LastXMLSchemaElement.FindLast();
         CurrentID := LastXMLSchemaElement.ID + 1;
 
         ExtendElementDefinitionType(TempCurrentXMLSchemaElement, XMLSchemaElement, 0, XMLSchema, CurrentID, SchemaPrefix);
 
         ChildXMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         ChildXMLSchemaElement.SetRange("Parent ID", XMLSchemaElement.ID);
-        if ChildXMLSchemaElement.FindSet then
+        if ChildXMLSchemaElement.FindSet() then
             repeat
                 UpdateSelectedProperty(ChildXMLSchemaElement, XMLSchemaElement."Sort Key", XMLSchema);
             until ChildXMLSchemaElement.Next() = 0;
@@ -143,7 +143,7 @@ codeunit 9610 "XSD Parser"
         TempRootXMLSchemaElement.SetRange("Node Type", TempRootXMLSchemaElement."Node Type"::Element);
 
         CurrentID := 1;
-        if not TempRootXMLSchemaElement.FindSet then
+        if not TempRootXMLSchemaElement.FindSet() then
             exit;
 
         repeat
@@ -237,7 +237,7 @@ codeunit 9610 "XSD Parser"
             ExistingXMLSchema.SetRange(Path, SchemaLocation);
             ExistingXMLSchema.SetFilter(Code, StrSubstNo('%1*', TopElementCode));
 
-            if not ExistingXMLSchema.FindFirst then begin
+            if not ExistingXMLSchema.FindFirst() then begin
                 ImportXMLSchema.Init();
                 ImportXMLSchema.Path := CopyStr(SchemaLocation, 1, MaxStrLen(ImportXMLSchema.Path));
                 ImportXMLSchema."Target Namespace" := GetAttribute('namespace', XmlNode);
@@ -247,7 +247,7 @@ codeunit 9610 "XSD Parser"
                     ImportXMLSchema."Target Namespace" := XMLSchema."Target Namespace";
 
                 LastXMLSchema.SetFilter(Code, StrSubstNo('%1:*', TopElementCode));
-                LastXMLSchema.FindLast;
+                LastXMLSchema.FindLast();
                 ImportXMLSchema.Code := IncStr(LastXMLSchema.Code);
 
                 ImportXMLSchema.Indentation := 2;
@@ -334,7 +334,7 @@ codeunit 9610 "XSD Parser"
     begin
         XMLSchemaRestriction.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaRestriction.SetRange("Element ID", TempXMLSchemaElement.ID);
-        if XMLSchemaRestriction.FindLast then
+        if XMLSchemaRestriction.FindLast() then
             LastIndex := XMLSchemaRestriction.ID + 1
         else
             LastIndex := 1;
@@ -572,7 +572,7 @@ codeunit 9610 "XSD Parser"
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaElement.SetRange("Parent ID", 0);
 
-        if XMLSchemaElement.FindSet then
+        if XMLSchemaElement.FindSet() then
             repeat
                 UpdateSelectedProperty(XMLSchemaElement, '', XMLSchema);
             until XMLSchemaElement.Next() = 0;
@@ -591,7 +591,7 @@ codeunit 9610 "XSD Parser"
 
             ChildXMLSchemaElement.SetRange("XML Schema Code", XMLSchema.Code);
             ChildXMLSchemaElement.SetRange("Parent ID", CurrentXMLSchemaElement.ID);
-            if ChildXMLSchemaElement.FindSet then
+            if ChildXMLSchemaElement.FindSet() then
                 repeat
                     UpdateSelectedProperty(ChildXMLSchemaElement, CurrentXMLSchemaElement."Sort Key", XMLSchema);
                 until ChildXMLSchemaElement.Next() = 0;
@@ -636,7 +636,7 @@ codeunit 9610 "XSD Parser"
         TempAllXMLSchemaElement.SetRange("XML Schema Code", DefinitionXMLSchemaElement."XML Schema Code");
         TempAllXMLSchemaElement.SetRange("Parent ID", DefinitionXMLSchemaElement.ID);
 
-        if not TempAllXMLSchemaElement.FindSet then
+        if not TempAllXMLSchemaElement.FindSet() then
             exit(false);
 
         repeat
@@ -644,7 +644,7 @@ codeunit 9610 "XSD Parser"
             ReferenceXMLSchemaElement.Insert();
         until TempAllXMLSchemaElement.Next() = 0;
 
-        ReferenceXMLSchemaElement.FindFirst;
+        ReferenceXMLSchemaElement.FindFirst();
         exit(true);
     end;
 
@@ -665,7 +665,7 @@ codeunit 9610 "XSD Parser"
             if XMLSchema."Target Namespace Aliases" <> SchemaPrefix then begin
                 ReferencedXMLSchema.SetRange("Referenced Schema Namespace", SchemaPrefix);
                 ReferencedXMLSchema.SetRange(Code, DefinitionXMLSchemaElement."XML Schema Code");
-                if not ReferencedXMLSchema.FindSet then
+                if not ReferencedXMLSchema.FindSet() then
                     exit(false);
             end else begin
                 if not (SchemaPrefix = 'cac') then
@@ -675,7 +675,7 @@ codeunit 9610 "XSD Parser"
                 TempAllXMLSchemaElement.SetRange("Parent ID", 0);
                 TempAllXMLSchemaElement.SetRange("Node Name", NameWithoutNamespace);
 
-                if TempAllXMLSchemaElement.FindFirst then begin
+                if TempAllXMLSchemaElement.FindFirst() then begin
                     ReferenceXMLSchemaElement.Copy(TempAllXMLSchemaElement);
                     ReferenceXMLSchemaElement.Insert();
 
@@ -696,7 +696,7 @@ codeunit 9610 "XSD Parser"
             TempAllXMLSchemaElement.SetRange("Parent ID", 0);
             TempAllXMLSchemaElement.SetRange("Node Name", NameWithoutNamespace);
 
-            if TempAllXMLSchemaElement.FindFirst then begin
+            if TempAllXMLSchemaElement.FindFirst() then begin
                 ReferenceXMLSchemaElement.Copy(TempAllXMLSchemaElement);
                 ReferenceXMLSchemaElement.Insert();
 
@@ -707,7 +707,7 @@ codeunit 9610 "XSD Parser"
             ReferencedXMLSchema.SetRange(Code, DefinitionXMLSchemaElement."XML Schema Code");
             ReferencedXMLSchema.SetRange("Referenced Schema Namespace", '');
 
-            if not ReferencedXMLSchema.FindSet then
+            if not ReferencedXMLSchema.FindSet() then
                 exit(false);
         end;
 
@@ -717,7 +717,7 @@ codeunit 9610 "XSD Parser"
             TempAllXMLSchemaElement.SetRange("Parent ID", 0);
             TempAllXMLSchemaElement.SetRange("Node Name", NameWithoutNamespace);
 
-            if TempAllXMLSchemaElement.FindFirst then begin
+            if TempAllXMLSchemaElement.FindFirst() then begin
                 ReferenceXMLSchemaElement.Copy(TempAllXMLSchemaElement);
                 ReferenceXMLSchemaElement.Insert();
                 exit(true);
@@ -737,7 +737,7 @@ codeunit 9610 "XSD Parser"
         TempAllXMLSchemaElement.SetRange("Node Name", DefinitionXMLSchemaElement."Data Type");
         TempAllXMLSchemaElement.SetRange("Node Type", DefinitionXMLSchemaElement."Node Type"::"Definition Node");
 
-        if not TempAllXMLSchemaElement.FindFirst then
+        if not TempAllXMLSchemaElement.FindFirst() then
             exit(false);
 
         ReferenceXMLSchemaElement.Init();
@@ -756,7 +756,7 @@ codeunit 9610 "XSD Parser"
         TempXMLSchemaRestriction.SetRange("Element ID", DefinitionXMLSchemaElement.ID);
         TempXMLSchemaRestriction.SetRange(Type, TempXMLSchemaRestriction.Type::Base);
 
-        if not TempXMLSchemaRestriction.FindFirst then
+        if not TempXMLSchemaRestriction.FindFirst() then
             exit;
 
         ActualXMLSchemaElement.Validate(
@@ -764,12 +764,12 @@ codeunit 9610 "XSD Parser"
         ActualXMLSchemaElement.Modify();
 
         TempXMLSchemaRestriction.SetRange(Type, TempXMLSchemaRestriction.Type::Value);
-        if not TempXMLSchemaRestriction.FindSet then
+        if not TempXMLSchemaRestriction.FindSet() then
             exit;
 
         XMLSchemaRestriction2.SetRange("XML Schema Code", XMLSchema.Code);
         XMLSchemaRestriction2.SetRange("Element ID", ActualXMLSchemaElement.ID);
-        if XMLSchemaRestriction2.FindLast then
+        if XMLSchemaRestriction2.FindLast() then
             LastRestrictionID := XMLSchemaRestriction2.ID + 1
         else
             LastRestrictionID := 1;
@@ -832,7 +832,7 @@ codeunit 9610 "XSD Parser"
     begin
         XMLSchemaElement.SetRange("XML Schema Code", XMLSchemaElement."XML Schema Code");
         XMLSchemaElement.SetRange("Parent ID", 0);
-        if XMLSchemaElement.FindFirst then begin
+        if XMLSchemaElement.FindFirst() then begin
             XMLSchemaElement.Validate(Selected, true);
             XMLSchemaElement.Modify();
         end;
@@ -851,7 +851,7 @@ codeunit 9610 "XSD Parser"
         xXMLSchemaElementID := XMLSchemaElement.ID;
         XMLSchemaElement.SetCurrentKey("Sort Key");
         LevelVisible[1] := true;
-        if XMLSchemaElement.FindSet then
+        if XMLSchemaElement.FindSet() then
             repeat
                 XMLSchemaElement.Visible := (XMLSchemaElement.MinOccurs > 0);
                 if XMLSchemaElement.Indentation > 0 then
@@ -1073,7 +1073,7 @@ codeunit 9610 "XSD Parser"
         XMLSchemaElement.FindSet();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDef.Code);
-        if not DataExchLineDef.FindFirst then begin
+        if not DataExchLineDef.FindFirst() then begin
             DataExchLineDef.InsertRec(DataExchDef.Code, DataExchDef.Code, DataExchDef.Name, 0);
             DataExchLineDef."Data Line Tag" := SEPACAMTDataLineTagTok;
             DataExchLineDef.Modify();
@@ -1109,7 +1109,7 @@ codeunit 9610 "XSD Parser"
     begin
         TempStackXMLSchemaElement.Reset();
         TempStackXMLSchemaElement.SetCurrentKey(ID);
-        if TempStackXMLSchemaElement.FindLast then
+        if TempStackXMLSchemaElement.FindLast() then
             LastID := TempStackXMLSchemaElement.ID
         else
             LastID := 1;
@@ -1127,7 +1127,7 @@ codeunit 9610 "XSD Parser"
         TempStackXMLSchemaElement.SetRange("Node Type", TempCurrentDefinitionXMLSchemaElement."Node Type");
         TempStackXMLSchemaElement.SetRange("Data Type", TempCurrentDefinitionXMLSchemaElement."Data Type");
         TempStackXMLSchemaElement.SetCurrentKey(ID);
-        TempStackXMLSchemaElement.FindLast;
+        TempStackXMLSchemaElement.FindLast();
         TempStackXMLSchemaElement.Delete();
     end;
 
@@ -1157,7 +1157,7 @@ codeunit 9610 "XSD Parser"
 
         XMLSchemaElement.SetFilter("XML Schema Code", StrSubstNo('%1:*', XMLSchema.Code));
 
-        if XMLSchemaElement.FindSet then
+        if XMLSchemaElement.FindSet() then
             repeat
                 TempAllXMLSchemaElement.Copy(XMLSchemaElement);
                 if TempAllXMLSchemaElement."XML Schema Code" = MainDefinitionSchemaCode then
@@ -1170,7 +1170,7 @@ codeunit 9610 "XSD Parser"
 
         XMLSchemaRestriction.SetFilter("XML Schema Code", StrSubstNo('%1:*', XMLSchema.Code));
 
-        if XMLSchemaRestriction.FindSet then
+        if XMLSchemaRestriction.FindSet() then
             repeat
                 TempXMLSchemaRestriction.Copy(XMLSchemaRestriction);
                 if TempXMLSchemaRestriction."XML Schema Code" = MainDefinitionSchemaCode then

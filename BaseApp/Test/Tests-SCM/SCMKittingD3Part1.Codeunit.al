@@ -57,7 +57,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
         // Initialize setup.
         ClearLastError;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '',
           AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card", LibraryUtility.GetGlobalNoSeriesCode);
         if isInitialized then
@@ -66,9 +66,9 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         // Setup Demonstration data.
         isInitialized := true;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
@@ -87,7 +87,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ExpectedError: Text[1024];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', DimensionsFrom, LibraryUtility.GetGlobalNoSeriesCode);
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
@@ -295,7 +295,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         PostingDate: Date;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-30D>', WorkDate2), CalcDate('<+30D>', WorkDate2));
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
@@ -342,7 +342,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify cuccessful posting of Assembly Order inside allowed posting date range.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.SetAllowPostingFromTo(CalcDate('<-30D>', WorkDate2), CalcDate('<+30D>', WorkDate2));
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
@@ -365,7 +365,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ExpectedError: Text[1024];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code, AssemblySetup."Copy Component Dimensions from"::"Order Header",
           LibraryUtility.GetGlobalNoSeriesCode);
@@ -419,7 +419,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ExpectedError: Text[1024];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocation(Location);
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, Location.Code, AssemblySetup."Copy Component Dimensions from"::"Order Header",
           LibraryUtility.GetGlobalNoSeriesCode);
@@ -430,7 +430,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, CompType);
-        if AssemblyLine.FindFirst then
+        if AssemblyLine.FindFirst() then
             ExpectedError :=
               LibraryAssembly.ClearOrderPostingSetup(CompClearType, AssemblyLine."Inventory Posting Group",
                 AssemblyLine."Gen. Prod. Posting Group", AssemblyLine."Location Code");
@@ -481,7 +481,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify an error when posting Assembly Order if header Item does not have Gen. Prod. Posting Group.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
         Item.Get(AssemblyHeader."Item No.");
@@ -511,7 +511,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ExpectedError: Text[1024];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
 
@@ -581,7 +581,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify an error when posting Assembly Order if Assembly Setup does not have "No. Series" for posted Assemblies.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
           LibraryUtility.GetGlobalNoSeriesCode);
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
@@ -621,7 +621,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
 
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, AssemblyHeader."Dimension Set ID");
         DimensionSetEntry.SetRange("Dimension Code", ShortcutDimensionCode);
-        DimensionSetEntry.FindFirst;
+        DimensionSetEntry.FindFirst();
 
         if Num = 1 then
             AssemblyHeader.Validate(
@@ -648,7 +648,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify an error on Assembly Order posting if insufficient Quantity of components on stock.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Average,
           Item."Replenishment System"::Assembly, '', true);
         LibraryAssembly.GetCompsToAdjust(ItemNo, ResourceNo, AssemblyHeader);
@@ -671,7 +671,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         NewComponentNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, CostingMethod, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', UpdateUnitCost);
         if NewComponentType = "BOM Component Type"::Item then
@@ -810,7 +810,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, "BOM Component Type"::Item);
-            AssemblyLine.FindLast;
+            AssemblyLine.FindLast();
             ExpectedError := AddItemDimension(AssemblyLine."No.", DefaultCompValuePosting);
             if ExpectedError <> '' then
                 ExpectedError := ErrorSelectDimValue;
@@ -878,7 +878,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         AssemblyHeader: Record "Assembly Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
           Item."Replenishment System"::Assembly, '', true);
 
@@ -1028,7 +1028,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         AssembledQty: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant",
           InventorySetup."Average Cost Period"::Day);
@@ -1086,7 +1086,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         DocNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         AssemblyHeaderNo :=
           NormalPosting(ParentCostingMethod, CompCostingMethod, HeaderQtyFactor, PartialPostFactor, '', IndirectCost, PostWithoutAdj);
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
@@ -1096,7 +1096,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // Exercise.
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
         if PerPostingGroup then
             DocNo := PostedAssemblyHeader."No."
         else
@@ -1280,7 +1280,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         // [SCENARIO] Verify entries on posted Assembly Order when it is posted via page.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           "Average Cost Calculation Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
         LibraryAssembly.SetupAssemblyData(AssemblyHeader, WorkDate2, Item."Costing Method"::Standard, Item."Costing Method"::Standard,
@@ -1352,7 +1352,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         PostedAssemblyOrder: TestPage "Posted Assembly Order";
     begin
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.FindLast;
+        PostedAssemblyHeader.FindLast();
         PostedAssemblyOrder.OpenEdit;
         PostedAssemblyOrder.FILTER.SetFilter("No.", PostedAssemblyHeader."No.");
         PostedAssemblyOrder.GotoRecord(PostedAssemblyHeader);
@@ -1373,7 +1373,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         CompInvtPostingGr: Code[20];
         ItemNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::Standard, Item."Replenishment System"::Assembly, '', '');
@@ -1388,7 +1388,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Item.Modify();
 
         BOMComponent.SetRange("Parent Item No.", Item."No.");
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 case BOMComponent.Type of
                     BOMComponent.Type::Item:

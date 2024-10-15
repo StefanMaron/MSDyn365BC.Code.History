@@ -530,30 +530,29 @@ table 5995 "Service Cr.Memo Line"
             AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference (LCY)';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Functionality will be removed and this field should not be used.';
         }
         field(31061; "Tariff No."; Code[20])
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
@@ -712,7 +711,9 @@ table 5995 "Service Cr.Memo Line"
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Credit Memo");
         ValueEntry.SetRange("Document Line No.", "Line No.");
     end;
+#if not CLEAN20
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure RoundAmount(ServCrMemoHeader: Record "Service Cr.Memo Header")
     var
         NoVAT: Boolean;
@@ -765,6 +766,7 @@ table 5995 "Service Cr.Memo Line"
         IncrAmount(TotalServCrMemoLineLCY, ServCrMemoHeader);
     end;
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure IncrAmount(var TotalServCrMemoLine: Record "Service Cr.Memo Line"; ServCrMemoHeader: Record "Service Cr.Memo Header")
     begin
         // NAVCZ
@@ -782,15 +784,16 @@ table 5995 "Service Cr.Memo Line"
         Increment(TotalServCrMemoLine."Inv. Discount Amount", "Inv. Discount Amount");
     end;
 
+    [Obsolete('Functionality will be removed and this procedure should not be used.', '20.0')]
     local procedure Increment(var Number: Decimal; Number2: Decimal)
     begin
         // NAVCZ
         Number := Number + Number2;
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
     begin
     end;
 }
-

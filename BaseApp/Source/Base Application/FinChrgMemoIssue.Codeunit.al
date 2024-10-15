@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 395 "FinChrgMemo-Issue"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
@@ -29,6 +30,14 @@ codeunit 395 "FinChrgMemo-Issue"
             TestField("Document Date");
             TestField("Due Date");
             TestField("Customer Posting Group");
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                if "Post Additional Fee" or "Post Interest" then begin
+                    if GenJnlBatch."Journal Template Name" = '' then
+                        Error(MissingJournalFieldErr, GenJnlLine.FieldCaption("Journal Template Name"));
+                    if GenJnlBatch.Name = '' then
+                        Error(MissingJournalFieldErr, GenJnlLine.FieldCaption("Journal Batch Name"));
+                end;
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
                   Text002,
@@ -185,7 +194,7 @@ codeunit 395 "FinChrgMemo-Issue"
             FinChrgCommentLine.DeleteComments(FinChrgCommentLine.Type::"Finance Charge Memo", "No.");
 
             FinChrgMemoLine.SetRange("Detailed Interest Rates Entry");
-            if FinChrgMemoLine.FindSet then
+            if FinChrgMemoLine.FindSet() then
                 repeat
                     if (FinChrgMemoLine.Type = FinChrgMemoLine.Type::"Customer Ledger Entry") and
                        not FinChrgMemoLine."Detailed Interest Rates Entry"
@@ -227,8 +236,10 @@ codeunit 395 "FinChrgMemo-Issue"
         FinChrgTerms: Record "Finance Charge Terms";
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         IssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header";
+        GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line" temporary;
         GenJnlLine2: Record "Gen. Journal Line";
+        GLSetup: Record "General Ledger Setup";
         SourceCode: Record "Source Code";
         DtldFinChargeMemoLine: Record "Detailed Fin. Charge Memo Line";
         DtldFinChargeMemoLine2: Record "Detailed Fin. Charge Memo Line";
@@ -247,12 +258,18 @@ codeunit 395 "FinChrgMemo-Issue"
         TotalAmountLCY: Decimal;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
 
     procedure Set(var NewFinChrgMemoHeader: Record "Finance Charge Memo Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)
     begin
         FinChrgMemoHeader := NewFinChrgMemoHeader;
         ReplacePostingDate := NewReplacePostingDate;
         PostingDate := NewPostingDate;
+    end;
+
+    procedure SetGenJnlBatch(NewGenJnlBatch: Record "Gen. Journal Batch")
+    begin
+        GenJnlBatch := NewGenJnlBatch;
     end;
 
     procedure GetIssuedFinChrgMemo(var NewIssuedFinChrgMemoHeader: Record "Issued Fin. Charge Memo Header")
@@ -270,13 +287,12 @@ codeunit 395 "FinChrgMemo-Issue"
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::"Finance Charge Memo";
             GenJnlLine."Document No." := DocNo;
+            if "Post Additional Fee" or "Post Interest" then begin
+                GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+                GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+            end;
             GenJnlLine."Posting Date" := "Posting Date";
             GenJnlLine."Document Date" := "Document Date";
-#if not CLEAN17
-            // NAVCZ
-            GenJnlLine."VAT Date" := "Posting Date";
-            // NAVCZ
-#endif
             GenJnlLine."Account Type" := AccType;
             GenJnlLine."Account No." := AccNo;
             GenJnlLine.Validate("Account No.");
@@ -450,23 +466,26 @@ codeunit 395 "FinChrgMemo-Issue"
     local procedure SetDimensions(var GenJnlLine: Record "Gen. Journal Line"; FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     var
         DefaultDimension: Record "Default Dimension";
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         with GenJnlLine do begin
             "Shortcut Dimension 1 Code" := FinanceChargeMemoHeader."Shortcut Dimension 1 Code";
             "Shortcut Dimension 2 Code" := FinanceChargeMemoHeader."Shortcut Dimension 2 Code";
             "Dimension Set ID" := FinanceChargeMemoHeader."Dimension Set ID";
             if "Account Type" = "Account Type"::"G/L Account" then begin
-                TableID[1] := DATABASE::"G/L Account";
-                No[1] := "Account No.";
-                DefaultDimension.SetRange("Table ID", TableID[1]);
-                DefaultDimension.SetRange("No.", No[1]);
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", "Account No.");
+                DefaultDimension.SetRange("Table ID", Database::"G/L Account");
+                DefaultDimension.SetRange("No.", "Account No.");
                 if not DefaultDimension.IsEmpty() then
                     "Dimension Set ID" := DimMgt.GetDefaultDimID(
-                        TableID, No, SrcCode, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", 0);
+                        DefaultDimSource, SrcCode, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Dimension Set ID", 0);
             end;
         end;
 
-        OnAfterSetDimensions(GenJnlLine, FinanceChargeMemoHeader, TableID, No, SrcCode);
+#if not CLEAN20
+        RunEventOnAfterSetDimensions(GenJnlLine, FinanceChargeMemoHeader, DefaultDimSource, SrcCode);
+#endif
+        OnAfterSetDimensionsProcedure(GenJnlLine, FinanceChargeMemoHeader, DefaultDimSource, SrcCode);
     end;
 
     local procedure UpdateCustLedgEntriesCalculateInterest(EntryNo: Integer; DocumentDate: Date)
@@ -488,6 +507,36 @@ codeunit 395 "FinChrgMemo-Issue"
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
     end;
 
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Finance Charge Memo Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Finance Charge Memo Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterSetDimensions(var GenJnlLine: Record "Gen. Journal Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SrcCode: Code[10])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID2: array[10] of Integer;
+        No2: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Finance Charge Memo Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID2, No2);
+        OnAfterSetDimensions(GenJnlLine, FinanceChargeMemoHeader, TableID2, No2, SrcCode);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID2, No2);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; FinChargeMemoHeader: Record "Finance Charge Memo Header"; var SrcCode: Code[10])
     begin
@@ -498,8 +547,16 @@ codeunit 395 "FinChrgMemo-Issue"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterSetDimensionsProcedure()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimensions(var GenJnlLine: Record "Gen. Journal Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SrcCode: Code[10])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimensionsProcedure(var GenJnlLine: Record "Gen. Journal Line"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SrcCode: Code[10])
     begin
     end;
 
@@ -518,6 +575,7 @@ codeunit 395 "FinChrgMemo-Issue"
     begin
     end;
 
+    [Obsolete('Replaced by Finance Charge Interest Rate', '20.0')]
     [Scope('OnPrem')]
     procedure IsDocumentDeletionAllowed(PostingDate: Date)
     var
@@ -593,3 +651,4 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 }
 
+#endif

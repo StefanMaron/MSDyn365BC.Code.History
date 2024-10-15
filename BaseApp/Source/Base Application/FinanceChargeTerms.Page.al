@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 6 "Finance Charge Terms"
 {
     ApplicationArea = Basic, Suite;
@@ -69,15 +70,29 @@ page 6 "Finance Charge Terms"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines.';
                 }
+                field("Detailed Lines Description"; "Detailed Lines Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines if multiple interest rates are set up for different payment delay periods and the description must show the sum of these.';
+                    Visible = ReplaceMulIntRateEnabled;
+                }
                 field("Grace Tax Period"; "Grace Tax Period")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the grace period for tax.';
+                    Visible = not ReplaceMulIntRateEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
                 }
                 field("Detailed Line Description"; "Detailed Line Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description to be used in the Description field on the finance charge memo lines if multiple interest rates are set up for different payment delay periods and the description must show the sum of these.';
+                    Visible = not ReplaceMulIntRateEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
                 }
                 field("Post Interest"; "Post Interest")
                 {
@@ -119,6 +134,16 @@ page 6 "Finance Charge Terms"
             {
                 Caption = 'Ter&ms';
                 Image = BeginningText;
+                action("Interest Rates")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Interest Rates';
+                    Image = Percentage;
+                    RunObject = Page "Finance Charge Interest Rates";
+                    RunPageLink = "Fin. Charge Terms Code" = FIELD(Code);
+                    ToolTip = 'Set up interest rates.';
+                    Visible = ReplaceMulIntRateEnabled;
+                }
                 action(BeginningText)
                 {
                     ApplicationArea = Basic, Suite;
@@ -154,14 +179,30 @@ page 6 "Finance Charge Terms"
                 action("&Interest Rates")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Interest Rates';
+                    Caption = '&Interest Rates (Obsolete)';
                     Image = Percentage;
                     RunObject = Page "Multiple Interest Rates";
                     RunPageLink = "Finance Charge Code" = FIELD(Code);
                     ToolTip = 'Set up interest rates.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by standard Interest Rates action';
+                    ObsoleteTag = '20.0';
+                    Visible = not ReplaceMulIntRateEnabled;
                 }
             }
         }
     }
+
+#pragma warning disable AL0432
+    var
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
+        ReplaceMulIntRateEnabled: Boolean;
+
+    trigger OnOpenPage()
+    begin
+        ReplaceMulIntRateEnabled := ReplaceMulIntRateMgt.IsEnabled();
+    end;
+#pragma warning restore AL0432
 }
 
+#endif

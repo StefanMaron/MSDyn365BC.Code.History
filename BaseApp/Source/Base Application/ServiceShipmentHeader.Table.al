@@ -417,6 +417,11 @@ table 5990 "Service Shipment Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(129; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -703,24 +708,16 @@ table 5990 "Service Shipment Header"
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31060; "Perform. Country/Region Code"; Code[10])
         {
@@ -771,13 +768,9 @@ table 5990 "Service Shipment Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -849,7 +842,7 @@ table 5990 "Service Shipment Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()
@@ -863,8 +856,8 @@ table 5990 "Service Shipment Header"
     begin
         IsHandled := false;
         OnBeforeSetSecurityFilterOnRespCenter(Rec, IsHandled);
-		if IsHandled then
-			exit;
+        if IsHandled then
+            exit;
 
         if UserSetupMgt.GetServiceFilter() <> '' then begin
             FilterGroup(2);
@@ -880,4 +873,3 @@ table 5990 "Service Shipment Header"
     begin
     end;
 }
-

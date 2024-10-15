@@ -46,10 +46,7 @@ table 753 "Standard Item Journal Line"
                 end;
 
                 if "Item No." = '' then begin
-                    CreateDim(
-                      DATABASE::Item, "Item No.",
-                      DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                      DATABASE::"Work Center", "Work Center No.");
+                    CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
                     exit;
                 end;
 
@@ -114,10 +111,7 @@ table 753 "Standard Item Journal Line"
                 if "Bin Code" <> '' then
                     Validate("Bin Code");
 
-                CreateDim(
-                  DATABASE::Item, "Item No.",
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::"Work Center", "Work Center No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Item No."));
             end;
         }
         field(5; "Entry Type"; Enum "Item Ledger Entry Type")
@@ -141,15 +135,6 @@ table 753 "Standard Item Journal Line"
 
                 Validate("Item No.");
                 SetDefaultPriceCalculationMethod();
-#if not CLEAN17
-                // NAVCZ
-                if ("Whse. Net Change Template" <> '') and
-                   (CurrFieldNo = FieldNo("Entry Type"))
-                then
-                    TestField("Whse. Net Change Template", '');
-                "New Location Code" := '';
-                // NAVCZ
-#endif
             end;
         }
         field(8; Description; Text[100])
@@ -173,6 +158,7 @@ table 753 "Standard Item Journal Line"
                 end;
 
                 Validate("Unit of Measure Code");
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(10; "Inventory Posting Group"; Code[20])
@@ -329,10 +315,7 @@ table 753 "Standard Item Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DATABASE::Item, "Item No.",
-                  DATABASE::"Work Center", "Work Center No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Salespers./Purch. Code"));
             end;
         }
         field(26; "Source Code"; Code[10])
@@ -469,18 +452,6 @@ table 753 "Standard Item Journal Line"
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                if ("Whse. Net Change Template" <> '') and
-                   (CurrFieldNo = FieldNo("Gen. Bus. Posting Group"))
-                then
-                    TestField("Whse. Net Change Template", '');
-                // NAVCZ
-            end;
-#endif
         }
         field(58; "Gen. Prod. Posting Group"; Code[20])
         {
@@ -710,26 +681,9 @@ table 753 "Standard Item Journal Line"
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Whse. Net Change Template";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                WhseNetChangeTemplate: Record "Whse. Net Change Template";
-            begin
-                if WhseNetChangeTemplate.Get("Whse. Net Change Template") then begin
-                    Validate("Entry Type", WhseNetChangeTemplate."Entry Type");
-                    Validate("Gen. Bus. Posting Group", WhseNetChangeTemplate."Gen. Bus. Posting Group");
-                end;
-            end;
-#endif            
+            ObsoleteTag = '20.0';
         }
         field(99000755; "Overhead Rate"; Decimal)
         {
@@ -883,10 +837,13 @@ table 753 "Standard Item Journal Line"
                 Bin.Get(LocationCode, BinCode);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         TableID[1] := Type1;
         No[1] := No1;
@@ -895,12 +852,28 @@ table 753 "Standard Item Journal Line"
         TableID[3] := Type3;
         No[3] := No3;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
@@ -990,11 +963,78 @@ table 753 "Standard Item Journal Line"
         end;
     end;
 
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.", FieldNo = Rec.FieldNo("Item No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salespers./Purch. Code", FieldNo = Rec.FieldNo("Salespers./Purch. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", Rec."Work Center No.", FieldNo = Rec.FieldNo("Work Center No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Standard Item Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Standard Item Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Standard Item Journal Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var StandardItemJournalLine: Record "Standard Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var StandardItemJournalLine: Record "Standard Item Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var StandardItemJournalLine: Record "Standard Item Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     begin
@@ -1030,4 +1070,3 @@ table 753 "Standard Item Journal Line"
     begin
     end;
 }
-

@@ -205,7 +205,7 @@ report 31082 "Account Schedule Result"
                     i := 0;
 
                     AccScheduleResultColumn.SetRange("Result Code", "Result Code");
-                    if AccScheduleResultColumn.FindSet then
+                    if AccScheduleResultColumn.FindSet() then
                         repeat
                             i := i + 1;
                             if AccScheduleResultValue.Get(
@@ -226,7 +226,7 @@ report 31082 "Account Schedule Result"
                 i := 0;
 
                 AccScheduleResultColumn.SetRange("Result Code", "Result Code");
-                if AccScheduleResultColumn.FindSet then
+                if AccScheduleResultColumn.FindSet() then
                     repeat
                         i := i + 1;
                         Header[i] := AccScheduleResultColumn."Column Header";

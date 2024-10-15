@@ -66,9 +66,6 @@ table 1252 "Bank Pmt. Appl. Rule"
 #if not CLEAN19
             TableRelation = "Bank Pmt. Appl. Rule Code";
 #endif
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
         }
 
         field(11705; "Variable Symbol Matched"; Option)
@@ -130,9 +127,6 @@ table 1252 "Bank Pmt. Appl. Rule"
         key(Key1; "Bank Pmt. Appl. Rule Code", "Match Confidence", Priority)
         {
             Clustered = true;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Merge to W1.';
-            ObsoleteTag = '19.0';
         }
         key(Key2; Score)
         {
@@ -176,7 +170,7 @@ table 1252 "Bank Pmt. Appl. Rule"
 #else
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankPmtApplRuleCode); // NAVCZ
 #endif
-        if BankPmtApplRule.FindSet then
+        if BankPmtApplRule.FindSet() then
             repeat
                 TransferFields(BankPmtApplRule);
                 Insert;
@@ -225,7 +219,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         // NAVCZ
 
 #endif
-        if FindFirst then
+        if FindFirst() then
             exit(Score);
 
         exit(0);

@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 page 9081 "Sales Hist. Bill-to FactBox"
 {
     Caption = 'Bill-to Customer Sales History';
@@ -216,18 +216,9 @@ page 9081 "Sales Hist. Bill-to FactBox"
     {
     }
 
-    var
-        ShowCustomerNo: Boolean;
-
     local procedure ShowDetails()
     begin
         PAGE.Run(PAGE::"Customer Card", Rec);
-    end;
-
-    [Obsolete('Visibility of the Customer No. can be controlled through personalizaition or PTE', '17.0')]
-    procedure SetCustomerNoVisibility(Visible: Boolean)
-    begin
-        ShowCustomerNo := Visible;
     end;
 }
 

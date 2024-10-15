@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 1502 "Workflow Setup"
 {
 
@@ -113,11 +113,6 @@ codeunit 1502 "Workflow Setup"
         PaymentOrderApprWorkflowCodeTxt: Label 'PMTORDAPW', Locked = true;
         PaymentOrderApprWorkflowDescTxt: Label 'Payment Order Approval Workflow (Obsolete)';
         PaymentOrderHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Payment Order Header">%1</DataItem><DataItem name="Payment Order Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
-#if not CLEAN17
-        CashDocApprWorkflowCodeTxt: Label 'CDAPW', Locked = true;
-        CashDocApprWorkflowDescTxt: Label 'Cash Document Approval Workflow (Obsolete)';
-        CashDocHeaderTypeCondnTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Cash Document Header">%1</DataItem><DataItem name="Cash Document Line">%2</DataItem></DataItems></ReportParameters>', Locked = true;
-#endif
 #if not CLEAN18
         CreditDocApprWorkflowCodeTxt: Label 'CRAPW', Locked = true;
         CreditDocApprWorkflowDescTxt: Label 'Credit Approval Workflow (Obsolete)';
@@ -194,9 +189,6 @@ codeunit 1502 "Workflow Setup"
 
         // NAVCZ
         InsertPaymentOrderApprovalWorkflowTemplate();
-#if not CLEAN17
-        InsertCashDocApprovalWorkflowTemplate();
-#endif
 #if not CLEAN18
         InsertCreditDocApprovalWorkflowTemplate();
 #endif
@@ -1268,69 +1260,6 @@ codeunit 1502 "Workflow Setup"
           WorkflowStepArgument, true);
     end;
 
-#if not CLEAN17
-    local procedure InsertCashDocApprovalWorkflowTemplate()
-    var
-        Workflow: Record Workflow;
-    begin
-        // NAVCZ
-        InsertWorkflowTemplate(Workflow, CashDocApprWorkflowCodeTxt, CashDocApprWorkflowDescTxt, FinCategoryTxt);
-        InsertCashDocApprovalWorkflowDetails(Workflow);
-        MarkWorkflowAsTemplate(Workflow);
-    end;
-
-    local procedure InsertCashDocApprovalWorkflowDetails(var Workflow: Record Workflow)
-    var
-        CashDocHeader: Record "Cash Document Header";
-        WorkflowStepArgument: Record "Workflow Step Argument";
-    begin
-        // NAVCZ
-        InitWorkflowStepArgument(
-            WorkflowStepArgument, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
-            WorkflowStepArgument."Approver Limit Type"::"Direct Approver", 0, '', BlankDateFormula, true);
-
-        InsertDocApprovalWorkflowSteps(Workflow,
-          BuildCashDocHeaderTypeConditions(CashDocHeader.Status::Open),
-          WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode,
-          BuildCashDocHeaderTypeConditions(CashDocHeader.Status::"Pending Approval"),
-          WorkflowEventHandlingCZ.RunWorkflowOnCancelCashDocApprovalRequestCode,
-          WorkflowStepArgument, true);
-
-        ModifyCashDocApprovalWorkflowSteps(Workflow);
-    end;
-
-    local procedure ModifyCashDocApprovalWorkflowSteps(Workflow: Record Workflow)
-    var
-        WorkflowStep: Record "Workflow Step";
-        CheckReleaseDocumentResponseID: Integer;
-        RestrictRecordUsageResponseID: Integer;
-    begin
-        // NAVCZ
-        WorkflowStep.SetRange("Workflow Code", Workflow.Code);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.RestrictRecordUsageCode);
-        WorkflowStep.FindFirst;
-        RestrictRecordUsageResponseID := WorkflowStep.ID;
-
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.SetStatusToPendingApprovalCode);
-        WorkflowStep.FindFirst;
-        WorkflowStep.Validate("Previous Workflow Step ID", 0);
-        WorkflowStep.Modify();
-
-        CheckReleaseDocumentResponseID := InsertResponseStep(Workflow,
-            WorkflowResponseHandlingCZ.CheckReleaseDocumentCode, RestrictRecordUsageResponseID);
-
-        WorkflowStep.Validate("Previous Workflow Step ID", CheckReleaseDocumentResponseID);
-        WorkflowStep.Modify();
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ReleaseDocumentCode);
-        WorkflowStep.FindFirst;
-        WorkflowStep.Delete(true);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.AllowRecordUsageCode);
-        WorkflowStep.FindFirst;
-
-        InsertResponseStep(Workflow, WorkflowResponseHandlingCZ.SetStatusToApprovedCode, WorkflowStep.ID);
-    end;
-
-#endif
 #if not CLEAN18
     local procedure InsertCreditDocApprovalWorkflowTemplate()
     var
@@ -1369,10 +1298,10 @@ codeunit 1502 "Workflow Setup"
         // NAVCZ
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.ReleaseDocumentCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep.Delete(true);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.AllowRecordUsageCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         InsertResponseStep(Workflow, WorkflowResponseHandlingCZ.SetStatusToApprovedCode, WorkflowStep.ID);
     end;
@@ -2109,7 +2038,7 @@ codeunit 1502 "Workflow Setup"
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange("Previous Workflow Step ID", PreviousStepID);
-        if WorkflowStep.FindLast then
+        if WorkflowStep.FindLast() then
             exit(WorkflowStep."Sequence No." + 1);
     end;
 
@@ -2426,17 +2355,7 @@ codeunit 1502 "Workflow Setup"
 #if not CLEAN18
     [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
     procedure BuildCashDocHeaderTypeConditions(Status: Option): Text
-#if not CLEAN17
-    var
-        CashDocHdr: Record "Cash Document Header";
-        CashDocLn: Record "Cash Document Line";
-#endif
     begin
-#if not CLEAN17
-        // NAVCZ
-        CashDocHdr.SetRange(Status, Status);
-        exit(StrSubstNo(CashDocHeaderTypeCondnTxt, Encode(CashDocHdr.GetView(false)), Encode(CashDocLn.GetView(false))));
-#endif
     end;
 
 #endif

@@ -39,7 +39,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetName: Text[30];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -61,13 +61,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
@@ -93,13 +93,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
@@ -126,7 +126,7 @@ codeunit 134612 "Test Editing Permissions"
         ExtensionPermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -159,7 +159,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         NewPermissionTableDataObjectID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -187,14 +187,14 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         NewPermissionTableDataObjectID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
         NewPermissionTableDataObjectID := DATABASE::Item;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
         AssertTenantPermissionSetNotContainingTableDataTenantPermission(NewPermissionSetRoleID, NewPermissionTableDataObjectID);
         Commit();
@@ -225,7 +225,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         NewPermissionTableDataObjectID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -260,7 +260,7 @@ codeunit 134612 "Test Editing Permissions"
         TempTableFilter: Record "Table Filter" temporary;
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -291,13 +291,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
         Commit();
 
@@ -331,7 +331,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ExtensionPermissionSetAppID: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -366,7 +366,7 @@ codeunit 134612 "Test Editing Permissions"
     var
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -388,13 +388,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
         Commit();
 
@@ -422,7 +422,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ExtensionPermissionSetAppID: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -454,13 +454,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionTableDataObjectID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionTableDataObjectID := DATABASE::Item;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
@@ -480,7 +480,7 @@ codeunit 134612 "Test Editing Permissions"
         ExtensionPermissionSetRoleID: Code[20];
         NewPermissionTableDataObjectID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -505,12 +505,12 @@ codeunit 134612 "Test Editing Permissions"
         TempTableFilter: Record "Table Filter" temporary;
         PermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         DefineSecurityFilterForPermission(TempTableFilter, PermissionSetRoleID);
@@ -532,7 +532,7 @@ codeunit 134612 "Test Editing Permissions"
         TempTableFilter: Record "Table Filter" temporary;
         ExtensionPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -558,13 +558,13 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
@@ -583,12 +583,12 @@ codeunit 134612 "Test Editing Permissions"
     var
         PermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         // Exercise
@@ -610,7 +610,7 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -636,14 +636,14 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleIDTwo: Code[20];
         NewPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleIDOne := GenerateRandomPermissionSetRoleID;
         PermissionSetRoleIDTwo := GenerateRandomPermissionSetRoleID;
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleIDOne);
         CreateNewPermissionSet(PermissionSetRoleIDTwo);
 
@@ -668,12 +668,12 @@ codeunit 134612 "Test Editing Permissions"
         PermissionSetRoleID: Code[20];
         CanEditPermissionSet: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         PermissionSetRoleID := GenerateRandomPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleID);
 
         AggregatePermissionSet.Get(AggregatePermissionSet.Scope::System, ZeroGUID, PermissionSetRoleID);
@@ -696,7 +696,7 @@ codeunit 134612 "Test Editing Permissions"
         ExtensionPermissionSetRoleID: Code[20];
         CanEditPermissionSet: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         ExtensionPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -721,7 +721,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         CanEditPermissionSet: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -751,14 +751,14 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSet2: Code[20];
         NewPermissionSet3: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create new permission sets
         PermissionSetRoleIDThatIsLaterChanged := GenerateRandomPermissionSetRoleID;
         PermissionSetRoleIDThatIsLaterDeleted := GenerateRandomPermissionSetRoleID;
         PermissionSetRoleIDThatIsNotLaterChanged := GenerateRandomPermissionSetRoleID;
 
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateNewPermissionSet(PermissionSetRoleIDThatIsLaterChanged);
         CreateNewPermissionSet(PermissionSetRoleIDThatIsLaterDeleted);
         CreateNewPermissionSet(PermissionSetRoleIDThatIsNotLaterChanged);
@@ -790,7 +790,7 @@ codeunit 134612 "Test Editing Permissions"
         CopyPermissionSetToNewTenantPermissionSet(PermissionSetRoleIDThatIsNotLaterChanged, ZeroGuid);
 
         // Setup: Source Permission sets have changed
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         PermissionSet.Get(PermissionSetRoleIDThatIsLaterChanged);
         PermissionSet.Hash := 'Some new hash';
         PermissionSet.Modify();
@@ -826,7 +826,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissions: TestPage "Tenant Permissions";
         TenantPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup - create two permissions
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -877,7 +877,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissions: TestPage "Tenant Permissions";
         TenantPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Add permission for Sales header in a new permission set
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -915,7 +915,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermissions: TestPage "Tenant Permissions";
         TenantPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Add permission for Sales header in a new permission set
         TenantPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -965,7 +965,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -1044,7 +1044,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -1120,7 +1120,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         NewTenantPermissionSetRoleID: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomPermissionSetRoleID;
@@ -1156,7 +1156,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -1198,7 +1198,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - Create a new Permission Set and export it to a stream
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -1250,7 +1250,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // GIVEN - Create a new Permission Set
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -1308,7 +1308,7 @@ codeunit 134612 "Test Editing Permissions"
     begin
         // [FEATURE] [Tenant Perminsion Set]
         // [SCENARIO 298247] User can rename User defined permission sets on the page "Permission Sets"
-        Initialize;
+        Initialize();
 
         // [GIVEN] User defined permission set with Role ID = 'PermSet1'
         OldRoleID := LibraryUtility.GenerateRandomCode20(TenantPermissionSet.FieldNo("Role ID"), DATABASE::"Tenant Permission Set");
@@ -1381,7 +1381,7 @@ codeunit 134612 "Test Editing Permissions"
         NewPermissionSetRoleID: Code[20];
         ZeroGuid: Guid;
     begin
-        Initialize;
+        Initialize();
 
         // GIVEN - Create a new Permission Set
         NewPermissionSetRoleID := GenerateRandomTenantPermissionSetRoleID;
@@ -1529,7 +1529,7 @@ codeunit 134612 "Test Editing Permissions"
         "Field": Record "Field";
     begin
         Field.SetRange(TableNo, TableNumber);
-        Field.FindFirst;
+        Field.FindFirst();
 
         TempTableFilter."Table Number" := TableNumber;
         TempTableFilter."Field Number" := Field."No.";
@@ -1931,7 +1931,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
         TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
         TenantPermission.SetRange("Object ID", TempTableFilter."Table Number");
-        TenantPermission.FindFirst;
+        TenantPermission.FindFirst();
 
         TenantPermissionSecurityFilter := Format(TenantPermission."Security Filter");
 
@@ -1948,7 +1948,7 @@ codeunit 134612 "Test Editing Permissions"
         TenantPermission.SetRange("Role ID", TenantPermissionSetRoleID);
         TenantPermission.SetRange("Object Type", TenantPermission."Object Type"::"Table Data");
         TenantPermission.SetRange("Object ID", InputTableNumber);
-        TenantPermission.FindFirst;
+        TenantPermission.FindFirst();
 
         Assert.AreEqual('', Format(TenantPermission."Security Filter"), SecurityFilterExistsErr);
     end;
@@ -1960,7 +1960,7 @@ codeunit 134612 "Test Editing Permissions"
         Permission.SetRange("Role ID", PermissionSetRoleID);
         Permission.SetRange("Object Type", Permission."Object Type"::"Table Data");
         Permission.SetRange("Object ID", InputTableNumber);
-        Permission.FindFirst;
+        Permission.FindFirst();
 
         Assert.AreEqual('', Format(Permission."Security Filter"), SecurityFilterExistsErr);
     end;

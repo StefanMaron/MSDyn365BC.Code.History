@@ -2,7 +2,8 @@
 codeunit 414 "Release Sales Document"
 {
     TableNo = "Sales Header";
-    Permissions = TableData "Sales Header" = rm;
+    Permissions = TableData "Sales Header" = rm,
+                  TableData "Sales Line" = r;
 
     trigger OnRun()
     begin
@@ -75,7 +76,7 @@ codeunit 414 "Release Sales Document"
 
             if InvtSetup."Location Mandatory" then begin
                 SalesLine.SetRange(Type, SalesLine.Type::Item);
-                if SalesLine.FindSet then
+                if SalesLine.FindSet() then
                     repeat
                         if SalesLine.IsInventoriableItem then
                             SalesLine.TestField("Location Code");
@@ -101,7 +102,7 @@ codeunit 414 "Release Sales Document"
             OnCodeOnAfterCheck(SalesHeader, SalesLine, LinesWereModified);
 
             SalesLine.SetRange("Drop Shipment", false);
-            NotOnlyDropShipment := SalesLine.FindFirst;
+            NotOnlyDropShipment := SalesLine.FindFirst();
 
             OnCodeOnCheckTracking(SalesHeader, SalesLine);
 
@@ -297,7 +298,7 @@ codeunit 414 "Release Sales Document"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine.AsmToOrderExists(AsmHeader) then
                     CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AsmHeader);
@@ -312,7 +313,7 @@ codeunit 414 "Release Sales Document"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine.AsmToOrderExists(AsmHeader) then
                     ReleaseAssemblyDocument.Reopen(AsmHeader);

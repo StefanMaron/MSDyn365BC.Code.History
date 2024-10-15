@@ -65,11 +65,7 @@ table 11709 "Payment Order Line"
             ELSE
             IF (Type = CONST(Employee)) Employee."No."
             ELSE
-#if CLEAN17
             IF (Type = CONST("Bank Account")) "Bank Account"."No.";
-#else
-            IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if not CLEAN19
 
             trigger OnValidate()
@@ -108,13 +104,13 @@ table 11709 "Payment Order Line"
 #else
                                 if CustBankAcc.SetCurrentKey("Customer No.", Priority) then begin
                                     CustBankAcc.SetFilter(Priority, '%1..', 1);
-                                    if CustBankAcc.FindFirst then begin
+                                    if CustBankAcc.FindFirst() then begin
                                         Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
                                         exit;
                                     end;
                                 end;
 #endif                                
-                                if CustBankAcc.FindFirst then
+                                if CustBankAcc.FindFirst() then
                                     Validate("Cust./Vendor Bank Account Code", CustBankAcc.Code);
                             end;
                         Type::Vendor:
@@ -134,13 +130,13 @@ table 11709 "Payment Order Line"
 #else
                                 if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then begin
                                     VendBankAcc.SetFilter(Priority, '%1..', 1);
-                                    if VendBankAcc.FindFirst then begin
+                                    if VendBankAcc.FindFirst() then begin
                                         Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
                                         exit;
                                     end;
                                 end;
 #endif
-                                if VendBankAcc.FindFirst then
+                                if VendBankAcc.FindFirst() then
                                     Validate("Cust./Vendor Bank Account Code", VendBankAcc.Code);
                             end;
                         Type::Employee:
@@ -231,22 +227,13 @@ table 11709 "Payment Order Line"
 
             trigger OnValidate()
             var
-#if not CLEAN17
-                CompanyInfo: Record "Company Information";
-#endif
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
                 TestStatusOpen;
 
                 GetPaymentOrder();
-                if not PmtOrdHdr."Foreign Payment Order" then begin
+                if not PmtOrdHdr."Foreign Payment Order" then
                     BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
-#if not CLEAN17
-
-                    CompanyInfo.Get();
-                    CompanyInfo.CheckCzBankAccountNo("Account No.");
-#endif
-                end;
 
                 if "Account No." <> xRec."Account No." then begin
                     Type := Type::" ";
@@ -476,7 +463,7 @@ table 11709 "Payment Order Line"
                                 CustLedgEntry.Count > 1:
                                     Error(ExistEntryErr, CustLedgEntry.FieldCaption("Document No."), CustLedgEntry.TableCaption, "Applies-to Doc. No.");
                                 else begin
-                                        CustLedgEntry.FindFirst;
+                                        CustLedgEntry.FindFirst();
                                         Validate("Applies-to C/V/E Entry No.", CustLedgEntry."Entry No.");
                                     end;
                             end;
@@ -499,7 +486,7 @@ table 11709 "Payment Order Line"
                                 VendLedgEntry.Count > 1:
                                     Error(ExistEntryErr, VendLedgEntry.FieldCaption("Document No."), VendLedgEntry.TableCaption, "Applies-to Doc. No.");
                                 else begin
-                                        VendLedgEntry.FindFirst;
+                                        VendLedgEntry.FindFirst();
                                         Validate("Applies-to C/V/E Entry No.", VendLedgEntry."Entry No.");
                                     end;
                             end;
@@ -1061,39 +1048,18 @@ table 11709 "Payment Order Line"
         {
             Caption = 'VAT Uncertainty Payer';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
+            ObsoleteTag = '20.0';
         }
         field(191; "Public Bank Account"; Boolean)
         {
             Caption = 'Public Bank Account';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
+            ObsoleteTag = '20.0';
         }
-#if not CLEAN17
-        field(192; "Third Party Bank Account"; Boolean)
-        {
-            CalcFormula = Lookup("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("No."),
-                                                                                         Code = FIELD("Cust./Vendor Bank Account Code")));
-            Caption = 'Third Party Bank Account';
-            Editable = false;
-            FieldClass = FlowField;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-#endif
         field(200; "Payment Method Code"; Code[10])
         {
             Caption = 'Payment Method Code';
@@ -1173,7 +1139,6 @@ table 11709 "Payment Order Line"
         CurrencyG2: Record Currency;
         CurrExchRateG: Record "Currency Exchange Rate";
         BankAccount: Record "Bank Account";
-        Vendor: Record Vendor;
         PaymentOrderManagement: Codeunit "Payment Order Management";
         GLSetupRead: Boolean;
         ExistEntryErr: Label 'For the field %1 in table %2 exist more than one value %3.', Comment = '%1=FIELDCAPTION,%2=TABLECAPTION,%3=Applies-to Doc. No.';
@@ -1460,55 +1425,5 @@ table 11709 "Payment Order Line"
         StatusCheckSuspended := Suspend;
     end;
 
-    local procedure GetVendor(): Boolean
-    begin
-        if Type <> Type::Vendor then
-            exit(false);
-
-        if Vendor."No." <> "No." then
-            exit(Vendor.Get("No."));
-
-        exit(true);
-    end;
-
 #endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure IsUncertaintyPayerCheckPossible(): Boolean
-    begin
-        if not GetVendor then
-            exit(false);
-
-        exit(Vendor.IsUncertaintyPayerCheckPossible);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure GetUncertaintyPayerStatus(): Integer
-    begin
-        if not GetVendor then
-            exit(0);
-
-        exit(Vendor.GetUncertaintyPayerStatus);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure HasUncertaintyPayer(): Boolean
-    var
-        UncertaintyPayerEntry: Record "Uncertainty Payer Entry";
-    begin
-        exit(GetUncertaintyPayerStatus = UncertaintyPayerEntry."Uncertainty Payer"::YES);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure HasPublicBankAccount(): Boolean
-    var
-        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
-    begin
-        if not GetVendor then
-            exit(false);
-
-        exit(UncPayerMgt.IsPublicBankAccount('', Vendor."VAT Registration No.", "Account No.", IBAN));
-    end;
-#endif    
 }
-

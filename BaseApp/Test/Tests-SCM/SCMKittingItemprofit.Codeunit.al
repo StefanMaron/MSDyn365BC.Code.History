@@ -38,16 +38,16 @@ codeunit 137312 "SCM Kitting - Item profit"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Kitting - Item profit");
         // Initialize setup.
         ClearLastError;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Kitting - Item profit");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetupAssembly;
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, '');
         LibraryCosting.AdjustCostItemEntries('', '');
@@ -95,7 +95,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         PostedATOLink.SetRange("Document Type", PostedATOLink."Document Type"::"Sales Shipment");
         PostedATOLink.SetRange("Document No.", ItemLedgEntry."Document No.");
         PostedATOLink.SetRange("Document Line No.", ItemLedgEntry."Document Line No.");
-        if PostedATOLink.FindFirst then
+        if PostedATOLink.FindFirst() then
             exit(PostedATOLink."Assembly Order No.");
 
         if ItemLedgEntry.Correction then
@@ -113,7 +113,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         ItemLedgerEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
         ItemLedgerEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
         ItemLedgerEntry.SetFilter("Posting Date", Item.GetFilter("Date Filter"));
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 ItemLedgerEntry.CalcFields(
                   "Cost Amount (Expected)", "Cost Amount (Actual)", "Sales Amount (Expected)", "Sales Amount (Actual)");
@@ -135,7 +135,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         ItemLedgerEntry.SetRange("Order No.", OrderNo);
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Assembly);
         ItemLedgerEntry.SetRange("Source No.", ParentItemNo);
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 ItemLedgerEntry.CalcFields(
                   "Cost Amount (Expected)", "Cost Amount (Actual)", "Sales Amount (Expected)", "Sales Amount (Actual)");
@@ -149,7 +149,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Clear(TempATOSalesBuffer);
         TempATOSalesBuffer.SetRange(Type, TempATOSalesBuffer.Type::"Total Sale");
         TempATOSalesBuffer.SetRange("Item No.", ItemLedgerEntry."Item No.");
-        if TempATOSalesBuffer.FindFirst then begin
+        if TempATOSalesBuffer.FindFirst() then begin
             TempATOSalesBuffer.Quantity += -ItemLedgerEntry.Quantity;
             TempATOSalesBuffer."Sales Cost" += -(ItemLedgerEntry."Cost Amount (Expected)" + ItemLedgerEntry."Cost Amount (Actual)");
             TempATOSalesBuffer."Sales Amount" += ItemLedgerEntry."Sales Amount (Expected)" + ItemLedgerEntry."Sales Amount (Actual)";
@@ -178,7 +178,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         if EntryType <> TempATOSalesBuffer.Type::"Total Assembly" then
             TempATOSalesBuffer.SetRange("Parent Item No.", ItemLedgerEntry."Source No.");
 
-        if TempATOSalesBuffer.FindFirst then begin
+        if TempATOSalesBuffer.FindFirst() then begin
             TempATOSalesBuffer.Quantity += -ItemLedgerEntry.Quantity;
             TempATOSalesBuffer."Sales Cost" += -(ItemLedgerEntry."Cost Amount (Expected)" + ItemLedgerEntry."Cost Amount (Actual)");
             TempATOSalesBuffer."Sales Amount" +=
@@ -273,7 +273,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         // Search all the asm BOM lists and find at least one parent having Assembly-policy = Assemble-to-Order
         BOMComponent.SetRange("No.", ItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 ParentItem.Get(BOMComponent."Parent Item No.");
                 if ParentItem."Assembly Policy" = ParentItem."Assembly Policy"::"Assemble-to-Order" then
@@ -308,7 +308,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Filters := Format(Item."No.");
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 Filters += Format('|' + BOMComponent."No.");
             until BOMComponent.Next = 0;
@@ -448,7 +448,7 @@ codeunit 137312 "SCM Kitting - Item profit"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange(Type, Type::Item);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -483,7 +483,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         TempATOSalesBuffer.SetFilter("Item No.", Item.GetFilter("No."));
         TempATOSalesBuffer.SetFilter(Quantity, '<>%1', 0);
 
-        if TempATOSalesBuffer.FindSet then
+        if TempATOSalesBuffer.FindSet() then
             repeat
                 LibraryReportDataset.SetRange('Item_No', TempATOSalesBuffer."Item No.");
                 NoOfRows :=
@@ -563,7 +563,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         OrderQty: Decimal;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Create AO
         CreateAssembledItem(
@@ -673,7 +673,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Item: Record Item;
         SalesHeader: Record "Sales Header";
     begin
-        Initialize;
+        Initialize();
 
         // Create ATO item
         CreateAssembledItem(Item, AssemblyPolicy, Item."Costing Method"::FIFO, LibraryRandom.RandDec(100, 2),
@@ -804,7 +804,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(Item, Item."Assembly Policy"::"Assemble-to-Stock", CostingMethod, LibraryRandom.RandDec(100, 2),
@@ -831,7 +831,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(
@@ -874,7 +874,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Item1: Record Item;
         Item2: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(
@@ -912,7 +912,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         BOMComponent: Record "BOM Component";
         Item1: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(
@@ -941,7 +941,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Item1: Record Item;
         DueDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(
@@ -973,7 +973,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item
         CreateAssembledItem(
@@ -997,7 +997,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
         Item1: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Create item - Cost of components is 0
         CreateAssembledItem(Item1, Item1."Assembly Policy"::"Assemble-to-Order", Item1."Costing Method"::FIFO, 0,
@@ -1025,7 +1025,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         SalesShipmentLine: Record "Sales Shipment Line";
         TempATOSalesBuffer: Record "ATO Sales Buffer" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Create ATO and post ATS
         CreateAssembledItem(
@@ -1037,7 +1037,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Undo shipment
         SalesShipmentLine.SetRange("No.", Item."No.");
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         LibraryVariableStorage.Enqueue(UndoShipmMsg); // Msg to the confirm handler
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine); // Calls the confirm handler
 
@@ -1057,7 +1057,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Create ATO item
         CreateAssembledItem(
@@ -1138,7 +1138,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         SalesShptLine: Record "Sales Shipment Line";
         SalesGetShipment: Codeunit "Sales-Get Shipment";
     begin
-        Initialize;
+        Initialize();
 
         // Create ATO item
         CreateAssembledItem(
@@ -1152,7 +1152,7 @@ codeunit 137312 "SCM Kitting - Item profit"
 
         // Create Sales invoice and post it
         SalesShptLine.SetRange("No.", Item."No.");
-        SalesShptLine.FindFirst;
+        SalesShptLine.FindFirst();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, SalesShptLine."Sell-to Customer No.");
         SalesHeader.Validate("No. Series", SalesHeader."Posting No. Series"); // Required for IT
         SalesHeader.Modify(true);
@@ -1179,7 +1179,7 @@ codeunit 137312 "SCM Kitting - Item profit"
         Item: Record Item;
         BOMComponent: Record "BOM Component";
     begin
-        Initialize;
+        Initialize();
 
         // Create item - Cost of components is 0
         CreateAssembledItem(Item1, Item1."Assembly Policy"::"Assemble-to-Order", Item1."Costing Method"::FIFO, 0,

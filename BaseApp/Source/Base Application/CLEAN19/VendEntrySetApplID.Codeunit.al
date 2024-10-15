@@ -15,7 +15,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
         TempVendLedgEntry: Record "Vendor Ledger Entry" temporary;
     begin
         VendLedgEntry.LockTable();
-        if VendLedgEntry.FindSet then begin
+        if VendLedgEntry.FindSet() then begin
             // Make Applies-to ID
             if VendLedgEntry."Applies-to ID" <> '' then
                 VendEntryApplID := ''
@@ -34,7 +34,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
             until VendLedgEntry.Next() = 0;
         end;
 
-        if TempVendLedgEntry.FindSet then
+        if TempVendLedgEntry.FindSet() then
             repeat
                 UpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
             until TempVendLedgEntry.Next() = 0;
@@ -43,8 +43,12 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     local procedure UpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
+        IsHandled := false;
+        OnBeforeUpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID, VendEntryApplID, IsHandled);
+        if IsHandled then
+            exit;
 
         VendorLedgerEntry.Copy(TempVendLedgEntry);
         VendorLedgerEntry.TestField(Open, true);
@@ -73,7 +77,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
+    local procedure OnBeforeUpdateVendLedgerEntry(var TempVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendEntryApplID: Code[50]; var IsHandled: Boolean)
     begin
     end;
 

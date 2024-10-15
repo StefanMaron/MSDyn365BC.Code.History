@@ -75,7 +75,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] User doesn't choose an action - handler validates message
         Contact.SetRange("Search E-Mail", TestEmail);
-        asserterror Contact.FindFirst;
+        asserterror Contact.FindFirst();
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [THEN] Contact card is opened (page handler) and verify contact was created
         Contact.SetRange("E-Mail", TestEmail);
-        Contact.FindFirst;
+        Contact.FindFirst();
     end;
 
     [Test]
@@ -335,7 +335,7 @@ codeunit 139048 "SMB Office Pages"
 
         // [WHEN] Company No. is changed on the contact
         Contact.SetRange("E-Mail", TestEmail);
-        Contact.FindFirst;
+        Contact.FindFirst();
         Contact.Validate("Company No.", Contact1."No.");
         Contact.Validate("Company No.", Contact2."No.");
 
@@ -1700,7 +1700,7 @@ codeunit 139048 "SMB Office Pages"
         Initialize();
 
         // [GIVEN] Office invoice record exists for the appointment
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         OfficeInvoice.DeleteAll();
         OfficeInvoice.Init();
         OfficeInvoice."Document No." := SalesInvoiceHeader."No.";
@@ -1971,7 +1971,7 @@ codeunit 139048 "SMB Office Pages"
         ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelationCode);
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", LinkNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         exit(ContactBusinessRelation."Contact No.");
     end;
 
@@ -2074,7 +2074,7 @@ codeunit 139048 "SMB Office Pages"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
         MarketingSetup.Get();
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
         Contact.Init();
         Contact.Type := Type;
         Contact.Insert(true);

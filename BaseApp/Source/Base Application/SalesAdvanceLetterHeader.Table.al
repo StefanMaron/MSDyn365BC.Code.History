@@ -6,11 +6,12 @@ table 31000 "Sales Advance Letter Header"
     DrillDownPageID = "Sales Adv. Letters";
     LookupPageID = "Sales Adv. Letters";
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -25,12 +26,10 @@ table 31000 "Sales Advance Letter Header"
 #if not CLEAN19
 
             trigger OnValidate()
-#if CLEAN17
             var
                 FieldValueDictionary: Dictionary of [Text[30], Text];
                 RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
                 TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
-#endif
             begin
                 if "No." = '' then
                     InitRecord;
@@ -93,16 +92,11 @@ table 31000 "Sales Advance Letter Header"
                 "Payment Terms Code" := Cust."Payment Terms Code";
                 "Payment Method Code" := Cust."Payment Method Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
-#if CLEAN17
                 FieldValueDictionary.Add(RegistrationNoFldTok, '');
                 FieldValueDictionary.Add(TaxRegistrationNoFldTok, '');
                 ExtensionFieldsManagement.GetRecordExtensionFields(Cust.RecordId, FieldValueDictionary);
                 "Registration No." := CopyStr(FieldValueDictionary.Get(RegistrationNoFldTok), 1, MaxStrlen("Registration No."));
                 "Tax Registration No." := CopyStr(FieldValueDictionary.Get(TaxRegistrationNoFldTok), 1, MaxStrlen("Registration No."));
-#else
-                "Registration No." := Cust."Registration No.";
-                "Tax Registration No." := Cust."Tax Registration No.";
-#endif
 
                 Validate("VAT Country/Region Code");
                 CreateDim(
@@ -343,17 +337,19 @@ table 31000 "Sales Advance Letter Header"
             Caption = 'Order No.';
             TableRelation = "Sales Header"."No." WHERE("Document Type" = CONST(Order));
         }
-#if not CLEAN19
         field(46; Comment; Boolean)
         {
+#if not CLEAN19
             CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
+#endif
             Caption = 'Comment';
             Editable = false;
+#if not CLEAN19
             FieldClass = FlowField;
-        }
 #endif
+        }
         field(47; "No. Printed"; Integer)
         {
             Caption = 'No. Printed';
@@ -372,7 +368,6 @@ table 31000 "Sales Advance Letter Header"
         {
             Caption = 'On Hold';
         }
-#if not CLEAN19
         field(61; "Amount Including VAT"; Decimal)
         {
             CalcFormula = Sum("Sales Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
@@ -380,7 +375,6 @@ table 31000 "Sales Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(70; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
@@ -545,7 +539,6 @@ table 31000 "Sales Advance Letter Header"
             end;
 #endif
         }
-#if not CLEAN19
         field(120; Status; Option)
         {
             CalcFormula = Min("Sales Advance Letter Line".Status WHERE("Letter No." = FIELD("No."),
@@ -556,7 +549,6 @@ table 31000 "Sales Advance Letter Header"
             OptionCaption = 'Open,Pending Payment,Pending Invoice,Pending Final Invoice,Closed,Pending Approval';
             OptionMembers = Open,"Pending Payment","Pending Invoice","Pending Final Invoice",Closed,"Pending Approval";
         }
-#endif
         field(133; "Advance Due Date"; Date)
         {
             Caption = 'Advance Due Date';
@@ -699,11 +691,7 @@ table 31000 "Sales Advance Letter Header"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if not CLEAN19
 
             trigger OnValidate()
@@ -847,7 +835,6 @@ table 31000 "Sales Advance Letter Header"
             TableRelation = "Sales Adv. Payment Template";
 #endif
         }
-#if not CLEAN19
         field(31013; "Amount To Link"; Decimal)
         {
             CalcFormula = Sum("Sales Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
@@ -932,7 +919,6 @@ table 31000 "Sales Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31025; "Post Advance VAT Option"; Option)
         {
             Caption = 'Post Advance VAT Option';
@@ -1073,9 +1059,7 @@ table 31000 "Sales Advance Letter Header"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-#if CLEAN17
         ExtensionFieldsManagement: Codeunit "Extension Fields Management";
-#endif
         HideValidationDialog: Boolean;
         Confirmed: Boolean;
         CurrencyDate: Date;
@@ -1309,12 +1293,12 @@ table 31000 "Sales Advance Letter Header"
     begin
         SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesPostAdvances.CalcLinkedAmount(SalesAdvanceLetterLine, TempCustLedgEntry);
             until SalesAdvanceLetterLine.Next() = 0;
         LinkedPrepayments.InsertCustEntries(TempCustLedgEntry);
-        LinkedPrepayments.RunModal;
+        LinkedPrepayments.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -1340,7 +1324,7 @@ table 31000 "Sales Advance Letter Header"
         SalesAdvanceLetterLine.SetFilter(Status, '%1|%2',
           SalesAdvanceLetterLine.Status::Open,
           SalesAdvanceLetterLine.Status::"Pending Approval");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 if SalesAdvanceLetterLine."Amount Including VAT" < 0 then
                     SalesAdvanceLetterLine.FieldError("Amount Including VAT", PositiveAmountErr);
@@ -1365,7 +1349,7 @@ table 31000 "Sales Advance Letter Header"
         SalesAdvanceLetterLine.SetFilter(Status, '%1|%2',
           SalesAdvanceLetterLine.Status::"Pending Advance Payment",
           SalesAdvanceLetterLine.Status::"Pending Approval");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 if (SalesAdvanceLetterLine."Amount To Link" = SalesAdvanceLetterLine."Amount Including VAT") or
                    (SalesAdvanceLetterLine.Status = SalesAdvanceLetterLine.Status::"Pending Approval")
@@ -1408,7 +1392,7 @@ table 31000 "Sales Advance Letter Header"
     begin
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
         SalesAdvanceLetterLine.SetFilter("Amount Deducted", '<>%1', 0);
-        if SalesAdvanceLetterLine.FindFirst then
+        if SalesAdvanceLetterLine.FindFirst() then
             SalesAdvanceLetterLine.TestField("Amount Deducted", 0);
     end;
 
@@ -1421,7 +1405,7 @@ table 31000 "Sales Advance Letter Header"
         SalesAdvanceLetterLine.CalcSums("Amount To Invoice");
         if SalesAdvanceLetterLine."Amount To Invoice" = 0 then begin
             SalesAdvanceLetterLine.SetRange("Amount To Invoice", 0);
-            SalesAdvanceLetterLine.FindFirst;
+            SalesAdvanceLetterLine.FindFirst();
             SalesAdvanceLetterLine.TestField("Amount To Invoice");
         end;
     end;
@@ -1461,7 +1445,7 @@ table 31000 "Sales Advance Letter Header"
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
         SalesAdvanceLetterLine.SetFilter("No.", '<>''''');
         SalesAdvanceLetterLine.SetFilter(Status, '<>%1', SalesAdvanceLetterLine.Status::Closed);
-        IsClosed := not SalesAdvanceLetterLine.FindFirst;
+        IsClosed := not SalesAdvanceLetterLine.FindFirst();
         if IsClosed <> Closed then begin
             Closed := IsClosed;
             if ToModify then
@@ -1552,7 +1536,7 @@ table 31000 "Sales Advance Letter Header"
 
                 SalesAdvanceLetterLinegre.Reset();
                 SalesAdvanceLetterLinegre.SetRange("Letter No.", "No.");
-                if SalesAdvanceLetterLinegre.FindSet then
+                if SalesAdvanceLetterLinegre.FindSet() then
                     repeat
                         SalesAdvanceLetterLinegre.TestField(Status, SalesAdvanceLetterLinegre.Status::Open);
 
@@ -1644,7 +1628,7 @@ table 31000 "Sales Advance Letter Header"
         AdvanceLetterLineRelation.SetCurrentKey(Type, "Letter No.");
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
         AdvanceLetterLineRelation.SetRange("Letter No.", "No.");
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, true, true);
             until AdvanceLetterLineRelation.Next() = 0;
@@ -1801,4 +1785,3 @@ table 31000 "Sales Advance Letter Header"
     end;
 #endif
 }
-

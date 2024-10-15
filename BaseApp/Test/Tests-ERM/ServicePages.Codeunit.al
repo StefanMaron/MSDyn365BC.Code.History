@@ -26,7 +26,7 @@ codeunit 136150 "Service Pages"
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing service lines will be deleted and the program will create new service lines based on the new information on the header.\Do you want to change the %1?';
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ServiceShipmentCZReportHandler,ServiceInvoiceCZReportHandler')]
+    [HandlerFunctions('StrMenuHandler,ServiceShipmentReportHandler,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceOrderPostAndPrint()
     var
@@ -36,7 +36,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Order]
         // [SCENARIO 268383] Stan does not see confirmation to close service order card page when document fully shiped and invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
 
@@ -46,12 +46,12 @@ codeunit 136150 "Service Pages"
         ServiceOrder.GotoRecord(ServiceHeader);
         ServiceOrder."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceCZReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceInvoicePostAndPrint()
     var
@@ -61,7 +61,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Invoice]
         // [SCENARIO 268383] Stan does not see confirmation to close Service Invoices card page when document fully invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Invoice);
 
@@ -72,12 +72,12 @@ codeunit 136150 "Service Pages"
         ServiceInvoice.GotoRecord(ServiceHeader);
         ServiceInvoice."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoCZReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoPostAndPrint()
     var
@@ -87,7 +87,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [Print] [Post] [Credit Memo]
         // [SCENARIO 268383] Stan does not see confirmation to close service credit memo card page when document fully invoiced with printing documents
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
 
@@ -98,7 +98,7 @@ codeunit 136150 "Service Pages"
         ServiceCreditMemo.GotoRecord(ServiceHeader);
         ServiceCreditMemo."Post and &Print".Invoke; // Post and Print
 
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -114,7 +114,7 @@ codeunit 136150 "Service Pages"
     begin
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 308004] Confirmation message to recreate service lines must appear when Stan clears "Currency Code" field on Service Order.
-        Initialize;
+        Initialize();
 
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
         CurrencyCode :=
@@ -775,8 +775,6 @@ codeunit 136150 "Service Pages"
     end;
 
     local procedure Initialize()
-    var
-        ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Pages");
 
@@ -784,18 +782,12 @@ codeunit 136150 "Service Pages"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Pages");
 
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryService.SetupServiceMgtNoSeries;
-
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Shipment");
-        ReportSelections.ModifyAll("Report ID", Report::"Service - Shipment CZ");
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Invoice");
-        ReportSelections.ModifyAll("Report ID", Report::"Service - Invoice CZ");
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"SM.Credit Memo");
-        ReportSelections.ModifyAll("Report ID", Report::"Service - Credit Memo CZ");
-
-        IsInitialized := true;
         Commit();
+        IsInitialized := true;
+
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryService.SetupServiceMgtNoSeries();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Pages");
     end;
 
@@ -843,7 +835,7 @@ codeunit 136150 "Service Pages"
         PaymentMethod: Record "Payment Method";
     begin
         PaymentMethod.SetFilter("Bal. Account No.", '<>''''');
-        PaymentMethod.FindFirst;
+        PaymentMethod.FindFirst();
         exit(PaymentMethod.Code);
     end;
 
@@ -921,19 +913,19 @@ codeunit 136150 "Service Pages"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceShipmentCZReportHandler(var ServiceShipmentCZ: Report "Service - Shipment CZ")
+    procedure ServiceShipmentReportHandler(var ServiceShipment: Report "Service - Shipment")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceInvoiceCZReportHandler(var ServiceInvoiceCZ: Report "Service - Invoice CZ")
+    procedure ServiceInvoiceReportHandler(var ServiceInvoice: Report "Service - Invoice")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceCreditMemoCZReportHandler(var ServiceCreditMemoCZ: Report "Service - Credit Memo CZ")
+    procedure ServiceCreditMemoReportHandler(var ServiceCreditMemo: Report "Service - Credit Memo")
     begin
     end;
 

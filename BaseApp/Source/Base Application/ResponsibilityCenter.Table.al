@@ -158,11 +158,7 @@ table 5714 "Responsibility Center"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -324,4 +320,3 @@ table 5714 "Responsibility Center"
     end;
 
 }
-

@@ -1,4 +1,4 @@
-﻿table 5600 "Fixed Asset"
+table 5600 "Fixed Asset"
 {
     Caption = 'Fixed Asset';
     DataCaptionFields = "No.", Description;
@@ -414,7 +414,7 @@
             MainAssetComp.SetRange("FA No.", '');
             MainAssetComp.DeleteAll();
             MainAssetComp.SetRange("FA No.");
-            if not MainAssetComp.FindFirst then begin
+            if not MainAssetComp.FindFirst() then begin
                 FA.Get("Component of Main Asset");
                 FA."Main Asset/Component" := FA."Main Asset/Component"::" ";
                 FA."Component of Main Asset" := '';
@@ -574,7 +574,7 @@
         FASetup.Get();
         FADeprBook.SetRange("FA No.", "No.");
         FADeprBook.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
-        if FADeprBook.FindLast then
+        if FADeprBook.FindLast() then
             if FADeprBook."Disposal Date" > 0D then
                 Error(Text1220001, "No.");
 

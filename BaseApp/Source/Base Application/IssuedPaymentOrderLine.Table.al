@@ -38,11 +38,7 @@ table 11711 "Issued Payment Order Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor."No."
             ELSE
-#if CLEAN17
             IF (Type = CONST("Bank Account")) "Bank Account"."No.";
-#else
-            IF (Type = CONST("Bank Account")) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
-#endif            
         }
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
@@ -190,37 +186,25 @@ table 11711 "Issued Payment Order Line"
         {
             Caption = 'VAT Uncertainty Payer';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
+            ObsoleteTag = '20.0';
         }
         field(191; "Public Bank Account"; Boolean)
         {
             Caption = 'Public Bank Account';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
+            ObsoleteTag = '20.0';
         }
         field(192; "Third Party Bank Account"; Boolean)
         {
             Caption = 'Third Party Bank Account';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
+            ObsoleteTag = '20.0';
         }
         field(200; "Payment Method Code"; Code[10])
         {
@@ -298,4 +282,3 @@ table 11711 "Issued Payment Order Line"
     end;
 #endif
 }
-

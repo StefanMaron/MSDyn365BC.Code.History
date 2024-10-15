@@ -1,4 +1,4 @@
-table 21 "Cust. Ledger Entry"
+﻿table 21 "Cust. Ledger Entry"
 {
     Caption = 'Cust. Ledger Entry';
     DrillDownPageID = "Customer Ledger Entries";
@@ -156,22 +156,28 @@ table 21 "Cust. Ledger Entry"
         field(33; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
-#if not CLEAN18
 
             trigger OnValidate()
             var
-                GenJnlLine: Record "Gen. Journal Line";
+                GenJournalLine: Record "Gen. Journal Line";
             begin
-                // NAVCZ
-                GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Customer);
-                GenJnlLine.SetRange("Account No.", "Customer No.");
-                GenJnlLine.SetRange("Applies-to Doc. Type", "Document Type");
-                GenJnlLine.SetRange("Applies-to Doc. No.", "Document No.");
-                GenJnlLine.SetRange(Compensation, true);
-                if GenJnlLine.FindFirst then
-                    Error(OnHoldErr, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
+                if "On Hold" = xRec."On Hold" then
+                    exit;
+                GenJournalLine.Reset();
+                GenJournalLine.SetLoadFields("On Hold");
+                GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Customer);
+                GenJournalLine.SetRange("Account No.", "Customer No.");
+                GenJournalLine.SetRange("Applies-to Doc. Type", "Document Type");
+                GenJournalLine.SetRange("Applies-to Doc. No.", "Document No.");
+                GenJournalLine.SetRange("On Hold", xRec."On Hold");
+                if GenJournalLine.FindFirst() then
+                    if not Confirm(
+                        StrSubstNo(
+                            NetBalanceOnHoldErr,
+                            GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."))
+                    then
+                        Error('');
             end;
-#endif
         }
         field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
@@ -200,7 +206,7 @@ table 21 "Cust. Ledger Entry"
                     ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
                     ReminderEntry.SetRange("Reminder Level", "Last Issued Reminder Level");
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         ReminderIssue.ChangeDueDate(ReminderEntry, "Due Date", xRec."Due Date");
                 end;
             end;
@@ -225,6 +231,12 @@ table 21 "Cust. Ledger Entry"
         {
             AutoFormatType = 1;
             Caption = 'Pmt. Disc. Given (LCY)';
+        }
+        field(42; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Orig. Pmt. Disc. Possible (LCY)';
+            Editable = false;
         }
         field(43; Positive; Boolean)
         {
@@ -253,6 +265,10 @@ table 21 "Cust. Ledger Entry"
             begin
                 TestField(Open, true);
             end;
+        }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
         }
         field(49; "Journal Batch Name"; Code[10])
         {
@@ -619,11 +635,7 @@ table 21 "Cust. Ledger Entry"
         field(11700; "Bank Account Code"; Code[20])
         {
             Caption = 'Bank Account Code';
-#if CLEAN17
             TableRelation = IF ("Document Type" = FILTER(Payment | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account"."No."
-#else
-            TableRelation = IF ("Document Type" = FILTER(Payment | Invoice | "Finance Charge Memo" | Reminder)) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"))
-#endif            
             ELSE
             IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Customer Bank Account".Code WHERE("Customer No." = FIELD("Customer No."));
 #if CLEAN18
@@ -785,13 +797,9 @@ table 21 "Cust. Ledger Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; Compensation; Boolean)
         {
@@ -1038,9 +1046,7 @@ table 21 "Cust. Ledger Entry"
     var
         Text000: Label 'must have the same sign as %1';
         Text001: Label 'must not be larger than %1';
-#if not CLEAN18
-        OnHoldErr: Label 'The operation is prohibited, until journal line of Journal Template Name = ''%1'', Journal Batch Name = ''%2'', Line No. = ''%3'' is deleted or posted.';
-#endif
+        NetBalanceOnHoldErr: Label 'General journal line number %3 on template name %1 batch name %2 is applied. Do you want to change On Hold value anyway?', Comment = '%1 - template name, %2 - batch name, %3 - line number';
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -1127,7 +1133,7 @@ table 21 "Cust. Ledger Entry"
     begin
         RecRef.GetTable(Record);
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
     end;
 
     procedure HasPostedDocAttachment(): Boolean
@@ -1233,18 +1239,18 @@ table 21 "Cust. Ledger Entry"
         if ApplyDocNo <> '' then begin
             SetRange("Document Type", ApplyDocType);
             SetRange("Document No.", ApplyDocNo);
-            if FindFirst then;
+            if FindFirst() then;
             SetRange("Document Type");
             SetRange("Document No.");
         end else
             if ApplyDocType <> 0 then begin
                 SetRange("Document Type", ApplyDocType);
-                if FindFirst then;
+                if FindFirst() then;
                 SetRange("Document Type");
             end else
                 if ApplyAmount <> 0 then begin
                     SetRange(Positive, ApplyAmount < 0);
-                    if FindFirst then;
+                    if FindFirst() then;
                     SetRange(Positive);
                 end;
     end;
@@ -1257,7 +1263,7 @@ table 21 "Cust. Ledger Entry"
         SetRange("Document No.", AppliesToDocNo);
         SetRange("Customer No.", CustomerNo);
         SetRange(Open, true);
-        if FindFirst then begin
+        if FindFirst() then begin
             if "Amount to Apply" = 0 then begin
 #if not CLEAN19
                 TestField(Prepayment, false); // NAVCZ
@@ -1298,6 +1304,7 @@ table 21 "Cust. Ledger Entry"
         "Due Date" := GenJnlLine."Due Date";
         "Pmt. Discount Date" := GenJnlLine."Pmt. Discount Date";
         "Applies-to ID" := GenJnlLine."Applies-to ID";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "Direct Debit Mandate ID" := GenJnlLine."Direct Debit Mandate ID";
@@ -1314,9 +1321,6 @@ table 21 "Cust. Ledger Entry"
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
 #if not CLEAN19
         // NAVCZ
-#if not CLEAN17
-        "VAT Date" := GenJnlLine."VAT Date";
-#endif
 #if not CLEAN18
         Compensation := GenJnlLine.Compensation;
 #endif
@@ -1491,4 +1495,3 @@ table 21 "Cust. Ledger Entry"
     end;
 #endif
 }
-

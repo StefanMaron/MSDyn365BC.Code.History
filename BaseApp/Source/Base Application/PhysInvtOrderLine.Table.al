@@ -61,7 +61,7 @@ table 5876 "Phys. Invt. Order Line"
                 Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
                 Validate("Inventory Posting Group", Item."Inventory Posting Group");
                 OnValidateItemNoOnAfterInitFromItem(Rec, xRec, Item, PhysInvtOrderHeader);
-                CreateDim(DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim();
 
                 "Location Code" := PhysInvtOrderHeader."Location Code";
                 "Bin Code" := PhysInvtOrderHeader."Bin Code";
@@ -112,6 +112,7 @@ table 5876 "Phys. Invt. Order Line"
                     ResetQtyExpected;
 
                 GetShelfNo();
+                CreateDimFromDefaultDim();
             end;
         }
         field(23; "Bin Code"; Code[20])
@@ -341,36 +342,9 @@ table 5876 "Phys. Invt. Order Line"
         field(31077; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = IF ("Entry Type" = CONST(" ")) "Whse. Net Change Template"
-            ELSE
-            IF ("Entry Type" = CONST("Positive Adjmt.")) "Whse. Net Change Template" WHERE("Entry Type" = CONST("Positive Adjmt."))
-            ELSE
-            IF ("Entry Type" = CONST("Negative Adjmt.")) "Whse. Net Change Template" WHERE("Entry Type" = CONST("Negative Adjmt."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                WhseNetChangeTemplate: Record "Whse. Net Change Template";
-            begin
-                Validate("Gen. Bus. Posting Group", '');
-                if WhseNetChangeTemplate.Get("Whse. Net Change Template") then begin
-                    case "Entry Type" of
-                        "Entry Type"::"Positive Adjmt.":
-                            WhseNetChangeTemplate.TestField("Entry Type", WhseNetChangeTemplate."Entry Type"::"Positive Adjmt.");
-                        "Entry Type"::"Negative Adjmt.":
-                            WhseNetChangeTemplate.TestField("Entry Type", WhseNetChangeTemplate."Entry Type"::"Negative Adjmt.");
-                    end;
-                    Validate("Gen. Bus. Posting Group", WhseNetChangeTemplate."Gen. Bus. Posting Group");
-                end;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -502,7 +476,7 @@ table 5876 "Phys. Invt. Order Line"
                 ItemLedgEntry.SetRange("Location Code", "Location Code");
                 ItemLedgEntry.SetRange("Posting Date", 0D, PhysInvtOrderHeader."Posting Date");
                 OnCalcQtyAndTrackLinesExpectedSetItemLedgEntryFilters(ItemLedgEntry, Rec);
-                if ItemLedgEntry.FindSet then
+                if ItemLedgEntry.FindSet() then
                     repeat
                         if not
                            ExpPhysInvtTracking.Get(
@@ -530,7 +504,7 @@ table 5876 "Phys. Invt. Order Line"
                     WhseEntry.SetRange("Variant Code", "Variant Code");
                     WhseEntry.SetRange("Registering Date", 0D, PhysInvtOrderHeader."Posting Date");
                     OnCalcQtyAndTrackLinesExpectedOnAfterSetWhseEntryFilters(WhseEntry, Rec);
-                    if WhseEntry.FindSet then
+                    if WhseEntry.FindSet() then
                         repeat
                             if not
                                ExpPhysInvtTracking.Get(
@@ -730,18 +704,52 @@ table 5876 "Phys. Invt. Order Line"
           ("Bin Code" = ''));
     end;
 
-    procedure PrepareLine(DocNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; PeriodCode: Code[10]; PeriodType: Option)
+    procedure PrepareLineArgs(WhseEntry: Record "Warehouse Entry")
+    var
+        BlankItemLedgEntry: Record "Item Ledger Entry";
     begin
-        Init;
+        PrepareLineArgs(WhseEntry, BlankItemLedgEntry);
+    end;
+
+    procedure PrepareLineArgs(WhseEntry: Record "Warehouse Entry"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+        if ItemLedgEntry."Entry No." = 0 then begin
+            "Item No." := WhseEntry."Item No.";
+            "Variant Code" := WhseEntry."Variant Code";
+            "Location Code" := WhseEntry."Location Code";
+        end else begin
+            "Item No." := ItemLedgEntry."Item No.";
+            "Variant Code" := ItemLedgEntry."Variant Code";
+            "Location Code" := ItemLedgEntry."Location Code";
+        end;
+        "Bin Code" := WhseEntry."Bin Code";
+        OnAfterPrepareLineArgs(Rec, ItemLedgEntry, WhseEntry);
+    end;
+
+    procedure PrepareLine(DocNo: Code[20]; LineNo: Integer; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20]; PeriodCode: Code[10]; PeriodType: Option)
+    var
+        PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line";
+    begin
+        PhysInvtOrderLineArgs."Item No." := ItemNo;
+        PhysInvtOrderLineArgs."Variant Code" := VariantCode;
+        PhysInvtOrderLineArgs."Location Code" := LocationCode;
+        PhysInvtOrderLineArgs."Bin Code" := BinCode;
+        PrepareLine(DocNo, LineNo, PhysInvtOrderLineArgs, PeriodCode, PeriodType);
+    end;
+
+    procedure PrepareLine(DocNo: Code[20]; LineNo: Integer; PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line"; PeriodCode: Code[10]; PeriodType: Option)
+    begin
+        Init();
         "Document No." := DocNo;
         "Line No." := LineNo;
-        Validate("Item No.", ItemNo);
-        Validate("Variant Code", VariantCode);
-        Validate("Location Code", LocationCode);
-        Validate("Bin Code", BinCode);
+        Validate("Item No.", PhysInvtOrderLineArgs."Item No.");
+        Validate("Variant Code", PhysInvtOrderLineArgs."Variant Code");
+        Validate("Location Code", PhysInvtOrderLineArgs."Location Code");
+        Validate("Bin Code", PhysInvtOrderLineArgs."Bin Code");
         "Phys Invt Counting Period Code" := PeriodCode;
         "Phys Invt Counting Period Type" := PeriodType;
         "Recorded Without Order" := false;
+        OnAfterPrepareLine(Rec, PhysInvtOrderLineArgs);
     end;
 
     procedure ShowDimensions()
@@ -754,22 +762,45 @@ table 5876 "Phys. Invt. Order Line"
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         GetPhysInvtOrderHeader;
         "Dimension Set ID" :=
-          DimManagement.GetDefaultDimID(TableID, No, SourceCodeSetup."Phys. Invt. Orders", "Shortcut Dimension 1 Code",
+          DimManagement.GetDefaultDimID(DefaultDimSource, SourceCodeSetup."Phys. Invt. Orders", "Shortcut Dimension 1 Code",
+            "Shortcut Dimension 2 Code", PhysInvtOrderHeader."Dimension Set ID", 0);
+        DimManagement.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        GetPhysInvtOrderHeader();
+        "Dimension Set ID" :=
+          DimManagement.GetDefaultDimID(DefaultDimSource, SourceCodeSetup."Phys. Invt. Orders", "Shortcut Dimension 1 Code",
             "Shortcut Dimension 2 Code", PhysInvtOrderHeader."Dimension Set ID", 0);
         DimManagement.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
     end;
@@ -920,11 +951,76 @@ table 5876 "Phys. Invt. Order Line"
         PAGE.RunModal(0, BinContent);
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimManagement.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+        DimManagement.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Phys. Invt. Order Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Phys. Invt. Order Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Phys. Invt. Order Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; CurrentFieldID: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetFieldsFromSKU(var PhysInvtOrderLine: Record "Phys. Invt. Order Line")
     begin
@@ -1049,5 +1145,14 @@ table 5876 "Phys. Invt. Order Line"
     local procedure OnValidateItemNoOnAfterInitFromItem(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; xPhysInvtOrderLine: Record "Phys. Invt. Order Line"; Item: Record Item; PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareLine(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; PhysInvtOrderLineArgs: Record "Phys. Invt. Order Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareLineArgs(var PhysInvtOrderLine: Record "Phys. Invt. Order Line"; ItemLedgEntry: Record "Item Ledger Entry"; WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+}

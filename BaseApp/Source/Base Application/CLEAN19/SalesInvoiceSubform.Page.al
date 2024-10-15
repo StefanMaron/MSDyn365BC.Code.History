@@ -66,37 +66,11 @@ page 47 "Sales Invoice Subform"
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
-                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = ItemReferenceVisible;
+                    ToolTip = 'Specifies the referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the reference number on a sales or purchase document.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -150,6 +124,12 @@ page 47 "Sales Invoice Subform"
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -164,7 +144,7 @@ page 47 "Sales Invoice Subform"
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies a description of the entry, which is based on the contents of the Type and No. fields.';
 
                     trigger OnValidate()
@@ -179,6 +159,50 @@ page 47 "Sales Invoice Subform"
                         UpdateTypeText();
                         DeltaUpdateTotals();
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -211,7 +235,7 @@ page 47 "Sales Invoice Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
 
                     trigger OnValidate()
@@ -259,7 +283,7 @@ page 47 "Sales Invoice Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the price for one unit on the sales line.';
 
                     trigger OnValidate()
@@ -316,7 +340,7 @@ page 47 "Sales Invoice Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()
@@ -782,6 +806,44 @@ page 47 "Sales Invoice Subform"
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
+#if not CLEAN19
+                    action("Get &Price")
+                    {
+                        AccessByPermission = TableData "Sales Price" = R;
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get &Price';
+                        Ellipsis = true;
+                        Image = Price;
+                        ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
+
+                        trigger OnAction()
+                        begin
+                            ShowPrices()
+                        end;
+                    }
+                    action("Get Li&ne Discount")
+                    {
+                        AccessByPermission = TableData "Sales Line Discount" = R;
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Get Li&ne Discount';
+                        Ellipsis = true;
+                        Image = LineDiscount;
+                        ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                        Visible = not ExtendedPriceEnabled;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                        ObsoleteTag = '17.0';
+
+                        trigger OnAction()
+                        begin
+                            ShowLineDisc()
+                        end;
+                    }
+#endif
                     action(GetPrice)
                     {
                         AccessByPermission = TableData "Sales Price Access" = R;
@@ -985,7 +1047,7 @@ page 47 "Sales Invoice Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1008,7 +1070,7 @@ page 47 "Sales Invoice Subform"
                         begin
                             RecRef.GetTable(Rec);
                             DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                            DocumentAttachmentDetails.RunModal;
+                            DocumentAttachmentDetails.RunModal();
                         end;
                     }
                     action(DeferralSchedule)
@@ -1024,6 +1086,40 @@ page 47 "Sales Invoice Subform"
                             ShowDeferralSchedule();
                         end;
                     }
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of sales lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all sales lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
                 }
             }
             group("Page")
@@ -1045,9 +1141,13 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel('Sales_InvoiceSalesLines', CurrPage.ObjectId(false), StrSubstNo('Document_No eq ''%1''', Rec."Document No."));
+                        EditinExcel.EditPageInExcel(
+                            'Sales_InvoiceSalesLines',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo('Document_No eq ''%1''', Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
                     end;
 
                 }
@@ -1113,25 +1213,13 @@ page 47 "Sales Invoice Subform"
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        Location: Record Location;
     begin
-        AddLoadFields(
-            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
-            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
-
-        if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty();
-
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1152,6 +1240,7 @@ page 47 "Sales Invoice Subform"
         ExtendedPriceEnabled: Boolean;
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
+        ExcelFileNameTxt: Label 'Sales Invoice %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1169,14 +1258,41 @@ page 47 "Sales Invoice Subform"
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         IsBlankNumber: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        Location: Record Location;
+    begin
+        OnBeforeSetOpenPage();
+
+        AddLoadFields(
+            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
+            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
+
+        if Location.ReadPermission then
+            LocationCodeVisible := not Location.IsEmpty();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1274,7 +1390,9 @@ page 47 "Sales Invoice Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable();
-        InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable :=
+            CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1294,8 +1412,14 @@ page 47 "Sales Invoice Subform"
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
+    end;
+
     procedure CalculateTotals()
     begin
+        OnBeforeCalculateTotals(TotalSalesLine, SuppressTotals);
         if SuppressTotals then
             exit;
 
@@ -1312,6 +1436,11 @@ page 47 "Sales Invoice Subform"
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification();
+    end;
+
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1362,14 +1491,16 @@ page 47 "Sales Invoice Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var
@@ -1377,10 +1508,11 @@ page 47 "Sales Invoice Subform"
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -1419,17 +1551,24 @@ page 47 "Sales Invoice Subform"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateTotals(var TotalSalesLine: Record "Sales Line"; var SuppressTotals: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var SalesLine: Record "Sales Line")
     begin
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by OnItemReferenceNoOnLookup event.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
     begin
     end;
-#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
+    begin
+    end;
 }
 
 #endif

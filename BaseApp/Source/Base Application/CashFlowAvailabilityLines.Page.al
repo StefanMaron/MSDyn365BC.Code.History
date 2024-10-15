@@ -168,7 +168,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Sales Advance Letters"); // NAVCZ
+                        CashFlowForecast.DrillDownSourceTypeEntries("Cash Flow Source Type"::"Sales Advance Letters"); // NAVCZ
                     end;
                 }
                 field(PurchaseAdvances; "Purchase Advances")
@@ -185,7 +185,7 @@ page 866 "Cash Flow Availability Lines"
 
                     trigger OnDrillDown()
                     begin
-                        CashFlowForecast.DrillDownEntriesFromSource(CashFlowForecast."Source Type Filter"::"Purchase Advance Letters"); // NAVCZ
+                        CashFlowForecast.DrillDownSourceTypeEntries("Cash Flow Source Type"::"Purchase Advance Letters"); // NAVCZ
                     end;
                 }
                 field(Job; Job)
@@ -287,6 +287,8 @@ page 866 "Cash Flow Availability Lines"
         Amounts: array[15] of Decimal;
 
 #if not CLEAN19
+#pragma warning disable AS0072
+    [Obsolete('Replaced by SetLines().', '19.0')]
     procedure Set(var NewCashFlowForecast: Record "Cash Flow Forecast"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date"; NewRoundingFactor: Option "None","1","1000","1000000")
     begin
         SetLines(
@@ -294,6 +296,7 @@ page 866 "Cash Flow Availability Lines"
             "Analysis Period Type".FromInteger(NewPeriodType), "Analysis Amount Type".FromInteger(NewAmountType),
             "Analysis Rounding Factor".FromInteger(NewRoundingFactor));
     end;
+#pragma warning restore AS0072
 #endif
 
     procedure SetLines(var NewCashFlowForecast: Record "Cash Flow Forecast"; NewPeriodType: Enum "Analysis Period Type"; NewAmountType: Enum "Analysis Amount Type"; NewRoundingFactor: Enum "Analysis Rounding Factor")

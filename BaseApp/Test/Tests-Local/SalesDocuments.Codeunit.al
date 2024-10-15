@@ -18,7 +18,7 @@ codeunit 145008 "Sales Documents"
     local procedure Initialize()
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -40,7 +40,7 @@ codeunit 145008 "Sales Documents"
         PostedDocumentNo: array[2] of Code[20];
     begin
         // 1. Setup
-        Initialize;
+        Initialize();
 
         // create and post sales invoice
         CreateSalesDocument(SalesHdr, SalesLn, SalesHdr."Document Type"::Invoice);
@@ -52,7 +52,6 @@ codeunit 145008 "Sales Documents"
         SalesHdr.Insert(true);
         LibrarySales.CopySalesDocument(SalesHdr, 7, PostedDocumentNo[1], true, false);
         SalesHdr.Get(SalesHdr."Document Type", SalesHdr."No.");
-        SalesHdr.Validate("Credit Memo Type", SalesHdr."Credit Memo Type"::"Internal Correction");
         SalesHdr.Validate(Correction, true);
         SalesHdr.Modify(true);
 
@@ -96,7 +95,7 @@ codeunit 145008 "Sales Documents"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure PostSalesDocument(var SalesHdr: Record "Sales Header"): Code[20]

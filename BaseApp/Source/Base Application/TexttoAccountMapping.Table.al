@@ -54,11 +54,7 @@ table 1251 "Text-to-Account Mapping"
             ELSE
             IF ("Bal. Source Type" = CONST(Vendor)) Vendor
             ELSE
-#if CLEAN17
             IF ("Bal. Source Type" = CONST("Bank Account")) "Bank Account";
-#else
-            IF ("Bal. Source Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(7; "Vendor No."; Code[20])
         {
@@ -71,9 +67,6 @@ table 1251 "Text-to-Account Mapping"
 #if not CLEAN19
             TableRelation = "Text-to-Account Mapping Code";
 #endif
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-            ObsoleteTag = '19.0';
         }
         field(11701; Description; Text[50])
         {
@@ -200,9 +193,6 @@ table 1251 "Text-to-Account Mapping"
         key(Key1; "Text-to-Account Mapping Code", "Line No.")
         {
             Clustered = true;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Merge to W1.';
-            ObsoleteTag = '19.0';
         }
         key(Key2; "Mapping Text", "Vendor No.")
         {
@@ -245,12 +235,12 @@ table 1251 "Text-to-Account Mapping"
         if RecordMatchMgt.Trim(GenJnlLine.Description) <> '' then begin
             TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
             TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + RecordMatchMgt.Trim(GenJnlLine.Description));
-            if TextToAccMapping.FindFirst then
+            if TextToAccMapping.FindFirst() then
                 Copy(TextToAccMapping)
             else begin
                 TextToAccMapping.Reset();
                 TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
-                if TextToAccMapping.FindLast then
+                if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
                 Init;
@@ -290,7 +280,7 @@ table 1251 "Text-to-Account Mapping"
             // NAVCZ
 #endif
             TextToAccMapping.SetFilter("Mapping Text", '%1', '@' + RecordMatchMgt.Trim(BankAccReconciliationLine."Transaction Text"));
-            if TextToAccMapping.FindFirst then
+            if TextToAccMapping.FindFirst() then
                 Copy(TextToAccMapping)
             else begin
                 TextToAccMapping.Reset();
@@ -299,7 +289,7 @@ table 1251 "Text-to-Account Mapping"
 #else
                 TextToAccMapping.FilterTextToAccountMapping(BankAccReconciliationLine); // NAVCZ
 #endif                
-                if TextToAccMapping.FindLast then
+                if TextToAccMapping.FindLast() then
                     LastLineNo := TextToAccMapping."Line No.";
 
                 Init;
@@ -449,7 +439,7 @@ table 1251 "Text-to-Account Mapping"
         with TextToAccMapping do begin
             SetFilter("Bal. Source Type", '%1|%2', "Bal. Source Type"::Vendor, "Bal. Source Type"::Customer);
             SetRange("Bal. Source No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(BalAccountNoQst, true, "Bal. Source Type", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -461,7 +451,7 @@ table 1251 "Text-to-Account Mapping"
             SetRange("Bal. Source Type", "Bal. Source Type"::"G/L Account");
             SetRange("Debit Acc. No.", '');
             SetRange("Credit Acc. No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"G/L Account", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -473,7 +463,7 @@ table 1251 "Text-to-Account Mapping"
             SetRange("Bal. Source Type", "Bal. Source Type"::"Bank Account");
             SetRange("Debit Acc. No.", '');
             SetRange("Credit Acc. No.", '');
-            if FindFirst then begin
+            if FindFirst() then begin
                 if DIALOG.Confirm(GLAccountNoQst, true, "Bal. Source Type"::"Bank Account", "Mapping Text")
                 then begin
                     DeleteAll(true);
@@ -569,7 +559,7 @@ table 1251 "Text-to-Account Mapping"
 
         TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
-        if not TextToAccountMapping.FindSet then
+        if not TextToAccountMapping.FindSet() then
             exit(ResultCount);
 
         repeat
@@ -592,7 +582,7 @@ table 1251 "Text-to-Account Mapping"
         if ResultCount <> 1 then
             exit(ResultCount);
 
-        TempTextToAccountMapping.FindFirst;
+        TempTextToAccountMapping.FindFirst();
         TextToAccountMapping.Copy(TempTextToAccountMapping);
         exit(ResultCount);
     end;
@@ -605,4 +595,3 @@ table 1251 "Text-to-Account Mapping"
         exit(TextToAccountMapping.FindFirst);
     end;
 }
-

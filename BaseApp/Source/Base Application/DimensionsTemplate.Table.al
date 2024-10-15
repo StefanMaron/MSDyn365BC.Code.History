@@ -141,7 +141,7 @@ table 1302 "Dimensions Template"
         ConfigTemplateLine.SetRange("Data Template Code", MasterRecordTemplateCode);
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
 
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 ConfigTemplateHeader.Get(ConfigTemplateLine."Template Code");
                 InitializeTempRecordFromConfigTemplate(TempDimensionsTemplate, ConfigTemplateHeader, MasterRecordTemplateCode, TableID);
@@ -185,7 +185,7 @@ table 1302 "Dimensions Template"
         ConfigTemplateLine.SetRange(Type, ConfigTemplateLine.Type::"Related Template");
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
 
-        if ConfigTemplateLine.FindSet then
+        if ConfigTemplateLine.FindSet() then
             repeat
                 ConfigTemplateHeader.Get(ConfigTemplateLine."Template Code");
                 if ConfigTemplateHeader."Table ID" = DATABASE::"Default Dimension" then
@@ -217,7 +217,7 @@ table 1302 "Dimensions Template"
     begin
         ConfigTemplateLine.SetRange("Data Template Code", ConfigTemplateHeader.Code);
         ConfigTemplateLine.SetRange("Field ID", FieldNo("Dimension Code"));
-        ConfigTemplateLine.FindFirst;
+        ConfigTemplateLine.FindFirst();
 
         exit(ConfigTemplateLine."Default Value");
     end;
@@ -234,7 +234,7 @@ table 1302 "Dimensions Template"
         DefaultDimension.SetRange("No.", MasterRecordNo);
         DefaultDimension.SetRange("Table ID", TableID);
 
-        if DefaultDimension.FindSet then
+        if DefaultDimension.FindSet() then
             repeat
                 CreateTemplateFromExistingDefaultDimension(DefaultDimension, MasterRecordTemplateCode);
             until DefaultDimension.Next() = 0;

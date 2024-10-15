@@ -49,7 +49,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test error occurs on Posting Service Order without Quantity.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceHeader(ServiceHeader);
@@ -72,7 +72,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-C-4, TC-PP-C-6 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -104,7 +104,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type Cost.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -147,7 +147,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type Cost with a line discount %.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -191,7 +191,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type Cost with non LCY.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -230,7 +230,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type Cost with non LCY with line discount %.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -266,7 +266,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type G/L Account.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
@@ -303,7 +303,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type G/L Account and line discount.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceHeader(ServiceHeader);
@@ -343,7 +343,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [SCENARIO 380306] Test consumption on Service Line with Type G/L Account with Non LCY.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
@@ -379,7 +379,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // [SCENARIO 380306] Test consumption on Service Line with Type G/L Account with Non LCY with line discount %.
         // 1. Setup: Create Service Order add lines, qty to consume and line discount.
-        Initialize;
+        Initialize();
 
         CreateServiceOrderWithCurrency(ServiceHeader);
         CreateServiceLineWithQuantity(
@@ -410,7 +410,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-C-3, TC-PP-C-14 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume Fully.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -439,7 +439,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-C-25, TC-PP-C-26 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume Twice.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Post Service Order Partially as Ship and Consume.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -470,7 +470,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-C-40 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume after Posting Ship and Invoice.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Post Service Order Partially as Ship and Consume.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -504,7 +504,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // [FEATURE] [Undo Consumption] [Service Shipment]
         // [SCENARIO 205882] Undoing consumption should create service shipment line, item ledger entry and resource ledger entry with opposite quantity and same posting date as on the original service shipment line, item entry and resource entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with posting date = WORKDATE.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -548,7 +548,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-UC-05 - refer to TFS ID 20886.
         // Test error occurs on undo Consumption after Posting Service Order as Ship.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order.
         CreateServiceHeader(ServiceHeader);
@@ -562,7 +562,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 3. Verify: Verify that Service Shipment Line shows Error "Nothing to Undo" on Undo Consumption.
         ServiceShipmentLine.SetRange("Order No.", ServiceItemLine."Document No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         asserterror CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
         Assert.AreEqual(
           StrSubstNo(NothingToUndoServiceTier, ServiceShipmentLine."Document No.", ServiceShipmentLine."Line No."),
@@ -584,7 +584,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test error occurs on undo Consumption after Posting Service Order as Ship and Consume Fully.
 
         // 1. Setup: Create Service Order.
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
@@ -596,7 +596,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 3. Verify: Verify that Service Shipment Line shows Error "Order Not exist" on Undo Consumption.
         ServiceShipmentLine.SetRange("Order No.", ServiceItemLine."Document No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         asserterror CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
         Assert.AreEqual(StrSubstNo(OrderDoesNotExist, ServiceShipmentLine."Order No."), GetLastErrorText, UnknownError);
     end;
@@ -639,7 +639,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Covers document number TC-PP-C-45, TC-PP-C-48 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume after undo Consumption.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Post Service Order as Ship and Consume Partially.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -673,7 +673,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Covers document number TC-PP-C-4, TC-PP-C-6 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume with "Automatic Cost Posting" and "Expected Cost Posted to
         // G/L" fields as True on Inventory Setup.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -704,7 +704,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Covers document number TC-PP-C-14 - refer to TFS ID 20886.
         // Test Posted Entries after Posting Service Order as Ship and Consume Fully with "Automatic Cost Posting" and "Expected Cost
         // Posted to G/L" fields as True on Inventory Setup.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -736,7 +736,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Covers document number TC-PP-UC-10 - refer to TFS ID 20886.
         // Test undo Consumption after Posting Service Order as Ship and Consume with "Automatic Cost Posting" and "Expected Cost Posted to
         // G/L" fields as True on Inventory Setup.
-        Initialize;
+        Initialize();
 
         // 1. Setup: Create Service Order, Set "Automatic Cost Posting" and "Expected Cost Posted to G/L" fields as True on Inventory Setup.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -790,7 +790,7 @@ codeunit 136109 "Service Posting - Consumption"
         ActualCostACY: Decimal;
     begin
         // 1. Setup: Create a Service Order.
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
         LibrarySales.CreateCustomer(Customer);
         No := LibraryService.CreateServiceOrderHeaderUsingPage;
@@ -857,7 +857,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 1. Setup: Create Item, assign Serial No. on Item Journal Line and post it with Item Journal.
         // Create a Service Order and post it as Ship and Consume.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode(FindItemTrackingCode(false, true)));
 
@@ -866,7 +866,7 @@ codeunit 136109 "Service Posting - Consumption"
         TrackingAction := TrackingAction::AssignSerialNo;  // Setting tracking action to execute Assign Serial No. Action on Item Tracking Lines Page.
         ItemJournal.ItemTrackingLines.Invoke;
         ItemJournal.Post.Invoke;
-        LibraryUtility.GenerateGUID;  // Hack to fix problem with Generate GUID.
+        LibraryUtility.GenerateGUID();  // Hack to fix problem with Generate GUID.
         LibraryService.CreateServiceItem(ServiceItem, Customer."No.");
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, ServiceItem."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -902,7 +902,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Undo Quantity to Consume on Service Line with Type G/L Account.
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
@@ -937,7 +937,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Undo Quantity to Consume on Service Line with multiple shipments.
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithServiceLine(
@@ -966,13 +966,13 @@ codeunit 136109 "Service Posting - Consumption"
 
         ServiceLine.TestField("Quantity Consumed", 1);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentHeaderNo := ServiceShipmentHeader."No.";
 
         with ServiceShipmentLine do begin
             SetRange("Order Line No.", ServiceLine."Line No.");
             SetRange("Document No.", ServiceShipmentHeaderNo);
-            FindLast;
+            FindLast();
             TestField("Quantity Consumed", 1);
             TestField(Quantity, 1);
         end;
@@ -990,7 +990,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Undo Quantity to Consume on Service Line with Type G/L Account with non lcy customer.
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
@@ -1023,7 +1023,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // Undo Quantity to Consume on Service Line with Type G/L Account with non lcy customer.
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceOrderWithCurrency(ServiceHeader);
@@ -1060,7 +1060,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test undo consumption on Service Line with Type Cost.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -1097,7 +1097,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test undo consumption on Service Line with Type Cost with mulitple shipments.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -1126,13 +1126,13 @@ codeunit 136109 "Service Posting - Consumption"
 
         ServiceLine.TestField("Quantity Consumed", 1);
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentHeaderNo := ServiceShipmentHeader."No.";
 
         with ServiceShipmentLine do begin
             SetRange("Order Line No.", ServiceLine."Line No.");
             SetRange("Document No.", ServiceShipmentHeaderNo);
-            FindLast;
+            FindLast();
             TestField("Quantity Consumed", 1);
             TestField(Quantity, 1);
         end;
@@ -1152,7 +1152,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test undo consumption on Service Line with Type Cost on a non lcy order.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -1189,7 +1189,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test undo consumption on Service Line with Type Cost on a non lcy order.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Service Order.
         CreateServiceCost(ServiceCost);
@@ -1229,7 +1229,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line, Post it as Receive, Create Service Order, select Item Tracking for Service Line
         // and Post Service Order as Ship.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
 
         // Use random for Quantity.
@@ -1291,7 +1291,7 @@ codeunit 136109 "Service Posting - Consumption"
         ShipmentHeaderNo: Code[20];
     begin
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));  // Use random for Quantity.
 
@@ -1333,7 +1333,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test Posted Entries after posting Service Order as Ship and Consume with Item having Item Tracking Code for Lot No.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
 
         // Use random for Quantity.
@@ -1404,7 +1404,7 @@ codeunit 136109 "Service Posting - Consumption"
         PostedServiceShipment: TestPage "Posted Service Shipment";
     begin
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);  // 1 is important for test case.
 
@@ -1416,7 +1416,7 @@ codeunit 136109 "Service Posting - Consumption"
 
         // Find Item Ledger Entry for page handler.
         ItemLedgerEntry.SetRange("Item No.", PurchaseLine."No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
 
         // 2. Exercise: Create Service Order, select Item Tracking for Service Line, Post it as Ship and Consume.
         CreateServiceHeader(ServiceHeader);
@@ -1513,7 +1513,7 @@ codeunit 136109 "Service Posting - Consumption"
         // Test cost with Full VAT calculate type account can be entered in Service Line.
 
         // 1. Setup: Create a customer.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // NAVCZ
@@ -1547,7 +1547,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // [FEATURE] [Undo Consumption] [Service Shipment] [Service Register]
         // [SCENARIO 207606] Service Register should be created when "Undo Consumption" is run for posted service shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with turned on warranty on service item line.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -1560,7 +1560,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [GIVEN] The Service Order is posted with "Ship and Consume" option.
         LibraryService.PostServiceOrder(ServiceHeader, true, true, false);
         ServiceShipmentHeaderNo := FindServiceShipmentHeader(ServiceHeader."No.");
-        ServiceRegister.FindLast;
+        ServiceRegister.FindLast();
         LastServiceLedgEntryNo := ServiceRegister."To Entry No.";
         LastWarrantyLedgEntryNo := ServiceRegister."To Warranty Entry No.";
 
@@ -1585,7 +1585,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // [FEATURE] [Undo Shipment] [Service Shipment] [Service Register]
         // [SCENARIO 207606] Service Register should be created when "Undo Shipment" is run for posted service shipment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order with turned on warranty on service item line.
         CreateServiceOrder(ServiceHeader, ServiceItemLine);
@@ -1598,7 +1598,7 @@ codeunit 136109 "Service Posting - Consumption"
         // [GIVEN] The Service Order is posted with "Ship" option.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
         ServiceShipmentHeaderNo := FindServiceShipmentHeader(ServiceHeader."No.");
-        ServiceRegister.FindLast;
+        ServiceRegister.FindLast();
         LastServiceLedgEntryNo := ServiceRegister."To Entry No.";
         LastWarrantyLedgEntryNo := ServiceRegister."To Warranty Entry No.";
 
@@ -1619,17 +1619,17 @@ codeunit 136109 "Service Posting - Consumption"
         Clear(TrackingAction);
         Quantity := 0;
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting - Consumption");
 
         // Create Demonstration Database
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
@@ -1654,7 +1654,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line, Post it as Receive, Create Service Order, select Item Tracking for
         // Service Line and Post it as Ship and Consume.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(PurchaseHeader);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, 1);  // 1 is important for test case.
 
@@ -1684,7 +1684,7 @@ codeunit 136109 "Service Posting - Consumption"
             OpenItemTrackingLinesForSalesCreditMemo(SalesHeader."No.");
             LibrarySales.PostSalesDocument(SalesHeader, false, false);
         end else begin
-            ServiceShipmentLine.FindLast;
+            ServiceShipmentLine.FindLast();
             ServiceShipmentLine.SetRecFilter;
             CODEUNIT.Run(CODEUNIT::"Undo Service Consumption Line", ServiceShipmentLine);
         end;
@@ -1840,7 +1840,7 @@ codeunit 136109 "Service Posting - Consumption"
 
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line")
     begin
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLineForItem(ServiceHeader, ServiceItemLine."Line No.");
@@ -1885,7 +1885,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceItemLine: Record "Service Item Line";
     begin
         // 1. Create Service Order - Service Header, Service Item Line and Service Line for Type Item.
-        Initialize;
+        Initialize();
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
         ServiceHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -1955,7 +1955,7 @@ codeunit 136109 "Service Posting - Consumption"
         with VATPostingSetup do begin
             SetRange("VAT Bus. Posting Group", VATBusPostingGroupCode);
             SetRange("VAT Calculation Type", VATCalType);
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
                 LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
                 Validate("VAT Calculation Type", VATCalType);
@@ -1985,7 +1985,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceShipmentHeader: Record "Service Shipment Header";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         exit(ServiceShipmentHeader."No.");
     end;
 
@@ -1995,7 +1995,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ItemLedgerEntry2.SetRange("Item No.", ItemNo);
         ItemLedgerEntry2.SetRange("Document No.", FindServiceShipmentHeader(DocumentNo));
-        ItemLedgerEntry2.FindFirst;
+        ItemLedgerEntry2.FindFirst();
 
         ItemLedgerEntry := ItemLedgerEntry2;  // Assign global variable for page handler.
         exit(ItemLedgerEntry2."Entry No.");
@@ -2011,7 +2011,7 @@ codeunit 136109 "Service Posting - Consumption"
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", SNSpecific);
         ItemTrackingCode.SetRange("Man. Expir. Date Entry Reqd.", false);
         ItemTrackingCode.SetRange("Man. Warranty Date Entry Reqd.", false);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -2233,7 +2233,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::"Credit Memo");
         ServiceLedgerEntry.SetRange("Document No.", ServiceCrMemoHeader."No.");
         ServiceLedgerEntry.FindSet();
@@ -2276,7 +2276,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentHeader."No.");
         ServiceShipmentLine.FindSet();
         repeat
@@ -2297,7 +2297,7 @@ codeunit 136109 "Service Posting - Consumption"
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         repeat
             ServiceShipmentLine.Get(ServiceShipmentHeader."No.", TempServiceLine."Line No.");
             ItemLedgerEntry.Get(ServiceShipmentLine."Item Shpt. Entry No.");
@@ -2317,12 +2317,12 @@ codeunit 136109 "Service Posting - Consumption"
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Resource);
         TempServiceLine.FindSet();
         ServiceShipmentHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         ResourceLedgerEntry.SetRange("Entry Type", ResourceLedgerEntry."Entry Type"::Usage);
         ResourceLedgerEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
         repeat
             ResourceLedgerEntry.SetRange("Resource No.", TempServiceLine."No.");
-            ResourceLedgerEntry.FindFirst;
+            ResourceLedgerEntry.FindFirst();
             ResourceLedgerEntry.TestField(Quantity, TempServiceLine."Qty. to Consume");
             ResourceLedgerEntry.TestField("Order Type", ResourceLedgerEntry."Order Type"::Service);
             ResourceLedgerEntry.TestField("Order No.", TempServiceLine."Document No.");
@@ -2335,7 +2335,7 @@ codeunit 136109 "Service Posting - Consumption"
         ValueEntry: Record "Value Entry";
     begin
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Negative Adjmt.");
         ValueEntry.TestField("Item No.", TempServiceLine."No.");
         ValueEntry.TestField("Valued Quantity", -TempServiceLine."Qty. to Consume (Base)");
@@ -2366,7 +2366,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("No.", No);
         ServiceLedgerEntry.TestField(Quantity, Quantity);
     end;
@@ -2393,8 +2393,8 @@ codeunit 136109 "Service Posting - Consumption"
     var
         ServiceLine: Record "Service Line";
     begin
-        TempServiceLine.FindFirst;
-        TempServiceLine2.FindFirst;
+        TempServiceLine.FindFirst();
+        TempServiceLine2.FindFirst();
         ServiceLine.SetRange("Document Type", ServiceItemLine."Document Type");
         ServiceLine.SetRange("Document No.", ServiceItemLine."Document No.");
         ServiceLine.SetRange("Service Item Line No.", ServiceItemLine."Line No.");
@@ -2455,7 +2455,7 @@ codeunit 136109 "Service Posting - Consumption"
     begin
         ServiceShipmentLine.SetRange("Order No.", ServiceOrderNo);
         ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Resource);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ResLedgerEntry.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ResLedgerEntry.SetFilter(Quantity, '<%1', 0);
         ResLedgerEntry.FindSet();
@@ -2489,9 +2489,9 @@ codeunit 136109 "Service Posting - Consumption"
         GLEntry: Record "G/L Entry";
     begin
         ServiceShipmentHeader.SetRange("Order No.", OrderNo);
-        ServiceShipmentHeader.FindLast;
+        ServiceShipmentHeader.FindLast();
         GLEntry.SetRange("Document No.", ServiceShipmentHeader."No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure VerifyGLEntryIsEmpty(ShipmentHeaderNo: Code[20])
@@ -2549,7 +2549,7 @@ codeunit 136109 "Service Posting - Consumption"
             if IsUndo then
                 ServiceLedgerEntry.FindLast
             else
-                ServiceLedgerEntry.FindFirst;
+                ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField(Quantity, SignFactor * TempServiceLineBeforePosting."Qty. to Consume");
             UnitPriceLCY := TempServiceLineBeforePosting."Unit Price" / CurrencyFactor;
             Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
@@ -2561,7 +2561,7 @@ codeunit 136109 "Service Posting - Consumption"
             if IsUndo then
                 ServiceLedgerEntry.FindLast
             else
-                ServiceLedgerEntry.FindFirst;
+                ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField(Quantity, SignFactor * -TempServiceLineBeforePosting."Qty. to Consume");
             Assert.AreNearlyEqual(ServiceLedgerEntry."Unit Price", -UnitPriceLCY, LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(FieldError, ServiceLedgerEntry.FieldCaption("Unit Price"), UnitPriceLCY, ServiceLedgerEntry.TableCaption));
@@ -2582,10 +2582,10 @@ codeunit 136109 "Service Posting - Consumption"
                 SetRange("Document No.", ServiceShipmentHeaderNo);
                 if IsUndo then begin
                     SignFactor := -1;
-                    FindLast;
+                    FindLast();
                 end else begin
                     SignFactor := 1;
-                    FindFirst;
+                    FindFirst();
                 end;
                 TestField("Quantity Consumed", SignFactor * TempServiceLine."Qty. to Consume");
                 TestField(Quantity, SignFactor * TempServiceLine."Qty. to Consume");
@@ -2599,7 +2599,7 @@ codeunit 136109 "Service Posting - Consumption"
         ServiceLedgerEntry: Record "Service Ledger Entry";
         WarrantyLedgerEntry: Record "Warranty Ledger Entry";
     begin
-        ServiceRegister.FindLast;
+        ServiceRegister.FindLast();
 
         ServiceLedgerEntry.SetCurrentKey("Entry No.");
         ServiceLedgerEntry.SetRange("Document Type", ServiceLedgerEntry."Document Type"::Shipment);
@@ -2610,13 +2610,13 @@ codeunit 136109 "Service Posting - Consumption"
         WarrantyLedgerEntry.SetRange("Document No.", ServiceShipmentNo);
         WarrantyLedgerEntry.SetFilter("Entry No.", '>%1', LastWarrantyLedgEntryNo);
 
-        ServiceLedgerEntry.FindFirst;
-        WarrantyLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
+        WarrantyLedgerEntry.FindFirst();
         ServiceRegister.TestField("From Entry No.", ServiceLedgerEntry."Entry No.");
         ServiceRegister.TestField("From Warranty Entry No.", WarrantyLedgerEntry."Entry No.");
 
-        ServiceLedgerEntry.FindLast;
-        WarrantyLedgerEntry.FindLast;
+        ServiceLedgerEntry.FindLast();
+        WarrantyLedgerEntry.FindLast();
         ServiceRegister.TestField("To Entry No.", ServiceLedgerEntry."Entry No.");
         ServiceRegister.TestField("To Warranty Entry No.", WarrantyLedgerEntry."Entry No.");
     end;

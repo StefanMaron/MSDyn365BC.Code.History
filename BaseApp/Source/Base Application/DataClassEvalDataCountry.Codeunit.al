@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 1752 "Data Class. Eval. Data Country"
 {
 
@@ -33,31 +34,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Payment Order Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Payment Order Line");
 #endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Document Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Document Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Cash Document Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Cash Document Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Desk User");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Desk Event");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Currency Nominal Value");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Desk Cue");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Registration Log");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cash Desk Report Selections");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Uncertainty Payer Entry");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Electronically Govern. Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Excel Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statement File Mapping");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Comment Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Attachment");
-#endif    
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Calc. Line");
 #if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed G/L Entry");
-#endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Attribute Code");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Period");
 #endif
 #if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Customer Posting Group");
@@ -68,9 +47,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Iss.Fin.Ch. Memo Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed Issued Reminder Line");
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Company Officials");
-#endif    
 #if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Template");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"User Setup Line");
@@ -102,20 +78,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Posted Credit Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat Currency Exch. Rate");
 #endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Statistic Indication");
-#endif
 #if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Specific Movement");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat Delivery Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stat. Reporting Setup");
 #endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VIES Declaration Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VIES Declaration Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Stockkeeping Unit Template");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Whse. Net Change Template");
-#endif    
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Export Acc. Schedule");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Filter Line");
 #if not CLEAN19
@@ -126,15 +93,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Result History");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Acc. Schedule Extension");
 #endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Commodity);
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Commodity Setup");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Document Footer");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Control Report Header");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Control Report Line");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Control Report Section");
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Ctrl.Rep. - VAT Entry Link");
-#endif
 #if not CLEAN18
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Service Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Business Premises");
@@ -143,9 +101,6 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"EET Entry Status");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Certificate CZ Code");
 #endif
-#if not CLEAN17
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reg. No. Srv Config");
-#endif    
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
         OnAfterClassifyCountrySpecificTables();
     end;
@@ -353,3 +308,4 @@ codeunit 1752 "Data Class. Eval. Data Country"
     begin
     end;
 }
+#endif

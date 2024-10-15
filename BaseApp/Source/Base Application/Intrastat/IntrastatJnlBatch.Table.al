@@ -174,7 +174,7 @@ table 262 "Intrastat Jnl. Batch"
             IntrastatJnlBatch.SetRange("Statistics Period", "Statistics Period");
             IntrastatJnlBatch.SetRange("Declaration No.", "Declaration No.");
             IntrastatJnlBatch.SetFilter(Name, '<>%1', Name);
-            if IntrastatJnlBatch.FindFirst then
+            if IntrastatJnlBatch.FindFirst() then
                 Error(Text1220000, "Declaration No.", "Statistics Period");
         end;
     end;
@@ -191,19 +191,19 @@ table 262 "Intrastat Jnl. Batch"
             FieldNo("Statistics Period"):
                 begin
                     IntrastatJnlLine.SetRange("Statistics Period", xRec."Statistics Period");
-                    if IntrastatJnlLine.FindFirst then
+                    if IntrastatJnlLine.FindFirst() then
                         Error(Text1220001, FieldCaption("Statistics Period"), Name);
                 end;
             FieldNo("Declaration No."):
                 begin
                     IntrastatJnlLine.SetRange("Declaration No.", xRec."Declaration No.");
-                    if IntrastatJnlLine.FindFirst then
+                    if IntrastatJnlLine.FindFirst() then
                         Error(Text1220001, FieldCaption("Declaration No."), Name);
                 end;
             FieldNo("Statement Type"):
                 begin
                     IntrastatJnlLine.SetRange("Statement Type", xRec."Statement Type");
-                    if IntrastatJnlLine.FindFirst then
+                    if IntrastatJnlLine.FindFirst() then
                         Error(Text1220001, FieldCaption("Statement Type"), Name);
                 end;
         end;

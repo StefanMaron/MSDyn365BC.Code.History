@@ -1,4 +1,4 @@
-codeunit 134762 "Test Purchase Preview"
+﻿codeunit 134762 "Test Purchase Preview"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -40,7 +40,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Invoice opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -71,7 +71,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -102,7 +102,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Credit Memo opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -137,7 +137,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Return Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -172,7 +172,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Preview action on Purchase Order page runs Prepayment Invoice posting preview engine
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrderWithPrepayment(PurchaseHeader);
 
@@ -199,7 +199,7 @@ codeunit 134762 "Test Purchase Preview"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // [SCENARIO] Preview action on Sales Order page runs posting preview engine
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrderWithPrepayment(PurchaseHeader);
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
@@ -228,7 +228,7 @@ codeunit 134762 "Test Purchase Preview"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Posting preview of empty Payment Registration shows error "Nothing to post"
-        Initialize;
+        Initialize();
         DeletePaymentRegistrationSetup;
         PaymentRegistration.Trap;
         PAGE.Run(PAGE::"Payment Registration");
@@ -247,7 +247,7 @@ codeunit 134762 "Test Purchase Preview"
         ErrorMessagesPage: TestPage "Error Messages";
     begin
         // [SCENARIO] Posting preview of empty Payment Registration Lump shows error "Nothing to post"
-        Initialize;
+        Initialize();
         DeletePaymentRegistrationSetup;
         PaymentRegistration.Trap;
         PAGE.Run(PAGE::"Payment Registration");
@@ -267,7 +267,7 @@ codeunit 134762 "Test Purchase Preview"
     begin
         // [SCENARIO] Posting preview of Purchase Invoice List Order opens G/L Posting Preview with the navigatable entries to be posted.
         // Initialize the purchase header
-        Initialize;
+        Initialize();
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, ExpectedCost, ExpectedQuantity);
@@ -297,7 +297,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Order List Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize the purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -328,7 +328,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Credit Memo List Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -363,7 +363,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Return Order List Order opens G/L Posting Preview with the navigatable entries to be posted.
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -399,7 +399,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Invoice opens G/L Posting Preview with the navigatable Value Entries
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -438,7 +438,7 @@ codeunit 134762 "Test Purchase Preview"
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
         // [SCENARIO] Posting preview of Purchase Order opens G/L Posting Preview with the navigatable Item Ledger Entries
-        Initialize;
+        Initialize();
         // Initialize purchase header
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -481,7 +481,7 @@ codeunit 134762 "Test Purchase Preview"
         ActualErrorMessage: Text;
     begin
         // [SCENARIO] Preview action on Purchase Invoice should work even if Invoice is under Approval Workflow.
-        Initialize;
+        Initialize();
         // Initialize
         ExpectedCost := LibraryRandom.RandInt(100);
         ExpectedQuantity := LibraryRandom.RandInt(10);
@@ -529,7 +529,7 @@ codeunit 134762 "Test Purchase Preview"
         ItemNo: Code[20];
     begin
         // [SCENARIO 263954] Preview action can be opened for Purchase Order with FIFO Item, if was before posted partially several times.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup: Automatic Cost Posting = TRUE, Expected Cost Posting = TRUE
         LibraryInventory.SetAutomaticCostPosting(true);
@@ -547,7 +547,7 @@ codeunit 134762 "Test Purchase Preview"
         PostPartialQuantity(PurchaseHeader, true);
 
         // [GIVEN] Receive Purchase Order again partially
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         PostPartialQuantity(PurchaseHeader, false);
 
@@ -571,7 +571,7 @@ codeunit 134762 "Test Purchase Preview"
         // [SCENARIO 381357] Stan can see posting preview of released purchase invoice when "Calc. Inv. and Pmt. Discount" is set in setup.
         // [GIVEN] "Calc. Inv. and Pmt. Discount" = TRUE in "Purchases & Payables Setup"
         // [GIVEN] Released purchase invoice where "Payment Discount %" = 5%
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // [WHEN] Stan calls "Post Preview" from invoice
@@ -595,7 +595,7 @@ codeunit 134762 "Test Purchase Preview"
         // [SCENARIO 202205] Stan can see posting preview of released purchase order when "Calc. Inv. and Pmt. Discount" is set in setup.
         // [GIVEN] "Calc. Inv. and Pmt. Discount" = TRUE in "Purchases & Payables Setup"
         // [GIVEN] Released purchase order where "Payment Discount %" = 5%
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithItem(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Stan calls "Post Preview" from invoice
@@ -621,7 +621,7 @@ codeunit 134762 "Test Purchase Preview"
         // [GIVEN] "Calc. Inv. and Pmt. Discount" = TRUE in "Purchases & Payables Setup"
         // [GIVEN] "Qty. to Invoice" = 90, "Quantity" = 100
         // [GIVEN] Released purchase order where "Payment Discount %" = 5%
-        Initialize;
+        Initialize();
         LibraryPurchase.SetCalcInvDiscount(true);
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
@@ -649,6 +649,7 @@ codeunit 134762 "Test Purchase Preview"
     [Scope('OnPrem')]
     procedure PmtDiscToleranceConsidersOnPostingPreview()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         ApplyingVendLedgerEntry: Record "Vendor Ledger Entry";
         VendLedgerEntry: Record "Vendor Ledger Entry";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -658,7 +659,7 @@ codeunit 134762 "Test Purchase Preview"
         // [FEATURE] [Payment Discount] [Payment Discount Tolerance]
         // [SCENARIO 277573] Payment Discount Tolerance considers when preview application of payment to invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted payment and invoice with possible payment discount tolerance
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText(Format(LibraryRandom.RandIntInRange(3, 10)) + 'D');
@@ -668,9 +669,9 @@ codeunit 134762 "Test Purchase Preview"
         LibraryVariableStorage.Enqueue(DATABASE::"Detailed Vendor Ledg. Entry");
 
         // [WHEN] Preview application of payment to invoice
-        asserterror VendEntryApplyPostedEntries.PreviewApply(
-            ApplyingVendLedgerEntry, ApplyingVendLedgerEntry."Document No.",
-            VendEntryApplyPostedEntries.GetApplicationDate(ApplyingVendLedgerEntry));
+        ApplyingVendLedgerEntry."Document No." := ApplyingVendLedgerEntry."Document No.";
+        ApplyingVendLedgerEntry."Posting Date" := VendEntryApplyPostedEntries.GetApplicationDate(ApplyingVendLedgerEntry);
+        asserterror VendEntryApplyPostedEntries.PreviewApply(ApplyingVendLedgerEntry, ApplyUnapplyParameters);
 
         // [THEN] Three entries expected in "G/L Posting Preview" page for table "Detailed Vendor Ledger Entry"
         // [THEN] Payment Discount Tolerance and two applications (invoice -> payment and payment -> invoice)
@@ -692,7 +693,7 @@ codeunit 134762 "Test Purchase Preview"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 328755] Invoice Vendor Ledger Entry is Closed in Posting Preview when Purchase Invoice has "Payment Method Code" with Bal. Account No. filled.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice has "Payment Method Code" with Bal. Account No. filled.
         LibraryInventory.CreatePaymentMethod(PaymentMethod);
@@ -851,7 +852,7 @@ codeunit 134762 "Test Purchase Preview"
         // [THEN] Purch Header "Posting No." = "***"
         Assert.AreEqual(PostingPreviewNoTok, TestPurchPostPreview.GetPurchHeaderPostingNo(), 'Invalid Posting No.');
     end;
-    
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -867,6 +868,8 @@ codeunit 134762 "Test Purchase Preview"
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         Commit();
@@ -901,7 +904,7 @@ codeunit 134762 "Test Purchase Preview"
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Vendor."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, Vendor."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity);
@@ -1004,7 +1007,7 @@ codeunit 134762 "Test Purchase Preview"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Receive", 1); // specific value needed for test
             Modify(true);
         end;

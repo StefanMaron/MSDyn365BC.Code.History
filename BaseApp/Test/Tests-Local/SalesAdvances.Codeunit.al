@@ -54,7 +54,7 @@ codeunit 144401 "Sales Advances"
         // Test if the system allows to create a new Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // 2.Exercise:
 
@@ -66,7 +66,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales advance letter
         SalesAdvLetterHeader.Get(SalesAdvLetterHeader."No.");
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
     end;
 
     [Test]
@@ -81,7 +81,7 @@ codeunit 144401 "Sales Advances"
         // Test if the system allows to create a new Sales Advance Letter from Sales order.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales order
         CreateSalesOrder(SalesHeader, SalesLine);
@@ -96,7 +96,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales advance letter
         SalesAdvLetterHeader.Get(SalesAdvLetterHeader."No.");
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 144401 "Sales Advances"
         // Test the release of Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales advance letter from sales order
         CreateSalesOrder(SalesHeader, SalesLine);
@@ -141,7 +141,7 @@ codeunit 144401 "Sales Advances"
         // Test if the system allows to automatical create a new Sales Advance Invoice from Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales advance letter
         CreateAndReleaseSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -169,7 +169,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales advance invoice
         SalesInvHeader.SetCurrentKey("Letter No.");
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.CalcFields(Amount, "Amount Including VAT");
         SalesInvHeader.TestField(Amount, VATAmount);
         SalesInvHeader.TestField("Amount Including VAT", VATAmount);
@@ -196,7 +196,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting of Sales Order from which Sales Advance Letter was creation.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales advance letter
         CreateSalesOrder(SalesHeader, SalesLine);
@@ -240,7 +240,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::Deduction);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry.Amount, AmountIncVAT, 0.01, '');
 
         // verify creation advance invoice
@@ -271,7 +271,7 @@ codeunit 144401 "Sales Advances"
         // Test the changing exchange rate on Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -306,7 +306,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::"Pending Final Invoice");
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount Linked", AmountIncVAT);
         SalesAdvLetterLine.TestField("Amount Invoiced", AmountIncVAT);
         SalesAdvLetterLine.TestField("Amount To Deduct", AmountIncVAT);
@@ -314,7 +314,7 @@ codeunit 144401 "Sales Advances"
         // verify creation advance invoice
         SalesInvHeader.SetCurrentKey("Letter No.");
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.CalcFields(Amount, "Amount Including VAT");
         SalesInvHeader.TestField(Amount, VATAmount);
         SalesInvHeader.TestField("Amount Including VAT", VATAmount);
@@ -324,7 +324,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::VAT);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           SalesAdvLetterEntry."VAT Base Amount", -Amount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(
@@ -373,7 +373,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting Sales Invoice which was created from Sales Advance Letter with foreign currency.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -429,7 +429,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount Deducted", AmountIncVAT);
 
         // verify creation sales invoice
@@ -442,11 +442,11 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::Deduction);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry.Amount, AmountIncVAT, Currency."Amount Rounding Precision", '');
 
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(
@@ -471,7 +471,7 @@ codeunit 144401 "Sales Advances"
         GLEntry.SetRange("Document No.", SalesInvHeader."No.");
         GLEntry.SetRange("Posting Date", SalesInvHeader."Posting Date");
         GLEntry.SetRange("G/L Account No.", Currency."Realized Losses Acc.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(GLEntry.Amount,
           Round(
             CurrExchangeRate.ExchangeAmtFCYToLCY(
@@ -509,7 +509,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting refund and close Sales Advance Letter with foreign currency.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -575,14 +575,14 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
 
         // verify entries
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Document Type", SalesAdvLetterEntry."Document Type"::"Credit Memo");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           SalesAdvLetterEntry."VAT Base Amount", Amount[1] - Amount[2], Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(
@@ -607,7 +607,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales credit memo
         SalesCrMemoHeader.SetCurrentKey("Letter No.");
         SalesCrMemoHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
     end;
 
     [Test]
@@ -628,7 +628,7 @@ codeunit 144401 "Sales Advances"
         // Test the creation Sales Advance Letter with refund VAT.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales advance letter
         CreateSalesAdvPmntTemp(SalesAdvPmntTemp);
@@ -657,21 +657,21 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::"Pending Final Invoice");
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", AmountIncVAT);
 
         // verify entries
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::VAT);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", -Amount, 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", 0, 0.01, '');
 
         // verify creation advance invoice
         SalesInvHeader.SetCurrentKey("Letter No.");
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.CalcFields(Amount, "Amount Including VAT");
         SalesInvHeader.TestField(Amount, 0);
         SalesInvHeader.TestField("Amount Including VAT", 0);
@@ -691,7 +691,7 @@ codeunit 144401 "Sales Advances"
         // Test if the system allows to automatical create a new Sales Advance Invoice from Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // disable automatic advance invoice posting
         UpdateSalesSetupAutomaticAdvInvPosting(false);
@@ -722,7 +722,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales advance invoice
         SalesInvHeader.SetCurrentKey("Letter No.");
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.CalcFields(Amount, "Amount Including VAT");
         SalesInvHeader.TestField(Amount, VATAmount);
         SalesInvHeader.TestField("Amount Including VAT", VATAmount);
@@ -753,7 +753,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting of Sales Invoice which was created from Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndPaymentSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -788,11 +788,11 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::Deduction);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry.Amount, AmountIncVAT, 0.01, '');
 
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount, 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount, 0.01, '');
 
@@ -822,7 +822,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting refund and close Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndPaymentSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -867,14 +867,14 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
 
         // verify entries
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Document Type", SalesAdvLetterEntry."Document Type"::"Credit Memo");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           SalesAdvLetterEntry."VAT Base Amount", Amount[1] - Amount[2], 0.01, '');
         Assert.AreNearlyEqual(
@@ -883,7 +883,7 @@ codeunit 144401 "Sales Advances"
         // verify creation sales credit memo
         SalesCrMemoHeader.SetCurrentKey("Letter No.");
         SalesCrMemoHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
     end;
 
     [Test]
@@ -905,7 +905,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting Sales Advance Letter over two Sales Invoice
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndPaymentSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -980,7 +980,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
         SalesAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[1]);
 
@@ -1025,7 +1025,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting two Sales Advance Letter over one Sales Invoice
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create sales advance payment template
         CreateSalesAdvPmntTemp(SalesAdvPmntTemp);
@@ -1107,7 +1107,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
         SalesAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[1]);
 
@@ -1115,7 +1115,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount[1], 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount[1], 0.01, '');
 
@@ -1123,7 +1123,7 @@ codeunit 144401 "Sales Advances"
         AdvLetterLineRel.SetCurrentKey(Type, "Letter No.", "Letter Line No.", "Document No.", "Document Line No.");
         AdvLetterLineRel.SetRange(Type, AdvLetterLineRel.Type::Sale);
         AdvLetterLineRel.SetRange("Letter No.", SalesAdvLetterNo[1]);
-        AdvLetterLineRel.FindFirst;
+        AdvLetterLineRel.FindFirst();
 
         // verify sales advance letter 2
         SalesAdvLetterHeader.Get(SalesAdvLetterNo[2]);
@@ -1131,7 +1131,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
         SalesAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[2]);
 
@@ -1139,7 +1139,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::"VAT Deduction");
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Base Amount", Amount[2], 0.01, '');
         Assert.AreNearlyEqual(SalesAdvLetterEntry."VAT Amount", VATAmount[2], 0.01, '');
 
@@ -1147,7 +1147,7 @@ codeunit 144401 "Sales Advances"
         AdvLetterLineRel.SetCurrentKey(Type, "Letter No.", "Letter Line No.", "Document No.", "Document Line No.");
         AdvLetterLineRel.SetRange(Type, AdvLetterLineRel.Type::Sale);
         AdvLetterLineRel.SetRange("Letter No.", SalesAdvLetterNo[2]);
-        AdvLetterLineRel.FindFirst;
+        AdvLetterLineRel.FindFirst();
     end;
 
     [Test]
@@ -1163,7 +1163,7 @@ codeunit 144401 "Sales Advances"
         // Test the canceling Sales Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndReleaseSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -1181,7 +1181,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Link", 0);
         SalesAdvLetterLine.TestField("Amount Linked", 0);
         SalesAdvLetterLine.TestField("Amount To Invoice", 0);
@@ -1217,7 +1217,7 @@ codeunit 144401 "Sales Advances"
         // Test the canceling Sales Advance Letter with payment.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndPaymentSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -1238,7 +1238,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Link", 0);
         SalesAdvLetterLine.TestField("Amount Linked", 0);
         SalesAdvLetterLine.TestField("Amount To Invoice", 0);
@@ -1260,14 +1260,14 @@ codeunit 144401 "Sales Advances"
         // verify creation advance invoice
         SalesInvHeader.SetCurrentKey("Letter No.");
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         SalesInvHeader.CalcFields(Amount);
         SalesInvHeader.TestField(Amount, VATAmount);
 
         // verify creation sales credit memo
         SalesCrMemoHeader.SetCurrentKey("Letter No.");
         SalesCrMemoHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.CalcFields(Amount);
         SalesCrMemoHeader.TestField(Amount, VATAmount);
     end;
@@ -1294,7 +1294,7 @@ codeunit 144401 "Sales Advances"
         // Test the posting Sales Advance Letter over two Payments
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment sales advance letter
         CreateAndReleaseSalesAdvLetter(SalesAdvLetterHeader, SalesAdvLetterLine);
@@ -1344,7 +1344,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterHeader.TestField(Status, SalesAdvLetterHeader.Status::Closed);
 
         SalesAdvLetterLine.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesAdvLetterLine.FindFirst;
+        SalesAdvLetterLine.FindFirst();
         SalesAdvLetterLine.TestField("Amount To Deduct", 0);
         SalesAdvLetterLine.TestField("Amount Deducted", AmountIncVAT);
 
@@ -1353,7 +1353,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         SalesAdvLetterEntry.SetRange("Letter No.", SalesAdvLetterHeader."No.");
         SalesAdvLetterEntry.SetRange("Entry Type", SalesAdvLetterEntry."Entry Type"::VAT);
-        SalesAdvLetterEntry.FindFirst;
+        SalesAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           SalesAdvLetterEntry."VAT Base Amount", -Round(PaymentAmount[1] / VATCoeficient), 0.01, '');
         Assert.AreNearlyEqual(
@@ -1392,7 +1392,7 @@ codeunit 144401 "Sales Advances"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 207109] Values of "Amount" and "Amount Including VAT" of Sales Line have to equal to 0 when setting value "Line Discount %" = 100 on the page "Sales Invoice"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales & Receivables Setup"."Allow VAT Difference" = TRUE
         UpdateSalesSetupAllowVATDifference;
@@ -1420,7 +1420,7 @@ codeunit 144401 "Sales Advances"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -1561,7 +1561,6 @@ codeunit 144401 "Sales Advances"
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Cust."No.");
         SalesHeader.Validate("Posting Date", WorkDate);
-        SalesHeader.Validate("VAT Date", WorkDate);
         SalesHeader.Validate("Prepayment %", 100);
         SalesHeader.Modify(true);
 
@@ -1793,7 +1792,7 @@ codeunit 144401 "Sales Advances"
         SalesAdvanceLetterHeader.TestField(Status, Status);
 
         SalesAdvanceLetterLine.SetRange("Letter No.", LetterNo);
-        SalesAdvanceLetterLine.FindFirst;
+        SalesAdvanceLetterLine.FindFirst();
         SalesAdvanceLetterLine.TestField("Amount Deducted", AmountDeducted);
     end;
 

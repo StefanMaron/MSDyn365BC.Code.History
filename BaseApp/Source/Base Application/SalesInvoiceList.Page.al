@@ -1,4 +1,3 @@
-#if not CLEAN19
 page 9301 "Sales Invoice List"
 {
     ApplicationArea = Basic, Suite;
@@ -15,7 +14,7 @@ page 9301 "Sales Invoice List"
     UsageCategory = Lists;
 
     AboutTitle = 'About sales invoices';
-    AboutText = 'Sales invoices appear in this list until they are finalized and posted. After an invoice is posted, find it again in the Posted Sales Invoices list.';
+    AboutText = 'Sales invoices appear in this list until they are finalized and posted. After an invoice is posted, find it again in the [Posted Sales Invoices](?page=143 "Open the Posted Sales Invoices page") list.';
 
     layout
     {
@@ -185,6 +184,7 @@ page 9301 "Sales Invoice List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
                     Visible = false;
+                    StyleExpr = StatusStyleTxt;
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -420,9 +420,10 @@ page 9301 "Sales Invoice List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualRelease(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualRelease(SalesHeader);
                     end;
                 }
                 action("Re&open")
@@ -437,9 +438,10 @@ page 9301 "Sales Invoice List"
 
                     trigger OnAction()
                     var
-                        ReleaseSalesDoc: Codeunit "Release Sales Document";
+                        SalesHeader: Record "Sales Header";
                     begin
-                        ReleaseSalesDoc.PerformManualReopen(Rec);
+                        CurrPage.SetSelectionFilter(SalesHeader);
+                        PerformManualReopen(SalesHeader);
                     end;
                 }
             }
@@ -707,6 +709,11 @@ page 9301 "Sales Invoice List"
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := GetStatusStyleText();
+    end;
+
     trigger OnOpenPage()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -730,6 +737,8 @@ page 9301 "Sales Invoice List"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         CustomerSelected: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     procedure ShowPreview()
     var
@@ -757,10 +766,8 @@ page 9301 "Sales Invoice List"
         PreAssignedNo: Code[20];
         IsHandled: Boolean;
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then begin
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
-            PreAssignedNo := "No.";
-        end;
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := "No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -780,11 +787,11 @@ page 9301 "Sales Invoice List"
     begin
         SalesInvoiceHeader.SetCurrentKey("Pre-Assigned No.");
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        if SalesInvoiceHeader.FindFirst then
+        if SalesInvoiceHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesInvQst, SalesInvoiceHeader."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode)
             then
-                PAGE.Run(PAGE::"Posted Sales Invoice", SalesInvoiceHeader);
+                InstructionMgt.ShowPostedDocument(SalesInvoiceHeader, Page::"Sales Invoice List");
     end;
 
     [IntegrationEvent(true, false)]
@@ -793,4 +800,3 @@ page 9301 "Sales Invoice List"
     end;
 }
 
-#endif

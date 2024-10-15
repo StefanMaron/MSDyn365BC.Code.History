@@ -1,4 +1,4 @@
-page 118 "General Ledger Setup"
+﻿page 118 "General Ledger Setup"
 {
     AdditionalSearchTerms = 'finance setup,general ledger setup,g/l setup';
     ApplicationArea = Basic, Suite;
@@ -26,6 +26,16 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which posting to the company books is allowed.';
+                }
+                field("Allow Deferral Posting From"; Rec."Allow Deferral Posting From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the earliest date on which deferral posting to the company books is allowed.';
+                }
+                field("Allow Deferral Posting To"; Rec."Allow Deferral Posting To")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last date on which deferral posting to the company books is allowed.';
                 }
                 field("Register Time"; "Register Time")
                 {
@@ -88,7 +98,13 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user.';
+                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user. This setting is only valid when "Block Deletion of G/L accounts" is set to No';
+                }
+                field("Block Deletion of G/L Accounts"; "Block Deletion of G/L Accounts")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether to prevent users from deleting G/L accounts with ledger entries that are after the date in the Check G/L Acc. Deletion After field. For example, blocking deletion helps you avoid losing financial data that your business should keep due to country regional requirements.';
                 }
                 field("Check G/L Account Usage"; "Check G/L Account Usage")
                 {
@@ -179,27 +195,6 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign numbers to bank accounts.';
                 }
-#if not CLEAN17
-                field("Cash Desk Nos."; "Cash Desk Nos.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to cash desk.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
-#if not CLEAN17
-                field("Company Officials Nos."; "Company Officials Nos.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the code for the number series that will be used to assign numbers to company officials.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
 #if not CLEAN19
                 field("Acc. Schedule Results Nos."; "Acc. Schedule Results Nos.")
                 {
@@ -235,22 +230,17 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '18.0';
                 }
 #endif
-#if not CLEAN17
-                field("Dont Check Dimension"; "Dont Check Dimension")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether the system does or does not check the dimension setup by closing operation depending on whether the field is checked.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Show Amounts"; "Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies which type of amounts are shown in journals and in ledger entries windows. Amount Only: The Amount and Amount (LCY) fields are shown. Debit/Credit Only: The Debit Amount, Debit Amount (LCY), Credit Amount, and Credit Amount (LCY) fields are shown. All Amounts: All amount fields are shown. ';
+                }
+                field("Hide Payment Method Code"; "Hide Payment Method Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if payment method code is shown in sales and purchase documents.';
                 }
                 field(PostingPreviewType; "Posting Preview Type")
                 {
@@ -269,6 +259,27 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies if it is possible to use SEPA direct debit export by filling in the Bank Branch No. and Bank Account No. fields instead of the IBAN and SWIFT No. fields on the bank account and customer bank account cards.';
+                }
+                field("Journal Templ. Name Mandatory"; Rec."Journal Templ. Name Mandatory")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if a journal template and batch names are required when posting general ledger transactions.';
+
+                    trigger OnValidate()
+                    begin
+                        IsJournalTemplatesVisible := Rec."Journal Templ. Name Mandatory";
+                        CurrPage.Update();
+                    end;
+                }
+                field(EnableDataCheck; "Enable Data Check")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+#if not CLEAN20       
+                    Visible = BackgroundValidationEnabled;
+#endif
+                    ToolTip = 'Specifies whether Business Central will validate the data you enter in documents and journals while you work. Messages will be shown in the Journal Check FactBox.';
                 }
             }
             group(Control1900309501)
@@ -475,6 +486,52 @@ page 118 "General Ledger Setup"
                     ToolTip = 'Specifies the maximum allowed amount that a payment or refund can differ from the amount on the related invoice or credit memo.';
                 }
             }
+            group("Gen. Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = IsJournalTemplatesVisible;
+
+                field("Adjust ARC Jnl. Template Name"; Rec."Adjust ARC Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template you want to use for posting adjustment of additional reporting currency.';
+                }
+                field("Adjust ARC Jnl. Batch Name"; Rec."Adjust ARC Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting adjustment of additional reporting currency.';
+                }
+                field("Apply Jnl. Template Name"; Rec."Apply Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template you want to use for applying customer or vendor ledger entries.';
+                }
+                field("Apply Jnl. Batch Name"; Rec."Apply Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch you want to use for applying customer or vendor ledger entries.';
+                }
+                field("Job WIP Jnl. Template Name"; Rec."Job WIP Jnl. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template you want to use for posting job WIP to G/L.';
+                }
+                field("Job WIP Jnl. Batch Name"; Rec."Job WIP Jnl. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting job WIP to G/L.';
+                }
+                field("Bank Acc. Recon. Template Name"; Rec."Bank Acc. Recon. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting bank account reconciliation.';
+                }
+                field("Bank Acc. Recon. Batch Name"; Rec."Bank Acc. Recon. Batch Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal batch you want to use for posting bank account reconciliation.';
+                }
+            }
             group("Payroll Transaction Import")
             {
                 Caption = 'Payroll Transaction Import';
@@ -486,64 +543,6 @@ page 118 "General Ledger Setup"
                     Visible = false;
                 }
             }
-#if not CLEAN17
-            group(VAT)
-            {
-                Caption = 'VAT';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                field("Use VAT Date"; "Use VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies to use the VAT date for general ledger setup. When this option is selected, the VAT date is used instead of the posting date.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Allow VAT Posting From"; "Allow VAT Posting From")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the earliest VAT date on which posting to the company is allowed.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Allow VAT Posting To"; "Allow VAT Posting To")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the last VAT date on which posting to the company is allowed.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("<Max. VAT Difference Allowed2>"; "Max. VAT Difference Allowed")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Max. VAT Difference Allowed';
-                    ToolTip = 'Specifies the maximum VAT correction amount allowed for the local currency.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-                field("<VAT Rounding Type2>"; "VAT Rounding Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'VAT Rounding Type';
-                    ToolTip = 'Specifies vat rounding type';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-            }
-#endif
 #if not CLEAN19
             group(Advances)
             {
@@ -638,17 +637,6 @@ page 118 "General Ledger Setup"
                     ObsoleteTag = '18.0';
                 }
 #endif
-#if not CLEAN17
-                field("Cash Payment Limit (LCY)"; "Cash Payment Limit (LCY)")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the maximum daily limit for the partner''s cash payments in the local currency.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
         }
 #if not CLEAN19
         }
@@ -703,7 +691,7 @@ page 118 "General Ledger Setup"
                     begin
                         Currency.Init();
                         ChangePmtTol.SetCurrency(Currency);
-                        ChangePmtTol.RunModal;
+                        ChangePmtTol.RunModal();
                     end;
                 }
             }
@@ -840,7 +828,7 @@ page 118 "General Ledger Setup"
                 }
                 action("VAT Report Setup")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'VAT Report Setup';
                     Image = VATPostingSetup;
                     Promoted = true;
@@ -915,12 +903,17 @@ page 118 "General Ledger Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
         xGeneralLedgerSetup := Rec;
+
+#if not CLEAN20        
+        BackgroundValidationEnabled := BackgroundErrorHandlingMgt.IsEnabled();
+#endif
+        IsJournalTemplatesVisible := Rec."Journal Templ. Name Mandatory";
     end;
 
     var
@@ -928,6 +921,13 @@ page 118 "General Ledger Setup"
         Text002: Label 'If you delete the additional reporting currency, future general ledger entries are posted in LCY only. Deleting the additional reporting currency does not affect already posted general ledger entries.\\Are you sure that you want to delete the additional reporting currency?';
         Text003: Label 'If you change the additional reporting currency, future general ledger entries are posted in the new reporting currency and in LCY. To enable the additional reporting currency, a batch job opens, and running the batch job recalculates already posted general ledger entries in the new additional reporting currency.\Entries will be deleted in the Analysis View if it is unblocked, and an update will be necessary.\\Are you sure that you want to change the additional reporting currency?';
         xGeneralLedgerSetup: Record "General Ledger Setup";
+#if not CLEAN20        
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        [InDataSet]
+        BackgroundValidationEnabled: Boolean;
+#endif
+        [InDataSet]
+        IsJournalTemplatesVisible: Boolean;
 
     local procedure IsShortcutDimensionModified(): Boolean
     begin
@@ -942,5 +942,4 @@ page 118 "General Ledger Setup"
           ("Shortcut Dimension 8 Code" <> xGeneralLedgerSetup."Shortcut Dimension 8 Code"));
     end;
 }
-
 

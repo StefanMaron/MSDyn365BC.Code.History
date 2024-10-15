@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 1299 "Payment Matching Details"
 {
     Caption = 'Payment Matching Details';
@@ -8,7 +7,7 @@ table 1299 "Payment Matching Details"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            TableRelation = "Bank Account";
         }
         field(2; "Statement No."; Code[20])
         {
@@ -95,10 +94,10 @@ table 1299 "Payment Matching Details"
         PaymentMatchingDetails.SetRange("Statement No.", "Statement No.");
         PaymentMatchingDetails.SetRange("Statement Line No.", "Statement Line No.");
 
-        if PaymentMatchingDetails.FindLast then
+        if PaymentMatchingDetails.FindLast() then
             NextLineNo += PaymentMatchingDetails."Line No.";
 
         exit(NextLineNo);
     end;
 }
-#endif
+

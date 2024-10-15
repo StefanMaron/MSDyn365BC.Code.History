@@ -842,7 +842,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchLine.Validate("Qty. to Invoice", 9);
         PurchLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchHeader.Modify(true);
 
         // [WHEN] Post second part of Purchase Order with "Qty. to Invoice" = 6
@@ -1042,37 +1042,37 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Validate("No.") updates blank "Invoice Disc. Code" value with "No."
         Clear(Customer);
-        Customer.Validate("No.", LibraryUtility.GenerateGUID);
+        Customer.Validate("No.", LibraryUtility.GenerateGUID());
         Customer.TestField("Invoice Disc. Code", Customer."No.");
 
         // Validate("No.") doesn't modify non blank "Invoice Disc. Code" value
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Customer);
         Customer.Insert(true);
         Customer.Validate("Invoice Disc. Code", InvoiceDiscCode);
-        Customer.Validate("No.", LibraryUtility.GenerateGUID);
+        Customer.Validate("No.", LibraryUtility.GenerateGUID());
         Customer.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnInsert doesn't modify non blank "Invoice Disc. Code" value
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Customer);
-        Customer.Validate("No.", LibraryUtility.GenerateGUID);
+        Customer.Validate("No.", LibraryUtility.GenerateGUID());
         Customer.Validate("Invoice Disc. Code", InvoiceDiscCode);
         Customer.Insert(true);
         Customer.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnRename doesn't modify "Invoice Disc. Code" value in case of xRec."No." <> xRec."Invoice Disc. Code"
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Customer);
         Customer.Insert(true);
         Customer.Validate("Invoice Disc. Code", InvoiceDiscCode);
-        Customer.Rename(LibraryUtility.GenerateGUID);
+        Customer.Rename(LibraryUtility.GenerateGUID());
         Customer.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnRename updates "Invoice Disc. Code" value with new Rec."No." in case of xRec."No." = xRec."Invoice Disc. Code"
         Clear(Customer);
         Customer.Insert(true);
-        Customer.Rename(LibraryUtility.GenerateGUID);
+        Customer.Rename(LibraryUtility.GenerateGUID());
         Customer.TestField("Invoice Disc. Code", Customer."No.");
     end;
 
@@ -1094,37 +1094,37 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
         // Validate("No.") updates blank "Invoice Disc. Code" value with "No."
         Clear(Vendor);
-        Vendor.Validate("No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("No.", LibraryUtility.GenerateGUID());
         Vendor.TestField("Invoice Disc. Code", Vendor."No.");
 
         // Validate("No.") doesn't modify non blank "Invoice Disc. Code" value
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Vendor);
         Vendor.Insert(true);
         Vendor.Validate("Invoice Disc. Code", InvoiceDiscCode);
-        Vendor.Validate("No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("No.", LibraryUtility.GenerateGUID());
         Vendor.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnInsert doesn't modify non blank "Invoice Disc. Code" value
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Vendor);
-        Vendor.Validate("No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("No.", LibraryUtility.GenerateGUID());
         Vendor.Validate("Invoice Disc. Code", InvoiceDiscCode);
         Vendor.Insert(true);
         Vendor.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnRename doesn't modify "Invoice Disc. Code" value in case of xRec."No." <> xRec."Invoice Disc. Code"
-        InvoiceDiscCode := LibraryUtility.GenerateGUID;
+        InvoiceDiscCode := LibraryUtility.GenerateGUID();
         Clear(Vendor);
         Vendor.Insert(true);
         Vendor.Validate("Invoice Disc. Code", InvoiceDiscCode);
-        Vendor.Rename(LibraryUtility.GenerateGUID);
+        Vendor.Rename(LibraryUtility.GenerateGUID());
         Vendor.TestField("Invoice Disc. Code", InvoiceDiscCode);
 
         // OnRename updates "Invoice Disc. Code" value with new Rec."No." in case of xRec."No." = xRec."Invoice Disc. Code"
         Clear(Vendor);
         Vendor.Insert(true);
-        Vendor.Rename(LibraryUtility.GenerateGUID);
+        Vendor.Rename(LibraryUtility.GenerateGUID());
         Vendor.TestField("Invoice Disc. Code", Vendor."No.");
     end;
 
@@ -1152,7 +1152,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         MockCustomerTemplate(CustomerTemplate[3], Customer[2]."No.");
 
         // [WHEN] Rename Customer "X1" to "X3"
-        Customer[1].Rename(LibraryUtility.GenerateGUID);
+        Customer[1].Rename(LibraryUtility.GenerateGUID());
 
         // [THEN] Customer Template "T1"."Invoice Disc. Code" = "X3"
         CustomerTemplate[1].Find;
@@ -1264,7 +1264,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         // [THEN] "Base Before Pmt. Disc." of VAT Entry is 300
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("Base Before Pmt. Disc.", Base);
     end;
 
@@ -1505,18 +1505,18 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Invoice Discount And VAT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Invoice Discount And VAT");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateFAPostingType;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1724,7 +1724,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with VendorInvoiceDisc do begin
             SetRange(Code, PurchaseHeader."Buy-from Vendor No.");
             SetRange("Currency Code", PurchaseHeader."Currency Code");
-            FindFirst;
+            FindFirst();
             Discount := "Discount %";
         end;
 
@@ -1795,7 +1795,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with CustInvoiceDisc do begin
             SetRange(Code, SalesHeader."Sell-to Customer No.");
             SetRange("Currency Code", SalesHeader."Currency Code");
-            FindFirst;
+            FindFirst();
             Discount := "Discount %";
         end;
 
@@ -2167,7 +2167,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Ship", Round(Quantity / LibraryRandom.RandInt(5), 1));
             Modify(true);
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2264,7 +2264,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
             SetRange("Document No.", PurchHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Receive", Round(Quantity / LibraryRandom.RandInt(5), 1));
             Modify(true);
             LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -2293,7 +2293,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLAccount.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
         LibraryERM.FindGLAccount(GLAccount);
         FAPostingGroup.SetFilter("Acq. Cost Acc. on Disposal", '<>%1', '');
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", GLAccount."No.");
         FAPostingGroup.Modify(true);
     end;
@@ -2332,7 +2332,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CopySalesDocument.SetSalesHeader(SalesHeader);
         CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
-        CopySalesDocument.Run;
+        CopySalesDocument.Run();
     end;
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; FromDocType: Enum "Sales Document Type From"; DocumentNo: Code[20])
@@ -2410,7 +2410,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Line Discount %", LineDiscount);
     end;
 
@@ -2420,13 +2420,13 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry: Record "G/L Entry";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Amount Including VAT", Amount);
 
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -2521,7 +2521,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
         if GeneralPostingSetup."Purch. Inv. Disc. Account" = '' then begin
             GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-            GLAccount.FindFirst;
+            GLAccount.FindFirst();
             GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GLAccount."No.");
             GeneralPostingSetup.Modify(true);
         end;
@@ -2571,7 +2571,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure MockCustomerTemplate(var CustomerTemplate: Record "Customer Templ."; InvoiceDiscCode: Code[20])
     begin
         with CustomerTemplate do begin
-            Code := LibraryUtility.GenerateGUID;
+            Code := LibraryUtility.GenerateGUID();
             "Invoice Disc. Code" := InvoiceDiscCode;
             Insert;
         end;
@@ -2778,7 +2778,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2789,10 +2789,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         AmtIncludingVAT: Decimal;
     begin
         VendorInvoiceDisc.SetRange(Code, PurchaseLine."Buy-from Vendor No.");
-        VendorInvoiceDisc.FindFirst;
+        VendorInvoiceDisc.FindFirst();
 
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // Calculate Invoice Discount Amount and Amount Including VAT.
         if AllowInvDisc then
@@ -2816,7 +2816,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
 
         Assert.AreNearlyEqual(
           GLEntry.Amount, Amount, LibraryERM.GetInvoiceRoundingPrecisionLCY,
@@ -2843,7 +2843,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         ValueEntry.SetRange("Document No.", DocumentNo);
         ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Purchase);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Cost Amount (Expected)", CostAmountExpected);
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
@@ -2856,7 +2856,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     VerifySalesLineAmountsAgainstDiscounts(SalesLine);
                     TotalInvDiscountAmount += "Inv. Discount Amount";
@@ -2877,7 +2877,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         with PurchLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     VerifyPurchaseLineAmountsAgainstDiscounts(PurchLine);
                     TotalInvDiscountAmount += "Inv. Discount Amount";
@@ -3017,7 +3017,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         GetSalesVATAmountLine(SalesHeader, TempVATAmountLine, 0); // 0 means General update
         TempVATAmountLine.SetRange(Positive, true);
-        TempVATAmountLine.FindFirst;
+        TempVATAmountLine.FindFirst();
         Assert.AreEqual(InvoiceDiscountAmount, TempVATAmountLine."Invoice Discount Amount", ChangedInvDiscountAmountErr);
     end;
 
@@ -3027,7 +3027,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     begin
         GetPurchaseVATAmountLine(PurchaseHeader, TempVATAmountLine, 0); // 0 means General update
         TempVATAmountLine.SetRange(Positive, true);
-        TempVATAmountLine.FindFirst;
+        TempVATAmountLine.FindFirst();
         Assert.AreEqual(InvoiceDiscountAmount, TempVATAmountLine."Invoice Discount Amount", ChangedInvDiscountAmountErr);
     end;
 
@@ -3063,7 +3063,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GLEntry.SetRange("G/L Account No.", GLAccNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", DocNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, ExpectedAmount);
     end;
 

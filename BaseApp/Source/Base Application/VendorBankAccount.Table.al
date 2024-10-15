@@ -106,19 +106,8 @@ table 288 "Vendor Bank Account"
             Caption = 'Bank Account No.';
 
             trigger OnValidate()
-#if not CLEAN17
-            var
-                CompanyInfo: Record "Company Information";
-#endif
             begin
-#if not CLEAN17
-                // NAVCZ
-                CompanyInfo.Get();
-                if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                    CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
-                // NAVCZ
-#endif
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -241,23 +230,24 @@ table 288 "Vendor Bank Account"
             ObsoleteReason = 'Removed from Base Application.';
             ObsoleteTag = '18.0';
         }
+#if not CLEAN20        
         field(11791; "Vendor VAT Registration No."; Text[20])
         {
             CalcFormula = Lookup(Vendor."VAT Registration No." WHERE("No." = FIELD("Vendor No.")));
             Caption = 'Vendor VAT Registration No.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
         }
+#endif  
         field(11792; "Third Party Bank Account"; Boolean)
         {
             Caption = 'Third Party Bank Account';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -331,32 +321,11 @@ table 288 "Vendor Bank Account"
             exit("Bank Account No.");
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsForeignBankAccount(): Boolean
-    var
-        CompInfo: Record "Company Information";
-    begin
-        // NAVCZ
-        CompInfo.Get();
-        exit(("Country/Region Code" <> '') and ("Country/Region Code" <> CompInfo."Country/Region Code"));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsStandardFormatBankAccount(): Boolean
-    begin
-        // NAVCZ
-        exit(IBAN = '');
-    end;
-
-#endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeLookupName(xVendorBankAccount: Record "Vendor Bank Account")
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnValidateBankAccount(var VendorBankAccount: Record "Vendor Bank Account"; FieldToValidate: Text)
     begin
@@ -367,4 +336,3 @@ table 288 "Vendor Bank Account"
     begin
     end;
 }
-

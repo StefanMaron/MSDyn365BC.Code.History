@@ -489,7 +489,7 @@ report 11700 "Suggest Payments"
             BankAccount.TestField("Base Calendar Code");
 
         PmtOrdLn.SetRange("Payment Order No.", PmtOrdHdr."No.");
-        if PmtOrdLn.FindLast then
+        if PmtOrdLn.FindLast() then
             LineNo := PmtOrdLn."Line No." + 10000
         else
             LineNo := 10000;

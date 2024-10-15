@@ -20,7 +20,7 @@ codeunit 1318 "Trial Balance Mgt."
     procedure LoadData(var DescriptionsArr: array[9] of Text[100]; var ValuesArr: array[9, 2] of Decimal; var PeriodCaptionTxt: array[2] of Text; NoOfColumns: Integer)
     begin
         PeriodType := PeriodType::"Accounting Period";
-        Initialize;
+        Initialize();
         AccSchedManagement.FindPeriod(AccScheduleLine, '', PeriodType);
         UpdateArrays(DescriptionsArr, ValuesArr, PeriodCaptionTxt, NoOfColumns);
     end;
@@ -70,7 +70,7 @@ codeunit 1318 "Trial Balance Mgt."
         Clear(PeriodCaptionTxt);
         Counter := 0;
 
-        if AccScheduleLine.FindSet then
+        if AccScheduleLine.FindSet() then
             repeat
                 Counter := Counter + 1;
                 if Counter > ArrayLen(ValuesArr, 1) then
@@ -92,7 +92,7 @@ codeunit 1318 "Trial Balance Mgt."
                     for I := Offset - NoOfColumns + 1 to Offset do
                         ValuesArr[Counter, I] := 0;
 
-                if TempColumnLayout.FindSet then
+                if TempColumnLayout.FindSet() then
                     repeat
                         ValuesArr[Counter, Offset] := AccSchedManagement.CalcCell(AccScheduleLine, TempColumnLayout, false);
                         ColumnLayoutArr[Counter, Offset] := TempColumnLayout;

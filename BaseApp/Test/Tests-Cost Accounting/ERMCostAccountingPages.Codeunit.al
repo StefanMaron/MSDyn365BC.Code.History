@@ -242,7 +242,7 @@
         CostBudgetByCostCenterPage.OpenEdit();
 
         CostType.SetRange(Totaling, '');
-        CostType.FindFirst;
+        CostType.FindFirst();
         CostBudgetByCostCenterPage.MatrixForm.GotoRecord(CostType);
 
         ExpectedDate := GetCurrentDate(CostBudgetByCostCenterPage.FILTER.GetFilter("Date Filter"));
@@ -353,7 +353,7 @@
         CostBudgetByCostObjectPage.OpenEdit();
 
         CostType.SetRange(Totaling, '');
-        CostType.FindFirst;
+        CostType.FindFirst();
         CostBudgetByCostObjectPage.MatrixForm.GotoRecord(CostType);
 
         ExpectedDate := GetCurrentDate(CostBudgetByCostObjectPage.FILTER.GetFilter("Date Filter"));
@@ -1401,7 +1401,7 @@
 
         LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
-        CostCenter.FindFirst;
+        CostCenter.FindFirst();
         CostCenterFilter := SelectionFilterManagement.AddQuotes(CostCenter.Code);
         CostTypeBalanceBudgetPage.OpenEdit();
 
@@ -1424,7 +1424,7 @@
 
         LibraryLowerPermissions.SetCostAccountingView();
         // Setup:
-        CostObject.FindFirst;
+        CostObject.FindFirst();
         CostObjectFilter := SelectionFilterManagement.AddQuotes(CostObject.Code);
         CostTypeBalanceBudgetPage.OpenEdit();
 
@@ -1640,7 +1640,7 @@
         LibraryLowerPermissions.SetCostAccountingView();
         // Setup
         CostType.SetFilter("Cost Center Code", '<>%1', '');
-        CostType.FindFirst;
+        CostType.FindFirst();
 
         // Exercise
         CostTypeBalance.OpenEdit();
@@ -1714,7 +1714,7 @@
 
         // Verify
         CostType.SetFilter("Balance at Date", '<>%1', 0);
-        CostType.FindFirst;
+        CostType.FindFirst();
         CostTypeBalance.MatrixForm.GotoRecord(CostType);
         CostTypeBalance.MatrixForm.Column1.AssertEquals(
           CostTypeBalanceWithRoundingFactor(CostType."Balance at Date", SelectedRoundingFactor));
@@ -3126,7 +3126,7 @@
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
         CostBudgetEntry.SetCurrentKey("Entry No.");
-        if CostBudgetEntry.FindLast then
+        if CostBudgetEntry.FindLast() then
             exit(CostBudgetEntry."Entry No." + 1);
         exit(1);
     end;
@@ -3421,7 +3421,7 @@
     var
         CostBudgetEntry: Record "Cost Budget Entry";
     begin
-        CostBudgetEntry.FindLast;
+        CostBudgetEntry.FindLast();
 
         CostBudgetEntry.TestField("Budget Name", ExpectedBudgetName);
         CostBudgetEntry.TestField("Cost Center Code", ExpectedCostCenterCode);
@@ -3800,7 +3800,7 @@
     local procedure CopyCostCenters(var FromCostCenter: Record "Cost Center"; var ToCostCenter: Record "Cost Center")
     begin
         ToCostCenter.DeleteAll();
-        if FromCostCenter.FindSet then
+        if FromCostCenter.FindSet() then
             repeat
                 ToCostCenter.Init();
                 ToCostCenter := FromCostCenter;
@@ -3811,7 +3811,7 @@
     local procedure CopyCostObjects(var FromCostObject: Record "Cost Object"; var ToCostObject: Record "Cost Object")
     begin
         ToCostObject.DeleteAll();
-        if FromCostObject.FindSet then
+        if FromCostObject.FindSet() then
             repeat
                 ToCostObject.Init();
                 ToCostObject := FromCostObject;

@@ -38,7 +38,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 Item.Get(AssemblyLine."No.");
                 if Item.IsInventoriableType then
@@ -67,7 +67,7 @@ codeunit 132207 "Library - Assembly"
         if BinCode <> '' then begin
             Bin.SetRange(Code, BinCode);
             Bin.SetRange("Location Code", LocationCode);
-            Bin.FindFirst;
+            Bin.FindFirst();
 
             Location.Get(LocationCode);
             if Location."Directed Put-away and Pick" then
@@ -82,7 +82,7 @@ codeunit 132207 "Library - Assembly"
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-            if AssemblyLine.FindSet then
+            if AssemblyLine.FindSet() then
                 repeat
                     LibraryWarehouse.CreateWhseJournalLine(WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
                       LocationCode, Bin."Zone Code", BinCode,
@@ -100,7 +100,7 @@ codeunit 132207 "Library - Assembly"
             AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
             AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
             AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
-            if AssemblyLine.FindSet then
+            if AssemblyLine.FindSet() then
                 repeat
                     LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
                       ItemJournalLine."Entry Type"::"Positive Adjmt.", AssemblyLine."No.", AssemblyLine.Quantity + QtySupplement);
@@ -138,7 +138,7 @@ codeunit 132207 "Library - Assembly"
         if BinCode <> '' then begin
             Bin.SetRange(Code, BinCode);
             Bin.SetRange("Location Code", LocationCode);
-            Bin.FindFirst;
+            Bin.FindFirst();
 
             Location.Get(LocationCode);
             if Location."Directed Put-away and Pick" then
@@ -238,7 +238,7 @@ codeunit 132207 "Library - Assembly"
         if ExpectedError = '' then
             BatchPostAssemblyOrders.RunModal
         else begin
-            asserterror BatchPostAssemblyOrders.RunModal;
+            asserterror BatchPostAssemblyOrders.RunModal();
             Assert.IsTrue(StrPos(GetLastErrorText, ExpectedError) > 0, 'Actual:' + GetLastErrorText);
             ClearLastError;
         end;
@@ -300,7 +300,7 @@ codeunit 132207 "Library - Assembly"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyLine.FindFirst then begin
+        if AssemblyLine.FindFirst() then begin
             case AssemblyLine.Type of
                 AssemblyLine.Type::Item:
                     TableID := 27;
@@ -344,7 +344,7 @@ codeunit 132207 "Library - Assembly"
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         Item.Get(ParentItemNo);
 
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 case BOMComponent.Type of
                     BOMComponent.Type::Item:
@@ -396,7 +396,7 @@ codeunit 132207 "Library - Assembly"
         ExpectedPrice := 0;
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 Item.Get(BOMComponent."No.");
                 ItemUnitOfMeasure.Get(Item."No.", BOMComponent."Unit of Measure Code");
@@ -405,7 +405,7 @@ codeunit 132207 "Library - Assembly"
 
         Item.Get(ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 Resource.Get(BOMComponent."No.");
                 ResUnitOfMeasure.Get(Resource."No.", BOMComponent."Unit of Measure Code");
@@ -439,7 +439,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetFilter(Type, '<>%1', AssemblyLine.Type::" ");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 GetCostInformation(UnitCost, Overhead, IndirectCost, AssemblyLine.Type, AssemblyLine."No.", '', '');
                 LineOverhead := Overhead * AssemblyLine.Quantity * AssemblyLine."Qty. per Unit of Measure";
@@ -498,10 +498,10 @@ codeunit 132207 "Library - Assembly"
             ClearType::"Posting Group Setup":
                 begin
                     InventoryPostingSetup.SetRange("Invt. Posting Group Code", InvtPostingGroup);
-                    if InventoryPostingSetup.FindFirst then
+                    if InventoryPostingSetup.FindFirst() then
                         InventoryPostingSetup.DeleteAll();
                     GeneralPostingSetup.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
-                    if GeneralPostingSetup.FindFirst then
+                    if GeneralPostingSetup.FindFirst() then
                         GeneralPostingSetup.DeleteAll();
                     ExpectedError := ErrorPostingSetup;
                 end;
@@ -509,7 +509,7 @@ codeunit 132207 "Library - Assembly"
                 begin
                     InventoryPostingSetup.SetRange("Location Code", LocationCode);
                     InventoryPostingSetup.SetRange("Invt. Posting Group Code", InvtPostingGroup);
-                    if InventoryPostingSetup.FindFirst then
+                    if InventoryPostingSetup.FindFirst() then
                         InventoryPostingSetup.DeleteAll();
                     ExpectedError := ErrorInvtPostingSetup;
                 end;
@@ -583,13 +583,13 @@ codeunit 132207 "Library - Assembly"
         SetupComponents(TempItem, TempResource, CostingMethod, NoOfItems, NoOfResources, '', '');
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, AssemblyHeaderNo);
 
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, TempItem."No.",
                   GetUnitOfMeasureCode("BOM Component Type"::Item, TempItem."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
             until TempItem.Next = 0;
 
-        if TempResource.FindSet then
+        if TempResource.FindSet() then
             repeat
                 CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, TempResource."No.",
                   GetUnitOfMeasureCode("BOM Component Type"::Resource, TempResource."No.", true), LibraryRandom.RandDec(20, 2), 0, '');
@@ -606,14 +606,14 @@ codeunit 132207 "Library - Assembly"
     begin
         SetupComponents(TempItem, TempResource, CostingMethod, NoOfItems, NoOfResources, GenProdPostingGroup, InventoryPostingGroup);
 
-        if TempItem.FindSet then
+        if TempItem.FindSet() then
             repeat
                 CreateAssemblyListComponent(BOMComponent.Type::Item, TempItem."No.", ParentItemNo, '',
                   BOMComponent."Resource Usage Type"::Direct, QtyPerFactor * LibraryRandom.RandDec(20, 5), UseBaseUnitOfMeasure);
             until TempItem.Next = 0;
 
         CompCount := 1;
-        if TempResource.FindSet then
+        if TempResource.FindSet() then
             repeat
                 if CompCount mod 2 = 0 then
                     CreateAssemblyListComponent(BOMComponent.Type::Resource, TempResource."No.", ParentItemNo, '',
@@ -791,7 +791,7 @@ codeunit 132207 "Library - Assembly"
         Item.Modify(true);
 
         UnitOfMeasure.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryInventory.CreateItemUnitOfMeasure(
           ItemUnitOfMeasure, Item."No.", UnitOfMeasure.Code, LibraryRandom.RandInt(10));
         exit(Item."No.");
@@ -853,7 +853,7 @@ codeunit 132207 "Library - Assembly"
         end;
         CreateInvtPutAwayPick.SetTableView(TmpWarehouseRequest);
         CreateInvtPutAwayPick.UseRequestPage(false);
-        CreateInvtPutAwayPick.RunModal;
+        CreateInvtPutAwayPick.RunModal();
     end;
 
     procedure AsmOrder_CreateInvtMovement(var WarehouseRequest: Record "Warehouse Request"; NewCreateInvtPutAway: Boolean; NewCreateInvtPick: Boolean; NewCreateInvtMovement: Boolean; NewPrintDocument: Boolean; NewShowError: Boolean)
@@ -882,7 +882,7 @@ codeunit 132207 "Library - Assembly"
         end;
         CreateInvtPutAwayPick.SetTableView(TmpWarehouseRequest);
         CreateInvtPutAwayPick.UseRequestPage(false);
-        CreateInvtPutAwayPick.RunModal;
+        CreateInvtPutAwayPick.RunModal();
     end;
 
     procedure CreateWhsePick(AssemblyHeader: Record "Assembly Header"; AssignedUserID: Code[50]; SortingMethod: Option; SetBreakBulkFilter: Boolean; DoNotFillQtyToHandle: Boolean; PrintDocument: Boolean)
@@ -1021,7 +1021,7 @@ codeunit 132207 "Library - Assembly"
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 case AssemblyLine.Type of
                     AssemblyLine.Type::Item:
@@ -1051,7 +1051,7 @@ codeunit 132207 "Library - Assembly"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
         UnitOfMeasure.SetFilter(Code, '<>%1', Resource."Base Unit of Measure");
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
 
         // Add a second non-base unit of measure.
         Clear(ResourceUnitOfMeasure);
@@ -1082,7 +1082,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetRange(Type, ComponentType);
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
         AssemblyLine.Next(LibraryRandom.RandInt(AssemblyLine.Count));
         AssemblyLine.Delete();
@@ -1103,7 +1103,7 @@ codeunit 132207 "Library - Assembly"
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, ComponentType);
-        if not BOMComponent.FindSet then
+        if not BOMComponent.FindSet() then
             exit;
         BOMComponent.Next(LibraryRandom.RandInt(BOMComponent.Count));
         BOMComponent.Delete();
@@ -1123,7 +1123,7 @@ codeunit 132207 "Library - Assembly"
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, ComponentType);
-        if not BOMComponent.FindSet then
+        if not BOMComponent.FindSet() then
             exit;
 
         BOMComponent.Next(LibraryRandom.RandInt(BOMComponent.Count));
@@ -1176,7 +1176,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
         AssemblyLine.SetRange(Type, ComponentType);
-        if not AssemblyLine.FindSet then
+        if not AssemblyLine.FindSet() then
             exit;
         AssemblyLine.Next(LibraryRandom.RandInt(AssemblyLine.Count));
 
@@ -1290,7 +1290,7 @@ codeunit 132207 "Library - Assembly"
         AssembleToOrderLink.SetRange("Document Type", DocumentType);
         AssembleToOrderLink.SetRange("Document No.", DocumentNo);
         AssembleToOrderLink.SetRange("Document Line No.", DocumentLineNo);
-        AssembleToOrderLink.FindFirst;
+        AssembleToOrderLink.FindFirst();
         AssemblyHeader.Get(AssembleToOrderLink."Assembly Document Type", AssembleToOrderLink."Assembly Document No.");
     end;
 
@@ -1317,7 +1317,7 @@ codeunit 132207 "Library - Assembly"
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, BOMComponent.Type::Item);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 Item.Get(BOMComponent."No.");
                 if Item."Assembly BOM" then
@@ -1329,7 +1329,7 @@ codeunit 132207 "Library - Assembly"
             until BOMComponent.Next = 0;
 
         BOMComponent.SetRange(Type, BOMComponent.Type::Resource);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 TempBOMComponent := BOMComponent;
                 TempBOMComponent.Insert();
@@ -1384,7 +1384,7 @@ codeunit 132207 "Library - Assembly"
                         exit(Item."Base Unit of Measure");
                     ItemUnitOfMeasure.SetRange("Item No.", Item."No.");
                     ItemUnitOfMeasure.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
-                    if ItemUnitOfMeasure.FindFirst then
+                    if ItemUnitOfMeasure.FindFirst() then
                         exit(ItemUnitOfMeasure.Code);
                 end;
             BOMComponent.Type::Resource:
@@ -1394,7 +1394,7 @@ codeunit 132207 "Library - Assembly"
                         exit(Resource."Base Unit of Measure");
                     ResourceUnitOfMeasure.SetRange("Resource No.", Resource."No.");
                     ResourceUnitOfMeasure.SetFilter(Code, '<>%1', Resource."Base Unit of Measure");
-                    if ResourceUnitOfMeasure.FindFirst then
+                    if ResourceUnitOfMeasure.FindFirst() then
                         exit(ResourceUnitOfMeasure.Code);
                 end
         end;
@@ -1416,7 +1416,7 @@ codeunit 132207 "Library - Assembly"
         DirectCostAmount := 0;
         OutputNotAdjAmount := 0;
 
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 case ValueEntry."Item Ledger Entry Type" of
                     ValueEntry."Item Ledger Entry Type"::" ":
@@ -1445,7 +1445,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Item);
         ItemFilter := AssemblyHeader."Item No.";
         i := 1;
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 ItemNo[i] := AssemblyLine."No.";
                 ItemFilter += '|' + ItemNo[i];
@@ -1455,7 +1455,7 @@ codeunit 132207 "Library - Assembly"
 
         i := 1;
         AssemblyLine.SetRange(Type, AssemblyLine.Type::Resource);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 ResourceNo[i] := AssemblyLine."No.";
                 i += 1;
@@ -1481,7 +1481,7 @@ codeunit 132207 "Library - Assembly"
         if PostedToGL then
             ValueEntry.SetFilter("Cost Posted to G/L", '<>%1', 0);
         Amount := 0;
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 Amount += ValueEntry."Cost Amount (Actual)";
             until ValueEntry.Next = 0;
@@ -1501,7 +1501,7 @@ codeunit 132207 "Library - Assembly"
         BOMComponent: Record "BOM Component";
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
-        if BOMComponent.FindSet then
+        if BOMComponent.FindSet() then
             repeat
                 case BOMComponent.Type of
                     BOMComponent.Type::Item:
@@ -1547,7 +1547,7 @@ codeunit 132207 "Library - Assembly"
     begin
         AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
         AssemblyLine.SetRange("Document No.", AssemblyHeaderNo);
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 case AssemblyLine.Type of
                     AssemblyLine.Type::Item:
@@ -1633,7 +1633,7 @@ codeunit 132207 "Library - Assembly"
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 AssemblyLine.Validate("Quantity to Consume", AssemblyLine.Quantity * CompQtyFactor / 100);
                 AssemblyLine.Validate(Description,
@@ -1678,7 +1678,7 @@ codeunit 132207 "Library - Assembly"
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalLine."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalLine."Journal Batch Name");
         ItemJournalLine.SetRange("Item No.", Item."No.");
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", OldUnitCost + LibraryRandom.RandInt(50));
         ItemJournalLine.Modify(true);
     end;
@@ -1899,7 +1899,7 @@ codeunit 132207 "Library - Assembly"
         AssemblySetup.Modify(true);
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Option; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
     begin
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := AutomaticCostPosting;
@@ -1944,7 +1944,7 @@ codeunit 132207 "Library - Assembly"
     begin
         LibraryCosting.AdjustCostItemEntries('', '');
         ItemLedgerEntry.SetRange(Open, true);
-        if ItemLedgerEntry.FindFirst then
+        if ItemLedgerEntry.FindFirst() then
             ItemLedgerEntry.Delete();
 
         CloseInventoryPeriod.SetReOpen(ReOpen);
@@ -1961,7 +1961,7 @@ codeunit 132207 "Library - Assembly"
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
         StockkeepingUnit.SetRange("Item No.", Item."No.");
-        if StockkeepingUnit.FindSet then
+        if StockkeepingUnit.FindSet() then
             repeat
                 if Item."Costing Method" = Item."Costing Method"::Standard then
                     StockkeepingUnit.Validate("Standard Cost", Item."Standard Cost" + LibraryRandom.RandDec(10, 2))
@@ -2059,7 +2059,7 @@ codeunit 132207 "Library - Assembly"
             DimensionSetEntry.SetRange("Dimension Value Code", DefaultDimension."Dimension Value Code");
             Assert.AreEqual(
               1, DimensionSetEntry.Count, 'Wrong no. of dimension set entries for dimension ' + Format(DefaultDimension."Dimension Code"));
-            DimensionSetEntry.FindFirst;
+            DimensionSetEntry.FindFirst();
         until DefaultDimension.Next = 0;
     end;
 
@@ -2103,14 +2103,14 @@ codeunit 132207 "Library - Assembly"
             ItemLedgerEntry.SetRange(Open, true);
         end;
         Assert.AreEqual(1, ItemLedgerEntry.Count, 'Wrong no. of output entries for item ' + AssemblyHeader."Item No.");
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         VerifyApplicationEntry(ItemLedgerEntry);
 
         // Consumption entries.
         // Find posted assembly lines.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
 
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 Clear(ItemLedgerEntry);
                 ItemLedgerEntry.SetRange("Item No.", TempAssemblyLine."No.");
@@ -2128,7 +2128,7 @@ codeunit 132207 "Library - Assembly"
                 ItemLedgerEntry.SetRange("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
                 ItemLedgerEntry.SetRange("Assemble to Order", false);
                 Assert.AreEqual(1, ItemLedgerEntry.Count, 'Wrong no. of consumpt. ILEs for item ' + TempAssemblyLine."No.");
-                ItemLedgerEntry.FindFirst;
+                ItemLedgerEntry.FindFirst();
                 VerifyApplicationEntry(ItemLedgerEntry);
             until TempAssemblyLine.Next = 0;
     end;
@@ -2177,14 +2177,14 @@ codeunit 132207 "Library - Assembly"
         Assert.AreEqual(1, ItemLedgerEntry.Count, 'Wrong no. of output entries for item ' + TempPostedAssemblyHeader."Item No.");
 
         // Verify application entries
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         VerifyApplicationEntryUndo(ItemLedgerEntry);
 
         // Consumption entries.
         // Find posted assembly lines.
         TempPostedAssemblyLine.SetRange(Type, TempPostedAssemblyLine.Type::Item);
 
-        if TempPostedAssemblyLine.FindSet then
+        if TempPostedAssemblyLine.FindSet() then
             repeat
                 Clear(ItemLedgerEntry);
                 ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Assembly);
@@ -2210,7 +2210,7 @@ codeunit 132207 "Library - Assembly"
                 ItemLedgerEntry.SetRange("Order Line No.", TempPostedAssemblyLine."Line No.");
                 ItemLedgerEntry.SetRange("Dimension Set ID", TempPostedAssemblyLine."Dimension Set ID");
                 Assert.AreEqual(1, ItemLedgerEntry.Count, 'Wrong no. of consumpt. ILEs for item ' + TempPostedAssemblyLine."No.");
-                ItemLedgerEntry.FindFirst;
+                ItemLedgerEntry.FindFirst();
                 VerifyApplicationEntryUndo(ItemLedgerEntry);
             until TempPostedAssemblyLine.Next = 0;
     end;
@@ -2244,7 +2244,7 @@ codeunit 132207 "Library - Assembly"
         ItemLedgerEntry.SetRange("Remaining Quantity", 0);
         ItemLedgerEntry.SetRange(Open, false);
         Assert.AreEqual(NoOfLines, ItemLedgerEntry.Count, 'Wrong no. of output entries for item ' + AssemblyHeader."Item No.");
-        if ItemLedgerEntry.FindSet then
+        if ItemLedgerEntry.FindSet() then
             repeat
                 VerifyILESale(SalesLine, AssembledQty, ItemLedgerEntry."Entry No.", true, Invoiced);
             until ItemLedgerEntry.Next = 0;
@@ -2303,7 +2303,7 @@ codeunit 132207 "Library - Assembly"
 
         // Check item components SKU cost.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 GetCostInformation(UnitCost, Overhead, IndirectCost, "BOM Component Type"::Item, TempAssemblyLine."No.",
                   TempAssemblyLine."Variant Code", TempAssemblyLine."Location Code");
@@ -2345,14 +2345,14 @@ codeunit 132207 "Library - Assembly"
 
         ValueEntry.SetRange(Adjustment, false);
         Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of output value entries for item' + AssemblyHeader."Item No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
             LibraryERM.GetAmountRoundingPrecision),
           ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for header.');
 
         // Consumption value entries for items.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 ValueEntry.SetRange("Item No.", TempAssemblyLine."No.");
                 ValueEntry.SetRange("Variant Code", TempAssemblyLine."Variant Code");
@@ -2366,7 +2366,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.SetRange("Order Line No.", TempAssemblyLine."Line No.");
                 ValueEntry.SetRange("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
                 Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of consumpt. value entries for item' + TempAssemblyLine."No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(
                   TempAssemblyLine."Cost Amount" * Round(TempAssemblyLine."Quantity to Consume" / TempAssemblyLine.Quantity),
                   -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
@@ -2375,7 +2375,7 @@ codeunit 132207 "Library - Assembly"
 
         // Consumption value entries for resources.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Resource);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 ValueEntry.SetRange("Item No.", '');
                 ValueEntry.SetRange("Variant Code", TempAssemblyLine."Variant Code");
@@ -2391,7 +2391,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.SetRange(Type, ValueEntry.Type::Resource);
                 ValueEntry.SetRange("No.", TempAssemblyLine."No.");
                 Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of res. consumpt. value entries for res. ' + TempAssemblyLine."No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, ValueEntry."Cost Amount (Actual)",
                   LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
@@ -2427,7 +2427,7 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange(Adjustment, false);
 
         Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of sales value entries for item' + AssemblyHeader."Item No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
 
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
             LibraryERM.GetAmountRoundingPrecision),
@@ -2462,14 +2462,14 @@ codeunit 132207 "Library - Assembly"
 
         ValueEntry.SetRange(Adjustment, false);
         Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of output value entries for item' + AssemblyHeader."Item No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         Assert.AreNearlyEqual(Round(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity,
             LibraryERM.GetAmountRoundingPrecision),
           ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for header.');
 
         // Consumption value entries for items.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Item);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 ValueEntry.SetRange("Item No.", TempAssemblyLine."No.");
                 ValueEntry.SetRange("Variant Code", TempAssemblyLine."Variant Code");
@@ -2483,7 +2483,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.SetRange("Order Line No.", TempAssemblyLine."Line No.");
                 ValueEntry.SetRange("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
                 Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of consumpt. value entries for item' + TempAssemblyLine."No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(Round(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                     TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision),
                   -ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
@@ -2492,7 +2492,7 @@ codeunit 132207 "Library - Assembly"
 
         // Consumption value entries for resources.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Resource);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 ValueEntry.SetRange("Item No.", '');
                 ValueEntry.SetRange("Variant Code", TempAssemblyLine."Variant Code");
@@ -2508,7 +2508,7 @@ codeunit 132207 "Library - Assembly"
                 ValueEntry.SetRange(Type, ValueEntry.Type::Resource);
                 ValueEntry.SetRange("No.", TempAssemblyLine."No.");
                 Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of res. consumpt. value entries for res. ' + TempAssemblyLine."No.");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, ValueEntry."Cost Amount (Actual)",
                   LibraryERM.GetAmountRoundingPrecision, 'Wrong value entry cost amount for res. ' + TempAssemblyLine."No.");
@@ -2547,7 +2547,7 @@ codeunit 132207 "Library - Assembly"
 
         // Usage entries.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Resource);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 ResLedgerEntry.SetRange("Resource No.", TempAssemblyLine."No.");
                 ResLedgerEntry.SetRange(Quantity, TempAssemblyLine."Quantity to Consume");
@@ -2559,7 +2559,7 @@ codeunit 132207 "Library - Assembly"
                 end;
                 ResLedgerEntry.SetRange("Order Line No.", TempAssemblyLine."Line No.");
                 Assert.AreEqual(1, ResLedgerEntry.Count, 'Wrong no. of res ledger entries for res. ' + TempAssemblyLine."No.");
-                ResLedgerEntry.FindFirst;
+                ResLedgerEntry.FindFirst();
                 Assert.AreNearlyEqual(Round(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                     TempAssemblyLine.Quantity, LibraryERM.GetAmountRoundingPrecision), ResLedgerEntry."Total Cost",
                   LibraryERM.GetAmountRoundingPrecision, 'Wrong Res. Ledger Cost amount for res. ' + TempAssemblyLine."No.")
@@ -2595,7 +2595,7 @@ codeunit 132207 "Library - Assembly"
 
         // Usage entries.
         TempAssemblyLine.SetRange(Type, TempAssemblyLine.Type::Resource);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 CapacityLedgerEntry.SetRange("No.", TempAssemblyLine."No.");
                 CapacityLedgerEntry.SetRange(Description, TempAssemblyLine.Description);
@@ -2608,7 +2608,7 @@ codeunit 132207 "Library - Assembly"
                     CapacityLedgerEntry.SetRange("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
                 end;
                 Assert.AreEqual(1, CapacityLedgerEntry.Count, 'Wrong no. of capacity ledger entries for res. ' + TempAssemblyLine."No.");
-                CapacityLedgerEntry.FindFirst;
+                CapacityLedgerEntry.FindFirst();
                 CapacityLedgerEntry.CalcFields("Direct Cost");
                 Assert.AreNearlyEqual(TempAssemblyLine."Cost Amount" * TempAssemblyLine."Quantity to Consume" /
                   TempAssemblyLine.Quantity, CapacityLedgerEntry."Direct Cost",
@@ -2633,7 +2633,7 @@ codeunit 132207 "Library - Assembly"
 
         // Usage entries.
         TempPostedAssemblyLine.SetRange(Type, TempPostedAssemblyLine.Type::Resource);
-        if TempPostedAssemblyLine.FindSet then
+        if TempPostedAssemblyLine.FindSet() then
             repeat
                 CapacityLedgerEntry.SetRange("No.", TempPostedAssemblyLine."No.");
                 CapacityLedgerEntry.SetRange(Description, TempPostedAssemblyLine.Description);
@@ -2660,7 +2660,7 @@ codeunit 132207 "Library - Assembly"
 
         AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
         AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 VerifyLineComment(AssemblyHeader, AssemblyLine."Line No.");
             until AssemblyLine.Next = 0;
@@ -2676,7 +2676,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyCommentLine.SetRange("Document No.", AssemblyHeader."No.");
         AssemblyCommentLine.SetRange("Document Line No.", AssemblyLineNo);
         AssemblyCommentLine.SetRange(Comment, 'Order:' + AssemblyHeader."No." + ', Line:' + Format(AssemblyLineNo));
-        AssemblyCommentLine.FindFirst;
+        AssemblyCommentLine.FindFirst();
         Assert.AreEqual(1, AssemblyCommentLine.Count, 'Wrong no. of comment lines.');
     end;
 
@@ -2700,9 +2700,9 @@ codeunit 132207 "Library - Assembly"
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Assembly);
         ItemLedgerEntry.SetRange("Order No.", AssemblyHeader."No.");
         ItemLedgerEntry.SetRange("Posting Date", AssemblyHeader."Posting Date");
-        if ItemLedgerEntry.FindFirst then
+        if ItemLedgerEntry.FindFirst() then
             ILEMin := ItemLedgerEntry."Entry No.";
-        if ItemLedgerEntry.FindLast then
+        if ItemLedgerEntry.FindLast() then
             ILEMax := ItemLedgerEntry."Entry No.";
 
         ValueEntry.Reset();
@@ -2710,18 +2710,18 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange("Order No.", AssemblyHeader."No.");
         ValueEntry.SetRange("Posting Date", AssemblyHeader."Posting Date");
         ValueEntry.SetRange("Source Code", SourceCodeSetup.Assembly);
-        if ValueEntry.FindFirst then
+        if ValueEntry.FindFirst() then
             ValueEntryMin := ValueEntry."Entry No.";
-        if ValueEntry.FindLast then
+        if ValueEntry.FindLast() then
             ValueEntryMax := ValueEntry."Entry No.";
 
         CapacityLedgerEntry.Reset();
         CapacityLedgerEntry.SetRange("Order Type", CapacityLedgerEntry."Order Type"::Assembly);
         CapacityLedgerEntry.SetRange("Order No.", AssemblyHeader."No.");
         CapacityLedgerEntry.SetRange("Posting Date", AssemblyHeader."Posting Date");
-        if CapacityLedgerEntry.FindFirst then
+        if CapacityLedgerEntry.FindFirst() then
             CapEntryMin := CapacityLedgerEntry."Entry No.";
-        if CapacityLedgerEntry.FindLast then
+        if CapacityLedgerEntry.FindLast() then
             CapEntryMax := CapacityLedgerEntry."Entry No.";
 
         ItemRegister.Reset();
@@ -2732,7 +2732,7 @@ codeunit 132207 "Library - Assembly"
         ItemRegister.SetRange("From Capacity Entry No.", CapEntryMin);
         ItemRegister.SetRange("To Capacity Entry No.", CapEntryMax);
         ItemRegister.SetRange("Source Code", SourceCodeSetup.Assembly);
-        ItemRegister.FindFirst;
+        ItemRegister.FindFirst();
     end;
 
     [Normal]
@@ -2752,7 +2752,7 @@ codeunit 132207 "Library - Assembly"
                     ItemApplicationEntry.SetRange("Outbound Item Entry No.", 0);
                 end;
         end;
-        ItemApplicationEntry.FindFirst;
+        ItemApplicationEntry.FindFirst();
         Assert.AreEqual(1, ItemApplicationEntry.Count,
           'Wrong no. of application entries for ILE no ' + Format(ItemLedgerEntry."Entry No."));
     end;
@@ -2770,7 +2770,7 @@ codeunit 132207 "Library - Assembly"
                     ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange("Inbound Item Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange(Quantity, ItemLedgerEntry.Quantity);
-                    ItemApplicationEntry.FindFirst;
+                    ItemApplicationEntry.FindFirst();
                     Assert.AreEqual(
                       1, ItemApplicationEntry.Count, 'Wrong no. of application entries for ILE no ' + Format(ItemLedgerEntry."Entry No."));
                 end else begin
@@ -2778,7 +2778,7 @@ codeunit 132207 "Library - Assembly"
                     ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange(Quantity, ItemLedgerEntry.Quantity);
-                    ItemApplicationEntry.FindFirst;
+                    ItemApplicationEntry.FindFirst();
                     Assert.AreEqual(
                       1, ItemApplicationEntry.Count, 'Wrong no. of application entries for ILE no ' + Format(ItemLedgerEntry."Entry No."));
                 end;
@@ -2788,7 +2788,7 @@ codeunit 132207 "Library - Assembly"
                     ItemApplicationEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange("Outbound Item Entry No.", ItemLedgerEntry."Entry No.");
                     ItemApplicationEntry.SetRange(Quantity, ItemLedgerEntry.Quantity);
-                    ItemApplicationEntry.FindFirst;
+                    ItemApplicationEntry.FindFirst();
                     Assert.AreEqual(
                       1, ItemApplicationEntry.Count, 'Wrong no. of application entries for ILE no ' + Format(ItemLedgerEntry."Entry No."));
                 end else begin
@@ -2813,7 +2813,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyCommentLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         AssemblyCommentLine.SetRange("Document Line No.", PostedAssemblyLineNo);
         AssemblyCommentLine.SetRange(Comment, 'Order:' + PostedAssemblyHeader."Order No." + ', Line:' + Format(PostedAssemblyLineNo));
-        AssemblyCommentLine.FindFirst;
+        AssemblyCommentLine.FindFirst();
         Assert.AreEqual(1, AssemblyCommentLine.Count, 'Wrong no. of comment lines.');
     end;
 
@@ -2915,7 +2915,7 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         PostedAssemblyLine.SetRange("Order No.", PostedAssemblyHeader."Order No.");
         PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
-        if PostedAssemblyLine.FindFirst then
+        if PostedAssemblyLine.FindFirst() then
             GetPostingSetup(GeneralPostingSetup, InventoryPostingSetup, PostedAssemblyLine."Gen. Prod. Posting Group",
               PostedAssemblyLine."Inventory Posting Group", PostedAssemblyLine."Location Code");
 
@@ -2961,7 +2961,7 @@ codeunit 132207 "Library - Assembly"
         GLEntry.SetRange("G/L Account No.", AccountNo);
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.SetFilter(Amount, Sign + '%1', 0);
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 ActualAmount += GLEntry.Amount;
             until GLEntry.Next = 0;
@@ -2988,7 +2988,7 @@ codeunit 132207 "Library - Assembly"
         if NeedsAdjustment(AdjUnitCost, Item, PostedAssemblyLine, FinalAdjSource, UnitCost)
         then begin
             Assert.AreEqual(1, ValueEntry.Count, 'Different than 1 entry for comp. item no. ' + PostedAssemblyLine."No.");
-            ValueEntry.FindFirst;
+            ValueEntry.FindFirst();
             Assert.AreNearlyEqual(Abs(AdjUnitCost), Abs(ValueEntry."Cost per Unit"),
               LibraryERM.GetAmountRoundingPrecision, 'Wrong unit cost for adj.');
             // Currently system's absolute error for "Cost Amount (Actual)" depends on ValueEntry."Valued Quantity" and GLSetup."Unit-amount rounding precision"
@@ -3018,7 +3018,7 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
         PostedAssemblyHeader.SetRange("Item No.", AssemblyHeader."Item No.");
         PostedAssemblyHeader.SetRange("Variant Code", AssemblyHeader."Variant Code");
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
 
         PostedAssemblyLine.Reset();
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
@@ -3026,7 +3026,7 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Item);
         PostedAssemblyLine.SetFilter("No.", '<>%1', AssemblyHeader."Item No.");  // Skip validation for auto consumption.
 
-        if PostedAssemblyLine.FindSet then
+        if PostedAssemblyLine.FindSet() then
             repeat
                 VerifyLineAdjustmentEntry(PostedAssemblyLine, FinalAdjSource);
             until PostedAssemblyLine.Next = 0;
@@ -3051,7 +3051,7 @@ codeunit 132207 "Library - Assembly"
         ValueEntry.SetRange(Adjustment, true);
 
         if AdjAmount <> 0 then begin
-            ValueEntry.FindFirst;
+            ValueEntry.FindFirst();
             Assert.AreEqual(1, ValueEntry.Count, 'Wrong no. of adjustment entries for header.');
             Assert.AreNearlyEqual(-AdjAmount, ValueEntry."Cost Amount (Actual)",
               LibraryERM.GetAmountRoundingPrecision, 'Wrong header adj. entry cost amount.');
@@ -3102,7 +3102,7 @@ codeunit 132207 "Library - Assembly"
           AssemblyHeader."Variant Code", AssemblyHeader."Location Code");
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeader."No.");
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
 
         // Output indirect cost.
         IndirectCostAmount :=
@@ -3122,16 +3122,16 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
         PostedAssemblyLine.SetRange("Order No.", PostedAssemblyHeader."Order No.");
         PostedAssemblyLine.SetRange(Type, PostedAssemblyLine.Type::Resource);
-        if PostedAssemblyLine.FindSet then
+        if PostedAssemblyLine.FindSet() then
             repeat
                 FindLineValueEntries(ValueEntry, PostedAssemblyLine, ValueEntry."Entry Type"::"Direct Cost",
                   ValueEntry."Item Ledger Entry Type"::" ");
-                ValueEntry.FindFirst;
+                ValueEntry.FindFirst();
                 Resource.Get(PostedAssemblyLine."No.");
                 IndirectCostAmount := ValueEntry."Cost Amount (Actual)" * Resource."Indirect Cost %" / 100;
                 FindLineValueEntries(ValueEntry, PostedAssemblyLine, ValueEntry."Entry Type"::"Indirect Cost",
                   ValueEntry."Item Ledger Entry Type"::" ");
-                if ValueEntry.FindFirst then
+                if ValueEntry.FindFirst() then
                     Assert.AreNearlyEqual(IndirectCostAmount, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision,
                       'Wrong component indirect cost');
             until PostedAssemblyLine.Next = 0;
@@ -3191,10 +3191,10 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyHeader.SetRange("Unit of Measure Code", AssemblyHeader."Unit of Measure Code");
         PostedAssemblyHeader.SetRange("Dimension Set ID", AssemblyHeader."Dimension Set ID");
         Assert.AreEqual(1, PostedAssemblyHeader.Count, 'Wrong no. of posted assembly order records!');
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
         Assert.AreNearlyEqual(AssemblyHeader."Cost Amount" * AssembledQty / AssemblyHeader.Quantity, PostedAssemblyHeader."Cost Amount",
           LibraryERM.GetAmountRoundingPrecision, 'Wrong posted cost amount.');
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
                 PostedAssemblyLine.Reset();
                 PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
@@ -3212,7 +3212,7 @@ codeunit 132207 "Library - Assembly"
                 PostedAssemblyLine.SetRange("Dimension Set ID", TempAssemblyLine."Dimension Set ID");
                 PostedAssemblyLine.SetRange("Unit Cost", TempAssemblyLine."Unit Cost");
                 Assert.AreEqual(1, PostedAssemblyLine.Count, 'Wrong no. of posted lines for ' + TempAssemblyLine."No.");
-                PostedAssemblyLine.FindFirst;
+                PostedAssemblyLine.FindFirst();
                 // Do not check cost amount for comment lines.
                 if TempAssemblyLine.Type <> TempAssemblyLine.Type::" " then
                     Assert.AreNearlyEqual(
@@ -3227,11 +3227,11 @@ codeunit 132207 "Library - Assembly"
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
         FindPostedAssemblyHeaders(PostedAssemblyHeader, AssemblyHeader);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
         VerifyPostedLineComment(PostedAssemblyHeader, 0);
 
         FindPostedAssemblyLines(PostedAssemblyLine, PostedAssemblyHeader);
-        if PostedAssemblyLine.FindSet then
+        if PostedAssemblyLine.FindSet() then
             repeat
                 VerifyPostedLineComment(PostedAssemblyHeader, PostedAssemblyLine."Line No.");
             until PostedAssemblyLine.Next = 0;
@@ -3311,7 +3311,7 @@ codeunit 132207 "Library - Assembly"
         BinContent.SetRange("Item No.", ItemNo);
         BinContent.SetRange("Variant Code", VariantCode);
         BinContent.SetRange("Unit of Measure Code", UOMCode);
-        if BinContent.FindFirst then begin
+        if BinContent.FindFirst() then begin
             BinContent.CalcFields(Quantity);
             BinContent.TestField(Quantity, Quantity);
         end else
@@ -3367,7 +3367,7 @@ codeunit 132207 "Library - Assembly"
         AssemblyLine.SetFilter("No.", '<>%1', '');
         AssemblyLine.SetFilter("Quantity per", '<>%1', 0);
         Proportion := AsmHeader."Remaining Quantity";
-        if AssemblyLine.FindFirst then
+        if AssemblyLine.FindFirst() then
             repeat
                 AssemblyLine.CalcAvailToAssemble(
                   AsmHeader,

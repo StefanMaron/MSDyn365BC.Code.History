@@ -39,7 +39,9 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,
                   tabledata "Line Fee Note on Report Hist." = rim,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Reminder Level" = r,
                   tabledata "Reminder Terms" = r,
                   tabledata "Reminder Terms Translation" = r,
@@ -56,9 +58,6 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = Ri,
-#if not CLEAN17
-                  tabledata "VAT Period" = r,
-#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

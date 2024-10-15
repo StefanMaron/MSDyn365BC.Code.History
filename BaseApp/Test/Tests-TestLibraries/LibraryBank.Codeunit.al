@@ -132,7 +132,7 @@ codeunit 143000 "Library - Bank"
     begin
         Commit();
         SuggestPayments.SetPaymentOrder(PmtOrdHdr);
-        SuggestPayments.RunModal;
+        SuggestPayments.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -142,7 +142,7 @@ codeunit 143000 "Library - Bank"
     begin
         Commit();
         CopyPaymentOrder.SetBankStmtHdr(BankStmtHdr);
-        CopyPaymentOrder.RunModal;
+        CopyPaymentOrder.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -211,7 +211,7 @@ codeunit 143000 "Library - Bank"
     [Scope('OnPrem')]
     procedure GenerateVariableSymbol(): Code[10]
     begin
-        exit(BankOperationsFunctions.CreateVariableSymbol(IncStr(LibraryUtility.GenerateGUID)));
+        exit(BankOperationsFunctions.CreateVariableSymbol(IncStr(LibraryUtility.GenerateGUID())));
     end;
 
     [Scope('OnPrem')]
@@ -223,7 +223,7 @@ codeunit 143000 "Library - Bank"
     [Scope('OnPrem')]
     procedure FindBaseCalendar(var BaseCalendar: Record "Base Calendar")
     begin
-        BaseCalendar.FindFirst;
+        BaseCalendar.FindFirst();
     end;
 
     [Scope('OnPrem')]

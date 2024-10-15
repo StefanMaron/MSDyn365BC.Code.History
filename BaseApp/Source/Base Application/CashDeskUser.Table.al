@@ -1,14 +1,9 @@
 table 11740 "Cash Desk User"
 {
     Caption = 'Cash Desk User';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    LookupPageID = "Cash Desk Users";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -16,9 +11,6 @@ table 11740 "Cash Desk User"
         {
             Caption = 'Cash Desk No.';
             NotBlank = true;
-#if not CLEAN17
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-#endif
         }
         field(2; "User ID"; Code[50])
         {
@@ -73,18 +65,4 @@ table 11740 "Cash Desk User"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
-    procedure GetUserName(UserName: Code[50]): Text[80]
-    var
-        User: Record User;
-    begin
-        User.SetCurrentKey("User Name");
-        User.SetRange("User Name", UserName);
-        if User.FindFirst then
-            exit(User."Full Name");
-    end;
-#endif
 }
-

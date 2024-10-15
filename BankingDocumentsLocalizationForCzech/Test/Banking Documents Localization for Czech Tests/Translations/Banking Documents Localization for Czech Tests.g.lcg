@@ -34,7 +34,7 @@
   </Item>
   <Item ItemId=";Codeunit 2382095419 - Method 3444467405 - NamedType 1601886604" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA['Account No.' %1 in 'Payment Order Line CZB: %2,%3 is malformed.]]></Val>
+      <Val><![CDATA[Account No. %1 in Payment Order Line CZB: %2,%3 is malformed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

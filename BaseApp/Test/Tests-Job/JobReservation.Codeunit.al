@@ -573,7 +573,7 @@ codeunit 136312 "Job Reservation"
         Initialize(true);
 
         LibraryInventory.CreateItem(Item);
-        Item.Validate("Description 2", LibraryUtility.GenerateGUID);
+        Item.Validate("Description 2", LibraryUtility.GenerateGUID());
         Item.Modify(true);
 
         // [GIVEN] Create Vendor
@@ -581,13 +581,13 @@ codeunit 136312 "Job Reservation"
 
         // [GIVEN] Create Requisition Line with filled "Description 2" field
         CreateRequisitionWorksheetline(RequisitionLine, Item."No.", '');
-        RequisitionLine.Validate("Description 2", LibraryUtility.GenerateGUID);
+        RequisitionLine.Validate("Description 2", LibraryUtility.GenerateGUID());
         RequisitionLine.Modify(true);
 
         // [GIVEN] Generate Item Reference with Description = "X"
         LibraryItemReference.CreateItemReference(
           ItemReference, Item."No.", "Item Reference Type"::Vendor, Vendor."No.");
-        ItemReference.Validate(Description, LibraryUtility.GenerateGUID);
+        ItemReference.Validate(Description, LibraryUtility.GenerateGUID());
         ItemReference.Modify(true);
 
         // [GIVEN] Open Requisition Worksheet Page with Requisition Line inside
@@ -1202,7 +1202,7 @@ codeunit 136312 "Job Reservation"
         ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
     end;
@@ -1353,7 +1353,7 @@ codeunit 136312 "Job Reservation"
         LibraryPlanning: Codeunit "Library - Planning";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
@@ -1370,7 +1370,7 @@ codeunit 136312 "Job Reservation"
         TransferHeader: Record "Transfer Header";
     begin
         Location.SetRange("Use As In-Transit", true);
-        Location.FindFirst;
+        Location.FindFirst();
         LibraryWarehouse.CreateTransferHeader(
           TransferHeader, PurchaseLine."Location Code", LibraryWarehouse.CreateLocation(Location2), Location.Code);
         LibraryWarehouse.CreateTransferLine(
@@ -1420,7 +1420,7 @@ codeunit 136312 "Job Reservation"
     begin
         ReqWkshTemplate.SetRange(Type, Type);
         ReqWkshTemplate.SetRange(Recurring, false);
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
     end;
 
     local procedure UpdateJobPlanningLine(var JobPlanningLine: Record "Job Planning Line"; Quantity: Decimal; PlanningDate: Date; Reserve: Enum "Reserve Method"; LocationCode: Code[10])
@@ -1477,7 +1477,7 @@ codeunit 136312 "Job Reservation"
     begin
         ReservationEntry.SetRange("Source Type", DATABASE::"Job Planning Line");
         ReservationEntry.SetRange("Source ID", JobPlanningLine."Job No.");
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField("Item No.", JobPlanningLine."No.");
         ReservationEntry.TestField("Quantity (Base)", -Quantity);
     end;

@@ -151,7 +151,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             SalesAdvanceLetterHeader.SetFilter("Amount Invoiced", '<>0')
         else
             SalesAdvanceLetterHeader.SetFilter("Amount Including VAT", '<>0');
-        if SalesAdvanceLetterHeader.FindSet then
+        if SalesAdvanceLetterHeader.FindSet() then
             repeat
                 TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
                 TempSalesAdvanceLetterHeader."Semifinished Linked Amount" := 0;
@@ -163,7 +163,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     SalesAdvanceLetterLine.SetFilter("Amount Invoiced", '<>0')
                 else
                     SalesAdvanceLetterLine.SetFilter("Amount Including VAT", '<>0');
-                if SalesAdvanceLetterLine.FindSet then
+                if SalesAdvanceLetterLine.FindSet() then
                     repeat
                         TempSalesAdvanceLetterLine := SalesAdvanceLetterLine;
                         TempSalesAdvanceLetterLine."Semifinished Linked Amount" := 0;
@@ -178,7 +178,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
         AdvanceLetterLineRelation.SetRange("Document Type", TempSalesHeader."Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", TempSalesHeader."No.");
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 if TempSalesLine.Get(AdvanceLetterLineRelation."Document Type",
                      AdvanceLetterLineRelation."Document No.",
@@ -218,7 +218,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             PurchAdvanceLetterHeader.SetFilter("Amount Invoiced", '<>0')
         else
             PurchAdvanceLetterHeader.SetFilter("Amount Including VAT", '<>0');
-        if PurchAdvanceLetterHeader.FindSet then
+        if PurchAdvanceLetterHeader.FindSet() then
             repeat
                 TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
                 TempPurchAdvanceLetterHeader."Semifinished Linked Amount" := 0;
@@ -230,7 +230,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     PurchAdvanceLetterLine.SetFilter("Amount Invoiced", '<>0')
                 else
                     PurchAdvanceLetterLine.SetFilter("Amount Including VAT", '<>0');
-                if PurchAdvanceLetterLine.FindSet then
+                if PurchAdvanceLetterLine.FindSet() then
                     repeat
                         TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
                         TempPurchAdvanceLetterLine."Semifinished Linked Amount" := 0;
@@ -245,7 +245,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Purchase);
         AdvanceLetterLineRelation.SetRange("Document Type", TempPurchHeader."Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", TempPurchHeader."No.");
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 if TempPurchLine.Get(AdvanceLetterLineRelation."Document Type",
                      AdvanceLetterLineRelation."Document No.",
@@ -279,7 +279,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         AdvanceLetterLineRelation.SetRange(Type, Type);
         AdvanceLetterLineRelation.SetRange("Document No.", DocNo);
         AdvanceLetterLineRelation.SetRange("Document Type", DocType);
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 TempAdvanceLetterLineRelation := AdvanceLetterLineRelation;
                 TempAdvanceLetterLineRelation.Insert();
@@ -405,7 +405,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     begin
         TempAdvLetterLineRelBuf.Reset();
         if Type = Type::Sale then begin
-            if TempSalesLine.FindSet then
+            if TempSalesLine.FindSet() then
                 repeat
                     if TempSalesLine.Quantity <> TempSalesLine."Quantity Invoiced" then begin
                         TempSalesLine.CalcFields("Adv.Letter Linked Ded. Amount");
@@ -415,7 +415,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         InvAmount := 0;
                         Amount2 := 0;
                         TempAdvLetterLineRelBuf.SetRange("Doc Line No.", TempSalesLine."Line No.");
-                        if TempAdvLetterLineRelBuf.FindSet then
+                        if TempAdvLetterLineRelBuf.FindSet() then
                             repeat
                                 InvAmount += TempAdvLetterLineRelBuf."Invoiced Amount";
                                 Amount2 += TempAdvLetterLineRelBuf.Amount;
@@ -453,7 +453,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     end;
                 until TempSalesLine.Next() = 0;
         end else begin
-            if TempPurchLine.FindSet then
+            if TempPurchLine.FindSet() then
                 repeat
                     if TempPurchLine.Quantity <> TempPurchLine."Quantity Invoiced" then begin
                         TempPurchLine.CalcFields("Adv.Letter Linked Ded. Amount");
@@ -463,7 +463,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         InvAmount := 0;
                         Amount2 := 0;
                         TempAdvLetterLineRelBuf.SetRange("Doc Line No.", TempPurchLine."Line No.");
-                        if TempAdvLetterLineRelBuf.FindSet then
+                        if TempAdvLetterLineRelBuf.FindSet() then
                             repeat
                                 InvAmount += TempAdvLetterLineRelBuf."Invoiced Amount";
                                 Amount2 += TempAdvLetterLineRelBuf.Amount;
@@ -508,12 +508,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     procedure GetSalesLetters(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
         TempAdvLetterLineRelBuf.Reset();
-        if TempSalesAdvanceLetterHeader.FindSet then
+        if TempSalesAdvanceLetterHeader.FindSet() then
             repeat
                 SalesAdvanceLetterHeader := TempSalesAdvanceLetterHeader;
                 SalesAdvanceLetterHeader.Insert();
             until TempSalesAdvanceLetterHeader.Next() = 0;
-        if TempSalesAdvanceLetterLine.FindSet then
+        if TempSalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine := TempSalesAdvanceLetterLine;
                 SalesAdvanceLetterLine.Insert();
@@ -524,12 +524,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     procedure GetPurchLetters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
         TempAdvLetterLineRelBuf.Reset();
-        if TempPurchAdvanceLetterHeader.FindSet then
+        if TempPurchAdvanceLetterHeader.FindSet() then
             repeat
                 PurchAdvanceLetterHeader := TempPurchAdvanceLetterHeader;
                 PurchAdvanceLetterHeader.Insert();
             until TempPurchAdvanceLetterHeader.Next() = 0;
-        if TempPurchAdvanceLetterLine.FindSet then
+        if TempPurchAdvanceLetterLine.FindSet() then
             repeat
                 PurchAdvanceLetterLine := TempPurchAdvanceLetterLine;
                 PurchAdvanceLetterLine.Insert();
@@ -723,7 +723,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     procedure ChangeLineSelection(LineNo: Integer; IsSelect: Boolean)
     begin
         TempAdvLetterLineRelBuf.SetRange("Doc Line No.", LineNo);
-        if TempAdvLetterLineRelBuf.FindSet then
+        if TempAdvLetterLineRelBuf.FindSet() then
             repeat
                 if TempAdvLetterLineRelBuf.Select <> IsSelect then begin
                     TempAdvLetterLineRelBuf.Select := IsSelect;
@@ -743,12 +743,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if LetterDocNo <> '' then
                         TempSalesAdvanceLetterHeader.SetRange("No.", LetterDocNo);
                     if Init then
-                        if TempSalesAdvanceLetterHeader.FindSet then
+                        if TempSalesAdvanceLetterHeader.FindSet() then
                             repeat
                                 TempSalesAdvanceLetterHeader."Semifinished Linked Amount" := 0;
                                 TempSalesAdvanceLetterHeader.Modify();
                                 TempSalesAdvanceLetterLine.SetRange("Letter No.", TempSalesAdvanceLetterHeader."No.");
-                                if TempSalesAdvanceLetterLine.FindSet then
+                                if TempSalesAdvanceLetterLine.FindSet() then
                                     repeat
                                         TempSalesAdvanceLetterLine."Semifinished Linked Amount" := 0;
                                         TempSalesAdvanceLetterLine.Modify();
@@ -758,7 +758,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf.SetFilter("Letter No.", '<>''''');
                     if LetterDocNo <> '' then
                         TempAdvLetterLineRelBuf.SetRange("Letter No.", LetterDocNo);
-                    if TempAdvLetterLineRelBuf.FindSet then
+                    if TempAdvLetterLineRelBuf.FindSet() then
                         repeat
                             if TempAdvLetterLineRelBuf."Letter No." <> TempSalesAdvanceLetterHeader."No." then
                                 TempSalesAdvanceLetterHeader.Get(TempAdvLetterLineRelBuf."Letter No.");
@@ -780,12 +780,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if LetterDocNo <> '' then
                         TempPurchAdvanceLetterHeader.SetRange("No.", LetterDocNo);
                     if Init then
-                        if TempPurchAdvanceLetterHeader.FindSet then
+                        if TempPurchAdvanceLetterHeader.FindSet() then
                             repeat
                                 TempPurchAdvanceLetterHeader."Semifinished Linked Amount" := 0;
                                 TempPurchAdvanceLetterHeader.Modify();
                                 TempPurchAdvanceLetterLine.SetRange("Letter No.", TempPurchAdvanceLetterHeader."No.");
-                                if TempPurchAdvanceLetterLine.FindSet then
+                                if TempPurchAdvanceLetterLine.FindSet() then
                                     repeat
                                         TempPurchAdvanceLetterLine."Semifinished Linked Amount" := 0;
                                         TempPurchAdvanceLetterLine.Modify();
@@ -795,7 +795,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf.SetFilter("Letter No.", '<>''''');
                     if LetterDocNo <> '' then
                         TempAdvLetterLineRelBuf.SetRange("Letter No.", LetterDocNo);
-                    if TempAdvLetterLineRelBuf.FindSet then
+                    if TempAdvLetterLineRelBuf.FindSet() then
                         repeat
                             if TempAdvLetterLineRelBuf."Letter No." <> TempPurchAdvanceLetterHeader."No." then
                                 TempPurchAdvanceLetterHeader.Get(TempAdvLetterLineRelBuf."Letter No.");
@@ -822,7 +822,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         ldeAmount: Decimal;
         ldeInvAmount: Decimal;
     begin
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine.SetFilter("Doc. No. Filter", '<%1|>%1', DocNo);
                 SalesAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount",
@@ -859,12 +859,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         Amount2: Decimal;
         InvAmount: Decimal;
     begin
-        if SalesAdvanceLetterHeader.FindSet then
+        if SalesAdvanceLetterHeader.FindSet() then
             repeat
                 TempSalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
                 TempSalesAdvanceLetterLine.SetFilter("Doc. No. Filter", '<%1|>%1', DocNo);
                 TempSalesAdvanceLetterLine.SetFilter(Status, '<%1', TempSalesAdvanceLetterLine.Status::Closed);
-                if TempSalesAdvanceLetterLine.FindSet then
+                if TempSalesAdvanceLetterLine.FindSet() then
                     repeat
                         TempSalesAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount",
                           "Document Linked Ded. Amount");
@@ -901,7 +901,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         InvAmount: Decimal;
         Amount2: Decimal;
     begin
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 PurchAdvanceLetterLine.SetFilter("Doc. No. Filter", '<%1|>%1', DocNo);
                 PurchAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount",
@@ -938,12 +938,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         InvAmount: Decimal;
         Amount2: Decimal;
     begin
-        if PurchAdvanceLetterHeader.FindSet then
+        if PurchAdvanceLetterHeader.FindSet() then
             repeat
                 TempPurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
                 TempPurchAdvanceLetterLine.SetFilter("Doc. No. Filter", '<%1|>%1', DocNo);
                 TempPurchAdvanceLetterLine.SetFilter(Status, '<%1', TempPurchAdvanceLetterLine.Status::Closed);
-                if TempPurchAdvanceLetterLine.FindSet then
+                if TempPurchAdvanceLetterLine.FindSet() then
                     repeat
                         TempPurchAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount",
                           "Document Linked Ded. Amount");
@@ -983,10 +983,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         // Fill buffer from doc. lines
         TempAdvLetterLineRelBuf.Reset();
         TempAdvLetterLineRelBuf.SetRange(Select, true);
-        if not TempAdvLetterLineRelBuf.FindFirst then
+        if not TempAdvLetterLineRelBuf.FindFirst() then
             TempAdvLetterLineRelBuf.SetRange(Select);
         TempAdvLetterLineRelBuf.SetRange("Letter No.", '');
-        if TempAdvLetterLineRelBuf.FindSet then
+        if TempAdvLetterLineRelBuf.FindSet() then
             repeat
                 TempAdvanceLinkBufferEntryDoc.Init();
                 TempAdvanceLinkBufferEntryDoc."VAT Bus. Posting Group" := TempAdvLetterLineRelBuf."Doc. Line VAT Bus. Post. Gr.";
@@ -997,19 +997,19 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                 TempAdvanceLinkBufferEntryDoc.Insert();
             until TempAdvLetterLineRelBuf.Next() = 0;
 
-        if not AdvanceLinkBufferEntry.FindFirst then
+        if not AdvanceLinkBufferEntry.FindFirst() then
             Error(Text001Err);
 
-        if not TempAdvanceLinkBufferEntryDoc.FindFirst then
+        if not TempAdvanceLinkBufferEntryDoc.FindFirst() then
             Error(Text002Err);
 
         // Link by VAT Groups
         if LinkByVATGroup then begin
-            if TempAdvanceLinkBufferEntryDoc.FindSet then
+            if TempAdvanceLinkBufferEntryDoc.FindSet() then
                 repeat
                     AdvanceLinkBufferEntry.SetRange("VAT Bus. Posting Group", TempAdvanceLinkBufferEntryDoc."VAT Bus. Posting Group");
                     AdvanceLinkBufferEntry.SetRange("VAT Prod. Posting Group", TempAdvanceLinkBufferEntryDoc."VAT Prod. Posting Group");
-                    if AdvanceLinkBufferEntry.FindSet then
+                    if AdvanceLinkBufferEntry.FindSet() then
                         repeat
                             ApplyAL(TempAdvanceLinkBufferEntryDoc, AdvanceLinkBufferEntry, TempAdvanceLinkBufferEntryApply);
                         until AdvanceLinkBufferEntry.Next() = 0;
@@ -1020,10 +1020,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
 
         // Link by VAT %
         if LinkByVATPerc then begin
-            if TempAdvanceLinkBufferEntryDoc.FindSet then
+            if TempAdvanceLinkBufferEntryDoc.FindSet() then
                 repeat
                     AdvanceLinkBufferEntry.SetRange("VAT %", TempAdvanceLinkBufferEntryDoc."VAT %");
-                    if AdvanceLinkBufferEntry.FindSet then
+                    if AdvanceLinkBufferEntry.FindSet() then
                         repeat
                             ApplyAL(TempAdvanceLinkBufferEntryDoc, AdvanceLinkBufferEntry, TempAdvanceLinkBufferEntryApply);
                         until AdvanceLinkBufferEntry.Next() = 0;
@@ -1033,9 +1033,9 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
 
         // Link All
         if LinkAll then begin
-            if TempAdvanceLinkBufferEntryDoc.FindSet then
+            if TempAdvanceLinkBufferEntryDoc.FindSet() then
                 repeat
-                    if AdvanceLinkBufferEntry.FindSet then
+                    if AdvanceLinkBufferEntry.FindSet() then
                         repeat
                             ApplyAL(TempAdvanceLinkBufferEntryDoc, AdvanceLinkBufferEntry, TempAdvanceLinkBufferEntryApply);
                         until AdvanceLinkBufferEntry.Next() = 0;
@@ -1043,7 +1043,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         end;
 
         // Write to Advance Linking Buffer
-        if TempAdvanceLinkBufferEntryApply.FindSet then
+        if TempAdvanceLinkBufferEntryApply.FindSet() then
             repeat
                 if TempAdvLetterLineRelBuf.Get(TempAdvanceLinkBufferEntryApply."Document Line No.",
                      TempAdvanceLinkBufferEntryApply."Advance Letter No.",
@@ -1164,7 +1164,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     begin
         TempAdvLetterLineRelBuf.Reset();
         TempAdvLetterLineRelBuf.SetFilter("Letter No.", '<>''''');
-        if TempAdvLetterLineRelBuf.FindSet then begin
+        if TempAdvLetterLineRelBuf.FindSet() then begin
             repeat
                 AdvLetterLineRelBuf := TempAdvLetterLineRelBuf;
                 UnlinkCurrentLine(TempAdvLetterLineRelBuf, false);
@@ -1200,7 +1200,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         AdvanceLetterLineRelation.SetRange(Type, Type);
         AdvanceLetterLineRelation.SetRange("Document Type", DocType);
         AdvanceLetterLineRelation.SetRange("Document No.", DocNo);
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 if not TempAdvanceLetterLineRelation.Get(AdvanceLetterLineRelation.Type,
                      AdvanceLetterLineRelation."Document Type",
@@ -1219,10 +1219,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         TempAdvanceLetterLineRelation.Delete();
                 end;
             until AdvanceLetterLineRelation.Next() = 0;
-        if TempAdvanceLetterLineRelation.FindFirst then
+        if TempAdvanceLetterLineRelation.FindFirst() then
             Error(Text007Err);
         TempAdvLetterLineRelBuf.Reset();
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 if not TempAdvLetterLineRelBuf.Get(AdvanceLetterLineRelation."Document Line No.",
                      AdvanceLetterLineRelation."Letter No.",
@@ -1234,7 +1234,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                 end;
             until AdvanceLetterLineRelation.Next() = 0;
         TempAdvLetterLineRelBuf.SetFilter("Letter No.", '<>''''');
-        if TempAdvLetterLineRelBuf.FindSet then
+        if TempAdvLetterLineRelBuf.FindSet() then
             repeat
                 if not AdvanceLetterLineRelation.Get(Type, DocType, DocNo, TempAdvLetterLineRelBuf."Doc Line No.",
                      TempAdvLetterLineRelBuf."Letter No.",

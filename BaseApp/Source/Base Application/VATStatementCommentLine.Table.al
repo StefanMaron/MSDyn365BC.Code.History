@@ -1,15 +1,9 @@
 table 11772 "VAT Statement Comment Line"
 {
     Caption = 'VAT Statement Comment Line';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "VAT Statement Comment List";
-    LookupPageID = "VAT Statement Comment List";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -50,22 +44,4 @@ table 11772 "VAT Statement Comment Line"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    trigger OnInsert()
-    begin
-        CheckAllowance;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure CheckAllowance()
-    var
-        VATStatementTemplate: Record "VAT Statement Template";
-    begin
-        VATStatementTemplate.Get("VAT Statement Template Name");
-        VATStatementTemplate.TestField("Allow Comments/Attachments");
-    end;
-#endif
 }
-

@@ -122,7 +122,7 @@ page 11719 "Payment Order List"
                         ApprovalEntries: Page "Approval Entries";
                     begin
                         ApprovalEntries.Setfilters(DATABASE::"Payment Order Header", 0, "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.Run();
                     end;
                 }
             }
@@ -145,7 +145,7 @@ page 11719 "Payment Order List"
                         SuggestPayments: Report "Suggest Payments";
                     begin
                         SuggestPayments.SetPaymentOrder(Rec);
-                        SuggestPayments.RunModal;
+                        SuggestPayments.RunModal();
                     end;
                 }
                 action(Import)

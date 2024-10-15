@@ -217,7 +217,7 @@ codeunit 143040 "Library - Advance"
     begin
         if PurchAdvLetterHeader."Order No." <> '' then begin
             PurchHeader.SetRange("No.", PurchAdvLetterHeader."Order No.");
-            PurchHeader.FindFirst;
+            PurchHeader.FindFirst();
             PurchPostAdvances.SetLetterNo(PurchAdvLetterHeader."No.");
             PurchPostAdvances.Invoice(PurchHeader);
         end else
@@ -237,7 +237,7 @@ codeunit 143040 "Library - Advance"
         PurchInvHeader.SetCurrentKey("Prepayment Order No.");
         PurchInvHeader.SetFilter("Reversed By Cr. Memo No.", '%1', '');
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         if PurchAdvLetterHeader."Order No." <> '' then begin
             if not PurchHeader.Get(PurchHeader."Document Type"::Invoice, PurchAdvLetterHeader."Order No.") then
@@ -283,7 +283,7 @@ codeunit 143040 "Library - Advance"
     begin
         if SalesAdvLetterHeader."Order No." <> '' then begin
             SalesHeader.SetRange("No.", SalesAdvLetterHeader."Order No.");
-            SalesHeader.FindFirst;
+            SalesHeader.FindFirst();
             SalesPostAdvances.SetLetterNo(SalesAdvLetterHeader."No.");
             SalesPostAdvances.Invoice(SalesHeader);
         end else
@@ -303,7 +303,7 @@ codeunit 143040 "Library - Advance"
         SalesInvHeader.SetCurrentKey("Prepayment Order No.");
         SalesInvHeader.SetFilter("Reversed By Cr. Memo No.", '%1', '');
         SalesInvHeader.SetRange("Letter No.", SalesAdvLetterHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
 
         if SalesAdvLetterHeader."Order No." <> '' then begin
             if not SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesAdvLetterHeader."Order No.") then

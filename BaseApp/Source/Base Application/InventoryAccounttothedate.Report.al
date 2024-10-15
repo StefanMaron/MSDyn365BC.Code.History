@@ -173,7 +173,7 @@ report 11760 "Inventory Account to the date"
                 if PrintOnlyOnePerPage then begin
                     GLEntryPage.Reset();
                     GLEntryPage.SetRange("G/L Account No.", "No.");
-                    if CurrReport.PrintOnlyIfDetail and GLEntryPage.FindFirst then
+                    if CurrReport.PrintOnlyIfDetail and GLEntryPage.FindFirst() then
                         PageGroupNo := PageGroupNo + 1;
                 end;
             end;

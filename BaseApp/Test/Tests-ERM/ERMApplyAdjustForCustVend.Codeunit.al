@@ -1,3 +1,5 @@
+#if not CLEAN20
+// Replaced by codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
 codeunit 134085 "ERM Apply Adjust For Cust/Vend"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
@@ -34,7 +36,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [General Ledger] [ACY] [Application] [Sales]
         // [SCENARIO 361412] "Additional-Currency Amount" is calculated in G/L Entries of the sales application transaction that includes Realized Loss.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "X" is set as Additional Currency in G/L Setup
         AddCurrencyCode := CreateCurrency;
@@ -73,7 +75,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [General Ledger] [ACY] [Application] [Purchase]
         // [SCENARIO 361412] "Additional-Currency Amount" is calculated in G/L Entries of the purchase application transaction that includes Realized Gain.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "X" is set as Additional Currency in G/L Setup
         AddCurrencyCode := CreateCurrency;
@@ -109,7 +111,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // Create Currency, General Journal Line for Invoice and Payment and Post, Modify Exchange Rate and Apply Posted Entry and Check
         // Realized Gain Entry on Detailed Customer Ledger Entry.
-        Initialize;
+        Initialize();
         ApplyAndAdjustExchRateForCust(LibraryRandom.RandDec(100, 2), DetailedCustLedgEntry."Entry Type"::"Realized Gain");
     end;
 
@@ -122,7 +124,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // Create Currency, General Journal Line for Invoice and Payment and Post, Modify Exchange Rate and Apply Posted Entry and Check
         // Realized Loss Entry on Detailed Customer Ledger Entry.
-        Initialize;
+        Initialize();
         ApplyAndAdjustExchRateForCust(-LibraryRandom.RandDec(100, 2), DetailedCustLedgEntry."Entry Type"::"Realized Loss");
     end;
 
@@ -135,7 +137,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // Create Currency, General Journal Line for Invoice and Payment and Post, Modify Exchange Rate and Apply Posted Entry and Check
         // Realized Loss Entry on Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         ApplyAndAdjustExchRateForVend(LibraryRandom.RandDec(100, 2), DetailedVendorLedgEntry."Entry Type"::"Realized Loss");
     end;
 
@@ -148,7 +150,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // Create Currency, General Journal Line for Invoice and Payment and Post, Modify Exchange Rate and Apply Posted Entry and Check
         // Realized Gain Entry on Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         ApplyAndAdjustExchRateForVend(-LibraryRandom.RandDec(100, 2), DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
     end;
 
@@ -163,7 +165,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         // Application using Customer Ledger Entry and Verify Applied Entry from Customer Ledger Entry.
 
         // Setup: Create Customer and Create and Post General Journal Line.
-        Initialize;
+        Initialize();
         ClearGeneralJournalLine(GenJournalBatch);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
@@ -190,7 +192,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         // Check Detailed Vendor Ledger Entry for Realized Loss Entry after Applying Credit Memo for Vendor.
-        Initialize;
+        Initialize();
         RealizedDetailedLedgerEntry(-LibraryRandom.RandDec(100, 2), DetailedVendorLedgEntry."Entry Type"::"Realized Loss");
     end;
 
@@ -202,7 +204,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         // Check Detailed Vendor Ledger Entry for Realized Gain Entry after Applying Credit Memo for Vendor.
-        Initialize;
+        Initialize();
         RealizedDetailedLedgerEntry(LibraryRandom.RandDec(100, 2), DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
     end;
 
@@ -214,7 +216,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         // Check Detailed Vendor Ledger Entry for Realized Loss Entry after Applying Credit Memo for Customer.
-        Initialize;
+        Initialize();
         RealizedCustDetailedLedger(LibraryRandom.RandDec(100, 2), DetailedCustLedgEntry."Entry Type"::"Realized Loss");
     end;
 
@@ -226,7 +228,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         // Check Detailed Customer Ledger Entry for Realized Gain Entry after Applying Credit Memo for Customer.
-        Initialize;
+        Initialize();
         RealizedCustDetailedLedger(-LibraryRandom.RandDec(100, 2), DetailedCustLedgEntry."Entry Type"::"Realized Gain");
     end;
 
@@ -242,7 +244,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 309945] Unrealized Loss of Purchase Invoice has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -274,7 +276,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 309945] Unrealized Loss of Vendor Payment has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -306,7 +308,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 309945] Unrealized Gain of Purchase Invoice has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -338,7 +340,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 309945] Unrealized Gain of Vendor Payment has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -370,7 +372,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 309945] Unrealized Loss of Sales Invoice has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -402,7 +404,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 309945] Unrealized Loss of Customer Payment has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -434,7 +436,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 309945] Unrealized Gain of Sales Invoice has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -466,7 +468,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 309945] Unrealized Gain of Customer Payment has positive value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -498,7 +500,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase] [Correction]
         // [SCENARIO 309945] Unrealized Loss of Purchase Invoice with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -530,7 +532,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase] [Correction]
         // [SCENARIO 309945] Unrealized Loss of Vendor Payment with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -562,7 +564,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase] [Correction]
         // [SCENARIO 309945] Unrealized Gain of Purchase Invoice with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -594,7 +596,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Purchase] [Correction]
         // [SCENARIO 309945] Unrealized Gain of Vendor Payment with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Purchase Invoice is posted with Amount LCY = 1000
@@ -626,7 +628,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales] [Correction]
         // [SCENARIO 309945] Unrealized Loss of Sales Invoice with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -658,7 +660,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales] [Correction]
         // [SCENARIO 309945] Unrealized Loss of Customer Payment with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -690,7 +692,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales] [Correction]
         // [SCENARIO 309945] Unrealized Gain of Sales Invoice with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 110 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -722,7 +724,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         // [FEATURE] [Sales] [Correction]
         // [SCENARIO 309945] Unrealized Gain of Customer Payment with correction has negative value after Exch. Rate adjustment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency with Exch.rate = 100 before workdate, Exch.rate = 90 on workdate
         // [GIVEN] FCY Sales Invoice is posted with Amount LCY = 1000
@@ -746,16 +748,17 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         IsInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure RealizedCustDetailedLedger(ExchangeRateAmount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1008,7 +1011,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         with CurrencyExchangeRate do begin
             SetRange("Currency Code", CurrencyCode);
-            FindLast;
+            FindLast();
             "Starting Date" := OnDate;
             Validate("Exchange Rate Amount", "Exchange Rate Amount" * Factor);
             Validate("Adjustment Exch. Rate Amount", "Exchange Rate Amount");
@@ -1047,7 +1050,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         exit(Amount * ExchangeRateAmount / CurrencyExchangeRate."Exchange Rate Amount");
     end;
 
@@ -1068,7 +1071,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     local procedure ModifyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRateAmt: Decimal)
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" + ExchRateAmt);
         CurrencyExchangeRate.Modify(true);
     end;
@@ -1078,7 +1081,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         CurrencyExchangeRate2: Record "Currency Exchange Rate";
     begin
         CurrencyExchangeRate2.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate2.FindFirst;
+        CurrencyExchangeRate2.FindFirst();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, StartingDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", CurrencyExchangeRate2."Exchange Rate Amount");
         CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate2."Adjustment Exch. Rate Amount");
@@ -1107,7 +1110,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         ExpectedACYAmount: Decimal;
     begin
         with GLEntry do begin
-            FindLast;
+            FindLast();
             SetRange("Transaction No.", "Transaction No.");
             FindSet();
             repeat
@@ -1127,7 +1130,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         CustLedgerEntry.SetRange("Closed by Entry No.", CustLedgerEntry."Entry No.");
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure VerifyDetailedLedgerEntryCust(DocumentNo: Code[20]; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1137,7 +1140,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Currency.Get(DetailedCustLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1152,7 +1155,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         Currency.Get(DetailedVendorLedgEntry."Currency Code");
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
@@ -1166,7 +1169,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField("Debit Amount (LCY)", DebitAmount);
         DetailedVendorLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;
@@ -1177,7 +1180,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     begin
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField("Debit Amount (LCY)", DebitAmount);
         DetailedCustLedgEntry.TestField("Credit Amount (LCY)", CreditAmount);
     end;
@@ -1203,4 +1206,4 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
-
+#endif

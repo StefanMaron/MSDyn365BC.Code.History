@@ -109,6 +109,7 @@ codeunit 7600 "Calendar Management"
     var
         ShippingAgentServices: Record "Shipping Agent Services";
     begin
+        OnBeforeSetSourceShippingAgentServices(ShippingAgentServices);
         RecRef.SetTable(ShippingAgentServices);
         CustomCalendarChange.SetSource(
             CustomCalendarChange."Source Type"::"Shipping Agent", ShippingAgentServices."Shipping Agent Code",
@@ -140,7 +141,7 @@ codeunit 7600 "Calendar Management"
         Date: Record Date;
     begin
         Date.SetRange("Period Type", Date."Period Type"::Date);
-        Date.FindLast;
+        Date.FindLast();
         exit(NormalDate(Date."Period End"));
     end;
 
@@ -152,8 +153,6 @@ codeunit 7600 "Calendar Management"
     end;
 
     procedure CheckDateStatus(var TargetCustomizedCalendarChange: Record "Customized Calendar Change")
-    var
-        BaseCalendarChange: Record "Base Calendar Change";
     begin
         CombineChanges(TargetCustomizedCalendarChange, TempCustChange);
 
@@ -164,7 +163,7 @@ codeunit 7600 "Calendar Management"
 
         TempCustChange.Reset();
         TempCustChange.SetCurrentKey("Entry No.");
-        if TempCustChange.FindSet then
+        if TempCustChange.FindSet() then
             repeat
                 if TempCustChange.IsDateCustomized(TargetCustomizedCalendarChange.Date) then begin
                     TargetCustomizedCalendarChange.Description := TempCustChange.Description;
@@ -201,7 +200,7 @@ codeunit 7600 "Calendar Management"
         CustomizedCalendarChange.SetRange("Source Code", NewCustomizedCalendarChange."Source Code");
         CustomizedCalendarChange.SetRange("Base Calendar Code", NewCustomizedCalendarChange."Base Calendar Code");
         CustomizedCalendarChange.SetRange("Additional Source Code", NewCustomizedCalendarChange."Additional Source Code");
-        if CustomizedCalendarChange.FindSet then
+        if CustomizedCalendarChange.FindSet() then
             repeat
                 EntryNo += 1;
                 TempCustomizedCalendarChange := CustomizedCalendarChange;
@@ -226,7 +225,7 @@ codeunit 7600 "Calendar Management"
 
         BaseCalendarChange.Reset();
         BaseCalendarChange.SetRange("Base Calendar Code", NewCustomizedCalendarChange."Base Calendar Code");
-        if BaseCalendarChange.FindSet then
+        if BaseCalendarChange.FindSet() then
             repeat
                 EntryNo += 1;
                 TempCustomizedCalendarChange.Init();
@@ -294,7 +293,7 @@ codeunit 7600 "Calendar Management"
     begin
         Customer.Reset();
         Customer.SetRange("Base Calendar Code", BaseCalendarCode);
-        if Customer.FindSet then
+        if Customer.FindSet() then
             repeat
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := Customer."Base Calendar Code";
@@ -314,7 +313,7 @@ codeunit 7600 "Calendar Management"
     begin
         Location.Reset();
         Location.SetRange("Base Calendar Code", BaseCalendarCode);
-        if Location.FindSet then
+        if Location.FindSet() then
             repeat
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := Location."Base Calendar Code";
@@ -350,7 +349,7 @@ codeunit 7600 "Calendar Management"
     begin
         ShippingAgentServices.Reset();
         ShippingAgentServices.SetRange("Base Calendar Code", BaseCalendarCode);
-        if ShippingAgentServices.FindSet then
+        if ShippingAgentServices.FindSet() then
             repeat
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := ShippingAgentServices."Base Calendar Code";
@@ -371,7 +370,7 @@ codeunit 7600 "Calendar Management"
     begin
         Vendor.Reset();
         Vendor.SetRange("Base Calendar Code", BaseCalendarCode);
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 WhereUsedBaseCalendar.Init();
                 WhereUsedBaseCalendar."Base Calendar Code" := Vendor."Base Calendar Code";
@@ -554,12 +553,12 @@ codeunit 7600 "Calendar Management"
     begin
         CustomizedCalendarChange.SetRange("Source Type", SourceType);
         CustomizedCalendarChange.SetRange("Source Code", xSourceCode);
-        if CustomizedCalendarChange.FindSet then
+        if CustomizedCalendarChange.FindSet() then
             repeat
                 TempCustomizedCalendarChange := CustomizedCalendarChange;
                 TempCustomizedCalendarChange.Insert();
             until CustomizedCalendarChange.Next() = 0;
-        if TempCustomizedCalendarChange.FindSet then
+        if TempCustomizedCalendarChange.FindSet() then
             repeat
                 Clear(CustomizedCalendarChange);
                 CustomizedCalendarChange := TempCustomizedCalendarChange;
@@ -576,12 +575,12 @@ codeunit 7600 "Calendar Management"
 
         CustomizedCalendarEntry.SetRange("Source Type", SourceType);
         CustomizedCalendarEntry.SetRange("Source Code", xSourceCode);
-        if CustomizedCalendarEntry.FindSet then
+        if CustomizedCalendarEntry.FindSet() then
             repeat
                 TempCustomizedCalendarEntry := CustomizedCalendarEntry;
                 TempCustomizedCalendarEntry.Insert();
             until CustomizedCalendarEntry.Next() = 0;
-        if TempCustomizedCalendarEntry.FindSet then
+        if TempCustomizedCalendarEntry.FindSet() then
             repeat
                 Clear(CustomizedCalendarEntry);
                 CustomizedCalendarEntry := TempCustomizedCalendarEntry;
@@ -595,12 +594,12 @@ codeunit 7600 "Calendar Management"
 
         WhereUsedBaseCalendar.SetRange("Source Type", SourceType);
         WhereUsedBaseCalendar.SetRange("Source Code", xSourceCode);
-        if WhereUsedBaseCalendar.FindSet then
+        if WhereUsedBaseCalendar.FindSet() then
             repeat
                 TempWhereUsedBaseCalendar := WhereUsedBaseCalendar;
                 TempWhereUsedBaseCalendar.Insert();
             until WhereUsedBaseCalendar.Next() = 0;
-        if TempWhereUsedBaseCalendar.FindSet then
+        if TempWhereUsedBaseCalendar.FindSet() then
             repeat
                 Clear(WhereUsedBaseCalendar);
                 WhereUsedBaseCalendar := TempWhereUsedBaseCalendar;
@@ -651,6 +650,11 @@ codeunit 7600 "Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcTimeSubtract(SubstractTime: Time; SubstractValue: Integer; var Result: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSourceShippingAgentServices(var ShippingAgentServices: Record "Shipping Agent Services")
     begin
     end;
 

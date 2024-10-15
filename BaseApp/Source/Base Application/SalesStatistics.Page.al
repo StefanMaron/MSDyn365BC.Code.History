@@ -667,7 +667,7 @@ page 160 "Sales Statistics"
 #if not CLEAN18
         VATAmountLines.SetCurrencyFactor("Currency Factor");
 #endif
-        VATAmountLines.RunModal;
+        VATAmountLines.RunModal();
         VATAmountLines.GetTempVATAmountLine(VATAmountLine);
         // NAVCZ
     end;
@@ -688,7 +688,7 @@ page 160 "Sales Statistics"
     begin
         // NAVCZ
         with VATAmountLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
@@ -728,7 +728,7 @@ page 160 "Sales Statistics"
         Clear(VATAmount);
         Clear(VATBaseAmount);
 
-        if VATAmountLine.FindSet then
+        if VATAmountLine.FindSet() then
             repeat
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";

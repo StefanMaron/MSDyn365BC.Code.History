@@ -55,7 +55,7 @@ page 46 "Sales Order Subform"
                 field("No."; "No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, resource, additional cost, or fixed asset, depending on the contents of the Type field.';
 
                     trigger OnValidate()
@@ -71,37 +71,11 @@ page 46 "Sales Order Subform"
                         CurrPage.Update();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        NoOnAfterValidate();
-                        UpdateEditableOnRow();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -112,6 +86,9 @@ page 46 "Sales Order Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+#if not CLEAN20
+                        OnCrossReferenceNoOnLookup(Rec);
+#endif                        
                         OnReferenceNoOnAfterLookup(Rec);
                     end;
 
@@ -167,7 +144,7 @@ page 46 "Sales Order Subform"
                 field("Purchasing Code"; "Purchasing Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which purchaser is assigned to the vendor.';
+                    ToolTip = 'Specifies the code for a special procurement method, such as drop shipment.';
                     Visible = false;
                 }
                 field(Nonstock; Nonstock)
@@ -191,7 +168,7 @@ page 46 "Sales Order Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
 
                     trigger OnValidate()
@@ -207,6 +184,51 @@ page 46 "Sales Order Subform"
                         DeltaUpdateTotals();
                         OnAfterValidateDescription(Rec, xRec);
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Drop Shipment"; "Drop Shipment")
                 {
@@ -265,8 +287,11 @@ page 46 "Sales Order Subform"
                     BlankZero = true;
                     Editable = NOT IsCommentLine;
                     Enabled = NOT IsCommentLine;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
+
+                    AboutTitle = 'How much is being ordered';
+                    AboutText = 'The quantity on a line specifies how much of an item a customer is ordering. This quantity determines whether the order qualifies for special prices or discounts.';
 
                     trigger OnValidate()
                     begin
@@ -337,7 +362,7 @@ page 46 "Sales Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the price for one unit on the sales line.';
 
                     trigger OnValidate()
@@ -394,7 +419,7 @@ page 46 "Sales Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the net amount, excluding any invoice discount amount, that must be paid for products on the line.';
 
                     trigger OnValidate()
@@ -476,6 +501,9 @@ page 46 "Sales Order Subform"
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
 
+                    AboutTitle = 'Partially shipping the order?';
+                    AboutText = 'If you want to ship only parts of the order, adjust the *Qty. to Ship* value to that quantity. By common default, the total quantity is shipped.';
+
                     trigger OnValidate()
                     begin
                         if "Qty. to Asm. to Order (Base)" <> 0 then begin
@@ -496,6 +524,9 @@ page 46 "Sales Order Subform"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
+
+                    AboutTitle = 'Invoicing more or less than you ship?';
+                    AboutText = 'Adjust the *Qty. to Invoice* to specify the quantity you want to invoice now. If that is more than you ship, use the prepayment functionality.';
                 }
                 field("Quantity Invoiced"; "Quantity Invoiced")
                 {
@@ -1227,7 +1258,7 @@ page 46 "Sales Order Subform"
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+I'; 
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1458,6 +1489,40 @@ page 46 "Sales Order Subform"
                     end;
                 }
             }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of sales lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all sales lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+            }
             group("Page")
             {
                 Caption = 'Page';
@@ -1477,9 +1542,13 @@ page 46 "Sales Order Subform"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel('Sales_Order_Line', CurrPage.ObjectId(false), StrSubstNo('Document_No eq ''%1''', Rec."Document No."));
+                        EditinExcel.EditPageInExcel(
+                            'Sales_Order_Line',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo('Document_No eq ''%1''', Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
                     end;
 
                 }
@@ -1552,41 +1621,24 @@ page 46 "Sales Order Subform"
         InitType();
         SetDefaultType();
 
-        // Default to Item for the first line and to previous line type for the others
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled() then
-            if xRec."Document No." = '' then
-                Type := Type::Item;
         Clear(ShortcutDimCode);
         UpdateTypeText();
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        Location: Record Location;
     begin
-        AddLoadFields(
-            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
-            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
-
-        if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty();
-
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
@@ -1594,16 +1646,18 @@ page 46 "Sales Order Subform"
         AmountWithDiscountAllowed: Decimal;
         Text001: Label 'You cannot use the Explode BOM function because a prepayment of the sales order has been invoiced.';
         LocationCodeMandatory: Boolean;
-        UnitofMeasureCodeIsChangeable: Boolean;
         LocationCodeVisible: Boolean;
         IsFoundation: Boolean;
         CurrPageIsEditable: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
         SuppressTotals: Boolean;
+        ExcelFileNameTxt: Label 'Sales Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1623,9 +1677,35 @@ page 46 "Sales Order Subform"
         [InDataSet]
         IsCommentLine: Boolean;
         IsBlankNumber: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif        
+        UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+        Location: Record Location;
+    begin
+        OnBeforeSetOpenPage();
+
+        AddLoadFields(
+            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
+            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
+
+        if Location.ReadPermission then
+            LocationCodeVisible := not Location.IsEmpty();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1906,6 +1986,11 @@ page 46 "Sales Order Subform"
         DocumentTotals.GetTotalSalesHeaderAndCurrency(Rec, TotalSalesHeader, Currency);
     end;
 
+    procedure ClearTotalSalesHeader();
+    begin
+        Clear(TotalSalesHeader);
+    end;
+
     procedure CalculateTotals()
     var
         IsHandled: Boolean;
@@ -1933,6 +2018,11 @@ page 46 "Sales Order Subform"
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.SalesDocTotalsNotUpToDate();
+    end;
+
     procedure RedistributeTotalsOnAfterValidate()
     var
         SalesHeader: Record "Sales Header";
@@ -1954,7 +2044,9 @@ page 46 "Sales Order Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable :=
+            CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
+            (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;
@@ -1996,14 +2088,16 @@ page 46 "Sales Order Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure SetDefaultType()
     var
@@ -2011,10 +2105,11 @@ page 46 "Sales Order Subform"
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)
@@ -2072,7 +2167,8 @@ page 46 "Sales Order Subform"
     begin
     end;
 
-#if not CLEAN17
+#if not CLEAN20
+    [Obsolete('Replaced by event OnReferenceNoOnAfterLookup()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
     begin
@@ -2116,6 +2212,16 @@ page 46 "Sales Order Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenSpecialPurchOrderForm(SalesOrderLine: Record "Sales Line"; var PageEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

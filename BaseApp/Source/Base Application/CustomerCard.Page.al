@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 21 "Customer Card"
 {
     Caption = 'Customer Card';
@@ -7,7 +8,7 @@ page 21 "Customer Card"
     SourceTable = Customer;
 
     AboutTitle = 'About customer details';
-    AboutText = 'With the Customer Card you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
+    AboutText = 'With the **Customer Card** you manage information about a customer and specify the terms of business, such as payment terms, prices and discounts. From here you can also drill down on past and ongoing sales activity.';
 
     layout
     {
@@ -71,6 +72,28 @@ page 21 "Customer Card"
                         OpenCustomerLedgerEntries(false);
                     end;
                 }
+                field(BalanceAsVendor; BalanceAsVendor)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Balance (LCY) As Vendor';
+                    Editable = false;
+                    Enabled = BalanceAsVendorEnabled;
+                    ToolTip = 'Specifies the amount that you owe this vendor. This is relevant when your vendor is also your customer. The amount is the result of netting their payable and receivable balances.';
+
+                    trigger OnDrillDown()
+                    var
+                        DtldVendLedgEntry: Record 380;
+                        VendLedgEntry: Record 25;
+                    begin
+                        if LinkedVendorNo = '' then
+                            exit;
+                        DtldVendLedgEntry.SetRange("Vendor No.", LinkedVendorNo);
+                        Rec.CopyFilter("Global Dimension 1 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 1");
+                        Rec.CopyFilter("Global Dimension 2 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 2");
+                        Rec.CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
+                        VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
+                    end;
+                }
                 field("Balance Due (LCY)"; "Balance Due (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -93,31 +116,16 @@ page 21 "Customer Card"
                     end;
                 }
 #if not CLEAN18
-                field(BalanceOfVendor; BalanceAsVend)
+                field(BalanceOfVendor; BalanceAsVendor)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Balance(LCY) As Vendor';
                     Editable = false;
-                    Enabled = BalanceOfVendEnable;
                     ToolTip = 'Specifies the vendor''s balance which is connected with certain customer';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.1';
                     Visible = false;
-
-                    trigger OnDrillDown()
-                    var
-                        DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
-                        VendLedgEntry: Record "Vendor Ledger Entry";
-                    begin
-                        // NAVCZ
-                        DtldVendLedgEntry.SetRange("Vendor No.", Vend."No.");
-                        CopyFilter("Global Dimension 1 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 1");
-                        CopyFilter("Global Dimension 2 Filter", DtldVendLedgEntry."Initial Entry Global Dim. 2");
-                        CopyFilter("Currency Filter", DtldVendLedgEntry."Currency Code");
-                        VendLedgEntry.DrillDownOnEntries(DtldVendLedgEntry);
-                        // NAVCZ
-                    end;
                 }
 #endif
 #if not CLEAN19
@@ -229,37 +237,6 @@ page 21 "Customer Card"
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of customer.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-                    begin
-                        // NAVCZ
-                        CurrPage.SaveRecord;
-                        RegistrationLogMgt.AssistEditCustomerRegNo(Rec);
-                        CurrPage.Update(false);
-                        // NAVCZ
-                    end;
-                }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Last Date Modified"; "Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
@@ -270,7 +247,7 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies that you can change customer name in the document, because the name is not used in search.';
+                    ToolTip = 'Specifies that you can change the customer name on open sales documents. The change applies only to the documents.';
                 }
             }
             group("Address & Contact")
@@ -400,8 +377,8 @@ page 21 "Customer Card"
             group(Invoicing)
             {
                 Caption = 'Invoicing';
-                AboutTitle = 'Manage the customer’s invoicing';
-                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer’s transactions are grouped and posted, based on type of trade or market.';
+                AboutTitle = 'Manage the customer''s invoicing';
+                AboutText = 'Specify tax settings and choose how invoicing takes place for the customer. Assign posting groups to control how the customer''s transactions are grouped and posted, based on type of trade or market.';
 
                 field("Bill-to Customer No."; "Bill-to Customer No.")
                 {
@@ -529,8 +506,8 @@ page 21 "Customer Card"
             group(Payments)
             {
                 Caption = 'Payments';
-                AboutTitle = 'Manage the customer’s payment';
-                AboutText = 'Specify the customer’s default payment terms and settings for how payments from the customer is processed.';
+                AboutTitle = 'Manage the customer''s payment';
+                AboutText = 'Specify the customer''s default payment terms and settings for how payments from the customer is processed.';
 
                 field("Prepayment %"; "Prepayment %")
                 {
@@ -597,6 +574,9 @@ page 21 "Customer Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date of last statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Block Payment Tolerance"; "Block Payment Tolerance")
                 {
@@ -878,7 +858,6 @@ page 21 "Customer Card"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = CONST(18),
                               "No." = FIELD("No.");
-                Visible = NOT IsOfficeAddin;
             }
             part(Details; "Office Customer Details")
             {
@@ -898,27 +877,6 @@ page 21 "Customer Card"
                 ApplicationArea = All;
                 SubPageLink = "No." = FIELD("No.");
                 Visible = CRMIsCoupledToRecord;
-            }
-            part(Control35; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control27; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Customer),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
             }
             part(SalesHistSelltoFactBox; "Sales Hist. Sell-to FactBox")
             {
@@ -1063,26 +1021,6 @@ page 21 "Customer Card"
                         ShowContact;
                     end;
                 }
-#if not CLEAN19
-                action("Cross Re&ferences")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '19.0';
-                    Promoted = true;
-                    PromotedCategory = Category9;
-                    RunObject = Page "Cross References";
-                    RunPageLink = "Cross-Reference Type" = CONST(Customer),
-                                  "Cross-Reference Type No." = FIELD("No.");
-                    RunPageView = SORTING("Cross-Reference Type", "Cross-Reference Type No.");
-                    ToolTip = 'Set up the customer''s own identification of items that you sell to the customer. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-
-#endif
                 action("Item References")
                 {
                     AccessByPermission = TableData "Item Reference" = R;
@@ -1140,7 +1078,7 @@ page 21 "Customer Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(CustomerReportSelections)
@@ -1387,7 +1325,6 @@ page 21 "Customer Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1538,7 +1475,7 @@ page 21 "Customer Card"
                     end;
                 }
 #endif
-#if not CLEAN17
+#if not CLEAN19
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1604,7 +1541,7 @@ page 21 "Customer Card"
                     begin
                         SalesPriceAndLineDiscounts.InitPage(false);
                         SalesPriceAndLineDiscounts.LoadCustomer(Rec);
-                        SalesPriceAndLineDiscounts.RunModal;
+                        SalesPriceAndLineDiscounts.RunModal();
                     end;
                 }
 #endif
@@ -2153,7 +2090,7 @@ page 21 "Customer Card"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetCustomerTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -2424,40 +2361,26 @@ page 21 "Customer Card"
                     CustomerLayoutStatement.EnqueueReport;
                 end;
             }
-#if not CLEAN17
-            action("Balance Reconciliation")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Reconciliation';
-                Image = Balance;
-                Promoted = true;
-                PromotedCategory = "Report";
-                ToolTip = 'Open the report for customer''s balance reconciliation.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                trigger OnAction()
-                begin
-                    RunReport(REPORT::"Customer - Bal. Reconciliation", "No.");
-                end;
-            }
-#endif
         }
     }
 
     trigger OnAfterGetCurrRecord()
+    begin
+        if GuiAllowed() then
+            OnAfterGetCurrRecordFunc();
+    end;
+
+    local procedure OnAfterGetCurrRecordFunc()
     var
         WorkflowStepInstance: Record "Workflow Step Instance";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
         if NewMode then
-            CreateCustomerFromTemplate
+            CreateCustomerFromTemplate()
         else
             StartBackgroundCalculations();
-        ActivateFields;
+        ActivateFields();
         SetCreditLimitStyle();
 
         if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
@@ -2480,19 +2403,6 @@ page 21 "Customer Card"
             else
                 OpenApprovalEntriesExistCurrUser := false;
         end;
-#if not CLEAN18
-
-        // NAVCZ
-        if Vend.Get(GetLinkedVendor) then begin
-            Vend.CalcFields("Balance (LCY)");
-            BalanceAsVend := Vend."Balance (LCY)";
-            BalanceOfVendEnable := true;
-        end else begin
-            BalanceAsVend := 0;
-            BalanceOfVendEnable := false;
-        end;
-        // NAVCZ
-#endif
     end;
 
     trigger OnInit()
@@ -2505,9 +2415,6 @@ page 21 "Customer Card"
         ContactEditable := true;
 
         OpenApprovalEntriesExistCurrUser := true;
-#if not CLEAN18
-        BalanceOfVendEnable := true; // NAVCZ
-#endif
 
         CaptionTxt := CurrPage.Caption;
         SetCaption(CaptionTxt);
@@ -2525,15 +2432,20 @@ page 21 "Customer Card"
     end;
 
     trigger OnOpenPage()
+    begin
+        if GuiAllowed() then
+            OnOpenPageFunc();
+        OnAfterOnOpenPage(Rec, xRec);
+    end;
+
+    local procedure OnOpenPageFunc()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
@@ -2551,7 +2463,6 @@ page 21 "Customer Card"
             WorkflowEventHandling.RunWorkflowOnCustomerChangedCode;
 
         SetWorkFlowEnabled();
-        OnAfterOnOpenPage(Rec, xRec);
     end;
 
     local procedure StartBackgroundCalculations()
@@ -2559,6 +2470,9 @@ page 21 "Customer Card"
         CustomerCardCalculations: Codeunit "Customer Card Calculations";
         Args: Dictionary of [Text, Text];
     begin
+        if Rec."No." = PrevCustNo then
+            exit;
+        PrevCustNo := Rec."No.";
         if (BackgroundTaskId <> 0) then
             CurrPage.CancelBackgroundTask(BackgroundTaskId);
 
@@ -2584,6 +2498,9 @@ page 21 "Customer Card"
         NoOutstandingInvoices := 0;
         NoOutstandingCrMemos := 0;
         OverdueBalance := 0;
+        LinkedVendorNo := '';
+        BalanceAsVendor := 0;
+        BalanceAsVendorEnabled := false;
 
         Args.Add(CustomerCardCalculations.GetCustomerNoLabel(), "No.");
         Args.Add(CustomerCardCalculations.GetFiltersLabel(), GetView());
@@ -2664,6 +2581,13 @@ page 21 "Customer Card"
             if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetOverdueBalanceLabel(), DictionaryValue) then
                 Evaluate(OverdueBalance, DictionaryValue);
 
+            if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetLinkedVendorNoLabel(), DictionaryValue) then
+                LinkedVendorNo := CopyStr(DictionaryValue, 1, MaxStrLen(LinkedVendorNo));
+            BalanceAsVendorEnabled := LinkedVendorNo <> '';
+            if BalanceAsVendorEnabled then
+                if TryGetDictionaryValueFromKey(Results, CustomerCardCalculations.GetBalanceAsVendorLabel(), DictionaryValue) then
+                    Evaluate(BalanceAsVendor, DictionaryValue);
+
             AttentionToPaidDay := DaysPastDueDate > 0;
             TotalMoneyOwed := "Balance (LCY)" + ExpectedMoneyOwed;
 
@@ -2672,22 +2596,14 @@ page 21 "Customer Card"
     end;
 
     var
-#if not CLEAN18
-        Vend: Record Vendor;
-#endif
         CalendarMgmt: Codeunit "Calendar Management";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
+        LinkedVendorNo: Code[20];
+        BalanceAsVendor: Decimal;
         StyleTxt: Text;
-        [InDataSet]
-        ContactEditable: Boolean;
-#if not CLEAN18
-        BalanceAsVend: Decimal;
-        [InDataSet]
-        BalanceOfVendEnable: Boolean;
-#endif
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;
@@ -2738,11 +2654,14 @@ page 21 "Customer Card"
         IsCountyVisible: Boolean;
         StatementFileNameTxt: Label 'Statement', Comment = 'Shortened form of ''Customer Statement''';
         LoadOnDemand: Boolean;
+        PrevCustNo: Code[20];
         PrevCountryCode: Code[10];
         BackgroundTaskId: Integer;
-        EmailImprovementFeatureEnabled: Boolean;
+        BalanceAsVendorEnabled: Boolean;
 
     protected var
+        [InDataSet]
+        ContactEditable: Boolean;
         IsOfficeAddin: Boolean;
         NoPostedInvoices: Integer;
         NoPostedCrMemos: Integer;
@@ -2840,7 +2759,7 @@ page 21 "Customer Card"
             if Customer."Validate EU Vat Reg. No." then begin
                 EUVATRegistrationNoCheck.SetRecordRef(Customer);
                 Commit();
-                EUVATRegistrationNoCheck.RunModal;
+                EUVATRegistrationNoCheck.RunModal();
                 EUVATRegistrationNoCheck.GetRecordRef(CustomerRecRef);
                 CustomerRecRef.SetTable(Customer);
             end;
@@ -2872,4 +2791,4 @@ page 21 "Customer Card"
     begin
     end;
 }
-
+#endif

@@ -587,8 +587,8 @@ page 8900 "Administrator Main Role Center"
                 action("User Personalization")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'User Personalization';
-                    RunObject = page "User Personalization List";
+                    Caption = 'User Settings';
+                    RunObject = page "User Settings List";
                 }
                 action("User Time Registers")
                 {
@@ -779,28 +779,38 @@ page 8900 "Administrator Main Role Center"
                     RunObject = page "CRM Connection Setup";
                     AccessByPermission = TableData "CRM Connection Setup" = IM;
                 }
-                action("Social Listening Setup")
-                {
-                    ApplicationArea = All;
-                    Caption = 'Social Engagement Setup';
-                    RunObject = page "Social Listening Setup";
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                    ObsoleteTag = '17.0';
-                }
+#if not CLEAN20
                 action("SMTP Mail Setup")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Mail Setup';
-                    RunObject = codeunit "Open Mail Setup Page";
+                    RunObject = Page "Email Account Wizard";
+                    Visible = false;
+                    ObsoleteReason = 'Action is replaced with "Email Account Setup".';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
+                action("Email Account Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email Account Setup';
+                    Image = MailSetup;
+                    RunObject = Page "Email Account Wizard";
+                    ToolTip = 'Set up email accounts used in the product.';
+                }
+#if not CLEAN19
                 action("SharePoint Connection Setup")
                 {
                     ApplicationArea = All;
                     Caption = 'SharePoint Connection Setup';
                     RunObject = page "Document Service Config";
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moving to Microsoft 365 action group as SharePoint Connection Setup.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 action("OCR Service Setup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -899,6 +909,16 @@ page 8900 "Administrator Main Role Center"
             group("Group27A")
             {
                 Caption = 'Microsoft 365';
+                group("GroupTeams")
+                {
+                    Caption = 'Teams';
+                    action("Teams App Centralized Deployment")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Teams App Centralized Deployment';
+                        RunObject = page "Teams Centralized Deployment";
+                    }
+                }
                 group("GroupExcel")
                 {
                     Caption = 'Excel';
@@ -987,5 +1007,4 @@ page 8900 "Administrator Main Role Center"
         }
     }
 }
-
 #endif

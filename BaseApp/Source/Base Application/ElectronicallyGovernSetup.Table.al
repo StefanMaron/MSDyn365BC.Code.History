@@ -2,13 +2,9 @@ table 11761 "Electronically Govern. Setup"
 {
     Caption = 'Electronically Govern. Setup';
     ReplicateData = false;
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -77,4 +73,3 @@ table 11761 "Electronically Govern. Setup"
         }
     }
 }
-

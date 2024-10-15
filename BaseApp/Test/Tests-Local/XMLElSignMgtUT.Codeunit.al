@@ -4,6 +4,7 @@ codeunit 145018 "XML El. Sign Mgt. UT"
     // // [FEATURE] [Cryptography] [UT]
 
     Subtype = Test;
+    TestPermissions = Disabled;
 
     trigger OnRun()
     begin
@@ -41,7 +42,7 @@ codeunit 145018 "XML El. Sign Mgt. UT"
         KeyStream: InStream;
         ReferenceIndex: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] Get test private key
         LibraryCertificate.GetCertificatePrivateKey(KeyStream);

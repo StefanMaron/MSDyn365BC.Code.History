@@ -321,6 +321,16 @@ table 5766 "Warehouse Activity Header"
                             "Source Type" := DATABASE::"Assembly Line";
                             "Source Subtype" := AssemblyLine."Document Type"::Order.AsInteger();
                         end;
+                    "Source Document"::"Job Usage":
+#if not CLEAN20
+                        begin
+                            if not FeatureManagement.IsEnabled(PicksForJobsFeatureIdLbl) then
+                                Error(PicksForJobsFeatureNotEnabledErr);
+#endif
+                            "Source Type" := DATABASE::Job;
+#if not CLEAN20
+                        end;
+#endif
                 end;
 
                 if "Source Document" = "Source Document"::" " then begin
@@ -425,6 +435,11 @@ table 5766 "Warehouse Activity Header"
         WhseSetup: Record "Warehouse Setup";
         InvtSetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+#if not CLEAN20
+        FeatureManagement: Codeunit "Feature Management Facade";
+        PicksForJobsFeatureIdLbl: Label 'PicksForJobs', Locked = true;
+        PicksForJobsFeatureNotEnabledErr: Label 'The features for creating picks for jobs is not enabled. Your administrator can enable the feature on the Feature Management page by turning on Feature Update: Enable inventory and warehouse pick from jobs.';
+#endif
         Text001: Label 'You must first set up user %1 as a warehouse employee.';
         Text002: Label 'You cannot change %1 because one or more lines exist.';
 
@@ -754,7 +769,7 @@ table 5766 "Warehouse Activity Header"
         SeqNo := 0;
         WarehouseActivityLineLocal.Copy(WarehouseActivityLineParam);
         WarehouseActivityLineLocal.SetCurrentKey("Activity Type", "No.", "Line No.");
-        if not WarehouseActivityLineLocal.FindSet then
+        if not WarehouseActivityLineLocal.FindSet() then
             exit;
         repeat
             if (SortOrder = SortOrder::Bin) and
@@ -821,7 +836,7 @@ table 5766 "Warehouse Activity Header"
     begin
         WhseActivLine2.SetRange("Activity Type", Type);
         WhseActivLine2.SetRange("No.", "No.");
-        if WhseActivLine2.FindFirst then
+        if WhseActivLine2.FindFirst() then
             WhseActivLine2.DeleteRelatedWhseActivLines(WhseActivLine2, true);
 
         WhseCommentLine.SetRange("Table Name", WhseCommentLine."Table Name"::"Whse. Activity Header");
@@ -947,11 +962,11 @@ table 5766 "Warehouse Activity Header"
         WarehouseEmployee.SetCurrentKey(Default);
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
-        if WarehouseEmployee.FindFirst then
+        if WarehouseEmployee.FindFirst() then
             exit(WarehouseEmployee."Location Code");
 
         WarehouseEmployee.SetRange(Default);
-        WarehouseEmployee.FindFirst;
+        WarehouseEmployee.FindFirst();
         exit(WarehouseEmployee."Location Code");
     end;
 

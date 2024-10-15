@@ -55,11 +55,6 @@ report 31048 "Fixed Asset Card"
             column(CompanyInfo__Registration_No__; CompanyInfo."Registration No.")
             {
             }
-#if not CLEAN17
-            column(CompanyInfo__Tax_Registration_No__; CompanyInfo."Tax Registration No.")
-            {
-            }
-#endif
             column(Fixed_Asset_Inactive; Format(Inactive))
             {
             }
@@ -97,9 +92,6 @@ report 31048 "Fixed Asset Card"
             {
             }
             column(CompanyInfo__Registration_No__Caption; CompanyInfo__Registration_No__CaptionLbl)
-            {
-            }
-            column(CompanyInfo__Tax_Registration_No__Caption; CompanyInfo__Tax_Registration_No__CaptionLbl)
             {
             }
             column(Employee_FullNameCaption; Employee_FullNameCaptionLbl)
@@ -434,11 +426,11 @@ report 31048 "Fixed Asset Card"
                         FALedgerEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                         FALedgerEntry.SetRange("FA Posting Category", FALedgerEntry."FA Posting Category"::" ");
                         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Custom 2");
-                        if FALedgerEntry.FindLast then
+                        if FALedgerEntry.FindLast() then
                             ReceiptDate := FALedgerEntry."FA Posting Date"
                         else begin
                             FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-                            if FALedgerEntry.FindLast then
+                            if FALedgerEntry.FindLast() then
                                 ReceiptDate := FALedgerEntry."FA Posting Date";
                         end;
                     end else begin
@@ -449,7 +441,7 @@ report 31048 "Fixed Asset Card"
                         FALedgerEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                         FALedgerEntry.SetRange("FA Posting Category", FALedgerEntry."FA Posting Category"::" ");
                         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Acquisition Cost");
-                        if FALedgerEntry.FindLast then
+                        if FALedgerEntry.FindLast() then
                             ReceiptDate := FALedgerEntry."FA Posting Date";
                     end;
                 end;
@@ -531,7 +523,6 @@ report 31048 "Fixed Asset Card"
         Fixed_Asset__No__CaptionLbl: Label 'Fixed Asset No.';
         Fixed_Asset_CardCaptionLbl: Label 'Fixed Asset Card';
         CompanyInfo__Registration_No__CaptionLbl: Label 'Reg. No.';
-        CompanyInfo__Tax_Registration_No__CaptionLbl: Label 'Tax Reg. No.';
         Employee_FullNameCaptionLbl: Label 'Responsible Employee';
         FALocation_NameCaptionLbl: Label 'FA Location';
         Last_PageCaptionLbl: Label 'Last Page';

@@ -6,11 +6,12 @@ table 31020 "Purch. Advance Letter Header"
     DrillDownPageID = "Purchase Adv. Letters";
     LookupPageID = "Purchase Adv. Letters";
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -27,13 +28,10 @@ table 31020 "Purch. Advance Letter Header"
             trigger OnValidate()
             var
                 VendBankAcc: Record "Vendor Bank Account";
-#if CLEAN17
                 ExtensionFieldsManagement: Codeunit "Extension Fields Management";
                 FieldValueDictionary: Dictionary of [Text[30], Text];
                 RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
                 TaxRegistrationNoFldTok: Label 'Tax Registration No. CZL', Locked = true;
-#endif
-
             begin
                 if "No." = '' then
                     InitRecord;
@@ -103,28 +101,23 @@ table 31020 "Purch. Advance Letter Header"
                 "Payment Terms Code" := Vend."Payment Terms Code";
                 "Payment Method Code" := Vend."Payment Method Code";
                 "VAT Registration No." := Vend."VAT Registration No.";
-#if CLEAN17
                 FieldValueDictionary.Add(RegistrationNoFldTok, '');
                 FieldValueDictionary.Add(TaxRegistrationNoFldTok, '');
                 ExtensionFieldsManagement.GetRecordExtensionFields(Vend.RecordId, FieldValueDictionary);
                 "Registration No." := CopyStr(FieldValueDictionary.Get(RegistrationNoFldTok), 1, MaxStrlen("Registration No."));
                 "Tax Registration No." := CopyStr(FieldValueDictionary.Get(TaxRegistrationNoFldTok), 1, MaxStrlen("Registration No."));
-#else
-                "Registration No." := Vend."Registration No.";
-                "Tax Registration No." := Vend."Tax Registration No.";
-#endif
 
                 Validate("VAT Country/Region Code");
                 VendBankAcc.SetRange("Vendor No.", "Pay-to Vendor No.");
 #if CLEAN18
                 if not VendBankAcc.Get(Vend."No.", Vend."Preferred Bank Account Code") then
-                    if VendBankAcc.FindFirst then;
+                    if VendBankAcc.FindFirst() then;
 #else
                 if VendBankAcc.SetCurrentKey("Vendor No.", Priority) then
                     VendBankAcc.SetFilter(Priority, '%1..', 1);
-                if not VendBankAcc.FindFirst then begin
+                if not VendBankAcc.FindFirst() then begin
                     VendBankAcc.SetRange(Priority);
-                    if VendBankAcc.FindFirst then;
+                    if VendBankAcc.FindFirst() then;
                 end;
 #endif
 
@@ -381,17 +374,19 @@ table 31020 "Purch. Advance Letter Header"
             Caption = 'Order No.';
             TableRelation = "Purchase Header"."No." WHERE("Document Type" = CONST(Order));
         }
-#if not CLEAN19
         field(46; Comment; Boolean)
         {
+#if not CLEAN19
             CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Advance Letter"),
                                                              "No." = FIELD("No."),
                                                              "Document Line No." = CONST(0)));
+#endif
             Caption = 'Comment';
             Editable = false;
+#if not CLEAN19
             FieldClass = FlowField;
-        }
 #endif
+        }
         field(47; "No. Printed"; Integer)
         {
             Caption = 'No. Printed';
@@ -410,7 +405,6 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'On Hold';
         }
-#if not CLEAN19
         field(61; "Amount Including VAT"; Decimal)
         {
             CalcFormula = Sum("Purch. Advance Letter Line"."Amount Including VAT" WHERE("Letter No." = FIELD("No.")));
@@ -418,7 +412,6 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(68; "External Document No."; Code[35])
         {
             Caption = 'External Document No.';
@@ -732,7 +725,6 @@ table 31020 "Purch. Advance Letter Header"
         {
             Caption = 'Bank Name';
         }
-#if not CLEAN19
         field(11710; "Amount on Payment Order (LCY)"; Decimal)
         {
             CalcFormula = Sum("Issued Payment Order Line"."Amount (LCY)" WHERE("Letter Type" = CONST(Purchase),
@@ -742,7 +734,6 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
@@ -816,7 +807,6 @@ table 31020 "Purch. Advance Letter Header"
             TableRelation = "Purchase Adv. Payment Template";
 #endif
         }
-#if not CLEAN19
         field(31013; "Amount To Link"; Decimal)
         {
             CalcFormula = Sum("Purch. Advance Letter Line"."Amount To Link" WHERE("Letter No." = FIELD("No.")));
@@ -901,7 +891,6 @@ table 31020 "Purch. Advance Letter Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31023; "Vendor Adv. Payment No."; Code[20])
         {
             Caption = 'Vendor Adv. Payment No.';
@@ -1311,12 +1300,12 @@ table 31020 "Purch. Advance Letter Header"
     begin
         PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 PurchPostAdvances.CalcLinkedAmount(PurchAdvanceLetterLine, TempVendLedgEntry);
             until PurchAdvanceLetterLine.Next() = 0;
         LinkedPrepayments.InsertVendEntries(TempVendLedgEntry);
-        LinkedPrepayments.RunModal;
+        LinkedPrepayments.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -1342,7 +1331,7 @@ table 31020 "Purch. Advance Letter Header"
         PurchAdvanceLetterLine.SetFilter(Status, '%1|%2',
           PurchAdvanceLetterLine.Status::Open,
           PurchAdvanceLetterLine.Status::"Pending Approval");
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 if PurchAdvanceLetterLine."Amount Including VAT" < 0 then
                     PurchAdvanceLetterLine.FieldError("Amount Including VAT", PositiveAmountErr);
@@ -1367,7 +1356,7 @@ table 31020 "Purch. Advance Letter Header"
         PurchAdvanceLetterLine.SetFilter(Status, '%1|%2',
           PurchAdvanceLetterLine.Status::"Pending Advance Payment",
           PurchAdvanceLetterLine.Status::"Pending Approval");
-        if PurchAdvanceLetterLine.FindSet then
+        if PurchAdvanceLetterLine.FindSet() then
             repeat
                 if (PurchAdvanceLetterLine."Amount To Link" = PurchAdvanceLetterLine."Amount Including VAT") or
                    (PurchAdvanceLetterLine.Status = PurchAdvanceLetterLine.Status::"Pending Approval")
@@ -1410,7 +1399,7 @@ table 31020 "Purch. Advance Letter Header"
     begin
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
         PurchAdvanceLetterLine.SetFilter("Amount Deducted", '<>%1', 0);
-        if PurchAdvanceLetterLine.FindFirst then
+        if PurchAdvanceLetterLine.FindFirst() then
             PurchAdvanceLetterLine.TestField("Amount Deducted", 0);
     end;
 
@@ -1423,7 +1412,7 @@ table 31020 "Purch. Advance Letter Header"
         PurchAdvanceLetterLine.CalcSums("Amount To Invoice");
         if PurchAdvanceLetterLine."Amount To Invoice" = 0 then begin
             PurchAdvanceLetterLine.SetRange("Amount To Invoice", 0);
-            PurchAdvanceLetterLine.FindFirst;
+            PurchAdvanceLetterLine.FindFirst();
             PurchAdvanceLetterLine.TestField("Amount To Invoice");
         end;
     end;
@@ -1463,7 +1452,7 @@ table 31020 "Purch. Advance Letter Header"
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
         PurchAdvanceLetterLine.SetFilter("No.", '<>''''');
         PurchAdvanceLetterLine.SetFilter(Status, '<>%1', PurchAdvanceLetterLine.Status::Closed);
-        IsClosed := not PurchAdvanceLetterLine.FindFirst;
+        IsClosed := not PurchAdvanceLetterLine.FindFirst();
         if IsClosed <> Closed then begin
             Closed := IsClosed;
             if IsModify then
@@ -1558,7 +1547,7 @@ table 31020 "Purch. Advance Letter Header"
 
                 PurchAdvanceLetterLinegre.Reset();
                 PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
-                if PurchAdvanceLetterLinegre.FindSet then
+                if PurchAdvanceLetterLinegre.FindSet() then
                     repeat
                         PurchAdvanceLetterLinegre.TestField(Status, PurchAdvanceLetterLinegre.Status::Open);
 
@@ -1607,7 +1596,7 @@ table 31020 "Purch. Advance Letter Header"
 
         PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
-        if PurchAdvanceLetterLinegre.FindSet then
+        if PurchAdvanceLetterLinegre.FindSet() then
             repeat
                 case ChangedFieldName of
                     FieldCaption("Advance Due Date"):
@@ -1638,7 +1627,7 @@ table 31020 "Purch. Advance Letter Header"
         AdvanceLetterLineRelation.SetCurrentKey(Type, "Letter No.");
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Purchase);
         AdvanceLetterLineRelation.SetRange("Letter No.", "No.");
-        if AdvanceLetterLineRelation.FindSet then
+        if AdvanceLetterLineRelation.FindSet() then
             repeat
                 AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, true, true);
             until AdvanceLetterLineRelation.Next() = 0;
@@ -1649,7 +1638,7 @@ table 31020 "Purch. Advance Letter Header"
     begin
         PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
-        if PurchAdvanceLetterLinegre.FindSet then
+        if PurchAdvanceLetterLinegre.FindSet() then
             repeat
                 PurchAdvanceLetterLinegre.CalcFields("Amount on Payment Order (LCY)");
                 if PurchAdvanceLetterLinegre."Amount on Payment Order (LCY)" <> 0 then
@@ -1803,4 +1792,3 @@ table 31020 "Purch. Advance Letter Header"
     end;
 #endif
 }
-

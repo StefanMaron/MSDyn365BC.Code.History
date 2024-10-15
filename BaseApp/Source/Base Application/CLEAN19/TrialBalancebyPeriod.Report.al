@@ -172,7 +172,7 @@ report 38 "Trial Balance by Period"
 
                 trigger OnAfterGetRecord()
                 begin
-                    GLAccountType := "G/L Account"."Account Type";
+                    GLAccountType := "G/L Account"."Account Type".AsInteger();
                     if IsNewPage then begin
                         PageGroupNo := PageGroupNo + 1;
                         IsNewPage := false;
@@ -403,7 +403,7 @@ report 38 "Trial Balance by Period"
     begin
         GLIndent.Reset();
         MaxIndent := '';
-        if GLIndent.FindSet then
+        if GLIndent.FindSet() then
             repeat
                 if Format(GLIndent.Indentation) > MaxIndent then
                     MaxIndent := Format(GLIndent.Indentation);

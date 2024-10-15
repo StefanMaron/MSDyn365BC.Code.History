@@ -185,12 +185,6 @@
         {
             Caption = 'Vendor Posting Group';
             TableRelation = "Vendor Posting Group";
-#if not CLEAN17
-            trigger OnValidate()
-            begin
-                CheckVendorLedgerOpenEntries; // NAVCZ
-            end;
-#endif
         }
         field(22; "Currency Code"; Code[10])
         {
@@ -899,16 +893,16 @@
                         VendLedgEntry.SetCurrentKey("Vendor No.");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     VendLedgEntry.SetRange(Open, true);
-                    if VendLedgEntry.FindLast then
+                    if VendLedgEntry.FindLast() then
                         Error(Text010, FieldCaption("IC Partner Code"), TableCaption);
 
                     VendLedgEntry.Reset();
                     VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
                     VendLedgEntry.SetRange("Vendor No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
-                    if AccountingPeriod.FindFirst then begin
+                    if AccountingPeriod.FindFirst() then begin
                         VendLedgEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-                        if VendLedgEntry.FindFirst then
+                        if VendLedgEntry.FindFirst() then
                             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text009, TableCaption), true) then
                                 "IC Partner Code" := xRec."IC Partner Code";
                     end;
@@ -1083,7 +1077,7 @@
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
                 ContBusRel.SetRange("No.", "No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     Cont.SetRange("Company No.", ContBusRel."Contact No.")
                 else
                     Cont.SetRange("No.", '');
@@ -1402,90 +1396,60 @@
         field(11760; "Last Statement No."; Integer)
         {
             Caption = 'Last Statement No.';
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11761; "Print Statements"; Boolean)
         {
             Caption = 'Print Statements';
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11762; "Last Statement Date"; Date)
         {
             Caption = 'Last Statement Date';
             Editable = false;
-        }
-#if not CLEAN17
-        field(11763; "Last Uncertainty Check Date"; Date)
-        {
-            CalcFormula = Max("Uncertainty Payer Entry"."Check Date" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
-                                                                            "Entry Type" = CONST(Payer)));
-            Caption = 'Last Uncertainty Check Date';
-            Editable = false;
-            FieldClass = FlowField;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
             ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
-        field(11764; "VAT Uncertainty Payer"; Option)
-        {
-            CalcFormula = Lookup("Uncertainty Payer Entry"."Uncertainty Payer" WHERE("VAT Registration No." = FIELD("VAT Registration No."),
-                                                                                      "Entry Type" = CONST(Payer),
-                                                                                      "Check Date" = FIELD("Last Uncertainty Check Date")));
-            Caption = 'VAT Uncertainty Payer';
-            Editable = false;
-            FieldClass = FlowField;
-            OptionCaption = ' ,NO,YES,NOTFOUND';
-            OptionMembers = " ",NO,YES,NOTFOUND;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-        }
-#endif
         field(11765; "Disable Uncertainty Check"; Boolean)
         {
             Caption = 'Disable Uncertainty Check';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-            trigger OnValidate()
-            begin
-                if "Registration No." <> xRec."Registration No." then
-                    RegistrationNoValidation;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-            trigger OnValidate()
-            var
-                RegistrationNoMgt: Codeunit "Registration No. Mgt.";
-            begin
-                RegistrationNoMgt.CheckTaxRegistrationNo("Tax Registration No.", "No.", DATABASE::Vendor);
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11792; "Registered Name"; Text[250])
         {
@@ -1498,6 +1462,14 @@
         {
             Caption = 'Default Order Address Code';
             TableRelation = "Order Address".Code WHERE("Vendor No." = FIELD("No."));
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
 #if not CLEAN19
         field(31000; "Advances (LCY)"; Decimal)
@@ -1669,14 +1641,6 @@
         key(Key13; Contact)
         {
         }
-#if not CLEAN17
-        key(Key14; "Registration No.")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-#endif
         key(Key16; Blocked)
         {
         }
@@ -1693,7 +1657,7 @@
 
     fieldgroups
     {
-        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "Registration No.", "VAT Registration No.")
+        fieldgroup(DropDown; "No.", Name, City, "Post Code", "Phone No.", Contact, "VAT Registration No.")
         {
         }
         fieldgroup(Brick; "No.", Name, "Balance (LCY)", Contact, "Balance Due (LCY)", Image)
@@ -1705,14 +1669,10 @@
     var
         ItemVendor: Record "Item Vendor";
         PurchPrepmtPct: Record "Purchase Prepayment %";
-        SocialListeningSearchTopic: Record "Social Listening Search Topic";
         CustomReportSelection: Record "Custom Report Selection";
         IntrastatSetup: Record "Intrastat Setup";
         ItemReference: Record "Item Reference";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
-#if not CLEAN17
-        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-#endif
     begin
         ApprovalsMgmt.OnCancelVendorApprovalRequest(Rec);
 
@@ -1746,11 +1706,6 @@
         if not ItemVendor.IsEmpty() then
             ItemVendor.DeleteAll(true);
 
-        if not SocialListeningSearchTopic.IsEmpty() then begin
-            SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Vendor, "No.");
-            SocialListeningSearchTopic.DeleteAll();
-        end;
-
         CustomReportSelection.SetRange("Source Type", DATABASE::Vendor);
         CustomReportSelection.SetRange("Source No.", "No.");
         if not CustomReportSelection.IsEmpty() then
@@ -1761,12 +1716,6 @@
         if not PurchPrepmtPct.IsEmpty() then
             PurchPrepmtPct.DeleteAll(true);
 
-#if not CLEAN17
-        // NAVCZ
-        RegistrationLogMgt.DeleteVendorLog(Rec);
-        // NAVCZ
-
-#endif
         VATRegistrationLogMgt.DeleteVendorLog(Rec);
 
         IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Vendor, "No.");
@@ -1848,7 +1797,6 @@
         OrderAddr: Record "Order Address";
         GenBusPostingGrp: Record "Gen. Business Posting Group";
         RMSetup: Record "Marketing Setup";
-        ServiceItem: Record "Service Item";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         CustomizedCalendarChange: Record "Customized Calendar Change";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -1935,7 +1883,7 @@
             ContBusRel.SetCurrentKey("Link to Table", "No.");
             ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
             ContBusRel.SetRange("No.", "No.");
-            if not ContBusRel.FindFirst then begin
+            if not ContBusRel.FindFirst() then begin
                 if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text003, TableCaption, "No."), true) then
                     exit;
                 UpdateContFromVend.InsertNewContact(Rec, false);
@@ -2055,7 +2003,11 @@
             Action := Text005
         else
             Action := Text006;
-        Error(Text007, Action, Vend2."No.", Vend2.Blocked);
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(Text007, Action, Vend2."No.", Vend2.Blocked),
+                true,
+                Rec));
     end;
 
     procedure VendPrivacyBlockedErrorMessage(Vend2: Record Vendor; Transaction: Boolean)
@@ -2067,7 +2019,11 @@
         else
             Action := Text006;
 
-        Error(PrivacyBlockedActionErr, Action, Vend2."No.");
+        Error(
+            ErrorInfo.Create(
+                StrSubstNo(PrivacyBlockedActionErr, Action, Vend2."No."),
+                true,
+                Rec));
     end;
 
     procedure GetPrivacyBlockedGenericErrorText(Vend2: Record Vendor): Text[250]
@@ -2081,7 +2037,7 @@
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnLineMapSetup.SetRange(Enabled, true);
-        if OnLineMapSetup.FindFirst then
+        if OnLineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition)
         else
             Message(Text011);
@@ -2151,43 +2107,6 @@
           "Amt. Rcd. Not Invoiced (LCY)" + "Outstanding Invoices (LCY)" - GetInvoicedPrepmtAmountLCY);
     end;
 
-#if not CLEAN18
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetLinkedCustomer(): Code[20]
-    var
-        ContBusRel: Record "Contact Business Relation";
-    begin
-        // NAVCZ
-        ContBusRel.SetCurrentKey("Link to Table", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Vendor);
-        ContBusRel.SetRange("No.", "No.");
-        if ContBusRel.FindFirst then begin
-            ContBusRel.SetRange("Contact No.", ContBusRel."Contact No.");
-            ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-            ContBusRel.SetRange("No.");
-            if ContBusRel.FindFirst then
-                exit(ContBusRel."No.");
-        end;
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure CheckVendorLedgerOpenEntries()
-    var
-        VendLedgerEntry: Record "Vendor Ledger Entry";
-        ChangeErr: Label ' cannot be changed';
-    begin
-        // NAVCZ
-        VendLedgerEntry.SetCurrentKey("Vendor No.", Open);
-        VendLedgerEntry.SetRange("Vendor No.", "No.");
-        VendLedgerEntry.SetRange(Open, true);
-        if not VendLedgerEntry.IsEmpty() then
-            FieldError("Vendor Posting Group", ChangeErr);
-    end;
-
-#endif
     procedure HasAddress(): Boolean
     begin
         case true of
@@ -2208,6 +2127,28 @@
         end;
 
         exit(false);
+    end;
+
+    procedure GetBalanceAsCustomer(var LinkedCustomerNo: Code[20]) BalanceAsCustomer: Decimal;
+    var
+        Customer: Record Customer;
+    begin
+        BalanceAsCustomer := 0;
+        LinkedCustomerNo := GetLinkedCustomer();
+        if Customer.Get(LinkedCustomerNo) then begin
+            Customer.CalcFields("Balance (LCY)");
+            BalanceAsCustomer := Customer."Balance (LCY)";
+        end;
+    end;
+
+    procedure GetLinkedCustomer(): Code[20];
+    var
+        ContBusRel: Record "Contact Business Relation";
+    begin
+        exit(
+            ContBusRel.GetLinkedTables(
+                "Contact Business Relation Link To Table"::Vendor, "No.",
+                "Contact Business Relation Link To Table"::Customer))
     end;
 
     procedure GetVendorNo(VendorText: Text[100]): Code[20]
@@ -2240,14 +2181,14 @@
         Vendor.SetRange(Blocked, Vendor.Blocked::" ");
         Vendor.SetRange(Name, VendorText);
         OnGetVendorNoOpenCardOnBeforeVendorFindSet(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
 
         VendorWithoutQuote := ConvertStr(VendorText, '''', '?');
 
         Vendor.SetFilter(Name, '''@' + VendorWithoutQuote + '''');
         OnGetVendorNoOpenCardOnAfterSetVendorWithoutQuote(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
         Vendor.SetRange(Name);
 
@@ -2257,7 +2198,7 @@
         Vendor.SetFilter("No.", VendorFilterFromStart);
         Vendor.SetFilter(Name, VendorFilterFromStart);
         OnGetVendorNoOpenCardOnAfterVendorSetFilterFromStart(Vendor);
-        if Vendor.FindFirst then
+        if Vendor.FindFirst() then
             exit(Vendor."No.");
 
         VendorFilterContains := '''@*' + VendorWithoutQuote + '*''';
@@ -2274,7 +2215,7 @@
             MarkVendorsWithSimilarName(Vendor, VendorText);
 
         if Vendor.Count = 1 then begin
-            Vendor.FindFirst;
+            Vendor.FindFirst();
             exit(Vendor."No.");
         end;
 
@@ -2322,7 +2263,7 @@
         Vendor.Reset();
         Vendor.Ascending(false); // most likely to search for newest Vendors
         OnMarkVendorsWithSimilarNameOnBeforeVendorFindSet(Vendor);
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 VendorCount += 1;
                 if Abs(VendorTextLenght - StrLen(Vendor.Name)) <= Treshold then
@@ -2403,11 +2344,11 @@
 
     local procedure MarkVendorsByFilters(var Vendor: Record Vendor)
     begin
-        if Vendor.FindSet then
+        if Vendor.FindSet() then
             repeat
                 Vendor.Mark(true);
             until Vendor.Next() = 0;
-        if Vendor.FindFirst then;
+        if Vendor.FindFirst() then;
         Vendor.MarkedOnly := true;
     end;
 
@@ -2454,13 +2395,7 @@
           ("Post Code" <> xRec."Post Code") or
           (County <> xRec.County) or
           ("E-Mail" <> xRec."E-Mail") or
-#if CLEAN17
           ("Home Page" <> xRec."Home Page");
-#else
-          ("Home Page" <> xRec."Home Page") or
-          ("Registration No." <> xRec."Registration No.") or
-          ("Tax Registration No." <> xRec."Tax Registration No.");
-#endif
 
         if not UpdateNeeded and not IsTemporary then
             UpdateNeeded := VendContUpdate.ContactNameIsBlank("No.");
@@ -2513,10 +2448,10 @@
             Validate("Purchaser Code", UserSetup."Salespers./Purch. Code");
     end;
 
-    local procedure SetLastModifiedDateTime()
+    protected procedure SetLastModifiedDateTime()
     begin
-        "Last Modified Date Time" := CurrentDateTime;
-        "Last Date Modified" := Today;
+        "Last Modified Date Time" := CurrentDateTime();
+        "Last Date Modified" := Today();
     end;
 
     procedure ToPriceSource(var PriceSource: Record "Price Source")
@@ -2563,96 +2498,12 @@
             VATRegistrationLogMgt.LogVendor(Rec);
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure RegistrationNoValidation()
-    var
-        RegistrationLog: Record "Registration Log";
-        RegNoSrvConfig: Record "Reg. No. Srv Config";
-        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-        RegistrationNoMgt: Codeunit "Registration No. Mgt.";
-        ResultRecordRef: RecordRef;
-    begin
-        // NAVCZ
-        if not RegistrationNoMgt.CheckRegistrationNo("Registration No.", "No.", DATABASE::Vendor) then
-            exit;
-        RegistrationLogMgt.LogVendor(Rec);
-        if RegNoSrvConfig.RegNoSrvIsEnabled then begin
-            RegistrationLogMgt.ValidateRegNoWithARES(
-              ResultRecordRef, Rec, "No.", RegistrationLog."Account Type"::Vendor);
-            ResultRecordRef.SetTable(Rec);
-        end;
-    end;
-
-#endif
     procedure VerifyAndUpdateFromVIES()
     begin
         // NAVCZ
         VATRegistrationValidation;
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure VerifyAndUpdateFromARES()
-    begin
-        // NAVCZ
-        RegistrationNoValidation;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure ImportUncPayerStatus()
-    var
-        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
-    begin
-        // NAVCZ
-        CheckUncertaintyPayerCheckPossibility;
-        UncPayerMgt.ImportUncPayerStatusForVendor(Rec);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure IsUncertaintyPayerCheckPossible(): Boolean
-    var
-        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
-        CheckPossible: Boolean;
-    begin
-        // NAVCZ
-        CheckPossible :=
-          not "Disable Uncertainty Check" and
-          UncPayerMgt.IsVATRegNoExportPossible("VAT Registration No.", "Country/Region Code");
-
-        OnBeforeIsUncertaintyPayerCheckPossible(Rec, CheckPossible);
-        exit(CheckPossible);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure CheckUncertaintyPayerCheckPossibility()
-    var
-        IsHandled: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        OnBeforeCheckUncertaintyPayerCheckPossibility(Rec, IsHandled);
-
-        if not IsHandled then
-            TestField("Disable Uncertainty Check", false);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    procedure GetUncertaintyPayerStatus(): Integer
-    var
-        UncertaintyPayerEntry: Record "Uncertainty Payer Entry";
-    begin
-        // NAVCZ
-        UncertaintyPayerEntry.Reset();
-        UncertaintyPayerEntry.SetCurrentKey("VAT Registration No.");
-        UncertaintyPayerEntry.SetRange("VAT Registration No.", "VAT Registration No.");
-        UncertaintyPayerEntry.SetRange("Entry Type", UncertaintyPayerEntry."Entry Type"::Payer);
-        if not UncertaintyPayerEntry.FindLast then
-            exit(UncertaintyPayerEntry."Uncertainty Payer"::NOTFOUND);
-        exit(UncertaintyPayerEntry."Uncertainty Payer");
-    end;
-
-#endif
     procedure UpdateCurrencyId()
     var
         Currency: Record Currency;
@@ -2790,20 +2641,6 @@
     begin
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsUncertaintyPayerCheckPossible(var Vendor: Record Vendor; var CheckPossible: Boolean)
-    begin
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckUncertaintyPayerCheckPossibility(var Vendor: Record Vendor; var IsHandled: Boolean)
-    begin
-    end;
-
-#endif
     local procedure IsOnBeforeCheckBlockedVendHandled(Vendor: Record Vendor; Source: Option Journal,Document; DocType: Enum "Gen. Journal Document Type"; Transaction: Boolean) IsHandled: Boolean
     begin
         OnBeforeCheckBlockedVend(Vendor, Source, DocType.AsInteger(), Transaction, IsHandled)
@@ -2944,4 +2781,3 @@
     end;
 #endif
 }
-

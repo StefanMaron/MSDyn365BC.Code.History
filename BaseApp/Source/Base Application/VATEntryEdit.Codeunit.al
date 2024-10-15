@@ -1,4 +1,3 @@
-#if not CLEAN17
 codeunit 338 "VAT Entry - Edit"
 {
     Permissions = TableData "VAT Entry" = m;
@@ -13,7 +12,6 @@ codeunit 338 "VAT Entry - Edit"
         VATEntry."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
         VATEntry."Ship-to/Order Address Code" := "Ship-to/Order Address Code";
         VATEntry."EU 3-Party Trade" := "EU 3-Party Trade";
-        VATEntry."EU 3-Party Intermediate Role" := "EU 3-Party Intermediate Role"; // NAVCZ
         VATEntry."Country/Region Code" := "Country/Region Code";
         VATEntry."VAT Registration No." := "VAT Registration No.";
         OnBeforeVATEntryModify(VATEntry, Rec);
@@ -43,4 +41,3 @@ codeunit 338 "VAT Entry - Edit"
     end;
 }
 
-#endif

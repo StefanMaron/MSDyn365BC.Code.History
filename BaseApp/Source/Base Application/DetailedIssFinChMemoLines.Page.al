@@ -1,9 +1,13 @@
+#if not CLEAN20
 page 11788 "Detailed Iss.Fin.Ch.Memo Lines"
 {
     Caption = 'Detailed Iss.Fin.Ch.Memo Lines';
     Editable = false;
     PageType = List;
     SourceTable = "Detailed Iss.Fin.Ch. Memo Line";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
 
     layout
     {
@@ -91,3 +95,4 @@ page 11788 "Detailed Iss.Fin.Ch.Memo Lines"
     }
 }
 
+#endif

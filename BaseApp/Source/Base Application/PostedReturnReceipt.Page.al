@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 6660 "Posted Return Receipt"
 {
     Caption = 'Posted Return Receipt';
@@ -174,6 +175,10 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the entry as a corrective entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("No. Printed"; "No. Printed")
                 {
@@ -310,18 +315,30 @@ page 6660 "Posted Return Receipt"
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
             group(Shipping)
@@ -586,7 +603,7 @@ page 6660 "Posted Return Receipt"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -611,7 +628,7 @@ page 6660 "Posted Return Receipt"
                 begin
                     PostedReturnReceiptUpdate.LookupMode := true;
                     PostedReturnReceiptUpdate.SetRec(Rec);
-                    PostedReturnReceiptUpdate.RunModal;
+                    PostedReturnReceiptUpdate.RunModal();
                 end;
             }
         }
@@ -651,4 +668,4 @@ page 6660 "Posted Return Receipt"
     begin
     end;
 }
-
+#endif

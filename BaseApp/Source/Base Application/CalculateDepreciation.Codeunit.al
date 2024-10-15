@@ -36,7 +36,7 @@ codeunit 5610 "Calculate Depreciation"
         // NAVCZ
         AccPeriod.SetFilter("Starting Date", '<%1', UntilDate);
         AccPeriod.SetRange("New Fiscal Year", true);
-        if AccPeriod.FindLast then;
+        if AccPeriod.FindLast() then;
         // NAVCZ
 
         CheckDeprDaysInFiscalYear(FADeprBook, DateFromProjection = 0D, UntilDate);

@@ -1,13 +1,9 @@
 table 11758 "Registration Log"
 {
     Caption = 'Registration Log';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -99,50 +95,4 @@ table 11758 "Registration Log"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure InitRegLog(var RegistrationLog: Record "Registration Log"; AcountType: Option; AccountNo: Code[20]; RegNo: Text[20])
-    begin
-        RegistrationLog.Init();
-        RegistrationLog."Account Type" := AcountType;
-        RegistrationLog."Account No." := AccountNo;
-        RegistrationLog."Registration No." := RegNo;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure UpdateCard()
-    var
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        Contact: Record Contact;
-        RegistrationLogMgt: Codeunit "Registration Log Mgt.";
-        RecordRef: RecordRef;
-    begin
-        TestField(Status, Status::Valid);
-
-        case "Account Type" of
-            "Account Type"::Customer:
-                begin
-                    Customer.Get("Account No.");
-                    RegistrationLogMgt.RunARESUpdate(RecordRef, Customer, Rec);
-                end;
-            "Account Type"::Vendor:
-                begin
-                    Vendor.Get("Account No.");
-                    RegistrationLogMgt.RunARESUpdate(RecordRef, Vendor, Rec);
-                end;
-            "Account Type"::Contact:
-                begin
-                    Contact.Get("Account No.");
-                    RegistrationLogMgt.RunARESUpdate(RecordRef, Contact, Rec);
-                end;
-        end;
-
-        RecordRef.Modify(true);
-    end;
-#endif
 }
-

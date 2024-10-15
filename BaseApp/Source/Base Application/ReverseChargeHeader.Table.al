@@ -211,9 +211,6 @@ table 31093 "Reverse Charge Header"
         field(61; "Authorized Employee No."; Code[20])
         {
             Caption = 'Authorized Employee No.';
-#if not CLEAN17
-            TableRelation = "Company Officials";
-#endif
 
             trigger OnValidate()
             begin
@@ -223,9 +220,6 @@ table 31093 "Reverse Charge Header"
         field(65; "Filled by Employee No."; Code[20])
         {
             Caption = 'Filled by Employee No.';
-#if not CLEAN17
-            TableRelation = "Company Officials";
-#endif
 
             trigger OnValidate()
             begin
@@ -325,15 +319,6 @@ table 31093 "Reverse Charge Header"
         City := CompanyInfo.City;
         "Post Code" := CompanyInfo."Post Code";
 
-#if not CLEAN17
-        Name := StatReportingSetup."Company Trade Name";
-        Street := StatReportingSetup.Street;
-        "House No." := StatReportingSetup."House No.";
-        "Municipality No." := StatReportingSetup."Municipality No.";
-        "Tax Office No." := StatReportingSetup."Tax Office Number";
-        "Tax Office Region No." := StatReportingSetup."Tax Office Region Number";
-        "Natural Employee No." := StatReportingSetup."Natural Employee No.";
-#endif
     end;
 
 #endif

@@ -62,24 +62,9 @@ table 255 "VAT Statement Template"
         {
             Caption = 'Allow Comments/Attachments';
             InitValue = true; // NAVCZ
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                if not "Allow Comments/Attachments" then
-                    if not Confirm(Text1220000, false, TableCaption, Name) then
-                        "Allow Comments/Attachments" := true
-                    else
-                        DeleteAllCommentsAttachments;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -111,20 +96,4 @@ table 255 "VAT Statement Template"
     var
         VATStmtName: Record "VAT Statement Name";
         VATStmtLine: Record "VAT Statement Line";
-#if not CLEAN17
-        Text1220000: Label 'This will delete all Comments/Attachments related to %1 %2. Do you want to continue?';
-
-    local procedure DeleteAllCommentsAttachments()
-    var
-        CommentLine: Record "VAT Statement Comment Line";
-        Attachment: Record "VAT Statement Attachment";
-    begin
-        // NAVCZ
-        CommentLine.SetRange("VAT Statement Template Name", Name);
-        CommentLine.DeleteAll();
-        Attachment.SetRange("VAT Statement Template Name", Name);
-        Attachment.DeleteAll();
-    end;
-#endif
 }
-

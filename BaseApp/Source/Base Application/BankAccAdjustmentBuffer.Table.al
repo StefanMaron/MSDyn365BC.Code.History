@@ -1,6 +1,14 @@
 table 11771 "Bank Acc. Adjustment Buffer"
 {
     Caption = 'Bank Acc. Adjustment Buffer';
+#if not CLEAN20
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif  
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
 
     fields
     {

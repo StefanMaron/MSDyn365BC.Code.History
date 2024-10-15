@@ -1,6 +1,10 @@
+#if not CLEAN20
 codeunit 422 "XBRL Import Taxonomy Spec. 2"
 {
     TableNo = "XBRL Schema";
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     var
@@ -575,11 +579,11 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLTaxonomyLine.SetRange("Presentation Linkbase Line No.");
         NoOfRecords := XBRLTaxonomyLine.Count();
 
-        if XBRLTaxonomyLine.FindLast then
+        if XBRLTaxonomyLine.FindLast() then
             LastXBRLLineNo := XBRLTaxonomyLine."Line No.";
 
         InitTaxonomyLinesBuf(XBRLTaxonomyLine, TempXBRLLine);
-        if TempXBRLLine.FindSet then
+        if TempXBRLLine.FindSet() then
             repeat
                 Progress := Progress + 1;
                 Window.Update(6, Round(Progress / NoOfRecords * 10000, 1));
@@ -638,7 +642,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 else begin
                                     TempXBRLSchema.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
                                     TempXBRLSchema.SetRange(schemaLocation, ToSchemalocation);
-                                    if TempXBRLSchema.FindFirst then
+                                    if TempXBRLSchema.FindFirst() then
                                         TempXBRLLine.SetRange("XBRL Schema Line No.", TempXBRLSchema."Line No.")
                                     else
                                         TempXBRLLine.SetRange("XBRL Schema Line No.");
@@ -790,12 +794,12 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 else begin
                                     TempXBRLSchema.SetRange("XBRL Taxonomy Name", XBRLLinkbase."XBRL Taxonomy Name");
                                     TempXBRLSchema.SetRange(schemaLocation, ToSchemalocation);
-                                    if TempXBRLSchema.FindFirst then
+                                    if TempXBRLSchema.FindFirst() then
                                         XBRLTaxonomyLine2.SetRange("XBRL Schema Line No.", TempXBRLSchema."Line No.")
                                     else
                                         XBRLTaxonomyLine2.SetRange("XBRL Schema Line No.");
                                 end;
-                                if XBRLTaxonomyLine2.FindFirst then begin
+                                if XBRLTaxonomyLine2.FindFirst() then begin
                                     if not XBRLRollupLine.Get(
                                          XBRLTaxonomyLine."XBRL Taxonomy Name", XBRLTaxonomyLine."Line No.",
                                          XBRLTaxonomyLine2."Line No.")
@@ -1006,7 +1010,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 if not TempXBRLLine0.IsEmpty() then begin
                     TempXBRLLine0.SetRange("Presentation Order");
                     TempXBRLLine0.SetRange("Parent Line No.", ParentLineNo);
-                    TempXBRLLine0.FindLast;
+                    TempXBRLLine0.FindLast();
                     TempXBRLLine."Presentation Order" := IncStr(TempXBRLLine0."Presentation Order");
                 end;
             end;
@@ -1243,7 +1247,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         with TempXBRLLine do begin
             XBRLTaxonomyLine.SetRange("XBRL Taxonomy Name", TaxonomyName);
             XBRLTaxonomyLine.SetRange("Element ID", ElementName);
-            if XBRLTaxonomyLine.FindFirst then begin
+            if XBRLTaxonomyLine.FindFirst() then begin
                 TransferFields(XBRLTaxonomyLine);
                 "Presentation Linkbase Line No." := 0;
                 "Line No." := XBRLLineNo;
@@ -1269,7 +1273,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         FilterFieldRef.SetRange(TaxonomyName);
         FilterFieldRef := FromRecRef.Field(2);  // Field "XBRL Taxonomy Line No."
         FilterFieldRef.SetRange(FromTaxonomyLineNo);
-        if FromRecRef.FindSet then
+        if FromRecRef.FindSet() then
             repeat
                 ToRecRef := FromRecRef.Duplicate;
                 NewLineNoFieldRef := ToRecRef.Field(2);
@@ -1303,7 +1307,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
     var
         XBRLTaxonomyLine: Record "XBRL Taxonomy Line";
     begin
-        if TempXBRLTaxonomyLine.FindSet then
+        if TempXBRLTaxonomyLine.FindSet() then
             repeat
                 with XBRLTaxonomyLine do begin
                     XBRLTaxonomyLine := TempXBRLTaxonomyLine;
@@ -1321,7 +1325,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
     begin
         TempXBRLTaxonomyLine.DeleteAll();
         XBRLTaxonomyLine.SetRange("Type Description Element", false);
-        if XBRLTaxonomyLine.FindSet then
+        if XBRLTaxonomyLine.FindSet() then
             repeat
                 TempXBRLTaxonomyLine := XBRLTaxonomyLine;
                 TempXBRLTaxonomyLine.Insert();
@@ -1361,3 +1365,5 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
     end;
 }
 
+
+#endif

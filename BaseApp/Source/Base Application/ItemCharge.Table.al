@@ -200,6 +200,9 @@ table 5800 "Item Charge"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description, "Gen. Prod. Posting Group", "VAT Prod. Posting Group")
+        {
+        }
     }
 
     trigger OnDelete()

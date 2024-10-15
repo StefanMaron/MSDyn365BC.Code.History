@@ -45,7 +45,7 @@ codeunit 11766 "G/L Entry -Post Application"
             SetRange("Applies-to ID", ApplyingEntry."Applies-to ID");
             SetRange("G/L Account No.", ApplyingEntry."G/L Account No.");
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ApplyingEntry."Entry No." <> "Entry No." then
                         if "Amount to Apply" <> 0 then
@@ -74,7 +74,7 @@ codeunit 11766 "G/L Entry -Post Application"
                 ApplicationDate := PostingDate;
 
             ApplyingAmount := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     ApplyingAmount := ApplyingAmount + "Amount to Apply";
                     if Amount = 0 then begin
@@ -115,7 +115,7 @@ codeunit 11766 "G/L Entry -Post Application"
 
                 if ApplyingAmount <> 0 then begin
                     SetRange("Applying Entry", true);
-                    if FindFirst then begin
+                    if FindFirst() then begin
                         "Amount to Apply" := "Amount to Apply" - ApplyingAmount;
                         ApplyingAmount := 0;
                         Modify;
@@ -192,7 +192,7 @@ codeunit 11766 "G/L Entry -Post Application"
             if PostingDate < DtldGLEntry."Posting Date" then
                 Error(Text11704, FieldCaption("Posting Date"));
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     ApplicationEntryNo := FindLastApplEntry("G/L Entry No.");
                     if (ApplicationEntryNo <> 0) and (ApplicationEntryNo <> "Entry No.") then
@@ -207,7 +207,7 @@ codeunit 11766 "G/L Entry -Post Application"
             end;
 
             TransactionNo := FindLastTransactionNo + 1;
-            if FindSet then
+            if FindSet() then
                 repeat
                     DtldGLEntry3.Init();
                     DtldGLEntry3."Entry No." := FindLastDtldGLEntryNo + 1;
@@ -274,7 +274,7 @@ codeunit 11766 "G/L Entry -Post Application"
         DtldGLEntry.SetCurrentKey("Entry No.");
         DtldGLEntry.SetRange("G/L Entry No.", GLEntryNo);
         ApplicationEntryNo := 0;
-        if DtldGLEntry.FindSet then
+        if DtldGLEntry.FindSet() then
             repeat
                 if (DtldGLEntry."Entry No." > ApplicationEntryNo) and not DtldGLEntry.Unapplied then
                     ApplicationEntryNo := DtldGLEntry."Entry No.";
@@ -290,7 +290,7 @@ codeunit 11766 "G/L Entry -Post Application"
             TestField(Unapplied, false);
             UnapplyGLEntries.SetDtldGLEntry("Entry No.");
             UnapplyGLEntries.LookupMode(true);
-            UnapplyGLEntries.RunModal;
+            UnapplyGLEntries.RunModal();
         end;
     end;
 
@@ -298,7 +298,7 @@ codeunit 11766 "G/L Entry -Post Application"
     var
         DtldGLEntry: Record "Detailed G/L Entry";
     begin
-        if DtldGLEntry.FindLast then
+        if DtldGLEntry.FindLast() then
             TransactionNo := DtldGLEntry."Transaction No."
         else
             TransactionNo := 0;
@@ -308,7 +308,7 @@ codeunit 11766 "G/L Entry -Post Application"
     var
         DtldGLEntry: Record "Detailed G/L Entry";
     begin
-        if DtldGLEntry.FindLast then
+        if DtldGLEntry.FindLast() then
             DtldGLEntryNo := DtldGLEntry."Entry No."
         else
             DtldGLEntryNo := 0;

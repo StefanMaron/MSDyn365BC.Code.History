@@ -28,7 +28,7 @@ codeunit 145019 "EET UT"
         // [SCENARIO] Delete EET business premises with posted EET entries
         // [GIVEN] Create EET business premises
         // [GIVEN] Create EET entries for created EET business premises
-        Initialize;
+        Initialize();
         CreateEETBusinessPremises(EETBusinessPremises);
         CreateFakeEntries(EETBusinessPremises.Code, '');
 
@@ -50,7 +50,7 @@ codeunit 145019 "EET UT"
         // [SCENARIO] Delete EET business premises without posted EET entries
         // [GIVEN] Create EET business premises
         // [GIVEN] Create EET cash register for created EET business premises
-        Initialize;
+        Initialize();
         CreateEETBusinessPremises(EETBusinessPremises);
         CreateEETCashRegister(EETCashRegister, EETBusinessPremises.Code);
 
@@ -73,7 +73,7 @@ codeunit 145019 "EET UT"
         // [GIVEN] Create EET business premises
         // [GIVEN] Create EET cash register
         // [GIVEN] Create EET entries for created EET cash register
-        Initialize;
+        Initialize();
         CreateEETBusinessPremises(EETBusinessPremises);
         CreateEETCashRegister(EETCashRegister, EETBusinessPremises.Code);
         CreateFakeEntries(EETCashRegister."Business Premises Code", EETCashRegister.Code);
@@ -94,7 +94,7 @@ codeunit 145019 "EET UT"
     begin
         // [SCENARIO] Initialize new EET service setup
         // [GIVEN] Delete actual EET service setup
-        Initialize;
+        Initialize();
 
         EETServiceSetup.Get();
         EETServiceSetup.Delete(true);
@@ -136,7 +136,7 @@ codeunit 145019 "EET UT"
         EETServiceMgt: Codeunit "EET Service Mgt.";
     begin
         // [GIVEN] Create EET entries in state "Send Pending"
-        Initialize;
+        Initialize();
 
         CreateFakeEntries('', '');
 
@@ -160,8 +160,8 @@ codeunit 145019 "EET UT"
     var
         EETServiceSetup: Record "EET Service Setup";
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;

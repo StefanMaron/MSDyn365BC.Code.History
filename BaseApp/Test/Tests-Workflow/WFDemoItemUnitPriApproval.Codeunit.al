@@ -28,10 +28,10 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
 
         UserSetup.DeleteAll();
@@ -62,7 +62,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval and all users in the group of approvals approve the document.
         // [THEN] The Item unit price change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -128,7 +128,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval and the first approver rejects it.
         // [THEN] The Item unit price change is rejected and deleted.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -186,7 +186,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval and the second user delegates the approval to the 3rd user and the last user approves it.
         // [THEN] The Item unit price change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -257,7 +257,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
     begin
         // [SCENARIO 5] Approval action availability.
         // [GIVEN] Item approval workflow and Item unit price change approval workflow are disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
@@ -345,7 +345,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
     begin
         // [SCENARIO 6] Approval action availability.
         // [GIVEN] Item approval workflow and Item unit price change approval workflow are disabled.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         // [WHEN] Item card is opened.
         LibraryInventory.CreateItem(Item);
@@ -422,7 +422,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends 3 Item unit price changes for approval and all users in the group of approvals approve the 2nd request.
         // [THEN] The 2nd Item unit price change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -446,18 +446,18 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         WorkflowRecordChange.SetRange("Table No.", DATABASE::Item);
         WorkflowRecordChange.SetRange("Field No.", Item.FieldNo("Unit Price"));
         WorkflowRecordChange.SetRange("New Value", Format(NewUnitPrice, 0, 9));
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         // find the approval entry from the workflow instance
         ApprovalEntry.SetFilter("Record ID to Approve", '%1', Item.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         // goto the approval entry and approve
         RequeststoApprovePage.OpenView;
         RequeststoApprovePage.GotoRecord(ApprovalEntry);
         RequeststoApprovePage.Approve.Invoke;
         // find the next approval entry (there were 3, 1 auto-approved, 1 approved just above and this last one)
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
         RequeststoApprovePage.GotoRecord(ApprovalEntry);
         RequeststoApprovePage.Approve.Invoke;
         // close the page
@@ -490,7 +490,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval, sends the Item for approval and then rejects the Item unit price change approval.
         // [THEN] The Item unit price change is rejected, but the Item approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
 
@@ -523,7 +523,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
 
         // Verify - Not all Approval requests were rejected
         WorkflowRecordChangeArchive.SetRange("Record ID", Item.RecordId);
-        WorkflowRecordChangeArchive.FindFirst;
+        WorkflowRecordChangeArchive.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetFilter("Workflow Step Instance ID", '<>%1', WorkflowRecordChangeArchive."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Rejected);
@@ -553,7 +553,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval, sends the Item for approval and then cancels the Item approval.
         // [THEN] The Item approval is canceled, but the unit price change approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
@@ -591,7 +591,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
 
         // Verify - Not correct Approval requests were rejected
         WorkflowRecordChange.SetRange("Record ID", Item.RecordId);
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Canceled);
@@ -621,7 +621,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval, sends the Item for approval and then cancels the Item approval.
         // [THEN] The Item approval is canceled, but the unit price change approval is not impacted.
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowUnitPrice, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
         LibraryWorkflow.CopyWorkflowTemplate(WorkflowItemApproval, WorkflowSetup.ItemWorkflowCode);
@@ -660,7 +660,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
 
         // Verify - Not correct Approval requests were rejected
         WorkflowRecordChange.SetRange("Record ID", Item.RecordId);
-        WorkflowRecordChange.FindFirst;
+        WorkflowRecordChange.FindFirst();
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowRecordChange."Workflow Step Instance ID");
         ApprovalEntry.SetFilter(Status, '<>%1', ApprovalEntry.Status::Canceled);
@@ -687,7 +687,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         // [WHEN] A user sends the Item unit price change for approval and all users in the group of approvals approve the document.
         // [THEN] The Item unit price change is approved and applied.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CopyWorkflowTemplate(Workflow, WorkflowSetup.ItemUnitPriceChangeApprovalWorkflowCode);
 
         // Setup - Create 3 user setups, create workflow user group and set the group for the workflow
@@ -829,7 +829,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
@@ -846,7 +846,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);
@@ -873,7 +873,7 @@ codeunit 134213 "WF Demo Item Unit Pri Approval"
         ApprovalEntry.SetRange("Record ID to Approve", Item.RecordId);
         ApprovalEntry.SetRange("Related to Change", true);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        ApprovalEntry.FindFirst;
+        ApprovalEntry.FindFirst();
 
         RequeststoApprove.OpenView;
         RequeststoApprove.GotoRecord(ApprovalEntry);

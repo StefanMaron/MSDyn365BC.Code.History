@@ -1,4 +1,5 @@
-﻿page 55 "Purch. Invoice Subform"
+#if not CLEAN20
+page 55 "Purch. Invoice Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -65,35 +66,11 @@
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        NoOnAfterValidate();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        NoOnAfterValidate();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
-                    ToolTip = 'Specifies the cross-referenced item number.';
+                    ToolTip = 'Specifies the referenced item number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -101,7 +78,10 @@
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec);
                         NoOnAfterValidate();
+#if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
+#endif                        
+                        OnItemReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
@@ -188,6 +168,43 @@
 
                         UpdateTypeText();
                         DeltaUpdateTotals();
+                    end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
                     end;
                 }
                 field("Description 2"; "Description 2")
@@ -397,26 +414,6 @@
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("Tariff No."; "Tariff No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the item''s tariff number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Statistic Indication"; "Statistic Indication")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the statistic indication code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN19
                 field("Prepayment %"; "Prepayment %")
                 {
@@ -514,6 +511,12 @@
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
                     end;
+                }
+                field("Job Planning Line No."; Rec."Job Planning Line No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
+                    Visible = false;
                 }
                 field("Job Line Type"; "Job Line Type")
                 {
@@ -781,6 +784,9 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Document No."; "Document No.")
                 {
@@ -1100,7 +1106,7 @@
                         ApplicationArea = ItemTracking;
                         Caption = 'Item &Tracking Lines';
                         Image = ItemTrackingLines;
-                        ShortCutKey = 'Shift+Ctrl+I';
+                        ShortCutKey = 'Ctrl+Alt+I'; 
                         Enabled = Type = Type::Item;
                         ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1139,6 +1145,40 @@
                             DocumentAttachmentDetails.RunModal();
                         end;
                     }
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of purchase lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all purchase lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
                 }
             }
             group("Page")
@@ -1255,8 +1295,9 @@
         AmountWithDiscountAllowed: Decimal;
         IsFoundation: Boolean;
         InvDiscAmountEditable: Boolean;
-        UnitofMeasureCodeIsChangeable: Boolean;
         CurrPageIsEditable: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
@@ -1282,15 +1323,18 @@
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
 
     local procedure SetOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         OnBeforeSetOpenPage();
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
     procedure ApproveCalcInvDisc()
@@ -1404,7 +1448,6 @@
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
 
-#if not CLEAN20
     [Obsolete('The function is not needed any more.', '20.0')]
     procedure ForceCalculateTotals();
     begin
@@ -1417,7 +1460,6 @@
             TotalPurchaseHeader, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         DocumentTotals.RefreshPurchaseLine(Rec);
     end;
-#endif
 
     procedure DeltaUpdateTotals()
     begin
@@ -1537,8 +1579,16 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by event OnItemReferenceNoOnLookup', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -1552,4 +1602,4 @@
     begin
     end;
 }
-
+#endif

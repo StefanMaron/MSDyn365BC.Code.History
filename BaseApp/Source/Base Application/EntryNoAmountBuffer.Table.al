@@ -43,6 +43,14 @@ table 386 "Entry No. Amount Buffer"
             BlankZero = true;
             Caption = 'Debit Amount';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11761; "Credit Amount"; Decimal)
         {
@@ -50,6 +58,14 @@ table 386 "Entry No. Amount Buffer"
             BlankZero = true;
             Caption = 'Credit Amount';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 

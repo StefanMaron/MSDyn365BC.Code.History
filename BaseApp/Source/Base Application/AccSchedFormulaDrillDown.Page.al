@@ -70,7 +70,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
                                 "Totaling Type"::Formula:
                                     begin
                                         AccSchedFormulaDrillDown.InitParameters(AccSchedLine, SourceColumnLayout, TempAccSchedCellValue);
-                                        AccSchedFormulaDrillDown.Run;
+                                        AccSchedFormulaDrillDown.Run();
                                     end;
                                 "Totaling Type"::Custom:
                                     AccSchedExtensionMgt.DrillDownAmount(
@@ -146,7 +146,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
                                             Clear(ChartOfAccsAnalysisView);
                                             ChartOfAccsAnalysisView.InsertTempGLAccAnalysisViews(GLAcc);
                                             ChartOfAccsAnalysisView.SetTableView(GLAccAnalysisView);
-                                            ChartOfAccsAnalysisView.Run;
+                                            ChartOfAccsAnalysisView.Run();
                                         end;
                                     end;
                             end;
@@ -184,7 +184,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
         SourceColumnLayout := ColumnLayout;
         Formula := AccSchedLine.Totaling;
 
-        if AccSchedCellValue.FindFirst then
+        if AccSchedCellValue.FindFirst() then
             repeat
                 TempAccSchedCellValue.TransferFields(AccSchedCellValue);
                 if TempAccSchedCellValue.Insert() then;
@@ -290,14 +290,14 @@ page 31093 "Acc. Sched. Formula Drill-Down"
                             AccSchedLine.SetRange("Schedule Name", AccSchedLine."Schedule Name");
                             AccSchedLine.SetFilter("Row No.", Expression);
                             AccSchedLineID := AccSchedLine."Line No.";
-                            if AccSchedLine.FindSet then
+                            if AccSchedLine.FindSet() then
                                 repeat
                                     if AccSchedLine."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
                                 until AccSchedLine.Next() = 0
                             else begin
                                 AccSchedLine.SetRange("Schedule Name", GLSetup."Shared Account Schedule");
-                                if AccSchedLine.FindFirst then
+                                if AccSchedLine.FindFirst() then
                                     repeat
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);
                                     until AccSchedLine.Next() = 0;
@@ -306,7 +306,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
                             ColumnLayout.SetRange("Column Layout Name", ColumnLayout."Column Layout Name");
                             ColumnLayout.SetFilter("Column No.", Expression);
                             AccSchedLineID := ColumnLayout."Line No.";
-                            if ColumnLayout.FindSet then
+                            if ColumnLayout.FindSet() then
                                 repeat
                                     if ColumnLayout."Line No." <> AccSchedLineID then
                                         Result := Result + CalcCellValue(AccSchedLine, ColumnLayout);

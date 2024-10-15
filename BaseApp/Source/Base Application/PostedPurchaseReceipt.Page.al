@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 136 "Posted Purchase Receipt"
 {
     Caption = 'Posted Purchase Receipt';
@@ -136,6 +137,10 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a description of the purchase receipt. The posting description also appers on vendor and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -333,12 +338,20 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
             group(Shipping)
@@ -553,7 +566,7 @@ page 136 "Posted Purchase Receipt"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -598,4 +611,4 @@ page 136 "Posted Purchase Receipt"
     begin
     end;
 }
-
+#endif

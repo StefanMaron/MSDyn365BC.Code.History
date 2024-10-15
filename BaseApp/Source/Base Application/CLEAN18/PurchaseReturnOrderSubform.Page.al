@@ -55,7 +55,7 @@ page 6641 "Purchase Return Order Subform"
                 field("No."; "No.")
                 {
                     ApplicationArea = PurchReturnOrder;
-                    ShowMandatory = NOT IsCommentLine;
+                    ShowMandatory = Type <> Type::" ";
                     ToolTip = 'Specifies the number of a general ledger account, item, additional cost, or fixed asset, depending on what you selected in the Type field.';
 
                     trigger OnValidate()
@@ -69,37 +69,11 @@ page 6641 "Purchase Return Order Subform"
                         CurrPage.Update();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp;
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = PurchReturnOrder;
-                    ToolTip = 'Specifies the cross-referenced item number.';
-                    Visible = ItemReferenceVisible;
+                    AccessByPermission = tabledata "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
+                    ToolTip = 'Specifies the referenced item number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -108,7 +82,10 @@ page 6641 "Purchase Return Order Subform"
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+#if not CLEAN20
                         OnCrossReferenceNoOnLookup(Rec);
+#endif                        
+                        OnItemReferenceNoOnLookup(Rec);
                     end;
 
                     trigger OnValidate()
@@ -165,8 +142,53 @@ page 6641 "Purchase Return Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
+                    end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = PurchReturnOrder;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Return Reason Code"; "Return Reason Code")
                 {
@@ -197,7 +219,7 @@ page 6641 "Purchase Return Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the number of units of the item specified on the line.';
 
                     trigger OnValidate()
@@ -247,7 +269,7 @@ page 6641 "Purchase Return Order Subform"
                     BlankZero = true;
                     Editable = NOT IsBlankNumber;
                     Enabled = NOT IsBlankNumber;
-                    ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
+                    ShowMandatory = (Type <> Type::" ") AND ("No." <> '');
                     ToolTip = 'Specifies the cost of one unit of the selected item or resource.';
 
                     trigger OnValidate()
@@ -962,7 +984,7 @@ page 6641 "Purchase Return Order Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1020,6 +1042,40 @@ page 6641 "Purchase Return Order Subform"
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
                         DocumentAttachmentDetails.RunModal();
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of purchase lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all purchase lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -1085,8 +1141,11 @@ page 6641 "Purchase Return Order Subform"
     end;
 
     trigger OnOpenPage()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         SetDimensionsVisibility;
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
     var
@@ -1102,14 +1161,13 @@ page 6641 "Purchase Return Order Subform"
         DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;
         InvDiscAmountEditable: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         IsFoundation: Boolean;
-        UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";
@@ -1129,6 +1187,7 @@ page 6641 "Purchase Return Order Subform"
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1245,6 +1304,11 @@ page 6641 "Purchase Return Order Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
+    procedure ClearTotalPurchaseHeader();
+    begin
+        Clear(TotalPurchaseHeader);
+    end;
+
     procedure CalculateTotals()
     begin
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
@@ -1260,6 +1324,11 @@ page 6641 "Purchase Return Order Subform"
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+    end;
+
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := Type = Type::" ";
@@ -1267,7 +1336,9 @@ page 6641 "Purchase Return Order Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable :=
+            CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
+            (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, UnitofMeasureCodeIsChangeable);
     end;
@@ -1314,10 +1385,11 @@ page 6641 "Purchase Return Order Subform"
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     local procedure UpdateCurrency()
@@ -1359,8 +1431,16 @@ page 6641 "Purchase Return Order Subform"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnItemReferenceNoOnLookup.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

@@ -29,49 +29,31 @@ table 260 "Tariff Number"
         field(11760; "Statement Code"; Code[10])
         {
             Caption = 'Statement Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = Commodity.Code;
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "VAT Stat. Unit of Measure Code"; Code[10])
         {
             Caption = 'VAT Stat. Unit of Measure Code';
             TableRelation = "Unit of Measure";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11762; "Allow Empty Unit of Meas.Code"; Boolean)
         {
             Caption = 'Allow Empty Unit of Meas.Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11763; "Statement Limit Code"; Code[10])
         {
             Caption = 'Statement Limit Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = Commodity.Code;
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11792; "Full Name"; Text[250])
         {
@@ -111,19 +93,8 @@ table 260 "Tariff Number"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description)
+        {
+        }
     }
-#if not CLEAN17
-
-    trigger OnDelete()
-    begin
-        // NAVCZ
-        StatisticIndication.SetRange("Tariff No.", "No.");
-        StatisticIndication.DeleteAll();
-        // NAVCZ
-    end;
-
-    var
-        StatisticIndication: Record "Statistic Indication";
-#endif
 }
-

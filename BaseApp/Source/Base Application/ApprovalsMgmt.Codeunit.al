@@ -151,22 +151,6 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
 #endif
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnSendCashDocForApproval(var CashDocHdr: Record "Cash Document Header")
-    begin
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
-    procedure OnCancelCashDocApprovalRequest(var CashDocHdr: Record "Cash Document Header")
-    begin
-    end;
-
-#endif
 #if not CLEAN18
     [IntegrationEvent(false, false)]
     [Obsolete('Moved to Compensation Localization for Czech.', '18.2')]
@@ -456,7 +440,7 @@ codeunit 1535 "Approvals Mgmt."
         if UserSetup.Substitute = '' then
             if UserSetup."Approver ID" = '' then begin
                 ApprovalAdminUserSetup.SetRange("Approval Administrator", true);
-                if ApprovalAdminUserSetup.FindFirst then
+                if ApprovalAdminUserSetup.FindFirst() then
                     UserSetup.Get(ApprovalAdminUserSetup."User ID")
                 else
                     Error(SubstituteNotFoundErr, UserSetup."User ID");
@@ -636,7 +620,7 @@ codeunit 1535 "Approvals Mgmt."
         if IsHandled then
             exit;
 
-        if ApprovalEntry.FindFirst then begin
+        if ApprovalEntry.FindFirst() then begin
             ApprovalEntry2.CopyFilters(ApprovalEntry);
             ApprovalEntry2.SetRange("Sequence No.", ApprovalEntry."Sequence No.");
             if ApprovalEntry2.FindSet(true) then
@@ -651,7 +635,7 @@ codeunit 1535 "Approvals Mgmt."
         end;
 
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Approved);
-        if ApprovalEntry.FindLast then
+        if ApprovalEntry.FindLast() then
             OnApproveApprovalRequest(ApprovalEntry)
         else
             Error(NoApprovalRequestsFoundErr);
@@ -681,10 +665,10 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry2.SetRange(Status, ApprovalEntry2.Status::Created);
         OnSendApprovalRequestFromApprovalEntryOnAfterSetApprovalEntry2Filters(ApprovalEntry2, ApprovalEntry);
 
-        if ApprovalEntry2.FindFirst then begin
+        if ApprovalEntry2.FindFirst() then begin
             ApprovalEntry3.CopyFilters(ApprovalEntry2);
             ApprovalEntry3.SetRange("Sequence No.", ApprovalEntry2."Sequence No.");
-            if ApprovalEntry3.FindSet then
+            if ApprovalEntry3.FindSet() then
                 repeat
                     ApprovalEntry3.Validate(Status, ApprovalEntry3.Status::Open);
                     ApprovalEntry3.Modify(true);
@@ -803,7 +787,7 @@ codeunit 1535 "Approvals Mgmt."
             SetCurrentKey("Workflow User Group Code", "Sequence No.");
             SetRange("Workflow User Group Code", WorkflowStepArgument."Workflow User Group Code");
 
-            if not FindSet then
+            if not FindSet() then
                 Error(NoWFUserGroupMembersErr);
 
             repeat
@@ -854,7 +838,7 @@ codeunit 1535 "Approvals Mgmt."
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             SetRange(Status, Status::Created);
             OnCreateApprovalRequestForApproverChainOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
-            if FindLast then
+            if FindLast() then
                 ApproverId := "Approver ID"
             else
                 if (WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser") and
@@ -1089,18 +1073,6 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalAmountLCY := PmtOrdHdr."Amount (LCY)";
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CalcCashDocAmount(CashDocHdr: Record "Cash Document Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
-    begin
-        // NAVCZ
-        CashDocHdr.CalcFields(Amount, "Amount (LCY)");
-        ApprovalAmount := CashDocHdr.Amount;
-        ApprovalAmountLCY := CashDocHdr."Amount (LCY)";
-    end;
-
-#endif
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure CalcSalesAdvanceLetterAmount(SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var ApprovalAmount: Decimal; var ApprovalAmountLCY: Decimal)
@@ -1144,9 +1116,6 @@ codeunit 1535 "Approvals Mgmt."
         IncomingDocument: Record "Incoming Document";
 #if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
-#if not CLEAN17
-        CashDocHeader: Record "Cash Document Header";
-#endif
 #if not CLEAN18
         CreditHeader: Record "Credit Header";
 #endif
@@ -1234,19 +1203,6 @@ codeunit 1535 "Approvals Mgmt."
                     ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
                     ApprovalEntryArgument."Currency Code" := PaymentOrderHeader."Currency Code";
                 end;
-#if not CLEAN17
-            DATABASE::"Cash Document Header":
-                begin
-                    RecRef.SetTable(CashDocHeader);
-                    CalcCashDocAmount(CashDocHeader, ApprovalAmount, ApprovalAmountLCY);
-                    ApprovalEntryArgument."Document Type" := 0;
-                    ApprovalEntryArgument."Document No." := CashDocHeader."No.";
-                    ApprovalEntryArgument."Salespers./Purch. Code" := CashDocHeader."Salespers./Purch. Code";
-                    ApprovalEntryArgument.Amount := ApprovalAmount;
-                    ApprovalEntryArgument."Amount (LCY)" := ApprovalAmountLCY;
-                    ApprovalEntryArgument."Currency Code" := CashDocHeader."Currency Code";
-                end;
-#endif
 #if not CLEAN18
             DATABASE::"Credit Header":
                 begin
@@ -1446,22 +1402,6 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
 #endif
-#if not CLEAN17
-    local procedure IsSufficientCashDeskApprover(UserSetup: Record "User Setup"; ApprovalAmountLCY: Decimal): Boolean
-    begin
-        // NAVCZ
-        if UserSetup."User ID" = UserSetup."Approver ID" then
-            exit(true);
-
-        if UserSetup."Unlimited Cash Desk Approval" or
-           ((ApprovalAmountLCY <= UserSetup."Cash Desk Amt. Approval Limit") and (UserSetup."Cash Desk Amt. Approval Limit" <> 0))
-        then
-            exit(true);
-
-        exit(false);
-    end;
-
-#endif
     procedure IsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean
     var
         IsSufficient: Boolean;
@@ -1480,10 +1420,6 @@ codeunit 1535 "Approvals Mgmt."
 #if not CLEAN19
             DATABASE::"Payment Order Header":
                 IsSufficient := IsSufficientBankApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)");
-#if not CLEAN17
-            DATABASE::"Cash Document Header":
-                IsSufficient := IsSufficientCashDeskApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)");
-#endif
             DATABASE::"Sales Advance Letter Header":
                 IsSufficient := IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)");
             DATABASE::"Purch. Advance Letter Header":
@@ -1553,19 +1489,6 @@ codeunit 1535 "Approvals Mgmt."
         exit(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure PrePostApprovalCheckCashDoc(var CashDocHdr: Record "Cash Document Header"): Boolean
-    begin
-        // NAVCZ
-        if (CashDocHdr.Status = CashDocHdr.Status::Open) and IsCashDocApprovalsWorkflowEnabled(CashDocHdr) then
-            Error(PrePostCheckCashDocErr, CashDocHdr."No.", CashDocHdr."Cash Document Type");
-
-        exit(true);
-    end;
-
-#endif
 #if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
@@ -1669,17 +1592,6 @@ codeunit 1535 "Approvals Mgmt."
           WorkflowEventHandlingCZ.RunWorkflowOnSendPaymentOrderForApprovalCode));
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsCashDocApprovalsWorkflowEnabled(var CashDocHdr: Record "Cash Document Header"): Boolean
-    begin
-        // NAVCZ
-        exit(WorkflowManagement.CanExecuteWorkflow(CashDocHdr,
-          WorkflowEventHandlingCZ.RunWorkflowOnSendCashDocForApprovalCode));
-    end;
-
-#endif
 #if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.0')]
     [Scope('OnPrem')]
@@ -1818,19 +1730,6 @@ codeunit 1535 "Approvals Mgmt."
         exit(true);
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure CheckCashDocApprovalsWorkflowEnabled(var CashDocHdr: Record "Cash Document Header"): Boolean
-    begin
-        // NAVCZ
-        if not IsCashDocApprovalsWorkflowEnabled(CashDocHdr) then
-            Error(NoWorkflowEnabledErr);
-
-        exit(true);
-    end;
-
-#endif
 #if not CLEAN18
     [Obsolete('Moved to Compensation Localization for Czech.', '18.2')]
     [Scope('OnPrem')]
@@ -1949,7 +1848,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetAutoCalcFields("Pending Approvals", "Number of Approved Requests", "Number of Rejected Requests");
         ApprovalEntry.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", ApprovedRecordID);
-        if not ApprovalEntry.FindSet then
+        if not ApprovalEntry.FindSet() then
             exit(false);
 
         repeat
@@ -1977,7 +1876,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalCommentLine.SetRange("Table ID", ApprovedRecordID.TableNo);
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovedRecordID);
-        if ApprovalCommentLine.FindSet then
+        if ApprovalCommentLine.FindSet() then
             repeat
                 PostedApprovalCommentLine.Init();
                 PostedApprovalCommentLine.TransferFields(ApprovalCommentLine);
@@ -2028,9 +1927,6 @@ codeunit 1535 "Approvals Mgmt."
         IncomingDocument: Record "Incoming Document";
 #if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
-#if not CLEAN17
-        CashDocHeader: Record "Cash Document Header";
-#endif
 #if not CLEAN18
         CreditHeader: Record "Credit Header";
 #endif
@@ -2074,15 +1970,6 @@ codeunit 1535 "Approvals Mgmt."
                     PaymentOrderHeader.Modify(true);
                     Variant := PaymentOrderHeader;
                 end;
-#if not CLEAN17
-            DATABASE::"Cash Document Header":
-                begin
-                    RecRef.SetTable(CashDocHeader);
-                    CashDocHeader.Validate(Status, CashDocHeader.Status::"Pending Approval");
-                    CashDocHeader.Modify(true);
-                    Variant := CashDocHeader;
-                end;
-#endif
 #if not CLEAN18
             DATABASE::"Credit Header":
                 begin
@@ -2121,9 +2008,6 @@ codeunit 1535 "Approvals Mgmt."
     procedure SetStatusToApproved(var Variant: Variant)
     var
         ApprovalEntry: Record "Approval Entry";
-#if not CLEAN17
-        CashDocumentHeader: Record "Cash Document Header";
-#endif
 #if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
 #endif
@@ -2148,15 +2032,6 @@ codeunit 1535 "Approvals Mgmt."
                     PaymentOrderHeader.Validate(Status, PaymentOrderHeader.Status::Approved);
                     PaymentOrderHeader.Modify();
                     Variant := PaymentOrderHeader;
-                end;
-#endif
-#if not CLEAN17
-            DATABASE::"Cash Document Header":
-                begin
-                    RecRef.SetTable(CashDocumentHeader);
-                    CashDocumentHeader.Validate(Status, CashDocumentHeader.Status::Approved);
-                    CashDocumentHeader.Modify();
-                    Variant := CashDocumentHeader;
                 end;
 #endif
         end;
@@ -2268,7 +2143,7 @@ codeunit 1535 "Approvals Mgmt."
 
         ApprovalComments.SetTableView(ApprovalCommentLine);
         ApprovalComments.SetWorkflowStepInstanceID(WorkflowStepInstanceID);
-        ApprovalComments.Run;
+        ApprovalComments.Run();
     end;
 
     procedure HasOpenApprovalEntriesForCurrentUser(RecordID: RecordID): Boolean
@@ -2279,6 +2154,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         ApprovalEntry.SetRange("Approver ID", UserId);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
 
         exit(not ApprovalEntry.IsEmpty());
@@ -2291,6 +2169,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         OnHasOpenApprovalEntriesOnAfterApprovalEntrySetFilters(ApprovalEntry);
         exit(not ApprovalEntry.IsEmpty);
@@ -2303,6 +2184,9 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
         ApprovalEntry.SetFilter(Status, '%1|%2', ApprovalEntry.Status::Open, ApprovalEntry.Status::Created);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -2313,6 +2197,9 @@ codeunit 1535 "Approvals Mgmt."
     begin
         ApprovalEntry.SetRange("Table ID", RecordID.TableNo);
         ApprovalEntry.SetRange("Record ID to Approve", RecordID);
+        // Initial check before performing an expensive query due to the "Related to Change" flow field.
+        if ApprovalEntry.IsEmpty() then
+            exit(false);
         ApprovalEntry.SetRange("Related to Change", false);
         exit(not ApprovalEntry.IsEmpty);
     end;
@@ -2380,9 +2267,6 @@ codeunit 1535 "Approvals Mgmt."
         then
             Error(PendingJournalBatchApprovalExistsErr);
         OnSendGeneralJournalBatchForApproval(GenJournalBatch);
-
-        GenJournalBatch."Pending Approval" := true;
-        GenJournalBatch.Modify();
     end;
 
     procedure TrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2399,9 +2283,6 @@ codeunit 1535 "Approvals Mgmt."
             then begin
                 OnSendGeneralJournalLineForApproval(GenJournalLine);
                 LinesSent += 1;
-
-                GenJournalLine."Pending Approval" := true;
-                GenJournalLine.Modify();
             end;
         until GenJournalLine.Next() = 0;
 
@@ -2423,9 +2304,6 @@ codeunit 1535 "Approvals Mgmt."
         GetGeneralJournalBatch(GenJournalBatch, GenJournalLine);
         OnCancelGeneralJournalBatchApprovalRequest(GenJournalBatch);
         WorkflowWebhookManagement.FindAndCancel(GenJournalBatch.RecordId);
-
-        GenJournalBatch."Pending Approval" := false;
-        GenJournalBatch.Modify();
     end;
 
     procedure TryCancelJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
@@ -2436,9 +2314,6 @@ codeunit 1535 "Approvals Mgmt."
             if HasOpenApprovalEntries(GenJournalLine.RecordId) then
                 OnCancelGeneralJournalLineApprovalRequest(GenJournalLine);
             WorkflowWebhookManagement.FindAndCancel(GenJournalLine.RecordId);
-
-            GenJournalLine."Pending Approval" := false;
-            GenJournalLine.Modify();
         until GenJournalLine.Next() = 0;
         Message(ApprovalReqCanceledForSelectedLinesMsg);
     end;
@@ -2515,7 +2390,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         FromApprovalEntry.SetRange("Table ID", FromRecID.TableNo);
         FromApprovalEntry.SetRange("Record ID to Approve", FromRecID);
-        if FromApprovalEntry.FindSet then begin
+        if FromApprovalEntry.FindSet() then begin
             repeat
                 ToApprovalEntry := FromApprovalEntry;
                 ToApprovalEntry."Entry No." := 0; // Auto increment
@@ -2527,7 +2402,7 @@ codeunit 1535 "Approvals Mgmt."
 
             FromApprovalCommentLine.SetRange("Table ID", FromRecID.TableNo);
             FromApprovalCommentLine.SetRange("Record ID to Approve", FromRecID);
-            if FromApprovalCommentLine.FindSet then begin
+            if FromApprovalCommentLine.FindSet() then begin
                 NextEntryNo := ToApprovalCommentLine.GetLastEntryNo() + 1;
                 repeat
                     ToApprovalCommentLine := FromApprovalCommentLine;
@@ -2552,7 +2427,7 @@ codeunit 1535 "Approvals Mgmt."
             SetRange("Record ID to Approve", ApprovalEntryArgument."Record ID to Approve");
             SetRange("Workflow Step Instance ID", ApprovalEntryArgument."Workflow Step Instance ID");
             OnGetLastSequenceNoOnAfterSetApprovalEntryFilters(ApprovalEntry, ApprovalEntryArgument);
-            if FindLast then
+            if FindLast() then
                 exit("Sequence No.");
         end;
         exit(0);
@@ -2643,7 +2518,7 @@ codeunit 1535 "Approvals Mgmt."
         if ApprovalEntryArgument."Salespers./Purch. Code" <> '' then begin
             UserSetup.SetCurrentKey("Salespers./Purch. Code");
             UserSetup.SetRange("Salespers./Purch. Code", ApprovalEntryArgument."Salespers./Purch. Code");
-            if not UserSetup.FindFirst then
+            if not UserSetup.FindFirst() then
                 Error(
                   PurchaserUserNotFoundErr, UserSetup."User ID", UserSetup.FieldCaption("Salespers./Purch. Code"),
                   UserSetup."Salespers./Purch. Code");
@@ -2677,7 +2552,7 @@ codeunit 1535 "Approvals Mgmt."
         WorkflowStepInstance.SetRange("Workflow Code", WorkflowStepInstance."Workflow Code");
         WorkflowStepInstance.SetRange(Type, WorkflowInstance.Type::Response);
         WorkflowStepInstance.SetRange(Status, WorkflowInstance.Status::Completed);
-        if WorkflowStepInstance.FindSet then
+        if WorkflowStepInstance.FindSet() then
             repeat
                 if WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
                     if WorkflowStepArgument."Approver Type" = WorkflowStepArgument."Approver Type"::"Workflow User Group" then begin

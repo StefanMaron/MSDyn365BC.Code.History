@@ -1,13 +1,9 @@
-#if not CLEAN17
 report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
-    Caption = 'General Journal - Test (Obsolete)';
+    Caption = 'General Journal - Test';
     PreviewMode = PrintLayout;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
 
     dataset
     {
@@ -181,7 +177,7 @@ report 2 "General Journal - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not DimSetEntry.FindSet then
+                                if not DimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -260,7 +256,7 @@ report 2 "General Journal - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry.FindFirst then
+                                    if not DimSetEntry.FindFirst() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -990,7 +986,7 @@ report 2 "General Journal - Test"
                 GenJnlAlloc.SetRange("Journal Template Name", "Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
-                if not GenJnlAlloc.FindFirst then
+                if not GenJnlAlloc.FindFirst() then
                     AddError(Text061);
             end;
 
@@ -999,12 +995,12 @@ report 2 "General Journal - Test"
             GenJnlAlloc.SetRange("Journal Batch Name", "Journal Batch Name");
             GenJnlAlloc.SetRange("Journal Line No.", "Line No.");
             GenJnlAlloc.SetFilter(Amount, '<>0');
-            if GenJnlAlloc.FindFirst then
+            if GenJnlAlloc.FindFirst() then
                 if not GenJnlTemplate.Recurring then
                     AddError(Text021)
                 else begin
                     GenJnlAlloc.SetRange("Account No.", '');
-                    if GenJnlAlloc.FindFirst then
+                    if GenJnlAlloc.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text022,
@@ -1069,7 +1065,7 @@ report 2 "General Journal - Test"
         with NextGenJnlLine do begin
             if (LastDate <> 0D) and (LastDocNo <> '') and
                (("Posting Date" <> LastDate) or
-                (("Document Type" <> LastDocType) and (not GenJnlTemplate."Not Check Doc. Type")) or
+                ("Document Type" <> LastDocType) or
                 ("Document No." <> LastDocNo) or
                 ("Line No." = LastLineNo))
             then begin
@@ -1340,7 +1336,7 @@ report 2 "General Journal - Test"
                         OldCustLedgEntry.SetCurrentKey("Document No.");
                         OldCustLedgEntry.SetRange("Document Type", "Document Type");
                         OldCustLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldCustLedgEntry.FindFirst then
+                        if OldCustLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text039, "Document Type", "Document No."));
@@ -1358,7 +1354,7 @@ report 2 "General Journal - Test"
                             OldCustLedgEntry.SetRange("Document Type", "Document Type");
                             OldCustLedgEntry.SetRange("Customer No.", "Account No.");
                             OldCustLedgEntry.SetRange("External Document No.", "External Document No.");
-                            if OldCustLedgEntry.FindFirst then
+                            if OldCustLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text039,
@@ -1432,7 +1428,7 @@ report 2 "General Journal - Test"
                         OldVendLedgEntry.SetCurrentKey("Document No.");
                         OldVendLedgEntry.SetRange("Document Type", "Document Type");
                         OldVendLedgEntry.SetRange("Document No.", "Document No.");
-                        if OldVendLedgEntry.FindFirst then
+                        if OldVendLedgEntry.FindFirst() then
                             AddError(
                               StrSubstNo(
                                 Text040,
@@ -1450,13 +1446,11 @@ report 2 "General Journal - Test"
                             OldVendLedgEntry.SetCurrentKey("External Document No.");
                             VendorMgt.SetFilterForExternalDocNo(
                               OldVendLedgEntry, "Document Type", "External Document No.", "Account No.", "Document Date");
-                            if OldVendLedgEntry.FindFirst then
+                            if OldVendLedgEntry.FindFirst() then
                                 AddError(
                                   StrSubstNo(
                                     Text040,
-                                    "Document Type", "External Document No."))
-                            else
-                                CheckExtDocNoInPostedPurchDoc(GenJnlLine);
+                                    "Document Type", "External Document No."));
                             CheckAgainstPrevLines("Gen. Journal Line");
                         end;
                     end;
@@ -1581,7 +1575,6 @@ report 2 "General Journal - Test"
 
     local procedure TestFixedAsset(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        FASetup.Get();
         with GenJnlLine do begin
             if "Job No." <> '' then
                 AddError(
@@ -1607,9 +1600,8 @@ report 2 "General Journal - Test"
                     Text047,
                     FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type"));
             if "Account Type" = "Account Type"::"Fixed Asset" then
-                if ("FA Posting Type" in
-                    ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]) or
-                   (FASetup."FA Acquisition As Custom 2" and ("FA Posting Type" = "FA Posting Type"::"Custom 2"))
+                if "FA Posting Type" in
+                   ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]
                 then begin
                     if ("Gen. Bus. Posting Group" <> '') or ("Gen. Prod. Posting Group" <> '') then
                         if "Gen. Posting Type" = "Gen. Posting Type"::" " then
@@ -1632,9 +1624,8 @@ report 2 "General Journal - Test"
                             FieldCaption("Gen. Prod. Posting Group"), FieldCaption("FA Posting Type"), "FA Posting Type"));
                 end;
             if "Bal. Account Type" = "Bal. Account Type"::"Fixed Asset" then
-                if ("FA Posting Type" in
-                    ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]) or
-                   (FASetup."FA Acquisition As Custom 2" and ("FA Posting Type" = "FA Posting Type"::"Custom 2"))
+                if "FA Posting Type" in
+                   ["FA Posting Type"::"Acquisition Cost", "FA Posting Type"::Disposal, "FA Posting Type"::Maintenance]
                 then begin
                     if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') then
                         if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
@@ -1693,11 +1684,10 @@ report 2 "General Journal - Test"
                 "FA Posting Date" := "Posting Date";
             if DeprBook.Get("Depreciation Book Code") then
                 if DeprBook."Use Same FA+G/L Posting Dates" and ("Posting Date" <> "FA Posting Date") then
-                    if not "FA Reclassification Entry" then
-                        AddError(
-                          StrSubstNo(
-                            Text051,
-                            FieldCaption("Posting Date"), FieldCaption("FA Posting Date")));
+                    AddError(
+                      StrSubstNo(
+                        Text051,
+                        FieldCaption("Posting Date"), FieldCaption("FA Posting Date")));
             if "FA Posting Date" <> 0D then begin
                 if "FA Posting Date" <> NormalDate("FA Posting Date") then
                     AddError(
@@ -1919,7 +1909,7 @@ report 2 "General Journal - Test"
                 TempGenJnlLine.SetRange("Bal. Account Type", AccType);
                 TempGenJnlLine.SetRange("Bal. Account No.", AccNo);
             end;
-            if TempGenJnlLine.FindFirst then begin
+            if TempGenJnlLine.FindFirst() then begin
                 ErrorFound := true;
                 AddError(
                   StrSubstNo(
@@ -1947,7 +1937,7 @@ report 2 "General Journal - Test"
                     GenJnlLine4.SetRange("Posting Date", "Posting Date");
                     GenJnlLine4.SetRange("Document No.", "Document No.");
                     GenJnlLine4.SetFilter("IC Partner Code", '<>%1', '');
-                    if GenJnlLine4.FindFirst then
+                    if GenJnlLine4.FindFirst() then
                         CurrentICPartner := GenJnlLine4."IC Partner Code"
                     else
                         CurrentICPartner := '';
@@ -2065,7 +2055,7 @@ report 2 "General Journal - Test"
                 OldFALedgEntry.SetRange("FA Posting Category", OldFALedgEntry."FA Posting Category"::" ");
                 OldFALedgEntry.SetRange("FA Posting Type", FAJnlLine.ConvertToLedgEntry(FAJnlLine));
                 OldFALedgEntry.SetRange("Document No.", "Document No.");
-                if OldFALedgEntry.FindFirst then
+                if OldFALedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text073,
@@ -2076,7 +2066,7 @@ report 2 "General Journal - Test"
                 OldMaintenanceLedgEntry.SetRange("FA No.", FANo);
                 OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
                 OldMaintenanceLedgEntry.SetRange("Document No.", "Document No.");
-                if OldMaintenanceLedgEntry.FindFirst then
+                if OldMaintenanceLedgEntry.FindFirst() then
                     AddError(
                       StrSubstNo(
                         Text073,
@@ -2138,7 +2128,7 @@ report 2 "General Journal - Test"
     begin
         GenJournalLine.CopyFilters(FromGenJournalLine);
         GenJournalLine.SetCurrentKey("Document No.");
-        if GenJournalLine.FindLast then;
+        if GenJournalLine.FindLast() then;
         exit(GenJournalLine."Document No.");
     end;
 
@@ -2154,40 +2144,6 @@ report 2 "General Journal - Test"
         GenJournalLine.CopyFilters(FromGenJournalLine);
         GenJournalLine.SetRange("Document No.", IncStr(FromGenJournalLine."Document No."));
         exit(GenJournalLine.IsEmpty);
-    end;
-
-    local procedure CheckExtDocNoInPostedPurchDoc(GenJnlLine: Record "Gen. Journal Line")
-    var
-        PurchInvHeader: Record "Purch. Inv. Header";
-        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
-    begin
-        with GenJnlLine do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    begin
-                        PurchInvHeader.Reset();
-                        PurchInvHeader.SetCurrentKey("Vendor Invoice No.");
-                        PurchInvHeader.SetRange("Vendor Invoice No.", "External Document No.");
-                        PurchInvHeader.SetRange("Pay-to Vendor No.", "Account No.");
-                        if not PurchInvHeader.IsEmpty() then
-                            AddError(
-                              StrSubstNo(
-                                Text040,
-                                "Document Type", "External Document No."));
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        PurchCrMemoHdr.Reset();
-                        PurchCrMemoHdr.SetCurrentKey("Vendor Cr. Memo No.");
-                        PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", "External Document No.");
-                        PurchCrMemoHdr.SetRange("Pay-to Vendor No.", "Account No.");
-                        if not PurchCrMemoHdr.IsEmpty() then
-                            AddError(
-                              StrSubstNo(
-                                Text040,
-                                "Document Type", "External Document No."));
-                    end;
-            end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -2250,4 +2206,4 @@ report 2 "General Journal - Test"
     begin
     end;
 }
-#endif
+

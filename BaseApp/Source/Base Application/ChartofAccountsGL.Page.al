@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 570 "Chart of Accounts (G/L)"
 {
     Caption = 'Chart of Accounts (G/L)';
@@ -89,12 +90,18 @@ page 570 "Chart of Accounts (G/L)"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the debit entries that have been posted to the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Credit Amount"; "Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the credit entries that have been posted to the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Balance at Date"; "Balance at Date")
                 {
@@ -232,7 +239,7 @@ page 570 "Chart of Accounts (G/L)"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -357,4 +364,4 @@ page 570 "Chart of Accounts (G/L)"
         Emphasize := "Account Type" <> "Account Type"::Posting;
     end;
 }
-
+#endif

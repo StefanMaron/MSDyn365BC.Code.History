@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5800 "Item Charges"
 {
     AdditionalSearchTerms = 'fee transportation freight handling landed cost';
@@ -124,4 +125,4 @@ page 5800 "Item Charges"
         }
     }
 }
-
+#endif

@@ -1,4 +1,4 @@
-﻿report 25 "Account Schedule"
+report 25 "Account Schedule"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './AccountSchedule.rdlc';
@@ -155,6 +155,8 @@
                         }
 
                         trigger OnAfterGetRecord()
+                        var
+                            ValueIsEmpty: Boolean;
                         begin
                             if Show = Show::Never then
                                 CurrReport.Skip();
@@ -170,13 +172,15 @@
                                         RoundingHeader := Text001;
                                 end;
 
-                            ColumnValuesAsText := CalcColumnValueAsText("Acc. Schedule Line", "Column Layout");
+                            ColumnValuesAsText := CalcColumnValueAsText("Acc. Schedule Line", "Column Layout", ValueIsEmpty);
 
                             ColumnValuesArrayIndex += 1;
                             if ColumnValuesArrayIndex <= ArrayLen(ColumnValuesArrayText) then
                                 ColumnValuesArrayText[ColumnValuesArrayIndex] := ColumnValuesAsText;
 
-                            if (ColumnValuesAsText <> '') or (("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) and not SkipEmptyLines) then
+                            if (not ValueIsEmpty) or (("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes) and not SkipEmptyLines) or
+                                (("Acc. Schedule Line".Totaling = '') and ("Acc. Schedule Line".Show = "Acc. Schedule Line".Show::Yes))
+                            then
                                 LineSkipped := false;
                         end;
 
@@ -260,7 +264,7 @@
                     i: Integer;
                 begin
                     ColumnLayout.SetRange("Column Layout Name", ColumnLayoutName);
-                    if ColumnLayout.FindSet then
+                    if ColumnLayout.FindSet() then
                         repeat
                             i += 1;
                             ColumnHeaderArrayText[i] := ColumnLayout."Column Header";
@@ -448,6 +452,62 @@
                             end;
                         }
                     }
+                    group(Show)
+                    {
+                        Caption = 'Show';
+                        field(ShowError; ShowError)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Show Error';
+                            Importance = Additional;
+                            OptionCaption = 'None,Division by Zero,Period Error,Both';
+                            ToolTip = 'Specifies if the report shows error information.';
+                        }
+                        field(UseAmtsInAddCurr; UseAmtsInAddCurr)
+                        {
+                            ApplicationArea = Suite;
+                            Caption = 'Show Amounts in Add. Reporting Currency';
+                            Importance = Additional;
+                            MultiLine = true;
+                            ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
+                            Visible = UseAmtsInAddCurrVisible;
+                        }
+                        field(ShowRowNo; ShowRowNo)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Show Row No.';
+                            Importance = Additional;
+                            ToolTip = 'Specifies if the report shows row numbers.';
+                        }
+                        field(ShowAlternatingShading; ShowAlternatingShading)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Print Alternating Shading';
+                            Importance = Additional;
+                            ToolTip = 'Specifies if you want every second row in the report to be shaded.';
+                        }
+                        field(SkipEmptyLines; SkipEmptyLines)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Skip Zero Balance Lines';
+                            Importance = Additional;
+                            ToolTip = 'Specifies if you want the report to skip lines that have a balance equal to zero.';
+                        }
+                        field(ShowCurrencySymbolCtrl; ShowCurrencySymbol)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Show Currency Symbol';
+                            Importance = Additional;
+                            ToolTip = 'Specifies whether the report will show currency symbols for amounts.';
+                        }
+                        field(ShowEmptyAmountTypeCtrl; ShowEmptyAmountType)
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Show Empty Amounts As';
+                            Importance = Additional;
+                            ToolTip = 'Specifies how to show amounts for empty accounts.';
+                        }
+                    }
                     group("Dimension Filters")
                     {
                         Caption = 'Dimension Filters';
@@ -548,48 +608,6 @@
                             begin
                                 exit(CashFlowForecast.LookupCashFlowFilter(Text));
                             end;
-                        }
-                    }
-                    group(Show)
-                    {
-                        Caption = 'Show';
-                        field(ShowError; ShowError)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Show Error';
-                            Importance = Additional;
-                            OptionCaption = 'None,Division by Zero,Period Error,Both';
-                            ToolTip = 'Specifies if the report shows error information.';
-                        }
-                        field(UseAmtsInAddCurr; UseAmtsInAddCurr)
-                        {
-                            ApplicationArea = Suite;
-                            Caption = 'Show Amounts in Add. Reporting Currency';
-                            Importance = Additional;
-                            MultiLine = true;
-                            ToolTip = 'Specifies if the reported amounts are shown in the additional reporting currency.';
-                            Visible = UseAmtsInAddCurrVisible;
-                        }
-                        field(ShowRowNo; ShowRowNo)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Show Row No.';
-                            Importance = Additional;
-                            ToolTip = 'Specifies if the report shows row numbers.';
-                        }
-                        field(ShowAlternatingShading; ShowAlternatingShading)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Print Alternating Shading';
-                            Importance = Additional;
-                            ToolTip = 'Specifies if you want every second row in the report to be shaded.';
-                        }
-                        field(SkipEmptyLines; SkipEmptyLines)
-                        {
-                            ApplicationArea = Basic, Suite;
-                            Caption = 'Skip Zero Balance Lines';
-                            Importance = Additional;
-                            ToolTip = 'Specifies if you want the report to skip lines that have a balance equal to zero.';
                         }
                     }
                 }
@@ -721,6 +739,8 @@
         LineShadowed: Boolean;
         LineSkipped: Boolean;
         SkipEmptyLines: Boolean;
+        ShowCurrencySymbol: Boolean;
+        ShowEmptyAmountType: Enum "Show Empty Amount Type";
         ColumnLayoutNameCaptionLbl: Label 'Column Layout';
         AccScheduleName_Name_CaptionLbl: Label 'Account Schedule';
         FiscalStartDateCaptionLbl: Label 'Fiscal Start Date';
@@ -733,7 +753,7 @@
         PadString: Text;
         RequestPageOpen: Boolean;
 
-    local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"): Text[30]
+    local procedure CalcColumnValueAsText(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ValueIsEmpty: Boolean): Text[30]
     var
         ColumnValuesAsText: Text[30];
     begin
@@ -748,23 +768,87 @@
                 if ShowError in [ShowError::"Period Error", ShowError::Both] then
                     ColumnValuesAsText := Text004;
             end else begin
-                ColumnValuesAsText :=
-                  AccSchedManagement.FormatCellAsText(ColumnLayout, ColumnValuesDisplayed, UseAmtsInAddCurr);
+                if ColumnValuesDisplayed = 0 then
+                    ValueIsEmpty := true;
 
                 if AccScheduleLine."Totaling Type" = AccScheduleLine."Totaling Type"::Formula then
                     case AccScheduleLine.Show of
                         AccScheduleLine.Show::"When Positive Balance":
                             if ColumnValuesDisplayed < 0 then
-                                ColumnValuesAsText := '';
+                                ValueIsEmpty := true;
                         AccScheduleLine.Show::"When Negative Balance":
                             if ColumnValuesDisplayed > 0 then
-                                ColumnValuesAsText := '';
+                                ValueIsEmpty := true;
                         AccScheduleLine.Show::"If Any Column Not Zero":
                             if ColumnValuesDisplayed = 0 then
-                                ColumnValuesAsText := '';
+                                ValueIsEmpty := true;
                     end;
+
+                if ValueIsEmpty then
+                    ColumnValuesAsText := FormatZeroAmount(AccScheduleLine, ColumnLayout)
+                else
+                    ColumnValuesAsText :=
+                        AccSchedManagement.FormatCellAsText(ColumnLayout, ColumnValuesDisplayed, UseAmtsInAddCurr);
+
+                FormatCurrencySymbol(AccScheduleLine, ColumnLayout, ColumnValuesAsText);
             end;
         exit(ColumnValuesAsText);
+    end;
+
+    local procedure GetCurrencySymbol(): Text[10]
+    var
+        Currency: Record Currency;
+    begin
+        if UseAmtsInAddCurr then begin
+            Currency.Get(GLSetup."Additional Reporting Currency");
+            exit(Currency.Symbol);
+        end else
+            exit(GLSetup."Local Currency Symbol");
+    end;
+
+    local procedure FormatZeroAmount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout") Result: Text[30]
+    var
+        MatrixMgt: Codeunit "Matrix Management";
+        ZeroDecimal: Decimal;
+    begin
+        if (AccScheduleLine.Totaling = '') and (AccScheduleLine.Show = AccScheduleLine.Show::Yes) then
+            exit('');
+
+        case ShowEmptyAmountType of
+            "Show Empty Amount Type"::Blank:
+                exit('');
+            "Show Empty Amount Type"::Zero:
+                exit(
+                    CopyStr(
+                        Format(ZeroDecimal, 0, MatrixMgt.FormatRoundingFactor(ColumnLayout."Rounding Factor", UseAmtsInAddCurr)),
+                        1,
+                        MaxStrLen(Result)));
+            "Show Empty Amount Type"::Dash:
+                exit('-');
+        end;
+
+        OnAfterFormatZeroAmount(AccScheduleLine, ColumnLayout, Result);
+    end;
+
+    local procedure FormatCurrencySymbol(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var ColumnValuesAsText: Text[30])
+    begin
+        if not ShowCurrencySymbol then
+            exit;
+
+        if ColumnValuesAsText = '' then
+            exit;
+
+        if (ColumnValuesAsText = '-') and (ShowEmptyAmountType = ShowEmptyAmountType::Dash) then
+            exit;
+
+        if AccScheduleLine."Hide Currency Symbol" or ColumnLayout."Hide Currency Symbol" then
+            exit;
+
+        ColumnValuesAsText :=
+            CopyStr(
+                GetCurrencySymbol() + ColumnValuesAsText,
+                1,
+                MaxStrLen(ColumnValuesAsText));
     end;
 
     procedure InitAccSched()
@@ -937,7 +1021,7 @@
             if not AccScheduleName.Get(AccSchedName) then
                 AccSchedName := '';
         if AccSchedName = '' then
-            if AccScheduleName.FindFirst then
+            if AccScheduleName.FindFirst() then
                 AccSchedName := AccScheduleName.Name;
 
         if not ColumnLayoutName2.Get(ColumnLayoutName) then
@@ -1040,6 +1124,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValues(var StartDate: Date; var EndDate: Date; var DateFilterHidden: Text);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatZeroAmount(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var Result: Text[30])
     begin
     end;
 

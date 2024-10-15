@@ -1,13 +1,9 @@
 table 11765 "Excel Template"
 {
     Caption = 'Excel Template';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -70,14 +66,11 @@ table 11765 "Excel Template"
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
         FileName: Text;
-#if not CLEAN17
-        ImportQst: Label 'Do you want import Template?';
-#endif
         DeleteQst: Label 'Do you want delete %1?';
         DefaultTxt: Label 'Default';
         ExtensionTxt: Label 'xlsx', Comment = 'xlsx';
         NotSupportedErr: Label 'Function not supported in the Web Client. Please use the Windows Client.';
-    
+
     [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ExportToServerFile(): Text[250]
@@ -95,26 +88,9 @@ table 11765 "Excel Template"
     [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ShowFile(IsTemporary: Boolean)
-#if not CLEAN17
-    var
-        FileName: Text;
-    begin
-        if not FileMgt.IsLocalFileSystemAccessible then
-            Error(NotSupportedErr);
-
-        FileName := ConstFilename;
-        CalcFields(Template);
-        ExportToClientFile(FileName);
-        HyperLink(FileName);
-        if Confirm(ImportQst, true) then
-            ImportFile(FileName, IsTemporary);
-        DeleteFile(FileName);
-    end;
-#else
     begin
         Error(NotSupportedErr);
     end;
-#endif
 
     [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
@@ -189,26 +165,6 @@ table 11765 "Excel Template"
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Unused function discontinued.', '19.0')]
-    [Scope('OnPrem')]
-    procedure DeleteFile(FileName: Text): Boolean
-    var
-        i: Integer;
-    begin
-        if FileName = '' then
-            exit(false);
-
-        if not FileMgt.ClientFileExists(FileName) then
-            exit(true);
-
-        repeat
-            Sleep(100);
-            i := i + 1;
-        until FileMgt.DeleteClientFile(FileName) or (i = 25);
-        exit(not FileMgt.ClientFileExists(FileName));
-    end;
-#else
     [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure DeleteFile(FileName: Text): Boolean
@@ -218,17 +174,12 @@ table 11765 "Excel Template"
 
         exit(true);
     end;
-#endif
 
     [Obsolete('Unused function discontinued.', '19.0')]
     [Scope('OnPrem')]
     procedure ConstFilename() FileName: Text
     begin
-#if not CLEAN17
-        FileName := FileMgt.ClientTempFileName(ExtensionTxt);
-#else
         FileName := FileMgt.CreateFileNameWithExtension(Format(CreateGuid()), ExtensionTxt);
-#endif
     end;
 #endif
 }

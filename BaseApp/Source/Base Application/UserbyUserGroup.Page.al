@@ -295,7 +295,7 @@ page 9838 "User by User Group"
         Clear(UserGroupCodeArr);
         Clear(IsMemberOfUserGroup);
         MemberOfAllGroups := true;
-        if UserGroup.FindSet then
+        if UserGroup.FindSet() then
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
@@ -317,7 +317,7 @@ page 9838 "User by User Group"
             UserGroup.SetUserGroupMembership(Rec, NewUserGroupMembership, SelectedCompany);
             MemberOfAllGroups := MemberOfAllGroups and NewUserGroupMembership;
         end else
-            if UserGroup.FindSet then
+            if UserGroup.FindSet() then
                 repeat
                     UserGroup.SetUserGroupMembership(Rec, NewUserGroupMembership, SelectedCompany);
                 until UserGroup.Next() = 0;

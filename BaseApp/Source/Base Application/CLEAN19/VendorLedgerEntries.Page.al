@@ -86,6 +86,13 @@ page 29 "Vendor Ledger Entries"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
+                field("Vendor Posting Group"; "Vendor Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    Visible = false;
+                }
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
@@ -382,6 +389,13 @@ page 29 "Vendor Ledger Entries"
                 ApplicationArea = Notes;
                 Visible = false;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
         }
     }
 
@@ -586,13 +600,13 @@ page 29 "Vendor Ledger Entries"
                 Promoted = true;
                 PromotedCategory = Category5;
                 Scope = Repeater;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Show Document")
@@ -642,11 +656,12 @@ page 29 "Vendor Ledger Entries"
                     VendorLedgerEntry: Record "Vendor Ledger Entry";
                     GenJournalBatch: Record "Gen. Journal Batch";
                     GenJnlManagement: Codeunit GenJnlManagement;
+                    CreatePayment: Page "Create Payment";
                 begin
                     CurrPage.SetSelectionFilter(VendorLedgerEntry);
                     if CreatePayment.RunModal = ACTION::OK then begin
                         CreatePayment.MakeGenJnlLines(VendorLedgerEntry);
-                        GetBatchRecord(GenJournalBatch);
+                        GetBatchRecord(GenJournalBatch, CreatePayment);
                         GenJnlManagement.TemplateSelectionFromBatch(GenJournalBatch);
                         Clear(CreatePayment);
                     end else
@@ -691,8 +706,6 @@ page 29 "Vendor Ledger Entries"
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        CreatePayment: Page "Create Payment";
-        StyleTxt: Text;
         HasIncomingDocument: Boolean;
         HasDocumentAttachment: Boolean;
         AmountVisible: Boolean;
@@ -709,6 +722,7 @@ page 29 "Vendor Ledger Entries"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        StyleTxt: Text;
 
     local procedure SetDimVisibility()
     var
@@ -729,7 +743,7 @@ page 29 "Vendor Ledger Entries"
         VendNameVisible := PurchSetup."Copy Vendor Name to Entries";
     end;
 
-    local procedure GetBatchRecord(var GenJournalBatch: Record "Gen. Journal Batch")
+    local procedure GetBatchRecord(var GenJournalBatch: Record "Gen. Journal Batch"; CreatePayment: Page "Create Payment")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         JournalTemplateName: Code[10];

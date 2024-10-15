@@ -39,11 +39,11 @@ codeunit 145020 "Check User Setup Dimensions"
     begin
         // [FEATURE] [Sales] [UI]
         // [SCENARIO] Failed posting opens "Error Messages" page that contains two lines for missed selected dimension.
-        Initialize;
+        Initialize();
         // [GIVEN] "User Checks Allowed" is 'Yes' in General Ledger Setup and "Check Dimension Values" is 'Yes' in User Setup
         EnableUserCheckDimValues(UserSetup);
         // [GIVEN] Customer 'A'
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         // [GIVEN] Dimension value 'Department' is selected for current User Setup, where "Dimension Value Filter" is 'X'
         CreateUserSelectedDimension(DimensionValue[1], ExpectedErrorMessage);
         CreateDefaultDimForCustomer(DimensionValue[2], CustomerNo);
@@ -95,11 +95,11 @@ codeunit 145020 "Check User Setup Dimensions"
     begin
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO] Failed posting opens "Error Messages" page that contains two lines for missed selected dimension.
-        Initialize;
+        Initialize();
         // [GIVEN] "User Checks Allowed" is 'Yes' in General Ledger Setup and "Check Dimension Values" is 'Yes' in User Setup
         EnableUserCheckDimValues(UserSetup);
         // [GIVEN] Vendor 'A'
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         // [GIVEN] Dimension value 'Department' is selected for current User Setup, where "Dimension Value Filter" is 'X'
         CreateUserSelectedDimension(DimensionValue[1], ExpectedErrorMessage);
         CreateDefaultDimForVendor(DimensionValue[2], VendorNo);
@@ -148,7 +148,7 @@ codeunit 145020 "Check User Setup Dimensions"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Check User Setup Dimensions");
         LibraryApplicationArea.EnableEssentialSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Check User Setup Dimensions");
@@ -234,7 +234,7 @@ codeunit 145020 "Check User Setup Dimensions"
     begin
         LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
         Assert.RecordCount(TempErrorMessage, 3);
-        TempErrorMessage.FindFirst;
+        TempErrorMessage.FindFirst();
         TempErrorMessage.TestField("Message Type", TempErrorMessage."Message Type"::Error);
         TempErrorMessage.TestField(Description, ExpectedErrorMessage[1]);
         TempErrorMessage.TestField("Context Record ID", ContextRecID);
@@ -246,7 +246,7 @@ codeunit 145020 "Check User Setup Dimensions"
         TempErrorMessage.TestField("Context Record ID", ContextRecID);
         TempErrorMessage.TestField("Record ID", SourceRecID);
         // the last error is "There is nothing to post."
-        TempErrorMessage.FindLast;
+        TempErrorMessage.FindLast();
         TempErrorMessage.TestField(Description, NothingToPostErr);
     end;
 

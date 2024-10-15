@@ -30,6 +30,16 @@ page 119 "User Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date on which the user is allowed to post to the company.';
                 }
+                field("Allow Deferral Posting From"; Rec."Allow Deferral Posting From")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the earliest date on which the user is allowed to post deferrals to the company.';
+                }
+                field("Allow Deferral Posting To"; Rec."Allow Deferral Posting To")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the last date on which the user is allowed to post deferrals to the company.';
+                }
                 field("Register Time"; "Register Time")
                 {
                     ApplicationArea = Basic, Suite;

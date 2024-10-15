@@ -83,7 +83,7 @@
                     "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
                     "Indirect Cost %" := Item."Indirect Cost %";
                     Validate("Unit of Measure Code", Item."Base Unit of Measure");
-                    SetDim;
+                    CreateDimFromDefaultDim();
                     IsHandled := false;
                     OnValidateItemNoOnBeforeValidateDates(Rec, xRec, IsHandled);
                     if not IsHandled then
@@ -176,6 +176,7 @@
                 GetDefaultBin;
                 Validate("Unit Cost", GetUnitCost);
                 ClearCurrentFieldNum(FieldNo("Location Code"));
+                CreateDimFromDefaultDim();
             end;
         }
         field(21; "Shortcut Dimension 1 Code"; Code[20])
@@ -387,7 +388,9 @@
         {
             CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("No."),
                                                                   "Source Type" = CONST(900),
+#pragma warning disable
                                                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                   "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Quantity';
             DecimalPlaces = 0 : 5;
@@ -398,7 +401,9 @@
         {
             CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("No."),
                                                                            "Source Type" = CONST(900),
+#pragma warning disable
                                                                            "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                                                            "Reservation Status" = CONST(Reservation)));
             Caption = 'Reserved Qty. (Base)';
             DecimalPlaces = 0 : 5;
@@ -920,23 +925,50 @@
         TestReservationDateConflict := NewTestReservationDateConflict;
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Assembly,
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        if "No." <> '' then
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              "Dimension Set ID",
+              "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Assembly,
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         if "No." <> '' then
             DimMgt.UpdateGlobalDimFromDimSetID(
@@ -1045,41 +1077,17 @@
         OnAfterSetItemToPlanFilters(Rec, Item, DocumentType);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
-    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
-    begin
-        SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
-    end;
-#endif
-
     procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
         SetItemToPlanFilters(Item, DocumentType);
         exit(Find('-'));
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by FindItemToPlanLines()', '17.0')]
-    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
-    begin
-        exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
-    end;
-#endif
-
     procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
     begin
         SetItemToPlanFilters(Item, DocumentType);
         exit(not IsEmpty);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by ItemToPlanLinesExist()', '17.0')]
-    procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
-    begin
-        exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
-    end;
-#endif
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
@@ -1124,10 +1132,13 @@
         PAGE.Run(PAGE::"Assembly Order Statistics", Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure SetDim()
     begin
         CreateDim(DATABASE::Item, "Item No.");
     end;
+#endif
 
     procedure UpdateUnitCost()
     var
@@ -1226,7 +1237,7 @@
 
     local procedure RoundUnitAmount(UnitAmount: Decimal): Decimal
     begin
-        GetGLSetup;
+        GetGLSetup();
 
         exit(Round(UnitAmount, GLSetup."Unit-Amount Rounding Precision"));
     end;
@@ -1615,7 +1626,7 @@
             CreateInvtPutAwayPickMvmt.UseRequestPage(false);
         end;
 
-        CreateInvtPutAwayPickMvmt.RunModal;
+        CreateInvtPutAwayPickMvmt.RunModal();
         CreateInvtPutAwayPickMvmt.GetMovementCounters(ATOMovementsCreated, ATOTotalMovementsToBeCreated);
     end;
 
@@ -1672,7 +1683,7 @@
         OrderTracking: Page "Order Tracking";
     begin
         OrderTracking.SetAsmHeader(Rec);
-        OrderTracking.RunModal;
+        OrderTracking.RunModal();
     end;
 
     procedure ShowAsmToOrder()
@@ -1727,9 +1738,9 @@
         AsmLineMgt: Codeunit "Assembly Line Management";
     begin
         AsmLineMgt.CopyAssemblyData(Rec, TempAssemblyHeader, TempAssemblyLine);
-        if TempAssemblyLine.FindSet then
+        if TempAssemblyLine.FindSet() then
             repeat
-                if TempAssemblyLine."Due Date" < WorkDate then begin
+                if (TempAssemblyLine."Due Date" < WorkDate()) and (TempAssemblyLine."Remaining Quantity" <> 0) then begin
                     AsmLineMgt.ShowDueDateBeforeWorkDateMsg(TempAssemblyLine."Due Date");
                     exit;
                 end;
@@ -1806,7 +1817,7 @@
 
         AssemblyLine.SetRange("Document Type", "Document Type");
         AssemblyLine.SetRange("Document No.", "No.");
-        if AssemblyLine.FindSet then
+        if AssemblyLine.FindSet() then
             repeat
                 case AssemblyLine.Type of
                     AssemblyLine.Type::Item:
@@ -1834,6 +1845,71 @@
         exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Assembly Header", "Document Type".AsInteger(), "No.", '', 0, 0));
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Assembly Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Assembly Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Assembly Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var AssemblyHeader: Record "Assembly Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var AssemblyHeader: Record "Assembly Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcEndDateFromStartDate(var AssemblyHeader: Record "Assembly Header"; var Result: Date)
     begin
@@ -1844,10 +1920,13 @@
     begin
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Temporary event for compatibility', '20.0')]
     local procedure OnAfterCreateDimTableIDs(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(AssemblyHeader: Record "Assembly Header"; var Result: Boolean)

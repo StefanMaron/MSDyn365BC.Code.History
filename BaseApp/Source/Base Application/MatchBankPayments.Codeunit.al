@@ -103,6 +103,7 @@ codeunit 1255 "Match Bank Payments"
         TotalLedgerEntriesSummaryTxt: Label 'Count: Cust. Ledg. Entries: %1, Vendor Ledg. Entries: %2, Bank Ledg. Entries: %3.', Locked = true;
         TotalTimeSummaryTxt: Label 'TimeSummary: Total Time: Customer Ledger Entries: %1, Vendor Ledger Entries: %2, Employee Ledger Entries: %3, Bank Ledger Entries: %4, TextMappings: %5.', Locked = true;
         SpecificTaskSummaryTxt: Label 'Specific Task Summary: TotalTimeDirectCollection: %1, TotalTimeRelatedPartyMatching: %2, TotalTimeDocumentNoMatching: %3, TotalTimeAmountMatching: %4, TotalTimeStringNearness: %5, TotalTimeDocumentNoMatchingForBankLedgerEntry: %6, TotalTimeSearchingDocumentNoInLedgerEntries: %7, HitCountClosingDocumentMatches: %8 out of %9', Locked = true;
+        MissingRelatedPartyTelemetryMsg: Label 'The ledger entries contain the entries that do not exist in master data. This is indication of corrupted ledger entries. Master data type %1.', Locked = true, Comment = '%1 Master Data Type';
         TotalTimeMatchingCustomerLedgerEntriesPerLine: Duration;
         TotalTimeMatchingVendorLedgerEntriesPerLine: Duration;
         TotalTimeMatchingEmployeeLedgerEntriesPerLine: Duration;
@@ -116,6 +117,7 @@ codeunit 1255 "Match Bank Payments"
         TotalTimeDocumentNoMatchingForBankLedgerEntry: Duration;
         TotalTimeSearchingDocumentNoInLedgerEntries: Duration;
         BankLedgerEntriesClosingDocumentNumbers: Dictionary of [Integer, List of [Code[35]]];
+        MissingDataTypeTelemetrySent: List of [Integer];
         TotalNoClosingDocumentMatches: Integer;
         HitCountClosingDocumentMatches: Integer;
 
@@ -1726,7 +1728,12 @@ codeunit 1255 "Match Bank Payments"
             exit;
         end;
 
-        Customer.Get(AccountNo);
+        if not Customer.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Customer);
+            exit;
+        end;
+
         RelatedPartyInfoMatching(
           BankPmtApplRule, BankAccReconciliationLine, Customer.Name, Customer.Address, Customer.City, AccountType);
     end;
@@ -1735,7 +1742,12 @@ codeunit 1255 "Match Bank Payments"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(AccountNo);
+        if not Vendor.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Vendor);
+            exit;
+        end;
+
         if IsVendorBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Vendor."No.", BankAccReconciliationLine."Bank Account No.") then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
@@ -1750,7 +1762,12 @@ codeunit 1255 "Match Bank Payments"
     var
         Employee: Record Employee;
     begin
-        Employee.Get(AccountNo);
+        if not Employee.Get(AccountNo) then begin
+            BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::No;
+            SendMissingRelatedPartyTelemetry(TempBankStatementMatchingBuffer."Account Type"::Employee);
+            exit;
+        end;
+
         if IsEmployeeBankAccountMatching(BankAccReconciliationLine."Related-Party Bank Acc. No.", Employee) then begin
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Fully;
             AppendText(RelatedPartyMatchedInfoText, MatchedRelatedPartyOnBankAccountMsg);
@@ -1819,6 +1836,15 @@ codeunit 1255 "Match Bank Payments"
                 AppendText(RelatedPartyMatchedInfoText, RelatedPartyNameIsUniqueMsg);
                 exit;
             end;
+    end;
+
+    local procedure SendMissingRelatedPartyTelemetry(GenJournalAccountType: Enum "Gen. Journal Account Type")
+    begin
+        if MissingDataTypeTelemetrySent.Contains(GenJournalAccountType.AsInteger()) then
+            exit;
+
+        Session.LogMessage('0000FT3', StrSubstNo(MissingRelatedPartyTelemetryMsg, GenJournalAccountType), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', BankAccountRecCategoryLbl);
+        MissingDataTypeTelemetrySent.Add(GenJournalAccountType.AsInteger());
     end;
 
     local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35]; PaymentReference: Code[50])
@@ -2430,7 +2456,7 @@ codeunit 1255 "Match Bank Payments"
         TempBankPmtApplRule.SetCurrentKey(Score);
         TempBankPmtApplRule.Ascending(false);
         Score := 0;
-        if TempBankPmtApplRule.FindLast then
+        if TempBankPmtApplRule.FindLast() then
             Score := TempBankPmtApplRule.Score;
 
         TempBankPmtApplRule.Reset();
@@ -2749,7 +2775,7 @@ codeunit 1255 "Match Bank Payments"
     begin
         SplitLineNo := BankAccReconciliationLine."Statement Line No." + 1;
         BankAccReconciliationLine.SetRange("Parent Line No.", ParentLineNo);
-        if BankAccReconciliationLine.FindLast then
+        if BankAccReconciliationLine.FindLast() then
             SplitLineNo := BankAccReconciliationLine."Statement Line No." + 1;
         exit(SplitLineNo)
     end;
@@ -2874,7 +2900,8 @@ codeunit 1255 "Match Bank Payments"
           BankAccReconciliationLine.GetAppliesToID);
     end;
 
-    procedure SetApplicationDataInCVLedgEntry(AccountType: Enum "Gen. Journal Account Type"; EntryNo: Integer; AppliesToID: Code[50])
+    procedure SetApplicationDataInCVLedgEntry(AccountType: Enum "Gen. Journal Account Type"; EntryNo: Integer;
+                                                               AppliesToID: Code[50])
     var
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
     begin

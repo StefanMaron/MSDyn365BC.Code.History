@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 439 "Issued Reminder Lines"
 {
     AutoSplitKey = true;
@@ -79,12 +80,16 @@ page 439 "Issued Reminder Lines"
                     Style = Strong;
                     StyleExpr = AmountEmphasize;
                     ToolTip = 'Specifies the amount in the currency of the reminder.';
-                    Visible = false;
+                    Visible = ReplaceMulIntRateEnabled;
                 }
                 field("Interest Amount"; "Interest Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the interest amounts on the reminder lines.';
+                    Visible = not ReplaceMulIntRateEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
                 }
                 field("No. of Reminders"; "No. of Reminders")
                 {
@@ -119,6 +124,11 @@ page 439 "Issued Reminder Lines"
     {
     }
 
+    trigger OnOpenPage()
+    begin
+        ReplaceMulIntRateEnabled := ReplaceMulIntRateMgt.IsEnabled();
+    end;
+
     trigger OnAfterGetRecord()
     begin
         DescriptionIndent := 0;
@@ -128,6 +138,8 @@ page 439 "Issued Reminder Lines"
     end;
 
     var
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
+        ReplaceMulIntRateEnabled: Boolean;
         [InDataSet]
         DescriptionEmphasize: Boolean;
         [InDataSet]
@@ -155,3 +167,4 @@ page 439 "Issued Reminder Lines"
     end;
 }
 
+#endif

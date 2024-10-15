@@ -1,4 +1,3 @@
-#if not CLEAN17
 codeunit 1242 "Set Up Curr Exch Rate Service"
 {
 
@@ -17,10 +16,6 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         GLSetup.Get();
         if GLSetup."LCY Code" = 'EUR' then
             SetupECBDataExchange(CurrExchRateUpdateSetup, GetECB_URI);
-        // NAVCZ
-        if GLSetup."LCY Code" = 'CZK' then
-            SetupCNBDataExchange(CurrExchRateUpdateSetup, GetCNB_URI);
-        // NAVCZ
         Commit();
     end;
 
@@ -28,13 +23,9 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         DummyDataExchColumnDef: Record "Data Exch. Column Def";
         DummyCurrExchRate: Record "Currency Exchange Rate";
         ECB_EXCH_RATESTxt: Label 'ECB-EXCHANGE-RATES', Locked = true;
-        CNB_EXCH_RATESTxt: Label 'CNB-EXCHANGE-RATES', Comment = 'Czech National Bank Currency Exchange Rate Code', Locked = true;
         ECB_EXCH_RATESDescTxt: Label 'European Central Bank Currency Exchange Rates Setup';
-        CNB_EXCH_RATESDescTxt: Label 'Czech National Bank Currency Exchange Rates Setup';
         ECB_URLTxt: Label 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', Locked = true;
-        CNB_URLTxt: Label 'http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.xml', Locked = true;
         ECBServiceProviderTxt: Label 'European Central Bank';
-        CNBServiceProviderTxt: Label 'Czech National Bank';
 
     [Scope('OnPrem')]
     procedure SetupECBDataExchange(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; PathToECBService: Text)
@@ -43,7 +34,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         SuggestColDefinitionXML: Codeunit "Suggest Col. Definition - XML";
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", ECB_EXCH_RATESTxt);
-        if DataExchLineDef.FindFirst then;
+        if DataExchLineDef.FindFirst() then;
 
         CreateCurrencyExchangeSetup(
           CurrExchRateUpdateSetup, ECB_EXCH_RATESTxt, ECB_EXCH_RATESDescTxt,
@@ -57,35 +48,6 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             SuggestColDefinitionXML.GenerateDataExchColDef(PathToECBService, DataExchLineDef);
 
             MapECBDataExch(DataExchLineDef);
-        end;
-        Commit();
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure SetupCNBDataExchange(var CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup"; PathToCNBService: Text)
-    var
-        DataExchLineDef: Record "Data Exch. Line Def";
-        SuggestColDefinitionXML: Codeunit "Suggest Col. Definition - XML";
-        XMLBufferWriter: Codeunit "XML Buffer Writer";
-    begin
-        // NAVCZ
-        DataExchLineDef.SetRange("Data Exch. Def Code", CNB_EXCH_RATESTxt);
-        if DataExchLineDef.FindFirst then;
-
-        CreateCurrencyExchangeSetup(
-          CurrExchRateUpdateSetup, CNB_EXCH_RATESTxt, CNB_EXCH_RATESDescTxt,
-          DataExchLineDef."Data Exch. Def Code", CNBServiceProviderTxt, '');
-
-        if StrPos(PathToCNBService, 'http') = 1 then
-            CurrExchRateUpdateSetup.SetWebServiceURL(PathToCNBService);
-
-        if DataExchLineDef."Data Exch. Def Code" = '' then begin
-            CreateExchLineDef(DataExchLineDef, CurrExchRateUpdateSetup."Data Exch. Def Code", GetCNBRepeaterPath);
-            if XMLBufferWriter.IsValidSourcePath(PathToCNBService) then begin
-                SuggestColDefinitionXML.GenerateDataExchColDef(PathToCNBService, DataExchLineDef);
-                MapCNBDataExch(DataExchLineDef);
-            end;
         end;
         Commit();
     end;
@@ -110,22 +72,10 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit(ECB_URLTxt);
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetCNB_URI(): Text
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        GLSetup.TestField("LCY Code", 'CZK');
-        exit(CNB_URLTxt);
-    end;
-
     local procedure CreateExchLineDef(var DataExchLineDef: Record "Data Exch. Line Def"; DataExchDefCode: Code[20]; RepeaterPath: Text[250])
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchDefCode);
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
         DataExchLineDef.Validate("Data Line Tag", RepeaterPath);
         DataExchLineDef.Modify(true);
     end;
@@ -139,14 +89,14 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
             SetRange("Data Exch. Def Code", DataExchMapping."Data Exch. Def Code");
             SetRange("Data Exch. Line Def Code", DataExchMapping."Data Exch. Line Def Code");
             if NewDefaultValue <> '' then begin
-                if FindLast then begin
+                if FindLast() then begin
                     Init;
                     "Column No." += 10000;
                     Insert;
                 end
             end else begin
                 SetRange(Name, FromColumnName);
-                FindFirst;
+                FindFirst();
             end;
             Validate("Data Type", DataType);
             Validate("Data Format", NewDataFormat);
@@ -188,39 +138,9 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
           DummyDataExchColumnDef."Data Type"::Decimal, 1, '', '', '1');
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure MapCNBDataExch(var DataExchLineDef: Record "Data Exch. Line Def")
-    var
-        DataExchMapping: Record "Data Exch. Mapping";
-        TransformationRule: Record "Transformation Rule";
-    begin
-        // NAVCZ
-        DataExchMapping.Get(DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, GetMappingTable);
-
-        CreateExchMappingLine(
-          DataExchMapping, GetCNBCurrencyCodeXMLElement, GetCurrencyCodeFieldNo,
-          DummyDataExchColumnDef."Data Type"::Text, 1, '', '', '');
-        CreateExchMappingLine(
-          DataExchMapping, GetCNBStartingDateXMLElement, GetStartingDateFieldNo,
-          DummyDataExchColumnDef."Data Type"::Date, 1, '', TransformationRule.GetCZDateFormatCode, '');
-
-        CreateExchMappingLine(
-          DataExchMapping, GetCNBExchRateXMLElement, GetExchRateAmtFieldNo,
-          DummyDataExchColumnDef."Data Type"::Decimal, 1, '', '', '');
-        CreateExchMappingLine(
-          DataExchMapping, GetCNBRelationalExchRateXMLElement, GetRelationalExchRateFieldNo,
-          DummyDataExchColumnDef."Data Type"::Decimal, 1, '', TransformationRule.GetCzechDecimalFormatCode, '');
-    end;
-
     local procedure GetECBRepeaterPath(): Text[250]
     begin
         exit('/gesmes:Envelope/Cube/Cube/Cube');
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure GetCNBRepeaterPath(): Text[250]
-    begin
-        exit('/kurzy/tabulka/radek'); // NAVCZ
     end;
 
     local procedure GetMappingTable(): Integer
@@ -243,30 +163,6 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit('time');
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure GetCNBCurrencyCodeXMLElement(): Text[250]
-    begin
-        exit('kod'); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure GetCNBExchRateXMLElement(): Text[250]
-    begin
-        exit('mnozstvi'); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure GetCNBStartingDateXMLElement(): Text[250]
-    begin
-        exit('datum'); // NAVCZ
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure GetCNBRelationalExchRateXMLElement(): Text[250]
-    begin
-        exit('kurz'); // NAVCZ
-    end;
-
     local procedure GetCurrencyCodeFieldNo(): Integer
     begin
         exit(DummyCurrExchRate.FieldNo("Currency Code"));
@@ -287,4 +183,4 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         exit(DummyCurrExchRate.FieldNo("Starting Date"));
     end;
 }
-#endif
+

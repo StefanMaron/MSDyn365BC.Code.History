@@ -281,7 +281,7 @@ page 31008 "Set Advance Link"
                     Navigate: Page Navigate;
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

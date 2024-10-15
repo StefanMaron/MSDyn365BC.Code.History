@@ -1,13 +1,9 @@
 table 11749 "Cash Desk Cue"
 {
     Caption = 'Cash Desk Cue';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -15,7 +11,6 @@ table 11749 "Cash Desk Cue"
         {
             Caption = 'Primary Key';
         }
-#if not CLEAN17
         field(10; "Open Documents"; Integer)
         {
             CalcFormula = Count("Cash Document Header" WHERE("Cash Desk No." = FIELD("Cash Desk Filter"),
@@ -52,7 +47,6 @@ table 11749 "Cash Desk Cue"
             FieldClass = FlowFilter;
             TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
         }
-#endif
     }
 
     keys
@@ -67,4 +61,3 @@ table 11749 "Cash Desk Cue"
     {
     }
 }
-

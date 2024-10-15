@@ -241,12 +241,11 @@ page 31124 "EET Entry Card"
                 Caption = 'Show Document';
                 Image = Document;
                 ToolTip = 'Displays the document related to the entry.';
-#if not CLEAN17
+
                 trigger OnAction()
                 begin
-                    ShowDocument;
+                    exit;
                 end;
-#endif
             }
         }
         area(processing)
@@ -313,7 +312,7 @@ page 31124 "EET Entry Card"
                         EETEntry := Rec;
                         EETEntry.SetRecFilter;
                         EETConfirmation.SetTableView(EETEntry);
-                        EETConfirmation.RunModal;
+                        EETConfirmation.RunModal();
                     end;
                 }
             }

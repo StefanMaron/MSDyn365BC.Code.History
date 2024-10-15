@@ -1,4 +1,4 @@
-﻿table 27 Item
+table 27 Item
 {
     Caption = 'Item';
     DataCaptionFields = "No.", Description;
@@ -41,7 +41,7 @@
                 if "Created From Nonstock Item" then begin
                     NonstockItem.SetCurrentKey("Item No.");
                     NonstockItem.SetRange("Item No.", "No.");
-                    if NonstockItem.FindFirst then
+                    if NonstockItem.FindFirst() then
                         if NonstockItem.Description = '' then begin
                             NonstockItem.Description := Description;
                             NonstockItem.Modify();
@@ -95,7 +95,7 @@
                         // then try with International Standard Code, as some times it's used as Code
                         if not UnitOfMeasure.Get("Base Unit of Measure") then begin
                             UnitOfMeasure.SetRange("International Standard Code", "Base Unit of Measure");
-                            if not UnitOfMeasure.FindFirst then
+                            if not UnitOfMeasure.FindFirst() then
                                 Error(UnitOfMeasureNotExistErr, "Base Unit of Measure");
                             "Base Unit of Measure" := UnitOfMeasure.Code;
                         end;
@@ -205,7 +205,7 @@
                             "Profit %" := 0;
                     "Price/Profit Calculation"::"Price=Cost+Profit":
                         if "Profit %" < 100 then begin
-                            GetGLSetup;
+                            GetGLSetup();
                             "Unit Price" :=
                               Round(
                                 ("Unit Cost" / (1 - "Profit %" / 100)) *
@@ -522,7 +522,8 @@
 
             trigger OnValidate()
             begin
-                TestField(Blocked, true);
+                if ("Block Reason" <> '') and ("Block Reason" <> xRec."Block Reason") then
+                    TestField(Blocked, true);
             end;
         }
         field(61; "Last DateTime Modified"; DateTime)
@@ -2096,14 +2097,9 @@
         field(31060; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31061; "Specific Movement"; Code[10])
         {
@@ -2717,7 +2713,6 @@
     local procedure DeleteRelatedData()
     var
         BinContent: Record "Bin Content";
-        SocialListeningSearchTopic: Record "Social Listening Search Topic";
         MyItem: Record "My Item";
         ItemAttributeValueMapping: Record "Item Attribute Value Mapping";
     begin
@@ -2803,11 +2798,6 @@
 
         MyItem.SetRange("Item No.", "No.");
         MyItem.DeleteAll();
-
-        if not SocialListeningSearchTopic.IsEmpty() then begin
-            SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Item, "No.");
-            SocialListeningSearchTopic.DeleteAll();
-        end;
 
         ItemAttributeValueMapping.Reset();
         ItemAttributeValueMapping.SetRange("Table ID", DATABASE::Item);
@@ -2901,7 +2891,7 @@
               PurchaseLine."Document Type"::"Return Order");
             PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
             PurchaseLine.SetRange("No.", "No.");
-            if PurchaseLine.FindFirst then
+            if PurchaseLine.FindFirst() then
                 Error(Text008, CurrentFieldName, PurchaseLine."Document Type");
         end;
     end;
@@ -2946,13 +2936,13 @@
             exit;
 
         TrackingSpecification.SetRange("Item No.", "No.");
-        if TrackingSpecification.FindFirst then begin
+        if TrackingSpecification.FindFirst() then begin
             SourceType := TrackingSpecification."Source Type";
             SourceID := TrackingSpecification."Source ID";
         end else begin
             ReservationEntry.SetRange("Item No.", "No.");
             ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
-            if ReservationEntry.FindFirst then begin
+            if ReservationEntry.FindFirst() then begin
                 SourceType := ReservationEntry."Source Type";
                 SourceID := ReservationEntry."Source ID";
             end;
@@ -3082,7 +3072,7 @@
         ItemAvailByTimeline: Page "Item Availability by Timeline";
     begin
         ItemAvailByTimeline.SetItem(Item);
-        ItemAvailByTimeline.Run;
+        ItemAvailByTimeline.Run();
     end;
 
     procedure ShowTimelineFromSKU(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10])
@@ -3182,7 +3172,7 @@
         PurchaseLine.SetCurrentKey(Type, "No.");
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", "No.");
-        if PurchaseLine.FindFirst then begin
+        if PurchaseLine.FindFirst() then begin
             if CurrFieldNo = 0 then
                 Error(Text000, TableCaption, "No.", PurchaseLine."Document Type");
             if CurrFieldNo = FieldNo(Type) then
@@ -3416,7 +3406,7 @@
 
     procedure CalcUnitPriceExclVAT(): Decimal
     begin
-        GetGLSetup;
+        GetGLSetup();
         if 1 + CalcVAT = 0 then
             exit(0);
         exit(Round("Unit Price" / (1 + CalcVAT), GLSetup."Unit-Amount Rounding Precision"));
@@ -3604,7 +3594,7 @@
         if Item.FilterGroup = -1 then
             ItemList.SetTempFilteredItemRec(Item);
 
-        if Item.FindFirst then;
+        if Item.FindFirst() then;
         ItemList.SetTableView(Item);
         ItemList.SetRecord(Item);
         ItemList.LookupMode := true;
@@ -3744,7 +3734,7 @@
     var
         ItemCategory: Record "Item Category";
     begin
-        if IsNullGuid("Item Category Id") then
+        if not IsNullGuid("Item Category Id") then
             ItemCategory.GetBySystemId("Item Category Id");
 
         "Item Category Code" := ItemCategory.Code;
@@ -3948,19 +3938,9 @@
         ItemTrackingCode.Get("Item Tracking Code");
         exit(ItemTrackingCode."Use Expiration Dates");
     end;
-#if not CLEAN17
-
-    [Obsolete('Replaced by ItemTrackingCodeUseExpirationDates()', '17.0')]
-    [Scope('OnPrem')]
-    procedure ItemTrackingCodeUsesExpirationDate(): Boolean
-    begin
-        exit(ItemTrackingCodeUseExpirationDates());
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePhysInvtCountingPeriodCodeOnBeforeConfirmUpdate(var Item: Record Item; xItem: Record Item; PhysInvtCountPeriod: Record "Phys. Invt. Counting Period"; var IsHandled: Boolean)
     begin
     end;
 }
-

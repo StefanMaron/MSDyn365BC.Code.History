@@ -78,7 +78,7 @@ page 5993 "Troubleshooting Setup"
                                 Tblshtg.SetRecord(TblshtgHeader);
                             end;
 
-                        Tblshtg.Run;
+                        Tblshtg.Run();
                     end;
                 }
             }

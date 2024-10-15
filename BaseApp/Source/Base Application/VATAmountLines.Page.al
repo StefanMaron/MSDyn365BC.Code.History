@@ -184,11 +184,7 @@ page 9401 "VAT Amount Lines"
                     trigger OnValidate()
                     begin
                         // NAVCZ
-#if CLEAN17
                         if CurrencyCode = '' then
-#else
-                        if (CurrencyFactor = VATCurrencyFactor) or (VATCurrencyFactor = 0) or (CurrencyCode = '') then
-#endif
                             Validate("VAT Amount (LCY)", "Ext. VAT Amount (LCY)");
 
                         if AllowVATDifference and not AllowVATDifferenceOnThisTab then
@@ -234,15 +230,6 @@ page 9401 "VAT Amount Lines"
     begin
         VATAmountEditable := AllowVATDifference and not "Includes Prepayment";
         InvoiceDiscountAmountEditable := AllowInvDisc and not "Includes Prepayment";
-#if not CLEAN17
-        // NAVCZ
-        VATAmountLCYEditable := AllowVATDifferenceOnThisTab;
-        if VATAmountLCYEditable then
-            VATAmountLCYEditable := not UseExtAmount;
-        ExtVATAmountLCYEditable :=
-          AllowVATDifference and not "Includes Prepayment" and UseExtAmount;
-        // NAVCZ
-#endif
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -300,10 +287,6 @@ page 9401 "VAT Amount Lines"
         VATAmountLCYEditable: Boolean;
         [InDataSet]
         ExtVATAmountLCYEditable: Boolean;
-#if not CLEAN17
-        VATCurrencyFactor: Decimal;
-        UseExtAmount: Boolean;
-#endif
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
@@ -399,18 +382,6 @@ page 9401 "VAT Amount Lines"
     begin
         CurrencyFactor := NewCurrencyFactor; // NAVCZ
     end;
-#if not CLEAN17
-
-    [Obsolete('Unsupported functionality. The function for adjusting VAT on document statistics is discontinued.', '17.5')]
-    [Scope('OnPrem')]
-    procedure SetVATCurrencyFactor(NewVATCurrencyFactor: Decimal)
-    begin
-        // NAVCZ
-        VATCurrencyFactor := NewVATCurrencyFactor;
-        UseExtAmount := true;
-        // NAVCZ
-    end;
-#endif
 }
 
 #endif

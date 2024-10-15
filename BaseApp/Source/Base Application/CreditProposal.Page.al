@@ -193,35 +193,19 @@ page 31054 "Credit Proposal"
         RecFilter: Text;
     begin
         GetSetup;
-#if CLEAN17
         CreditsSetup.TestField("Credit Proposal By", CreditsSetup."Credit Proposal By"::"Bussiness Relation");
-#endif
         case SourceType of
             SourceType::Customer:
                 begin
                     Cust.Get(SourceNo);
                     Clear(RecFilter);
                     case CreditsSetup."Credit Proposal By" of
-#if not CLEAN17
-                        CreditsSetup."Credit Proposal By"::"Registration No.":
-                            if Cust."Registration No." <> '' then begin
-                                Vend.SetRange("Registration No.", Cust."Registration No.");
-                                if Vend.FindSet(false) then begin
-                                    repeat
-                                        if RecFilter = '' then
-                                            RecFilter := Vend."No."
-                                        else
-                                            RecFilter := RecFilter + '|' + Vend."No.";
-                                    until Vend.Next() = 0;
-                                end;
-                            end;
-#endif
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
                             begin
                                 ContactBusRelation.SetCurrentKey("Link to Table", "No.");
                                 ContactBusRelation.SetRange("Link to Table", ContactBusRelation."Link to Table"::Customer);
                                 ContactBusRelation.SetRange("No.", SourceNo);
-                                if ContactBusRelation.FindFirst then
+                                if ContactBusRelation.FindFirst() then
                                     RecFilter := GetLedgEntryFilterFromCont(ContactBusRelation."Link to Table"::Vendor,
                                         ContactBusRelation."Contact No.");
                             end;
@@ -241,26 +225,12 @@ page 31054 "Credit Proposal"
                     Vend.Get(SourceNo);
                     Clear(RecFilter);
                     case CreditsSetup."Credit Proposal By" of
-#if not CLEAN17
-                        CreditsSetup."Credit Proposal By"::"Registration No.":
-                            if Vend."Registration No." <> '' then begin
-                                Cust.SetRange("Registration No.", Vend."Registration No.");
-                                if Cust.FindSet(false, false) then begin
-                                    repeat
-                                        if RecFilter = '' then
-                                            RecFilter := Cust."No."
-                                        else
-                                            RecFilter := RecFilter + '|' + Cust."No.";
-                                    until Cust.Next() = 0;
-                                end;
-                            end;
-#endif
                         CreditsSetup."Credit Proposal By"::"Bussiness Relation":
                             begin
                                 ContactBusRelation.SetCurrentKey("Link to Table", "No.");
                                 ContactBusRelation.SetRange("Link to Table", ContactBusRelation."Link to Table"::Vendor);
                                 ContactBusRelation.SetRange("No.", SourceNo);
-                                if ContactBusRelation.FindFirst then
+                                if ContactBusRelation.FindFirst() then
                                     RecFilter := GetLedgEntryFilterFromCont(ContactBusRelation."Link to Table"::Customer,
                                         ContactBusRelation."Contact No.");
                             end;

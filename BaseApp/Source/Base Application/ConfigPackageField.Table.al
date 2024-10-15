@@ -21,7 +21,13 @@ table 8616 "Config. Package Field"
         {
             Caption = 'Field ID';
             NotBlank = true;
-            TableRelation = IF (Dimension = CONST(false)) Field."No." WHERE(TableNo = FIELD("Table ID"));
+            TableRelation = Field."No." WHERE(TableNo = FIELD("Table ID"));
+            ValidateTableRelation = false;
+
+            trigger OnValidate()
+            begin
+                ValidateFieldIDTableRelation();
+            end;
         }
         field(4; "Field Name"; Text[30])
         {
@@ -214,7 +220,7 @@ table 8616 "Config. Package Field"
             ConfigPackageData.SetRange("Package Code", "Package Code");
             ConfigPackageData.SetRange("Table ID", "Table ID");
             ConfigPackageData.SetRange("Field ID", "Field ID");
-            if ConfigPackageData.FindSet then begin
+            if ConfigPackageData.FindSet() then begin
                 ConfigProgressBar.Init(ConfigPackageData.Count, 1, Text002);
                 repeat
                     ConfigProgressBar.Update(ConfigPackageData.Value);
@@ -259,7 +265,7 @@ table 8616 "Config. Package Field"
     begin
         TableRelationsMetadata.SetRange("Table ID", "Table ID");
         TableRelationsMetadata.SetRange("Field No.", "Field ID");
-        if TableRelationsMetadata.FindSet then
+        if TableRelationsMetadata.FindSet() then
             repeat
                 Result += Format(TableRelationsMetadata."Related Table ID") + '|';
             until TableRelationsMetadata.Next() = 0;
@@ -323,6 +329,17 @@ table 8616 "Config. Package Field"
         exit(ElementName);
     end;
 
+    local procedure ValidateFieldIDTableRelation()
+    var
+        FieldRec: Record Field;
+        ShouldValidate: Boolean;
+    begin
+        ShouldValidate := not Dimension;
+        OnBeforeValidateFieldIDTableRelation(Rec, ShouldValidate);
+        if ShouldValidate then
+            FieldRec.Get("Table ID", "Field ID");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnIncludeFieldOnValidateOnAfterCalcShouldRunCheck(var ConfigPackageField: Record "Config. Package Field"; var ShouldRunCheck: Boolean)
     begin
@@ -335,6 +352,11 @@ table 8616 "Config. Package Field"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateValidateField(var ConfigPackageField: Record "Config. Package Field"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateFieldIDTableRelation(var ConfigPackageField: Record "Config. Package Field"; var ShouldValidate: Boolean)
     begin
     end;
 

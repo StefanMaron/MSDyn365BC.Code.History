@@ -116,6 +116,12 @@ page 370 "Bank Account Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
                 }
+                field("Use as Default for Currency"; "Use as Default for Currency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether this is the default company account for payments in sales and service documents in the currency specified for this account. Each currency can have only one default bank account.';
+                }
                 group(Control45)
                 {
                     ShowCaption = false;
@@ -511,6 +517,25 @@ page 370 "Bank Account Card"
                     Visible = false;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
+            }
             action(BankAccountReconciliations)
             {
                 ApplicationArea = Basic, Suite;
@@ -664,6 +689,23 @@ page 370 "Bank Account Card"
                 ToolTip = 'Export a Positive Pay file with relevant payment information that you then send to the bank for reference when you process payments to make sure that your bank only clears validated checks and amounts.';
                 Visible = false;
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
         area(reporting)
         {
@@ -738,6 +780,7 @@ page 370 "Bank Account Card"
     var
         Contact: Record Contact;
     begin
+        OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
     end;
@@ -766,6 +809,11 @@ page 370 "Bank Account Card"
     begin
         BankAccount.SetRange("No.", BankActNumber);
         REPORT.RunModal(ReportNumber, true, true, BankAccount);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage()
+    begin
     end;
 }
 

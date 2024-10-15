@@ -43,7 +43,7 @@ table 99000771 "Production BOM Header"
                     FieldError(Status);
                 Item.SetCurrentKey("Production BOM No.");
                 Item.SetRange("Production BOM No.", "No.");
-                if Item.FindSet then
+                if Item.FindSet() then
                     repeat
                         ItemUnitOfMeasure.Get(Item."No.", "Unit of Measure Code");
                     until Item.Next() = 0;

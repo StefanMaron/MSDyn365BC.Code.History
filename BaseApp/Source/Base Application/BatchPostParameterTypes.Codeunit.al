@@ -50,19 +50,4 @@ codeunit 1370 "Batch Post Parameter Types"
     begin
         exit(Parameter::"Posting Date".AsInteger());
     end;
-#if not CLEAN17
-
-    [Scope('OnPrem')]
-    procedure VATDate(): Integer
-    begin
-        exit(Parameter::"VAT Date".AsInteger());
-    end;
-
-    [Scope('OnPrem')]
-    procedure ReplaceVATDate(): Integer
-    begin
-        exit(Parameter::"Replace VAT Date".AsInteger());
-    end;
-#endif
 }
-

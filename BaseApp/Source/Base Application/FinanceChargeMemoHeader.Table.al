@@ -50,12 +50,6 @@ table 302 "Finance Charge Memo Header"
                 "Shortcut Dimension 1 Code" := Cust."Global Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := Cust."Global Dimension 2 Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
-#if not CLEAN17
-                // NAVCZ
-                "Registration No." := Cust."Registration No.";
-                "Tax Registration No." := Cust."Tax Registration No.";
-                // NAVCZ
-#endif
                 Cust.TestField("Customer Posting Group");
                 "Customer Posting Group" := Cust."Customer Posting Group";
                 "Gen. Bus. Posting Group" := Cust."Gen. Bus. Posting Group";
@@ -68,7 +62,7 @@ table 302 "Finance Charge Memo Header"
 #endif
                 OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
 
-                CreateDim(DATABASE::Customer, "Customer No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(3; Name; Text[100])
@@ -159,6 +153,7 @@ table 302 "Finance Charge Memo Header"
                         "Currency Code" := xRec."Currency Code";
                         exit;
                     end;
+                SetCompanyBankAccount();
             end;
         }
         field(13; Contact; Text[100])
@@ -299,7 +294,8 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Finance Charge Memo Line"."Remaining Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
+                                                                                   "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Remaining Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -309,7 +305,8 @@ table 302 "Finance Charge Memo Header"
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Finance Charge Memo Line".Amount WHERE("Finance Charge Memo No." = FIELD("No."),
-                                                                       Type = CONST("Customer Ledger Entry")));
+                                                                       Type = CONST("Customer Ledger Entry"),
+                                                                       "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Interest Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -328,7 +325,8 @@ table 302 "Finance Charge Memo Header"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No.")));
+            CalcFormula = Sum("Finance Charge Memo Line"."VAT Amount" WHERE("Finance Charge Memo No." = FIELD("No."),
+                                                                             "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'VAT Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -382,6 +380,11 @@ table 302 "Finance Charge Memo Header"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -407,11 +410,7 @@ table 302 "Finance Charge Memo Header"
         field(11700; "Bank No."; Code[20])
         {
             Caption = 'Bank No.';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif            
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -542,6 +541,14 @@ table 302 "Finance Charge Memo Header"
         field(11761; "Multiple Interest Rates"; Boolean)
         {
             Caption = 'Multiple Interest Rates';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -553,28 +560,28 @@ table 302 "Finance Charge Memo Header"
         field(11770; "Tax Amount"; Decimal)
         {
             Caption = 'Tax Amount';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'This field is not needed and it is not used anymore.';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -604,10 +611,12 @@ table 302 "Finance Charge Memo Header"
 
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "No.");
         FinChrgMemoLine.DeleteAll();
+#if not CLEAN20
         // NAVCZ
         DtldFinChargeMemoLine.SetRange("Finance Charge Memo No.", "No.");
         DtldFinChargeMemoLine.DeleteAll();
         // NAVCZ
+#endif
         FinChrgMemoCommentLine.SetRange(Type, FinChrgMemoCommentLine.Type::"Finance Charge Memo");
         FinChrgMemoCommentLine.SetRange("No.", "No.");
         FinChrgMemoCommentLine.DeleteAll();
@@ -624,14 +633,15 @@ table 302 "Finance Charge Memo Header"
     end;
 
     trigger OnInsert()
-
     begin
         SalesSetup.Get();
         if "No." = '' then begin
             TestNoSeries;
             NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
         end;
+#if not CLEAN20
         "Multiple Interest Rates" := SalesSetup."Multiple Interest Rates"; // NAVCZ
+#endif
         "Posting Description" := StrSubstNo(Text000, "No.");
         if ("No. Series" <> '') and
            (SalesSetup."Fin. Chrg. Memo Nos." = GetIssuingNoSeriesCode())
@@ -659,8 +669,10 @@ table 302 "Finance Charge Memo Header"
         Text005: Label 'Deleting this document will cause a gap in the number series for finance charge memos.';
         Text006: Label 'An empty finance charge memo %1 will be created to fill this gap in the number series.\\';
         Currency: Record Currency;
+#if not CLEAN20
         CompanyInfo: Record "Company Information";
         DtldFinChargeMemoLine: Record "Detailed Fin. Charge Memo Line";
+#endif
         SalesSetup: Record "Sales & Receivables Setup";
         CustPostingGr: Record "Customer Posting Group";
         FinChrgTerms: Record "Finance Charge Terms";
@@ -744,6 +756,14 @@ table 302 "Finance Charge Memo Header"
         IssuingNos := SalesSetup."Issued Fin. Chrg. M. Nos.";
 
         OnAfterGetIssuingNoSeriesCode(Rec, IssuingNos);
+    end;
+
+    local procedure SetCompanyBankAccount()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        Validate("Company Bank Account Code", BankAccount.GetDefaultBankAccountNoForCurrency("Currency Code"));
+        OnAfterSetCompanyBankAccount(Rec, xRec);
     end;
 
     local procedure Undo(): Boolean
@@ -843,11 +863,11 @@ table 302 "Finance Charge Memo Header"
             end;
         end;
         FinChrgMemoLine.SetRange("Line Type", FinChrgMemoLine."Line Type"::Rounding);
-        if FinChrgMemoLine.FindFirst then
+        if FinChrgMemoLine.FindFirst() then
             FinChrgMemoLine.Delete(true);
 
         FinChrgMemoLine.SetRange("Line Type");
-        FinChrgMemoLine.FindLast;
+        FinChrgMemoLine.FindLast();
         FinChrgMemoLine."Line No." := FinChrgMemoLine."Line No." + 10000;
         FinanceChargeRounding(FinChrgMemoHeader2);
 
@@ -978,6 +998,8 @@ table 302 "Finance Charge Memo Header"
         exit(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -999,6 +1021,31 @@ table 302 "Finance Charge Memo Header"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+    begin
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup."Finance Charge Memo",
+            "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+#if not CLEAN20
+        RunEventOnAfterCreateDim(DefaultDimSource);
+#endif
+        OnAfterCreateDimProcedure(Rec, CurrFieldNo, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1076,12 +1123,12 @@ table 302 "Finance Charge Memo Header"
         FinChrgMemoLine.Reset();
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", FinanceChargeHeader."No.");
         FinChrgMemoLine.SetRange("Line Type", FinChrgMemoLine."Line Type"::Rounding);
-        if FinChrgMemoLine.FindFirst then
+        if FinChrgMemoLine.FindFirst() then
             FinChrgMemoLine.Delete(true);
 
         FinChrgMemoLine.SetRange("Line Type");
         FinChrgMemoLine.SetFilter(Type, '<>%1', FinChrgMemoLine.Type::" ");
-        if FinChrgMemoLine.FindLast then begin
+        if FinChrgMemoLine.FindLast() then begin
             OldLineNo := FinChrgMemoLine."Line No.";
             FinChrgMemoLine.SetRange(Type);
             if FinChrgMemoLine.Next <> 0 then
@@ -1148,11 +1195,101 @@ table 302 "Finance Charge Memo Header"
             Validate("Customer No.", GetFilterCustNo);
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Customer No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Finance Charge Memo Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Finance Charge Memo Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Finance Charge Memo Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDim(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimProcedure(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CurrFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]);
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetNoSeriesCode(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; SalesSetup: Record "Sales & Receivables Setup"; var NoSeriesCode: Code[20])
     begin
@@ -1168,13 +1305,20 @@ table 302 "Finance Charge Memo Header"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestNoSeries(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCompanyBankAccount(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; xFinanceChargeMemoHeader: Record "Finance Charge Memo Header")
     begin
     end;
 

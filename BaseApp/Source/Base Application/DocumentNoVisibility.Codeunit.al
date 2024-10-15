@@ -78,7 +78,7 @@ codeunit 1400 DocumentNoVisibility
         DocNoSeries := DetermineSalesSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
             SalesNoSeriesSetup.SetFieldsVisibility(DocType);
-            SalesNoSeriesSetup.RunModal;
+            SalesNoSeriesSetup.RunModal();
             DocNoSeries := DetermineSalesSeriesNo(DocType);
         end;
         Result := ForceShowNoSeriesForDocNo(DocNoSeries);
@@ -111,7 +111,7 @@ codeunit 1400 DocumentNoVisibility
         DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         if not NoSeries.Get(DocNoSeries) then begin
             PurchaseNoSeriesSetup.SetFieldsVisibility(DocType);
-            PurchaseNoSeriesSetup.RunModal;
+            PurchaseNoSeriesSetup.RunModal();
             DocNoSeries := DeterminePurchaseSeriesNo(DocType);
         end;
         Result := ForceShowNoSeriesForDocNo(DocNoSeries);
@@ -156,7 +156,7 @@ codeunit 1400 DocumentNoVisibility
             exit(CustNoVisible);
         IsCustNoInitialized := true;
 
-        NoSeriesCode := DetermineCustomerSeriesNo;
+        NoSeriesCode := DetermineCustomerSeriesNo();
         CustNoVisible := ForceShowNoSeriesForDocNo(NoSeriesCode);
         exit(CustNoVisible);
     end;
@@ -332,53 +332,73 @@ codeunit 1400 DocumentNoVisibility
     procedure CustomerNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        Customer: Record Customer;
     begin
-        if NoSeries.Get(DetermineCustomerSeriesNo) then
+        if NoSeries.Get(DetermineCustomerSeriesNo()) then begin
+            CheckNumberSeries(Database::Customer, NoSeries.Code, Customer.FieldNo("No."));
             exit(NoSeries."Default Nos.");
-
+        end;
         exit(false);
     end;
 
     procedure VendorNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        Vendor: Record Vendor;
     begin
-        if NoSeries.Get(DetermineVendorSeriesNo) then
+        if NoSeries.Get(DetermineVendorSeriesNo()) then begin
+            CheckNumberSeries(Database::Vendor, NoSeries.Code, Vendor.FieldNo("No."));
             exit(NoSeries."Default Nos.");
-
+        end;
         exit(false);
     end;
 
     procedure ItemNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        Item: Record Item;
     begin
-        if NoSeries.Get(DetermineItemSeriesNo) then
+        if NoSeries.Get(DetermineItemSeriesNo()) then begin
+            CheckNumberSeries(Database::Item, NoSeries.Code, Item.FieldNo("No."));
             exit(NoSeries."Default Nos.");
+        end;
+        exit(false);
     end;
 
     procedure TransferOrderNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        TransferHeader: Record "Transfer Header";
     begin
-        if NoSeries.Get(DetermineTransferOrderSeriesNo) then
+        if NoSeries.Get(DetermineTransferOrderSeriesNo()) then begin
+            CheckNumberSeries(Database::"Transfer Header", NoSeries.Code, TransferHeader.FieldNo("No."));
             exit(NoSeries."Default Nos.");
+        end;
+        exit(false);
     end;
 
     procedure FixedAssetNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        FixedAsset: Record "Fixed Asset";
     begin
-        if NoSeries.Get(DetermineFixedAssetSeriesNo) then
+        if NoSeries.Get(DetermineFixedAssetSeriesNo()) then begin
+            CheckNumberSeries(Database::"Fixed Asset", NoSeries.Code, FixedAsset.FieldNo("No."));
             exit(NoSeries."Default Nos.");
+        end;
+        exit(false);
     end;
 
     procedure EmployeeNoSeriesIsDefault(): Boolean
     var
         NoSeries: Record "No. Series";
+        Employee: Record Employee;
     begin
-        if NoSeries.Get(DetermineEmployeeSeriesNo) then
+        if NoSeries.Get(DetermineEmployeeSeriesNo()) then begin
+            CheckNumberSeries(Database::Employee, NoSeries.Code, Employee.FieldNo("No."));
             exit(NoSeries."Default Nos.");
+        end;
+        exit(false);
     end;
 
     local procedure DetermineSalesSeriesNo(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo): Code[20]
@@ -476,60 +496,48 @@ codeunit 1400 DocumentNoVisibility
     local procedure DetermineTransferOrderSeriesNo(): Code[20]
     var
         InventorySetup: Record "Inventory Setup";
-        TransferHeader: Record "Transfer Header";
     begin
         InventorySetup.Get();
-        CheckNumberSeries(TransferHeader, InventorySetup."Transfer Order Nos.", TransferHeader.FieldNo("No."));
         exit(InventorySetup."Transfer Order Nos.");
     end;
 
     local procedure DetermineCustomerSeriesNo(): Code[20]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        Customer: Record Customer;
     begin
         SalesReceivablesSetup.Get();
-        CheckNumberSeries(Customer, SalesReceivablesSetup."Customer Nos.", Customer.FieldNo("No."));
         exit(SalesReceivablesSetup."Customer Nos.");
     end;
 
     local procedure DetermineVendorSeriesNo(): Code[20]
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        Vendor: Record Vendor;
     begin
         PurchasesPayablesSetup.Get();
-        CheckNumberSeries(Vendor, PurchasesPayablesSetup."Vendor Nos.", Vendor.FieldNo("No."));
         exit(PurchasesPayablesSetup."Vendor Nos.");
     end;
 
     local procedure DetermineItemSeriesNo(): Code[20]
     var
         InventorySetup: Record "Inventory Setup";
-        Item: Record Item;
     begin
         InventorySetup.Get();
-        CheckNumberSeries(Item, InventorySetup."Item Nos.", Item.FieldNo("No."));
         exit(InventorySetup."Item Nos.");
     end;
 
     local procedure DetermineFixedAssetSeriesNo(): Code[20]
     var
         FASetup: Record "FA Setup";
-        FixedAsset: Record "Fixed Asset";
     begin
         FASetup.Get();
-        CheckNumberSeries(FixedAsset, FASetup."Fixed Asset Nos.", FixedAsset.FieldNo("No."));
         exit(FASetup."Fixed Asset Nos.");
     end;
 
     local procedure DetermineEmployeeSeriesNo(): Code[20]
     var
         HumanResourcesSetup: Record "Human Resources Setup";
-        Employee: Record Employee;
     begin
         HumanResourcesSetup.Get();
-        CheckNumberSeries(Employee, HumanResourcesSetup."Employee Nos.", Employee.FieldNo("No."));
         exit(HumanResourcesSetup."Employee Nos.");
     end;
 
@@ -621,10 +629,10 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(DocNoSeries) then begin
             if TemplateCode <> '' then begin
                 SalesAdvNoSeriesSetup.SetTemplateCode(TemplateCode);
-                SalesAdvNoSeriesSetup.RunModal;
+                SalesAdvNoSeriesSetup.RunModal();
             end else begin
                 SalesNoSeriesSetup.SetFieldsVisibility(DocType::"Advance Letter");
-                SalesNoSeriesSetup.RunModal;
+                SalesNoSeriesSetup.RunModal();
             end;
 
             DocNoSeries := DetermineSalesAdvanceSeriesNo(TemplateCode);
@@ -660,10 +668,10 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(DocNoSeries) then begin
             if TemplateCode <> '' then begin
                 PurchaseAdvNoSeriesSetup.SetTemplateCode(TemplateCode);
-                PurchaseAdvNoSeriesSetup.RunModal;
+                PurchaseAdvNoSeriesSetup.RunModal();
             end else begin
                 PurchaseNoSeriesSetup.SetFieldsVisibility(DocType::"Advance Letter");
-                PurchaseNoSeriesSetup.RunModal;
+                PurchaseNoSeriesSetup.RunModal();
             end;
 
             DocNoSeries := DeterminePurchaseAdvanceSeriesNo(TemplateCode);
@@ -742,7 +750,7 @@ codeunit 1400 DocumentNoVisibility
         if not NoSeries.Get(DocNoSeries) then begin
             BankNoSeriesSetup.SetFieldsVisibility(DocType);
             BankNoSeriesSetup.SetBankAccountNo(BankAccNo);
-            BankNoSeriesSetup.RunModal;
+            BankNoSeriesSetup.RunModal();
             DocNoSeries := DetermineBankSeriesNo(BankAccNo, DocType);
         end;
 
@@ -814,62 +822,6 @@ codeunit 1400 DocumentNoVisibility
     end;
 
 #endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure StatReportingDocumentNoIsVisible(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"; DocNo: Code[20]): Boolean
-    var
-        NoSeries: Record "No. Series";
-        StatRepNoSeriesSetup: Page "Stat. Rep. No. Series Setup";
-        DocNoSeries: Code[20];
-        IsHandled: Boolean;
-        IsVisible: Boolean;
-    begin
-        // NAVCZ
-        IsHandled := false;
-        IsVisible := false;
-        OnBeforeStatReportingDocumentNoIsVisible(DocType, DocNo, IsVisible, IsHandled);
-        if IsHandled then
-            exit(IsVisible);
-
-        if DocNo <> '' then
-            exit(false);
-
-        DocNoSeries := DetermineStatReportingSeriesNo(DocType);
-
-        if not NoSeries.Get(DocNoSeries) then begin
-            StatRepNoSeriesSetup.SetFieldsVisibility(DocType);
-            StatRepNoSeriesSetup.RunModal;
-            DocNoSeries := DetermineStatReportingSeriesNo(DocType);
-        end;
-
-        exit(ForceShowNoSeriesForDocNo(DocNoSeries));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure DetermineStatReportingSeriesNo(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report"): Code[20]
-    var
-        StatReportingSetup: Record "Stat. Reporting Setup";
-        VIESDeclarationHeader: Record "VIES Declaration Header";
-        VATControlReportHeader: Record "VAT Control Report Header";
-    begin
-        // NAVCZ
-        StatReportingSetup.Get();
-        case DocType of
-            DocType::"VIES Declaration":
-                begin
-                    CheckNumberSeries(VIESDeclarationHeader, StatReportingSetup."VIES Declaration Nos.", VIESDeclarationHeader.FieldNo("No."));
-                    exit(StatReportingSetup."VIES Declaration Nos.");
-                end;
-            DocType::"VAT Control Report":
-                begin
-                    CheckNumberSeries(VATControlReportHeader, StatReportingSetup."VAT Control Report Nos.", VATControlReportHeader.FieldNo("No."));
-                    exit(StatReportingSetup."VAT Control Report Nos.");
-                end;
-        end;
-    end;
-
-#endif
     procedure CheckNumberSeries(RecVariant: Variant; NoSeriesCode: Code[20]; FieldNo: Integer)
     var
         NoSeries: Record "No. Series";
@@ -877,17 +829,27 @@ codeunit 1400 DocumentNoVisibility
         RecRef: RecordRef;
         FieldRef: FieldRef;
         NewNo: Code[20];
+        RecAlreadyExists: Boolean;
+        RememberToSaveNoSeries: Boolean;
     begin
         OnBeforeCheckNumberSeries(RecVariant, NoSeriesCode, FieldNo, NoSeries);
-        if RecVariant.IsRecord and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
+        if (RecVariant.IsRecord or RecVariant.IsInteger) and (NoSeriesCode <> '') and NoSeries.Get(NoSeriesCode) then begin
             NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
-            RecRef.GetTable(RecVariant);
+            if RecVariant.IsRecord then
+                RecRef.GetTable(RecVariant)
+            else
+                RecRef.Open(RecVariant);
             FieldRef := RecRef.Field(FieldNo);
             FieldRef.SetRange(NewNo);
-            if RecRef.FindFirst then begin
-                NoSeriesMgt.SaveNoSeries;
-                CheckNumberSeries(RecRef, NoSeriesCode, FieldNo);
+            RecAlreadyExists := not RecRef.IsEmpty;
+            while RecAlreadyExists do begin
+                RememberToSaveNoSeries := true;
+                NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
+                FieldRef.SetRange(NewNo);
+                RecAlreadyExists := not RecRef.IsEmpty;
             end;
+            if RememberToSaveNoSeries then
+                NoSeriesMgt.SaveNoSeries();
         end;
     end;
 

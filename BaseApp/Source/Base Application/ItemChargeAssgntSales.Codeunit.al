@@ -1,4 +1,4 @@
-#if not CLEAN18
+﻿#if not CLEAN18
 codeunit 5807 "Item Charge Assgnt. (Sales)"
 {
     Permissions = TableData "Sales Header" = r,
@@ -73,38 +73,11 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         ItemChargeAssgntSales.Insert();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignment(
-            ItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo,
-            IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignmentWithValues(
-            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
-            QtyToAssign, AmountToAssign, NextLineNo, IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntSales: Record "Item Charge Assignment (Sales)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignmentWithValuesTo(
-            FromItemChargeAssgntSales, "Sales Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
-            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntSales,
-            IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-#endif
-
     procedure Summarize(var TempToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)" temporary; var ToItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)")
     begin
         with TempToItemChargeAssignmentSales do begin
             SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Item Charge No." <> ToItemChargeAssignmentSales."Item Charge No.") or
                        ("Applies-to Doc. No." <> ToItemChargeAssignmentSales."Applies-to Doc. No.") or
@@ -276,11 +249,14 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
         AssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, SelectionTxt);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by AssignItemCharges()', '20.0')]
     procedure SuggestAssignment2(SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; Selection: Option Equally,"By Amount","By Weight","By Volume")
     begin
         // this function will be deprecated. Please use AssignItemCharges instead
         AssignItemCharges(SalesLine, TotalQtyToAssign, TotalAmtToAssign, Format(Selection))
     end;
+#endif
 
     procedure AssignItemCharges(SalesLine: Record "Sales Line"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal; SelectionTxt: Text)
     var
@@ -649,7 +625,7 @@ codeunit 5807 "Item Charge Assgnt. (Sales)"
                     end;
                 until ItemChargeAssignmentSales.Next() = 0;
 
-                if TempItemChargeAssgntSales.FindSet then begin
+                if TempItemChargeAssgntSales.FindSet() then begin
                     repeat
                         ItemChargeAssignmentSales.Get(
                           TempItemChargeAssgntSales."Document Type",

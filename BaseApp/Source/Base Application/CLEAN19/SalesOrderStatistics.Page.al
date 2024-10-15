@@ -718,7 +718,6 @@ page 402 "Sales Order Statistics"
         TempVATAmountLine3: Record "VAT Amount Line" temporary;
         TempVATAmountLine4: Record "VAT Amount Line" temporary;
         SalesSetup: Record "Sales & Receivables Setup";
-        SalesPost: Codeunit "Sales-Post";
         VATLinesForm: Page "VAT Amount Lines";
         PrepmtTotalAmount: Decimal;
         PrepmtVATAmount: Decimal;
@@ -737,22 +736,23 @@ page 402 "Sales Order Statistics"
         PrevNo: Code[20];
         ActiveTab: Option General,Invoicing,Shipping,Prepayment;
         PrevTab: Option General,Invoicing,Shipping,Prepayment;
-        VATLinesFormIsEditable: Boolean;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
         Text006: Label 'Prepmt. Amount';
         Text007: Label 'Prepmt. Amt. Invoiced';
         Text008: Label 'Prepmt. Amt. Deducted';
         Text009: Label 'Prepmt. Amt. to Deduct';
-        DynamicEditable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     protected var
         TotalSalesLine: array[3] of Record "Sales Line";
         TotalSalesLineLCY: array[3] of Record "Sales Line";
+        SalesPost: Codeunit "Sales-Post";
         TotalAmount1: array[3] of Decimal;
         TotalAmount2: array[3] of Decimal;
         VATAmount: array[3] of Decimal;
+        DynamicEditable: Boolean;
+        VATLinesFormIsEditable: Boolean;
 
     local procedure RefreshOnAfterGetRecord()
     var
@@ -1119,7 +1119,7 @@ page 402 "Sales Order Statistics"
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 

@@ -28,15 +28,9 @@ permissionset 5417 "Account Schedules - View"
                   tabledata "Column Layout Name" = R,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-#if not CLEAN17
-                  tabledata "Excel Template" = R,
-#endif
+#if not CLEAN20
                   tabledata "Export Acc. Schedule" = R,
+#endif
                   tabledata "G/L Account" = R,
-#if CLEAN17
                   tabledata "G/L Budget Name" = R;
-#else
-                  tabledata "G/L Budget Name" = R,
-                  tabledata "Statement File Mapping" = R;
-#endif                  
 }

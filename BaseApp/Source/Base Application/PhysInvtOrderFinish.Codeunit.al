@@ -1,4 +1,3 @@
-#if not CLEAN17
 codeunit 5880 "Phys. Invt. Order-Finish"
 {
     TableNo = "Phys. Invt. Order Header";
@@ -15,6 +14,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     var
         FinishingLinesMsg: Label 'Finishing lines              #2######', Comment = '%2 = counter';
+        LastPhysInvtOrderLine: Record "Phys. Invt. Order Line";
         PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
         PhysInvtOrderLine: Record "Phys. Invt. Order Line";
         PhysInvtOrderLine2: Record "Phys. Invt. Order Line";
@@ -26,14 +26,14 @@ codeunit 5880 "Phys. Invt. Order-Finish"
         Window: Dialog;
         ErrorText: Text[250];
         LineCount: Integer;
-        LastItemNo: Code[20];
-        LastVariantCode: Code[20];
-        LastLocationCode: Code[20];
+        HideProgressWindow: Boolean;
 
     procedure "Code"()
     var
         IsHandled: Boolean;
     begin
+        OnBeforeCode(PhysInvtOrderHeader, HideProgressWindow);
+
         with PhysInvtOrderHeader do begin
             TestField("No.");
             TestField(Status, Status::Open);
@@ -46,9 +46,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     PhysInvtRecordHeader.TestField(Status, PhysInvtRecordHeader.Status::Finished);
                 until PhysInvtRecordHeader.Next() = 0;
 
-            Window.Open(
-              '#1#################################\\' + FinishingLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            if not HideProgressWindow then begin
+                Window.Open(
+                '#1#################################\\' + FinishingLinesMsg);
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
+            end;
 
             LockTable();
             PhysInvtOrderLine.LockTable();
@@ -60,7 +62,8 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             if PhysInvtOrderLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
 
                     if not PhysInvtOrderLine.EmptyLine then begin
                         CheckOrderLine(PhysInvtOrderHeader, PhysInvtOrderLine, Item);
@@ -91,7 +94,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                             else
                                 PhysInvtOrderLine."Neg. Qty. (Base)" := PhysInvtOrderLine."Quantity (Base)";
 
-                        PhysInvtOrderLine.Validate("Whse. Net Change Template", GetWhseNetChangeTemplateName(PhysInvtOrderLine)); // NAVCZ
                         PhysInvtOrderLine.CalcCosts;
 
                         OnBeforePhysInvtOrderLineModify(PhysInvtOrderLine);
@@ -99,24 +101,17 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                     end;
                 until PhysInvtOrderLine.Next() = 0;
 
-            LastItemNo := '';
-            LastVariantCode := '';
-            LastLocationCode := '';
+            Clear(LastPhysInvtOrderLine);
 
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetCurrentKey("Document No.", "Item No.", "Variant Code", "Location Code");
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             PhysInvtOrderLine.SetRange("Use Item Tracking", true);
             OnCodeOnAfterSetFilters(PhysInvtOrderLine);
-            if PhysInvtOrderLine.FindSet then
+            if PhysInvtOrderLine.FindSet() then
                 repeat
-                    if (PhysInvtOrderLine."Item No." <> LastItemNo) or
-                       (PhysInvtOrderLine."Variant Code" <> LastVariantCode) or
-                       (PhysInvtOrderLine."Location Code" <> LastLocationCode)
-                    then begin
-                        LastItemNo := PhysInvtOrderLine."Item No.";
-                        LastVariantCode := PhysInvtOrderLine."Variant Code";
-                        LastLocationCode := PhysInvtOrderLine."Location Code";
+                    if IsNewPhysInvtOrderLineGroup() then begin
+                        LastPhysInvtOrderLine := PhysInvtOrderLine;
 
                         Item.Get(PhysInvtOrderLine."Item No.");
                         if IsBinMandatoryNoWhseTracking(Item, PhysInvtOrderLine."Location Code") then begin
@@ -125,13 +120,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
                             UpdateBufferFromItemLedgerEntries(PhysInvtOrderLine);
 
-                            PhysInvtOrderLine2.Reset();
-                            PhysInvtOrderLine2.SetCurrentKey(
-                              "Document No.", "Item No.", "Variant Code", "Location Code");
-                            PhysInvtOrderLine2.SetRange("Document No.", PhysInvtOrderLine."Document No.");
-                            PhysInvtOrderLine2.SetRange("Item No.", PhysInvtOrderLine."Item No.");
-                            PhysInvtOrderLine2.SetRange("Variant Code", PhysInvtOrderLine."Variant Code");
-                            PhysInvtOrderLine2.SetRange("Location Code", PhysInvtOrderLine."Location Code");
+                            SetPhysInvtRecordLineFilters();
                             if PhysInvtOrderLine2.Find('-') then
                                 repeat
                                     PhysInvtRecordLine.Reset();
@@ -163,10 +152,6 @@ codeunit 5880 "Phys. Invt. Order-Finish"
                                         PhysInvtOrderLine2."Pos. Qty. (Base)" := PhysInvtOrderLine2."Quantity (Base)"
                                     else
                                         PhysInvtOrderLine2."Neg. Qty. (Base)" := PhysInvtOrderLine2."Quantity (Base)";
-                                    // NAVCZ
-                                    PhysInvtOrderLine2.Validate("Whse. Net Change Template",
-                                      GetWhseNetChangeTemplateName(PhysInvtOrderLine2));
-                                    // NAVCZ
                                     PhysInvtOrderLine2.Modify();
                                     if PhysInvtOrderLine2."Quantity (Base)" <> 0 then begin
                                         IsHandled := false;
@@ -206,7 +191,7 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             OnBeforeGetSamePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader, IsHandled);
             if not IsHandled then
                 if PhysInvtOrderHeader.GetSamePhysInvtOrderLine(
-                     "Item No.", "Variant Code", "Location Code", "Bin Code", ErrorText, PhysInvtOrderLine2) > 1
+                     PhysInvtOrderLine, ErrorText, PhysInvtOrderLine2) > 1
                 then
                     Error(ErrorText);
         end;
@@ -377,21 +362,30 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             end;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech. "Phys.In.Order Line Handler CZL".GetInvtMovementTemplateName()', '17.0')]
-    local procedure GetWhseNetChangeTemplateName(PhysInvtOrderLine: Record "Phys. Invt. Order Line"): Code[10]
-    var
-        InventorySetup: Record "Inventory Setup";
+    local procedure IsNewPhysInvtOrderLineGroup() Result: Boolean
     begin
-        // NAVCZ
-        InventorySetup.Get();
-        case PhysInvtOrderLine."Entry Type" of
-            PhysInvtOrderLine."Entry Type"::"Positive Adjmt.":
-                exit(InventorySetup."Def.Template for Phys.Pos.Adj");
-            PhysInvtOrderLine."Entry Type"::"Negative Adjmt.":
-                exit(InventorySetup."Def.Template for Phys.Neg.Adj")
-            else
-                exit('');
-        end;
+        Result :=
+            (PhysInvtOrderLine."Item No." <> LastPhysInvtOrderLine."Item No.") or
+            (PhysInvtOrderLine."Variant Code" <> LastPhysInvtOrderLine."Variant Code") or
+            (PhysInvtOrderLine."Location Code" <> LastPhysInvtOrderLine."Location Code");
+        OnAfterIsNewPhysInvtOrderLineGroup(PhysInvtOrderLine, LastPhysInvtOrderLine, Result);
+    end;
+
+    local procedure SetPhysInvtRecordLineFilters()
+    begin
+        PhysInvtOrderLine2.Reset();
+        PhysInvtOrderLine2.SetCurrentKey(
+          "Document No.", "Item No.", "Variant Code", "Location Code");
+        PhysInvtOrderLine2.SetRange("Document No.", PhysInvtOrderLine."Document No.");
+        PhysInvtOrderLine2.SetRange("Item No.", PhysInvtOrderLine."Item No.");
+        PhysInvtOrderLine2.SetRange("Variant Code", PhysInvtOrderLine."Variant Code");
+        PhysInvtOrderLine2.SetRange("Location Code", PhysInvtOrderLine."Location Code");
+        OnAfterSetPhysInvtRecordLineFilters(PhysInvtOrderLine2, PhysInvtOrderLine);
+    end;
+
+    procedure SetHideProgressWindow(NewHideProgressWindow: Boolean)
+    begin
+        HideProgressWindow := NewHideProgressWindow;
     end;
 
     [IntegrationEvent(false, false)]
@@ -406,6 +400,11 @@ codeunit 5880 "Phys. Invt. Order-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckOrderLine(PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; PhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header"; var HideProgressWindow: Boolean)
     begin
     end;
 
@@ -463,5 +462,15 @@ codeunit 5880 "Phys. Invt. Order-Finish"
     local procedure OnUpdateBufferFromItemLedgerEntriesOnAfterUpdateExpectedQty(var PhysInvtTracking: Record "Phys. Invt. Tracking"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsNewPhysInvtOrderLineGroup(PhysInvtOrderLine: Record "Phys. Invt. Order Line"; LastPhysInvtOrderLine: Record "Phys. Invt. Order Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPhysInvtRecordLineFilters(var PhysInvtOrderLine2: Record "Phys. Invt. Order Line"; PhysInvtOrderLine: Record "Phys. Invt. Order Line")
+    begin
+    end;
 }
-#endif
+

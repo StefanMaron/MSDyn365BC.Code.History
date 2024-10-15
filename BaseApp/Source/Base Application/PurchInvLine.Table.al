@@ -553,7 +553,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Cross-Reference No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -566,7 +566,7 @@ table 123 "Purch. Inv. Line"
             Caption = 'Unit of Measure (Cross Ref.)';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD("No."));
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -580,7 +580,7 @@ table 123 "Purch. Inv. Line"
             OptionCaption = ' ,Customer,Vendor,Bar Code';
             OptionMembers = " ",Customer,Vendor,"Bar Code";
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -592,7 +592,7 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Cross-Reference Type No.';
             ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-#if not CLEAN17
+#if not CLEAN19
             ObsoleteState = Pending;
             ObsoleteTag = '17.0';
 #else
@@ -767,25 +767,16 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31063; "Country/Region of Origin Code"; Code[10])
         {
@@ -978,7 +969,7 @@ table 123 "Purch. Inv. Line"
 
         FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 if ItemLedgEntry."Document Type" = ItemLedgEntry."Document Type"::"Purchase Receipt" then
@@ -1005,7 +996,7 @@ table 123 "Purch. Inv. Line"
         RevUnitCostLCY := 0;
         GetItemLedgEntries(TempItemLedgEntry, false);
 
-        if TempItemLedgEntry.FindSet then
+        if TempItemLedgEntry.FindSet() then
             repeat
                 RemainingQty := RemainingQty + TempItemLedgEntry."Remaining Quantity";
                 if ExactCostReverse then begin
@@ -1051,7 +1042,7 @@ table 123 "Purch. Inv. Line"
 
         FilterPstdDocLineValueEntries(ValueEntry);
         ValueEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ValueEntry.FindSet then
+        if ValueEntry.FindSet() then
             repeat
                 ItemLedgEntry.Get(ValueEntry."Item Ledger Entry No.");
                 TempItemLedgEntry := ItemLedgEntry;
@@ -1107,15 +1098,7 @@ table 123 "Purch. Inv. Line"
               TotalPurchInvLineLCY."Amount Including VAT";
 #if not CLEAN18              
             "Ext.Amount Including VAT (LCY)" :=
-#if CLEAN17
                 0;
-#else
-              Round(
-                CurrExchRate.ExchangeAmtFCYToLCY(
-                  PurchInvHeader."VAT Date", PurchInvHeader."Currency Code",
-                  TotalPurchInvLine."Amount Including VAT", PurchInvHeader."VAT Currency Factor")) -
-              TotalPurchInvLineLCY."Ext.Amount Including VAT (LCY)";
-#endif
 #endif
 #if CLEAN18
             if NoVAT then
@@ -1135,15 +1118,7 @@ table 123 "Purch. Inv. Line"
                   TotalPurchInvLineLCY.Amount;
 #if not CLEAN18
                 "Ext. Amount (LCY)" :=
-#if CLEAN17
                 0;
-#else
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      PurchInvHeader."VAT Date", PurchInvHeader."Currency Code",
-                      TotalPurchInvLine.Amount, PurchInvHeader."VAT Currency Factor")) -
-                  TotalPurchInvLineLCY."Ext. Amount (LCY)";
-#endif
 #endif
             end;
             "Line Amount" :=
@@ -1262,4 +1237,3 @@ table 123 "Purch. Inv. Line"
     begin
     end;
 }
-

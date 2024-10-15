@@ -5,11 +5,12 @@ table 11708 "Payment Order Header"
     DataCaptionFields = "No.", "Bank Account No.", "Bank Account Name";
     LookupPageID = "Payment Order List";
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -38,11 +39,7 @@ table 11708 "Payment Order Header"
         {
             Caption = 'Bank Account No.';
             NotBlank = true;
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if not CLEAN19
 
             trigger OnValidate()
@@ -66,7 +63,6 @@ table 11708 "Payment Order Header"
             end;
 #endif
         }
-#if not CLEAN19
         field(4; "Bank Account Name"; Text[100])
         {
             CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
@@ -74,7 +70,6 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(5; "Account No."; Text[30])
         {
             Caption = 'Account No.';
@@ -144,7 +139,6 @@ table 11708 "Payment Order Header"
             end;
 #endif
         }
-#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Payment Order Line"."Amount to Pay" WHERE("Payment Order No." = FIELD("No."),
@@ -204,7 +198,6 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -260,7 +253,6 @@ table 11708 "Payment Order Header"
             end;
 #endif
         }
-#if not CLEAN19
         field(25; "Amount (Pay.Order Curr.)"; Decimal)
         {
             CalcFormula = Sum("Payment Order Line"."Amount(Pay.Order Curr.) to Pay" WHERE("Payment Order No." = FIELD("No."),
@@ -269,7 +261,6 @@ table 11708 "Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(30; "Last Issuing No."; Code[20])
         {
             Caption = 'Last Issuing No.';
@@ -573,41 +564,10 @@ table 11708 "Payment Order Header"
         PaymentOrderLine: Record "Payment Order Line";
     begin
         PaymentOrderLine.SetRange("Payment Order No.", "No.");
-        if PaymentOrderLine.FindSet then
+        if PaymentOrderLine.FindSet() then
             repeat
                 PaymentOrderLine.SuspendStatusCheck(StatusCheckSuspended);
                 PaymentOrderLine.Delete(true);
-            until PaymentOrderLine.Next() = 0;
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure ImportUncPayerStatus()
-    var
-        PaymentOrderLine: Record "Payment Order Line";
-        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
-    begin
-        ClearLastError;
-        if not UncPayerMgt.ImportUncPayerStatusForPaymentOrder(Rec) then begin
-            if GetLastErrorText <> '' then
-                Error(GetLastErrorText);
-            exit;
-        end;
-
-        "Uncertainty Pay.Check DateTime" := CurrentDateTime;
-        Modify;
-
-        PaymentOrderLine.SetRange("Payment Order No.", "No.");
-        PaymentOrderLine.SetRange(Type, PaymentOrderLine.Type::Vendor);
-        PaymentOrderLine.SetRange("Skip Payment", false);
-        if PaymentOrderLine.FindSet then
-            repeat
-                if PaymentOrderLine.IsUncertaintyPayerCheckPossible then begin
-                    PaymentOrderLine."VAT Uncertainty Payer" := PaymentOrderLine.HasUncertaintyPayer;
-                    PaymentOrderLine."Public Bank Account" := PaymentOrderLine.HasPublicBankAccount;
-                    PaymentOrderLine.Modify();
-                end;
             until PaymentOrderLine.Next() = 0;
     end;
 
@@ -630,4 +590,3 @@ table 11708 "Payment Order Header"
     end;
 #endif
 }
-

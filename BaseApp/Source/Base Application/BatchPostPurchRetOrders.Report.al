@@ -1,7 +1,6 @@
-#if not CLEAN17
 report 6665 "Batch Post Purch. Ret. Orders"
 {
-    Caption = 'Batch Post Purch. Ret. Orders (Obsolete)';
+    Caption = 'Batch Post Purch. Ret. Orders';
     ProcessingOnly = true;
 
     dataset
@@ -16,12 +15,6 @@ report 6665 "Batch Post Purch. Ret. Orders"
             var
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
-                if ReplaceVATDate and (VATDateReq = 0D) then
-                    Error(EnterVATDateErr);
-
-                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
-                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::"VAT Date", VATDateReq);
-
                 PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Ship, ShipReq);
                 PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
@@ -56,24 +49,9 @@ report 6665 "Batch Post Purch. Ret. Orders"
                     }
                     field(PostingDate; PostingDateReq)
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = PurchReturnOrder;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that you want to use as the document date or the posting date when you post if you select the Replace Document Date check box or the Replace Posting Date check box.';
-
-                        trigger OnValidate()
-                        begin
-                            VATDateReq := PostingDateReq; // NAVCZ
-                        end;
-                    }
-                    field(VATDate; VATDateReq)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'VAT Date';
-                        ToolTip = 'Specifies VAT Date for posting.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = UseVATDate;
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
@@ -92,16 +70,6 @@ report 6665 "Batch Post Purch. Ret. Orders"
                         ApplicationArea = PurchReturnOrder;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the document date of the orders with the date in the Posting Date field.';
-                    }
-                    field(ReplaceVATDate; ReplaceVATDate)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Replace VAT Date';
-                        ToolTip = 'Specifies if the new VAT date will be applied.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = UseVATDate;
                     }
                     field(CalcInvDiscount; CalcInvDisc)
                     {
@@ -154,7 +122,6 @@ report 6665 "Batch Post Purch. Ret. Orders"
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
-            SetControlVisibility; // NAVCZ
         end;
     }
 
@@ -163,29 +130,17 @@ report 6665 "Batch Post Purch. Ret. Orders"
     }
 
     var
-        PostingDateReq: Date;
-        VATDateReq: Date;
-        ShipReq: Boolean;
-        InvReq: Boolean;
-        ReplacePostingDate: Boolean;
-        ReplaceDocumentDate: Boolean;
-        ReplaceVATDate: Boolean;
-        [InDataSet]
-        UseVATDate: Boolean;
-        CalcInvDisc: Boolean;
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
-        EnterVATDateErr: Label 'Enter the VAT date.';
 
-    local procedure SetControlVisibility()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        UseVATDate := GLSetup."Use VAT Date";
-    end;
+    protected var
+        PostingDateReq: Date;
+        ShipReq: Boolean;
+        InvReq: Boolean;
+        ReplacePostingDate: Boolean;
+        ReplaceDocumentDate: Boolean;
+        CalcInvDisc: Boolean;
 }
-#endif
+

@@ -10,6 +10,9 @@ page 371 "Bank Account List"
     SourceTable = "Bank Account";
     UsageCategory = Lists;
 
+    AboutTitle = 'About bank accounts';
+    AboutText = 'A bank account listed here corresponds to an account held in a bank or financial institute. You must periodically import transactions from the bank to reconcile with those posted in Business Central. Importing is done in the [Bank Account Reconciliations](?page=388 "Opens the Bank Account Reconciliations") page.';
+
     layout
     {
         area(content)
@@ -63,15 +66,27 @@ page 371 "Bank Account List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
                 }
+                field(BalanceAmt; Balance)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance.';
+                }
+                field(BalanceLCY; "Balance (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance in LCY.';
+                }
                 field(BalanceAtDate; "Balance at Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s balance on the last date included in the Date Filter field.';
+                    Visible = false;
                 }
                 field(BalanceAtDateLCY; "Balance at Date (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account''s balance in LCY on the last date included in the Date Filter field.';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -226,7 +241,7 @@ page 371 "Bank Account List"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -442,6 +457,25 @@ page 371 "Bank Account List"
                     Visible = false;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
+            }
         }
         area(reporting)
         {
@@ -517,12 +551,38 @@ page 371 "Bank Account List"
                 ToolTip = 'View statements for selected bank accounts. For each bank transaction, the report shows a description, an applied amount, a statement amount, and other information.';
             }
         }
+        area(Processing)
+        {
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        BankAccount: Record "Bank Account";
     begin
         GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
         ShowBankLinkingActions := StatementProvidersExist;
+
+        CurrPage.SetSelectionFilter(BankAccount);
+        CanSendEmail := BankAccount.Count() = 1;
     end;
 
     trigger OnAfterGetRecord()
@@ -541,6 +601,8 @@ page 371 "Bank Account List"
 
     var
         MultiselectNotSupportedErr: Label 'You can only link to one online bank account at a time.';
+        [InDataSet]
+        CanSendEmail: Boolean;
         Linked: Boolean;
         ShowBankLinkingActions: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";

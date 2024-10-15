@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 6650 "Posted Return Shipment"
 {
     Caption = 'Posted Return Shipment';
@@ -128,6 +129,10 @@ page 6650 "Posted Return Shipment"
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Posting Date"; "Posting Date")
                 {
@@ -179,6 +184,10 @@ page 6650 "Posted Return Shipment"
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the entry as a corrective entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("No. Printed"; "No. Printed")
                 {
@@ -329,12 +338,20 @@ page 6650 "Posted Return Shipment"
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Vendor Posting Group"; "Vendor Posting Group")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s market type to link business transactions made for the vendor with the appropriate account in the general ledger.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
             group(Shipping)
@@ -431,87 +448,85 @@ page 6650 "Posted Return Shipment"
                         Clear(ChangeExchangeRate);
                     end;
                 }
-#if not CLEAN17
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies whether the document is part of a three-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the partner record. This information is used for Intrastat reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies a code for the transaction specification, for the purpose of reporting to INTRASTAT.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Entry Point"; "Entry Point")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the code of the port of entry where the items pass into your country/region.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Area"; Area)
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the return shipment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = PurchReturnOrder;
-                    Editable = false;
-                    ToolTip = 'Specifies the secondary VAT registration number for the partner.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
         }
@@ -666,7 +681,7 @@ page 6650 "Posted Return Shipment"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -691,7 +706,7 @@ page 6650 "Posted Return Shipment"
                 begin
                     PostedReturnShptUpdate.LookupMode := true;
                     PostedReturnShptUpdate.SetRec(Rec);
-                    PostedReturnShptUpdate.RunModal;
+                    PostedReturnShptUpdate.RunModal();
                 end;
             }
         }
@@ -732,4 +747,4 @@ page 6650 "Posted Return Shipment"
     begin
     end;
 }
-
+#endif

@@ -180,7 +180,7 @@ page 31035 "Purch. Advance Letter Entries"
                 trigger OnAction()
                 begin
                     NavigatePage.SetDoc("Posting Date", "Document No.");
-                    NavigatePage.Run;
+                    NavigatePage.Run();
                 end;
             }
         }

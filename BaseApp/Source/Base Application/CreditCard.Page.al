@@ -177,7 +177,7 @@ page 31050 "Credit Card"
                         ApprovalEntries: Page "Approval Entries";
                     begin
                         ApprovalEntries.Setfilters(DATABASE::"Credit Header", 0, "No.");
-                        ApprovalEntries.Run;
+                        ApprovalEntries.Run();
                     end;
                 }
             }
@@ -556,7 +556,7 @@ page 31050 "Credit Card"
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
         PostedCreditHeader.SetRange("No.", DocumentNo);
-        if PostedCreditHeader.FindFirst then
+        if PostedCreditHeader.FindFirst() then
             if InstructionMgt.ShowConfirm(OpenPostedCreditQst, InstructionMgt.ShowPostedConfirmationMessageCode) then
                 PAGE.Run(PAGE::"Posted Credit Card", PostedCreditHeader);
     end;

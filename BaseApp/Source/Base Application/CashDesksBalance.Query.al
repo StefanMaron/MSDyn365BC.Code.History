@@ -26,20 +26,6 @@ query 11750 "Cash Desks Balance"
         }
     }
 #endif
-#if not CLEAN17
-
-    trigger OnBeforeOpen()
-    var
-        CashDeskManagement: Codeunit CashDeskManagement;
-        CashDeskFilter: Text;
-    begin
-        CashDeskFilter := CashDeskManagement.GetCashDesksFilter;
-        if CashDeskFilter <> '' then
-            SetFilter(No, CashDeskFilter)
-        else
-            SetRange(No, '');
-    end;
-#endif
 #if not CLEAN18    
 }
 #endif

@@ -9,24 +9,23 @@ codeunit 454 "Job Queue - Send Notification"
     begin
         IsHandled := false;
         OnBeforeRun(Rec, RecordLink, IsHandled);
-        if IsHandled then
-            exit;
-
-        RecordLink."Link ID" := 0;
-        RecordLink."Record ID" := RecordId;
-        if Status = Status::Error then
-            RecordLink.Description := CopyStr("Error Message", 1, MaxStrLen(RecordLink.Description))
-        else
-            RecordLink.Description := Description;
-        SetURL(Rec, RecordLink);
-        RecordLink.Type := RecordLink.Type::Note;
-        RecordLink.Created := CurrentDateTime;
-        RecordLink."User ID" := UserId;
-        RecordLink.Company := CompanyName;
-        RecordLink.Notify := true;
-        RecordLink."To User ID" := "User ID";
-        SetText(Rec, RecordLink);
-        RecordLink.Insert();
+        if not IsHandled then begin
+            RecordLink."Link ID" := 0;
+            RecordLink."Record ID" := RecordId();
+            if Status = Status::Error then
+                RecordLink.Description := CopyStr("Error Message", 1, MaxStrLen(RecordLink.Description))
+            else
+                RecordLink.Description := Description;
+            SetURL(Rec, RecordLink);
+            RecordLink.Type := RecordLink.Type::Note;
+            RecordLink.Created := CurrentDateTime();
+            RecordLink."User ID" := UserId();
+            RecordLink.Company := CompanyName();
+            RecordLink.Notify := true;
+            RecordLink."To User ID" := "User ID";
+            SetText(Rec, RecordLink);
+            RecordLink.Insert();
+        end;
 
         OnAfterRun(Rec, RecordLink);
     end;

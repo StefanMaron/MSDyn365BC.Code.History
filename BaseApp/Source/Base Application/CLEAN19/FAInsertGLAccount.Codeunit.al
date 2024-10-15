@@ -91,17 +91,18 @@ codeunit 5601 "FA Insert G/L Account"
             InsertBufferEntry;
             "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         end;
+
+        OnAfterInsertMaintenanceAccNo(MaintenanceLedgEntry, FAGLPostBuf);
     end;
 
-    local procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
+    procedure InsertBufferBalAcc(FAPostingType: Enum "FA Posting Group Account Type"; AllocAmount: Decimal; DeprBookCode: Code[10]; PostingGrCode: Code[20]; GlobalDim1Code: Code[20]; GlobalDim2Code: Code[20]; DimSetID: Integer; AutomaticEntry: Boolean; Correction: Boolean)
     var
         SourceCodeSetup: Record "Source Code Setup";
         DimMgt: Codeunit DimensionManagement;
         GLAccNo: Code[20];
         DimensionSetIDArr: array[10] of Integer;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
         IsHandled: Boolean;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         NumberOfEntries := 0;
         TotalAllocAmount := 0;
@@ -109,6 +110,7 @@ codeunit 5601 "FA Insert G/L Account"
         TotalPercent := 0;
         FAPostingGr.Reset();
         FAPostingGr.GetPostingGroup(PostingGrCode, DeprBookCode);
+        OnInsertBufferBalAccOnAfterGetFAPostingGroup(FAPostingGr);
         GLAccNo := GetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType);
 
         DimensionSetIDArr[1] := DimSetID;
@@ -164,11 +166,10 @@ codeunit 5601 "FA Insert G/L Account"
                 FAGLPostBuf."Global Dimension 1 Code" := GlobalDim1Code;
                 FAGLPostBuf."Global Dimension 2 Code" := GlobalDim2Code;
                 SourceCodeSetup.Get();
-                TableID[1] := DATABASE::"G/L Account";
-                No[1] := GLAccNo;
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GLAccNo);
                 FAGLPostBuf."Dimension Set ID" :=
                   DimMgt.GetDefaultDimID(
-                      TableID, No, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
+                      DefaultDimSource, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
                       FAGLPostBuf."Global Dimension 2 Code", DimSetID, DATABASE::"Fixed Asset");
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
@@ -225,7 +226,7 @@ codeunit 5601 "FA Insert G/L Account"
             Reset;
             Find;
             TestField("Bal. Account No.", '');
-            TestField("Account Type", "Account Type"::"Fixed Asset");
+            CheckAccountType(GenJnlLine);
             TestField("Account No.");
             TestField("Depreciation Book Code");
             TestField("Posting Group");
@@ -245,7 +246,7 @@ codeunit 5601 "FA Insert G/L Account"
             "Depreciation Book Code" := '';
             "Posting Group" := '';
             Validate("FA Posting Type", "FA Posting Type"::" ");
-            if TempFAGLPostBuf.FindFirst then
+            if TempFAGLPostBuf.FindFirst() then
                 repeat
                     "Line No." := 0;
                     Validate("Account No.", TempFAGLPostBuf."Account No.");
@@ -263,6 +264,18 @@ codeunit 5601 "FA Insert G/L Account"
         end;
         TempFAGLPostBuf.DeleteAll();
         exit(GenJnlLine."Line No.");
+    end;
+
+    local procedure CheckAccountType(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckAccountType(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlLine.TestField("Account Type", "Gen. Journal Account Type"::"Fixed Asset");
     end;
 
     procedure GetBalAccBuffer(var GenJnlLine: Record "Gen. Journal Line"): Integer
@@ -387,7 +400,8 @@ codeunit 5601 "FA Insert G/L Account"
                             FieldError("Allocated Book Value % (Loss)", FieldErrorText);
                     end;
             end;
-        exit(GLAccNo);
+
+        OnAfterGetGLAccNoFromFAPostingGroup(FAPostingGr, FAPostingType, GLAccNo);
     end;
 
     local procedure CalculateNoOfEmptyLines(var GenJnlLine: Record "Gen. Journal Line"; NumberOfEntries: Integer)
@@ -478,6 +492,8 @@ codeunit 5601 "FA Insert G/L Account"
             GainLossAmount := FADeprBook."Gain/Loss";
             FAPostingGr2.Get("FA Posting Group");
         end;
+
+        OnAfterCalcDisposalAmount(FAPostingGr2);
     end;
 
     procedure CorrectEntries()
@@ -636,12 +652,27 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcDisposalAmount(var FAPostingGroup: Record "FA Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLAccNoFromFAPostingGroup(FAPostingGroup: Record "FA Posting Group"; FAPostingType: Enum "FA Posting Group Account Type"; var GLAccNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertBalAcc(var FALedgerEntry: Record "FA Ledger Entry")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAccountType(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -680,7 +711,7 @@ codeunit 5601 "FA Insert G/L Account"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnGetBalAccAfterSaveGenJnlLineFields(var ToGenJnlLine: Record "Gen. Journal Line"; FromGenJnlLine: Record "Gen. Journal Line"; var SkipInsert: Boolean)
     begin
     end;
@@ -706,6 +737,11 @@ codeunit 5601 "FA Insert G/L Account"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterGetFAPostingGroup(var FAPostingGr: Record "FA Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertBufferEntryOnBeforeBufferInsert(var TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary; FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
@@ -715,6 +751,11 @@ codeunit 5601 "FA Insert G/L Account"
                                               var FAGLPostBuf: Record "FA G/L Posting Buffer"; DisposalEntry: Boolean; BookValueEntry: Boolean; var NextEntryNo: Integer;
                                               var GLEntryNo: Integer; var OrgGenJnlLine: Boolean; var NetDisp: Boolean; var NumberOfEntries: Integer; var DisposalEntryNo: Integer;
                                               var DisposalAmount: Decimal; var GainLossAmount: Decimal; var FAPostingGr2: Record "FA Posting Group"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var FAGLPostBuf: Record "FA G/L Posting Buffer")
     begin
     end;
 }

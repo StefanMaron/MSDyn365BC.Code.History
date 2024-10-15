@@ -15,7 +15,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
         TempVendLedgEntry: Record "Vendor Ledger Entry" temporary;
     begin
         VendLedgEntry.LockTable();
-        if VendLedgEntry.FindSet then begin
+        if VendLedgEntry.FindSet() then begin
             // Make Applies-to ID
             if VendLedgEntry."Applies-to ID" <> '' then
                 VendEntryApplID := ''
@@ -34,7 +34,7 @@ codeunit 111 "Vend. Entry-SetAppl.ID"
             until VendLedgEntry.Next() = 0;
         end;
 
-        if TempVendLedgEntry.FindSet then
+        if TempVendLedgEntry.FindSet() then
             repeat
                 UpdateVendLedgerEntry(TempVendLedgEntry, ApplyingVendLedgEntry, AppliesToID);
             until TempVendLedgEntry.Next() = 0;

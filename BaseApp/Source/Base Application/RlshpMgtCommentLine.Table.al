@@ -80,7 +80,7 @@ table 5061 "Rlshp. Mgt. Comment Line"
         RlshpMgtCommentLine.SetRange("No.", "No.");
         RlshpMgtCommentLine.SetRange("Sub No.", "Sub No.");
         RlshpMgtCommentLine.SetRange(Date, WorkDate);
-        if not RlshpMgtCommentLine.FindFirst then
+        if not RlshpMgtCommentLine.FindFirst() then
             Date := WorkDate;
 
         OnAfterSetUpNewLine(Rec, RlshpMgtCommentLine);

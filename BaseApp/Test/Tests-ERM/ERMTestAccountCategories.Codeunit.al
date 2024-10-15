@@ -21,10 +21,17 @@ codeunit 134444 "ERM Test Account Categories"
         NumbeOfLinesOneErr: Label 'Account schedule %1 can only have one line.', Comment = '%1 - account schedule name';
 
     [Test]
-    [HandlerFunctions('BalanceSheetRequestPageHandler')]
+    [HandlerFunctions('AccSchedReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestBalanceSheet()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
+        // Init
+        GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
+        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Balance Sheet";
+
         // Execution
         REPORT.Run(REPORT::"Balance Sheet");
 
@@ -32,10 +39,17 @@ codeunit 134444 "ERM Test Account Categories"
     end;
 
     [Test]
-    [HandlerFunctions('IncomeStatementRequestPageHandler')]
+    [HandlerFunctions('AccSchedReportRequestPageHandler')]
     [Scope('OnPrem')]
     procedure TestIncomeStatement()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCategoryMgt: Codeunit "G/L Account Category Mgt.";
     begin
+        // Init
+        GLAccountCategoryMgt.GetGLSetup(GeneralLedgerSetup);
+        ExpectedAccSchedName := GeneralLedgerSetup."Acc. Sched. for Income Stmt.";
+
         // Execution
         REPORT.Run(REPORT::"Income Statement");
 
@@ -90,7 +104,7 @@ codeunit 134444 "ERM Test Account Categories"
         // [SCENARIO 284151] Account Subcategory Lookup on G/L Account Card page doesn't insert current record
 
         // [GIVEN] G/L Account Card page was open
-        GLAccountCardPage.OpenNew;
+        GLAccountCardPage.OpenNew();
 
         // [WHEN] Lookup is invoked for Account Subcategory
         GLAccountCardPage.SubCategoryDescription.Lookup;
@@ -115,7 +129,7 @@ codeunit 134444 "ERM Test Account Categories"
         // [SCENARIO 284151] Account Subcategory Validate on G/L Account Card page doesn't insert current record
 
         // [GIVEN] G/L Account Card page was open
-        GLAccountCardPage.OpenNew;
+        GLAccountCardPage.OpenNew();
 
         // [GIVEN] A G/L Account Category
         CreateGLAccountCategory(GLAccountCategory);
@@ -275,7 +289,7 @@ codeunit 134444 "ERM Test Account Categories"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
 
         if IsInitialized then
@@ -288,7 +302,7 @@ codeunit 134444 "ERM Test Account Categories"
     local procedure CreateGLAccountCategory(var GLAccountCategory: Record "G/L Account Category")
     begin
         LibraryERM.CreateGLAccountCategory(GLAccountCategory);
-        GLAccountCategory.Validate(Description, LibraryUtility.GenerateGUID);
+        GLAccountCategory.Validate(Description, LibraryUtility.GenerateGUID());
         GLAccountCategory.Modify();
     end;
 
@@ -398,18 +412,6 @@ codeunit 134444 "ERM Test Account Categories"
     procedure OptionDialogForGenerateAccountSchedules(Options: Text; var Choice: Integer; Instruction: Text)
     begin
         Choice := LibraryVariableStorage.DequeueInteger;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure BalanceSheetRequestPageHandler(var BalanceSheet: TestRequestPage "Balance Sheet")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
-    begin
     end;
 }
 

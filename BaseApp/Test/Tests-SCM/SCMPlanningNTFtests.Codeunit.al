@@ -61,7 +61,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning - NTF tests");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         LibraryApplicationArea.EnableEssentialSetup;
 
@@ -71,8 +71,8 @@ codeunit 137021 "SCM Planning - NTF tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Planning - NTF tests");
 
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         GlobalSetup;
 
         Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
@@ -180,7 +180,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Clear(WarehouseEmployee);
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
-        if WarehouseEmployee.FindFirst then begin
+        if WarehouseEmployee.FindFirst() then begin
             WarehouseEmployee.Validate(Default, false);
             WarehouseEmployee.Modify(true);
         end;
@@ -431,7 +431,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         WarehouseShipmentHeader.Init();
         WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
-        WarehouseShipmentHeader.FindLast;
+        WarehouseShipmentHeader.FindLast();
     end;
 
     local procedure GetLastActvHdrCreatedNoSrc(var WhseActivityHdr: Record "Warehouse Activity Header"; Location: Record Location; ActivityType: Enum "Warehouse Activity Type")
@@ -439,14 +439,14 @@ codeunit 137021 "SCM Planning - NTF tests"
         WhseActivityHdr.Init();
         WhseActivityHdr.SetRange("Location Code", Location.Code);
         WhseActivityHdr.SetRange(Type, ActivityType);
-        WhseActivityHdr.FindLast;
+        WhseActivityHdr.FindLast();
     end;
 
     local procedure GetLastReceiptHdrCreatedNoSrc(var WhseReceiptHeader: Record "Warehouse Receipt Header"; Location: Record Location)
     begin
         WhseReceiptHeader.Init();
         WhseReceiptHeader.SetRange("Location Code", Location.Code);
-        WhseReceiptHeader.FindLast;
+        WhseReceiptHeader.FindLast();
     end;
 
     local procedure SetQtyToHandleOnActivityLines(WarehouseActivityHeader: Record "Warehouse Activity Header"; Qty: Decimal)
@@ -514,7 +514,7 @@ codeunit 137021 "SCM Planning - NTF tests"
     begin
         // Choose any unit of measure
         UnitOfMeasure.Init();
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasure.Code);
 
         // Create component in the BOM
@@ -914,7 +914,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         with ReservationEntry do begin
             ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
             ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-            ProdOrderComponent.FindFirst;
+            ProdOrderComponent.FindFirst();
 
             SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
             SetRange("Source ID", ProdOrderComponent."Prod. Order No.");
@@ -922,7 +922,7 @@ codeunit 137021 "SCM Planning - NTF tests"
             SetRange("Source Subtype", ProdOrderComponent.Status);
             SetRange("Source Prod. Order Line", ProdOrderComponent."Prod. Order Line No.");
             SetRange("Source Ref. No.", ProdOrderComponent."Line No.");
-            FindFirst;
+            FindFirst();
             Validate("Lot No.", LotNo);
 
             UpdateItemTracking;
@@ -937,7 +937,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -961,7 +961,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -987,7 +987,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1015,7 +1015,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1044,7 +1044,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1076,7 +1076,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1103,7 +1103,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1131,7 +1131,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1160,7 +1160,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1192,7 +1192,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1221,7 +1221,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1249,7 +1249,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1289,7 +1289,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1323,7 +1323,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1353,7 +1353,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1387,7 +1387,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1416,7 +1416,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1446,7 +1446,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1474,7 +1474,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1497,7 +1497,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1525,7 +1525,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1553,7 +1553,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1579,7 +1579,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1604,7 +1604,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1630,7 +1630,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1658,7 +1658,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1686,7 +1686,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1714,7 +1714,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1739,7 +1739,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1769,7 +1769,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1800,7 +1800,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1832,7 +1832,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1866,7 +1866,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1901,7 +1901,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1931,7 +1931,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1963,7 +1963,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -1998,7 +1998,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2032,7 +2032,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2061,7 +2061,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2094,7 +2094,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2119,7 +2119,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2145,7 +2145,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2174,7 +2174,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2203,7 +2203,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2232,7 +2232,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2264,7 +2264,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2295,7 +2295,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesLine: Record "Sales Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2328,7 +2328,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2359,7 +2359,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2385,7 +2385,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2416,7 +2416,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2441,7 +2441,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2473,7 +2473,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2507,7 +2507,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2538,7 +2538,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2568,7 +2568,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2595,7 +2595,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2619,7 +2619,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2644,7 +2644,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2667,7 +2667,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Item: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2697,7 +2697,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2727,7 +2727,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2756,7 +2756,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2792,7 +2792,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2822,7 +2822,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2856,7 +2856,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ChildItem: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2909,7 +2909,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2942,7 +2942,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -2995,7 +2995,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ChildItem: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3038,7 +3038,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         SalesHeader: Record "Sales Header";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3073,7 +3073,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ChildItem: Record Item;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3122,7 +3122,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3155,7 +3155,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         LocationTo: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3182,7 +3182,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: array[3] of Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3230,7 +3230,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProductionOrder: array[3] of Record "Production Order";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3278,7 +3278,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Location: Record Location;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnablePremiumSetup;
 
@@ -3305,7 +3305,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         JobQuantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3374,7 +3374,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         JobQuantity: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Test setup
         TestSetup;
@@ -3476,7 +3476,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         GLAccount: Record "G/L Account";
     begin
         GLAccount.SetRange(Blocked, false);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         exit(GLAccount."No.");
     end;
 
@@ -3575,7 +3575,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         QtyOnInventory: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TestSetup;
 
         // Setup items and SKUs - and replenishment in a "chain" of transfers -
@@ -3616,7 +3616,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         QtyOnInventory: Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         TestSetup;
 
         // Setup items and SKUs - and replenishment in a "chain" of transfers -

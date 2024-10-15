@@ -43,7 +43,9 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "Incoming Document Approver" = RIMD,
                   tabledata "Incoming Document Attachment" = RIMD,
                   tabledata "Incoming Documents Setup" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Posted Docs. With No Inc. Buf." = RIMD,
                   tabledata "Restricted Record" = Rimd,
@@ -59,9 +61,6 @@ permissionset 2118 "General Ledger Journals - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = Ri,
-#if not CLEAN17
-                  tabledata "VAT Period" = r,
-#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

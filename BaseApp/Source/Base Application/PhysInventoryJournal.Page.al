@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 392 "Phys. Inventory Journal"
 {
     AdditionalSearchTerms = 'physical count journal,inventory cycle journal';
@@ -7,7 +8,7 @@ page 392 "Phys. Inventory Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Prepare,Line,Item,Item Availability by';
+    PromotedActionCategories = 'New,Process,Report,Post/Print,Prepare,Line,Item,Item Availability by,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -27,6 +28,7 @@ page 392 "Phys. Inventory Journal"
                 begin
                     CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
+                    SetControlAppearanceFromBatch();
                     CurrPage.Update(false);
                 end;
 
@@ -50,17 +52,6 @@ page 392 "Phys. Inventory Journal"
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Whse. Net Change Template"; "Whse. Net Change Template")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the template for item''s whse. net change.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Entry Type"; EntryType)
                 {
                     ApplicationArea = Basic, Suite;
@@ -333,6 +324,15 @@ page 392 "Phys. Inventory Journal"
         }
         area(factboxes)
         {
+            part(JournalErrorsFactBox; "Item Journal Errors FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                Visible = BackgroundErrorCheck;
+                SubPageLink = "Journal Template Name" = FIELD("Journal Template Name"),
+                              "Journal Batch Name" = FIELD("Journal Batch Name"),
+                              "Line No." = FIELD("Line No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -378,7 +378,7 @@ page 392 "Phys. Inventory Journal"
                     Image = ItemTrackingLines;
                     Promoted = true;
                     PromotedCategory = Category6;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -550,7 +550,7 @@ page 392 "Phys. Inventory Journal"
                     trigger OnAction()
                     begin
                         CalcQtyOnHand.SetItemJnlLine(Rec);
-                        CalcQtyOnHand.RunModal;
+                        CalcQtyOnHand.RunModal();
                         Clear(CalcQtyOnHand);
                     end;
                 }
@@ -569,7 +569,7 @@ page 392 "Phys. Inventory Journal"
                         PhysInvtCountMgt: Codeunit "Phys. Invt. Count.-Management";
                     begin
                         PhysInvtCountMgt.InitFromItemJnl(Rec);
-                        PhysInvtCountMgt.Run;
+                        PhysInvtCountMgt.Run();
                         Clear(PhysInvtCountMgt);
                     end;
                 }
@@ -625,6 +625,8 @@ page 392 "Phys. Inventory Journal"
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
+                var
+                    ItemJournalBatch: Record "Item Journal Batch";
                 begin
                     ItemJournalBatch.SetRange("Journal Template Name", Rec."Journal Template Name");
                     ItemJournalBatch.SetRange(Name, Rec."Journal Batch Name");
@@ -685,6 +687,44 @@ page 392 "Phys. Inventory Journal"
                     end;
                 }
             }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of journal lines that have issues before you post the journal.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Promoted = true;
+                    PromotedCategory = Category9;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all journal lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+            }
         }
     }
 
@@ -730,21 +770,25 @@ page 392 "Phys. Inventory Journal"
         if Rec.IsOpenedFromBatch then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+            SetControlAppearanceFromBatch();
             exit;
         end;
         ItemJnlMgt.TemplateSelection(PAGE::"Phys. Inventory Journal", 2, false, Rec, JnlSelected);
         if not JnlSelected then
             Error('');
         ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
     end;
 
     var
-        ItemJournalBatch: Record "Item Journal Batch";
         CalcQtyOnHand: Report "Calculate Inventory";
         ItemJnlMgt: Codeunit ItemJnlManagement;
         ReportPrint: Codeunit "Test Report-Print";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ItemJournalErrorsMgt: Codeunit "Item Journal Errors Mgt.";
         ItemDescription: Text[100];
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         EntryTypeErr: Label 'You cannot use entry type %1 in this journal.', Comment = '%1 - Entry Type';
         NewLineQst: Label 'Create new empty line from actual line?';
         NewLineNoErr: Label 'New Line No. can not be calculated!';
@@ -766,6 +810,7 @@ page 392 "Phys. Inventory Journal"
     begin
         CurrPage.SaveRecord();
         ItemJnlMgt.SetName(CurrentJnlBatchName, Rec);
+        SetControlAppearanceFromBatch();
         CurrPage.Update(false);
     end;
 
@@ -800,9 +845,23 @@ page 392 "Phys. Inventory Journal"
             Error(EntryTypeErr, "Entry Type");
     end;
 
+    local procedure SetControlAppearanceFromBatch()
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+    begin
+        if not ItemJournalBatch.Get(GetRangeMax("Journal Template Name"), CurrentJnlBatchName) then
+            exit;
+
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
+        ShowAllLinesEnabled := true;
+        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+        ItemJournalErrorsMgt.SetFullBatchCheck(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var ItemJournalLine: Record "Item Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
     begin
     end;
 }
-
+#endif

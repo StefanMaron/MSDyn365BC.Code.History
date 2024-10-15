@@ -800,7 +800,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
     local procedure Calculate(MATRIX_ColumnOrdinal: Integer) Amount: Decimal
     begin
-        GetGLSetup;
+        GetGLSetup();
         with InvtReportEntry do begin
             case true of
                 FieldCaption("G/L Total") in [Name, MatrixRecords[MATRIX_ColumnOrdinal].Name]:
@@ -1263,7 +1263,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)
     begin
-        GetGLSetup;
+        GetGLSetup();
 
         with InvtReportEntry do begin
             if FieldCaption(Warning) = MATRIX_CaptionSet[MATRIX_ColumnOrdinal] then begin
@@ -1468,7 +1468,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
             if FieldCaption(Warning) in [Name, MatrixRecords[MATRIX_ColumnOrdinal].Name] then begin
                 SetRange(Type, Type::" ");
-                if FindFirst then;
+                if FindFirst() then;
                 case InvtReportHeader."Line Option" of
                     InvtReportHeader."Line Option"::"Balance Sheet",
                   InvtReportHeader."Line Option"::"Income Statement":

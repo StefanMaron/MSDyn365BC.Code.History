@@ -20,7 +20,7 @@ report 31065 "Intrastat Declaration Export"
                 IntrastatJnlLine.Reset();
                 IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 IntrastatJnlLine.SetRange("Journal Batch Name", Name);
-                if IntrastatJnlLine.FindSet then
+                if IntrastatJnlLine.FindSet() then
                     repeat
                         case "Statement Type" of
                             "Statement Type"::Replacing,

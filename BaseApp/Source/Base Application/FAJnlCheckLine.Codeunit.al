@@ -620,7 +620,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         with MainAssetComponent do begin
             Reset;
             SetRange("Main Asset No.", FA."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ComponentFADeprBook.Get("FA No.", DeprBookCode) then
                         if ComponentFADeprBook."Disposal Date" = 0D then
@@ -664,7 +664,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         // NAVCZ
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '..%1', StartingDate);
-        if AccountingPeriod.FindLast then
+        if AccountingPeriod.FindLast() then
             EndFiscYear := CalcDate('<-1D>', AccountingPeriod."Starting Date")
         else
             EndFiscYear := CalcDate('<CY>-<1Y>', StartingDate);
@@ -703,7 +703,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                 FALedgEntry.SetRange("FA No.", FANo);
                 FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
                 FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-                if FALedgEntry.FindFirst then
+                if FALedgEntry.FindFirst() then
                     IsTest :=
                       AccountingPeriodMgt.FindFiscalYear(FALedgEntry."FA Posting Date") <> AccountingPeriodMgt.FindFiscalYear(FAPostingDate);
             end;
@@ -718,7 +718,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     // lreFALedgEntry.SETRANGE("FA Posting Date",CalcEndPrevFiscYear(FAPostingDate));
                     FALedgEntry.SetRange("FA Posting Date", FAPostingDate);
                     FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::Depreciation);
-                    FALedgEntry.FindFirst;
+                    FALedgEntry.FindFirst();
                 end;
             end;
         end;
@@ -748,7 +748,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             FALedgEntry.SetRange("FA No.", FANo);
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
             FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Acquisition Cost");
-            if FALedgEntry.FindFirst then
+            if FALedgEntry.FindFirst() then
                 if AccountingPeriodMgt.FindFiscalYear(FALedgEntry."FA Posting Date") <>
                    AccountingPeriodMgt.FindFiscalYear(FAPostingDate)
                 then begin

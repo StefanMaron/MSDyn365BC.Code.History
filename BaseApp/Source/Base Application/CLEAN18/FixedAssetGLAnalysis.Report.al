@@ -2,7 +2,7 @@
 report 5610 "Fixed Asset - G/L Analysis"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CLEAN18/FixedAssetGLAnalysis.rdlc';
+    RDLCLayout = './FixedAssetGLAnalysis.rdlc';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset G/L Analysis';
     UsageCategory = ReportsAndAnalysis;
@@ -564,4 +564,5 @@ report 5610 "Fixed Asset - G/L Analysis"
         FADateType.CreateTypes;
     end;
 }
+
 #endif

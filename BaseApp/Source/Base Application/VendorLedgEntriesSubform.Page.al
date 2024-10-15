@@ -294,7 +294,7 @@ page 31056 "Vendor Ledg. Entries Subform"
                 begin
                     VendLedgEntry2 := Rec;
                     CurrPage.SetSelectionFilter(VendLedgEntry);
-                    if VendLedgEntry.FindSet then
+                    if VendLedgEntry.FindSet() then
                         repeat
                             Rec := VendLedgEntry;
                             Mark := not Mark;
@@ -324,7 +324,7 @@ page 31056 "Vendor Ledg. Entries Subform"
         Clear(ValueBalance);
         VendLedgEntry.Copy(Rec);
         VendLedgEntry.MarkedOnly(true);
-        if VendLedgEntry.FindSet then
+        if VendLedgEntry.FindSet() then
             repeat
                 VendLedgEntry.CalcFields("Remaining Amt. (LCY)");
                 ValueBalance += VendLedgEntry."Remaining Amt. (LCY)";

@@ -37,7 +37,7 @@ codeunit 5646 FAReclassJnlManagement
                     Commit();
                 end;
             1:
-                FAReclassJnlTempl.FindFirst;
+                FAReclassJnlTempl.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, FAReclassJnlTempl) = ACTION::LookupOK;
         end;
@@ -97,9 +97,9 @@ codeunit 5646 FAReclassJnlManagement
         FAReclassJnlBatch.FilterGroup(0);
 
         if not FAReclassJnlBatch.Find('-') then begin
-            if not FAReclassJnlTemplate.FindFirst then
+            if not FAReclassJnlTemplate.FindFirst() then
                 TemplateSelection(0, FAReclassJnlLine, JnlSelected);
-            if FAReclassJnlTemplate.FindFirst then
+            if FAReclassJnlTemplate.FindFirst() then
                 CheckTemplateName(FAReclassJnlTemplate.Name, FAReclassJnlBatch.Name);
         end;
         FAReclassJnlBatch.Find('-');
@@ -108,7 +108,7 @@ codeunit 5646 FAReclassJnlManagement
             FAReclassJnlTemplate.SetRange(Name, FAReclassJnlBatch.GetFilter("Journal Template Name"));
         case FAReclassJnlTemplate.Count of
             1:
-                FAReclassJnlTemplate.FindFirst;
+                FAReclassJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, FAReclassJnlTemplate) = ACTION::LookupOK;
         end;
@@ -133,7 +133,7 @@ codeunit 5646 FAReclassJnlManagement
     begin
         FAReclassJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not FAReclassJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not FAReclassJnlBatch.FindFirst then begin
+            if not FAReclassJnlBatch.FindFirst() then begin
                 FAReclassJnlBatch.Init();
                 FAReclassJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 FAReclassJnlBatch.Name := Text002;

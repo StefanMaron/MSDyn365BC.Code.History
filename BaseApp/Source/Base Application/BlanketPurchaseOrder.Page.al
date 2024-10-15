@@ -283,6 +283,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -333,6 +334,12 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -532,17 +539,6 @@ page 509 "Blanket Purchase Order"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies whether the document is part of a three-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
             }
             group(Payments)
             {
@@ -790,7 +786,7 @@ page 509 "Blanket Purchase Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1092,12 +1088,17 @@ page 509 "Blanket Purchase Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
+
+        GLSetup.Get();
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1110,6 +1111,10 @@ page 509 "Blanket Purchase Order"
         CanCancelApprovalForRecord: Boolean;
         [InDataSet]
         StatusStyleTxt: Text;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     local procedure ApproveCalcInvDisc()
     begin

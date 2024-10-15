@@ -41,22 +41,34 @@ codeunit 134154 "ERM Intercompany III"
     [Scope('OnPrem')]
     procedure TestConfirmYesOpensIntercompanySetupWhenSetupIsMissing()
     var
-        CompanyInformation: Record "Company Information";
+#if not CLEAN20
+        FeatureKey: Record "Feature Key";
+#endif
+        ICSetup: Record "IC Setup";
         ICPartnerList: TestPage "IC Partner List";
     begin
         // [SCENARIO ] When Intercompany Setup is missing, opening the Intercompany Partners page opens up a confirmation to setup intercompany information. Invoking Yes on the
         // confirmation opens up the Intercompany Setup page
         Initialize();
+#if not CLEAN20        
+        FeatureKey.Get('ICAutoAcceptTrans');
+        FeatureKey.Enabled := FeatureKey.Enabled::None;
+        FeatureKey.Modify();
+#endif
 
         // [GIVEN] Company Information where IC Partner Code = ''
-        CompanyInformation.Get();
-        CompanyInformation.Validate("IC Partner Code", '');
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", '');
+        ICSetup.Modify(true);
 
         // [WHEN] Intercompany Partners page is not opened
         asserterror ICPartnerList.OpenEdit;
 
         // [THEN] Verification is that the ConfirmHandler is hit and the ICSetup page is hit
+#if not CLEAN20
+        FeatureKey.Enabled := FeatureKey.Enabled::"All Users";
+        FeatureKey.Modify();
+#endif
     end;
 
     [Test]
@@ -64,7 +76,7 @@ codeunit 134154 "ERM Intercompany III"
     [Scope('OnPrem')]
     procedure TestConfirmNoDoesNotOpenIntercompanySetupWhenSetupIsMissing()
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICPartnerList: TestPage "IC Partner List";
     begin
         // [SCENARIO ] When Intercompany Setup is missing, opening the Intercompany Partners page opens up a confirmation to setup intercompany information. Invoking No on the
@@ -72,9 +84,9 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company Information where IC Partner Code = ''
-        CompanyInformation.Get();
-        CompanyInformation.Validate("IC Partner Code", '');
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", '');
+        ICSetup.Modify(true);
 
         // [WHEN] Intercompany Partners page is not opened
         asserterror ICPartnerList.OpenEdit;
@@ -86,7 +98,7 @@ codeunit 134154 "ERM Intercompany III"
     [Scope('OnPrem')]
     procedure TestNoConfirmWhenIntercompanySetupExists()
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICPartnerList: TestPage "IC Partner List";
     begin
         // [SCENARIO ] When Intercompany Setup exists, opening the Intercompany Partners page
@@ -94,11 +106,11 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company Information where IC Partner Code <> ''
-        CompanyInformation.Get();
-        CompanyInformation.Validate("IC Partner Code", CopyStr(
-            LibraryUtility.GenerateRandomCode(CompanyInformation.FieldNo("IC Partner Code"), DATABASE::"Company Information"), 1,
-            LibraryUtility.GetFieldLength(DATABASE::"Company Information", CompanyInformation.FieldNo("IC Partner Code"))));
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", CopyStr(
+            LibraryUtility.GenerateRandomCode(ICSetup.FieldNo("IC Partner Code"), DATABASE::"Company Information"), 1,
+            LibraryUtility.GetFieldLength(DATABASE::"Company Information", ICSetup.FieldNo("IC Partner Code"))));
+        ICSetup.Modify(true);
 
         // [WHEN] Intercompany Partners page is opened
         ICPartnerList.OpenEdit;
@@ -231,7 +243,7 @@ codeunit 134154 "ERM Intercompany III"
         ICGLAccount: Record "IC G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICPartnerCode: Code[20];
         DocumentNo: Code[20];
         Amount: Decimal;
@@ -247,13 +259,13 @@ codeunit 134154 "ERM Intercompany III"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         Amount := LibraryRandom.RandDec(1000, 2);
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
 
         // [GIVEN] 2 IC General journal lines for 1 Document No
         CreateICGeneralJournalLine(
@@ -337,7 +349,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Ledger Entry has IC Partner Code "Y".
         CustLedgerEntry.SetRange("Document No.", PostedDocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(Customer."IC Partner Code", CustLedgerEntry."IC Partner Code", '');
     end;
 
@@ -370,7 +382,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [THEN] Ledger Entry has IC Partner Code "Y".
         VendorLedgerEntry.SetRange("Document No.", PostedDocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Assert.AreEqual(Vendor."IC Partner Code", VendorLedgerEntry."IC Partner Code", '');
     end;
 
@@ -431,7 +443,7 @@ codeunit 134154 "ERM Intercompany III"
         ICOutboxTransaction: Record "IC Outbox Transaction";
         ICOutboxSalesHeader: Record "IC Outbox Sales Header";
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         FileManagement: Codeunit "File Management";
         ICOutboxImpExp: XMLport "IC Outbox Imp/Exp";
         OutStream: OutStream;
@@ -443,9 +455,9 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] Company information has intercompany code
-        CompanyInformation.Get();
-        CompanyInformation.Validate("IC Partner Code", LibraryUtility.GenerateGUID());
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", LibraryUtility.GenerateGUID());
+        ICSetup.Modify();
 
         // [GIVEN] IC Outbox Transaction
         MockICOutboxTrans(ICOutboxTransaction);
@@ -602,7 +614,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         PurchaseHeader: Record "Purchase Header";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
@@ -617,10 +629,11 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
+
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Customer No.
@@ -704,7 +717,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         PurchaseHeader: Record "Purchase Header";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
@@ -719,10 +732,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Customer No.
@@ -806,7 +819,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         PurchaseHeader: Record "Purchase Header";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
@@ -821,10 +834,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Customer No.
@@ -908,7 +921,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         PurchaseHeader: Record "Purchase Header";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
@@ -923,10 +936,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Customer No.
@@ -1010,7 +1023,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
@@ -1025,10 +1038,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Vendor No.
@@ -1112,7 +1125,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
@@ -1127,10 +1140,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Vendor No.
@@ -1214,7 +1227,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
@@ -1229,10 +1242,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Vendor No.
@@ -1316,7 +1329,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
@@ -1332,10 +1345,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] IC Parthner with Vendor No.
@@ -1815,7 +1828,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
@@ -1832,10 +1845,10 @@ codeunit 134154 "ERM Intercompany III"
         ICPartnerCode := CreateICPartnerWithInbox();
 
         // [GIVEN] Auto Send Transactions was enabled
-        CompanyInformation.Get();
-        CompanyInformation."Auto. Send Transactions" := true;
-        CompanyInformation."IC Partner Code" := ICPartnerCode;
-        CompanyInformation.Modify();
+        ICSetup.Get();
+        ICSetup."Auto. Send Transactions" := true;
+        ICSetup."IC Partner Code" := ICPartnerCode;
+        ICSetup.Modify();
         ICOutboxTransaction.DeleteAll();
 
         // [GIVEN] Inventory Setup with Prevent Negative Inventory = true
@@ -2208,6 +2221,79 @@ codeunit 134154 "ERM Intercompany III"
     end;
 
     [Test]
+    procedure CreateICSetupUI()
+    var
+        ICSetup: Record "IC Setup";
+#if not CLEAN20
+        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
+#endif
+        IntercompanySetup: TestPage "Intercompany Setup";
+    begin
+        // [SCENARIO 290460] Create IC setup via "Intercompany Setup" page
+        Initialize();
+#if not CLEAN20
+        BindSubscription(ERMIntercompanyIII);
+#endif
+
+        // [GIVEN] IC setup does not exist
+        if ICSetup.Get() then
+            ICSetup.Delete();
+
+        // [WHEN] Open "Intercompany Setup" page and fill "IC Partner Code" field
+        IntercompanySetup.OpenEdit();
+        IntercompanySetup."IC Partner Code".SetValue('abc');
+        IntercompanySetup.Close();
+
+        // [THEN] "IC Setup" record exists
+        ICSetup.Get();
+        // [THEN] "IC Partner Code" = 'abc'
+        ICSetup.TestField("IC Partner Code", 'abc');
+#if not CLEAN20
+        UnbindSubscription(ERMIntercompanyIII)
+#endif
+    end;
+
+    [Test]
+    procedure AutoAcceptICGenJnlTransactionUT()
+    var
+        ICSetup: Record "IC Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        ICInboxTransaction: Record "IC Inbox Transaction";
+        ICInboxJnlLine: Record "IC Inbox Jnl. Line";
+        ICGLAccount: Record "IC G/L Account";
+#if not CLEAN20
+        ERMIntercompanyIII: Codeunit "ERM Intercompany III";
+#endif
+        ICPartnerCode: Code[20];
+    begin
+        // [SCENARIO 290460] Intercompany general journal line created when IC setup has filled in default intercompany template and batch
+        Initialize();
+#if not CLEAN20
+        BindSubscription(ERMIntercompanyIII);
+#endif
+
+        // [GIVEN] IC Setup with filled in default intercompany template and batch
+        CreateICSetup(ICSetup);
+        // [GIVEN] One dummy intercompany inbox transaction and journal line
+        ICPartnerCode := LibraryERM.CreateICPartnerNo();
+        CreateDummyCInboxTransaction(ICInboxTransaction, ICPartnerCode);
+        CreateDummyICInboxJnlLine(ICInboxJnlLine, ICGLAccount, ICPartnerCode);
+
+        // [WHEN] Run report "Complete IC Inbox Action"
+        Report.Run(Report::"Complete IC Inbox Action", false, false, ICInboxTransaction);
+
+        // [THEN] One general journal line is created
+        GenJournalLine.SetRange("Journal Template Name", ICSetup."Default IC Gen. Jnl. Template");
+        GenJournalLine.SetRange("Journal Batch Name", ICSetup."Default IC Gen. Jnl. Batch");
+        Assert.RecordCount(GenJournalLine, 1);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Account No.", ICGLAccount."Map-to G/L Acc. No.");
+#if not CLEAN20
+        UnbindSubscription(ERMIntercompanyIII);
+#endif
+    end;
+
+    [Test]
     procedure SendRejectedICTransactionWhenAutoAcceptTransactionIsSet()
     var
         ICOutboxTransaction: Record "IC Outbox Transaction";
@@ -2344,10 +2430,9 @@ codeunit 134154 "ERM Intercompany III"
     [HandlerFunctions('GLPostingPreviewPageHandler')]
     procedure ICGenJnlPostingPreviewSkipFileCreation()
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
-        GenJournalTemplate: Record "Gen. Journal Template";
         ICGLAccount: Record "IC G/L Account";
         ICPartner: Record "IC Partner";
         GenJnlPost: Codeunit "Gen. Jnl.-Post";
@@ -2359,22 +2444,19 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] IC Setup, "IC Inbox Type"::"File Location"
         // [GIVEN] IC Partner, "Inbox Type"::"File Location"
-        CreateFileLocationICSetup(CompanyInformation);
+        CreateFileLocationICSetup(ICSetup);
         LibraryERM.CreateICPartner(ICPartner);
         ICPartner.Validate("Inbox Type", ICPartner."Inbox Type"::"File Location");
-        ICPartner.Validate("Inbox Details", CompanyInformation."IC Inbox Details");
+        ICPartner.Validate("Inbox Details", ICSetup."IC Inbox Details");
         ICPartner.Modify(true);
         // [GIVEN] Intercompany general journal line
         LibraryERM.CreateICGLAccount(ICGLAccount);
-        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
-        GenJournalTemplate.Modify(true);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Get(ICSetup."Default IC Gen. Jnl. Template", ICSetup."Default IC Gen. Jnl. Batch");
         CreateICGeneralJournalLine(
             GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
             GenJournalLine."Bal. Account Type"::"IC Partner", ICPartner.Code, ICGLAccount."No.", 100, LibraryUtility.GenerateGUID);
-        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.SetRange("Journal Template Name", ICSetup."Default IC Gen. Jnl. Template");
+        GenJournalLine.SetRange("Journal Batch Name", ICSetup."Default IC Gen. Jnl. Batch");
         GenJournalLine.FindFirst();
         Commit();
 
@@ -2668,21 +2750,21 @@ codeunit 134154 "ERM Intercompany III"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Intercompany III");
 
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Intercompany III");
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         IsInitialized := true;
         Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibrarySetupStorage.Save(Database::"IC Setup");
         LibrarySetupStorage.Save(Database::"Inventory Setup");
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Intercompany III");
@@ -2831,7 +2913,7 @@ codeunit 134154 "ERM Intercompany III"
     var
         DefaultDimension: Record "Default Dimension";
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryDimension.CreateDefaultDimensionVendor(
           DefaultDimension, VendorNo, DimensionValue[1]."Dimension Code", DimensionValue[1].Code);
         LibraryDimension.CreateDefaultDimensionVendor(
@@ -2984,7 +3066,7 @@ codeunit 134154 "ERM Intercompany III"
         ICDimensionValue.SetRange("Dimension Code", DimensionValue."Dimension Code");
         ICDimensionValue.SetRange(Code, DimensionValue.Code);
         ICDimensionValue.SetRange("Dimension Value Type", DimensionValue."Dimension Value Type");
-        ICDimensionValue.FindFirst;
+        ICDimensionValue.FindFirst();
     end;
 
     local procedure MockICInboxSalesOrder(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
@@ -3076,7 +3158,7 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxPurchaseLine."IC Partner Code" := ICInboxPurchaseHeader."IC Partner Code";
         ICInboxPurchaseLine."Transaction Source" := ICInboxPurchaseHeader."Transaction Source";
         ICInboxPurchaseLine."IC Partner Ref. Type" := ICInboxPurchaseLine."IC Partner Ref. Type"::Item;
-        ICInboxPurchaseLine."IC Partner Reference" := LibraryInventory.CreateItemNo;
+        ICInboxPurchaseLine."IC Partner Reference" := LibraryInventory.CreateItemNo();
         ICInboxPurchaseLine.Insert();
         exit(ICInboxPurchaseLine."Line No.");
     end;
@@ -3320,20 +3402,20 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure UpdateAutoSendTransactionsOnCompanyInfo(AutoSendTransactions: Boolean);
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
     begin
-        CompanyInformation.Get();
-        CompanyInformation.Validate("Auto. Send Transactions", AutoSendTransactions);
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        ICSetup.Validate("Auto. Send Transactions", AutoSendTransactions);
+        ICSetup.Modify(true);
     end;
 
     local procedure UpdateICPartnerCodeOnCompanyInfo(ICPartnerCode: Code[20])
     var
-        CompanyInformation: Record "Company Information";
+        ICSetup: Record "IC Setup";
     begin
-        CompanyInformation.Get();
-        CompanyInformation.Validate("IC Partner Code", ICPartnerCode);
-        CompanyInformation.Modify(true);
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", ICPartnerCode);
+        ICSetup.Modify(true);
     end;
 
     local procedure UpdateAutoAcceptTransOnICPartner(ICPartnerCode: Code[20]; AutoAcceptTransactions: Boolean)
@@ -3375,17 +3457,74 @@ codeunit 134154 "ERM Intercompany III"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateFileLocationICSetup(var CompanyInformation: Record "Company Information")
+    local procedure CreateICSetup(var ICSetup: Record "IC Setup")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Intercompany);
+        GenJournalTemplate.Modify();
+
+        ICSetup.Get();
+        ICSetup.Validate("IC Partner Code", 'abc');
+        ICSetup.Validate("Default IC Gen. Jnl. Template", GenJournalTemplate.Name);
+        ICSetup.Validate("Default IC Gen. Jnl. Batch", GenJournalBatch.Name);
+        ICSetup.Modify();
+    end;
+
+    local procedure CreateDummyCInboxTransaction(var ICInboxTransaction: Record "IC Inbox Transaction"; ICPartnerCode: Code[20]);
+    var
+        HandledICInboxTrans: Record "Handled IC Inbox Trans.";
+    begin
+        ICInboxTransaction.DeleteAll();
+        HandledICInboxTrans.DeleteAll();
+
+        ICInboxTransaction.Init();
+        ICInboxTransaction."IC Partner Code" := ICPartnerCode;
+        ICInboxTransaction."Transaction Source" := ICInboxTransaction."Transaction Source"::"Created by Partner";
+        ICInboxTransaction."Document Type" := ICInboxTransaction."Document Type"::Invoice;
+        ICInboxTransaction."Source Type" := ICInboxTransaction."Source Type"::Journal;
+        ICInboxTransaction."Line Action" := ICInboxTransaction."Line Action"::Accept;
+        ICInboxTransaction."Posting Date" := WorkDate() + 1;
+        ICInboxTransaction.Insert();
+
+        ICInboxTransaction.SetRange("Transaction No.", 0);
+        ICInboxTransaction.FindSet();
+    end;
+
+    local procedure CreateDummyICInboxJnlLine(var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICGLAccount: Record "IC G/L Account"; ICPartnerCode: Code[20]);
+    var
+        HandledICInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
+    begin
+        ICInboxJnlLine.DeleteAll();
+        HandledICInboxJnlLine.DeleteAll();
+
+        LibraryERM.CreateICGLAccount(ICGLAccount);
+        ICGLAccount.Validate("Map-to G/L Acc. No.", LibraryERM.CreateGLAccountNo());
+        ICGLAccount.Modify();
+
+        ICInboxJnlLine.Init();
+        ICInboxJnlLine."IC Partner Code" := ICPartnerCode;
+        ICInboxJnlLine."Transaction Source" := ICInboxJnlLine."Transaction Source"::"Created by Partner";
+        ICInboxJnlLine."Account Type" := ICInboxJnlLine."Account Type"::"G/L Account";
+        ICInboxJnlLine."Account No." := ICGLAccount."No.";
+        ICInboxJnlLine."Document No." := LibraryUtility.GenerateGUID();
+        ICInboxJnlLine.Insert();
+    end;
+
+    local procedure CreateFileLocationICSetup(var ICSetup: Record "IC Setup")
     var
         FileManagement: Codeunit "File Management";
         FileName: Text;
     begin
         FileName := FileManagement.ServerTempFileName('');
-        CompanyInformation.Get();
-        CompanyInformation.Validate("Auto. Send Transactions", true);
-        CompanyInformation.Validate("IC Inbox Type", CompanyInformation."IC Inbox Type"::"File Location");
-        CompanyInformation.Validate("IC Inbox Details", FileManagement.GetDirectoryName(FileName));
-        CompanyInformation.Modify(true);
+        CreateICSetup(ICSetup);
+        ICSetup.Validate("Auto. Send Transactions", true);
+        ICSetup.Validate("IC Inbox Type", ICSetup."IC Inbox Type"::"File Location");
+        ICSetup.Validate("IC Inbox Details", FileManagement.GetDirectoryName(FileName));
+        ICSetup.Modify(true);
     end;
 
     local procedure VerifySalesDocDimSet(DimensionValue: array[5] of Record "Dimension Value"; CustomerNo: Code[20])
@@ -3394,11 +3533,11 @@ codeunit 134154 "ERM Intercompany III"
         SalesLine: Record "Sales Line";
     begin
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         VerifyDimensionSet(DimensionValue, SalesHeader."Dimension Set ID");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         VerifyLineDimSet(DimensionValue, SalesLine."Dimension Set ID");
     end;
 
@@ -3408,10 +3547,10 @@ codeunit 134154 "ERM Intercompany III"
         PurchaseLine: Record "Purchase Line";
     begin
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
         VerifyDimensionSet(DimensionValue, PurchaseHeader."Dimension Set ID");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         VerifyLineDimSet(DimensionValue, PurchaseLine."Dimension Set ID");
     end;
 
@@ -3462,7 +3601,7 @@ codeunit 134154 "ERM Intercompany III"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Bal. Account Type", GLEntry."Bal. Account Type"::"IC Partner");
         GLEntry.SetRange("Bal. Account No.", ICPartnerCode);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Description, DescrpitionTxt);
         GLEntry.TestField("IC Partner Code", ICPartnerCode);
     end;
@@ -3590,12 +3729,21 @@ codeunit 134154 "ERM Intercompany III"
         LibraryVariableStorage.Enqueue(Question);
     end;
 
+#if not CLEAN20
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ICSetupPageHandler(var ICSetup: TestPage "IC Setup")
     begin
         ICSetup.Cancel.Invoke;
     end;
+#else
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ICSetupPageHandler(var ICSetup: TestPage "Intercompany Setup")
+    begin
+        ICSetup.Cancel.Invoke;
+    end;
+#endif
 
     [PageHandler]
     procedure GLPostingPreviewPageHandler(var GLPostingPreview: TestPage "G/L Posting Preview")

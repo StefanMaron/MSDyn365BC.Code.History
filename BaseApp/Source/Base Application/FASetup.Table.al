@@ -116,7 +116,7 @@ table 5603 "FA Setup"
             begin
                 if "Fixed Asset History" then begin
                     Clear(InitFAHistory);
-                    InitFAHistory.RunModal;
+                    InitFAHistory.RunModal();
                 end;
             end;
 #endif

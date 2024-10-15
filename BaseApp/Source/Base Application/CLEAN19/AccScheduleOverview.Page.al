@@ -113,6 +113,19 @@ page 490 "Acc. Schedule Overview"
                         CurrPage.Update();
                     end;
                 }
+                field(ShowLinesWithShowNo; ShowLinesWithShowNo)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies whether the page should display all lines, including lines where No is chosen in the Show field. Those lines are still not included in the printed report.';
+
+                    trigger OnValidate()
+                    begin
+                        ApplyShowFilter();
+                        CurrPage.Update();
+                    end;
+                }
             }
             group("Dimension Filters")
             {
@@ -575,6 +588,54 @@ page 490 "Acc. Schedule Overview"
                         DrillDown(12);
                     end;
                 }
+                field(ColumnValues13; ColumnValues[13])
+                {
+                    ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = FormatStr(13);
+                    AutoFormatType = 11;
+                    BlankZero = true;
+                    CaptionClass = '3,' + ColumnCaptions[13];
+                    StyleExpr = ColumnStyle13;
+                    Visible = NoOfColumns >= 13;
+                    ToolTip = 'Column title';
+
+                    trigger OnDrillDown()
+                    begin
+                        DrillDown(13);
+                    end;
+                }
+                field(ColumnValues14; ColumnValues[14])
+                {
+                    ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = FormatStr(14);
+                    AutoFormatType = 11;
+                    BlankZero = true;
+                    CaptionClass = '3,' + ColumnCaptions[14];
+                    StyleExpr = ColumnStyle14;
+                    Visible = NoOfColumns >= 14;
+                    ToolTip = 'Column title';
+
+                    trigger OnDrillDown()
+                    begin
+                        DrillDown(14);
+                    end;
+                }
+                field(ColumnValues15; ColumnValues[15])
+                {
+                    ApplicationArea = Basic, Suite;
+                    AutoFormatExpression = FormatStr(15);
+                    AutoFormatType = 11;
+                    BlankZero = true;
+                    CaptionClass = '3,' + ColumnCaptions[15];
+                    StyleExpr = ColumnStyle15;
+                    Visible = NoOfColumns >= 15;
+                    ToolTip = 'Column title';
+
+                    trigger OnDrillDown()
+                    begin
+                        DrillDown(15);
+                    end;
+                }
             }
         }
     }
@@ -620,7 +681,7 @@ page 490 "Acc. Schedule Overview"
                     CostBudgetFilter2 := GetFilter("Cost Budget Filter");
                     BusUnitFilter := GetFilter("Business Unit Filter");
                     AccSched.SetFilters(DateFilter2, GLBudgetFilter2, CostBudgetFilter2, BusUnitFilter, Dim1Filter, Dim2Filter, Dim3Filter, Dim4Filter);
-                    AccSched.Run;
+                    AccSched.Run();
                 end;
             }
             action(PreviousColumn)
@@ -722,7 +783,7 @@ page 490 "Acc. Schedule Overview"
                             ExportAccSchedToExcel: Report "Export Acc. Sched. to Excel";
                         begin
                             ExportAccSchedToExcel.SetOptions(Rec, CurrentColumnName, UseAmtsInAddCurr);
-                            ExportAccSchedToExcel.Run;
+                            ExportAccSchedToExcel.Run();
                         end;
                     }
                     action("Update Existing Document")
@@ -738,7 +799,7 @@ page 490 "Acc. Schedule Overview"
                         begin
                             ExportAccSchedToExcel.SetOptions(Rec, CurrentColumnName, UseAmtsInAddCurr);
                             ExportAccSchedToExcel.SetUpdateExistingWorksheet(true);
-                            ExportAccSchedToExcel.Run;
+                            ExportAccSchedToExcel.Run();
                         end;
                     }
                 }
@@ -764,6 +825,7 @@ page 490 "Acc. Schedule Overview"
                       AccSchedManagement.CalcCell(Rec, TempColumnLayout, UseAmtsInAddCurr),
                       TempColumnLayout."Rounding Factor"),
                     TempColumnLayout."Rounding Factor");
+                OnOnAfterGetRecordOnAfterAssignColumnValue(ColumnValues, ColumnNo, ColumnOffset, TempColumnLayout, UseAmtsInAddCurr);
                 ColumnLayoutArr[ColumnNo - ColumnOffset] := TempColumnLayout;
                 GetStyle(ColumnNo - ColumnOffset, "Line No.", TempColumnLayout."Line No.");
             end;
@@ -814,7 +876,7 @@ page 490 "Acc. Schedule Overview"
             end;
 
         AccSchedManagement.FindPeriod(Rec, '', PeriodType);
-        SetFilter(Show, '<>%1', Show::No);
+        ApplyShowFilter();
         SetRange("Dimension 1 Filter");
         SetRange("Dimension 2 Filter");
         SetRange("Dimension 3 Filter");
@@ -828,13 +890,15 @@ page 490 "Acc. Schedule Overview"
         DateFilter := GetFilter("Date Filter");
 
         OnBeforeCurrentColumnNameOnAfterValidate(CurrentColumnName);
+
+        OnAfterOnOpenPage(Rec, CurrentColumnName);
     end;
 
     var
         Text000: Label 'DEFAULT';
         Text005: Label '1,6,,Dimension %1 Filter';
         TempColumnLayout: Record "Column Layout" temporary;
-        ColumnLayoutArr: array[12] of Record "Column Layout";
+        ColumnLayoutArr: array[15] of Record "Column Layout";
         AccSchedName: Record "Acc. Schedule Name";
         AnalysisView: Record "Analysis View";
         GLSetup: Record "General Ledger Setup";
@@ -844,8 +908,8 @@ page 490 "Acc. Schedule Overview"
         CurrentSchedName: Code[10];
         NewCurrentSchedName: Code[10];
         NewCurrentColumnName: Code[10];
-        ColumnValues: array[12] of Decimal;
-        ColumnCaptions: array[12] of Text[80];
+        ColumnValues: array[15] of Decimal;
+        ColumnCaptions: array[15] of Text[80];
         PeriodType: Enum "Analysis Period Type";
         UseAmtsInAddCurrVisible: Boolean;
         UseAmtsInAddCurr: Boolean;
@@ -871,6 +935,7 @@ page 490 "Acc. Schedule Overview"
         DateFilter: Text;
         ModifiedPeriodType: Enum "Analysis Period Type";
         NewPeriodTypeSet: Boolean;
+        ShowLinesWithShowNo: Boolean;
         [InDataSet]
         ColumnStyle1: Text;
         [InDataSet]
@@ -895,6 +960,14 @@ page 490 "Acc. Schedule Overview"
         ColumnStyle11: Text;
         [InDataSet]
         ColumnStyle12: Text;
+        [InDataSet]
+        ColumnStyle13: Text;
+        [InDataSet]
+        ColumnStyle14: Text;
+        [InDataSet]
+        ColumnStyle15: Text;
+
+
 
     protected var
         CurrentColumnName: Code[10];
@@ -952,8 +1025,15 @@ page 490 "Acc. Schedule Overview"
         CurrPage.Update();
     end;
 
-    local procedure FormGetCaptionClass(DimNo: Integer): Text[250]
+    local procedure FormGetCaptionClass(DimNo: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCaptionClass(AnalysisView, DimNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DimNo of
             1:
                 begin
@@ -991,9 +1071,14 @@ page 490 "Acc. Schedule Overview"
     end;
 
     local procedure DrillDown(ColumnNo: Integer)
+    var
+        PeriodTypeOpt: Option;
     begin
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
         AccSchedManagement.DrillDownFromOverviewPage(TempColumnLayout, Rec, PeriodType.AsInteger());
+        PeriodTypeOpt := PeriodType.AsInteger();
+        OnAfterDrillDown(ColumnNo, TempColumnLayout, PeriodTypeOpt);
+        PeriodType := "Analysis Period Type".FromInteger(PeriodTypeOpt);
     end;
 
     local procedure UpdateColumnCaptions()
@@ -1008,7 +1093,7 @@ page 490 "Acc. Schedule Overview"
             exit;
 
         Clear(ColumnCaptions);
-        if TempColumnLayout.FindSet then
+        if TempColumnLayout.FindSet() then
             repeat
                 ColumnNo := ColumnNo + 1;
                 if (ColumnNo > ColumnOffset) and (ColumnNo - ColumnOffset <= ArrayLen(ColumnCaptions)) then
@@ -1036,6 +1121,14 @@ page 490 "Acc. Schedule Overview"
         end;
     end;
 
+    local procedure ApplyShowFilter()
+    begin
+        if not ShowLinesWithShowNo then
+            SetFilter(Show, '<>%1', Show::No)
+        else
+            SetRange(Show);
+    end;
+
     local procedure UpdateDimFilterControls()
     var
         IsHandled: Boolean;
@@ -1059,7 +1152,7 @@ page 490 "Acc. Schedule Overview"
         GLBudgetFilter := '';
         CostBudgetFilter := '';
 
-        OnAfterUpdateDimFilterControls();
+        OnAfterUpdateDimFilterControls(Dim4FilterEnable);
     end;
 
     local procedure CurrentSchedNameOnAfterValidate()
@@ -1196,7 +1289,22 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterUpdateDimFilterControls()
+    local procedure OnAfterUpdateDimFilterControls(var Dim4FilterEnable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterDrillDown(ColumnNo: Integer; var TempColumnLayout: Record "Column Layout" temporary; var PeriodType: Option)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnOpenPage(var AccScheduleLine: Record "Acc. Schedule Line"; var CurrentColumnName: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOnAfterGetRecordOnAfterAssignColumnValue(var ColumnValues: array[15] of Decimal; var ColumnNo: Integer; var ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; var UseAmtsInAddCurr: Boolean)
     begin
     end;
 
@@ -1211,7 +1319,12 @@ page 490 "Acc. Schedule Overview"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[12] of Text[80]; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeGetCaptionClass(AnalysisView: Record "Analysis View"; DimNo: Integer; var Result: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateColumnCaptions(var ColumnCaptions: array[15] of Text[80]; ColumnOffset: Integer; var TempColumnLayout: Record "Column Layout" temporary; NoOfColumns: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
+﻿codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 {
     Permissions = TableData "Cust. Ledger Entry" = rimd,
                   TableData "Vendor Ledger Entry" = rimd;
@@ -43,7 +43,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // entry created on Detailed Customer Ledger Entry.
 
         // Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -75,7 +75,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // VAT Excluding entry created on Detailed Customer Ledger Entry.
 
         // Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -112,7 +112,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // entry created on Detailed Vendor Ledger Entry.
 
         // Setup: Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -135,10 +135,51 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyWithPmtDiscForCustomer()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+        CurrencyCode: Code[10];
+        PmtDiscAmountInclVAT: Decimal;
+        PmtDiscAmountVAT: Decimal;
+        OldAdjustforPaymentDiscount: Boolean;
+    begin
+        // Create Sales Invoice with Currency, run Adjust Exchange Rate Batch Job, Apply Payment from General Journal Line, Unapply
+        // Payment and Check VAT Adjustment and VAT Excluding entry created on Detailed Customer Ledger Entry.
+
+        // Setup: Modify Setup.
+        Initialize();
+        GeneralLedgerSetup.Get();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
+
+        // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
+        CurrencyCode := CreateCurrency;
+        PmtDiscAmountInclVAT := CreateAndPostDocument(DocumentNo, CurrencyCode);
+        PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
+        PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
+
+        // Exercise: Unapply Payment from Customer Ledger Entry.
+        UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, DocumentNo);
+
+        // Verify: Verify Detailed Customer Ledger Entry for VAT Adjustment and VAT Excluding entries with Currency.
+        VerifyPmtDiscDetailedCustLedgEntries(DocumentNo, -PmtDiscAmountInclVAT, -PmtDiscAmountVAT);
+
+        // TearDown: Cleanup the Setups done.
+        UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyWithPmtDiscForCustomerExchRateAdjmt()
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -160,7 +201,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Create Sales Invoice with Payment Discount and Currency and Post it and Apply Payment with General Journal Line.
         CurrencyCode := CreateCurrency;
-        PmtDiscAmountInclVAT := CreateAndPostDocument(DocumentNo, CurrencyCode);
+        PmtDiscAmountInclVAT := PostSalesInvoiceAndApplyPayment(DocumentNo, CurrencyCode);
         PmtDiscAmountInclVAT := GetCurrencyExchRateAmount(PmtDiscAmountInclVAT, CurrencyCode);
         PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
 
@@ -187,7 +228,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Create Invoice and Credit Memo with the same amount, apply payments with the same document no., unapply payments and
         // check Unpplied and Remaining Amount on Detailed Customer Ledger Entry.
 
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -215,7 +256,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Create Invoice and Credit Memo with the same amount, apply payments with the same document no., unapply payments and
         // check Unpplied and Remaining Amount on Detailed Customer Ledger Entry.
 
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -230,10 +271,65 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
     end;
 
+#if not CLEAN20
     [Test]
     [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyWithPmtDiscForVendor()
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostedDocumentNo: Code[20];
+        CurrencyCode: Code[10];
+        BuyfromVendorNo: Code[20];
+        Amount: Decimal;
+        PmtDiscAmountInclVAT: Decimal;
+        PmtDiscAmountVAT: Decimal;
+        OldAdjustforPaymentDiscount: Boolean;
+    begin
+        // Create Purchase Invoice with currency, Post it, run Adjust Exchange Rate Batch Job and Post Payment with apply entry from General
+        // Line and Check VAT Adjustment and VAT Excluding entry created on Detailed Vendor Ledger Entry.
+
+        // Setup: Modify Setup.
+        Initialize();
+        GeneralLedgerSetup.Get();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
+
+        // Create Purchase Invoice with Payment Discount, Currency and Post it and Apply Payment with General Journal Line.
+        CurrencyCode := CreateCurrency;
+        BuyfromVendorNo := CreateVendor;
+        PostedDocumentNo := CreateAndPostPurchaseInvoice(BuyfromVendorNo, CurrencyCode);
+        Amount := GetPurchaseInvoiceHeaderAmt(PmtDiscAmountInclVAT, PostedDocumentNo);
+        PmtDiscAmountVAT := FindVATAmount(VATPostingSetup, PmtDiscAmountInclVAT);
+
+        CreateExchangeRate(CurrencyCode);
+        FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
+
+        CreatePostGeneralJournalLine(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, BuyfromVendorNo, Amount,
+          CurrencyCode);
+        ApplyAndPostVendorEntry(GenJournalLine."Document No.", GenJournalLine.Amount, PostedDocumentNo);
+
+        // Exercise: Unapply Payment from Vendor Ledger Entry.
+        UnapplyVendLedgerEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // Verify: Verify Detailed Vendor Ledger Entry for VAT Adjustment and VAT Excluding entries.
+        VerifyPmtDiscDetailedVendLedgEntries(GenJournalLine."Document No.", PmtDiscAmountInclVAT, PmtDiscAmountVAT);
+
+        // TearDown: Cleanup the Setups done.
+        UpdateVATPostingSetup(VATPostingSetup, OldAdjustforPaymentDiscount);
+    end;
+#endif
+
+    [Test]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyWithPmtDiscForVendorExchRateAdjmt()
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -266,7 +362,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CreateExchangeRate(CurrencyCode);
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
 
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
 
         CreatePostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, BuyfromVendorNo, Amount,
@@ -296,7 +392,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Unapply] [Reverse Charge VAT] [Sales]
         // [SCENARIO 301002] VAT Entry for Sales Invoice with Payment Discount and Reverse Charge VAT is reversed after unapply
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with "Adjust for Payment Disc." = True and "Pmt. Disc. Excl. VAT" = False
         ModifyGeneralLedgerSetup(true, false);
@@ -338,7 +434,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Unapply] [Reverse Charge VAT] [Purchase]
         // [SCENARIO 301002] VAT Entry for Purchase Invoice with Payment Discount and Reverse Charge VAT is reversed after unapply
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Ledger Setup with "Adjust for Payment Disc." = True and "Pmt. Disc. Excl. VAT" = False
         ModifyGeneralLedgerSetup(true, false);
@@ -378,7 +474,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Create Payment Terms and check it's creation.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Create Payment Terms and Set Parameters.
         LibraryERM.CreatePaymentTerms(PaymentTerms);
@@ -401,7 +497,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Check whether Direct Posting can be set as TRUE on G/L account.
 
         // Setup: Create a G/L Account.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
 
         // Exercise: Set Direct Posting as True in G/L Account.
@@ -427,7 +523,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Check Payment Discount Amount for Vendor after posting Invoice and Payment entries.
 
         // Setup: Modify Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
@@ -464,7 +560,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify Payment Discount Amount on Apply Customer Entries Page.
 
         // Setup: Create and post General Journal  Line, Create Cash Receipt Journal.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomerWithPaymentTerms);
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
@@ -495,7 +591,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify General Ledger Entry After Posting Cash Receipt Journal.
 
         // Setup: Create and post General Journal Line, Create Cash Receipt Journal.
-        Initialize;
+        Initialize();
         Customer.Get(CreateCustomerWithPaymentTerms);
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
@@ -529,7 +625,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify Payment Discount Amount on Apply Vendor Entries Page.
 
         // Setup: Create and post General Journal Line, Create Purchase Journal.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateVendorWithPaymentTerms);
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
@@ -560,7 +656,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify General Ledger Entry after posting Payment Journal.
 
         // Setup: Create and post General Journal Line, Create Purchase Journal.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateVendorWithPaymentTerms);
 
         // Use Random large value for Amount as Payment Term Percent is small, blank value for Currency Code.
@@ -594,7 +690,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify ExpectedCounty when Vendor CountryRegion Address Format is City+Post Code.
 
         // Setup: Create Vendor and Update Address format on Vendor Country/Region.
-        Initialize;
+        Initialize();
         CreateVendorWithAddress(Vendor);
         CountryRegionName := UpdateCountryRegion(Vendor."Country/Region Code", CountryRegion."Address Format"::"City+Post Code");
 
@@ -617,7 +713,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Verify ExpectedCounty when Vendor CountryRegion Address Format is Blank Line+Post Code+City.
 
         // Setup: Create Vendor and Update Address format on Vendor Country/Region.
-        Initialize;
+        Initialize();
         CreateVendorWithAddress(Vendor);
         UpdateCountryRegion(Vendor."Country/Region Code", CountryRegion."Address Format"::"Blank Line+Post Code+City");
 
@@ -647,7 +743,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375774] System creates several reversal VATEntries for Payment Discount Adj. in case of unapply multiple docs in one transaction
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -656,7 +752,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] Posted two Sales Invoices for same customer, where Amount including discount: 80 and 50.
         CustomerNo := CreateCustomer;
         CreatePostTwoSalesInvoices(CustomerNo, InvoiceDocNo, PaymentAmt);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         LastVATEntryNo := VATEntry."Entry No.";
 
         // [GIVEN] Two payment journal lines applied to posted Invoices, where Amounts: -80 and -50
@@ -706,7 +802,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 375774] System creates several reversal VATEntries for Payment Discount Adj. in case of unapply multiple docs in one transaction
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -715,7 +811,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] Posted two Purchase Invoices for same vendor, where Amount including discount: 80 and 50.
         VendorNo := CreateVendor;
         CreatePostTwoPurchInvoices(VendorNo, InvoiceDocNo, PaymentAmt);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         LastVATEntryNo := VATEntry."Entry No.";
 
         // [GIVEN] Two payment journal lines applied to posted Invoices, where Amounts: 80 and 50
@@ -763,7 +859,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Purchases]
         // [SCENARIO 375874] GLEntry."Gen. Posting Type" = Purchase for "Purch. Pmt. Disc. Credit Acc." after unapply vendor payment with discount
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -777,7 +873,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         DocumentNo := CreatePostApplyVendGenJournalLine(PmtDiscountAmt, VendorNo, DocumentNo, '');
 
         // [WHEN] Unapply payment.
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         UnapplyVendLedgerEntry(GenJournalLine."Document Type"::Payment, DocumentNo);
 
         // [THEN] GLEntry is posted, where "No." = "Purch. Pmt. Disc. Credit Acc." and "Gen. Posting Type" = "Purchase".
@@ -807,7 +903,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 375874] GLEntry."Gen. Posting Type" = Sale for "Sales Pmt. Disc. Debit Acc." after unapply customer payment with discount
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
@@ -821,7 +917,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscountAmt, CustomerNo, DocumentNo, '');
 
         // [WHEN] Unapply payment.
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, DocumentNo);
 
         // [THEN] GLEntry is posted, where "No." = "Sales Pmt. Disc. Debit Acc." and "Gen. Posting Type" = "Sale".
@@ -845,7 +941,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Sales]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
 
-        Initialize;
+        Initialize();
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         PaymentTerms.Validate("Discount %", 0);
@@ -873,7 +969,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Purchase]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
 
-        Initialize;
+        Initialize();
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         PaymentTerms.Validate("Discount %", 0);
@@ -901,7 +997,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Service]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
 
-        Initialize;
+        Initialize();
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         PaymentTerms.Validate("Discount %", 0);
@@ -1165,6 +1261,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibraryERMCountryData.UpdateVATPostingSetup();
 
         FindUpdateVATPostingSetupVATPct(GetW1VATPct);
@@ -1173,9 +1270,9 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         isInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20])
@@ -1278,7 +1375,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CountryRegion.Code);
         Vendor.Validate("Post Code", PostCode.Code);
-        Vendor.Validate(County, LibraryUtility.GenerateGUID);
+        Vendor.Validate(County, LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
     end;
 
@@ -1633,7 +1730,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
               GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '',
               GenJournalLine."Applies-to Doc. Type"::Invoice, InvoiceDocNo[i], PaymentAmt[i]);
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
-        GenJournalLine."Account No." := LibraryERM.CreateGLAccountNo;
+        GenJournalLine."Account No." := LibraryERM.CreateGLAccountNo();
         CreatePmtLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, "Gen. Journal Account Type"::"G/L Account", '', "Gen. Journal Account Type"::"G/L Account", '', -(PaymentAmt[1] + PaymentAmt[2]));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1683,6 +1780,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CurrencyExchangeRate.Modify(true);
     end;
 
+#if not CLEAN20
     local procedure CreateAndPostDocument(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -1694,6 +1792,21 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CreateExchangeRate(CurrencyCode);
         FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
+        DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency);
+    end;
+#endif
+
+    local procedure PostSalesInvoiceAndApplyPayment(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
+    var
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        PostedDocumentNo: Code[20];
+        SelltoCustomerNo: Code[20];
+    begin
+        SelltoCustomerNo := CreateCustomer;
+        PostedDocumentNo := CreateAndPostSalesInvoice(SelltoCustomerNo, CurrencyCode);
+        CreateExchangeRate(CurrencyCode);
+        FindCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, CurrencyExchangeRate."Starting Date", CurrencyExchangeRate."Starting Date");
         DocumentNo := CreatePostApplyCustGenJournalLine(PmtDiscAmount, SelltoCustomerNo, PostedDocumentNo, CreateCurrency);
     end;
 
@@ -1713,12 +1826,12 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProductPostingGroup.Code);
-        VATGLAccountNo := LibraryERM.CreateGLAccountNo;
+        VATGLAccountNo := LibraryERM.CreateGLAccountNo();
         VATPostingSetup.Validate("Sales VAT Account", VATGLAccountNo);
         VATPostingSetup.Validate("Purchase VAT Account", VATGLAccountNo);
         VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID);
+        VATPostingSetup.Validate("VAT Identifier", LibraryUtility.GenerateGUID());
         VATPostingSetup.Validate("VAT %", VATPct);
         VATPostingSetup.Validate("Adjust for Payment Discount", true);
         VATPostingSetup.Modify(true);
@@ -1759,7 +1872,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, Type);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         exit(GenJournalTemplate.Name);
     end;
 
@@ -1771,7 +1884,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     local procedure FindCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
     end;
 
     local procedure FindGeneralPostingSetup(var GeneralPostingSetup: Record "General Posting Setup")
@@ -1813,13 +1926,13 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // Using assignment to avoid error in ES.
         with GeneralPostingSetup do begin
             if "Sales Pmt. Disc. Credit Acc." = '' then
-                "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                "Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
             if "Sales Pmt. Disc. Debit Acc." = '' then
-                "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                "Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
             if "Purch. Pmt. Disc. Credit Acc." = '' then
-                "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
+                "Purch. Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo();
             if "Purch. Pmt. Disc. Debit Acc." = '' then
-                "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
+                "Purch. Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo();
             Modify(true);
         end;
     end;
@@ -1999,7 +2112,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         with DetailedCustLedgEntry do begin
             SetRange("Entry Type", EntryType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
@@ -2013,7 +2126,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         with DetailedVendorLedgEntry do begin
             SetRange("Entry Type", EntryType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(
               AmountLCY, "Amount (LCY)", LibraryERM.GetAmountRoundingPrecision,
               StrSubstNo(AmountLCYErr, FieldCaption("Entry No."), AmountLCY, TableCaption));
@@ -2026,7 +2139,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     begin
         GLEntry.SetRange("Bal. Account Type", GenJournalLine."Account Type");
         GLEntry.SetRange("Bal. Account No.", GenJournalLine."Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountLCYErr, GLEntry.FieldCaption("Debit Amount"), GLEntry."Debit Amount", GLEntry.TableCaption));
@@ -2129,11 +2242,11 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Bill-to/Pay-to No.", AccountNo);
 
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(VATBase, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Base));
         Assert.AreNearlyEqual(VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Amount));
 
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         Assert.AreNearlyEqual(VATBase, -VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Base));
         Assert.AreNearlyEqual(VATAmount, -VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, VATEntry.FieldCaption(Amount));
     end;
@@ -2175,7 +2288,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         GLEntry.SetRange("Source Code", SourceCode);
         Assert.RecordCount(GLEntry, Qty);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(GLAmount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, GLEntry.FieldCaption(Amount));
         GLEntry.SetRange("G/L Account No.", VATGLAccountNo);
         Assert.RecordCount(GLEntry, VATQty);

@@ -56,7 +56,6 @@ page 345 Reconciliation
     var
         GenJnlLine: Record "Gen. Journal Line";
         GLAcc: Record "G/L Account";
-        BankAccReconLn: Record "Bank Acc. Reconciliation Line";
         Heading: Code[10];
 
     procedure SetGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line")
@@ -79,7 +78,7 @@ page 345 Reconciliation
                 GenJnlAlloc.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlAlloc.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
                 GenJnlAlloc.SetRange("Journal Line No.", GenJnlLine."Line No.");
-                if GenJnlAlloc.FindSet then
+                if GenJnlAlloc.FindSet() then
                     repeat
                         SaveNetChange(
                           GenJnlLine."Account Type"::"G/L Account", GenJnlAlloc."Account No.",
@@ -87,27 +86,9 @@ page 345 Reconciliation
                     until GenJnlAlloc.Next() = 0;
             // NAVCZ
             until GenJnlLine.Next() = 0;
+
+        OnAfterSetGenJnlLine(Rec, GenJnlLine);
         if Find('-') then;
-    end;
-
-    [Scope('OnPrem')]
-    [Obsolete('The functionality of GL Journal reconciliation by type will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
-    procedure SetBankAccReconLine(var NewBankAccReconLn: Record "Bank Acc. Reconciliation Line")
-    begin
-        // NAVCZ
-        BankAccReconLn.Copy(NewBankAccReconLn);
-        DeleteAll();
-
-        if BankAccReconLn.FindSet then
-            repeat
-                SaveNetChange(
-                  BankAccReconLn."Account Type", BankAccReconLn."Account No.",
-                  -BankAccReconLn."Statement Amount (LCY)", 0);
-                SaveNetChange(
-                  BankAccReconLn."Account Type"::"Bank Account", BankAccReconLn."Bank Account No.",
-                  BankAccReconLn."Statement Amount (LCY)", 0);
-            until BankAccReconLn.Next() = 0;
-        if FindSet then;
     end;
 
     local procedure SaveNetChange(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal; VATAmount: Decimal)
@@ -120,8 +101,12 @@ page 345 Reconciliation
         ICPartner: Record "IC Partner";
         Employee: Record Employee;
         Value: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType, AccNo, NetChange);
+        IsHandled := false;
+        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType.AsInteger(), AccNo, NetChange, IsHandled);
+        if IsHandled then
+            exit;
 
         if AccNo = '' then
             exit;
@@ -131,6 +116,7 @@ page 345 Reconciliation
         if Get(AccNo, AccType) then begin
             "Net Change in Jnl." := "Net Change in Jnl." + Value;
             "Balance after Posting" := "Balance after Posting" + Value;
+            OnSaveNetChangeOnBeforeModify(Rec, GenJnlLine, AccType, AccNo, NetChange);
             Modify;
         end else begin
             Init;
@@ -184,6 +170,7 @@ page 345 Reconciliation
                         "Balance after Posting" := -Employee.Balance + Value;
                     end;
             end;
+            OnSaveNetChangeOnBeforeModify(Rec, GenJnlLine, AccType, AccNo, NetChange);
             Insert;
         end;
         // NAVCZ
@@ -217,28 +204,9 @@ page 345 Reconciliation
         Rec := OldGLAccountNetChange;
     end;
 
-    [Scope('OnPrem')]
-    [Obsolete('This function is not used anywhere. (Removed in release 01.2021)','15.3')]
-    procedure SwapGenJnlLine(var SrcGenJnlLine: Record "Gen. Journal Line"; var NewGenJnlLine: Record "Gen. Journal Line")
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetGenJnlLine(var GLAccountNetChange: Record "G/L Account Net Change"; var GenJnlLine: Record "Gen. Journal Line")
     begin
-        // NAVCZ
-        NewGenJnlLine."Posting Date" := SrcGenJnlLine."Posting Date";
-        NewGenJnlLine."Document No." := SrcGenJnlLine."Document No.";
-        NewGenJnlLine.Description := SrcGenJnlLine.Description;
-        NewGenJnlLine."Currency Code" := SrcGenJnlLine."Currency Code";
-        NewGenJnlLine.Amount := -SrcGenJnlLine.Amount;
-        NewGenJnlLine."Debit Amount" := -SrcGenJnlLine."Debit Amount";
-        NewGenJnlLine."Credit Amount" := -SrcGenJnlLine."Credit Amount";
-        NewGenJnlLine."Amount (LCY)" := -SrcGenJnlLine."Amount (LCY)";
-        NewGenJnlLine."Currency Factor" := SrcGenJnlLine."Currency Factor";
-        NewGenJnlLine."Shortcut Dimension 1 Code" := SrcGenJnlLine."Shortcut Dimension 1 Code";
-        NewGenJnlLine."Shortcut Dimension 2 Code" := SrcGenJnlLine."Shortcut Dimension 2 Code";
-        NewGenJnlLine."Account Type" := SrcGenJnlLine."Bal. Account Type";
-        NewGenJnlLine."Account No." := SrcGenJnlLine."Bal. Account No.";
-        SrcGenJnlLine."Bal. Account Type" := SrcGenJnlLine."Bal. Account Type"::"G/L Account";
-        SrcGenJnlLine."Bal. Account No." := '';
-        SrcGenJnlLine."System-Created Entry" := false;
-        // NAVCZ
     end;
 
     [IntegrationEvent(false, false)]
@@ -252,7 +220,12 @@ page 345 Reconciliation
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal)
+    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveNetChangeOnBeforeModify(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
     begin
     end;
 }

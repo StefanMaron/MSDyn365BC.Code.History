@@ -166,56 +166,34 @@ table 325 "VAT Posting Setup"
         {
             Caption = 'Description';
         }
+        field(21; Blocked; Boolean)
+        {
+            Caption = 'Blocked';
+        }
         field(11760; "Reverse Charge Check"; Option)
         {
             Caption = 'Reverse Charge Check';
             OptionCaption = ' ,Limit Check,Limit Check & Export';
             OptionMembers = " ","Limit Check","Limit Check & Export";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "Purchase VAT Delay Account"; Code[20])
         {
             Caption = 'Purchase VAT Delay Account';
             TableRelation = "G/L Account";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Purchase VAT Delay Account");
-            end;
-#endif            
+            ObsoleteTag = '20.0';
         }
         field(11762; "Sales VAT Delay Account"; Code[20])
         {
             Caption = 'Sales VAT Delay Account';
             TableRelation = "G/L Account";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                CheckGLAcc("Sales VAT Delay Account");
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11763; "Non Deduct. VAT Corr. Account"; Code[20])
         {
@@ -236,13 +214,9 @@ table 325 "VAT Posting Setup"
         field(11765; "Allow Blank VAT Date"; Boolean)
         {
             Caption = 'Allow Blank VAT Date';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11766; "Allow Non Deductible VAT"; Boolean)
         {
@@ -368,24 +342,16 @@ table 325 "VAT Posting Setup"
         field(31060; "VIES Purchases"; Boolean)
         {
             Caption = 'VIES Purchases';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31061; "VIES Sales"; Boolean)
         {
             Caption = 'VIES Sales';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31070; "Intrastat Service"; Boolean)
         {
@@ -403,26 +369,18 @@ table 325 "VAT Posting Setup"
             Caption = 'VAT Rate';
             OptionCaption = ' ,Base,Reduced,Reduced 2';
             OptionMembers = " ",Base,Reduced,"Reduced 2";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31101; "Supplies Mode Code"; Option)
         {
             Caption = 'Supplies Mode Code';
             OptionCaption = ' ,par. 89,par. 90';
             OptionMembers = " ","par. 89","par. 90";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31102; "Insolvency Proceedings (p.44)"; Boolean)
         {
@@ -434,26 +392,18 @@ table 325 "VAT Posting Setup"
         field(31103; "Ratio Coefficient"; Boolean)
         {
             Caption = 'Ratio Coefficient';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31104; "Corrections for Bad Receivable"; Option)
         {
             Caption = 'Corrections for Bad Receivable';
             OptionCaption = ' ,Insolvency Proceedings (p.44),Bad Receivable (p.46 resp. 74a)';
             OptionMembers = " ","Insolvency Proceedings (p.44)","Bad Receivable (p.46 resp. 74a)";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -527,7 +477,7 @@ table 325 "VAT Posting Setup"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', "VAT Prod. Posting Group");
         VATPostingSetup.SetFilter("VAT %", '<>%1', "VAT %");
         VATPostingSetup.SetRange("VAT Identifier", "VAT Identifier");
-        if VATPostingSetup.FindFirst then
+        if VATPostingSetup.FindFirst() then
             Error(
               Text001,
               FieldCaption("VAT Identifier"), VATPostingSetup."VAT Identifier",
@@ -543,7 +493,7 @@ table 325 "VAT Posting Setup"
         VATPostingSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', "VAT Prod. Posting Group");
         VATPostingSetup.SetRange("VAT Identifier", "VAT Identifier");
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             VATPostingSetup."VAT %" := "VAT %";
         exit(VATPostingSetup."VAT %");
     end;
@@ -604,35 +554,6 @@ table 325 "VAT Posting Setup"
         exit("Reverse Chrg. VAT Acc.");
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure GetVATAccountNo(Type: Option ,Purchase,Sale; Advance: Boolean): Code[20]
-    begin
-        // NAVCZ
-        case Type of
-            Type::Purchase:
-                begin
-                    if Advance then begin
-                        TestField("Purch. Advance VAT Account");
-                        exit("Purch. Advance VAT Account");
-                    end;
-                    TestField("Purchase VAT Account");
-                    exit("Purchase VAT Account");
-                end;
-            Type::Sale:
-                begin
-                    if Advance then begin
-                        TestField("Sales Advance VAT Account");
-                        exit("Sales Advance VAT Account");
-                    end;
-                    TestField("Sales VAT Account");
-                    exit("Sales VAT Account");
-                end;
-        end;
-    end;
-
-#endif
     procedure SetAccountsVisibility(var UnrealizedVATVisible: Boolean; var AdjustForPmtDiscVisible: Boolean)
     begin
         GLSetup.Get();
@@ -698,7 +619,7 @@ table 325 "VAT Posting Setup"
 
         TempAccountUseBuffer.Reset();
         TempAccountUseBuffer.SetCurrentKey("No. of Use");
-        if TempAccountUseBuffer.FindLast then begin
+        if TempAccountUseBuffer.FindLast() then begin
             RecFieldRef := RecRef.Field(AccountFieldNo);
             RecFieldRef.Value(TempAccountUseBuffer."Account No.");
         end;
@@ -714,4 +635,3 @@ table 325 "VAT Posting Setup"
     begin
     end;
 }
-

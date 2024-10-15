@@ -24,7 +24,7 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
     var
         Window: Dialog;
     begin
-        if CheckLedgerEntry.FindSet then begin
+        if CheckLedgerEntry.FindSet() then begin
             Window.Open(ProgressMsg);
             repeat
                 LineNo += 1;

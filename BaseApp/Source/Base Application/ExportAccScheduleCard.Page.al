@@ -1,8 +1,12 @@
+#if not CLEAN20
 page 31083 "Export Acc. Schedule Card"
 {
     Caption = 'Export Acc. Schedule Card';
     PageType = Card;
     SourceTable = "Export Acc. Schedule";
+    ObsoleteReason = 'The functionality will be removed and this page should not be used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -75,11 +79,11 @@ page 31083 "Export Acc. Schedule Card"
                         FilteredAccSchedExport: Report "Filtered Acc. Schedule Export";
                     begin
                         FilteredAccSchedExport.SetParameter(Rec);
-                        FilteredAccSchedExport.Run;
+                        FilteredAccSchedExport.Run();
                     end;
                 }
             }
         }
     }
 }
-
+#endif

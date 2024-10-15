@@ -19,7 +19,7 @@ page 11781 "Subst. Customer Posting Groups"
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
                 }
             }
         }

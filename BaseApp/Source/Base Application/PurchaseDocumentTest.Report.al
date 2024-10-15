@@ -1,3 +1,4 @@
+#if not CLEAN20
 report 402 "Purchase Document - Test"
 {
     DefaultLayout = RDLC;
@@ -423,7 +424,7 @@ report 402 "Purchase Document - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry1.FindSet then
+                            if not DimSetEntry1.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -692,7 +693,7 @@ report 402 "Purchase Document - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -832,7 +833,7 @@ report 402 "Purchase Document - Test"
                                     GenPostingSetup.Reset();
                                     GenPostingSetup.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
                                     GenPostingSetup.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-                                    if not GenPostingSetup.FindLast then
+                                    if not GenPostingSetup.FindLast() then
                                         AddError(
                                           StrSubstNo(
                                             Text020,
@@ -914,7 +915,7 @@ report 402 "Purchase Document - Test"
                                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
 
-                                    TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+                                    TableID[1] := DimMgt.PurchLineTypeToTableID(Type);
                                     No[1] := "No.";
                                     TableID[2] := DATABASE::Job;
                                     No[2] := "Job No.";
@@ -1534,12 +1535,13 @@ report 402 "Purchase Document - Test"
                 end;
                 // NAVCZ
 #endif
+
                 PurchLine.Reset();
                 PurchLine.SetRange("Document Type", "Document Type");
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Sales Order Line No.", '<>0');
                 if Receive then
-                    if PurchLine.FindSet then
+                    if PurchLine.FindSet() then
                         repeat
                             if SalesHeader."No." <> PurchLine."Sales Order No." then begin
                                 SalesHeader.Get(1, PurchLine."Sales Order No.");
@@ -1569,7 +1571,7 @@ report 402 "Purchase Document - Test"
                     VendLedgEntry.SetCurrentKey("External Document No.");
                     VendorMgt.SetFilterForExternalDocNo(
                       VendLedgEntry, "Document Type", "Vendor Invoice No.", "Pay-to Vendor No.", "Document Date");
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text017,
@@ -1586,7 +1588,7 @@ report 402 "Purchase Document - Test"
                     VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
                     VendLedgEntry.SetRange("External Document No.", "Vendor Cr. Memo No.");
                     VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text017,
@@ -1621,7 +1623,7 @@ report 402 "Purchase Document - Test"
                 PurchHeader.Copy("Purchase Header");
                 PurchHeader.FilterGroup := 2;
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
-                if PurchHeader.FindFirst then begin
+                if PurchHeader.FindFirst() then begin
                     case true of
                         ReceiveShipOnNextPostReq and InvOnNextPostReq:
                             ReceiveInvoiceText := Text000;
@@ -1633,7 +1635,7 @@ report 402 "Purchase Document - Test"
                     ReceiveInvoiceText := StrSubstNo(Text003, ReceiveInvoiceText);
                 end;
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::"Return Order");
-                if PurchHeader.FindFirst then begin
+                if PurchHeader.FindFirst() then begin
                     case true of
                         ReceiveShipOnNextPostReq and InvOnNextPostReq:
                             ShipInvoiceText := Text028;
@@ -1941,24 +1943,11 @@ report 402 "Purchase Document - Test"
 
 #if not CLEAN18
                                 // NAVCZ
-#if CLEAN17
                                 if IntrastatTransaction and ("Purchase Header".Ship or "Purchase Header".Receive) then
                                     if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
                                         if "Net Weight" = 0 then
                                             AddError(
                                               StrSubstNo(MustBeForErr, Item.FieldCaption("Net Weight"), false, Item.TableCaption, "No."));
-#else
-                                if IntrastatTransaction and ("Purchase Header".Ship or "Purchase Header".Receive) then begin
-                                    if StatReportingSetup."Tariff No. Mandatory" then
-                                        if "Tariff No." = '' then
-                                            AddError(
-                                              StrSubstNo(MustBeForErr, Item.FieldCaption("Tariff No."), false, Item.TableCaption, "No."));
-                                    if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
-                                        if "Net Weight" = 0 then
-                                            AddError(
-                                              StrSubstNo(MustBeForErr, Item.FieldCaption("Net Weight"), false, Item.TableCaption, "No."));
-                                end;
-#endif
                                 // NAVCZ
 
 #endif
@@ -2270,24 +2259,20 @@ report 402 "Purchase Document - Test"
     procedure AddDimToTempLine(PurchLine: Record "Purchase Line")
     var
         SourceCodesetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodesetup.Get();
 
         with PurchLine do begin
-            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
-            No[1] := "No.";
-            TableID[2] := DATABASE::Job;
-            No[2] := "Job No.";
-            TableID[3] := DATABASE::"Responsibility Center";
-            No[3] := "Responsibility Center";
+            DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(Type), "No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::Job, "Job No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", "Responsibility Center");
 
             "Shortcut Dimension 1 Code" := '';
             "Shortcut Dimension 2 Code" := '';
 
             "Dimension Set ID" :=
-              DimMgt.GetDefaultDimID(TableID, No, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+              DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                 "Dimension Set ID", DATABASE::Vendor);
         end;
     end;
@@ -2300,6 +2285,7 @@ report 402 "Purchase Document - Test"
         ShowItemChargeAssgnt := NewShowItemChargeAssgnt;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '20.0')]
     local procedure CheckExtDocNoInPostedPurchDoc(PurchHeader: Record "Purchase Header")
     var
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -2430,4 +2416,4 @@ report 402 "Purchase Document - Test"
     begin
     end;
 }
-
+#endif

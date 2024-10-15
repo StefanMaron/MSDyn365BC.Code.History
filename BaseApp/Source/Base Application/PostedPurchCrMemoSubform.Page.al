@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 141 "Posted Purch. Cr. Memo Subform"
 {
     AutoSplitKey = true;
@@ -31,16 +32,6 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -222,6 +213,9 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a maintenance code.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("ShortcutDimCode[3]"; ShortcutDimCode[3])
                 {
@@ -396,7 +390,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(Dimensions)
@@ -514,7 +508,7 @@ page 141 "Posted Purch. Cr. Memo Subform"
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(
           11, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", "Order No.", "Order Line No.");
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -543,4 +537,4 @@ page 141 "Posted Purch. Cr. Memo Subform"
     begin
     end;
 }
-
+#endif

@@ -16,11 +16,6 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowSetup: Codeunit "Workflow Setup";
-#if not CLEAN17
-        CashDocSendForApprovalEventDescTxt: Label 'Approval of a cash document is requested. (Obsolete)';
-        CashDocApprReqCancelledEventDescTxt: Label 'An approval request for a cash document is canceled. (Obsolete)';
-        CashDocReleasedEventDescTxt: Label 'A cash document is released. (Obsolete)';
-#endif
 #if not CLEAN18
         CreditDocSendForApprovalEventDescTxt: Label 'Approval of a credit is requested. (Obsolete)';
         CreditDocApprReqCancelledEventDescTxt: Label 'An approval request for a credit is canceled. (Obsolete)';
@@ -47,18 +42,6 @@ codeunit 31110 "Workflow Event Handling CZ"
         WorkflowEventHandling.AddEventToLibrary(
           RunWorkflowOnAfterIssuePaymentOrderCode, DATABASE::"Payment Order Header",
           PmtOrderIssuedEventDescTxt, 0, false);
-#endif
-#if not CLEAN17
-        // Cash Document
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnSendCashDocForApprovalCode, DATABASE::"Cash Document Header",
-          CashDocSendForApprovalEventDescTxt, 0, false);
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnCancelCashDocApprovalRequestCode, DATABASE::"Cash Document Header",
-          CashDocApprReqCancelledEventDescTxt, 0, false);
-        WorkflowEventHandling.AddEventToLibrary(
-          RunWorkflowOnAfterReleaseCashDocCode, DATABASE::"Cash Document Header",
-          CashDocReleasedEventDescTxt, 0, false);
 #endif
 #if not CLEAN18
         // Credit
@@ -106,12 +89,6 @@ codeunit 31110 "Workflow Event Handling CZ"
                   RunWorkflowOnCancelPaymentOrderApprovalRequestCode,
                   RunWorkflowOnSendPaymentOrderForApprovalCode);
 #endif
-#if not CLEAN17
-            RunWorkflowOnCancelCashDocApprovalRequestCode:
-                WorkflowEventHandling.AddEventPredecessor(
-                  RunWorkflowOnCancelCashDocApprovalRequestCode,
-                  RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
             RunWorkflowOnCancelCreditApprovalRequestCode:
                 WorkflowEventHandling.AddEventPredecessor(
@@ -133,11 +110,6 @@ codeunit 31110 "Workflow Event Handling CZ"
                       WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
                       RunWorkflowOnSendPaymentOrderForApprovalCode);
 #endif
-#if not CLEAN17
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
-                      RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
                     WorkflowEventHandling.AddEventPredecessor(
                       WorkflowEventHandling.RunWorkflowOnApproveApprovalRequestCode,
@@ -157,11 +129,6 @@ codeunit 31110 "Workflow Event Handling CZ"
                       WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
                       RunWorkflowOnSendPaymentOrderForApprovalCode);
 #endif
-#if not CLEAN17
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
-                      RunWorkflowOnSendCashDocForApprovalCode);
-#endif
 #if not CLEAN18
                     WorkflowEventHandling.AddEventPredecessor(
                       WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode,
@@ -180,11 +147,6 @@ codeunit 31110 "Workflow Event Handling CZ"
                     WorkflowEventHandling.AddEventPredecessor(
                       WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
                       RunWorkflowOnSendPaymentOrderForApprovalCode);
-#endif
-#if not CLEAN17
-                    WorkflowEventHandling.AddEventPredecessor(
-                      WorkflowEventHandling.RunWorkflowOnDelegateApprovalRequestCode,
-                      RunWorkflowOnSendCashDocForApprovalCode);
 #endif
 #if not CLEAN18
                     WorkflowEventHandling.AddEventPredecessor(
@@ -208,10 +170,6 @@ codeunit 31110 "Workflow Event Handling CZ"
     begin
 #if not CLEAN19
         WorkflowSetup.InsertTableRelation(DATABASE::"Payment Order Header", 0,
-          DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Record ID to Approve"));
-#endif
-#if not CLEAN17
-        WorkflowSetup.InsertTableRelation(DATABASE::"Cash Document Header", 0,
           DATABASE::"Approval Entry", ApprovalEntry.FieldNo("Record ID to Approve"));
 #endif
 #if not CLEAN18
@@ -244,29 +202,6 @@ codeunit 31110 "Workflow Event Handling CZ"
     procedure RunWorkflowOnAfterIssuePaymentOrderCode(): Code[128]
     begin
         exit(UpperCase('RunWorkflowOnAfterIssuePaymentOrder'));
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnSendCashDocForApprovalCode(): Code[128]
-    begin
-        exit(UpperCase('RunWorkflowOnSendCashDocForApproval'));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnCancelCashDocApprovalRequestCode(): Code[128]
-    begin
-        exit(UpperCase('RunWorkflowOnCancelCashDocApprovalRequest'));
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnAfterReleaseCashDocCode(): Code[128]
-    begin
-        exit(UpperCase('RunWorkflowOnAfterReleaseCashDoc'));
     end;
 
 #endif
@@ -350,31 +285,6 @@ codeunit 31110 "Workflow Event Handling CZ"
     local procedure RunWorkflowOnAfterIssuePaymentOrder(var PaymentOrderHeader: Record "Payment Order Header")
     begin
         WorkflowManagement.HandleEvent(RunWorkflowOnAfterIssuePaymentOrderCode, PaymentOrderHeader);
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSendCashDocForApproval', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnSendCashDocForApproval(var CashDocHdr: Record "Cash Document Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnSendCashDocForApprovalCode, CashDocHdr);
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnCancelCashDocApprovalRequest', '', false, false)]
-    [Scope('OnPrem')]
-    procedure RunWorkflowOnCancelCashDocApprovalRequest(var CashDocHdr: Record "Cash Document Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnCancelCashDocApprovalRequestCode, CashDocHdr);
-    end;
-
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.0')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Cash Document-Release", 'OnAfterReleaseCashDoc', '', false, false)]
-    local procedure RunWorkflowOnAfterReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")
-    begin
-        WorkflowManagement.HandleEvent(RunWorkflowOnAfterReleaseCashDocCode, CashDocHdr);
     end;
 
 #endif

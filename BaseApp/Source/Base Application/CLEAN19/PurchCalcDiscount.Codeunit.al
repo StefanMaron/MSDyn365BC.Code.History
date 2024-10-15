@@ -1,6 +1,8 @@
 #if CLEAN19
 codeunit 70 "Purch.-Calc.Discount"
 {
+    Permissions = tabledata "Purchase Header" = rm,
+                  tabledata "Purchase Line" = rm;
     TableNo = "Purchase Line";
 
     trigger OnRun()
@@ -93,7 +95,7 @@ codeunit 70 "Purch.-Calc.Discount"
                 if not UpdateHeader then
                     PurchLine2.SetPurchHeader(PurchHeader);
                 if not TempServiceChargeLine.IsEmpty() then begin
-                    TempServiceChargeLine.FindLast;
+                    TempServiceChargeLine.FindLast();
                     PurchLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     if PurchHeader."Prices Including VAT" then
                         PurchLine2.Validate(
@@ -117,6 +119,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     PurchLine2.Validate("No.", VendPostingGr.GetServiceChargeAccount);
                     PurchLine2.Description := Text000;
                     PurchLine2.Validate(Quantity, 1);
+                    OnCalculateInvoiceDiscountOnAfterPurchLine2ValidateQuantity(PurchHeader, PurchLine2, VendInvDisc);
                     if PurchLine2."Document Type" in
                        [PurchLine2."Document Type"::"Return Order", PurchLine2."Document Type"::"Credit Memo"]
                     then
@@ -149,7 +152,7 @@ codeunit 70 "Purch.-Calc.Discount"
                     GetVendInvDisc(PurchHeader, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  PurchSetup.RecordId, PurchHeader."Gen. Bus. Posting Group",
+                  PurchSetup.RecordId, PurchHeader."Gen. Bus. Posting Group", PurchLine2."Gen. Prod. Posting Group",
                   PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Line Discounts");
 
                 PurchHeader."Invoice Discount Calculation" := PurchHeader."Invoice Discount Calculation"::"%";
@@ -176,7 +179,7 @@ codeunit 70 "Purch.-Calc.Discount"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetVendInvDisc(PurchHeader, CurrencyDate, ChargeBase, InvDiscBase, BaseAmount, IsHandled);
+        OnBeforeGetVendInvDisc(PurchHeader, CurrencyDate, ChargeBase, InvDiscBase, BaseAmount, IsHandled, VendInvDisc);
         if IsHandled then
             exit;
 
@@ -251,7 +254,12 @@ codeunit 70 "Purch.-Calc.Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean)
+    local procedure OnBeforeGetVendInvDisc(var PurchaseHeader: Record "Purchase Header"; CurrencyDate: Date; ChargeBase: Decimal; InvDiscBase: Decimal; BaseAmount: Decimal; var IsHandled: Boolean; var VendInvDisc: Record "Vendor Invoice Disc.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnAfterPurchLine2ValidateQuantity(var PurchHeader: Record "Purchase Header"; var PurchLine2: Record "Purchase Line"; var VendInvDisc: Record "Vendor Invoice Disc.")
     begin
     end;
 

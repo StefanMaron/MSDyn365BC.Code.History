@@ -27,16 +27,16 @@ codeunit 134049 "ERM Date Compression FA"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryFiscalYear.CreateFiscalYear();
 
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateLocalData();
         isInitialized := true;
         Commit();
     end;
@@ -56,7 +56,7 @@ codeunit 134049 "ERM Date Compression FA"
 
         // 1.Setup: Create and modify Fixed Asset, create General Journal Batch, create Generel Journal Line,
         // post the FA General Journal line.
-        Initialize;
+        Initialize();
         SaveWorkDate := WorkDate();
         WorkDate(CalcDate('<-7y>', Today())); // must keep at least 5y uncompressed so 7 years ensures an always compressable date
         // must have open accounting periods
@@ -99,7 +99,7 @@ codeunit 134049 "ERM Date Compression FA"
 
         // 1.Setup: Create and modify Fixed Asset, create General Journal Batch, create Generel Journal Line,
         // post the FA General Journal line.
-        Initialize;
+        Initialize();
         FANo := CreateFixedAssetWithDimension;
         CreateGenJournalBatch(GenJournalBatch);
         Amount := CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::"Acquisition Cost");
@@ -130,7 +130,7 @@ codeunit 134049 "ERM Date Compression FA"
 
         // 1. Setup: Create and modify Fixed Asset, create General Journal Batch, Create and Post General Journal Line with FA Posting
         // Type Maintenance.
-        Initialize;
+        Initialize();
         FANo := CreateFixedAssetWithDimension;
         CreateGenJournalBatch(GenJournalBatch);
         Amount := CreateGeneralJournalLines(GenJournalLine, GenJournalBatch, FANo, GenJournalLine."FA Posting Type"::Maintenance);
@@ -158,7 +158,7 @@ codeunit 134049 "ERM Date Compression FA"
         // Test Delete Empty FA Registers functionality after running Date Compress FA Ledger.
 
         // 1. Setup: Create and post General Journal Lines with Account Type as Fixed Asset. Run Date Compress FA Ledger.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
         RunDateCompressFALedger(
           GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true),
@@ -187,7 +187,7 @@ codeunit 134049 "ERM Date Compression FA"
         // Test Delete Empty FA Registers functionality after running Date Compress Maintenance.
 
         // 1. Setup: Create and post General Journal Lines with Account Type as Fixed Asset. Run Date Compress Maintenance.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::Maintenance);
         RunDateCompressMaintenance(
           GenJournalLine."Account No.", LibraryFiscalYear.GetFirstPostingDate(true), DateCompression.CalcMaxEndDate(),
@@ -215,7 +215,7 @@ codeunit 134049 "ERM Date Compression FA"
         // Test FA Ledger Entry exist or not after run Date Compress FA Ledger.
 
         // 1. Setup: Create and post General Journal Lines with Account Type as Fixed Asset.
-        Initialize;
+        Initialize();
         LastFALedgerEntryNo := GetLastFALedgerEntryNo;
         CreateAndPostGenJournalLines(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
 
@@ -326,7 +326,7 @@ codeunit 134049 "ERM Date Compression FA"
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         exit(FALedgerEntry."Entry No.");
     end;
 
@@ -367,7 +367,7 @@ codeunit 134049 "ERM Date Compression FA"
         DateCompressFALedger.SetRetainIndexEntry(false);
         DateCompressFALedger.InitializeRequest(StartingDate, EndingDate, PeriodLengthFrom, FANo, '');
         DateCompressFALedger.UseRequestPage(false);
-        DateCompressFALedger.Run;
+        DateCompressFALedger.Run();
     end;
 
     local procedure RunDateCompressMaintenance(FANo: Code[20]; StartingDate: Date; EndingDate: Date; RetainDocumentNo: Boolean; RetainIndexEntry: Boolean; PeriodLengthFrom: Option)
@@ -382,7 +382,7 @@ codeunit 134049 "ERM Date Compression FA"
         DateCompressMaintLedger.SetRetainIndexEntry(RetainIndexEntry);
         DateCompressMaintLedger.InitializeRequest(StartingDate, EndingDate, PeriodLengthFrom, FANo, '');
         DateCompressMaintLedger.UseRequestPage(false);
-        DateCompressMaintLedger.Run;
+        DateCompressMaintLedger.Run();
     end;
 
     local procedure RunDeleteEmptyFARegisters(var FARegister: Record "FA Register")
@@ -392,7 +392,7 @@ codeunit 134049 "ERM Date Compression FA"
         Clear(DeleteEmptyFARegisters);
         DeleteEmptyFARegisters.SetTableView(FARegister);
         DeleteEmptyFARegisters.UseRequestPage(false);
-        DeleteEmptyFARegisters.Run;
+        DeleteEmptyFARegisters.Run();
     end;
 
     local procedure UpdateDateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; DepreciationBookCode: Code[10])
@@ -422,7 +422,7 @@ codeunit 134049 "ERM Date Compression FA"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         FALedgerEntry.SetRange(Description, Description);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FALedgerEntry.TestField(Amount, Amount);
     end;
 
@@ -435,7 +435,7 @@ codeunit 134049 "ERM Date Compression FA"
         FALedgerEntry.SetFilter("Entry No.", '>=%1', EntryNo);
         FALedgerEntry.SetRange("Source Code", SourceCodeSetup."Compress FA Ledger");
         FALedgerEntry.SetRange(Description, Description);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure VerifyMaintenanceLedgerEntry(FANo: Code[20]; Amount: Decimal)
@@ -443,7 +443,7 @@ codeunit 134049 "ERM Date Compression FA"
         MaintenanceLedgerEntry: Record "Maintenance Ledger Entry";
     begin
         MaintenanceLedgerEntry.SetRange("FA No.", FANo);
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         MaintenanceLedgerEntry.TestField(Description, FANo);
         MaintenanceLedgerEntry.TestField(Amount, Amount);
     end;

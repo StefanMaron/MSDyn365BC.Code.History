@@ -33,7 +33,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2);
@@ -55,7 +55,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 1);
@@ -77,7 +77,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 2);
@@ -99,7 +99,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1.Description) / 2);
@@ -121,7 +121,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1.Description) / 2);
@@ -143,7 +143,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1.Description) / 2);
@@ -163,7 +163,7 @@ codeunit 134827 "UT Item Table"
         Item: Record Item;
         UOM: Record "Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateUnitOfMeasureCode(UOM);
@@ -181,7 +181,7 @@ codeunit 134827 "UT Item Table"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateItem(Item);
@@ -206,7 +206,7 @@ codeunit 134827 "UT Item Table"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryInventory.CreateItem(Item);
@@ -223,7 +223,7 @@ codeunit 134827 "UT Item Table"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateItemFromName(Item, ItemNameWithFilterCharsTxt);
@@ -240,7 +240,7 @@ codeunit 134827 "UT Item Table"
         Item: Record Item;
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
         // Offset the random
         LibraryUtility.GenerateRandomText(1);
 
@@ -261,10 +261,10 @@ codeunit 134827 "UT Item Table"
         NoneExixtingItemNo: Code[20];
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        NoneExixtingItemNo := LibraryInventory.CreateItemNo;
+        NoneExixtingItemNo := LibraryInventory.CreateItemNo();
         Item.Get(NoneExixtingItemNo);
         Item.Delete();
 
@@ -282,10 +282,10 @@ codeunit 134827 "UT Item Table"
         NoneExixtingItemNo: Code[20];
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        NoneExixtingItemNo := LibraryInventory.CreateItemNo;
+        NoneExixtingItemNo := LibraryInventory.CreateItemNo();
         Item.Get(NoneExixtingItemNo);
         Item.Delete();
 
@@ -305,7 +305,7 @@ codeunit 134827 "UT Item Table"
         RandomText2: Text;
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 3);
@@ -331,7 +331,7 @@ codeunit 134827 "UT Item Table"
         RandomText2: Text;
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 3);
@@ -357,7 +357,7 @@ codeunit 134827 "UT Item Table"
         RandomText2: Text;
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 3);
@@ -379,11 +379,11 @@ codeunit 134827 "UT Item Table"
         Item: Record Item;
         ReturnValue: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup: Create two items
-        LibraryInventory.CreateItemNo;
-        LibraryInventory.CreateItemNo;
+        LibraryInventory.CreateItemNo();
+        LibraryInventory.CreateItemNo();
 
         // Exercise: Try to get a non-existant item no
         Item.TryGetItemNo(ReturnValue, LibraryUtility.GenerateRandomText(MaxStrLen(Item."No.")), true);
@@ -400,7 +400,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Item1."No.") / 2 - 3);
@@ -421,7 +421,7 @@ codeunit 134827 "UT Item Table"
         DummyItemText: Text[50];
     begin
         // [SCENARIO 282065] Item.TryGetItemNo function returns FALSE when InventorySetyp."Skip Prompt to Create Item" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set InventorySetyp."Skip Prompt to Create Item" = Yes
         SetInventorySetupSkipPromptToCreateItemTRUE;
@@ -448,12 +448,12 @@ codeunit 134827 "UT Item Table"
     begin
         // [FEATURE] [Performance] [ItemList] [UI]
         // [SCENARIO 283579] Stan enters some text in Document Line No., chooses to select Item No. and gets the ItemList page populated with all existing Items, ItemList page is based on real table
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(Item) do
             CreateItemSimple(Item[Index]);
 
-        SubString := LibraryUtility.GenerateGUID;
+        SubString := LibraryUtility.GenerateGUID();
 
         CodeCoverageMgt.StartApplicationCoverage;
         LookupItem.TryGetItemNoOpenCard(DummyReturnValue, SubString, true, true, true);
@@ -492,7 +492,7 @@ codeunit 134827 "UT Item Table"
         ItemNoNew: Text;
     begin
         // [SCENARIO 293567] Changing Item's "No." affects corresponding Transfer Line records
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created an Item
         ItemNoOld := LibraryUtility.GenerateRandomNumericText(MaxStrLen(Item."No."));
@@ -520,7 +520,7 @@ codeunit 134827 "UT Item Table"
         RandomText1: Text[100];
         RandomText2: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         RandomText1 := 'aaa';
         RandomText2 := 'AAA';
@@ -543,7 +543,7 @@ codeunit 134827 "UT Item Table"
         Item.DeleteAll();
         ObjectOptions.DeleteAll();
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -555,7 +555,7 @@ codeunit 134827 "UT Item Table"
 
     local procedure CreateItemSimple(var Item: Record Item)
     begin
-        Item."No." := LibraryUtility.GenerateGUID;
+        Item."No." := LibraryUtility.GenerateGUID();
         Item.Insert();
     end;
 
@@ -601,7 +601,7 @@ codeunit 134827 "UT Item Table"
             SetRange("Object ID", ObjectID);
             SetFilter("No. of Hits", '>%1', 0);
             SetFilter(Line, '@*' + CodeLine + '*');
-            if FindSet then
+            if FindSet() then
                 repeat
                     NoOfHits += "No. of Hits";
                 until Next = 0;

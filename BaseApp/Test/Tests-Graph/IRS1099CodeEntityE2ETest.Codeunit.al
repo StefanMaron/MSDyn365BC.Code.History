@@ -22,7 +22,7 @@ codeunit 135519 "IRS 1099 Code Entity E2E Test"
         Responsetext: Text;
     begin
         // [SCENARIO] User cannot retrieve IRS1099FormBox records from the IRS1099FormBox API in W1.
-        Initialize;
+        Initialize();
 
         // [GIVEN] IRS1099FormBox endpoint
         // [WHEN] The user makes a GET request to the endpoint for the IRS1099FormBox.

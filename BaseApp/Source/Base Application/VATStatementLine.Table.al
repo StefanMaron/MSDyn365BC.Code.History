@@ -1,4 +1,4 @@
-﻿table 256 "VAT Statement Line"
+table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
 
@@ -57,7 +57,7 @@
                 if "Account Totaling" <> '' then begin
                     GLAcc.SetFilter("No.", "Account Totaling");
                     GLAcc.SetFilter("Account Type", '<> 0');
-                    if GLAcc.FindFirst then
+                    if GLAcc.FindFirst() then
                         GLAcc.TestField("Account Type", GLAcc."Account Type"::Posting);
                 end;
             end;
@@ -133,87 +133,58 @@
         field(11763; "Attribute Code"; Code[20])
         {
             Caption = 'Attribute Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "VAT Attribute Code".Code WHERE("VAT Statement Template Name" = FIELD("Statement Template Name"));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11770; "G/L Amount Type"; Option)
         {
             Caption = 'G/L Amount Type';
             OptionCaption = 'Net Change,Debit,Credit';
             OptionMembers = "Net Change",Debit,Credit;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11771; "Gen. Bus. Posting Group"; Code[20])
         {
             Caption = 'Gen. Bus. Posting Group';
             TableRelation = "Gen. Business Posting Group";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11772; "Gen. Prod. Posting Group"; Code[20])
         {
             Caption = 'Gen. Prod. Posting Group';
             TableRelation = "Gen. Product Posting Group";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11773; "Use Row Date Filter"; Boolean)
         {
             Caption = 'Use Row Date Filter';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11774; "Date Row Filter"; Date)
         {
             Caption = 'Date Row Filter';
             FieldClass = FlowFilter;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Unsupported functionality';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11775; Show; Option)
         {
             Caption = 'Show';
             OptionCaption = ' ,Zero If Negative,Zero If Positive';
             OptionMembers = " ","Zero If Negative","Zero If Positive";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31000; "Prepayment Type"; Option)
         {
@@ -233,49 +204,32 @@
             Caption = 'EU-3 Party Trade';
             OptionCaption = ' ,Yes,No';
             OptionMembers = " ",Yes,No;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31061; "EU 3-Party Intermediate Role"; Option)
         {
             Caption = 'EU 3-Party Intermediate Role';
             OptionCaption = ' ,Yes,No';
             OptionMembers = " ",Yes,No;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31100; "VAT Control Rep. Section Code"; Code[20])
         {
             Caption = 'VAT Control Rep. Section Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "VAT Control Report Section";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31101; "Ignore Simpl. Tax Doc. Limit"; Boolean)
         {
             Caption = 'Ignore Simpl. Tax Doc. Limit';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -311,4 +265,3 @@
     end;
 #endif
 }
-

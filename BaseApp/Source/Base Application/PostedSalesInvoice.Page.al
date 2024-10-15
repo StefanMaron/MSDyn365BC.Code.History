@@ -1,3 +1,4 @@
+#if not CLEAN
 page 132 "Posted Sales Invoice"
 {
     Caption = 'Posted Sales Invoice';
@@ -158,19 +159,6 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the date on which the invoice was posted.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -279,7 +267,7 @@ page 132 "Posted Sales Invoice"
                     DrillDown = false;
                     Importance = Promoted;
                     AboutTitle = 'Closed means paid';
-                    AboutText = 'A sales invoice is marked as Closed when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
+                    AboutText = 'A sales invoice is marked as *Closed* when the invoice is paid in full, or when a credit memo is applied for the remaining amount.';
                     ToolTip = 'Specifies if the posted invoice is paid. The check box will also be selected if a credit memo for the remaining amount has been applied.';
                 }
                 group("Work Description")
@@ -322,6 +310,13 @@ page 132 "Posted Sales Invoice"
                         end;
                         Clear(ChangeExchangeRate);
                     end;
+                }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
                 }
                 field("Shipment Date"; "Shipment Date")
                 {
@@ -402,24 +397,27 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
-#if not CLEAN18
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                     Visible = false;
                 }
-#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -666,58 +664,40 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
-                }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
 #if not CLEAN18
             }
@@ -967,7 +947,7 @@ page 132 "Posted Sales Invoice"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 separator(Action171)
@@ -1063,22 +1043,29 @@ page 132 "Posted Sales Invoice"
                         StartTrackingSite();
                     end;
                 }
-#if not CLEAN19
                 action("Unpost Link Advance")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Unpost Link Advance (Obsolete)';
                     Image = PostedVendorBill;
                     ToolTip = 'Unposts link advance';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
+                    ObsoleteTag = '20.0';
 
                     trigger OnAction()
+#if not CLEAN19
                     var
                         SalesPostAdv: Codeunit "Sales-Post Advances";
+#endif
                     begin
+#if not CLEAN19
                         SalesPostAdv.UnPostInvoiceCorrection(Rec);  // NAVCZ
+#else
+                        exit;
+#endif
                     end;
                 }
-#endif
             }
             action(SendCustom)
             {
@@ -1164,7 +1151,7 @@ page 132 "Posted Sales Invoice"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 AboutTitle = 'Get detailed posting details';
                 AboutText = 'Here, you can look up the ledger entries that were created when this invoice was posted, as well as any related documents.';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
@@ -1406,7 +1393,6 @@ page 132 "Posted Sales Invoice"
     end;
 
     var
-        SalesInvHeader: Record "Sales Invoice Header";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
@@ -1419,10 +1405,13 @@ page 132 "Posted Sales Invoice"
         PaymentServiceVisible: Boolean;
         PaymentServiceEnabled: Boolean;
         DocExcStatusVisible: Boolean;
-        IsOfficeAddin: Boolean;
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        SalesInvHeader: Record "Sales Invoice Header";
+        IsOfficeAddin: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1443,4 +1432,4 @@ page 132 "Posted Sales Invoice"
     begin
     end;
 }
-
+#endif

@@ -257,6 +257,15 @@ page 9014 "Job Resource Manager RC"
                     RunObject = Page "Work Types";
                     ToolTip = 'View or edit the list of work types that are used with the registration of both the usage and sales of resources in job journals, resource journals, sales invoices, and so on. Work types indicate the various kinds of work that a resource is capable of carrying out, such as overtime or transportation.';
                 }
+                action("Navi&gate")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Find entries...';
+                    Image = Navigate;
+                    RunObject = Page Navigate;
+                    ShortCutKey = 'Ctrl+Alt+Q';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                }
             }
         }
         area(processing)

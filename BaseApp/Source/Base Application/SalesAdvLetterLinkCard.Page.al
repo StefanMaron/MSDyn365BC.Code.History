@@ -383,7 +383,7 @@ page 31012 "Sales Adv. Letter Link. Card"
         TempSalesAdvanceLetterHeader: Record "Sales Advance Letter Header" temporary;
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
-        SalesLetterHeadAdvLink.RunModal;
+        SalesLetterHeadAdvLink.RunModal();
         if SalesLetterHeadAdvLink.IsAssigned then begin
             SalesLetterHeadAdvLink.GetSelectedRecords(TempSalesAdvanceLetterHeader);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromSalesLetHead(TempSalesAdvanceLetterHeader, TempAdvanceLinkBufferEntry);
@@ -401,7 +401,7 @@ page 31012 "Sales Adv. Letter Link. Card"
         TempSalesAdvanceLetterLine: Record "Sales Advance Letter Line" temporary;
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
-        SalesLetterLineAdvLink.RunModal;
+        SalesLetterLineAdvLink.RunModal();
         if SalesLetterLineAdvLink.IsAssigned then begin
             SalesLetterLineAdvLink.GetSelectedRecords(TempSalesAdvanceLetterLine);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromSalesLetLine(TempSalesAdvanceLetterLine, TempAdvanceLinkBufferEntry);

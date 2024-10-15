@@ -67,35 +67,11 @@
                         CurrPage.Update();
                     end;
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp();
-                        NoOnAfterValidate();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        NoOnAfterValidate();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
-                    ToolTip = 'Specifies the cross-referenced item number.';
+                    ToolTip = 'Specifies the referenced item number.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -103,6 +79,9 @@
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         NoOnAfterValidate();
+#if not CLEAN20                        
+                        OnCrossReferenceNoOnLookup(Rec);
+#endif                        
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 
@@ -150,6 +129,43 @@
                         ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                         NoOnAfterValidate();
+                    end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
                     end;
                 }
                 field("Description 2"; "Description 2")
@@ -320,26 +336,6 @@
                     ToolTip = 'Specifies that you can assign item charges to this line.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Tariff No."; "Tariff No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the item''s tariff number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Statistic Indication"; "Statistic Indication")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the statistic indication code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN18
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
                 {
@@ -895,7 +891,7 @@
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -918,7 +914,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1041,7 +1037,6 @@
         InvDiscAmountEditable: Boolean;
         IsFoundation: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
-        UnitofMeasureCodeIsChangeable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         SuppressTotals: Boolean;
@@ -1065,6 +1060,7 @@
         IsBlankNumber: Boolean;
         [InDataSet]
         IsCommentLine: Boolean;
+        UnitofMeasureCodeIsChangeable: Boolean;
 
     local procedure SetOpenPage()
     var
@@ -1319,7 +1315,8 @@
     begin
     end;
 
-#if not CLEAN17
+#if not CLEAN20
+    [Obsolete('Replaced by event OnItemReferenceNoOnLookup()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin
@@ -1341,4 +1338,3 @@
     begin
     end;
 }
-

@@ -41,31 +41,6 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
                 }
-#if not CLEAN17
-                field("Row Correction"; "Row Correction")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the row number for the correction code.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        AccSchedLine: Record "Acc. Schedule Line";
-                    begin
-                        // NAVCZ
-                        Clear(AccSchedLine);
-                        AccSchedLine.SetRange("Schedule Name", "Schedule Name");
-                        AccSchedLine.SetFilter("Row No.", '<>%1', "Row No.");
-
-                        if PAGE.RunModal(PAGE::"Acc. Schedule Line List", AccSchedLine) = ACTION::LookupOK then
-                            "Row Correction" := AccSchedLine."Row No.";
-                        // NAVCZ
-                    end;
-                }
-#endif
                 field(Description; Description)
                 {
                     ApplicationArea = Basic, Suite;
@@ -87,31 +62,31 @@ page 104 "Account Schedule"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field(Totaling; Totaling)
+                field(Totaling; TotalingDisplayed)
                 {
                     ApplicationArea = Basic, Suite;
+                    Caption = 'Totaling';
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
+                    Lookup = true;
+
+                    trigger OnValidate()
+                    begin
+                        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+                            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+                        else
+                            Rec.Validate(Totaling, TotalingDisplayed);
+                    end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
-                        GLAccList: Page "G/L Account List";
                         AccSchedExtensions: Page "Acc. Schedule Extensions";
                         AccSchedExtension: Record "Acc. Schedule Extension";
                     begin
-                        // NAVCZ
-                        if "Totaling Type" in ["Totaling Type"::"Posting Accounts", "Totaling Type"::"Total Accounts"] then begin
-                            GLAccList.LookupMode(true);
-                            if not (GLAccList.RunModal = ACTION::LookupOK) then
-                                exit(false);
-
-                            Text := GLAccList.GetSelectionFilter;
-                            exit(true);
-                        end;
-
-                        if "Totaling Type" = "Totaling Type"::Custom then begin
+                        //NAVCZ
+                        if Rec."Totaling Type" = Rec."Totaling Type"::Custom then begin
                             if Totaling <> '' then begin
                                 AccSchedExtension.SetFilter(Code, Totaling);
-                                AccSchedExtension.FindFirst;
+                                AccSchedExtension.FindFirst();
                                 AccSchedExtensions.SetRecord(AccSchedExtension);
                             end;
                             AccSchedExtensions.SetLedgType("Source Table" - 1);
@@ -121,12 +96,20 @@ page 104 "Account Schedule"
 
                             AccSchedExtensions.GetRecord(AccSchedExtension);
                             Text := AccSchedExtension.Code;
+                            TotalingDisplayed := CopyStr(Text, 1, 250);
+                            Rec.Validate(Rec.Totaling, TotalingDisplayed);
                             exit(true);
                         end;
+                        //NAVCZ
 
-                        exit(false);
-                        // NAVCZ
+
+                        Rec.LookupTotaling();
+                        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+                            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+                        else
+                            TotalingDisplayed := Rec.Totaling;
                     end;
+
                 }
                 field("Row Type"; "Row Type")
                 {
@@ -192,17 +175,6 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the account schedule line will be printed on the report.';
                 }
-#if not CLEAN17
-                field(Calc; Calc)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the value can be calculated in the Account Schedule - always, never, when Positive, when Negative';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field(Bold; Bold)
                 {
                     ApplicationArea = Basic, Suite;
@@ -229,17 +201,12 @@ page 104 "Account Schedule"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether there will be a page break after the current account when the account schedule is printed.';
                 }
-#if not CLEAN17
-                field("Assets/Liabilities Type"; "Assets/Liabilities Type")
+                field(HideCurrencySymbol; "Hide Currency Symbol")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the asset or liabilities type for the account schedule line.';
+                    ToolTip = 'Specifies whether to hide currency symbols when a calculated result is not a currency.';
                     Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                 }
-#endif
             }
         }
         area(factboxes)
@@ -277,7 +244,7 @@ page 104 "Account Schedule"
                     AccSchedOverview: Page "Acc. Schedule Overview";
                 begin
                     AccSchedOverview.SetAccSchedName(CurrentSchedName);
-                    AccSchedOverview.Run;
+                    AccSchedOverview.Run();
                 end;
             }
         }
@@ -300,7 +267,7 @@ page 104 "Account Schedule"
                     AccScheduleLine: Record "Acc. Schedule Line";
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
-                    if AccScheduleLine.FindSet then
+                    if AccScheduleLine.FindSet() then
                         repeat
                             AccScheduleLine.Indent;
                             AccScheduleLine.Modify();
@@ -325,7 +292,7 @@ page 104 "Account Schedule"
                     AccScheduleLine: Record "Acc. Schedule Line";
                 begin
                     CurrPage.SetSelectionFilter(AccScheduleLine);
-                    if AccScheduleLine.FindSet then
+                    if AccScheduleLine.FindSet() then
                         repeat
                             AccScheduleLine.Outdent;
                             AccScheduleLine.Modify();
@@ -423,29 +390,6 @@ page 104 "Account Schedule"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                action("File Mapping")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'File Mapping';
-                    Image = ExportToExcel;
-                    ToolTip = 'File Mapping allows to set up export to Excel. You can see three dots next to the field with Amount.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-
-                    trigger OnAction()
-                    var
-                        AccSchedFileMapping: Page "Acc. Schedule File Mapping";
-                    begin
-                        // NAVCZ
-                        AccSchedFileMapping.SetAccSchedName("Schedule Name");
-                        AccSchedFileMapping.RunModal;
-                        // NAVCZ
-                    end;
-                }
-#endif
             }
             group("&Results")
             {
@@ -507,32 +451,6 @@ page 104 "Account Schedule"
                     AccScheduleName.Print;
                 end;
             }
-#if not CLEAN17
-            action("Balance Sheet")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet';
-                Image = PrintReport;
-                RunObject = Report "Balance Sheet";
-                ToolTip = 'Open the report for balance sheet.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-            }
-            action("Income Statement")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement';
-                Image = PrintReport;
-                RunObject = Report "Income Statement";
-                ToolTip = 'Allows the print of account schedule.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-            }
-#endif
         }
     }
 
@@ -540,6 +458,10 @@ page 104 "Account Schedule"
     begin
         if not DimCaptionsInitialized then
             DimCaptionsInitialized := true;
+        if Rec."Totaling Type" = Rec."Totaling Type"::"Account Category" then
+            TotalingDisplayed := GetAccountCategoryTotalingToDisplay()
+        else
+            TotalingDisplayed := Rec.Totaling;
     end;
 
     trigger OnOpenPage()
@@ -556,6 +478,7 @@ page 104 "Account Schedule"
         AccSchedManagement: Codeunit AccSchedManagement;
         CurrentSchedName: Code[10];
         DimCaptionsInitialized: Boolean;
+        TotalingDisplayed: Text[250];
 
     procedure SetAccSchedName(NewAccSchedName: Code[10])
     begin
@@ -578,11 +501,16 @@ page 104 "Account Schedule"
             if AccSchedLine.Next() = 0 then
                 AccSchedLine."Line No." := xRec."Line No." + 10000
             else begin
-                if AccSchedLine.FindLast then
+                if AccSchedLine.FindLast() then
                     AccSchedLine."Line No." += 10000;
                 AccSchedLine.SetRange("Schedule Name");
             end;
         end;
+    end;
+
+    procedure GetAccountCategoryTotalingToDisplay(): Text[250]
+    begin
+        exit(AccSchedManagement.GLAccCategoryText(Rec));
     end;
 
     procedure GetAccSchedName(): Code[10]

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 49 "Purchase Quote"
 {
     Caption = 'Purchase Quote';
@@ -336,26 +337,6 @@ page 49 "Purchase Quote"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-#if not CLEAN17
-                field("Last Uncertainty Check Date"; "Last Uncertainty Check Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the date of the last check of uncertainty.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor is uncertainty payer.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
                     ApplicationArea = Suite;
@@ -367,6 +348,7 @@ page 49 "Purchase Quote"
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -403,6 +385,12 @@ page 49 "Purchase Quote"
                     ApplicationArea = Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the purchase header is to be posted.';
+                    Visible = IsJournalTemplateNameVisible;
                 }
                 field("Shipment Method Code"; "Shipment Method Code")
                 {
@@ -737,60 +725,32 @@ page 49 "Purchase Quote"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the destination country or region for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Trade"; "EU 3-Party Trade")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies whether the document is part of a three-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies when the purchase header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the registration number of vendor.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the secondary VAT registration number for the vendor.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the VAT country/region code of vendor.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
 #if not CLEAN18
@@ -810,13 +770,6 @@ page 49 "Purchase Quote"
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
                     Visible = false;
-#if not CLEAN17
-
-                    trigger OnValidate()
-                    begin
-                        CalcFields("Third Party Bank Account"); // NAVCZ
-                    end;
-#endif
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -881,28 +834,6 @@ page 49 "Purchase Quote"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("UncertPayerMgt.IsPublicBankAccount(""Pay-to Vendor No."",""VAT Registration No."",""Bank Account No."",IBAN)"; UncertPayerMgt.IsPublicBankAccount("Pay-to Vendor No.", "VAT Registration No.", "Bank Account No.", IBAN))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Public Bank Account';
-                    Editable = false;
-                    ToolTip = 'Specifies if the vendor''s bank account is public.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Third Party Bank Account"; "Third Party Bank Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the account is third party bank account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
 #endif
         }
@@ -1093,7 +1024,7 @@ page 49 "Purchase Quote"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1195,8 +1126,7 @@ page 49 "Purchase Quote"
                     var
                         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+                        LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
 
                         DocPrint.PrintPurchHeader(Rec);
                     end;
@@ -1544,13 +1474,11 @@ page 49 "Purchase Quote"
     var
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
-#if not CLEAN17
-        UncertPayerMgt: Codeunit "Unc. Payer Mgt.";
-#endif
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
@@ -1566,6 +1494,10 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplateNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
@@ -1576,6 +1508,9 @@ page 49 "Purchase Quote"
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
         IsPayToCountyVisible := FormatAddress.UseCounty("Pay-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplateNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
 
         OnAfterActivateFields();
     end;
@@ -1615,6 +1550,7 @@ page 49 "Purchase Quote"
         CurrPage.Update();
     end;
 
+    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
     local procedure CurrencyCodeOnAfterValidate()
     begin
         CurrPage.PurchLines.PAGE.UpdateForm(true); // NAVCZ
@@ -1695,4 +1631,4 @@ page 49 "Purchase Quote"
     begin
     end;
 }
-
+#endif

@@ -125,6 +125,14 @@ table 212 "Job Posting Buffer"
         {
             Caption = 'Correction';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 

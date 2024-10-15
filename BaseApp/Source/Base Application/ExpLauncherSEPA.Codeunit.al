@@ -27,7 +27,7 @@ codeunit 11720 "Exp. Launcher SEPA"
         IssuedPmtOrdHdr.CreatePmtJnl(
           BankAcc."Payment Jnl. Template Name", BankAcc."Payment Jnl. Batch Name");
 
-        GenJnlLn.FindFirst;
+        GenJnlLn.FindFirst();
 
         Commit();
         if not CODEUNIT.Run(CODEUNIT::"SEPA CT-Export File", GenJnlLn) then begin

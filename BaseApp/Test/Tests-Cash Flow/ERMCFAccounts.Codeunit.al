@@ -29,7 +29,7 @@ codeunit 134555 "ERM CF Accounts"
         TempCashFlowAccount: Record "Cash Flow Account" temporary;
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Clear existing cash flow account to make room for our test
         CashFlowAccount.DeleteAll();
 
@@ -79,7 +79,7 @@ codeunit 134555 "ERM CF Accounts"
         AccountNo: Code[20];
         ExpectedFilter: Code[80];
     begin
-        Initialize;
+        Initialize();
         // Clear existing cash flow account to make room for our test
         CashFlowAccount.DeleteAll();
 
@@ -133,7 +133,7 @@ codeunit 134555 "ERM CF Accounts"
         FAPostingDateFormula: DateFormula;
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         Evaluate(FAPostingDateFormula, '<1M>');
         FASetup.Get();
         CFHelper.CreateFixedAssetForInvestment(
@@ -156,7 +156,7 @@ codeunit 134555 "ERM CF Accounts"
         ExpectedDisposalDateFormula: DateFormula;
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         Evaluate(DeprecStartDateFormula, '<-2Y>');
         Evaluate(DeprecEndDateFormula, '<1M-D5>');
         Evaluate(ExpectedDisposalDateFormula, '<1M+1W-WD1>');
@@ -187,7 +187,7 @@ codeunit 134555 "ERM CF Accounts"
         ConsiderSource: array[16] of Boolean;
     begin
         ConsiderSource[SourceType::"Purchase Order"] := true;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         CashFlowAccountPosting(CashFlowSetup.FieldNo("Purch. Order CF Account No."), ConsiderSource);
     end;
 
@@ -233,10 +233,10 @@ codeunit 134555 "ERM CF Accounts"
         FieldRef: FieldRef;
     begin
         // Setup: Generically modify CF Setup
-        Initialize;
+        Initialize();
         LibraryCashFlow.CreateCashFlowAccount(CashFlowAccount, CashFlowAccount."Account Type"::Entry);
         RecRef.Open(DATABASE::"Cash Flow Setup");
-        RecRef.FindFirst;
+        RecRef.FindFirst();
         FieldRef := RecRef.Field(FieldNo);
         FieldRef.Validate(CashFlowAccount."No.");
         RecRef.Modify(true);
@@ -262,7 +262,7 @@ codeunit 134555 "ERM CF Accounts"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM CF Accounts");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         isInitialized := true;
         Commit();

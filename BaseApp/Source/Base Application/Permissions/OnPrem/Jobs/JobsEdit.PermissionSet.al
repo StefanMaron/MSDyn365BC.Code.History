@@ -36,7 +36,9 @@ permissionset 6719 "Jobs - Edit"
                   tabledata "Job WIP G/L Entry" = rimd,
                   tabledata "Job WIP Total" = RIMD,
                   tabledata "Job WIP Warning" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Price Asset" = RIMD,
                   tabledata "Price Calculation Buffer" = RIMD,
                   tabledata "Price Calculation Setup" = RIMD,

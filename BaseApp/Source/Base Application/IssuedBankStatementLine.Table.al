@@ -36,11 +36,7 @@ table 11707 "Issued Bank Statement Line"
             ELSE
             IF (Type = CONST(Vendor)) Vendor
             ELSE
-#if CLEAN17
             IF (Type = CONST("Bank Account")) "Bank Account"
-#else
-            IF (Type = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"))
-#endif
             ELSE
             IF (Type = CONST("G/L Account")) "G/L Account";
         }
@@ -164,4 +160,3 @@ table 11707 "Issued Bank Statement Line"
         end;
     end;
 }
-

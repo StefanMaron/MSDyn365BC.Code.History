@@ -17,7 +17,7 @@ codeunit 145001 "Credits Reports"
     local procedure Initialize()
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -53,7 +53,7 @@ codeunit 145001 "Credits Reports"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         CreateCreditHeader(CreditHeader);
 
@@ -142,7 +142,7 @@ codeunit 145001 "Credits Reports"
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         CreateCreditHeader(CreditHeader);
 
@@ -261,11 +261,11 @@ codeunit 145001 "Credits Reports"
     begin
         CreditsSetup.Get();
         CreditsSetup."Credit Nos." := LibraryERM.CreateNoSeriesCode;
-        CreditsSetup."Credit Bal. Account No." := LibraryERM.CreateGLAccountNo;
+        CreditsSetup."Credit Bal. Account No." := LibraryERM.CreateGLAccountNo();
         CreditsSetup."Credit Proposal By" := CreditsSetup."Credit Proposal By"::"Registration No.";
         CreditsSetup."Max. Rounding Amount" := 1;
-        CreditsSetup."Debit Rounding Account" := LibraryERM.CreateGLAccountNo;
-        CreditsSetup."Credit Rounding Account" := LibraryERM.CreateGLAccountNo;
+        CreditsSetup."Debit Rounding Account" := LibraryERM.CreateGLAccountNo();
+        CreditsSetup."Credit Rounding Account" := LibraryERM.CreateGLAccountNo();
         CreditsSetup.Modify();
     end;
 

@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 427 "Payment Methods"
 {
     ApplicationArea = Basic, Suite;
@@ -49,24 +48,6 @@ page 427 "Payment Methods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the data exchange definition in the Data Exchange Framework that is used to export payments.';
                 }
-                field("Cash Desk Code"; "Cash Desk Code")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies cash desk code for automatically cash document creation.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Cash Document Status"; "Cash Document Status")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies which cash document status will be used by automatically cash document creation.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
                 field("Use for Invoicing"; "Use for Invoicing")
                 {
                     ApplicationArea = Invoicing;
@@ -108,4 +89,3 @@ page 427 "Payment Methods"
     }
 }
 
-#endif

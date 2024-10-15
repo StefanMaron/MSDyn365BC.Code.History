@@ -1,4 +1,4 @@
-#if not CLEAN19
+﻿#if not CLEAN19
 codeunit 5601 "FA Insert G/L Account"
 {
     TableNo = "FA Ledger Entry";
@@ -175,9 +175,8 @@ codeunit 5601 "FA Insert G/L Account"
         DimMgt: Codeunit DimensionManagement;
         GLAccNo: Code[20];
         DimensionSetIDArr: array[10] of Integer;
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
         IsHandled: Boolean;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
 #if not CLEAN18
         ExtSetupExist: Boolean;
 #endif
@@ -256,11 +255,10 @@ codeunit 5601 "FA Insert G/L Account"
                 FAGLPostBuf."Global Dimension 1 Code" := GlobalDim1Code;
                 FAGLPostBuf."Global Dimension 2 Code" := GlobalDim2Code;
                 SourceCodeSetup.Get();
-                TableID[1] := DATABASE::"G/L Account";
-                No[1] := GLAccNo;
+                DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", GLAccNo);
                 FAGLPostBuf."Dimension Set ID" :=
                   DimMgt.GetDefaultDimID(
-                      TableID, No, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
+                      DefaultDimSource, SourceCodeSetup."Fixed Asset G/L Journal", FAGLPostBuf."Global Dimension 1 Code",
                       FAGLPostBuf."Global Dimension 2 Code", DimSetID, DATABASE::"Fixed Asset");
                 FAGLPostBuf."Automatic Entry" := AutomaticEntry;
                 FAGLPostBuf.Correction := Correction;
@@ -341,7 +339,7 @@ codeunit 5601 "FA Insert G/L Account"
             "Depreciation Book Code" := '';
             "Posting Group" := '';
             Validate("FA Posting Type", "FA Posting Type"::" ");
-            if TempFAGLPostBuf.FindFirst then
+            if TempFAGLPostBuf.FindFirst() then
                 repeat
                     "Line No." := 0;
                     Validate("Account No.", TempFAGLPostBuf."Account No.");

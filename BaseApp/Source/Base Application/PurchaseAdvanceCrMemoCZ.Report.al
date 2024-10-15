@@ -123,21 +123,12 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
             column(VATRegistrationNo_PurchCrMemoHdr; "VAT Registration No.")
             {
             }
-#if CLEAN17
             column(RegistrationNo_PurchCrMemoHdrCaption; FieldCaptionDictionary.Get(RegistrationNoFldTok))
             {
             }
             column(RegistrationNo_PurchCrMemoHdr; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#else
-            column(RegistrationNo_PurchCrMemoHdrCaption; FieldCaption("Registration No."))
-            {
-            }
-            column(RegistrationNo_PurchCrMemoHdr; "Registration No.")
-            {
-            }
-#endif
 #if CLEAN18
             column(BankAccountNo_PurchCrMemoHdrCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
@@ -183,21 +174,12 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
             column(DocumentDate_PurchCrMemoHdr; "Document Date")
             {
             }
-#if CLEAN17            
             column(VATDate_PurchCrMemoHdrCaption; FieldCaptionDictionary.Get(VATDateFldTok))
             {
             }
             column(VATDate_PurchCrMemoHdr; FieldValueDictionary.Get(VATDateFldTok))
             {
             }
-#else
-            column(VATDate_PurchCrMemoHdrCaption; FieldCaption("VAT Date"))
-            {
-            }
-            column(VATDate_PurchCrMemoHdr; "VAT Date")
-            {
-            }
-#endif
             column(PaymentTerms; PaymentTerms.Description)
             {
             }
@@ -404,15 +386,7 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-#if CLEAN17
-                DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
-#else
-                DocFooter.SetFilter("Language Code", '%1|%2', '', "Language Code");
-                if DocFooter.FindLast then
-                    DocFooterText := DocFooter."Footer Text"
-                else
-                    DocFooterText := '';
-#endif
+                DocFooterText := FormatDocument.GetDocumentFooterTextByLanguage("Language Code");
 
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
@@ -437,11 +411,9 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
                     PaymentMethod.Init
                 else
                     PaymentMethod.Get("Payment Method Code");
-#if CLEAN17
 
                 EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
                 ExtensionFieldsManagement.GetRecordExtensionFields("Purch. Cr. Memo Hdr.".RecordId, FieldValueDictionary, FieldCaptionDictionary);
-#endif
             end;
         }
     }
@@ -481,20 +453,15 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN17
-        DocFooter: Record "Document Footer";
-#endif
         VATPostingSetup: Record "VAT Posting Setup";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-#if CLEAN17
         FormatDocument: Codeunit "Format Document";
         ExtensionFieldsManagement: Codeunit "Extension Fields Management";
         FieldValueDictionary: Dictionary of [Text[30], Text];
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#endif
 #if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
@@ -534,7 +501,6 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
-#if CLEAN17
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
@@ -548,6 +514,5 @@ report 31022 "Purchase - Advance Cr. Memo CZ"
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;
-#endif
 }
 #endif

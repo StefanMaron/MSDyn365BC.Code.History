@@ -32,7 +32,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Check that correct Application Rounding Amount Applied after posting General Journal Line with FCY and making Payment against it.
 
         // Setup: Create Customer and Update Currency.
-        Initialize;
+        Initialize();
         Currency.Get(UpdateCurrency(CreateCurrencyForApplRounding, LibraryRandom.RandInt(9) / 100));
 
         // Using value for calculating Application Rounding Amount.
@@ -69,7 +69,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Check that correct Application Rounding Amount Applied after posting General Journal Line with LCY and making Payment against it.
 
         // Setup: Create Customer and Update General Ledger setup.
-        Initialize;
+        Initialize();
         ApplnRoundingPrecisionAmount := UpdateGeneralLedgerSetup(GeneralLedgerSetup, LibraryRandom.RandInt(9) / 100);
         ApplRoundingAmount := GeneralLedgerSetup."Appln. Rounding Precision";
 
@@ -107,7 +107,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // with FCY and making Payment against it.
 
         // Setup: Create Customer and Update Currency.
-        Initialize;
+        Initialize();
 
         // Fix the value of Application Rounding Precision because without fixing this value we are not able to generate
         // a Correction Entry.On Random value of Application Rounding Precision we are not able to find Correction Amount value.
@@ -145,7 +145,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // and reconcile with G/L entries for receivables account
 
         // Create and Post General Line for Two Invoices and apply Payment with currency to both invoices
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, 3, 3);
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Currency Code", CurrencyCode);
@@ -188,7 +188,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         // Check Application Rounding and Balance field's value on Apply Customer Entries Page.
 
         // Setup: Create General Line for Invoice and Post with Random Values.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         SelectGenJournalBatch(GenJournalBatch);
         CreateGeneralJournalLine(
@@ -214,16 +214,16 @@ codeunit 134901 "ERM Customer Appl Rounding"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Customer Appl Rounding");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Setup demo data.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Customer Appl Rounding");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Appl Rounding");
@@ -262,7 +262,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         CustLedgerEntry2.SetRange("Customer No.", CustLedgerEntry."Customer No.");
         CustLedgerEntry2.SetRange("Document Type", CustLedgerEntry2."Document Type"::Invoice);
         CustLedgerEntry2.SetRange(Open, true);
-        if CustLedgerEntry2.FindSet then
+        if CustLedgerEntry2.FindSet() then
             repeat
                 LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
             until CustLedgerEntry2.Next = 0;
@@ -304,7 +304,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
     begin
         Currency.Get(CreateCurrencyForApplRounding);
         CurrencyExchangeRate.SetRange("Currency Code", Currency.Code);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
 
         // Relational Exch. Rate Amount and Relational Adjmt Exch Rate Amt always Half than Exchange Rate Amount.
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" / 2);
@@ -367,7 +367,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Appln. Rounding");
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           DetailedCustLedgEntry."Amount (LCY)", ApplnRoundPrecAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
           StrSubstNo(ApplnRoundPrecMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), DetailedCustLedgEntry."Amount (LCY)",
@@ -382,7 +382,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, DocumentNo);
         DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntry."Document No.");
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Realized Gain"); // NAVCZ
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20])
@@ -423,7 +423,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Payment);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Amount (LCY)");
         Assert.AreEqual(
           ExpectedAmount, CustLedgerEntry."Amount (LCY)",
@@ -437,7 +437,7 @@ codeunit 134901 "ERM Customer Appl Rounding"
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
-        DetailedCustLedgEntry.FindLast;
+        DetailedCustLedgEntry.FindLast();
         Assert.AreEqual(
           ExpectedAmount, DetailedCustLedgEntry."Amount (LCY)",
           StrSubstNo('Correction of remaining Amount (LCY) should be %1', ExpectedAmount));

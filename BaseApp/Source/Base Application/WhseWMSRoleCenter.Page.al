@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 9000 "Whse. WMS Role Center"
 {
     Caption = 'Shipping and Receiving - Warehouse Management System';
@@ -124,18 +123,6 @@ page 9000 "Whse. WMS Role Center"
                 Image = "Report";
                 RunObject = Report "Phys. Inventory List";
                 ToolTip = 'View a list of the lines that you have calculated in the Phys. Inventory Journal window. You can use this report during the physical inventory count to mark down actual quantities on hand in the warehouse and compare them to what is recorded in the program.';
-            }
-            action("Phys. Invt. Counting Document")
-            {
-                ApplicationArea = Warehouse;
-                Caption = 'Phys. Invt. Counting Document';
-                Image = PhysicalInventory;
-                RunObject = Report "Phys. Invt. Counting Document";
-                ToolTip = 'Open the report for physical invt. counting document.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.5';
-                Visible = false;
             }
             action("&Customer - Labels")
             {
@@ -612,6 +599,15 @@ page 9000 "Whse. WMS Role Center"
                     RunObject = Page "Posted Assembly Orders";
                     ToolTip = 'View completed assembly orders.';
                 }
+                action("Navi&gate")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Find entries...';
+                    Image = Navigate;
+                    RunObject = Page Navigate;
+                    ShortCutKey = 'Ctrl+Alt+Q';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                }
             }
             group("Registered Documents")
             {
@@ -829,4 +825,3 @@ page 9000 "Whse. WMS Role Center"
     }
 }
 
-#endif

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 99000820 "Prod. Order Capacity Need"
 {
     Caption = 'Prod. Order Capacity Need';
@@ -109,6 +110,9 @@ page 99000820 "Prod. Order Capacity Need"
                     DecimalPlaces = 0 : 5;
                     Editable = false;
                     ToolTip = 'Specifies allocated time in minutes';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
             }
         }
@@ -161,4 +165,4 @@ page 99000820 "Prod. Order Capacity Need"
         CurrDate: Date;
         DateAndTimeFieldVisible: Boolean;
 }
-
+#endif

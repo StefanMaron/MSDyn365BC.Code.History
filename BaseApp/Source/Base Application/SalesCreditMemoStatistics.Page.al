@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 398 "Sales Credit Memo Statistics"
 {
     Caption = 'Sales Credit Memo Statistics';
@@ -218,7 +219,7 @@ page 398 "Sales Credit Memo Statistics"
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
         CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
-        if CustLedgEntry.FindFirst then
+        if CustLedgEntry.FindFirst() then
             AmountLCY := -CustLedgEntry."Sales (LCY)";
         // NAVCZ
 
@@ -342,4 +343,4 @@ page 398 "Sales Credit Memo Statistics"
     begin
     end;
 }
-
+#endif

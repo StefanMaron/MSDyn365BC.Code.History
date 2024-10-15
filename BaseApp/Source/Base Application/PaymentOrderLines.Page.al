@@ -89,50 +89,12 @@ page 11718 "Payment Order Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the bank account code of the customer or vendor.';
                     Visible = false;
-#if not CLEAN17
-
-                    trigger OnValidate()
-                    begin
-                        CalcFields("Third Party Bank Account");
-                        if Type <> Type::Vendor then
-                            Clear("Third Party Bank Account");
-                    end;
-#endif
                 }
                 field("Payment Order No."; "Payment Order No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the Payment Order.';
                 }
-#if not CLEAN17
-                field("VAT Uncertainty Payer"; "VAT Uncertainty Payer")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the vendor is uncertainty payer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-                }
-                field("Public Bank Account"; "Public Bank Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the bank account is public.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-                }
-                field("Third Party Bank Account"; "Third Party Bank Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the account is third party bank account.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-                }
-#endif
             }
         }
     }
@@ -140,13 +102,5 @@ page 11718 "Payment Order Lines"
     actions
     {
     }
-#if not CLEAN17
-
-    trigger OnAfterGetRecord()
-    begin
-        if Type <> Type::Vendor then
-            Clear("Third Party Bank Account");
-    end;
-#endif
 }
 #endif

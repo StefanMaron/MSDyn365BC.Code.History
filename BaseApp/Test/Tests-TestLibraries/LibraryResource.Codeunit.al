@@ -28,7 +28,7 @@ codeunit 130511 "Library - Resource"
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
         GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
 
         Resource.Validate(Name, Resource."No.");  // Validate Name as No. because value is not important.
         Resource.Validate("Base Unit of Measure", UnitOfMeasure.Code);
@@ -39,7 +39,7 @@ codeunit 130511 "Library - Resource"
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', ''); // NAVCZ
-        if VATPostingSetup.FindFirst then
+        if VATPostingSetup.FindFirst() then
             Resource.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Resource.Modify(true);
     end;
@@ -214,12 +214,12 @@ codeunit 130511 "Library - Resource"
     procedure FindResJournalBatch(var ResJournalBatch: Record "Res. Journal Batch"; JournalTemplateName: Code[10])
     begin
         ResJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
-        ResJournalBatch.FindFirst;
+        ResJournalBatch.FindFirst();
     end;
 
     procedure FindResJournalTemplate(var ResJournalTemplate: Record "Res. Journal Template")
     begin
-        ResJournalTemplate.FindFirst;
+        ResJournalTemplate.FindFirst();
     end;
 
     procedure FindWorkType(var WorkType: Record "Work Type")

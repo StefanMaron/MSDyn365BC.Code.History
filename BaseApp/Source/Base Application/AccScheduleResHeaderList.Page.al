@@ -121,7 +121,7 @@ page 31092 "Acc. Schedule Res. Header List"
                         ExpAccSchedResToExcel: Report "Exp. Acc. Sched. Res. to Excel";
                     begin
                         ExpAccSchedResToExcel.SetOptions("Result Code", false);
-                        ExpAccSchedResToExcel.Run;
+                        ExpAccSchedResToExcel.Run();
                     end;
                 }
             }

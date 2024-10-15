@@ -48,7 +48,7 @@ codeunit 11706 "Issue Payment Order"
             OnCodeOnAfterCheck(PmtOrdHdr);
 
             PmtOrdLn.LockTable();
-            if PmtOrdLn.FindLast then;
+            if PmtOrdLn.FindLast() then;
 
             // insert header
             IssuedPmtOrdHdr.Init();
@@ -68,17 +68,11 @@ codeunit 11706 "Issue Payment Order"
             OnAfterIssuedPaymentOrderHeaderInsert(IssuedPmtOrdHdr, PmtOrdHdr);
 
             // insert lines
-            if PmtOrdLn.FindSet then
+            if PmtOrdLn.FindSet() then
                 repeat
                     IssuedPmtOrdLn.Init();
                     IssuedPmtOrdLn.TransferFields(PmtOrdLn);
                     IssuedPmtOrdLn."Payment Order No." := IssuedPmtOrdHdr."No.";
-#if not CLEAN17
-                    PmtOrdLn.CalcFields("Third Party Bank Account");
-                    if PmtOrdLn.Type <> PmtOrdLn.Type::Vendor then
-                        Clear(PmtOrdLn."Third Party Bank Account");
-                    IssuedPmtOrdLn."Third Party Bank Account" := PmtOrdLn."Third Party Bank Account";
-#endif
                     OnBeforeIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);
                     IssuedPmtOrdLn.Insert();
                     OnAfterIssuedPaymentOrderLineInsert(IssuedPmtOrdLn, PmtOrdLn);

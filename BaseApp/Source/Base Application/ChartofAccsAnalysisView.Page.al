@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 569 "Chart of Accs. (Analysis View)"
 {
     Caption = 'Chart of Accs. (Analysis View)';
@@ -90,12 +91,18 @@ page 569 "Chart of Accs. (Analysis View)"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the debit entries that have been posted to the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Credit Amount"; "Credit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the credit entries that have been posted to the account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Balance at Date"; "Balance at Date")
                 {
@@ -232,7 +239,7 @@ page 569 "Chart of Accs. (Analysis View)"
                         begin
                             CurrPage.SetSelectionFilter(GLAcc);
                             DefaultDimMultiple.SetMultiRecord(GLAcc, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -360,4 +367,4 @@ page 569 "Chart of Accs. (Analysis View)"
         Emphasize := "Account Type" <> "Account Type"::Posting;
     end;
 }
-
+#endif

@@ -1,6 +1,8 @@
 #if CLEAN19
 codeunit 60 "Sales-Calc. Discount"
 {
+    Permissions = tabledata "Sales Header" = rm,
+                  tabledata "Sales Line" = rm;
     TableNo = "Sales Line";
 
     trigger OnRun()
@@ -34,6 +36,7 @@ codeunit 60 "Sales-Calc. Discount"
         TempServiceChargeLine: Record "Sales Line" temporary;
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         DiscountNotificationMgt: Codeunit "Discount Notification Mgt.";
+        ShouldGetCustInvDisc: Boolean;
         IsHandled: Boolean;
     begin
         SalesSetup.Get();
@@ -69,7 +72,7 @@ codeunit 60 "Sales-Calc. Discount"
             SalesLine2.SetRange("Document No.", "Document No.");
             SalesLine2.SetFilter(Type, '<>0');
             OnCalculateInvoiceDiscountOnBeforeSalesLine2FindFirst(SalesLine2);
-            if SalesLine2.FindFirst then;
+            if SalesLine2.FindFirst() then;
             SalesLine2.CalcVATAmountLines(0, SalesHeader, SalesLine2, TempVATAmountLine);
             InvDiscBase :=
               TempVATAmountLine.GetTotalInvDiscBaseAmount(
@@ -89,13 +92,14 @@ codeunit 60 "Sales-Calc. Discount"
             CustInvDisc.GetRec(
               SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, ChargeBase);
 
+            OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(CustInvDisc, SalesHeader, CurrencyDate, ChargeBase);
             if CustInvDisc."Service Charge" <> 0 then begin
                 OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(CustPostingGr);
                 Currency.Initialize(SalesHeader."Currency Code");
                 if not UpdateHeader then
                     SalesLine2.SetSalesHeader(SalesHeader);
                 if not TempServiceChargeLine.IsEmpty() then begin
-                    TempServiceChargeLine.FindLast;
+                    TempServiceChargeLine.FindLast();
                     SalesLine2.Get("Document Type", "Document No.", TempServiceChargeLine."Line No.");
                     SetSalesLineServiceCharge(SalesHeader, SalesLine2);
                     SalesLine2.Modify();
@@ -103,7 +107,7 @@ codeunit 60 "Sales-Calc. Discount"
                     SalesLine2.Reset();
                     SalesLine2.SetRange("Document Type", "Document Type");
                     SalesLine2.SetRange("Document No.", "Document No.");
-                    SalesLine2.FindLast;
+                    SalesLine2.FindLast();
                     SalesLine2.Init();
                     if not UpdateHeader then
                         SalesLine2.SetSalesHeader(SalesHeader);
@@ -141,13 +145,14 @@ codeunit 60 "Sales-Calc. Discount"
                 exit;
 
             if CustInvDiscRecExists(SalesHeader."Invoice Disc. Code") then begin
-                OnAfterCustInvDiscRecExists(SalesHeader);
-                if InvDiscBase <> ChargeBase then
+                ShouldGetCustInvDisc := InvDiscBase <> ChargeBase;
+                OnAfterCustInvDiscRecExists(SalesHeader, CustInvDisc, InvDiscBase, ChargeBase, ShouldGetCustInvDisc);
+                if ShouldGetCustInvDisc then
                     CustInvDisc.GetRec(
                       SalesHeader."Invoice Disc. Code", SalesHeader."Currency Code", CurrencyDate, InvDiscBase);
 
                 DiscountNotificationMgt.NotifyAboutMissingSetup(
-                  SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group",
+                  SalesSetup.RecordId, SalesHeader."Gen. Bus. Posting Group", SalesLine2."Gen. Prod. Posting Group",
                   SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Line Discounts");
 
                 UpdateSalesHeaderInvoiceDiscount(SalesHeader, TempVATAmountLine, SalesSetup."Calc. Inv. Disc. per VAT ID");
@@ -284,7 +289,7 @@ codeunit 60 "Sales-Calc. Discount"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterCustInvDiscRecExists(var SalesHeader: Record "Sales Header"; CustInvDisc: Record "Cust. Invoice Disc."; InvDiscBase: Decimal; ChargeBase: Decimal; var ShouldGetCustInvDisc: Boolean)
     begin
     end;
 
@@ -310,6 +315,11 @@ codeunit 60 "Sales-Calc. Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var CustomerPostingGroup: Record "Customer Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCheckCustInvDiscServiceCharge(var CustInvoiceDisc: Record "Cust. Invoice Disc."; var SalesHeader: Record "Sales Header"; CurrencyDate: Date; ChargeBase: Decimal)
     begin
     end;
 

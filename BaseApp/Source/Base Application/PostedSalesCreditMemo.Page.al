@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 134 "Posted Sales Credit Memo"
 {
     Caption = 'Posted Sales Credit Memo';
@@ -155,28 +156,12 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the date on which you created the sales document.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN19
-#if CLEAN17
                 field("Original Document VAT Date"; '')
-#else
-                field("Original Document VAT Date"; "Original Document VAT Date")
-#endif
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
+                    Caption = 'Original Document VAT Date';
                     ToolTip = 'Specifies the VAT date of the original document.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
@@ -189,6 +174,10 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to a customer account.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 group(Control20)
                 {
@@ -311,6 +300,13 @@ page 134 "Posted Sales Credit Memo"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -329,6 +325,13 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location where the credit memo was registered.';
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
@@ -355,6 +358,10 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -368,123 +375,105 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
-#if not CLEAN18
-                field("Customer Posting Group"; "Customer Posting Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
-                }
-#if not CLEAN17
-                field("Credit Memo Type"; "Credit Memo Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the type of credit memo (corrective tax document, internal correction, insolvency tax document).';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#endif
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies whether the invoice was part of an EU 3-party trade transaction.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies a code for the sales document''s transaction specification, for the purpose of reporting to INTRASTAT.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Exit Point"; "Exit Point")
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies the point of exit through which you ship the items out of your country/region, for reporting to Intrastat.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the credit memo.';
-                }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = BasicEU;
-                    Editable = false;
-                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = VAT;
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
 #if not CLEAN18
@@ -920,7 +909,7 @@ page 134 "Posted Sales Credit Memo"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1037,7 +1026,7 @@ page 134 "Posted Sales Credit Memo"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 
@@ -1218,4 +1207,4 @@ page 134 "Posted Sales Credit Memo"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 }
-
+#endif

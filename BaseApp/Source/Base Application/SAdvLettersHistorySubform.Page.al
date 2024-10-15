@@ -123,7 +123,7 @@ page 31009 "S.Adv. Letters History Subform"
     begin
         SalesAdvanceLetterHeader.SetRange("No.", "Letter No.");
         SalesAdvanceLetter.SetTableView(SalesAdvanceLetterHeader);
-        SalesAdvanceLetter.Run;
+        SalesAdvanceLetter.Run();
     end;
 
     [Scope('OnPrem')]
@@ -134,7 +134,7 @@ page 31009 "S.Adv. Letters History Subform"
         SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.CopyFilters(Rec);
         SalesAdvanceLetterLine.SetRange("Letter No.", "Letter No.");
-        if SalesAdvanceLetterLine.FindFirst then
+        if SalesAdvanceLetterLine.FindFirst() then
             exit(SalesAdvanceLetterLine."Line No." = "Line No.");
         exit(true);
     end;

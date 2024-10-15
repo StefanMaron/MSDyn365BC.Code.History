@@ -1,3 +1,4 @@
+#if not CLEAN20
 report 29 "Export Acc. Sched. to Excel"
 {
     Caption = 'Export Acc. Sched. to Excel';
@@ -17,9 +18,6 @@ report 29 "Export Acc. Sched. to Excel"
                 TotalRecNo: Integer;
                 RowNo: Integer;
                 ColumnNo: Integer;
-#if not CLEAN17
-                SkipLine: Boolean;
-#endif
                 ClientFileName: Text;
             begin
                 if DoUpdateExistingWorksheet then
@@ -115,14 +113,6 @@ report 29 "Export Acc. Sched. to Excel"
                     repeat
                         RecNo := RecNo + 1;
                         Window.Update(1, Round(RecNo / TotalRecNo * 10000, 1));
-#if not CLEAN17
-                        // NAVCZ
-                        SkipLine := false;
-                        if SkipEmptyLines then
-                            SkipLine := AccSchedManagement.EmptyLine(AccSchedLine, ColumnLayoutName, UseAmtsInAddCurr);
-                        if not SkipLine then begin
-                            // NAVCZ
-#endif
                         RowNo := RowNo + 1;
                         ColumnNo := 1;
 
@@ -132,9 +122,6 @@ report 29 "Export Acc. Sched. to Excel"
                               AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
                               '0', TempExcelBuffer."Cell Type"::Text);
                             ColumnNo := 2;
-#if not CLEAN17
-                            end; // NAVCZ
-#endif
                             EnterCell(
                               RowNo, ColumnNo, AccSchedLine.Description,
                               AccSchedLine.Bold, AccSchedLine.Italic, AccSchedLine.Underline, AccSchedLine."Double Underline",
@@ -183,18 +170,6 @@ report 29 "Export Acc. Sched. to Excel"
                 group(Options)
                 {
                     Caption = 'Options';
-#if not CLEAN17
-                    field(SkipEmptyLines; SkipEmptyLines)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Skip Empty Lines';
-                        ToolTip = 'Specifies when the empty lines are to be skip';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.5';
-                        Visible = false;
-                    }
-#endif
                     field(ExportAccLineNo; ExportAccLineNo)
                     {
                         ApplicationArea = Basic, Suite;
@@ -234,9 +209,6 @@ report 29 "Export Acc. Sched. to Excel"
         SheetName: Text[250];
         DoUpdateExistingWorksheet: Boolean;
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
-#if not CLEAN17
-        SkipEmptyLines: Boolean;
-#endif
         ColumnLayoutName: Code[10];
         ExportAccLineNo: Boolean;
         TestMode: Boolean;
@@ -357,4 +329,4 @@ report 29 "Export Acc. Sched. to Excel"
     begin
     end;
 }
-
+#endif

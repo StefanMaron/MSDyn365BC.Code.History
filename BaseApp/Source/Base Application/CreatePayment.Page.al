@@ -1,3 +1,4 @@
+﻿#if not CLEAN19
 page 1190 "Create Payment"
 {
     Caption = 'Create Payment';
@@ -278,7 +279,7 @@ page 1190 "Create Payment"
         GenJournalTemplate.Get(JournalTemplateName);
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
-        if GenJnlLine.FindLast then begin
+        if GenJnlLine.FindLast() then begin
             LastLineNo := GenJnlLine."Line No.";
             GenJnlLine.Init();
         end;
@@ -361,7 +362,7 @@ page 1190 "Create Payment"
                 DimBuf.Reset();
                 DimBuf.DeleteAll();
                 DimBufMgt.GetDimensions(TempPaymentBuffer."Dimension Entry No.", DimBuf);
-                if DimBuf.FindSet then
+                if DimBuf.FindSet() then
                     repeat
                         DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                         TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
@@ -372,13 +373,7 @@ page 1190 "Create Payment"
                 NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
                 "Dimension Set ID" := NewDimensionID;
 
-                CreateDim(
-                DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-                DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-                DATABASE::Job, "Job No.",
-                DATABASE::"Job Task", "Job Task No.",// NAVCZ
-                DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(0);
                 if NewDimensionID <> "Dimension Set ID" then
                     AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
             end;
@@ -422,7 +417,7 @@ page 1190 "Create Payment"
         end else begin
             GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
             GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-            if GenJournalLine.FindLast then
+            if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
                 NextDocNo := NoSeriesMgt.GetNextNo3(GenJournalBatchNoSeries, PostingDate, false, true);
@@ -485,4 +480,4 @@ page 1190 "Create Payment"
     begin
     end;
 }
-
+#endif

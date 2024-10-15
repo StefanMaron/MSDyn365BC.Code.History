@@ -1,3 +1,4 @@
+#if not CLEAN20        
 page 5806 "Purch. Receipt Lines"
 {
     Caption = 'Purch. Receipt Lines';
@@ -25,6 +26,9 @@ page 5806 "Purch. Receipt Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Buy-from Vendor No."; "Buy-from Vendor No.")
                 {
@@ -126,6 +130,9 @@ page 5806 "Purch. Receipt Lines"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of vendor shipment.';
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("Unit Cost"; "Unit Cost")
                 {
@@ -227,7 +234,7 @@ page 5806 "Purch. Receipt Lines"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedOnly = true;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -289,12 +296,12 @@ page 5806 "Purch. Receipt Lines"
         TempPurchRcptLine.Reset();
         TempPurchRcptLine.CopyFilters(Rec);
         TempPurchRcptLine.SetRange("Document No.", "Document No.");
-        if not TempPurchRcptLine.FindFirst then begin
+        if not TempPurchRcptLine.FindFirst() then begin
             FilterGroup(2);
             PurchRcptLine.CopyFilters(Rec);
             FilterGroup(0);
             PurchRcptLine.SetRange("Document No.", "Document No.");
-            if not PurchRcptLine.FindFirst then
+            if not PurchRcptLine.FindFirst() then
                 exit(false);
             TempPurchRcptLine := PurchRcptLine;
             TempPurchRcptLine.Insert();
@@ -307,7 +314,7 @@ page 5806 "Purch. Receipt Lines"
     begin
         FromPurchRcptLine.Copy(Rec);
         CurrPage.SetSelectionFilter(FromPurchRcptLine);
-        if FromPurchRcptLine.FindFirst then begin
+        if FromPurchRcptLine.FindFirst() then begin
             ItemChargeAssgntPurch."Unit Cost" := UnitCost;
             AssignItemChargePurch.CreateRcptChargeAssgnt(FromPurchRcptLine, ItemChargeAssgntPurch);
         end;
@@ -324,4 +331,4 @@ page 5806 "Purch. Receipt Lines"
     begin
     end;
 }
-
+#endif

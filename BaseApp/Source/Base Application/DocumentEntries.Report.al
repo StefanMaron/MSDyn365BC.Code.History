@@ -1910,63 +1910,6 @@ report 35 "Document Entries"
                 end;
             }
 #endif
-#if not CLEAN17
-            dataitem("Posted Cash Document Header"; "Posted Cash Document Header")
-            {
-                DataItemTableView = SORTING("No.", "Posting Date");
-                column(CashDeskNo_PostedCashDocumentHeader; "Cash Desk No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(No_PostedCashDocumentHeader; "No.")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostingDate_PostedCashDocumentHeader; Format("Posting Date"))
-                {
-                }
-                column(Amount_PostedCashDocumentHeader; Amount)
-                {
-                    IncludeCaption = true;
-                }
-                column(CashDocumentType_PostedCashDocumentHeader; "Cash Document Type")
-                {
-                    IncludeCaption = true;
-                }
-                column(CurrencyCode_PostedCashDocumentHeader; "Currency Code")
-                {
-                    IncludeCaption = true;
-                }
-                column(AmountIncludingVAT_PostedCashDocumentHeader; "Amount Including VAT")
-                {
-                    IncludeCaption = true;
-                }
-                column(PaymentPurpose_PostedCashDocumentHeader; "Payment Purpose")
-                {
-                    IncludeCaption = true;
-                }
-                column(PostedCashDocHdrCurrCaption; CurrencyCaption)
-                {
-                }
-                column(PostedCashDocHdrPostDateCaption; PostedCashDocHdrPostDateCaptionLbl)
-                {
-                }
-
-                trigger OnPreDataItem()
-                begin
-                    // NAVCZ
-                    if DocEntry."Table ID" <> DATABASE::"Posted Cash Document Header" then
-                        CurrReport.Break();
-
-                    SetCurrentKey("No.", "Posting Date");
-                    if CashDeskNo <> '' then
-                        SetRange("Cash Desk No.", CashDeskNo);
-                    SetFilter("No.", DocNoFilter);
-                    SetFilter("Posting Date", PostingDateFilter);
-                    // NAVCZ
-                end;
-            }
-#endif
 #if not CLEAN19
             dataitem("Sales Advance Letter Entry"; "Sales Advance Letter Entry")
             {
@@ -2342,9 +2285,6 @@ report 35 "Document Entries"
         IssuedBankStmtHdrDocDateCaptionLbl: Label 'Document Date';
         IssuedPmtOrdHdrDocDateCaptionLbl: Label 'Document Date';
 #endif
-#if not CLEAN17
-        PostedCashDocHdrPostDateCaptionLbl: Label 'Posting Date';
-#endif
 #if not CLEAN19
         SalesAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
         PurchAdvLetterEntryPostDateCaptionLbl: Label 'Posting Date';
@@ -2386,4 +2326,3 @@ report 35 "Document Entries"
     end;
 #endif
 }
-

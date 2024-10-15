@@ -154,7 +154,7 @@ table 1249 "Bank Stmt Multiple Match Line"
         SetRange("Account Type", "Account Type");
         SetRange("Account No.", "Account No.");
         SetFilter("Entry No.", '<=0');
-        if FindFirst then
+        if FindFirst() then
             EntryNo := "Entry No." - 1
         else
             EntryNo := -1;

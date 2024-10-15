@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 5978 "Posted Service Invoice"
 {
     Caption = 'Posted Service Invoice';
@@ -71,6 +72,7 @@ page 5978 "Posted Service Invoice"
                         {
                             ApplicationArea = Service;
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Post Code"; "Post Code")
@@ -82,6 +84,7 @@ page 5978 "Posted Service Invoice"
                     field("Country/Region Code"; "Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         ToolTip = 'Specifies the country/region of the address.';
                     }
                     field("Contact Name"; "Contact Name")
@@ -149,19 +152,6 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    Importance = Promoted;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Order No."; "Order No.")
                 {
                     ApplicationArea = Service;
@@ -255,6 +245,7 @@ page 5978 "Posted Service Invoice"
                             ApplicationArea = Service;
                             Caption = 'County';
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Bill-to Post Code"; "Bill-to Post Code")
@@ -267,7 +258,9 @@ page 5978 "Posted Service Invoice"
                     field("Bill-to Country/Region Code"; "Bill-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Bill-to Contact"; "Bill-to Contact")
                     {
@@ -309,6 +302,10 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -322,6 +319,13 @@ page 5978 "Posted Service Invoice"
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
+                }
                 field("Due Date"; "Due Date")
                 {
                     ApplicationArea = Service;
@@ -329,29 +333,25 @@ page 5978 "Posted Service Invoice"
                     Importance = Promoted;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
-#if not CLEAN18
-                field("Customer Posting Group"; "Customer Posting Group")
-                {
-                    ApplicationArea = Service;
-                    Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
-                }
-#endif
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies a VAT business posting group code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Reason Code"; "Reason Code")
                 {
                     ApplicationArea = Service;
                     Editable = false;
                     ToolTip = 'Specifies the reason code on the entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
             group(Shipping)
@@ -404,6 +404,7 @@ page 5978 "Posted Service Invoice"
                             ApplicationArea = Service;
                             Caption = 'County';
                             Editable = false;
+                            ToolTip = 'Specifies the county in the customer''s address.';
                         }
                     }
                     field("Ship-to Post Code"; "Ship-to Post Code")
@@ -417,7 +418,9 @@ page 5978 "Posted Service Invoice"
                     field("Ship-to Country/Region Code"; "Ship-to Country/Region Code")
                     {
                         ApplicationArea = Service;
+                        Editable = false;
                         Caption = 'Country/Region';
+                        ToolTip = 'Specifies the country/region in the customer''s address.';
                     }
                     field("Ship-to Contact"; "Ship-to Contact")
                     {
@@ -454,6 +457,13 @@ page 5978 "Posted Service Invoice"
                         Clear(ChangeExchangeRate);
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Service;
+                    Editable = false;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("EU 3-Party Trade"; "EU 3-Party Trade")
                 {
                     ApplicationArea = Service;
@@ -465,78 +475,76 @@ page 5978 "Posted Service Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the transaction specification code used on the service document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Transport Method"; "Transport Method")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the transport method to be used for shipment.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Exit Point"; "Exit Point")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the port of exit through which you ship the service out of your country/region.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("Area"; Area)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the area where the customer company is located.';
-                }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies when the service header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the language to be used on printouts for this document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
                 field("VAT Country/Region Code"; "VAT Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
 #if not CLEAN18
@@ -789,7 +797,7 @@ page 5978 "Posted Service Invoice"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -881,4 +889,4 @@ page 5978 "Posted Service Invoice"
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
     end;
 }
-
+#endif

@@ -1,3 +1,4 @@
+#if not CLEAN20        
 page 17 "G/L Account Card"
 {
     Caption = 'G/L Account Card';
@@ -7,7 +8,7 @@ page 17 "G/L Account Card"
     SourceTable = "G/L Account";
 
     AboutTitle = 'About G/L account details';
-    AboutText = 'Choose the G/L account settings appropriate for the transactions that are posted to this G/L account.';
+    AboutText = 'Choose the settings appropriate for the transactions that are posted to this *general ledger* account.';
 
     layout
     {
@@ -88,7 +89,7 @@ page 17 "G/L Account Card"
                         // NAVCZ
                         if Totaling <> '' then begin
                             GLAcc.SetFilter("No.", Totaling);
-                            if GLAcc.FindFirst then
+                            if GLAcc.FindFirst() then
                                 GLAccList.SetRecord(GLAcc);
                         end;
                         GLAccList.LookupMode(true);
@@ -137,9 +138,9 @@ page 17 "G/L Account Card"
                 field("Direct Posting"; "Direct Posting")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies whether you will be able to post directly or only indirectly to this general ledger account. To allow Direct Posting to the G/L account, place a check mark in the check box.';
+                    ToolTip = 'Specifies if you can post directly to this general ledger account. If the field is not selected, then users must use sales documents, for example, and not post directly to the general ledger.';
                     AboutTitle = 'Is direct posting allowed?';
-                    AboutText = 'If you have control accounts for receivables and payables, then keep Direct Posting turned off as all transactions should be posted through customers and vendors.';
+                    AboutText = 'If you have control accounts for receivables and payables, then keep *Direct Posting* turned off as all transactions should be posted through customers and vendors.';
                 }
                 field(Blocked; Blocked)
                 {
@@ -151,18 +152,6 @@ page 17 "G/L Account Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the G/L account was last modified.';
                 }
-#if not CLEAN17
-                field("G/L Account Group"; "G/L Account Group")
-                {
-                    ApplicationArea = Basic, Suite;
-                    OptionCaption = ' ,Internal,Sub balance';
-                    ToolTip = 'Specifies type of G/L account group (internal or sub balance).';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Omit Default Descr. in Jnl."; "Omit Default Descr. in Jnl.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -221,6 +210,9 @@ page 17 "G/L Account Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies one or more ledger entries that you want to apply this record to so that the related posted documents are closed as paid or refunded.';
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
                 field("Default Deferral Template Code"; "Default Deferral Template Code")
                 {
@@ -627,4 +619,4 @@ page 17 "G/L Account Card"
         SubCategoryDescription := "Account Subcategory Descript.";
     end;
 }
-
+#endif

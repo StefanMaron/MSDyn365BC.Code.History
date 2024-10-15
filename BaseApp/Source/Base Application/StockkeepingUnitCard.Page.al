@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 5700 "Stockkeeping Unit Card"
 {
     Caption = 'Stockkeeping Unit Card';
@@ -112,15 +111,6 @@ page 5700 "Stockkeeping Unit Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity of the item units that remains to be shipped as the difference between the Quantity and the Quantity Shipped fields.';
-                    Visible = false;
-                }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
-                {
-                    ApplicationArea = Planning;
-                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
             }
@@ -495,7 +485,7 @@ page 5700 "Stockkeeping Unit Card"
                             ItemStatistics: Page "Item Statistics";
                         begin
                             ItemStatistics.SetItem(Item);
-                            ItemStatistics.RunModal;
+                            ItemStatistics.RunModal();
                         end;
                     }
                 }
@@ -990,4 +980,3 @@ page 5700 "Stockkeeping Unit Card"
     end;
 }
 
-#endif

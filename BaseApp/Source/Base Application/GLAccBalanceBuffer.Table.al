@@ -44,6 +44,14 @@ table 926 "G/L Acc. Balance Buffer"
         {
             Caption = 'Net Change (VAT Date)';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 

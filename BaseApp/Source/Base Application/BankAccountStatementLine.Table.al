@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 276 "Bank Account Statement Line"
 {
     Caption = 'Bank Account Statement Line';
@@ -8,7 +7,7 @@ table 276 "Bank Account Statement Line"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            TableRelation = "Bank Account";
         }
         field(2; "Statement No."; Code[20])
         {
@@ -175,4 +174,4 @@ table 276 "Bank Account Statement Line"
     begin
     end;
 }
-#endif
+

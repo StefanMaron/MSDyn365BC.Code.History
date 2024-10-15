@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 315 "VAT Entries"
 {
     ApplicationArea = Basic, Suite;
@@ -48,26 +49,6 @@ page 315 "VAT Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT entry''s posting date.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT date of the original document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -83,6 +64,9 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the number that the vendor uses on the invoice they sent to you or number of receipt.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Document Type"; "Document Type")
                 {
@@ -206,17 +190,6 @@ page 315 "VAT Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies when the VAT entry will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
@@ -256,35 +229,6 @@ page 315 "VAT Entries"
                     ToolTip = 'Specifies if this VAT entry is to be reported as a service in the periodic VAT reports.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("VAT Settlement No."; "VAT Settlement No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the document number which the VAT entries were closed.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("VAT Control Report No."; "VAT Control Report No.")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies vat control report no.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("VAT Control Report Line No."; "VAT Control Report Line No.")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the number of line in the VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
         }
         area(factboxes)
@@ -292,6 +236,13 @@ page 315 "VAT Entries"
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
                 ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
                 ShowFilter = false;
                 SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
             }
@@ -319,7 +270,7 @@ page 315 "VAT Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -332,7 +283,7 @@ page 315 "VAT Entries"
                         exit;
 
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action(SetGLAccountNo)
@@ -459,4 +410,4 @@ page 315 "VAT Entries"
     begin
     end;
 }
-
+#endif

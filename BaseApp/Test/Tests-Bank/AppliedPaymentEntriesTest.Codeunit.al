@@ -36,7 +36,7 @@ codeunit 134264 "Applied Payment Entries Test"
         StatementNo: Code[20];
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -80,7 +80,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ClosePage: Boolean;
         RejectFromPaymentApplication: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -130,7 +130,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ClosePage: Boolean;
     begin
         // [SCENARIO 372024] After Application Reject from Payment Journal field "Account No." is empty.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer, Cust. Ledger Entry and Bank Account Reconciliation Line.
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
@@ -184,7 +184,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         Applied: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -228,7 +228,7 @@ codeunit 134264 "Applied Payment Entries Test"
         StatementNo: Code[20];
         ExpectedMatchedLineNo: Integer;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -271,7 +271,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         Applied: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -317,7 +317,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         ClosePage: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
@@ -362,7 +362,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         ClosePage: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -406,7 +406,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         ChangedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
@@ -447,7 +447,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         AmountDelta: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         AmountDelta := Amount - LibraryRandom.RandDecInDecimalRange(0.1, Amount / 2, 2);
@@ -492,7 +492,7 @@ codeunit 134264 "Applied Payment Entries Test"
         ExpectedMatchedLineNo: Integer;
         ExpectAmt: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, StmtAmt);
         CreateCustomer(Cust);
@@ -508,7 +508,7 @@ codeunit 134264 "Applied Payment Entries Test"
         InvokeAutoApply(BankAccRecon, PaymentReconciliationJournal);
 
         CustLedgEntry.SetRange("Entry No.", CustLedgEntry."Entry No.", CustLedgEntry3."Entry No.");
-        if CustLedgEntry.FindSet then
+        if CustLedgEntry.FindSet() then
             repeat
                 LibraryVariableStorage.Enqueue(CustLedgEntry."Entry No.");
                 LibraryVariableStorage.Enqueue(StmtAmt);
@@ -544,7 +544,7 @@ codeunit 134264 "Applied Payment Entries Test"
         StatementNo: Code[20];
         ChangedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         ChangedAmount := Amount * -1;
@@ -575,7 +575,7 @@ codeunit 134264 "Applied Payment Entries Test"
         StatementNo: Code[20];
         ChangedAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         ChangedAmount := Amount + 1;
@@ -594,64 +594,6 @@ codeunit 134264 "Applied Payment Entries Test"
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
-    procedure TotalsOnPaymentReconciliationJournal()
-    var
-        CustLedgEntry: Record "Cust. Ledger Entry";
-        Cust: Record Customer;
-        BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccount: Record "Bank Account";
-        PaymentReconciliationJournal: TestPage "Payment Reconciliation Journal";
-        Amount: Decimal;
-        PostingDate: Date;
-        BankAccNo: Code[20];
-        StatementNo: Code[20];
-    begin
-        Initialize;
-        // Setup
-        CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
-        CreateCustomer(Cust);
-
-        InsertCustLedgerEntry(CustLedgEntry, Cust."No.", Amount);
-        CreateBankAccRec(BankAccRecon, BankAccNo, StatementNo);
-        CreateBankAccRecLine(BankAccRecon, PostingDate, CustLedgEntry."Document No." + Cust.Name, Amount);
-        CreateBankAccRecLine(BankAccRecon, PostingDate, '', Amount / 2);
-
-        // Exercise
-        InvokeAutoApply(BankAccRecon, PaymentReconciliationJournal);
-
-        // make some manual changes - edit statement amount on one line and add one more line
-        PaymentReconciliationJournal.FindFirstField("Statement Amount", Amount / 2);
-        PaymentReconciliationJournal."Statement Amount".SetValue((Amount / 2) + 1);
-        PaymentReconciliationJournal.New;
-        PaymentReconciliationJournal."Statement Amount".SetValue(Amount);
-        PaymentReconciliationJournal."Statement Amount".SetValue(Amount * 2);
-        PaymentReconciliationJournal.Last;
-
-        // Verify totals are correctly calculated
-        BankAccount.Get(BankAccNo);
-        BankAccount.CalcFields(Balance);
-        BankAccRecon.CalcFields("Total Unposted Applied Amount");
-        Assert.AreEqual(BankAccount.Balance, PaymentReconciliationJournal.BalanceOnBankAccount.AsDEcimal,
-          'Unexpected value of ''Balance on Bank Account''');
-        Assert.AreEqual(Round(Amount + (Amount / 2) + (Amount * 2) + 1, LibraryERM.GetAmountRoundingPrecision),
-          PaymentReconciliationJournal.TotalTransactionAmount.AsDEcimal,
-          'Unexpected value of ''Total Statement Amount''');
-        Assert.AreEqual(
-          PaymentReconciliationJournal.BalanceOnBankAccount.AsDEcimal + BankAccRecon."Total Unposted Applied Amount",
-          PaymentReconciliationJournal.BalanceOnBankAccountAfterPosting.AsDEcimal,
-          'Unexpected value of ''Balance on Bank Account After Posting''');
-
-        // Verify Statement Ending Balance is editable
-        PaymentReconciliationJournal.StatementEndingBalance.SetValue(Amount * 3);
-        Assert.AreEqual(Round(Amount * 3, LibraryERM.GetAmountRoundingPrecision),
-          PaymentReconciliationJournal.StatementEndingBalance.AsDEcimal,
-          'Unexpected value of ''Statement Ending Balance''');
-        PaymentReconciliationJournal.Close;
-    end;
-
-    [Test]
-    [HandlerFunctions('MessageHandler')]
-    [Scope('OnPrem')]
     procedure AccountNameOnPaymentReconciliationJournal()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -665,7 +607,7 @@ codeunit 134264 "Applied Payment Entries Test"
         BankAccNo: Code[20];
         StatementNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateInputData(PostingDate, BankAccNo, StatementNo, Amount);
         CreateCustomer(Cust);
@@ -737,7 +679,7 @@ codeunit 134264 "Applied Payment Entries Test"
             SetRange("Statement Type", BankAccRecon."Statement Type");
             SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
             SetRange("Statement No.", BankAccRecon."Statement No.");
-            if FindLast then
+            if FindLast() then
                 Reset;
 
             Init;
@@ -786,9 +728,9 @@ codeunit 134264 "Applied Payment Entries Test"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Applied Payment Entries Test");
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
         CloseExistingEntries;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Applied Payment Entries Test");
     end;
@@ -798,7 +740,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LastEntryNo: Integer;
     begin
         with CustLedgEntry do begin
-            FindLast;
+            FindLast();
             LastEntryNo := "Entry No.";
             InsertDetailedCustLedgerEntry(LastEntryNo + 1, Amt);
             Init;
@@ -818,7 +760,7 @@ codeunit 134264 "Applied Payment Entries Test"
         LastEntryNo: Integer;
     begin
         with DetailedCustLedgEntry do begin
-            FindLast;
+            FindLast();
             LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;
@@ -837,8 +779,8 @@ codeunit 134264 "Applied Payment Entries Test"
             Name := CopyStr(CreateGuid, 1, 50);
             "Payment Terms Code" := CreatePaymentTerms;
             "Payment Method Code" := CreatePaymentMethod;
-            City := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
+            City := LibraryUtility.GenerateGUID();
+            Address := LibraryUtility.GenerateGUID();
             Insert(true);
         end;
     end;

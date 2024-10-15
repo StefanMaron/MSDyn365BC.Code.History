@@ -16,9 +16,6 @@ permissionset 4384 "Intrastat - Admin"
                   tabledata "Specific Movement" = RIMD,
                   tabledata "Stat. Reporting Setup" = RIMD,
 #endif
-#if not CLEAN17
-                  tabledata "Statistic Indication" = RIMD,
-#endif
                   tabledata "Tariff Number" = RIMD,
                   tabledata "Transaction Specification" = RIMD,
                   tabledata "Transaction Type" = RIMD,

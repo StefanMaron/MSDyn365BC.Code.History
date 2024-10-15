@@ -49,8 +49,6 @@ codeunit 143060 "Test Initialize Handler"
     begin
         InventorySetup.Get();
         InventorySetup."Automatic Cost Posting" := false;
-        InventorySetup."Def.Template for Phys.Neg.Adj" := '';
-        InventorySetup."Def.Template for Phys.Pos.Adj" := '';
         InventorySetup.Modify();
     end;
 

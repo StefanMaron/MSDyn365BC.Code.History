@@ -302,7 +302,7 @@ page 5237 "Employee Ledger Entries"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                     trigger OnAction()
@@ -310,7 +310,7 @@ page 5237 "Employee Ledger Entries"
                         Navigate: Page Navigate;
                     begin
                         Navigate.SetDoc("Posting Date", "Document No.");
-                        Navigate.Run;
+                        Navigate.Run();
                     end;
                 }
             }
@@ -455,7 +455,7 @@ page 5237 "Employee Ledger Entries"
         GenJournalTemplate.Reset();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        if GenJournalTemplate.FindFirst then
+        if GenJournalTemplate.FindFirst() then
             JournalTemplateName := GenJournalTemplate.Name;
 
         JournalBatchName := CreateEmployeePayment.GetBatchNumber;

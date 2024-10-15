@@ -40,8 +40,8 @@ codeunit 137502 "SCM Dedicated Bins"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Dedicated Bins");
         // Setup Demonstration data.
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         // set Manufacturing Setup Component @ Location = blank
         MfgSetup.Get();
         MfgSetup.Validate("Components at Location", '');
@@ -113,7 +113,7 @@ codeunit 137502 "SCM Dedicated Bins"
     [Scope('OnPrem')]
     procedure SetupDefaultBins()
     begin
-        Initialize;
+        Initialize();
         // A. Choosing a location with "Require Pick"/ "Require put-away"/"Bin Mandatory" as FALSE
         SetupDefaultBinsScenario(false, false, false);
         // B. Same as above but Require Receive and Require Shipment set to TRUE
@@ -140,7 +140,7 @@ codeunit 137502 "SCM Dedicated Bins"
     [Scope('OnPrem')]
     procedure ConsumptionBins()
     begin
-        Initialize;
+        Initialize();
         ConsumptionBinsScenario;
     end;
 
@@ -162,7 +162,7 @@ codeunit 137502 "SCM Dedicated Bins"
     [Scope('OnPrem')]
     procedure DedicatedBins()
     begin
-        Initialize;
+        Initialize();
         DedicatedBinsScenarioA;
         DedicatedBinsScenarioB;
     end;
@@ -190,20 +190,20 @@ codeunit 137502 "SCM Dedicated Bins"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
     local procedure FindWhseJournal(var WhseJournalTemplate: Record "Warehouse Journal Template"; var WhseJournalBatch: Record "Warehouse Journal Batch"; LocationCode: Code[10])
     begin
         WhseJournalTemplate.SetRange(Type, WhseJournalTemplate.Type::Item);
-        WhseJournalTemplate.FindFirst;
+        WhseJournalTemplate.FindFirst();
         WhseJournalBatch.SetRange("Journal Template Name", WhseJournalTemplate.Name);
         if LocationCode <> '' then
             WhseJournalBatch.SetRange("Location Code", LocationCode);
-        WhseJournalBatch.FindFirst;
+        WhseJournalBatch.FindFirst();
     end;
 
     local procedure FindWhsePickRequestForShipment(var WhsePickRequest: Record "Whse. Pick Request"; WhseShipmentNo: Code[20])
@@ -211,7 +211,7 @@ codeunit 137502 "SCM Dedicated Bins"
         WhsePickRequest.SetRange(Status, WhsePickRequest.Status::Released);
         WhsePickRequest.SetRange("Document Type", WhsePickRequest."Document Type"::Shipment);
         WhsePickRequest.SetRange("Document No.", WhseShipmentNo);
-        WhsePickRequest.FindFirst;
+        WhsePickRequest.FindFirst();
     end;
 
     local procedure SetupDefaultBinsScenario(RequireReceive: Boolean; RequireShipment: Boolean; DirectedPickAndPut: Boolean)
@@ -254,7 +254,7 @@ codeunit 137502 "SCM Dedicated Bins"
             BinType.SetRange(Ship, false);
             BinType.SetRange("Put Away", false);
             BinType.SetRange(Pick, false);
-            BinType.FindFirst;
+            BinType.FindFirst();
             LibraryWarehouse.CreateZone(Zone, 'ZONE', Location.Code, BinType.Code, '', '', 0, false);
         end;
         LibraryWarehouse.CreateBin(OpenShpFlrBin, Location.Code, 'OpenSFB', Zone.Code, Zone."Bin Type Code");
@@ -529,7 +529,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // set flushing method = Forward for X-CHILD1
         ProdOrderComponent.SetRange("Item No.", ChildItem1."No.");
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Forward);
         ProdOrderComponent.Modify(true);
         AssertBinCodesOnComponents(ProdOrderComponent,
@@ -560,7 +560,7 @@ codeunit 137502 "SCM Dedicated Bins"
         // create a new component line and verify filled in bin code
         ProdOrderLine.SetRange(Status, ProductionOrder.Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
         LibraryManufacturing.CreateProductionOrderComponent(
           ProdOrderComponent2, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
         ProdOrderComponent2.Validate("Item No.", ChildItem3."No.");
@@ -585,7 +585,7 @@ codeunit 137502 "SCM Dedicated Bins"
 
         // change last line for X-CHILD3 to have Routing Link Code and Manual Flushing and location as first one
         ProdOrderComponent.SetRange("Item No.", ChildItem3."No.");
-        ProdOrderComponent.FindLast;
+        ProdOrderComponent.FindLast();
         ProdOrderComponent.Validate("Location Code", Location.Code);
         ProdOrderComponent.Validate("Routing Link Code", '300');
         ProdOrderComponent.Validate("Flushing Method", ProdOrderComponent."Flushing Method"::Manual);
@@ -709,7 +709,7 @@ codeunit 137502 "SCM Dedicated Bins"
         WhseShipmentLine.SetRange("Source No.", SalesHeader."No.");
         WhseShipmentLine.SetRange("Source Type", DATABASE::"Sales Line");
         WhseShipmentLine.SetRange("Source Subtype", SalesHeader."Document Type");
-        WhseShipmentLine.FindLast;
+        WhseShipmentLine.FindLast();
         WhseShipmentHeader.Get(WhseShipmentLine."No.");
         LibraryWarehouse.CreateWhsePick(WhseShipmentHeader);
 
@@ -745,7 +745,7 @@ codeunit 137502 "SCM Dedicated Bins"
         Location.Modify(true);
         BinType.SetRange(Pick, true);
         BinType.SetRange("Put Away", false);
-        BinType.FindFirst;
+        BinType.FindFirst();
         LibraryWarehouse.CreateZone(Zone, 'ZONE', Location.Code, BinType.Code, '', '', 0, false);
         LibraryWarehouse.CreateBin(Bin1, Location.Code, 'B1', Zone.Code, Zone."Bin Type Code");
 
@@ -856,7 +856,7 @@ codeunit 137502 "SCM Dedicated Bins"
     begin
         // [FEATURE] [Dedicated Bin] [Shipment] [Pick] [Reservation]
         // [SCENARIO 340437] Creating pick from shipment directly takes reserved quantity in dedicated bin into account.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
         // [GIVEN] Location set up for required shipment and pick. "Directed put-away and pick" = FALSE.
@@ -931,7 +931,7 @@ codeunit 137502 "SCM Dedicated Bins"
     begin
         // [FEATURE] [Dedicated Bin] [Shipment] [Pick Worksheet] [Pick] [Reservation]
         // [SCENARIO 340437] Creating pick from shipment via pick worksheet takes reserved quantity in dedicated bin into account.
-        Initialize;
+        Initialize();
         Qty := LibraryRandom.RandIntInRange(10, 20);
 
         // [GIVEN] Location set up for required shipment and pick. "Directed put-away and pick" = FALSE.
@@ -985,7 +985,7 @@ codeunit 137502 "SCM Dedicated Bins"
         WhseWorksheetLine.SetRange(Name, WhseWorksheetName.Name);
         WhseWorksheetLine.SetRange("Location Code", Location.Code);
         WhseWorksheetLine.SetRange("Item No.", Item."No.");
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField(Quantity, 2 * Qty);
         WhseWorksheetLine.TestField("Qty. to Handle", Qty);
 
@@ -1020,7 +1020,7 @@ codeunit 137502 "SCM Dedicated Bins"
     begin
         ProdOrderRtngLine.SetRange("Operation No.", OperationNo);
         Assert.AreEqual(1, ProdOrderRtngLine.Count, 'Incorrect no. of routing lines with same operation no.: ' + OperationNo);
-        ProdOrderRtngLine.FindFirst;
+        ProdOrderRtngLine.FindFirst();
         Assert.AreEqual(OpenShopFloorBin, ProdOrderRtngLine."Open Shop Floor Bin Code", 'Incorrect open shop floor bin code.');
         Assert.AreEqual(InboundBin, ProdOrderRtngLine."To-Production Bin Code", 'Incorrect To-Production Bin Code.');
         // remove filter
@@ -1033,7 +1033,7 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderComponent.SetRange("Routing Link Code", RoutingLinkCode);
         ProdOrderComponent.SetRange("Flushing Method", FlushingMethod);
         Assert.AreEqual(1, ProdOrderComponent.Count, 'Incorrect no. of component lines');
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         Assert.AreEqual(LocationCode, ProdOrderComponent."Location Code", 'Incorrect location code.');
         Assert.AreEqual(BinCode, ProdOrderComponent."Bin Code", 'Incorrect bin code.');
         // remove filters
@@ -1145,7 +1145,7 @@ codeunit 137502 "SCM Dedicated Bins"
         ProdOrderComp.SetRange(Status, ProductionOrder.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProductionOrder."No.");
         ProdOrderComp.SetRange("Item No.", ItemChild."No.");
-        ProdOrderComp.FindFirst;
+        ProdOrderComp.FindFirst();
         Assert.AreEqual(BinDedicated.Code, ProdOrderComp."Bin Code", 'Unmatched bin code- should be copied from location card');
 
         // Create pick and register
@@ -1166,10 +1166,10 @@ codeunit 137502 "SCM Dedicated Bins"
                 WhseActivityLine.SetRange("Source Type", DATABASE::"Prod. Order Component");
                 WhseActivityLine.SetRange("Source Subtype", ProductionOrder.Status);
                 WhseActivityLine.SetRange("Source No.", ProductionOrder."No.");
-                WhseActivityLine.FindFirst;
+                WhseActivityLine.FindFirst();
                 WhseActivityHeader.SetRange(Type, WhseActivityLine."Activity Type");
                 WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
-                WhseActivityHeader.FindFirst;
+                WhseActivityHeader.FindFirst();
                 LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader);
             end;
 

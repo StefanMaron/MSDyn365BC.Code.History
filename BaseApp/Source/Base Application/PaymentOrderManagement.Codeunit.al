@@ -45,9 +45,9 @@ codeunit 11709 "Payment Order Management"
 
         case BankAcc.Count of
             0:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             1:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             else
                 BankSelected := PAGE.RunModal(PAGE::"Bank List", BankAcc) = ACTION::LookupOK;
         end;
@@ -86,9 +86,9 @@ codeunit 11709 "Payment Order Management"
 
         case BankAcc.Count of
             0:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             1:
-                BankAcc.FindFirst;
+                BankAcc.FindFirst();
             else
                 BankSelected := PAGE.RunModal(PAGE::"Bank List", BankAcc) = ACTION::LookupOK;
         end;
@@ -230,7 +230,7 @@ codeunit 11709 "Payment Order Management"
         TempErrorMessageLogSuspended: Boolean;
     begin
         TempErrorMessage.Reset();
-        if TempErrorMessage.FindLast then
+        if TempErrorMessage.FindLast() then
             ErrorMessageID := TempErrorMessage.ID;
 
         TempErrorMessageLogSuspended := ErrorMessageLogSuspended;
@@ -434,7 +434,7 @@ codeunit 11709 "Payment Order Management"
             PmtOrdLn.FieldNo("Applies-to C/V/E Entry No."),
             PmtOrdLn.FieldNo("Letter No."),
             PmtOrdLn.FieldNo("Letter Line No."));
-        if TempErrorMessage.FindSet then
+        if TempErrorMessage.FindSet() then
             repeat
                 if not Confirm(StrSubstNo('%1\\%2', TempErrorMessage.Description, ContinueQst)) then
                     Error('');

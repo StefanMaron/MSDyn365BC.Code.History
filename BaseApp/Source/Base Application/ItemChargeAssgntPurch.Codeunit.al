@@ -80,39 +80,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         ItemChargeAssgntPurch.Insert();
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by InsertItemChargeAssignment()', '17.0')]
-    procedure InsertItemChargeAssgnt(ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; ApplToDocNo2: Code[20]; ApplToDocLineNo2: Integer; ItemNo2: Code[20]; Description2: Text[100]; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignment(
-          ItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), ApplToDocNo2, ApplToDocLineNo2, ItemNo2, Description2, NextLineNo,
-          IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValues()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValues(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignmentWithValues(
-            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo,
-            FromItemNo, FromDescription, QtyToAssign, AmountToAssign, NextLineNo,
-            IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-
-    [Obsolete('Replaced by InsertItemChargeAssignmentWithValuesTo()', '17.0')]
-    procedure InsertItemChargeAssgntWithAssignValuesTo(FromItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; ApplToDocType: Option; FromApplToDocNo: Code[20]; FromApplToDocLineNo: Integer; FromItemNo: Code[20]; FromDescription: Text[100]; QtyToAssign: Decimal; AmountToAssign: Decimal; var NextLineNo: Integer; var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; IncludeIntrastat: Boolean; IncludeIntrastatAmount: Boolean)
-    begin
-        InsertItemChargeAssignmentWithValuesTo(
-            FromItemChargeAssgntPurch, "Purchase Applies-to Document Type".FromInteger(ApplToDocType), FromApplToDocNo, FromApplToDocLineNo, FromItemNo, FromDescription,
-            QtyToAssign, AmountToAssign, NextLineNo, ItemChargeAssgntPurch,
-            IncludeIntrastat, IncludeIntrastatAmount);
-    end;
-#endif
-
     procedure Summarize(var TempToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; var ToItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
     begin
         with TempToItemChargeAssignmentPurch do begin
             SetCurrentKey("Applies-to Doc. Type", "Applies-to Doc. No.", "Applies-to Doc. Line No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if ("Item Charge No." <> ToItemChargeAssignmentPurch."Item Charge No.") or
                        ("Applies-to Doc. No." <> ToItemChargeAssignmentPurch."Applies-to Doc. No.") or
@@ -490,7 +462,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 Item2.Get(FromItemLedgerEntry."Item No.");
                 FromItemLedgerEntry.Description := Item2.Description;
             end;
-            if not ItemChargeAssgntPurch2.FindFirst then
+            if not ItemChargeAssgntPurch2.FindFirst() then
                 // test Entry and Purch.Line "Item Charge No." match;
 
                 InsertItemChargeAssignment(ItemChargeAssgntPurch, 15,
@@ -894,7 +866,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                     end;
                 until ItemChargeAssignmentPurch.Next() = 0;
 
-                if TempItemChargeAssgntPurch.FindSet then begin
+                if TempItemChargeAssgntPurch.FindSet() then begin
                     repeat
                         ItemChargeAssignmentPurch.Get(
                           TempItemChargeAssgntPurch."Document Type",

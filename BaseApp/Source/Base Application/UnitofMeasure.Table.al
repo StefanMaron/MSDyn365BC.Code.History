@@ -154,7 +154,7 @@ table 204 "Unit of Measure"
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        if UnitOfMeasure.FindSet then
+        if UnitOfMeasure.FindSet() then
             repeat
                 TempUnitOfMeasure := UnitOfMeasure;
                 TempUnitOfMeasure.Description := UnitOfMeasure.GetDescriptionInCurrentLanguage;

@@ -78,7 +78,7 @@
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("Adjust for Payment Discount", true);
-        if VATPostingSetup.FindSet then
+        if VATPostingSetup.FindSet() then
             repeat
                 VATPostingSetup.Validate("Adjust for Payment Discount", false);
                 VATPostingSetup.Modify(true);
@@ -806,7 +806,7 @@
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        if GLBudgetEntry.FindLast then;
+        if GLBudgetEntry.FindLast() then;
         GLBudgetEntry2.Init();
         GLBudgetEntry2.Validate("Entry No.", GLBudgetEntry."Entry No." + 1);
         GLBudgetEntry2.Validate("Budget Name", BudgetName);
@@ -1053,7 +1053,7 @@
           CopyStr(
             LibraryUtility.GenerateRandomCode(PaymentMethod.FieldNo(Code), DATABASE::"Payment Method"), 1,
             LibraryUtility.GetFieldLength(DATABASE::"Payment Method", PaymentMethod.FieldNo(Code))));
-        PaymentMethod.Validate(Description, LibraryUtility.GenerateGUID);
+        PaymentMethod.Validate(Description, LibraryUtility.GenerateGUID());
         PaymentMethod.Insert(true);
     end;
 
@@ -1075,7 +1075,7 @@
         PaymentMethodTranslation.Init();
         PaymentMethodTranslation.Validate("Payment Method Code", PaymentMethodCode);
         PaymentMethodTranslation.Validate("Language Code", GetAnyLanguageDifferentFromCurrent());
-        PaymentMethodTranslation.Validate(Description, LibraryUtility.GenerateGUID);
+        PaymentMethodTranslation.Validate(Description, LibraryUtility.GenerateGUID());
         PaymentMethodTranslation.Insert(true);
         exit(PaymentMethodTranslation."Language Code");
     end;
@@ -1470,54 +1470,26 @@
         VATClause.Validate(Code,
           CopyStr(LibraryUtility.GenerateRandomCode(VATClause.FieldNo(Code), DATABASE::"VAT Clause"),
             1, LibraryUtility.GetFieldLength(DATABASE::"VAT Clause", VATClause.FieldNo(Code))));
-        VATClause.Validate(Description, LibraryUtility.GenerateGUID);
-        VATClause.Validate("Description 2", LibraryUtility.GenerateGUID);
+        VATClause.Validate(Description, LibraryUtility.GenerateGUID());
+        VATClause.Validate("Description 2", LibraryUtility.GenerateGUID());
         VATClause.Insert(true);
     end;
 
+#if not CLEAN20
+    [Obsolete('The Registration No. field is obsoleted.', '20.0')]
     procedure GenerateRegistrationNo(TableID: Integer): Text[20]
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        FieldNo: Integer;
     begin
         // NAVCZ
-        case TableID of
-            DATABASE::Customer:
-                FieldNo := Customer.FieldNo("Registration No.");
-            DATABASE::Vendor:
-                FieldNo := Vendor.FieldNo("Registration No.");
-            DATABASE::Contact:
-                FieldNo := Contact.FieldNo("Registration No.");
-        end;
-
-        exit(
-          CopyStr(LibraryUtility.GenerateRandomCode(FieldNo, TableID),
-            1, LibraryUtility.GetFieldLength(TableID, FieldNo)));
+        exit(LibraryUtility.GenerateGUID());
     end;
 
+    [Obsolete('The Tax Registration No. field is obsoleted.', '20.0')]
     procedure GenerateTaxRegistrationNo(TableID: Integer): Text[20]
-    var
-        Contact: Record Contact;
-        Customer: Record Customer;
-        Vendor: Record Vendor;
-        FieldNo: Integer;
     begin
         // NAVCZ
-        case TableID of
-            DATABASE::Customer:
-                FieldNo := Customer.FieldNo("Tax Registration No.");
-            DATABASE::Vendor:
-                FieldNo := Vendor.FieldNo("Tax Registration No.");
-            DATABASE::Contact:
-                FieldNo := Contact.FieldNo("Tax Registration No.");
-        end;
-
-        exit(
-          CopyStr(LibraryUtility.GenerateRandomCode(FieldNo, TableID),
-            1, LibraryUtility.GetFieldLength(TableID, FieldNo)));
+        exit(LibraryUtility.GenerateGUID());
     end;
+#endif
 
     procedure GenerateVATRegistrationNo(CountryRegionCode: Code[10]) VATRegNo: Text[20]
     var
@@ -1528,7 +1500,7 @@
     begin
         // Generate VAT Registration No. as per VAT Registration No. format.
         VATRegistrationNoFormat.SetRange("Country/Region Code", CountryRegionCode);
-        if VATRegistrationNoFormat.FindFirst then
+        if VATRegistrationNoFormat.FindFirst() then
             for i := 1 to StrLen(VATRegistrationNoFormat.Format) do begin
                 FormatType := CopyStr(VATRegistrationNoFormat.Format, i, 1);
                 case FormatType of
@@ -1692,8 +1664,8 @@
         CountryRegion: Record "Country/Region";
     begin
         CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID);
-        CountryRegion.Validate("Intrastat Code", LibraryUtility.GenerateGUID);
+        CountryRegion.Validate(Name, LibraryUtility.GenerateGUID());
+        CountryRegion.Validate("Intrastat Code", LibraryUtility.GenerateGUID());
         CountryRegion.Modify(true);
         exit(CountryRegion.Code);
     end;
@@ -1714,7 +1686,7 @@
     begin
         ItemBudgetName.Init();
         ItemBudgetName.Validate("Analysis Area", AnalysisArea);
-        ItemBudgetName.Validate(Name, LibraryUtility.GenerateGUID);
+        ItemBudgetName.Validate(Name, LibraryUtility.GenerateGUID());
         ItemBudgetName.Insert(true);
     end;
 
@@ -1746,7 +1718,7 @@
     begin
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
         GenJournalTemplate.SetRange(Recurring, true);
-        if not GenJournalTemplate.FindFirst then
+        if not GenJournalTemplate.FindFirst() then
             CreateRecurringTemplateName(GenJournalTemplate);
     end;
 
@@ -1755,25 +1727,25 @@
         BankAccount.SetFilter("Bank Acc. Posting Group", '<>%1', '');
         BankAccount.SetRange("Currency Code", '');
         BankAccount.SetRange(Blocked, false);
-        if not BankAccount.FindFirst then
+        if not BankAccount.FindFirst() then
             CreateBankAccount(BankAccount);
     end;
 
     procedure FindBankAccountPostingGroup(var BankAccountPostingGroup: Record "Bank Account Posting Group")
     begin
-        if not BankAccountPostingGroup.FindFirst then
+        if not BankAccountPostingGroup.FindFirst() then
             CreateBankAccountPostingGroup(BankAccountPostingGroup);
     end;
 
     procedure FindCountryRegion(var CountryRegion: Record "Country/Region")
     begin
-        if not CountryRegion.FindFirst then
+        if not CountryRegion.FindFirst() then
             CreateCountryRegion(CountryRegion);
     end;
 
     procedure FindCurrency(var Currency: Record Currency)
     begin
-        if not Currency.FindFirst then
+        if not Currency.FindFirst() then
             CreateCurrency(Currency);
     end;
 
@@ -1783,7 +1755,7 @@
         with CustLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1807,7 +1779,7 @@
     begin
         Date := MinDate(WorkDate, Today);
         GLEntry.SetCurrentKey("Posting Date");
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             Date := MinDate(Date, NormalDate(GLEntry."Posting Date"));
         exit(Date);
     end;
@@ -1817,7 +1789,7 @@
         // Returns the Exchange Rate for a specified Currency at a specified Date. If multiple Exchange Rates exists it picks the latest.
         CurrencyExchangeRate.SetRange("Currency Code", Currency);
         CurrencyExchangeRate.SetRange("Starting Date", 0D, ConversionDate);
-        CurrencyExchangeRate.FindLast;
+        CurrencyExchangeRate.FindLast();
     end;
 
     procedure FindGLAccount(var GLAccount: Record "G/L Account"): Code[20]
@@ -1825,7 +1797,7 @@
         // Filter G/L Account so that errors are not generated due to mandatory fields.
         SetGLAccountDirectPostingFilter(GLAccount);
         SetGLAccountNotBlankGroupsFilter(GLAccount);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         exit(GLAccount."No.");
     end;
 
@@ -1839,13 +1811,13 @@
     procedure FindDirectPostingGLAccount(var GLAccount: Record "G/L Account"): Code[20]
     begin
         SetGLAccountDirectPostingFilter(GLAccount);
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
         exit(GLAccount."No.");
     end;
 
     procedure FindGenBusinessPostingGroup(var GenBusinessPostingGroup: Record "Gen. Business Posting Group")
     begin
-        if not GenBusinessPostingGroup.FindFirst then
+        if not GenBusinessPostingGroup.FindFirst() then
             CreateGenBusPostingGroup(GenBusinessPostingGroup);
     end;
 
@@ -1853,14 +1825,14 @@
     begin
         GenJournalBatch.SetRange("Journal Template Name", JournalTemplateName);
         GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account"); // NAVCZ
-        if not GenJournalBatch.FindFirst then
+        if not GenJournalBatch.FindFirst() then
             CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
     end;
 
     procedure FindGenJournalTemplate(var GenJournalTemplate: Record "Gen. Journal Template")
     begin
         GenJournalTemplate.SetRange(Recurring, false);
-        if not GenJournalTemplate.FindFirst then begin
+        if not GenJournalTemplate.FindFirst() then begin
             CreateGenJournalTemplate(GenJournalTemplate);
             if GenJournalTemplate.GetRangeMin(Type) = GenJournalTemplate.GetRangeMax(Type) then begin
                 GenJournalTemplate.Validate(Type, GenJournalTemplate.GetRangeMin(Type));
@@ -1873,7 +1845,7 @@
     begin
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange(Name, 'GENERAL');
-        if not GenJournalTemplate.FindFirst then begin
+        if not GenJournalTemplate.FindFirst() then begin
             CreateGenJournalTemplate(GenJournalTemplate);
             if GenJournalTemplate.GetRangeMin(Type) = GenJournalTemplate.GetRangeMax(Type) then begin
                 GenJournalTemplate.Validate(Type, GenJournalTemplate.GetRangeMin(Type));
@@ -1884,7 +1856,7 @@
 
     procedure FindGenProductPostingGroup(var GenProductPostingGroup: Record "Gen. Product Posting Group")
     begin
-        if not GenProductPostingGroup.FindFirst then
+        if not GenProductPostingGroup.FindFirst() then
             CreateGenProdPostingGroup(GenProductPostingGroup);
     end;
 
@@ -1892,7 +1864,7 @@
     begin
         GeneralPostingSetup.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GeneralPostingSetup.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
-        GeneralPostingSetup.FindFirst;
+        GeneralPostingSetup.FindFirst();
         exit(true);
     end;
 
@@ -1906,10 +1878,10 @@
             GeneralPostingSetup.SetFilter("Sales Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             GeneralPostingSetup.SetFilter("Purch. Account", '<>%1', '');
-        if not GeneralPostingSetup.FindFirst then begin
+        if not GeneralPostingSetup.FindFirst() then begin
             GeneralPostingSetup.SetRange("Purch. Account");
             GeneralPostingSetup.SetRange("Inventory Adjmt. Account");
-            if GeneralPostingSetup.FindFirst then begin
+            if GeneralPostingSetup.FindFirst() then begin
                 GeneralPostingSetup.Validate("Purch. Account", CreateGLAccountNo);
                 GeneralPostingSetup.Validate("Inventory Adjmt. Account", CreateGLAccountNo);
                 GeneralPostingSetup.Modify(true);
@@ -1938,10 +1910,10 @@
         GeneralPostingSetup.SetFilter("Direct Cost Applied Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Overhead Applied Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
-        if not GeneralPostingSetup.FindFirst then begin
+        if not GeneralPostingSetup.FindFirst() then begin
             GeneralPostingSetup.SetRange("Sales Prepayments Account");
             GeneralPostingSetup.SetRange("Purch. Prepayments Account");
-            if GeneralPostingSetup.FindFirst then begin
+            if GeneralPostingSetup.FindFirst() then begin
                 SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
                 GeneralPostingSetup.Modify(true);
             end else begin
@@ -1949,7 +1921,7 @@
                 GeneralPostingSetup.SetRange("Direct Cost Applied Account");
                 GeneralPostingSetup.SetRange("Overhead Applied Account");
                 GeneralPostingSetup.SetRange("Purchase Variance Account");
-                if GeneralPostingSetup.FindFirst then begin
+                if GeneralPostingSetup.FindFirst() then begin
                     SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
                     SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
                     SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
@@ -1957,7 +1929,7 @@
                 end else begin
                     GeneralPostingSetup.SetRange("Purch. Account");
                     GeneralPostingSetup.SetRange("Purch. Credit Memo Account");
-                    if GeneralPostingSetup.FindFirst then begin
+                    if GeneralPostingSetup.FindFirst() then begin
                         SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
                         SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
                         SetGeneralPostingSetupPrepAccounts(GeneralPostingSetup);
@@ -1981,13 +1953,13 @@
         GeneralPostingSetup.SetFilter("Overhead Applied Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Purchase Variance Account", '<>%1', '');
         GeneralPostingSetup.SetFilter("Invt. Accrual Acc. (Interim)", '<>%1', '');
-        if not GeneralPostingSetup.FindFirst then begin
+        if not GeneralPostingSetup.FindFirst() then begin
             GeneralPostingSetup.SetRange("COGS Account (Interim)");
             GeneralPostingSetup.SetRange("Direct Cost Applied Account");
             GeneralPostingSetup.SetRange("Overhead Applied Account");
             GeneralPostingSetup.SetRange("Purchase Variance Account");
             GeneralPostingSetup.SetRange("Invt. Accrual Acc. (Interim)");
-            if GeneralPostingSetup.FindFirst then begin
+            if GeneralPostingSetup.FindFirst() then begin
                 SetGeneralPostingSetupInvtAccounts(GeneralPostingSetup);
                 SetGeneralPostingSetupMfgAccounts(GeneralPostingSetup);
                 GeneralPostingSetup.Modify(true);
@@ -2021,13 +1993,13 @@
     procedure FindPaymentMethod(var PaymentMethod: Record "Payment Method")
     begin
         PaymentMethod.SetRange("Bal. Account No.", '');
-        if not PaymentMethod.FindFirst then
+        if not PaymentMethod.FindFirst() then
             CreatePaymentMethod(PaymentMethod);
     end;
 
     procedure FindPaymentTerms(var PaymentTerms: Record "Payment Terms")
     begin
-        if not PaymentTerms.FindFirst then
+        if not PaymentTerms.FindFirst() then
             CreatePaymentTerms(PaymentTerms);
     end;
 
@@ -2040,14 +2012,14 @@
 
         if PaymentTerms.FieldActive("Due Date Calculation") then // Field is disabled on IT build
             PaymentTerms.SetRange("Due Date Calculation", DateFormular_0D);
-        if not PaymentTerms.FindFirst then
+        if not PaymentTerms.FindFirst() then
             CreatePaymentTerms(PaymentTerms);
         exit(PaymentTerms.Code);
     end;
 
     procedure FindPostCode(var PostCode: Record "Post Code")
     begin
-        if not PostCode.FindFirst then
+        if not PostCode.FindFirst() then
             CreatePostCode(PostCode);
     end;
 
@@ -2060,20 +2032,20 @@
             SetRange(Type, Type::General);
             SetRange(Recurring, false);
             SetFilter("Source Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit("Source Code");
         end;
     end;
 
     procedure FindVATBusinessPostingGroup(var VATBusinessPostingGroup: Record "VAT Business Posting Group")
     begin
-        if not VATBusinessPostingGroup.FindFirst then
+        if not VATBusinessPostingGroup.FindFirst() then
             CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
     end;
 
     procedure FindVATProductPostingGroup(var VATProductPostingGroup: Record "VAT Product Posting Group")
     begin
-        if not VATProductPostingGroup.FindFirst then
+        if not VATProductPostingGroup.FindFirst() then
             CreateVATProductPostingGroup(VATProductPostingGroup);
     end;
 
@@ -2083,7 +2055,7 @@
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
 
@@ -2096,7 +2068,7 @@
             VATPostingSetup.SetFilter("Sales VAT Account", '<>%1', '');
         if SearchPostingType <> SearchPostingType::Sales then
             VATPostingSetup.SetFilter("Purchase VAT Account", '<>%1', '');
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup,
               VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInDecimalRange(10, 25, 0));
     end;
@@ -2107,7 +2079,7 @@
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetRange("VAT %", 0);
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, 0);
     end;
 
@@ -2118,9 +2090,9 @@
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("Unrealized VAT Type", UnrealizedVATType);
         VATPostingSetup.SetFilter("VAT %", '>%1', 0);
-        if not VATPostingSetup.FindFirst then begin
+        if not VATPostingSetup.FindFirst() then begin
             VATPostingSetup.SetRange("Unrealized VAT Type");
-            VATPostingSetup.FindFirst;
+            VATPostingSetup.FindFirst();
             VATPostingSetup."Unrealized VAT Type" := UnrealizedVATType;
             if VATPostingSetup."Sales VAT Unreal. Account" = '' then
                 VATPostingSetup.Validate("Sales VAT Unreal. Account", CreateGLAccountNo);
@@ -2136,7 +2108,7 @@
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2146,7 +2118,7 @@
         with EmployeeLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2159,7 +2131,7 @@
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange("Line No.", LineNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2206,7 +2178,7 @@
         PaymentTerms.SetFilter("Due Date Calculation", '<>''''');
         PaymentTerms.SetFilter("Discount Date Calculation", '<>''''');
         PaymentTerms.SetFilter("Discount %", '>%1', 0);
-        if not PaymentTerms.FindFirst then
+        if not PaymentTerms.FindFirst() then
             CreatePaymentTermsDiscount(PaymentTerms, false);
     end;
 
@@ -2276,7 +2248,7 @@
         repeat
             TempPostedDeferralLine.SetRange("Document No.", DocNo);
             TempPostedDeferralLine.SetRange("Posting Date", PostedDeferralLine."Posting Date");
-            if not TempPostedDeferralLine.FindFirst then begin
+            if not TempPostedDeferralLine.FindFirst() then begin
                 TempPostedDeferralLine.Init();
                 TempPostedDeferralLine."Document No." := DocNo;
                 TempPostedDeferralLine."Posting Date" := PostedDeferralLine."Posting Date";
@@ -2314,7 +2286,7 @@
         Clear(IssueFinanceChargeMemos);
         IssueFinanceChargeMemos.SetTableView(FinanceChargeMemoHeader);
         IssueFinanceChargeMemos.UseRequestPage(false);
-        IssueFinanceChargeMemos.Run;
+        IssueFinanceChargeMemos.Run();
     end;
 
     procedure PostCustLedgerApplication(CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -2366,9 +2338,11 @@
         AdjustAddReportingCurrency.SetAddCurr(CurrencyCode);
         AdjustAddReportingCurrency.InitializeRequest(DocumentNo, NewRetainedEarningsGLAccNo);
         AdjustAddReportingCurrency.UseRequestPage(false);
-        AdjustAddReportingCurrency.Run;
+        AdjustAddReportingCurrency.Run();
     end;
 
+#if not CLEAN20
+    // Old Adjust Exchange Rates
     procedure RunAdjustExchangeRatesSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
     begin
         RunAdjustExchangeRates(
@@ -2389,7 +2363,38 @@
           StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, true, true, AdjGLAcc, false, true); // NAVCZ
 #endif
         AdjustExchangeRates.UseRequestPage(false);
-        AdjustExchangeRates.Run;
+        AdjustExchangeRates.Run();
+    end;
+#endif
+
+    // New Exch. rate adjustment for v.20
+    procedure RunExchRateAdjustmentForDocNo(CurrencyCode: Code[10]; DocumentNo: Code[20])
+    begin
+        RunExchRateAdjustment(CurrencyCode, 0D, WorkDate(), 'Test', WorkDate(), DocumentNo, false);
+    end;
+
+    procedure RunExchRateAdjustmentForDocNo(CurrencyCode: Code[10]; DocumentNo: Code[20]; EndDate: Date)
+    begin
+        RunExchRateAdjustment(CurrencyCode, 0D, EndDate, 'Test', EndDate, DocumentNo, false);
+    end;
+
+    procedure RunExchRateAdjustmentSimple(CurrencyCode: Code[10]; EndDate: Date; PostingDate: Date)
+    begin
+        RunExchRateAdjustment(
+          CurrencyCode, 0D, EndDate, 'Test', PostingDate, LibraryUtility.GenerateGUID(), false);
+    end;
+
+    procedure RunExchRateAdjustment(CurrencyCode: Code[10]; StartDate: Date; EndDate: Date; PostingDescription: Text[50]; PostingDate: Date; PostingDocNo: Code[20]; AdjGLAcc: Boolean)
+    var
+        Currency: Record Currency;
+        ExchRateAdjustment: Report "Exch. Rate Adjustment";
+    begin
+        Currency.SetRange(Code, CurrencyCode);
+        ExchRateAdjustment.SetTableView(Currency);
+        ExchRateAdjustment.InitializeRequest2(
+            StartDate, EndDate, PostingDescription, PostingDate, PostingDocNo, true, AdjGLAcc);
+        ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.Run();
     end;
 
     procedure RunAdjustGenJournalBalance(var GenJournalLine: Record "Gen. Journal Line")
@@ -2400,13 +2405,13 @@
     [Scope('OnPrem')]
     procedure RunReminderIssue(var ReminderIssue: Codeunit "Reminder-Issue")
     begin
-        ReminderIssue.Run;
+        ReminderIssue.Run();
     end;
 
     [Scope('OnPrem')]
     procedure RunFinChrgMemoIssue(var FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue")
     begin
-        FinChrgMemoIssue.Run;
+        FinChrgMemoIssue.Run();
     end;
 
     procedure SelectLastGenJnBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -2416,7 +2421,7 @@
         GenJournalBatch.SetRange("Journal Template Name", SelectGenJnlTemplate);
         GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
         CreateGLAccount(GLAccount);
-        GenJournalBatch.FindLast;
+        GenJournalBatch.FindLast();
         GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
         GenJournalBatch.Modify(true);
     end;
@@ -2437,7 +2442,7 @@
     begin
         // Select FA Journal Batch Name for FA Journal Line.
         FAJournalBatch.SetRange("Journal Template Name", SelectFAJournalTemplate);
-        if FAJournalBatch.FindFirst then
+        if FAJournalBatch.FindFirst() then
             exit;
         // Create New FA Journal Batch.
         FAJournalBatch.Init();
@@ -2456,7 +2461,7 @@
     begin
         // Select FA Journal Template Name for FA Journal Line.
         FAJournalTemplate.SetRange(Recurring, false);
-        if not FAJournalTemplate.FindFirst then begin
+        if not FAJournalTemplate.FindFirst() then begin
             FAJournalTemplate.Init();
             FAJournalTemplate.Validate(
               Name, CopyStr(LibraryUtility.GenerateRandomCode(FAJournalTemplate.FieldNo(Name), DATABASE::"FA Journal Template"),
@@ -2467,31 +2472,23 @@
         exit(FAJournalTemplate.Name);
     end;
 
-    local procedure PopGLAccount(var GLAccount: Record "G/L Account") AccountNo: Code[20]
+    procedure SetBlockDeleteGLAccount(NewValue: Boolean) OldValue: Boolean
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if GLAccount.Mark then
-            Error(NoRecordsInFilterError, GLAccount.TableCaption);
-        AccountNo := GLAccount."No.";
-        GLAccount.Mark(true); // To make sure account is not used twice.
-        GLAccount.Next;
+        GeneralLedgerSetup.SetLoadFields("Block Deletion of G/L Accounts");
+        GeneralLedgerSetup.Get();
+        OldValue := GeneralLedgerSetup."Block Deletion of G/L Accounts";
+        GeneralLedgerSetup.Validate("Block Deletion of G/L Accounts", NewValue);
+        GeneralLedgerSetup.Modify(true);
     end;
 
     procedure SetCurrencyGainLossAccounts(var Currency: Record Currency)
-    var
-        GLAccount: Record "G/L Account";
     begin
-        // Find a correct account for realized adjustment
-        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
-        GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
-        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::" ");
-        GLAccount.SetRange(Blocked, false);
-        GLAccount.FindSet();
-        GLAccount.Next(0); // Needed to trick preCAL
-
-        Currency.Validate("Realized Losses Acc.", PopGLAccount(GLAccount));
-        Currency.Validate("Realized Gains Acc.", PopGLAccount(GLAccount));
-        Currency.Validate("Unrealized Losses Acc.", PopGLAccount(GLAccount));
-        Currency.Validate("Unrealized Gains Acc.", PopGLAccount(GLAccount));
+        Currency.Validate("Realized Losses Acc.", CreateGLAccountNo());
+        Currency.Validate("Realized Gains Acc.", CreateGLAccountNo());
+        Currency.Validate("Unrealized Losses Acc.", CreateGLAccountNo());
+        Currency.Validate("Unrealized Gains Acc.", CreateGLAccountNo());
         Currency.Modify(true);
     end;
 
@@ -2573,6 +2570,13 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+    procedure SetJournalTemplNameMandatory(Mandatory: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", Mandatory);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     [Scope('OnPrem')]
     procedure SetDefaultTransactionTypesInIntrastatSetup()
     var
@@ -2588,7 +2592,7 @@
     begin
         // Set Applies-to ID.
         CustLedgerEntry.LockTable();
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         repeat
             CustLedgerEntry.TestField(Open, true);
             CustLedgerEntry.Validate("Applies-to ID", UserId);
@@ -2604,7 +2608,7 @@
     begin
         // Set Applies-to ID.
         VendorLedgerEntry.LockTable();
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         repeat
             VendorLedgerEntry.TestField(Open, true);
             VendorLedgerEntry.Validate("Applies-to ID", UserId);
@@ -2620,7 +2624,7 @@
     begin
         // Set Applies-to ID.
         EmployeeLedgerEntry.LockTable();
-        EmployeeLedgerEntry.FindFirst;
+        EmployeeLedgerEntry.FindFirst();
         repeat
             EmployeeLedgerEntry.TestField(Open, true);
             EmployeeLedgerEntry.Validate("Applies-to ID", UserId);
@@ -2639,7 +2643,7 @@
         // Clear any existing applying entries.
         CustLedgerEntry2.SetRange("Applying Entry", true);
         CustLedgerEntry2.SetFilter("Entry No.", '<>%1', CustLedgerEntry."Entry No.");
-        if CustLedgerEntry2.FindSet then
+        if CustLedgerEntry2.FindSet() then
             repeat
                 CustLedgerEntry2.Validate("Applying Entry", false);
                 CustLedgerEntry2.Modify(true);
@@ -2648,7 +2652,7 @@
         // Clear Applies-to IDs
         CustLedgerEntry2.Reset();
         CustLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
-        if CustLedgerEntry2.FindSet then
+        if CustLedgerEntry2.FindSet() then
             repeat
                 CustLedgerEntry2.Validate("Applies-to ID", '');
                 CustLedgerEntry2.Modify(true);
@@ -2672,7 +2676,7 @@
         // Clear any existing applying entries.
         VendorLedgerEntry2.SetRange("Applying Entry", true);
         VendorLedgerEntry2.SetFilter("Entry No.", '<>%1', VendorLedgerEntry."Entry No.");
-        if VendorLedgerEntry2.FindSet then
+        if VendorLedgerEntry2.FindSet() then
             repeat
                 VendorLedgerEntry2.Validate("Applying Entry", false);
                 VendorLedgerEntry2.Modify(true);
@@ -2681,7 +2685,7 @@
         // Clear Applies-to IDs.
         VendorLedgerEntry2.Reset();
         VendorLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
-        if VendorLedgerEntry2.FindSet then
+        if VendorLedgerEntry2.FindSet() then
             repeat
                 VendorLedgerEntry2.Validate("Applies-to ID", '');
                 VendorLedgerEntry2.Modify(true);
@@ -2704,7 +2708,7 @@
         // Clear any existing applying entries.
         EmployeeLedgerEntry2.SetRange("Applying Entry", true);
         EmployeeLedgerEntry2.SetFilter("Entry No.", '<>%1', EmployeeLedgerEntry."Entry No.");
-        if EmployeeLedgerEntry2.FindSet then
+        if EmployeeLedgerEntry2.FindSet() then
             repeat
                 EmployeeLedgerEntry2.Validate("Applying Entry", false);
                 EmployeeLedgerEntry2.Modify(true);
@@ -2713,7 +2717,7 @@
         // Clear Applies-to IDs.
         EmployeeLedgerEntry2.Reset();
         EmployeeLedgerEntry2.SetFilter("Applies-to ID", '<>%1', '');
-        if EmployeeLedgerEntry2.FindSet then
+        if EmployeeLedgerEntry2.FindSet() then
             repeat
                 EmployeeLedgerEntry2.Validate("Applies-to ID", '');
                 EmployeeLedgerEntry2.Modify(true);
@@ -2891,6 +2895,13 @@
         GeneralLedgerSetup.Modify(true);
     end;
 
+    procedure SetJournalTemplateNameMandatory(Mandatory: Boolean)
+    begin
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Journal Templ. Name Mandatory", Mandatory);
+        GeneralLedgerSetup.Modify(true);
+    end;
+
     procedure SetSearchGenPostingTypeAll()
     begin
         SearchPostingType := SearchPostingType::All;
@@ -2972,10 +2983,10 @@
         repeat
             GLEntry.SetFilter("G/L Account No.", '>%1', GLEntry."G/L Account No.");
             GLEntry.SetFilter("Posting Date", '>%1', GLEntry."Posting Date");
-            if GLEntry.FindFirst then begin
+            if GLEntry.FindFirst() then begin
                 GLEntry.SetRange("G/L Account No.", GLEntry."G/L Account No.");
                 GLEntry.SetRange("Posting Date");
-                GLEntry.FindLast;
+                GLEntry.FindLast();
             end else
                 OK := false
         until not OK;
@@ -3020,7 +3031,7 @@
         SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, IncludeChecks);
         SuggestBankAccReconLines.UseRequestPage(false);
 
-        SuggestBankAccReconLines.Run;
+        SuggestBankAccReconLines.Run();
     end;
 
     procedure UnapplyCustomerLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -3129,7 +3140,7 @@
         DtldVendLedgEntry.SetRange("Document Type", DocumentType);
         DtldVendLedgEntry.SetRange("Document No.", DocumentNo);
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
-        DtldVendLedgEntry.FindLast;
+        DtldVendLedgEntry.FindLast();
         DtldVendLedgEntry.TestField("Transaction No.", 0);
         DtldVendLedgEntry.TestField("Application No.");
         DtldVendLedgEntry.TestField("Amount (LCY)", AmountLCY);
@@ -3142,7 +3153,7 @@
         DtldCustLedgEntry.SetRange("Document Type", DocumentType);
         DtldCustLedgEntry.SetRange("Document No.", DocumentNo);
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
-        DtldCustLedgEntry.FindLast;
+        DtldCustLedgEntry.FindLast();
         DtldCustLedgEntry.TestField("Transaction No.", 0);
         DtldCustLedgEntry.TestField("Application No.");
         DtldCustLedgEntry.TestField("Amount (LCY)", AmountLCY);
@@ -3389,7 +3400,7 @@
         GeneralJournal.OK.Invoke;  // Need to close the Page to ensure changes are reflected on Record Variable.
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));  // Update Random Amount.
         GenJournalLine.Modify(true);
         GeneralJournal.OpenEdit;

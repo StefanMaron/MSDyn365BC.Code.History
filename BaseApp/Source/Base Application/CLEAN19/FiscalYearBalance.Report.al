@@ -264,7 +264,7 @@ report 36 "Fiscal Year Balance"
 
                 Clear(ColumnValuesAsText);
                 Clear(ColumnValuesAsTot);
-                GLAccount2 := "G/L Account";
+                GLAccount2.Copy("G/L Account");
                 with GLAccount2 do begin
                     // Opening Balance
                     SetRange("Date Filter", 0D, ClosingDate(FYStartingDate - 1));
@@ -399,7 +399,7 @@ report 36 "Fiscal Year Balance"
 
                 AccountingPeriod.SetFilter("Starting Date", '<=%1', PeriodStartingDate);
                 AccountingPeriod.SetRange("New Fiscal Year", true);
-                AccountingPeriod.FindLast;
+                AccountingPeriod.FindLast();
                 FYStartingDate := AccountingPeriod."Starting Date";
             end;
         }
@@ -474,7 +474,7 @@ report 36 "Fiscal Year Balance"
         begin
             AccountingPeriod.SetFilter("Starting Date", '<=%1', WorkDate);
             AccountingPeriod.SetRange("New Fiscal Year", true);
-            if AccountingPeriod.FindLast then
+            if AccountingPeriod.FindLast() then
                 PeriodStartingDate := AccountingPeriod."Starting Date";
 
             SetEndingDate;
@@ -543,7 +543,7 @@ report 36 "Fiscal Year Balance"
     begin
         AccountingPeriod.Reset();
         AccountingPeriod.SetFilter("Starting Date", '>%1', PeriodStartingDate);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         PeriodEndingDate := AccountingPeriod."Starting Date" - 1;
     end;
 
@@ -600,14 +600,6 @@ report 36 "Fiscal Year Balance"
         if Value < 0 then
             exit(0);
         exit(Value);
-    end;
-
-    [Obsolete('Unused function discontinued.', '19.0')]
-    [Scope('OnPrem')]
-    procedure SetStartingDate(StartDate: Date)
-    begin
-        // NAVCZ
-        PeriodStartingDate := StartDate;
     end;
 }
 

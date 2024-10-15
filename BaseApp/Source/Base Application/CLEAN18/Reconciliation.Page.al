@@ -73,12 +73,19 @@ page 345 Reconciliation
                   GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.",
                   -Round(GenJnlLine."Amount (LCY)" / (1 + GenJnlLine."Bal. VAT %" / 100)));
             until GenJnlLine.Next() = 0;
+        
+        OnAfterSetGenJnlLine(Rec, GenJnlLine);
         if Find('-') then;
     end;
 
     local procedure SaveNetChange(AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType.AsInteger(), AccNo, NetChange);
+        IsHandled := false;
+        OnBeforeSaveNetChange(Rec, GenJnlLine, AccType.AsInteger(), AccNo, NetChange, IsHandled);
+        if IsHandled then
+            exit;
 
         if AccNo = '' then
             exit;
@@ -106,6 +113,7 @@ page 345 Reconciliation
 
         "Net Change in Jnl." := "Net Change in Jnl." + NetChange;
         "Balance after Posting" := "Balance after Posting" + NetChange;
+        OnSaveNetChangeOnBeforeModify(Rec, GenJnlLine, AccType, AccNo, NetChange);
         Modify;
     end;
 
@@ -116,8 +124,10 @@ page 345 Reconciliation
         "No." := GLAcc."No.";
         Name := GLAcc.Name;
         "Balance after Posting" := GLAcc."Balance at Date";
-        OnBeforeGLAccountNetChange(Rec);
+        OnBeforeGLAccountNetChange(Rec, GLAcc);
         Insert;
+
+        OnAfterInsertGLAccNetChange(Rec);
     end;
 
     procedure ReturnGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
@@ -136,12 +146,27 @@ page 345 Reconciliation
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    local procedure OnAfterSetGenJnlLine(var GLAccountNetChange: Record "G/L Account Net Change"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal)
+    local procedure OnAfterInsertGLAccNetChange(var GLAccountNetChange: Record "G/L Account Net Change")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGLAccountNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSaveNetChange(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Integer; AccNo: Code[20]; var NetChange: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveNetChangeOnBeforeModify(var GLAccountNetChange: Record "G/L Account Net Change"; GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; NetChange: Decimal)
     begin
     end;
 }

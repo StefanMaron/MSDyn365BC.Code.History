@@ -77,13 +77,13 @@ codeunit 11795 "User Setup Adv. Management"
     begin
         with ItemJournalLine do begin
             if not CheckWorkDocDate("Document Date") then
-                TestField("Document Date", WorkDate);
+                TestField("Document Date", WorkDate, ErrorInfo.Create());
             if not CheckSysDocDate("Document Date") then
-                TestField("Document Date", Today);
+                TestField("Document Date", Today, ErrorInfo.Create());
             if not CheckWorkPostingDate("Posting Date") then
-                TestField("Posting Date", WorkDate);
+                TestField("Posting Date", WorkDate, ErrorInfo.Create());
             if not CheckSysPostingDate("Posting Date") then
-                TestField("Posting Date", Today);
+                TestField("Posting Date", Today, ErrorInfo.Create());
 
             // Location checks
             if "Value Entry Type" <> "Value Entry Type"::Revaluation then begin
@@ -93,34 +93,30 @@ codeunit 11795 "User Setup Adv. Management"
                     "Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::Output:
                         if Quantity > 0 then begin
                             if not CheckLocQuantityIncrease("Location Code") then
-                                FieldError("Location Code")
+                                FieldError("Location Code", ErrorInfo.Create())
                         end else begin
                             if Quantity < 0 then
                                 if not CheckLocQuantityDecrease("Location Code") then
-                                    FieldError("Location Code");
+                                    FieldError("Location Code", ErrorInfo.Create());
                         end;
                     "Entry Type"::Sale, "Entry Type"::"Negative Adjmt.", "Entry Type"::Consumption:
                         if Quantity > 0 then begin
                             if not CheckLocQuantityDecrease("Location Code") then
-                                FieldError("Location Code")
+                                FieldError("Location Code", ErrorInfo.Create())
                         end else begin
                             if Quantity < 0 then
                                 if not CheckLocQuantityIncrease("Location Code") then
-                                    FieldError("Location Code");
+                                    FieldError("Location Code", ErrorInfo.Create());
                         end;
                     "Entry Type"::Transfer:
                         begin
                             if not CheckLocQuantityDecrease("Location Code") then
-                                FieldError("Location Code");
+                                FieldError("Location Code", ErrorInfo.Create());
                             if not CheckLocQuantityIncrease("New Location Code") then
-                                FieldError("New Location Code");
+                                FieldError("New Location Code", ErrorInfo.Create());
                         end;
                 end;
             end;
-#if not CLEAN17
-            if not CheckWhseNetChangeTemplate(ItemJournalLine) then
-                FieldError("Whse. Net Change Template");
-#endif
         end;
     end;
 
@@ -345,39 +341,6 @@ codeunit 11795 "User Setup Adv. Management"
                 (Type = UserSetupLine.Type::"Bank Stmt") and UserSetup."Check Bank Statements":
                     Error(BankStmtDeniedErr, BankAccNo);
             end;
-    end;
-
-#endif
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    [Scope('OnPrem')]
-    procedure CheckWhseNetChangeTemplate(var ItemJnlLine: Record "Item Journal Line"): Boolean
-    var
-        UserSetupLine: Record "User Setup Line";
-        ItemJournalTemplate: Record "Item Journal Template";
-    begin
-        if (ItemJnlLine."Source Type" = ItemJnlLine."Source Type"::Customer) or
-           (ItemJnlLine."Source Type" = ItemJnlLine."Source Type"::Vendor) or
-           (ItemJnlLine."Source Type" = ItemJnlLine."Source Type"::Item) or
-           (ItemJnlLine."Order No." <> '') or
-           ItemJnlLine.Correction or
-           ItemJnlLine.Adjustment
-        then
-            exit(true);
-
-        if ItemJournalTemplate.Get(ItemJnlLine."Journal Template Name") then
-            if ItemJournalTemplate.Type = ItemJournalTemplate.Type::Revaluation then
-                exit(true);
-
-        GetUserSetup;
-        if not UserSetup."Check Whse. Net Change Temp." then
-            exit(true);
-
-        exit(
-          CheckUserSetupLine(
-            UserSetup."User ID",
-            UserSetupLine.Type::"Whse. Net Change Templates",
-            ItemJnlLine."Whse. Net Change Template"));
     end;
 
 #endif

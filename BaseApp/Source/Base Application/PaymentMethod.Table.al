@@ -30,11 +30,7 @@ table 289 "Payment Method"
             Caption = 'Bal. Account No.';
             TableRelation = IF ("Bal. Account Type" = CONST("G/L Account")) "G/L Account"
             ELSE
-#if CLEAN17
             IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account";
-#else
-            IF ("Bal. Account Type" = CONST("Bank Account")) "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
 
             trigger OnValidate()
             begin
@@ -78,7 +74,7 @@ table 289 "Payment Method"
                 DataExchDef: Record "Data Exch. Def";
             begin
                 DataExchLineDef.SetFilter(Code, '<>%1', '');
-                if DataExchLineDef.FindSet then begin
+                if DataExchLineDef.FindSet() then begin
                     repeat
                         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
                         if DataExchDef.Type = DataExchDef.Type::"Payment Export" then begin
@@ -122,41 +118,9 @@ table 289 "Payment Method"
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnLookup()
-            var
-                BankAcc: Record "Bank Account";
-            begin
-                // NAVCZ
-                BankAcc."No." := "Cash Desk Code";
-                if PAGE.RunModal(PAGE::"Cash Desk List", BankAcc) = ACTION::LookupOK then
-                    Validate("Cash Desk Code", BankAcc."No.");
-                // NAVCZ
-            end;
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                TestField("Bal. Account No.", '');
-                if "Cash Desk Code" = '' then
-                    "Cash Document Status" := "Cash Document Status"::" "
-                else begin
-                    if xRec."Cash Document Status" = "Cash Document Status"::" " then
-                        "Cash Document Status" := "Cash Document Status"::Create;
-                    CheckCashDocumentStatus;
-                end;
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11731; "Cash Document Status"; Option)
         {
@@ -164,23 +128,9 @@ table 289 "Payment Method"
             NotBlank = true;
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif        
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                // NAVCZ
-                TestField("Cash Desk Code");
-                CheckCashDocumentStatus;
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -242,17 +192,6 @@ table 289 "Payment Method"
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    local procedure CheckCashDocumentStatus()
-    var
-        CashDeskManagement: Codeunit CashDeskManagement;
-    begin
-        // NAVCZ
-        CashDeskManagement.CheckCashDocumentStatus("Cash Desk Code", "Cash Document Status");
-    end;
-
-#endif
     procedure TranslateDescription(Language: Code[10])
     var
         PaymentMethodTranslation: Record "Payment Method Translation";
@@ -277,4 +216,3 @@ table 289 "Payment Method"
     begin
     end;
 }
-

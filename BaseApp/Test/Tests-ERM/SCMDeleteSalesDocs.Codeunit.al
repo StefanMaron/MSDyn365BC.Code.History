@@ -26,7 +26,6 @@ codeunit 137208 "SCM Delete Sales Docs"
     var
         CompanyInformation: Record "Company Information";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        ReportSelections: Record "Report Selections";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Delete Sales Docs");
         LibraryVariableStorage.Clear();
@@ -40,16 +39,6 @@ codeunit 137208 "SCM Delete Sales Docs"
         CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
         CompanyInformation.Modify();
-
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Shipment");
-        ReportSelections.ModifyAll("Report ID", Report::"Sales - Shipment CZ");
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Invoice");
-        ReportSelections.ModifyAll("Report ID", Report::"Sales - Invoice CZ");
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Cr.Memo");
-        ReportSelections.ModifyAll("Report ID", Report::"Sales - Credit Memo CZ");
-        ReportSelections.SetRange(Usage, ReportSelections.Usage::"S.Ret.Rcpt.");
-        ReportSelections.ModifyAll("Report ID", Report::"Sales - Return Reciept CZ");
-
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
@@ -118,11 +107,11 @@ codeunit 137208 "SCM Delete Sales Docs"
         SalesShipmentHeader.SetFilter("No.", StrSubstNo('%1|%2', PostedShipmentNos[1], PostedShipmentNos[2]));
         LibraryVariableStorage.Enqueue(SalesShipmentHeader.GetFilter("No."));
         SalesShipmentHeader.FindFirst();
-        SalesShipmentHeader.PrintRecords(true);
+        Report.Run(Report::"Sales - Shipment", true, false, SalesShipmentHeader);
 
         LibraryReportDataset.LoadDataSetFile();
         for Index := 1 to ArrayLen(PostedShipmentNos) do
-            LibraryReportDataset.AssertElementWithValueExists('No_SalesShipmentHeader', PostedShipmentNos[Index]);
+            LibraryReportDataset.AssertElementWithValueExists('No_SalesShptHeader', PostedShipmentNos[Index]);
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -156,12 +145,12 @@ codeunit 137208 "SCM Delete Sales Docs"
         FilePath := FileManagement.ServerTempFileName('xml');
         LibraryVariableStorage.Enqueue(FilePath);
 
-        SalesShipmentHeader.PrintRecords(false);
+        Report.Run(Report::"Sales - Shipment", false, false, SalesShipmentHeader);
 
         LibraryXPathXMLReader.Initialize(FilePath, '');
         for Index := 1 to ArrayLen(PostedShipmentNos) do
             LibraryXPathXMLReader.VerifyNodeValueByXPathWithIndex(
-                '//ReportDataSet/DataItems/DataItem/Columns/Column[@name="No_SalesShipmentHeader"]',
+                '//ReportDataSet/DataItems/DataItem/Columns/Column[@name="No_SalesShptHeader"]',
                 PostedShipmentNos[Index],
                 Index - 1);
 
@@ -218,10 +207,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Order:
                 begin
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesShipmentHeader."No.");
                     NoPrinted := SalesShipmentHeader."No. Printed";
-                    SalesShipmentHeader.PrintRecords(false);
+                    Report.Run(Report::"Sales - Shipment", false, false, SalesShipmentHeader);
                     SalesShipmentHeader.Get(SalesShipmentHeader."No.");
                     NoPrinted := SalesShipmentHeader."No. Printed" - NoPrinted;
                     SalesShipmentHeader.Delete(true);
@@ -229,10 +218,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::Invoice:
                 begin
                     SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesInvoiceHeader.FindFirst;
+                    SalesInvoiceHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");
                     NoPrinted := SalesInvoiceHeader."No. Printed";
-                    SalesInvoiceHeader.PrintRecords(false);
+                    Report.Run(Report::"Standard Sales - Invoice", false, false, SalesInvoiceHeader);
                     SalesInvoiceHeader.Get(SalesInvoiceHeader."No.");
                     NoPrinted := SalesInvoiceHeader."No. Printed" - NoPrinted;
                     SalesInvoiceHeader.Delete(true);
@@ -240,10 +229,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Return Order":
                 begin
                     ReturnReceiptHeader.SetRange("Return Order No.", SalesHeader."No.");
-                    ReturnReceiptHeader.FindFirst;
+                    ReturnReceiptHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(ReturnReceiptHeader."No.");
                     NoPrinted := ReturnReceiptHeader."No. Printed";
-                    ReturnReceiptHeader.PrintRecords(false);
+                    Report.Run(Report::"Sales - Return Receipt", false, false, ReturnReceiptHeader);
                     ReturnReceiptHeader.Get(ReturnReceiptHeader."No.");
                     NoPrinted := ReturnReceiptHeader."No. Printed" - NoPrinted;
                     ReturnReceiptHeader.Delete(true);
@@ -251,10 +240,10 @@ codeunit 137208 "SCM Delete Sales Docs"
             SalesHeader."Document Type"::"Credit Memo":
                 begin
                     SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-                    SalesCrMemoHeader.FindFirst;
+                    SalesCrMemoHeader.FindFirst();
                     LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");
                     NoPrinted := SalesCrMemoHeader."No. Printed";
-                    SalesCrMemoHeader.PrintRecords(false);
+                    Report.Run(Report::"Standard Sales - Credit Memo", false, false, SalesCrMemoHeader);
                     SalesCrMemoHeader.Get(SalesCrMemoHeader."No.");
                     NoPrinted := SalesCrMemoHeader."No. Printed" - NoPrinted;
                     SalesCrMemoHeader.Delete(true);
@@ -298,7 +287,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment CZ")
+    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment")
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
         FilePath: Text;
@@ -311,7 +300,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Reciept CZ")
+    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Receipt")
     var
         ReturnReceiptHeader: Record "Return Receipt Header";
         FilePath: Text;
@@ -324,33 +313,33 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesInvReportHandler(var SalesInvoice: Report "Sales - Invoice CZ")
+    procedure SalesInvReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         FilePath: Text;
     begin
         FilePath := LibraryVariableStorage.DequeueText();
         SalesInvoiceHeader.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.SaveAsPdf(FilePath);
+        StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
+        StandardSalesInvoice.SaveAsPdf(FilePath);
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Sales - Credit Memo CZ")
+    procedure CrMemoReportHandler(var StandardSalesCreditMemo: Report "Standard Sales - Credit Memo")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         FilePath: Text;
     begin
         FilePath := LibraryVariableStorage.DequeueText();
         SalesCrMemoHeader.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemo.SaveAsPdf(FilePath);
+        StandardSalesCreditMemo.SetTableView(SalesCrMemoHeader);
+        StandardSalesCreditMemo.SaveAsPdf(FilePath);
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesShipmentXmlReportHandler(var SalesShipment: Report "Sales - Shipment CZ")
+    procedure SalesShipmentXmlReportHandler(var SalesShipment: Report "Sales - Shipment")
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
@@ -361,7 +350,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesShipmentRequestPageHandler(var SalesShipment: TestRequestPage "Sales - Shipment CZ")
+    procedure SalesShipmentRequestPageHandler(var SalesShipment: TestRequestPage "Sales - Shipment")
     begin
         SalesShipment."Sales Shipment Header".SetFilter("No.", LibraryVariableStorage.DequeueText());
         SalesShipment.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());

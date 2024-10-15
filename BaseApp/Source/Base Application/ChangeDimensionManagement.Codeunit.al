@@ -1,14 +1,18 @@
-#if not CLEAN19
+#if not CLEAN20
 codeunit 11769 "Change Dimension Management"
 {
     Permissions = TableData "Dimension Value" = rim,
                   TableData "Default Dimension" = r;
     SingleInstance = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
     end;
 
+#if not CLEAN19
     var
         TempChangeLogSetupTable: Record "Change Log Setup (Table)" temporary;
         TempDefaultDimension: Record "Default Dimension" temporary;
@@ -60,9 +64,12 @@ codeunit 11769 "Change Dimension Management"
 
         UpdateDimensionValue(RecRef, xRecRef, false);
     end;
+#endif
 
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure UpdateDimensionValue(RecRef: RecordRef; XRecRef: RecordRef; IsInsert: Boolean)
+#if not CLEAN19
     var
         DimensionValue: Record "Dimension Value";
         FieldTab: Record "Field";
@@ -73,7 +80,9 @@ codeunit 11769 "Change Dimension Management"
         TempValueText: Text[250];
         TempValueTextOld: Text[250];
         IsUpdate: Boolean;
+#endif 
     begin
+#if not CLEAN19
         with TempDefaultDimension do begin
             Reset;
             SetRange("Table ID", RecRef.Number);
@@ -120,8 +129,11 @@ codeunit 11769 "Change Dimension Management"
                     end;
                 until Next() = 0;
         end;
+#else
+        exit;
+#endif
     end;
-
+#if not CLEAN19
     local procedure CheckChangeSetupRead()
     begin
         if not DimChangeSetupRead then begin
@@ -148,6 +160,7 @@ codeunit 11769 "Change Dimension Management"
                 TempDefaultDimension.Insert();
             until DefaultDimension.Next() = 0;
     end;
+#endif
 }
 
 #endif

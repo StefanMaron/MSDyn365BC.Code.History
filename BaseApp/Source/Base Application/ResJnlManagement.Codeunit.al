@@ -46,7 +46,7 @@ codeunit 270 ResJnlManagement
                     Commit();
                 end;
             1:
-                ResJnlTemplate.FindFirst;
+                ResJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, ResJnlTemplate) = ACTION::LookupOK;
         end;
@@ -107,14 +107,14 @@ codeunit 270 ResJnlManagement
         ResJnlBatch.FilterGroup(0);
 
         if not ResJnlBatch.Find('-') then begin
-            if not ResJnlTemplate.FindFirst then
+            if not ResJnlTemplate.FindFirst() then
                 TemplateSelection(0, false, ResJnlLine, JnlSelected);
-            if ResJnlTemplate.FindFirst then
+            if ResJnlTemplate.FindFirst() then
                 CheckTemplateName(ResJnlTemplate.Name, ResJnlBatch.Name);
             ResJnlTemplate.SetRange(Recurring, true);
-            if not ResJnlTemplate.FindFirst then
+            if not ResJnlTemplate.FindFirst() then
                 TemplateSelection(0, true, ResJnlLine, JnlSelected);
-            if ResJnlTemplate.FindFirst then
+            if ResJnlTemplate.FindFirst() then
                 CheckTemplateName(ResJnlTemplate.Name, ResJnlBatch.Name);
             ResJnlTemplate.SetRange(Recurring);
         end;
@@ -128,7 +128,7 @@ codeunit 270 ResJnlManagement
             ResJnlTemplate.SetRange(Name, ResJnlBatch.GetFilter("Journal Template Name"));
         case ResJnlTemplate.Count of
             1:
-                ResJnlTemplate.FindFirst;
+                ResJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, ResJnlTemplate) = ACTION::LookupOK;
         end;
@@ -146,7 +146,7 @@ codeunit 270 ResJnlManagement
     begin
         ResJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ResJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not ResJnlBatch.FindFirst then begin
+            if not ResJnlBatch.FindFirst() then begin
                 ResJnlBatch.Init();
                 ResJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 ResJnlBatch.SetupNewBatch;

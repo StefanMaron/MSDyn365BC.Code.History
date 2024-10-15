@@ -382,7 +382,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
         TempPurchAdvanceLetterHeader: Record "Purch. Advance Letter Header" temporary;
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
-        PurchLetHeadAdvLink.RunModal;
+        PurchLetHeadAdvLink.RunModal();
         if PurchLetHeadAdvLink.IsAssigned then begin
             PurchLetHeadAdvLink.GetSelectedRecords(TempPurchAdvanceLetterHeader);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromPurchLetHead(TempPurchAdvanceLetterHeader, TempAdvanceLinkBufferEntry);
@@ -400,7 +400,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
         TempPurchAdvanceLetterLine: Record "Purch. Advance Letter Line" temporary;
         TempAdvanceLinkBufferEntry: Record "Advance Link Buffer - Entry" temporary;
     begin
-        PurchLetterLineAdvLink.RunModal;
+        PurchLetterLineAdvLink.RunModal();
         if PurchLetterLineAdvLink.IsAssigned then begin
             PurchLetterLineAdvLink.GetSelectedRecords(TempPurchAdvanceLetterLine);
             PrepmtLinksMgtAdv.FillAdvLnkBuffFromPurchLetLine(TempPurchAdvanceLetterLine, TempAdvanceLinkBufferEntry);

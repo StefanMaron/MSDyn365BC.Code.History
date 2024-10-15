@@ -4,11 +4,12 @@ table 31042 "FA Extended Posting Group"
 #if not CLEAN18
     LookupPageID = "FA Extended Posting Groups";
     ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
 #endif
     ObsoleteReason = 'Moved to Fixed Asset Localization for Czech.';
-    ObsoleteTag = '18.0';
 
     fields
     {
@@ -71,7 +72,6 @@ table 31042 "FA Extended Posting Group"
                 CheckGLAcc("Maintenance Bal. Acc.", true);
             end;
         }
-#if not CLEAN18
         field(8; "Allocated Book Value % (Gain)"; Decimal)
         {
             CalcFormula = Sum("FA Allocation"."Allocation %" WHERE(Code = FIELD("FA Posting Group Code"),
@@ -102,7 +102,6 @@ table 31042 "FA Extended Posting Group"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(31040; "Sales Acc. On Disp. (Gain)"; Code[20])
         {
             Caption = 'Sales Acc. On Disp. (Gain)';

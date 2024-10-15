@@ -487,9 +487,6 @@ table 169 "Job Ledger Entry"
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if not CLEAN17
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -633,4 +630,3 @@ table 169 "Job Ledger Entry"
     begin
     end;
 }
-

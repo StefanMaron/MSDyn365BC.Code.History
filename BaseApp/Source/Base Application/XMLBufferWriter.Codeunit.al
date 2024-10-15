@@ -1,4 +1,3 @@
-#if not CLEAN17
 codeunit 1235 "XML Buffer Writer"
 {
 
@@ -119,7 +118,7 @@ codeunit 1235 "XML Buffer Writer"
     var
         ParentXMLBuffer: Record "XML Buffer";
     begin
-        if XMLBuffer.FindLast then;
+        if XMLBuffer.FindLast() then;
 
         ParentXMLBuffer.Init();
         ParseXMLIteratively(XMLBuffer, ParentXMLBuffer);
@@ -127,7 +126,7 @@ codeunit 1235 "XML Buffer Writer"
         XmlReader.Close;
         XMLBuffer.Reset();
         XMLBuffer.SetRange("Import ID", XMLBuffer."Import ID");
-        XMLBuffer.FindFirst;
+        XMLBuffer.FindFirst();
     end;
 
     local procedure ParseXMLIteratively(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer")
@@ -215,7 +214,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Element);
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -231,7 +230,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Attribute);
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -248,7 +247,7 @@ codeunit 1235 "XML Buffer Writer"
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::"Processing Instruction");
                 SetRange(Name, XmlReader.Name);
-                if FindFirst then
+                if FindFirst() then
                     exit;
             end;
 
@@ -360,7 +359,7 @@ codeunit 1235 "XML Buffer Writer"
 
         with XMLBuffer do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
@@ -381,7 +380,7 @@ codeunit 1235 "XML Buffer Writer"
     begin
         with XMLBuffer do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             Init;
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
@@ -415,60 +414,6 @@ codeunit 1235 "XML Buffer Writer"
     local procedure ReadXmlReader()
     begin
         XmlReader.Read
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsValidSourcePath(Path: Text): Boolean
-    begin
-        // NAVCZ
-        exit(ValidateSourcePath(Path));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsValidSourceXMLText(XmlText: Text): Boolean
-    begin
-        // NAVCZ
-        exit(ValidateSourceXMLText(XmlText));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [Scope('OnPrem')]
-    procedure IsValidSourceStreamOrServerFile(StreamOrServerFile: Variant): Boolean
-    begin
-        // NAVCZ
-        exit(ValidateSourceStreamOrServerFile(StreamOrServerFile));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [TryFunction]
-    local procedure ValidateSourcePath(Path: Text)
-    begin
-        // NAVCZ
-        InitializeXMLReaderSettings;
-        CreateXMLReaderFromPath(Path);
-        ReadXmlReader;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [TryFunction]
-    local procedure ValidateSourceXMLText(XmlText: Text)
-    begin
-        // NAVCZ
-        InitializeXMLReaderSettings;
-        CreateXmlReaderFromXmlText(XmlText);
-        ReadXmlReader;
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
-    [TryFunction]
-    local procedure ValidateSourceStreamOrServerFile(StreamOrServerFile: Variant)
-    begin
-        // NAVCZ
-        InitializeXMLReaderSettings;
-        CreateXMLReaderFrom(StreamOrServerFile);
-        ReadXmlReader;
     end;
 
     local procedure CanPassValue(Name: Text; Value: Text): Boolean
@@ -510,4 +455,3 @@ codeunit 1235 "XML Buffer Writer"
     end;
 }
 
-#endif

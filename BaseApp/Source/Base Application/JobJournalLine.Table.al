@@ -20,16 +20,13 @@ table 210 "Job Journal Line"
 
             trigger OnValidate()
             var
+                JobSetup: Record "Jobs Setup";
                 IsHandled: Boolean;
             begin
                 if "Job No." = '' then begin
                     Validate("Currency Code", '');
                     Validate("Job Task No.", '');
-                    CreateDim(
-                      DATABASE::Job, "Job No.",
-                      DATABASE::"Job Task", "Job Task No.",// NAVCZ
-                      DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-                      DATABASE::"Resource Group", "Resource Group No.");
+                    CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
                     exit;
                 end;
 
@@ -44,14 +41,13 @@ table 210 "Job Journal Line"
                 end;
                 "Customer Price Group" := Job."Customer Price Group";
                 Validate("Currency Code", Job."Currency Code");
-                CreateDim(
-                  DATABASE::Job, "Job No.",
-                  DATABASE::"Job Task", "Job Task No.",// NAVCZ
-                  DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-                  DATABASE::"Resource Group", "Resource Group No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
                 Validate("Country/Region Code", Job."Bill-to Country/Region Code");
                 "Price Calculation Method" := Job.GetPriceCalculationMethod();
                 "Cost Calculation Method" := Job.GetCostCalculationMethod();
+                JobSetup.Get();
+                if JobSetup."Document No. Is Job No." and ("Document No." = '') then
+                    Validate("Document No.", Rec."Job No.");
             end;
         }
         field(4; "Posting Date"; Date)
@@ -151,23 +147,26 @@ table 210 "Job Journal Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
             begin
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 UpdateAllAmounts;
 
+                WhseValidateSourceLine.JobJnlLineVerifyChangeForWhsePick(Rec, xRec);
+
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
-                if Type = Type::Item then begin
-                    CheckItemAvailable;
+                CheckItemAvailable;
+                if Type = Type::Item then
                     if Item."Item Tracking Code" <> '' then
                         ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
-                end;
 #if not CLEAN18
                 // NAVCZ
-                GetGLSetup;
+                GetGLSetup();
                 if GLSetup."Mark Neg. Qty as Correction" then
                     Correction := Quantity < 0;
                 // NAVCZ
@@ -234,13 +233,7 @@ table 210 "Job Journal Line"
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::"Resource Group", "Resource Group No.",
-                  DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-                  // NAVCZ
-                  DATABASE::"Job Task", "Job Task No.");
-                // NAVCZ
+                CreateDimFromDefaultDim(Rec.FieldNo("Resource Group No."));
             end;
         }
         field(18; "Unit of Measure Code"; Code[10])
@@ -257,7 +250,7 @@ table 210 "Job Journal Line"
                 Resource: Record Resource;
                 IsHandled: Boolean;
             begin
-                GetGLSetup;
+                GetGLSetup();
                 case Type of
                     Type::Item:
                         begin
@@ -862,6 +855,7 @@ table 210 "Job Journal Line"
             trigger OnValidate()
             var
                 JobPlanningLine: Record "Job Planning Line";
+                WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
             begin
                 if "Job Planning Line No." <> 0 then begin
                     ValidateJobPlanningLineLink;
@@ -876,6 +870,9 @@ table 210 "Job Journal Line"
 
                     "Line Type" := JobPlanningLine.ConvertToJobLineType();
                     Validate("Remaining Qty.", CalcQtyFromBaseQty(JobPlanningLine."Remaining Qty. (Base)" - "Quantity (Base)"));
+
+                    if Quantity > 0 then
+                        WhseValidateSourceLine.JobJnlLineVerifyChangeForWhsePick(Rec, xRec);
                 end else
                     Validate("Remaining Qty.", 0);
             end;
@@ -906,7 +903,7 @@ table 210 "Job Journal Line"
                 end else
                     "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
-                 CheckItemAvailable;
+                CheckItemAvailable;
             end;
         }
         field(1031; "Remaining Qty. (Base)"; Decimal)
@@ -1005,7 +1002,9 @@ table 210 "Job Journal Line"
             CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Journal Template Name"),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Source Type" = CONST(210),
+#pragma warning disable
                                                                            "Source Subtype" = FIELD("Entry Type"),
+#pragma warning restore
                                                                            "Source Batch Name" = FIELD("Journal Batch Name"),
                                                                            "Source Prod. Order Line" = CONST(0),
                                                                            "Reservation Status" = CONST(Reservation)));
@@ -1091,9 +1090,6 @@ table 210 "Job Journal Line"
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if not CLEAN17
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -1153,27 +1149,9 @@ table 210 "Job Journal Line"
         field(31070; "Whse. Net Change Template"; Code[10])
         {
             Caption = 'Whse. Net Change Template';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Whse. Net Change Template";
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnValidate()
-            var
-                lreWhseNetChangeTemplate: Record "Whse. Net Change Template";
-            begin
-                if lreWhseNetChangeTemplate.Get("Whse. Net Change Template") then begin
-                    lreWhseNetChangeTemplate.TestField("Entry Type",
-                      lreWhseNetChangeTemplate."Entry Type"::"Negative Adjmt.");
-                    Validate("Gen. Bus. Posting Group", lreWhseNetChangeTemplate."Gen. Bus. Posting Group");
-                end;
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -1205,8 +1183,11 @@ table 210 "Job Journal Line"
     trigger OnInsert()
     begin
         LockTable();
-        JobJnlTemplate.Get("Journal Template Name");
-        JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+
+        if ("Journal Template Name" <> '') then begin
+            JobJnlTemplate.Get("Journal Template Name");
+            JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+        end;
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -1236,7 +1217,6 @@ table 210 "Job Journal Line"
         GLAcc: Record "G/L Account";
         Job: Record Job;
         WorkType: Record "Work Type";
-        JobJnlTemplate: Record "Job Journal Template";
         JobJnlBatch: Record "Job Journal Batch";
         JobJnlLine: Record "Job Journal Line";
         ItemVariant: Record "Item Variant";
@@ -1248,7 +1228,6 @@ table 210 "Job Journal Line"
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
-        DimMgt: Codeunit DimensionManagement;
         ReserveJobJnlLine: Codeunit "Job Jnl. Line-Reserve";
         WMSManagement: Codeunit "WMS Management";
         DontCheckStandardCost: Boolean;
@@ -1265,6 +1244,10 @@ table 210 "Job Journal Line"
         Text004: Label '%1 is only editable when a %2 is defined.';
         Text006: Label '%1 cannot be changed when %2 is set.';
         Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Job Journal Line job DEFAULT 30000 is already linked to Job Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
+
+    protected var
+        JobJnlTemplate: Record "Job Journal Template";
+        DimMgt: Codeunit DimensionManagement;
 
     local procedure CalcQtyFromBaseQty(BaseQty: Decimal): Decimal
     begin
@@ -1346,14 +1329,12 @@ table 210 "Job Journal Line"
 #if not CLEAN18
             // NAVCZ
             "Tariff No." := Item."Tariff No.";
-#if not CLEAN17
-            "Statistic Indication" := Item."Statistic Indication";
-#endif        
             "Net Weight" := Item."Net Weight";
             "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
             // NAVCZ
 #endif
         end;
+
         OnAfterAssignItemValues(Rec, Item);
     end;
 
@@ -1379,7 +1360,7 @@ table 210 "Job Journal Line"
         OnAfterAssignGLAccountValues(Rec, GLAcc);
     end;
 
-    local procedure CheckItemAvailable()
+    procedure CheckItemAvailable()
     var
         JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
@@ -1424,6 +1405,7 @@ table 210 "Job Journal Line"
 
     procedure SetUpNewLine(LastJobJnlLine: Record "Job Journal Line")
     var
+        JobSetup: Record "Jobs Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1431,38 +1413,45 @@ table 210 "Job Journal Line"
         if IsHandled then
             exit;
 
+        JobSetup.Get();
         JobJnlTemplate.Get("Journal Template Name");
         JobJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         JobJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         JobJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if JobJnlLine.FindFirst then begin
+        if JobJnlLine.FindFirst() then begin
             "Posting Date" := LastJobJnlLine."Posting Date";
             "Document Date" := LastJobJnlLine."Posting Date";
-            "Document No." := LastJobJnlLine."Document No.";
+            if JobSetup."Document No. Is Job No." and (LastJobJnlLine."Document No." = '') then
+                "Document No." := Rec."Job No."
+            else
+                "Document No." := LastJobJnlLine."Document No.";
             Type := LastJobJnlLine.Type;
             Validate("Line Type", LastJobJnlLine."Line Type");
         end else begin
             "Posting Date" := WorkDate;
             "Document Date" := WorkDate;
-            if JobJnlBatch."No. Series" <> '' then begin
-                Clear(NoSeriesMgt);
-                "Document No." := NoSeriesMgt.TryGetNextNo(JobJnlBatch."No. Series", "Posting Date");
-            end;
+            if JobSetup."Document No. Is Job No." then begin
+                if "Document No." = '' then
+                    "Document No." := Rec."Job No.";
+            end else
+                if JobJnlBatch."No. Series" <> '' then begin
+                    Clear(NoSeriesMgt);
+                    "Document No." := NoSeriesMgt.TryGetNextNo(JobJnlBatch."No. Series", "Posting Date");
+                end;
         end;
         "Recurring Method" := LastJobJnlLine."Recurring Method";
         "Entry Type" := "Entry Type"::Usage;
         "Source Code" := JobJnlTemplate."Source Code";
         "Reason Code" := JobJnlBatch."Reason Code";
         "Posting No. Series" := JobJnlBatch."Posting No. Series";
-#if not CLEAN17
-        Validate("Whse. Net Change Template", LastJobJnlLine."Whse. Net Change Template"); // NAVCZ
-#endif
         "Price Calculation Method" := Job.GetPriceCalculationMethod();
         "Cost Calculation Method" := Job.GetCostCalculationMethod();
 
         OnAfterSetUpNewLine(Rec, LastJobJnlLine, JobJnlTemplate, JobJnlBatch);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
         TableID: array[10] of Integer;
@@ -1492,6 +1481,7 @@ table 210 "Job Journal Line"
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
     end;
+#endif
 
 #if not CLEAN18
     [Obsolete('Merge to W1', '18.0')]
@@ -1529,6 +1519,27 @@ table 210 "Job Journal Line"
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 #endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -1940,6 +1951,26 @@ table 210 "Job Journal Line"
                 Precision);
     end;
 
+    procedure SwitchLinesWithErrorsFilter(var ShowAllLinesEnabled: Boolean)
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        JobJournalErrorsMgt: Codeunit "Job Journal Errors Mgt.";
+    begin
+        if ShowAllLinesEnabled then begin
+            MarkedOnly(false);
+            ShowAllLinesEnabled := false;
+        end else begin
+            JobJournalErrorsMgt.GetErrorMessages(TempErrorMessage);
+            if TempErrorMessage.FindSet() then
+                repeat
+                    if Rec.Get(TempErrorMessage."Context Record ID") then
+                        Rec.Mark(true)
+                until TempErrorMessage.Next() = 0;
+            MarkedOnly(true);
+            ShowAllLinesEnabled := true;
+        end;
+    end;
+
     local procedure FindPriceAndDiscount(CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
@@ -2069,7 +2100,7 @@ table 210 "Job Journal Line"
         JobJournalLine.SetRange("Job Task No.", "Job Task No.");
         JobJournalLine.SetRange("Job Planning Line No.", "Job Planning Line No.");
 
-        if JobJournalLine.FindFirst then
+        if JobJournalLine.FindFirst() then
             if ("Journal Template Name" <> JobJournalLine."Journal Template Name") or
                ("Journal Batch Name" <> JobJournalLine."Journal Batch Name") or
                ("Line No." <> JobJournalLine."Line No.")
@@ -2099,13 +2130,7 @@ table 210 "Job Journal Line"
     var
         DimensionSetIDArr: array[10] of Integer;
     begin
-        CreateDim(
-          DimMgt.TypeToTableID2(Type.AsInteger()), "No.",
-          DATABASE::Job, "Job No.",
-          // NAVCZ
-          DATABASE::"Job Task", "Job Task No.",
-          // NAVCZ
-          DATABASE::"Resource Group", "Resource Group No.");
+        CreateDimFromDefaultDim(0);
         if "Job Task No." <> '' then begin
             DimensionSetIDArr[1] := "Dimension Set ID";
             DimensionSetIDArr[2] :=
@@ -2178,11 +2203,6 @@ table 210 "Job Journal Line"
         GetItem;
         if "Gen. Prod. Posting Group" <> Item."Gen. Prod. Posting Group" then
             Validate("Gen. Prod. Posting Group", Item."Gen. Prod. Posting Group");
-#if not CLEAN17
-        if GetSKU then
-            if (SKU."Gen. Prod. Posting Group" <> "Gen. Prod. Posting Group") and (SKU."Gen. Prod. Posting Group" <> '') then
-                Validate("Gen. Prod. Posting Group", SKU."Gen. Prod. Posting Group");
-#endif
         if "Gen. Bus. Posting Group" <> '' then
             GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
     end;
@@ -2200,7 +2220,7 @@ table 210 "Job Journal Line"
             if TemplateFilter <> '' then
                 JobJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             JobJournalBatch.SetFilter(Name, BatchFilter);
-            JobJournalBatch.FindFirst;
+            JobJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -2262,10 +2282,63 @@ table 210 "Job Journal Line"
             "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID2(Rec.Type.AsInteger()), Rec."No.", FieldNo = Rec.FieldNo("No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Resource Group", Rec."Resource Group No.", FieldNo = Rec.FieldNo("Resource Group No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Job Task", Rec."Job Task No.", FieldNo = Rec.FieldNo("Job Task No."));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Job Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Job Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Job Journal Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
     local procedure CalcBaseQtyForJobPlanningLine(Qty: Decimal; FromFieldName: Text; ToFieldName: Text; JobPlanningLine: Record "Job Planning Line"): Decimal
     begin
         exit(UOMMgt.CalcBaseQty(
             JobPlanningLine."No.", JobPlanningLine."Variant Code", JobPlanningLine."Unit of Measure Code", Qty, JobPlanningLine."Qty. per Unit of Measure", JobPlanningLine."Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var JobJournalLine: Record "Job Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -2365,11 +2438,13 @@ table 210 "Job Journal Line"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var JobJournalLine: Record "Job Journal Line"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitCost(var JobJournalLine: Record "Job Journal Line"; UnitAmountRoundingPrecision: Decimal; CallingFieldNo: Integer)
     begin
@@ -2565,4 +2640,3 @@ table 210 "Job Journal Line"
     begin
     end;
 }
-

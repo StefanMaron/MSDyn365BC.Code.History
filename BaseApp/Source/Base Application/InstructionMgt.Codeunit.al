@@ -197,6 +197,33 @@ codeunit 1330 "Instruction Mgt."
           GetDocumentTypeInvoiceFilter);
     end;
 
+    procedure ShowPostedDocument(RecVariant: Variant; CalledFromPageId: Integer)
+    var
+        RecRef: RecordRef;
+        PageId: Integer;
+    begin
+        if not RecVariant.IsRecord then
+            exit;
+
+        RecRef.GetTable(RecVariant);
+        case RecRef.Number of
+            DataBase::"Sales Invoice Header":
+                PageId := Page::"Posted Sales Invoice";
+            DataBase::"Sales Cr.Memo Header":
+                PageId := Page::"Posted Sales Credit Memo";
+            DataBase::"Purch. Inv. Header":
+                PageId := Page::"Posted Purchase Invoice";
+            DataBase::"Purch. Cr. Memo Hdr.":
+                PageId := Page::"Posted Purchase Credit Memo";
+            DataBase::"Service Invoice Header":
+                PageId := Page::"Posted Service Invoice";
+            DataBase::"Service Cr.Memo Header":
+                PageId := Page::"Posted Service Credit Memo";
+        end;
+        OnShowPostedDocumentOnBeforePageRun(RecVariant, CalledFromPageId, PageId);
+        Page.Run(PageId, RecVariant);
+    end;
+
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     var
@@ -280,6 +307,11 @@ codeunit 1330 "Instruction Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(InstructionType: Code[50]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowPostedDocumentOnBeforePageRun(RecVariant: Variant; CalledFromPageId: Integer; var PageId: Integer)
     begin
     end;
 }

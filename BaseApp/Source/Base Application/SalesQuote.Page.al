@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 41 "Sales Quote"
 {
     Caption = 'Sales Quote';
@@ -322,7 +323,7 @@ page 41 "Sales Quote"
                     ToolTip = 'Specifies whether the document is open, waiting to be approved, has been invoiced for prepayment, or has been released to the next stage of processing.';
 
                     AboutTitle = 'Check the quote status';
-                    AboutText = 'While preparing a quote it''s status is Open. When it''s ready, you can change the status to Released to reserve the items or services you''re selling. To change a released quote you''ll need to reopen it.';
+                    AboutText = 'While preparing a quote it''s status is *Open*. When it''s ready, you can change the status to *Released* to reserve the items or services you''re selling. To change a released quote you''ll need to reopen it.';
                 }
                 group("Work Description")
                 {
@@ -376,6 +377,12 @@ page 41 "Sales Quote"
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
 #if not CLEAN18
                 field(IsIntrastatTransaction; IsIntrastatTransaction)
                 {
@@ -427,6 +434,7 @@ page 41 "Sales Quote"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -500,6 +508,12 @@ page 41 "Sales Quote"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the date on which the amount in the entry must be paid for a payment discount to be granted.';
+                }
+                field("Journal Templ. Name"; "Journal Templ. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -884,42 +898,15 @@ page 41 "Sales Quote"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                }
-#if not CLEAN17
-                field("Registration No."; "Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of customer.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
+                    ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Tax Registration No."; "Tax Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the secondary VAT registration number for the customer.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Language Code"; "Language Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -929,6 +916,10 @@ page 41 "Sales Quote"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT country/region code of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
                 }
             }
 #if not CLEAN18
@@ -1382,7 +1373,7 @@ page 41 "Sales Quote"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1646,7 +1637,7 @@ page 41 "Sales Quote"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetSalesTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1848,6 +1839,7 @@ page 41 "Sales Quote"
         SalesHeaderArchive: Record "Sales Header Archive";
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1855,8 +1847,6 @@ page 41 "Sales Quote"
         CustomerMgt: Codeunit "Customer Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        [InDataSet]
-        EnableBillToCustomerNo: Boolean;
         EnableSellToCustomerTemplateCode: Boolean;
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
@@ -1881,10 +1871,16 @@ page 41 "Sales Quote"
         IsSellToCustomerNotEmpty: Boolean;
         EnableNewSellToCustomerTemplateCode: Boolean;
         SalesLinesAvailable: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
 
     protected var
         ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
         BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
+        [InDataSet]
+        EnableBillToCustomerNo: Boolean;
 
     local procedure ActivateFields()
     begin
@@ -1893,6 +1889,9 @@ page 41 "Sales Quote"
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
         SetEnableSellToCustomerTemplateCode();
         SetSalesLinesAvailability();
     end;
@@ -1921,6 +1920,7 @@ page 41 "Sales Quote"
                 SetRange("Sell-to Contact No.");
     end;
 
+    [Obsolete('This procedure will be removed and should not be used.', '20.0')]
     local procedure CurrencyCodeOnAfterValidate()
     begin
         CurrPage.SalesLines.PAGE.UpdateForm(true); // NAVCZ
@@ -1952,11 +1952,9 @@ page 41 "Sales Quote"
 
     local procedure CheckSalesCheckAllLinesHaveQuantityAssigned()
     var
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
     begin
-        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-            LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
     end;
 
     local procedure UpdatePaymentService()
@@ -1996,4 +1994,4 @@ page 41 "Sales Quote"
     begin
     end;
 }
-
+#endif

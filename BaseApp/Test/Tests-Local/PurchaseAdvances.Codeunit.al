@@ -60,7 +60,7 @@ codeunit 144400 "Purchase Advances"
         // Test if the system allows to create a new Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // 2.Exercise:
 
@@ -72,7 +72,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase advance letter
         PurchAdvLetterHeader.Get(PurchAdvLetterHeader."No.");
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 144400 "Purchase Advances"
         // Test if the system allows to create a new Purchase Advance Letter from Purchase order.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create purchase order
         CreatePurchOrder(PurchHeader, PurchLine);
@@ -102,7 +102,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase advance letter
         PurchAdvLetterHeader.Get(PurchAdvLetterHeader."No.");
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
     end;
 
     [Test]
@@ -116,7 +116,7 @@ codeunit 144400 "Purchase Advances"
         // Test the release of Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create purchase advance letter from purchase order
         CreatePurchOrder(PurchHeader, PurchLine);
@@ -147,7 +147,7 @@ codeunit 144400 "Purchase Advances"
         // Test the payment of Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndReleasePurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -194,7 +194,7 @@ codeunit 144400 "Purchase Advances"
         // Test if the system allows to create a new Purchase Advance Invoice from Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -223,7 +223,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase advance invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
         PurchInvHeader.TestField(Amount, VATAmount);
         PurchInvHeader.TestField("Amount Including VAT", VATAmount);
@@ -232,7 +232,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         PurchAdvLetterEntry.TestField("VAT Base Amount", Amount);
         PurchAdvLetterEntry.TestField("VAT Amount", VATAmount);
     end;
@@ -257,7 +257,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting of Purchase Order from which Purchase Advance Letter was creation.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create purchase advance letter from purchase order
         CreatePurchOrder(PurchHeader, PurchLine);
@@ -280,7 +280,7 @@ codeunit 144400 "Purchase Advances"
 
         // modify purchase order
         PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
-        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchHeader.Validate("Posting Date", CalcDate('<+10D>', WorkDate));
         PurchHeader.Modify(true);
 
@@ -308,18 +308,18 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount Deducted", PurchLine."Amount Including VAT");
 
         // verify entries
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::Deduction);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         PurchAdvLetterEntry.TestField(Amount, -PurchLine."Amount Including VAT");
 
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         PurchAdvLetterEntry.TestField("VAT Base Amount", -PurchLine."VAT Base Amount");
         PurchAdvLetterEntry.TestField("VAT Amount", -(PurchLine."Amount Including VAT" - PurchLine."VAT Base Amount"));
 
@@ -350,7 +350,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting of Purchase Invoice which was created from Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -387,18 +387,18 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT);
 
         // verify entries
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::Deduction);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         PurchAdvLetterEntry.TestField(Amount, -AmountIncVAT);
 
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         PurchAdvLetterEntry.TestField("VAT Base Amount", -Amount);
         PurchAdvLetterEntry.TestField("VAT Amount", -VATAmount);
 
@@ -428,7 +428,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting refund and close Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -483,14 +483,14 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
 
         // verify entries
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Document Type", PurchAdvLetterEntry."Document Type"::"Credit Memo");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchAdvLetterEntry."VAT Base Amount", -(Amount[1] - Amount[2]), 0.01, '');
         Assert.AreNearlyEqual(
@@ -499,7 +499,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase credit memo
         PurchCrMemoHeader.SetCurrentKey("Letter No.");
         PurchCrMemoHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchCrMemoHeader.FindFirst;
+        PurchCrMemoHeader.FindFirst();
     end;
 
     [Test]
@@ -522,7 +522,7 @@ codeunit 144400 "Purchase Advances"
         // Test the changing exchange rate on Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -594,7 +594,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::"Pending Final Invoice");
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount Linked", AmountIncVAT);
         PurchAdvLetterLine.TestField("Amount Invoiced", AmountIncVAT);
         PurchAdvLetterLine.TestField("Amount To Deduct", AmountIncVAT);
@@ -602,7 +602,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation advance invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
         PurchInvHeader.TestField(Amount, VATAmount);
         PurchInvHeader.TestField("Amount Including VAT", VATAmount);
@@ -612,7 +612,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", Amount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", VATAmount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(
@@ -657,7 +657,7 @@ codeunit 144400 "Purchase Advances"
         // Test the creation and posting Purchase Invoice from Purchase Advance Letter with foreign currency.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -713,7 +713,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT);
 
         // verify creation purchase invoice
@@ -723,11 +723,11 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::Deduction);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry.Amount, -AmountIncVAT, 0.01, '');
 
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -Amount, 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -VATAmount, 0.01, '');
         Assert.AreNearlyEqual(
@@ -749,7 +749,7 @@ codeunit 144400 "Purchase Advances"
         GLEntry.SetRange("Document No.", PurchInvHeader."No.");
         GLEntry.SetRange("Posting Date", PurchInvHeader."Posting Date");
         GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           GLEntry.Amount,
           Round(
@@ -785,7 +785,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting refund and close Purchase Advance Letter with foreign currency.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // find foreign currency
         FindForeignCurrency(Currency);
@@ -870,14 +870,14 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
 
         // verify entries
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Document Type", PurchAdvLetterEntry."Document Type"::"Credit Memo");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchAdvLetterEntry."VAT Base Amount", -(Amount - PurchLine.Amount), Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(
@@ -901,7 +901,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase credit memo
         PurchCrMemoHeader.SetCurrentKey("Letter No.");
         PurchCrMemoHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchCrMemoHeader.FindFirst;
+        PurchCrMemoHeader.FindFirst();
     end;
 
     [Test]
@@ -924,7 +924,7 @@ codeunit 144400 "Purchase Advances"
         // Test the creation Purchase Advance Letter with refund VAT.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         Currency.InitRoundingPrecision;
 
@@ -964,14 +964,14 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::"Pending Final Invoice");
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", AmountIncVAT);
 
         // verify entries
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", Amount, Currency."Amount Rounding Precision", '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount",
           Round(Amount * VATPostingSetup."VAT %" / 100,
@@ -981,7 +981,7 @@ codeunit 144400 "Purchase Advances"
         VATEntry.SetCurrentKey("Document No.", "Posting Date");
         VATEntry.SetRange("Document No.", PurchAdvLetterEntry."Document No.");
         VATEntry.SetRange("Posting Date", PurchAdvLetterEntry."Posting Date");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Base, 0);
         Assert.AreNearlyEqual(VATEntry.Amount,
           Round(Amount * VATPostingSetup."VAT %" / 100,
@@ -991,7 +991,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation advance invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount, "Amount Including VAT");
         PurchInvHeader.TestField(Amount, 0);
         PurchInvHeader.TestField("Amount Including VAT", 0);
@@ -1009,7 +1009,7 @@ codeunit 144400 "Purchase Advances"
         // Test the canceling Purchase Advance Letter.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndReleasePurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1027,7 +1027,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Link", 0);
         PurchAdvLetterLine.TestField("Amount Linked", 0);
         PurchAdvLetterLine.TestField("Amount To Invoice", 0);
@@ -1052,7 +1052,7 @@ codeunit 144400 "Purchase Advances"
         // Test the canceling Purchase Advance Letter with payment.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1070,7 +1070,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Link", 0);
         PurchAdvLetterLine.TestField("Amount Linked", 0);
         PurchAdvLetterLine.TestField("Amount To Invoice", 0);
@@ -1095,7 +1095,7 @@ codeunit 144400 "Purchase Advances"
         // Test the canceling Purchase Advance Letter with payment and Advance Invoice.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1128,7 +1128,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Link", 0);
         PurchAdvLetterLine.TestField("Amount Linked", 0);
         PurchAdvLetterLine.TestField("Amount To Invoice", 0);
@@ -1150,14 +1150,14 @@ codeunit 144400 "Purchase Advances"
         // verify creation advance invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount);
         PurchInvHeader.TestField(Amount, VATAmount);
 
         // verify creation purchase credit memo
         PurchCrMemoHeader.SetCurrentKey("Letter No.");
         PurchCrMemoHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchCrMemoHeader.FindFirst;
+        PurchCrMemoHeader.FindFirst();
         PurchCrMemoHeader.CalcFields(Amount);
         PurchCrMemoHeader.TestField(Amount, VATAmount);
     end;
@@ -1179,7 +1179,7 @@ codeunit 144400 "Purchase Advances"
         // Test the storno Purchase Advance Letter which was payment and a re-creation Purchase Advance Invoice.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1214,7 +1214,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::"Pending Final Invoice");
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", AmountIncVAT);
         PurchAdvLetterLine.TestField("Amount Deducted", 0);
 
@@ -1245,7 +1245,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase credit memo
         PurchCrMemoHeader.SetCurrentKey("Letter No.");
         PurchCrMemoHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchCrMemoHeader.FindFirst;
+        PurchCrMemoHeader.FindFirst();
         PurchCrMemoHeader.CalcFields(Amount);
         PurchCrMemoHeader.TestField(Amount, VATAmount);
     end;
@@ -1268,7 +1268,7 @@ codeunit 144400 "Purchase Advances"
         // correcting VAT by deducted VAT.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1316,7 +1316,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", AmountIncVAT - Round(VATAmount, 1), 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", Round(VATAmount, 1), 0.01, '');
     end;
@@ -1339,7 +1339,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting Purchase Advance Letter over two Purchase Invoice
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1424,7 +1424,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[1]);
 
@@ -1463,7 +1463,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting two Purchase Advance Letter over one Purchase Invoice
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create purchase advance payment template
         CreatePurchAdvPmntTemp(PurchAdvPmntTemp);
@@ -1569,7 +1569,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[1]);
 
@@ -1577,7 +1577,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -Amount[1], 0.1, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -VATAmount[1], 0.1, '');
 
@@ -1587,7 +1587,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT[2]);
 
@@ -1595,7 +1595,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -Amount[2], 0.1, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -VATAmount[2], 0.1, '');
     end;
@@ -1626,7 +1626,7 @@ codeunit 144400 "Purchase Advances"
         // Test the posting Purchase Advance Letter over two Payments
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndReleasePurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1733,7 +1733,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterHeader.TestField(Status, PurchAdvLetterHeader.Status::Closed);
 
         PurchAdvLetterLine.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchAdvLetterLine.FindFirst;
+        PurchAdvLetterLine.FindFirst();
         PurchAdvLetterLine.TestField("Amount To Deduct", 0);
         PurchAdvLetterLine.TestField("Amount Deducted", AmountIncVAT);
 
@@ -1749,7 +1749,7 @@ codeunit 144400 "Purchase Advances"
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", PurchAdvStatAmounts[2] [2], 0.01, '');
 
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::"VAT Deduction");
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", -PurchAdvStatAmounts[1] [1], 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", -PurchAdvStatAmounts[1] [2], 0.01, '');
         PurchAdvLetterEntry.Next;
@@ -1759,7 +1759,7 @@ codeunit 144400 "Purchase Advances"
         // verify creation purchase invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
     end;
 
     [Test]
@@ -1780,7 +1780,7 @@ codeunit 144400 "Purchase Advances"
         // Test the creation Purchase Advance Invoice after change VAT amount of VAT Amount Line.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // create and payment purchase advance letter
         CreateAndPaymentPurchAdvLetter(PurchAdvLetterHeader, PurchAdvLetterLine);
@@ -1813,14 +1813,14 @@ codeunit 144400 "Purchase Advances"
         PurchAdvLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type");
         PurchAdvLetterEntry.SetRange("Letter No.", PurchAdvLetterHeader."No.");
         PurchAdvLetterEntry.SetRange("Entry Type", PurchAdvLetterEntry."Entry Type"::VAT);
-        PurchAdvLetterEntry.FindFirst;
+        PurchAdvLetterEntry.FindFirst();
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Base Amount", AmountIncVAT - AdjustedVATAmount, 0.01, '');
         Assert.AreNearlyEqual(PurchAdvLetterEntry."VAT Amount", AdjustedVATAmount, 0.01, '');
 
         // verify creation purchase invoice
         PurchInvHeader.SetCurrentKey("Letter No.");
         PurchInvHeader.SetRange("Letter No.", PurchAdvLetterHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount);
         PurchInvHeader.TestField(Amount, AdjustedVATAmount);
     end;
@@ -1834,7 +1834,7 @@ codeunit 144400 "Purchase Advances"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 207109] Values of "Amount" and "Amount Including VAT" of Purchase Line have to equal to 0 when setting value "Line Discount %" = 100 on the page "Purchase Invoice"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Purchases & Payables Setup"."Allow VAT Difference" = TRUE
         UpdatePurchaseSetupAllowVATDifference;
@@ -1861,7 +1861,7 @@ codeunit 144400 "Purchase Advances"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -2019,7 +2019,6 @@ codeunit 144400 "Purchase Advances"
 
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vend."No.");
         PurchHeader.Validate("Posting Date", WorkDate);
-        PurchHeader.Validate("VAT Date", WorkDate);
         PurchHeader.Validate("Prepayment %", 100);
         PurchHeader.Modify(true);
 
@@ -2265,7 +2264,7 @@ codeunit 144400 "Purchase Advances"
         PurchAdvanceLetterHeader.TestField(Status, Status);
 
         PurchAdvanceLetterLine.SetRange("Letter No.", LetterNo);
-        PurchAdvanceLetterLine.FindFirst;
+        PurchAdvanceLetterLine.FindFirst();
         PurchAdvanceLetterLine.TestField("Amount To Deduct", AmountToDeduct);
         PurchAdvanceLetterLine.TestField("Amount Deducted", AmountDeducted);
     end;

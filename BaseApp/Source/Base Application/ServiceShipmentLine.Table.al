@@ -530,25 +530,16 @@ table 5991 "Service Shipment Line"
         {
             Caption = 'Tariff No.';
             TableRelation = "Tariff Number";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -766,7 +757,7 @@ table 5991 "Service Shipment Line"
 
         FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
         ItemLedgEntry.SetFilter("Invoiced Quantity", '<>0');
-        if ItemLedgEntry.FindFirst then begin
+        if ItemLedgEntry.FindFirst() then begin
             ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
             ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
             ValueEntry.SetFilter("Invoiced Quantity", '<>0');
@@ -840,7 +831,7 @@ table 5991 "Service Shipment Line"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [IntegrationEvent(false, false)]
@@ -863,4 +854,3 @@ table 5991 "Service Shipment Line"
     begin
     end;
 }
-

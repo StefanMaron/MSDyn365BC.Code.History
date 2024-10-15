@@ -418,7 +418,7 @@ report 202 "Sales Document - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry1.FindSet then
+                            if not DimSetEntry1.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -685,7 +685,7 @@ report 202 "Sales Document - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -941,7 +941,7 @@ report 202 "Sales Document - Test"
                                         if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                             AddError(DimMgt.GetDimCombErr);
 
-                                        TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+                                        TableID[1] := DimMgt.SalesLineTypeToTableID(Type);
                                         No[1] := "No.";
                                         TableID[2] := DATABASE::Job;
                                         No[2] := "Job No.";
@@ -1547,7 +1547,7 @@ report 202 "Sales Document - Test"
                 SalesHeader.Copy("Sales Header");
                 SalesHeader.FilterGroup := 2;
                 SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
-                if SalesHeader.FindFirst then begin
+                if SalesHeader.FindFirst() then begin
                     case true of
                         ShipReceiveOnNextPostReq and InvOnNextPostReq:
                             ShipInvText := Text000;
@@ -1559,7 +1559,7 @@ report 202 "Sales Document - Test"
                     ShipInvText := StrSubstNo(Text003, ShipInvText);
                 end;
                 SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
-                if SalesHeader.FindFirst then begin
+                if SalesHeader.FindFirst() then begin
                     case true of
                         ShipReceiveOnNextPostReq and InvOnNextPostReq:
                             ReceiveInvText := Text018;
@@ -2044,25 +2044,23 @@ report 202 "Sales Document - Test"
     procedure AddDimToTempLine(SalesLine: Record "Sales Line")
     var
         SourceCodeSetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodeSetup.Get();
 
         with SalesLine do begin
-            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
-            No[1] := "No.";
-            TableID[2] := DATABASE::Job;
-            No[2] := "Job No.";
-            TableID[3] := DATABASE::"Responsibility Center";
-            No[3] := "Responsibility Center";
-
-            OnAfterCreateDimTableIDs(SalesLine, TableID, No);
-
+#if CLEAN20
+            CreateDimFromDefaultDim(0);
+#else
+            DimMgt.AddDimSource(DefaultDimSource, DimMgt.SalesLineTypeToTableID(Type), "No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::Job, "Job No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", "Responsibility Center");
+            RunEventOnAfterCreateDimTableIDs(DefaultDimSource, SalesLine);
+#endif
             "Shortcut Dimension 1 Code" := '';
             "Shortcut Dimension 2 Code" := '';
             "Dimension Set ID" :=
-              DimMgt.GetDefaultDimID(TableID, No, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+              DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                 "Dimension Set ID", DATABASE::Customer);
         end;
     end;
@@ -2078,7 +2076,13 @@ report 202 "Sales Document - Test"
     local procedure CheckSalesLine(SalesLine2: Record "Sales Line")
     var
         ErrorText: Text[250];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSalesLine(SalesLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesLine2 do
             case Type of
                 Type::"G/L Account":
@@ -2210,7 +2214,7 @@ report 202 "Sales Document - Test"
                         SalesLine2.SetRange("Document Type", "Document Type");
                         SalesLine2.SetRange("Document No.", "No.");
                         SalesLine2.SetFilter("Qty. to Ship", '>0');
-                        if SalesLine2.FindFirst then
+                        if SalesLine2.FindFirst() then
                             ShipQtyExist := true;
                     end;
                     if Cust."Privacy Blocked" then
@@ -2284,6 +2288,36 @@ report 202 "Sales Document - Test"
                 end;
     end;
 
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Sales Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Sales Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var SalesLine: Record "Sales Line")
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Sales Line") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(SalesLine, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckSalesDoc(SalesHeader: Record "Sales Header"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
     begin
@@ -2294,11 +2328,13 @@ report 202 "Sales Document - Test"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesLine: Record "Sales Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePostingHeader(var SalesHeader: Record "Sales Header"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
     begin
@@ -2306,6 +2342,11 @@ report 202 "Sales Document - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckDimValuePostingLine(var SalesLine: Record "Sales Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSalesLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2319,4 +2360,5 @@ report 202 "Sales Document - Test"
     begin
     end;
 }
+
 #endif

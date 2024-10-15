@@ -9,9 +9,6 @@ page 11727 "Bank List"
     PageType = List;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service';
     SourceTable = "Bank Account";
-#if not CLEAN17
-    SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
-#endif
     ObsoleteState = Pending;
     ObsoleteReason = 'Discontinued, use standard page Bank Account List instead.';
     ObsoleteTag = '19.0';
@@ -228,7 +225,7 @@ page 11727 "Bank List"
                         begin
                             CurrPage.SetSelectionFilter(BankAcc);
                             DefaultDimensionsMultiple.SetMultiRecord(BankAcc, FieldNo("No."));
-                            DefaultDimensionsMultiple.RunModal;
+                            DefaultDimensionsMultiple.RunModal();
                         end;
                     }
                 }

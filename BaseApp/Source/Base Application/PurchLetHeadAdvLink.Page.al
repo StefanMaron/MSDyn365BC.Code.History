@@ -127,7 +127,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
                 begin
                     PurchAdvanceLetterHeader2 := Rec;
                     CurrPage.SetSelectionFilter(PurchAdvanceLetterHeader);
-                    if PurchAdvanceLetterHeader.FindSet then
+                    if PurchAdvanceLetterHeader.FindSet() then
                         repeat
                             Rec := PurchAdvanceLetterHeader;
                             Mark := not Mark;
@@ -227,7 +227,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
     begin
         TempPurchHeader := PurchHeader;
         TempPurchHeader.Insert();
-        if PurchAdvanceLetterHeader.FindSet then
+        if PurchAdvanceLetterHeader.FindSet() then
             repeat
                 TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
                 TempPurchAdvanceLetterHeader.Insert();
@@ -238,7 +238,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
     [Scope('OnPrem')]
     procedure UpdateLetters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header")
     begin
-        if PurchAdvanceLetterHeader.FindSet then
+        if PurchAdvanceLetterHeader.FindSet() then
             repeat
                 if TempPurchAdvanceLetterHeader.Get(PurchAdvanceLetterHeader."No.") then begin
                     TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
@@ -255,7 +255,7 @@ page 31033 "Purch.Let.Head. - Adv.Link."
     begin
         TempPurchAdvanceLetterHeader.Copy(Rec);
         TempPurchAdvanceLetterHeader.MarkedOnly(true);
-        if TempPurchAdvanceLetterHeader.FindSet then
+        if TempPurchAdvanceLetterHeader.FindSet() then
             repeat
                 PurchAdvanceLetterHeader := TempPurchAdvanceLetterHeader;
                 PurchAdvanceLetterHeader.Insert();

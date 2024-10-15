@@ -302,7 +302,7 @@ page 2310 "BC O365 Sales Invoice"
                     Editable = false;
                     Enabled = CustomerName <> '';
 
-#if not CLEAN19
+#if not CLEAN18
                     trigger OnAssistEdit()
                     var
                         O365PaymentInstructions: Record "O365 Payment Instructions";
@@ -669,7 +669,7 @@ page 2310 "BC O365 Sales Invoice"
             if SalesReceivablesSetup.Get then
                 if SalesReceivablesSetup."Posted Invoice Nos." <> '' then
                     NextInvoiceNo := NoSeriesManagement.ClearStateAndGetNextNo(SalesReceivablesSetup."Posted Invoice Nos.");
-#if not CLEAN19
+#if not CLEAN18
         O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
 #endif
     end;
@@ -770,8 +770,10 @@ page 2310 "BC O365 Sales Invoice"
         TestInvTypeTxt: Label 'Test Invoice';
         DraftInvTypeTxt: Label 'Draft Invoice';
         IsCustomerBlocked: Boolean;
+#if not CLEAN18
         PaymentInstrCategoryLbl: Label 'AL Payment Instructions', Locked = true;
         PaymentInstrChangedTelemetryTxt: Label 'Payment instructions were changed for an invoice.', Locked = true;
+#endif
         DocumentDatePastWorkdateNotificationGuidTok: Label 'cfa9edd9-03d7-4bbb-ba07-a90660c28772', Locked = true;
         FieldsVisible: Boolean;
 

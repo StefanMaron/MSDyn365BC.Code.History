@@ -406,12 +406,14 @@ page 8625 "Config. Package Subform"
 
     var
         MultipleTablesSelectedQst: Label '%1 tables have been selected. Do you want to continue?', Comment = '%1 = Number of selected tables';
-        ConfigPackageTable: Record "Config. Package Table";
         Show: Option Records,Errors,All;
         [InDataSet]
         NoOfErrorsStyleTxt: Text;
         SingleTableSelectedQst: Label 'One table has been selected. Do you want to continue?', Comment = '%1 = Table name';
         MultiRelationQst: Label 'Some fields have two or more related tables.\Do you want to check them?';
+
+    protected var
+        ConfigPackageTable: Record "Config. Package Table";
 
     local procedure SelectionConfirmMessage(): Text
     begin
@@ -429,7 +431,7 @@ page 8625 "Config. Package Subform"
         FilterMultiRelationFields: Text;
     begin
         ConfigPackageManagement.SetFieldFilter(Field, "Table ID", 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 if ConfigPackageManagement.IsFieldMultiRelation("Table ID", Field."No.") then begin
                     FieldsWithMultiRelations := true;

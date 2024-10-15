@@ -1,4 +1,4 @@
-table 370 "Excel Buffer"
+﻿table 370 "Excel Buffer"
 {
     Caption = 'Excel Buffer';
     ReplicateData = false;
@@ -132,17 +132,41 @@ table 370 "Excel Buffer"
             Caption = 'Font Color';
             DataClassification = SystemMetadata;
             InitValue = -1;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11791; "Foreground Color"; Integer)
         {
             Caption = 'Foreground Color';
             DataClassification = SystemMetadata;
             InitValue = -1;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11792; "Font Name"; Text[80])
         {
             Caption = 'Font Name';
             DataClassification = SystemMetadata;
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 
@@ -544,10 +568,14 @@ table 370 "Excel Buffer"
         CellTextValue: Text;
     begin
         with ExcelBuffer do begin
+#if not CLEAN20
             GetCustomCellDecorator(
               Bold, Italic, Underline, "Double Underline", "Font Color", "Foreground Color", "Font Name", Decorator); // NAVCZ
-
+#else
+            GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
+#endif
             CellTextValue := "Cell Value as Text";
+
             if "Cell Value as Blob".HasValue then begin
                 CalcFields("Cell Value as Blob");
                 "Cell Value as Blob".CreateInStream(RecInStream, TextEncoding::Windows);
@@ -586,8 +614,12 @@ table 370 "Excel Buffer"
             exit;
 
         with ExcelBuffer do begin
+#if not CLEAN20
             GetCustomCellDecorator(
               Bold, Italic, Underline, "Double Underline", "Font Color", "Foreground Color", "Font Name", Decorator); // NAVCZ
+#else
+            GetCellDecorator(Bold, Italic, Underline, "Double Underline", Decorator);
+#endif
 
             XlWrkShtWriter.SetCellFormula("Row No.", xlColID, GetFormula, NumberFormat, Decorator);
         end;
@@ -720,10 +752,11 @@ table 370 "Excel Buffer"
         ExcelBufferDialogMgt.Close;
     end;
 
-    local procedure ParseCellValue(Value: Text; FormatString: Text)
+    protected procedure ParseCellValue(Value: Text; FormatString: Text)
     var
         OutStream: OutStream;
         Decimal: Decimal;
+        RoundingPrecision: Decimal;
         IsHandled: Boolean;
     begin
         // The format contains only en-US number separators, this is an OpenXML standard requirement
@@ -773,7 +806,9 @@ table 370 "Excel Buffer"
         end;
 
         "Cell Type" := "Cell Type"::Number;
-        "Cell Value as Text" := Format(Round(Decimal, 0.000001), 0, 1);
+        RoundingPrecision := 0.000001;
+        OnParseCellValueOnBeforeRoundDecimal(Rec, Decimal, RoundingPrecision);
+        "Cell Value as Text" := Format(Round(Decimal, RoundingPrecision), 0, 1);
     end;
 
     [Scope('OnPrem')]
@@ -813,37 +848,37 @@ table 370 "Excel Buffer"
         case Which of
             1:
                 exit(Text013);
-                // DO NOT TRANSLATE: &B is the Excel code to turn bold printing on or off for customized Header/Footer.
+            // DO NOT TRANSLATE: &B is the Excel code to turn bold printing on or off for customized Header/Footer.
             2:
                 exit(Text014);
-                // DO NOT TRANSLATE: &D is the Excel code to print the current date in customized Header/Footer.
+            // DO NOT TRANSLATE: &D is the Excel code to print the current date in customized Header/Footer.
             3:
                 exit(Text015);
-                // DO NOT TRANSLATE: &P is the Excel code to print the page number in customized Header/Footer.
+            // DO NOT TRANSLATE: &P is the Excel code to print the page number in customized Header/Footer.
             4:
                 exit('$');
-                // DO NOT TRANSLATE: $ is the Excel code for absolute reference to cells.
+            // DO NOT TRANSLATE: $ is the Excel code for absolute reference to cells.
             5:
                 exit(Text016);
-                // DO NOT TRANSLATE: A1 is the Excel reference of the first cell.
+            // DO NOT TRANSLATE: A1 is the Excel reference of the first cell.
             6:
                 exit(Text017);
-                // DO NOT TRANSLATE: SUMIF is the name of the Excel function used to summarize values according to some conditions.
+            // DO NOT TRANSLATE: SUMIF is the name of the Excel function used to summarize values according to some conditions.
             7:
                 exit(Text018);
-                // DO NOT TRANSLATE: The #N/A Excel error value occurs when a value is not available to a function or formula.
+            // DO NOT TRANSLATE: The #N/A Excel error value occurs when a value is not available to a function or formula.
             8:
                 exit(Text019);
-                // DO NOT TRANSLATE: GLAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
+            // DO NOT TRANSLATE: GLAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
             9:
                 exit(Text020);
-                // DO NOT TRANSLATE: Period is used to define an Excel range name. You must refer to Excel rules to change this term.
+            // DO NOT TRANSLATE: Period is used to define an Excel range name. You must refer to Excel rules to change this term.
             10:
                 exit(Text021);
-                // DO NOT TRANSLATE: Budget is used to define an Excel worksheet name. You must refer to Excel rules to change this term.
+            // DO NOT TRANSLATE: Budget is used to define an Excel worksheet name. You must refer to Excel rules to change this term.
             11:
                 exit(Text022);
-                // DO NOT TRANSLATE: CostAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
+        // DO NOT TRANSLATE: CostAcc is used to define an Excel range name. You must refer to Excel rules to change this term.
         end;
     end;
 
@@ -1232,6 +1267,7 @@ table 370 "Excel Buffer"
         exit(DateTimeResult);
     end;
 
+#if not CLEAN20
     local procedure GetCustomCellDecorator(IsBold: Boolean; IsItalic: Boolean; IsUnderlined: Boolean; IsDoubleUnderlined: Boolean; FontColor: Integer; ForegroundColor: Integer; FontName: Text[80]; var Decorator: DotNet CellDecorator)
     var
         BaseDecorator: DotNet CellDecorator;
@@ -1381,7 +1417,7 @@ table 370 "Excel Buffer"
         EnumValue := Activator.CreateInstance(Type);
         EnumValue.Value := FontSchemeValues.None;
     end;
-
+#endif
     procedure SaveToStream(var ResultStream: OutStream; EraseFileAfterCompletion: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -1444,6 +1480,11 @@ table 370 "Excel Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWriteCellFormula(var Rec: Record "Excel Buffer"; var ExcelBuffer: Record "Excel Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnParseCellValueOnBeforeRoundDecimal(var ExcelBuffer: Record "Excel Buffer"; DecimalValue: Decimal; var RoundingPrecision: Decimal)
     begin
     end;
 

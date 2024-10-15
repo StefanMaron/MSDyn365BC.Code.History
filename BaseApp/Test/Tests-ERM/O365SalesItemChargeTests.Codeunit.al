@@ -226,7 +226,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Item Charge Tests");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -273,7 +273,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, '', 1);
         SalesLine.Validate(Quantity, GenerateRandDecimalBetweenOneAndFive);
         SalesLine."Line Amount" := GenerateRandDecimalBetweenOneAndFive;
-        SalesLine."Unit Price" := GenerateRandDecimalBetweenOneAndFive;
+        SalesLine.Validate("Unit Price", GenerateRandDecimalBetweenOneAndFive);
         SalesLine.Modify(true);
     end;
 
@@ -336,13 +336,12 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibraryERM: Codeunit "Library - ERM";
     begin
         Currency.SetRange(Code, LibraryERM.CreateCurrencyWithExchangeRate(DMY2Date(1, 1, 2000), 1, 1));
-        Currency.FindFirst;
+        Currency.FindFirst();
         Currency.Validate("Currency Factor", LibraryRandom.RandDecInRange(1, 2, 5));
         Currency.Modify(true);
 
         SalesHeader."Currency Code" := Currency.Code;
-        SalesHeader."Currency Factor" := Currency."Currency Factor";
-        SalesHeader."VAT Currency Factor" := SalesHeader."Currency Factor"; // NAVCZ
+        SalesHeader.Validate("Currency Factor", Currency."Currency Factor");
         SalesHeader.Modify(true);
     end;
 

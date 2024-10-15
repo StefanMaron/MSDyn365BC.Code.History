@@ -101,7 +101,7 @@ codeunit 31053 "Release Credit Document"
     begin
         with CreditLine do begin
             SetRange("Credit No.", CreditHeader."No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     CheckPostingDate;
                     case "Source Type" of
@@ -133,7 +133,7 @@ codeunit 31053 "Release Credit Document"
                 until Next() = 0;
 
             SetFilter("Currency Code", '<>%1', '');
-            if FindSet then
+            if FindSet() then
                 repeat
                     CreditLine2.SetRange("Credit No.", CreditHeader."No.");
                     CreditLine2.SetRange("Currency Code", "Currency Code");

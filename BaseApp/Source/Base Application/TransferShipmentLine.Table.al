@@ -181,10 +181,26 @@ table 5745 "Transfer Shipment Line"
         {
             Caption = 'Correction';
             Editable = false;
+            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(11761; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
         field(31070; "Gen. Bus. Post. Group Ship"; Code[20])
         {
@@ -213,6 +229,14 @@ table 5745 "Transfer Shipment Line"
         field(31072; "Transfer Order Line No."; Integer)
         {
             Caption = 'Transfer Order Line No.';
+            ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 

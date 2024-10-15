@@ -41,14 +41,14 @@ page 9657 "Customer Report Selections"
                                 Rec.Usage := "Report Selection Usage"::"S.Shipment";
                             // NAVCZ
                             "Custom Report Selection Sales"::"Adv. Letter":
-                                Rec.Usage := "Report Selection Usage"::"S.Adv.Let";
+                                Rec.Usage := Usage::"S.Adv.Let";
                             "Custom Report Selection Sales"::"Adv. Invoice":
-                                Rec.Usage := "Report Selection Usage"::"S.Adv.Inv";
+                                Rec.Usage := Usage::"S.Adv.Inv";
                             "Custom Report Selection Sales"::"Adv. Cr.Memo":
-                                Rec.Usage := "Report Selection Usage"::"S.Adv.CrM";
+                                Rec.Usage := Usage::"S.Adv.CrM";
                             // NAVCZ
                             else
-                                OnValidateUsage2OnCaseElse(Rec, Usage2);
+                                OnValidateUsage2OnCaseElse(Rec, Usage2.AsInteger());
                         end;
                     end;
                 }
@@ -94,7 +94,7 @@ page 9657 "Customer Report Selections"
                         end else begin
                             CustomReportLayout.SetRange("Report ID", Rec."Report ID");
                             CustomReportLayout.SetFilter(Description, StrSubstNo('@*%1*', Rec."Custom Report Description"));
-                            if not CustomReportLayout.FindFirst then
+                            if not CustomReportLayout.FindFirst() then
                                 Error(CouldNotFindCustomReportLayoutErr, Rec."Custom Report Description");
 
                             Rec.Validate("Custom Report Layout Code", CustomReportLayout.Code);
@@ -170,7 +170,7 @@ page 9657 "Customer Report Selections"
                     CustomReportSelection := Rec;
                     FilterCustomerUsageReportSelections(ReportSelections);
                     Customer.Get("Source No.");
-                    CopyFromReportSelections(ReportSelections, Database::Customer, Customer."No.");
+                    Rec.CopyFromReportSelections(ReportSelections, Database::Customer, Customer."No.");
                     CurrPage.SetRecord(CustomReportSelection);
                 end;
             }
@@ -216,6 +216,7 @@ page 9657 "Customer Report Selections"
     local procedure MapTableUsageValueToPageValue()
     var
         CustomReportSelection: Record "Custom Report Selection";
+        UsageOpt: Option;
     begin
         case Rec.Usage of
             "Report Selection Usage"::"S.Quote":
@@ -235,15 +236,18 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::"S.Shipment":
                 Usage2 := "Custom Report Selection Sales"::Shipment;
             // NAVCZ
-            "Report Selection Usage"::"S.Adv.Let":
+            CustomReportSelection.Usage::"S.Adv.Let":
                 Usage2 := Usage2::"Adv. Letter";
-            "Report Selection Usage"::"S.Adv.Inv":
+            CustomReportSelection.Usage::"S.Adv.Inv":
                 Usage2 := Usage2::"Adv. Invoice";
-            "Report Selection Usage"::"S.Adv.CrM":
+            CustomReportSelection.Usage::"S.Adv.CrM":
                 Usage2 := Usage2::"Adv. Cr.Memo";
             // NAVCZ
-            else
-                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2, Rec);
+            else begin
+                    UsageOpt := Usage2.AsInteger();
+                    OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, UsageOpt, Rec);
+                    Usage2 := "Custom Report Selection Sales".FromInteger(UsageOpt);
+                end;
         end;
     end;
 
@@ -262,6 +266,8 @@ page 9657 "Customer Report Selections"
             "Report Selection Usage"::"S.Adv.Let",
             "Report Selection Usage"::"S.Adv.Inv",
             "Report Selection Usage"::"S.Adv.CrM");
+
+        OnAfterFilterCustomerUsageReportSelections(ReportSelections);
     end;
 
     [IntegrationEvent(false, false)]
@@ -271,6 +277,11 @@ page 9657 "Customer Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
     begin
     end;
 }

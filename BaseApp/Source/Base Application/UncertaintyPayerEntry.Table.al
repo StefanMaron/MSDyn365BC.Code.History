@@ -1,15 +1,9 @@
 table 11760 "Uncertainty Payer Entry"
 {
     Caption = 'Uncertainty Payer Entry';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    DrillDownPageID = "Uncertainty Payer Entries";
-    LookupPageID = "Uncertainty Payer Entries";
-    ObsoleteState = Pending;
-#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -93,4 +87,3 @@ table 11760 "Uncertainty Payer Entry"
     {
     }
 }
-

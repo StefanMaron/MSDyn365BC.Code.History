@@ -73,8 +73,8 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                     end;
 
                 RowNo := RowNo + 1;
-                if AccScheduleResultLine.FindSet then begin
-                    if AccScheduleResultColumn.FindSet then begin
+                if AccScheduleResultLine.FindSet() then begin
+                    if AccScheduleResultColumn.FindSet() then begin
                         RowNo := RowNo + 1;
                         ColumnNo := 1;
                         repeat
@@ -100,7 +100,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                           AccScheduleResultLine.Bold,
                           AccScheduleResultLine.Italic,
                           AccScheduleResultLine.Underline);
-                        if AccScheduleResultColumn.FindSet then begin
+                        if AccScheduleResultColumn.FindSet() then begin
                             repeat
                                 AccScheduleResultValue.Get(
                                   AccScheduleResultHeader."Result Code",

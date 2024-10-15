@@ -147,7 +147,7 @@ codeunit 900 "Assembly-Post"
                 AssemblySetup.Get();
                 if AssemblySetup."Copy Comments when Posting" then begin
                     CopyCommentLines(
-                      "Document Type".AsInteger(), AssemblyCommentLine."Document Type"::"Posted Assembly",
+                      "Document Type", AssemblyCommentLine."Document Type"::"Posted Assembly",
                       "No.", PostedAssemblyHeader."No.");
                     RecordLinkManagement.CopyLinks(AssemblyHeader, PostedAssemblyHeader);
                     OnPostOnAfterCopyComments(AssemblyHeader, PostedAssemblyHeader);
@@ -246,6 +246,8 @@ codeunit 900 "Assembly-Post"
 
         if PostingDateExists and (ReplacePostingDate or (AssemblyHeader."Posting Date" = 0D)) then
             AssemblyHeader."Posting Date" := PostingDate;
+
+        OnAfterValidatePostingDate(AssemblyHeader, PostingDateExists, ReplacePostingDate);
     end;
 
     local procedure CheckDim(AssemblyHeader: Record "Assembly Header")
@@ -292,7 +294,7 @@ codeunit 900 "Assembly-Post"
                   Text004,
                   AssemblyHeader."Document Type", AssemblyHeader."No.", DimMgt.GetDimValuePostingErr);
         end else begin
-            TableIDArr[1] := DimMgt.TypeToTableID4(AssemblyLine.Type);
+            TableIDArr[1] := DimMgt.TypeToTableID4(AssemblyLine.Type.AsInteger());
             NumberArr[1] := AssemblyLine."No.";
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, AssemblyLine."Dimension Set ID") then
                 Error(
@@ -331,11 +333,11 @@ codeunit 900 "Assembly-Post"
         AssemblyHeader.LockTable();
         if not InvSetup.OptimGLEntLockForMultiuserEnv() then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 
-    local procedure CopyCommentLines(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    local procedure CopyCommentLines(FromDocumentType: Enum "Assembly Comment Document Type"; ToDocumentType: Enum "Assembly Comment Document Type"; FromNumber: Code[20]; ToNumber: Code[20])
     var
         AssemblyCommentLine: Record "Assembly Comment Line";
         AssemblyCommentLine2: Record "Assembly Comment Line";
@@ -379,17 +381,25 @@ codeunit 900 "Assembly-Post"
     local procedure GetLineQtys(var LineQty: Decimal; var LineQtyBase: Decimal; AssemblyLine: Record "Assembly Line")
     begin
         with AssemblyLine do begin
-            LineQty := Round("Quantity to Consume", UOMMgt.QtyRndPrecision);
-            LineQtyBase := Round("Quantity to Consume (Base)", UOMMgt.QtyRndPrecision);
+            LineQty := RoundQuantity("Quantity to Consume", "Qty. Rounding Precision");
+            LineQtyBase := RoundQuantity("Quantity to Consume (Base)", "Qty. Rounding Precision (Base)");
         end;
     end;
 
     local procedure GetHeaderQtys(var HeaderQty: Decimal; var HeaderQtyBase: Decimal; AssemblyHeader: Record "Assembly Header")
     begin
         with AssemblyHeader do begin
-            HeaderQty := Round("Quantity to Assemble", UOMMgt.QtyRndPrecision);
-            HeaderQtyBase := Round("Quantity to Assemble (Base)", UOMMgt.QtyRndPrecision);
+            HeaderQty := RoundQuantity("Quantity to Assemble", "Qty. Rounding Precision");
+            HeaderQtyBase := RoundQuantity("Quantity to Assemble (Base)", "Qty. Rounding Precision (Base)");
         end;
+    end;
+
+    local procedure RoundQuantity(Qty: Decimal; QtyRoundingPrecision: Decimal): Decimal
+    begin
+        if QtyRoundingPrecision = 0 then
+            QtyRoundingPrecision := UOMMgt.QtyRndPrecision();
+
+        exit(Round(Qty, QtyRoundingPrecision))
     end;
 
     local procedure PostLines(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostedAssemblyHeader: Record "Posted Assembly Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var ResJnlPostLine: Codeunit "Res. Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
@@ -511,11 +521,19 @@ codeunit 900 "Assembly-Post"
         end;
     end;
 
-    local procedure PostItemConsumption(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer): Integer
+    local procedure PostItemConsumption(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer) Result: Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemConsumptionProcedure(
+            AssemblyHeader, AssemblyLine, PostingNoSeries, QtyToConsume, QtyToConsumeBase, ItemJnlPostLine,
+            WhseJnlRegisterLine, DocumentNo, IsCorrection, ApplyToEntryNo, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with AssemblyLine do begin
             TestField(Type, Type::Item);
 
@@ -544,6 +562,8 @@ codeunit 900 "Assembly-Post"
 
             ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+            ItemJnlLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            ItemJnlLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             ItemJnlLine.Quantity := QtyToConsume;
             ItemJnlLine."Quantity (Base)" := QtyToConsumeBase;
             ItemJnlLine."Variant Code" := "Variant Code";
@@ -570,11 +590,19 @@ codeunit 900 "Assembly-Post"
         exit(ItemJnlLine."Item Shpt. Entry No.");
     end;
 
-    local procedure PostItemOutput(var AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer): Integer
+    local procedure PostItemOutput(var AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer) Result: Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         AssemblyHeaderReserve: Codeunit "Assembly Header-Reserve";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemOutputProcedure(
+            AssemblyHeader, PostingNoSeries, QtyToOutput, QtyToOutputBase, ItemJnlPostLine,
+            WhseJnlRegisterLine, DocumentNo, IsCorrection, ApplyToEntryNo, Result, IsHandled);
+        if IsHandled then
+            exit;
+
         with AssemblyHeader do begin
             ItemJnlLine.Init();
             ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::"Assembly Output";
@@ -601,6 +629,8 @@ codeunit 900 "Assembly-Post"
 
             ItemJnlLine."Unit of Measure Code" := "Unit of Measure Code";
             ItemJnlLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+            ItemJnlLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+            ItemJnlLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             ItemJnlLine.Quantity := QtyToOutput;
             ItemJnlLine."Invoiced Quantity" := QtyToOutput;
             ItemJnlLine."Quantity (Base)" := QtyToOutputBase;
@@ -706,7 +736,7 @@ codeunit 900 "Assembly-Post"
             SetCurrentKey("Item No.", Positive);
             SetRange(Positive, true);
             SetRange(Open, true);
-            FindFirst;
+            FindFirst();
             exit("Entry No.");
         end;
     end;
@@ -723,12 +753,17 @@ codeunit 900 "Assembly-Post"
     local procedure PostWhseJnlLine(AssemblyHeader: Record "Assembly Header"; ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line")
     var
         Location: Record Location;
+        Item: Record Item;
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
+        if Item.Get(ItemJnlLine."Item No.") then
+            if Item.IsNonInventoriableType() then
+                exit;
+
         IsHandled := false;
         OnBeforePostWhseJnlLine(AssemblyHeader, ItemJnlLine, ItemJnlPostLine, WhseJnlRegisterLine, Location, SourceCode, IsHandled);
         if IsHandled then
@@ -1164,7 +1199,7 @@ codeunit 900 "Assembly-Post"
             Insert();
 
             CopyCommentLines(
-              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type".AsInteger(),
+              AsmCommentLine."Document Type"::"Posted Assembly", "Document Type",
               PostedAsmHeader."No.", "No.");
 
             RestoreItemTracking(TempItemLedgEntry, "No.", 0, DATABASE::"Assembly Header", "Document Type".AsInteger(), "Due Date", 0D);
@@ -1386,15 +1421,11 @@ codeunit 900 "Assembly-Post"
     local procedure MakeInvtAdjmt()
     var
         InvtSetup: Record "Inventory Setup";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
     begin
         InvtSetup.Get();
-        if InvtSetup."Automatic Cost Adjustment" <>
-           InvtSetup."Automatic Cost Adjustment"::Never
-        then begin
-            InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-            InvtAdjmt.MakeMultiLevelAdjmt();
-        end;
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
     end;
 
     local procedure DeleteWhseRequest(AssemblyHeader: Record "Assembly Header")
@@ -1518,6 +1549,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterValidatePostingDate(var AssemblyHeader: Record "Assembly Header"; PostingDateExists: Boolean; ReplacePostingDate: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUndoInitPost(var PostedAssemblyHeader: Record "Posted Assembly Header")
     begin
     end;
@@ -1557,7 +1593,7 @@ codeunit 900 "Assembly-Post"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeOnRun(var AssemblyHeader: Record "Assembly Header"; SuppressCommit: Boolean)
     begin
     end;
@@ -1584,6 +1620,16 @@ codeunit 900 "Assembly-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedAssemblyLineInsert(var PostedAssemblyLine: Record "Posted Assembly Line"; AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemConsumptionProcedure(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; PostingNoSeries: Code[20]; QtyToConsume: Decimal; QtyToConsumeBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemOutputProcedure(AssemblyHeader: Record "Assembly Header"; PostingNoSeries: Code[20]; QtyToOutput: Decimal; QtyToOutputBase: Decimal; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; DocumentNo: Code[20]; IsCorrection: Boolean; ApplyToEntryNo: Integer; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 

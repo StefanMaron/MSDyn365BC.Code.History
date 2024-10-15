@@ -291,7 +291,7 @@ codeunit 5320 "Exchange Web Services Client"
 
     procedure ReadBuffer(var DestExchangeFolder: Record "Exchange Folder"): Boolean
     begin
-        if TempExchangeFolder.FindSet then
+        if TempExchangeFolder.FindSet() then
             repeat
                 if not DestExchangeFolder.Get(TempExchangeFolder.FullPath) then begin
                     TempExchangeFolder.CalcFields("Unique ID");

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 9022 "Business Manager Role Center"
 {
     // CurrPage."Help And Setup List".ShowFeatured;
@@ -39,14 +40,6 @@ page 9022 "Business Manager Role Center"
                 ApplicationArea = Basic, Suite;
                 Caption = '';
             }
-            part(Control56; "Product Video Topics")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Assisted Setup.';
-                Visible = false;
-                ApplicationArea = All;
-                ObsoleteTag = '17.0';
-            }
             part("Favorite Accounts"; "My Accounts")
             {
                 ApplicationArea = Basic, Suite;
@@ -75,15 +68,6 @@ page 9022 "Business Manager Role Center"
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
-            }
-            part(" "; "O365 Link to Financials")
-            {
-                ApplicationArea = Invoicing;
-                Caption = ' ';
-                Visible = false;
-                ObsoleteReason = 'Microsoft Invoicing is not supported on Business Central';
-                ObsoleteState = Pending;
-                ObsoleteTag = '17.0';
             }
         }
     }
@@ -155,6 +139,15 @@ page 9022 "Business Manager Role Center"
         }
         area(processing)
         {
+            action("Navigate")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Find entries...';
+                Image = Navigate;
+                RunObject = Page Navigate;
+                ShortCutKey = 'Ctrl+Alt+Q';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+            }
             group(New)
             {
                 Caption = 'New';
@@ -681,6 +674,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'VAT Statements';
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'Specifies vat statement';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action(Action1220023)
                 {
@@ -688,6 +684,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Intrastat Journals';
                     RunObject = Page "Intrastat Jnl. Batches";
                     ToolTip = 'Specifies intrastat journals';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Posted Sales Invoices cz")
                 {
@@ -695,6 +694,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Sales Invoices';
                     RunObject = Page "Posted Sales Invoices";
                     ToolTip = 'Specifies posted sales invoices';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Posted Sales Credit Memos cz")
                 {
@@ -702,6 +704,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Sales Credit Memos';
                     RunObject = Page "Posted Sales Credit Memos";
                     ToolTip = 'Specifies posted sales credit memos';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Posted Purchase Invoice")
                 {
@@ -709,6 +714,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Purchase Invoice';
                     RunObject = Page "Posted Purchase Invoices";
                     ToolTip = 'Specifies posted purchace invoices';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Posted Purchase Credit Memos")
                 {
@@ -716,20 +724,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Posted Purchase Credit Memos';
                     RunObject = Page "Posted Purchase Credit Memos";
                     ToolTip = 'Specifies posted purchace credit memos';
-                }
-#if not CLEAN17
-                action("VIES Declarations")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'VIES Declarations';
-                    RunObject = Page "VIES Declarations";
-                    ToolTip = 'Specifies vies declarations list';
                     ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
-#endif
                 action(CashReceiptJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -802,6 +800,15 @@ page 9022 "Business Manager Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Payment Terms";
                     ToolTip = 'Set up the payment terms that you select from on customer cards to define when the customer must pay, such as within 14 days.';
+                }
+                action(Deposits)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Bank Deposits';
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'Manage bank deposits to your bank accounts.';
                 }
                 action(BankAccountReconciliations)
                 {
@@ -1070,6 +1077,9 @@ page 9022 "Business Manager Role Center"
                     Image = BankAccount;
                     RunObject = Page "Bank Account List";
                     ToolTip = 'Specifies bank accounts';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Bank Acc. Reconciliations")
                 {
@@ -1078,6 +1088,9 @@ page 9022 "Business Manager Role Center"
                     Image = BankAccountRec;
                     RunObject = Page "Bank Acc. Reconciliation List";
                     ToolTip = 'Specifies bank accounts reconciliations';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action(Action1220014)
                 {
@@ -1086,6 +1099,9 @@ page 9022 "Business Manager Role Center"
                     Image = BankAccountStatement;
                     RunObject = Page "Bank Account Statement List";
                     ToolTip = 'Specifies bank accounts statements';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("General Journals")
                 {
@@ -1096,6 +1112,9 @@ page 9022 "Business Manager Role Center"
                     RunPageView = WHERE("Template Type" = CONST(General),
                                         Recurring = CONST(false));
                     ToolTip = 'Specifies general journals';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Payment Journals")
                 {
@@ -1106,6 +1125,9 @@ page 9022 "Business Manager Role Center"
                     RunPageView = WHERE("Template Type" = CONST(Payments),
                                         Recurring = CONST(false));
                     ToolTip = 'Specifies payment journals';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action("Cash Receipt Journals")
                 {
@@ -1116,6 +1138,9 @@ page 9022 "Business Manager Role Center"
                     RunPageView = WHERE("Template Type" = CONST("Cash Receipts"),
                                         Recurring = CONST(false));
                     ToolTip = 'Specifies receipt journals';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action(Action1220016)
                 {
@@ -1124,6 +1149,9 @@ page 9022 "Business Manager Role Center"
                     Image = Currency;
                     RunObject = Page Currencies;
                     ToolTip = 'Specifies page of currencies';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 action(Action1220015)
                 {
@@ -1131,6 +1159,9 @@ page 9022 "Business Manager Role Center"
                     Caption = 'Direct Debit Collections';
                     RunObject = Page "Direct Debit Collections";
                     ToolTip = 'Specifies direct debit collections';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this action should not be used.';
+                    ObsoleteTag = '20.0';
                 }
 #if not CLEAN19
                 action("Payment Orders")
@@ -1175,41 +1206,6 @@ page 9022 "Business Manager Role Center"
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
                     ObsoleteTag = '19.0';
-                    Visible = false;
-                }
-#endif
-#if not CLEAN17
-                action("Cash Desks")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Desks';
-                    RunObject = Page "Cash Desk List";
-                    ToolTip = 'Specifies cash desks';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                action("Cash Documents")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Documents';
-                    RunObject = Page "Cash Document List";
-                    ToolTip = 'Specifies cash ddocuments';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                action("Posted Cash Documents")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Posted Cash Documents';
-                    RunObject = Page "Posted Cash Document List";
-                    ToolTip = 'Specifies posted cash documents';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
 #endif
@@ -1298,3 +1294,4 @@ page 9022 "Business Manager Role Center"
         }
     }
 }
+#endif

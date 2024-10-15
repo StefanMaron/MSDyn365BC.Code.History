@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 5883 "Posted Phys. Invt. Order"
 {
     ApplicationArea = Warehouse;
@@ -167,7 +166,7 @@ page 5883 "Posted Phys. Invt. Order"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -189,32 +188,7 @@ page 5883 "Posted Phys. Invt. Order"
                 RunObject = Report "Posted Phys. Invt. Order Diff.";
                 ToolTip = 'View or print the list of differences after counting.';
             }
-            action("Phys. Invt. Counting Document")
-            {
-                ApplicationArea = Warehouse;
-                Caption = 'Phys. Invt. Counting Document';
-                Image = "Report";
-                Promoted = false;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = "Report";
-                ToolTip = 'Open the report for physical inventory counting document';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                trigger OnAction()
-                var
-                    PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
-                begin
-                    // NAVCZ
-                    PhysInventoryLedgerEntry.SetRange("Document No.", "No.");
-                    PhysInventoryLedgerEntry.SetRange("Posting Date", "Posting Date");
-                    REPORT.Run(REPORT::"Phys. Invt. Counting Document", true, false, PhysInventoryLedgerEntry);
-                end;
-            }
         }
     }
 }
 
-#endif

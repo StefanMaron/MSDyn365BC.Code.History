@@ -71,44 +71,6 @@ codeunit 11774 "Init Report Selection Handler"
     begin
         with ReportSelections do
             case ReportUsage of
-#if not CLEAN17
-                Usage::"S.Quote":
-                    InsertRepSelection(Usage::"S.Quote", '1', Report::"Sales - Quote CZ");
-                Usage::"S.Order":
-                    InsertRepSelection(Usage::"S.Order", '1', Report::"Order Confirmation CZ");
-                Usage::"S.Invoice":
-                    InsertRepSelection(Usage::"S.Invoice", '1', Report::"Sales - Invoice CZ");
-                Usage::"S.Return":
-                    InsertRepSelection(Usage::"S.Return", '1', Report::"Return Order Confirmation CZ");
-                Usage::"S.Cr.Memo":
-                    InsertRepSelection(Usage::"S.Cr.Memo", '1', Report::"Sales - Credit Memo CZ");
-                Usage::"S.Shipment":
-                    InsertRepSelection(Usage::"S.Shipment", '1', Report::"Sales - Shipment CZ");
-                Usage::"S.Ret.Rcpt.":
-                    InsertRepSelection(Usage::"S.Ret.Rcpt.", '1', Report::"Sales - Return Reciept CZ");
-                Usage::"P.Quote":
-                    InsertRepSelection(Usage::"P.Quote", '1', Report::"Purchase - Quote CZ");
-                Usage::"P.Order":
-                    InsertRepSelection(Usage::"P.Order", '1', Report::"Order CZ");
-                Usage::"SM.Quote":
-                    InsertRepSelection(Usage::"SM.Quote", '1', Report::"Service Quote CZ");
-                Usage::"SM.Order":
-                    InsertRepSelection(Usage::"SM.Order", '1', Report::"Service Order CZ");
-                Usage::"SM.Invoice":
-                    InsertRepSelection(Usage::"SM.Invoice", '1', Report::"Service - Invoice CZ");
-                Usage::"SM.Credit Memo":
-                    InsertRepSelection(Usage::"SM.Credit Memo", '1', Report::"Service - Credit Memo CZ");
-                Usage::"SM.Shipment":
-                    InsertRepSelection(Usage::"SM.Shipment", '1', Report::"Service - Shipment CZ");
-                Usage::"SM.Contract Quote":
-                    InsertRepSelection(Usage::"SM.Contract Quote", '1', Report::"Service Contract Quote CZ");
-                Usage::"SM.Contract":
-                    InsertRepSelection(Usage::"SM.Contract", '1', Report::"Service Contract CZ");
-                Usage::Reminder:
-                    InsertRepSelection(Usage::Reminder, '1', Report::"Reminder CZ");
-                Usage::"Fin.Charge":
-                    InsertRepSelection(Usage::"Fin.Charge", '1', Report::"Finance Charge Memo CZ");
-#endif
 #if not CLEAN19
                 Usage::"S.Adv.Let":
                     InsertRepSelection(Usage::"S.Adv.Let", '1', Report::"Sales - Advance Letter CZ");

@@ -1,13 +1,9 @@
 table 11766 "Statement File Mapping"
 {
     Caption = 'Statement File Mapping';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -35,34 +31,6 @@ table 11766 "Statement File Mapping"
         {
             Caption = 'Excel Cell';
             CharAllowed = '09,R,C';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                if "Excel Cell" <> '' then begin
-                    TestRowColumn("Excel Cell");
-                    StmtFileMapping.Reset();
-                    StmtFileMapping.SetRange("Schedule Name", "Schedule Name");
-                    StmtFileMapping.SetRange("Schedule Column Layout Name", "Schedule Column Layout Name");
-                    StmtFileMapping.SetRange("Excel Cell", "Excel Cell");
-                    StmtFileMapping.SetFilter("Schedule Line No.", '<>%1', "Schedule Line No.");
-                    if StmtFileMapping.FindFirst then
-                        if not Confirm(DuplicateQst, true, StmtFileMapping."Schedule Line No.", StmtFileMapping."Schedule Column No.") then
-                            Error('');
-                    StmtFileMapping.SetRange("Schedule Line No.");
-                    StmtFileMapping.SetFilter("Schedule Column No.", '<>%1', "Schedule Column No.");
-                    if StmtFileMapping.FindFirst then
-                        if not Confirm(DuplicateQst, true, StmtFileMapping."Schedule Line No.", StmtFileMapping."Schedule Column No.") then
-                            Error('');
-
-                    Evaluate("Excel Row No.", CopyStr("Excel Cell", 2, Cpos - 2));
-                    Evaluate("Excel Column No.", CopyStr("Excel Cell", Cpos + 1, StrLen("Excel Cell")));
-                end else begin
-                    "Excel Row No." := 0;
-                    "Excel Column No." := 0;
-                end;
-            end;
-#endif
         }
         field(10; "Excel Row No."; Integer)
         {
@@ -95,27 +63,4 @@ table 11766 "Statement File Mapping"
     fieldgroups
     {
     }
-#if not CLEAN17
-
-    var
-        StmtFileMapping: Record "Statement File Mapping";
-        CellFormatErr: Label 'Cell must be on format RxCy.';
-        DuplicateQst: Label 'In line %1 and column %2 is same cell.\Continue?';
-        Cpos: Integer;
-        RowTxt: Label 'R', Comment = 'R';
-        ColumnTxt: Label 'C', Comment = 'C';
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure TestRowColumn(Cell: Code[50])
-    begin
-        if CopyStr(Cell, 1, 1) <> RowTxt then
-            Error(CellFormatErr);
-
-        Cpos := StrPos(Cell, ColumnTxt);
-        if Cpos < 3 then
-            Error(CellFormatErr);
-    end;
-#endif
 }
-

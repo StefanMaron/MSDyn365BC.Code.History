@@ -346,49 +346,19 @@ report 31045 "FA Phys. Inventory List"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = '1. Persona';
-#if not CLEAN17
-                        TableRelation = "Company Officials";
-#endif
                         ToolTip = 'Specifies an employee name from the Company Officials table. Each persona will print on the report with a corresponding signature line for authorization.';
-#if not CLEAN17
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        begin
-                            CompanyOfficials.Reset();
-                            if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
-                                Member[1] := CompanyOfficials.FullName;
-                        end;
-#endif
                     }
                     field("Member[2]"; Member[2])
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = '2. Persona';
                         ToolTip = 'Specifies an employee name from the Company Officials table. Each persona will print on the report with a corresponding signature line for authorization.';
-#if not CLEAN17
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        begin
-                            CompanyOfficials.Reset();
-                            if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
-                                Member[2] := CompanyOfficials.FullName;
-                        end;
-#endif
                     }
                     field("Member[3]"; Member[3])
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = '3. Persona';
                         ToolTip = 'Specifies an employee name from the Company Officials table. Each persona will print on the report with a corresponding signature line for authorization.';
-#if not CLEAN17
-
-                        trigger OnLookup(var Text: Text): Boolean
-                        begin
-                            CompanyOfficials.Reset();
-                            if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
-                                Member[3] := CompanyOfficials.FullName;
-                        end;
-#endif
                     }
                 }
             }
@@ -423,9 +393,6 @@ report 31045 "FA Phys. Inventory List"
     end;
 
     var
-#if not CLEAN17
-        CompanyOfficials: Record "Company Officials";
-#endif
         FASetup: Record "FA Setup";
         FADeprBook: Record "FA Depreciation Book";
         PrintFAValues: Boolean;

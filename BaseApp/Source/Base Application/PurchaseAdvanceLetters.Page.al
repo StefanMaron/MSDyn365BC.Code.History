@@ -373,7 +373,7 @@ page 31022 "Purchase Advance Letters"
             0:
                 exit(Result);
             1:
-                Result := PurchAdvPmtTemplate.FindFirst;
+                Result := PurchAdvPmtTemplate.FindFirst();
             else begin
                     Result := PAGE.RunModal(PAGE::"Purchase Adv. Paym. Selection", PurchAdvPmtTemplate) = ACTION::LookupOK;
                     if not Result then

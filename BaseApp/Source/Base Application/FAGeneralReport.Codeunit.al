@@ -340,7 +340,7 @@ codeunit 5626 "FA General Report"
                 repeat
                     if "Reason Code" <> '' then begin
                         lreFAPostGroupBuffer.SetRange("FA Posting Group", "Reason Code");
-                        if lreFAPostGroupBuffer.FindFirst then begin
+                        if lreFAPostGroupBuffer.FindFirst() then begin
                             ldeTotAmount := ldeTotAmount + Amount;
                             lreFAPostGroupBuffer.Amount := lreFAPostGroupBuffer.Amount + Amount;
                             lreFAPostGroupBuffer.Modify();

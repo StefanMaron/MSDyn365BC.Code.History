@@ -45,6 +45,8 @@ page 7377 "Inventory Pick"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
+                        if Rec."Source Document" = Rec."Source Document"::"Job Usage" then
+                            FeatureTelemetry.LogUsage('0000GQW', 'Picks on jobs', 'create inventory picks');
                         CODEUNIT.Run(CODEUNIT::"Create Inventory Pick/Movement", Rec);
                         CurrPage.Update();
                         CurrPage.WhseActivityLines.PAGE.UpdateForm;
@@ -338,6 +340,7 @@ page 7377 "Inventory Pick"
     var
         WhseActPrint: Codeunit "Warehouse Document-Print";
         WMSMgt: Codeunit "WMS Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
 
     local procedure AutofillQtyToHandleInLine()
     begin

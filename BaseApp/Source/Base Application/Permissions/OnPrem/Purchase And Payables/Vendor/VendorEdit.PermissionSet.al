@@ -25,9 +25,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,
                   tabledata "Duplicate Search String Setup" = R,
-#if not CLEAN17
-                  tabledata "Electronically Govern. Setup" = R,
-#endif
                   tabledata "Employee Ledger Entry" = Rm,
                   tabledata "Employee Posting Group" = R,
                   tabledata "FA Ledger Entry" = rm,
@@ -60,7 +57,9 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Maintenance Ledger Entry" = rm,
                   tabledata "Maintenance Registration" = rm,
                   tabledata "My Vendor" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Nonstock Item" = rm,
                   tabledata Opportunity = R,
                   tabledata "Order Address" = RIMD,
@@ -90,9 +89,6 @@ permissionset 7371 "Vendor - Edit"
 #endif
                   tabledata "Purchase Price Access" = Rid,
                   tabledata "Registered Whse. Activity Line" = rm,
-#if not CLEAN17
-                  tabledata "Registration Log" = RIMd,
-#endif
                   tabledata "Res. Capacity Entry" = RIMD,
                   tabledata Resource = rm,
                   tabledata "Responsibility Center" = R,
@@ -109,7 +105,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Service Item Line" = Rm,
                   tabledata "Service Ledger Entry" = rm,
                   tabledata "Shipment Method" = R,
-                  tabledata "Social Listening Search Topic" = RIMD,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Vendor Purchase Code" = rid,
@@ -119,9 +114,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Tax Area" = R,
                   tabledata Territory = R,
                   tabledata "To-do" = R,
-#if not CLEAN17
-                  tabledata "Uncertainty Payer Entry" = Rimd,
-#endif
                   tabledata "Value Entry" = rm,
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,

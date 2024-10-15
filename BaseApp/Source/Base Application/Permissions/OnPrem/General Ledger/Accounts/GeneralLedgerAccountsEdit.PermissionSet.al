@@ -47,7 +47,9 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Job Planning Line" = r,
                   tabledata "Job Posting Group" = r,
                   tabledata "Maintenance Ledger Entry" = r,
+#if not CLEAN20
                   tabledata "Native - Payment" = r,
+#endif
                   tabledata "Payment Method" = r,
                   tabledata "Purch. Cr. Memo Hdr." = r,
                   tabledata "Purch. Cr. Memo Line" = r,
@@ -86,9 +88,6 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "VAT Assisted Setup Bus. Grp." = r,
                   tabledata "VAT Assisted Setup Templates" = r,
                   tabledata "VAT Business Posting Group" = R,
-#if not CLEAN17
-                  tabledata "VAT Period" = R,
-#endif
                   tabledata "VAT Posting Setup" = r,
                   tabledata "VAT Product Posting Group" = R,
                   tabledata "VAT Rate Change Conversion" = R,

@@ -51,16 +51,23 @@ page 5050 "Contact Card"
                                 Clear(NameDetails);
                                 NameDetails.SetTableView(Contact);
                                 NameDetails.SetRecord(Contact);
-                                NameDetails.RunModal;
+                                NameDetails.RunModal();
                             end else begin
                                 Clear(CompanyDetails);
                                 CompanyDetails.SetTableView(Contact);
                                 CompanyDetails.SetRecord(Contact);
-                                CompanyDetails.RunModal;
+                                CompanyDetails.RunModal();
                             end;
                         Rec := Contact;
                         CurrPage.Update(false);
                     end;
+                }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
                 }
                 field(Type; Type)
                 {
@@ -98,6 +105,13 @@ page 5050 "Contact Card"
                         end;
                     }
                 }
+                field("Job Title"; "Job Title")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the contact''s job title.';
+                    Visible = false;
+                }
                 field("Contact Business Relation"; Rec."Contact Business Relation")
                 {
                     ApplicationArea = All;
@@ -107,9 +121,24 @@ page 5050 "Contact Card"
 
                     trigger OnDrillDown()
                     begin
+                        CurrPage.SaveRecord();
                         Rec.ShowBusinessRelation("Contact Business Relation Link To Table"::" ", true);
+                        CurrPage.Update(false);
                     end;
                 }
+#if not CLEAN19
+                field("Business Relation"; Rec."Business Relation")
+                {
+                    ApplicationArea = All;
+                    Importance = Promoted;
+                    Caption = 'Business Relation';
+                    ToolTip = 'Specifies the type of the existing business relation.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the Contact Business Relation field.';
+                    ObsoleteTag = '18.1';
+                }
+#endif
                 field(IntegrationCustomerNo; IntegrationCustomerNo)
                 {
                     ApplicationArea = All;
@@ -127,7 +156,7 @@ page 5050 "Contact Card"
                             ContactBusinessRelation.SetCurrentKey("Link to Table", "No.");
                             ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
                             ContactBusinessRelation.SetRange("No.", Customer."No.");
-                            if ContactBusinessRelation.FindFirst then
+                            if ContactBusinessRelation.FindFirst() then
                                 Validate("Company No.", ContactBusinessRelation."Contact No.");
                         end else
                             Validate("Company No.", '');
@@ -179,7 +208,7 @@ page 5050 "Contact Card"
                         InteractionLogEntry.SetRange("Contact Company No.", "Company No.");
                         InteractionLogEntry.SetFilter("Contact No.", "Lookup Contact No.");
                         InteractionLogEntry.SetRange("Attempt Failed", false);
-                        if InteractionLogEntry.FindLast then
+                        if InteractionLogEntry.FindLast() then
                             PAGE.Run(0, InteractionLogEntry);
                     end;
                 }
@@ -197,7 +226,7 @@ page 5050 "Contact Card"
                         InteractionLogEntry.SetRange("Contact Company No.", "Company No.");
                         InteractionLogEntry.SetFilter("Contact No.", "Lookup Contact No.");
                         InteractionLogEntry.SetRange("Initiated By", InteractionLogEntry."Initiated By"::Us);
-                        if InteractionLogEntry.FindLast then
+                        if InteractionLogEntry.FindLast() then
                             PAGE.Run(0, InteractionLogEntry);
                     end;
                 }
@@ -243,8 +272,7 @@ page 5050 "Contact Card"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'History';
                 SubPageLink = "Contact Company No." = FIELD("Company No."),
-                                "Contact No." = FILTER(<> ''),
-                                "Contact No." = FIELD(FILTER("Lookup Contact No."));
+                                "Contact No." = FIELD("No.");
             }
             group(Communication)
             {
@@ -539,6 +567,26 @@ page 5050 "Contact Card"
                         ToolTip = 'Specify date ranges that apply to the contact''s alternate address.';
                     }
                 }
+#if not CLEAN19
+                action(SentEmails)
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+                    Visible = false;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
+                }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -776,6 +824,7 @@ page 5050 "Contact Card"
             }
             group(Prices)
             {
+                Caption = 'Prices';
                 action(PriceLists)
                 {
                     ApplicationArea = Basic, Suite;
@@ -942,6 +991,20 @@ page 5050 "Contact Card"
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
+                }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
                 }
             }
         }
@@ -1196,11 +1259,9 @@ page 5050 "Contact Card"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the contact.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category5;
 
                 trigger OnAction()
                 var
@@ -1210,6 +1271,25 @@ page 5050 "Contact Card"
                     CurrPage.SetSelectionFilter(Contact);
                     WordTemplateSelectionWizard.SetData(Contact);
                     WordTemplateSelectionWizard.RunModal();
+                end;
+            }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this contact.';
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::Contact, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             action("Create Opportunity")
@@ -1334,22 +1414,24 @@ page 5050 "Contact Card"
         VATRegistrationNoEnable: Boolean;
         [InDataSet]
         CompanyNameEnable: Boolean;
-        [InDataSet]
-        OrganizationalLevelCodeEnable: Boolean;
-        CompanyGroupEnabled: Boolean;
-        PersonGroupEnabled: Boolean;
-        ExtendedPriceEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
-        IsOfficeAddin: Boolean;
         RelatedCustomerEnabled: Boolean;
         RelatedVendorEnabled: Boolean;
         RelatedBankEnabled: Boolean;
         RelatedEmployeeEnabled: Boolean;
         ShowMapLbl: Label 'Show Map';
         NoFieldVisible: Boolean;
+
+    protected var
+        [InDataSet]
+        OrganizationalLevelCodeEnable: Boolean;
         ParentalConsentReceivedEnable: Boolean;
+        CompanyGroupEnabled: Boolean;
+        PersonGroupEnabled: Boolean;
+        ExtendedPriceEnabled: Boolean;
+        IsOfficeAddin: Boolean;
 
     local procedure EnableFields()
     begin
@@ -1359,6 +1441,8 @@ page 5050 "Contact Card"
         VATRegistrationNoEnable := Type = Type::Company;
         CompanyNameEnable := Type = Type::Person;
         OrganizationalLevelCodeEnable := Type = Type::Person;
+
+        OnAfterEnableFields(CompanyGroupEnabled, PersonGroupEnabled, CurrencyCodeEnable, VATRegistrationNoEnable, CompanyNameEnable, OrganizationalLevelCodeEnable);
     end;
 
     local procedure SetEnabledRelatedActions()
@@ -1373,7 +1457,7 @@ page 5050 "Contact Card"
         ContactBusinessRelation.SetCurrentKey("Link to Table", "Contact No.");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("Contact No.", "Company No.");
-        if ContactBusinessRelation.FindFirst then begin
+        if ContactBusinessRelation.FindFirst() then begin
             IntegrationCustomerNo := ContactBusinessRelation."No.";
         end else
             IntegrationCustomerNo := '';
@@ -1399,6 +1483,11 @@ page 5050 "Contact Card"
             "Parental Consent Received" := false;
             ParentalConsentReceivedEnable := false;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableFields(var CompanyGroupEnabled: Boolean; var PersonGroupEnabled: Boolean; var CurrencyCodeEnable: Boolean; var VATRegistrationNoEnable: Boolean; var CompanyNameEnable: Boolean; var OrganizationalLevelCodeEnable: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

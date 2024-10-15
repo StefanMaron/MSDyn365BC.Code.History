@@ -30,15 +30,9 @@ permissionset 3632 "Account Schedules - Edit"
                   tabledata "Column Layout Name" = RIMD,
                   tabledata Dimension = R,
                   tabledata "Dimension Value" = R,
-#if not CLEAN17
-                  tabledata "Excel Template" = RIMD,
-#endif
+#if not CLEAN20
                   tabledata "Export Acc. Schedule" = RIMD,
+#endif
                   tabledata "G/L Account Category" = RIMD,
-#if CLEAN17
                   tabledata "G/L Budget Name" = RI;
-#else
-                  tabledata "G/L Budget Name" = RI,
-                  tabledata "Statement File Mapping" = RIMD;
-#endif                  
 }

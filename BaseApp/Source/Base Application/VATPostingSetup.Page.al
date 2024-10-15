@@ -32,6 +32,11 @@ page 472 "VAT Posting Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT posting setup';
                 }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if this particular combination of VAT business posting group and VAT product posting group is blocked.';
+                }
                 field("VAT Identifier"; "VAT Identifier")
                 {
                     ApplicationArea = Basic, Suite;
@@ -171,35 +176,6 @@ page 472 "VAT Posting Setup"
                     ToolTip = 'Specifies if documents that use this combination of VAT business posting group and VAT product posting group require a certificate of supply.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("VIES Purchases"; "VIES Purchases")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies this option to include the posting group in VAT purchase declarations.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("VIES Sales"; "VIES Sales")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies this option to include the posting group in VAT sales declarations.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Allow Blank VAT Date"; "Allow Blank VAT Date")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies to post entries with blank VAT dates.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN18
                 field("Allow Non Deductible VAT"; '')
                 {
@@ -210,17 +186,6 @@ page 472 "VAT Posting Setup"
                     ObsoleteReason = 'The functionality of Non Deductible VAT Correction has been removed.';
                     ObsoleteTag = '18.0';
                     Editable = false;
-                    Visible = false;
-                }
-#endif
-#if not CLEAN17
-                field("Reverse Charge Check"; "Reverse Charge Check")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if and how reverse charge will be checked depending on Commodity Limit Amount';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                     Visible = false;
                 }
 #endif
@@ -237,51 +202,11 @@ page 472 "VAT Posting Setup"
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("Purchase VAT Delay Account"; "Purchase VAT Delay Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Sales VAT Delay Account"; "Sales VAT Delay Account")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Tax Category"; "Tax Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
                 }
-#if not CLEAN17
-                field("VAT Rate"; "VAT Rate")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies typ of VAT rate - base, reduced or reduced 2.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Ratio Coefficient"; "Ratio Coefficient")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies ratio coefficient';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
         }
         area(factboxes)
@@ -333,7 +258,7 @@ page 472 "VAT Posting Setup"
                 begin
                     CurrPage.SaveRecord;
                     CopyVATPostingSetup.SetVATSetup(Rec);
-                    CopyVATPostingSetup.RunModal;
+                    CopyVATPostingSetup.RunModal();
                     Clear(CopyVATPostingSetup);
                 end;
             }

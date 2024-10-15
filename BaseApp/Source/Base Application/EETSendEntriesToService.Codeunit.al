@@ -12,7 +12,7 @@ codeunit 31122 "EET Send Entries To Service"
             SetFilter("EET Status", '%1|%2|%3|%4',
               "EET Status"::"Send Pending", "EET Status"::Failure,
               "EET Status"::Verified, "EET Status"::"Verified with Warnings");
-            if FindSet then
+            if FindSet() then
                 repeat
                     EETEntry2.Get("Entry No.");
                     EETEntryMgt.SendEntryToService(EETEntry2, false);

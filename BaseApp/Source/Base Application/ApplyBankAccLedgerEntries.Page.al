@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 381 "Apply Bank Acc. Ledger Entries"
 {
     Caption = 'Apply Bank Acc. Ledger Entries';
@@ -59,6 +60,9 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Debit Amount"; "Debit Amount")
                 {
@@ -159,7 +163,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
                 {
                     ApplicationArea = Basic, Suite;
                     ShowCaption = false;
-                    Caption = '';
+                    Caption = ' ';
                 }
                 field(Balance; Balance)
                 {
@@ -174,6 +178,21 @@ page 381 "Apply Bank Acc. Ledger Entries"
                     Caption = 'Total on Outstanding Checks';
                     Editable = false;
                     ToolTip = 'Specifies the part of the bank account balance that consists of posted check ledger entries. The amount in this field is a subset of the amount in the Balance field under the right pane in the Bank Acc. Reconciliation window.';
+
+                    trigger OnDrillDown()
+                    var
+                        CheckLedgerEntry: Record "Check Ledger Entry";
+                    begin
+                        if BankAccount."No." = '' then
+                            exit;
+
+                        CheckLedgerEntry.FilterGroup(2);
+                        CheckLedgerEntry.SetRange("Bank Account No.", BankAccount."No.");
+                        CheckLedgerEntry.SetRange("Entry Status", CheckLedgerEntry."Entry Status"::Posted);
+                        CheckLedgerEntry.SetFilter("Statement Status", '<>%1', CheckLedgerEntry."Statement Status"::Closed);
+                        CheckLedgerEntry.FilterGroup(0);
+                        Page.Run(Page::"Check Ledger Entries", CheckLedgerEntry);
+                    end;
                 }
                 field(BalanceToReconcile; BalanceToReconcile)
                 {
@@ -233,7 +252,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
         BankAccLedgerEntry: Record "Bank Account Ledger Entry";
     begin
         CurrPage.SetSelectionFilter(BankAccLedgerEntry);
-        if BankAccLedgerEntry.FindSet then
+        if BankAccLedgerEntry.FindSet() then
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
                 TempBankAccLedgerEntry.Insert();
@@ -286,4 +305,4 @@ page 381 "Apply Bank Acc. Ledger Entries"
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;
 }
-
+#endif

@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 page 460 "Purchases & Payables Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -157,6 +157,12 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies if and when posted purchase invoices and credit memos can be deleted. If you enter a date, posted purchase documents with a posting date on or after this date cannot be deleted.';
                 }
+                field("Allow Multiple Posting Groups"; Rec."Allow Multiple Posting Groups")
+                {
+                    ApplicationArea = Advanced;
+                    Importance = Additional;
+                    ToolTip = 'Specifies if multiple posting groups can be used for the same vendor in purchase documents.';
+                }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {
                     ApplicationArea = Basic, Suite;
@@ -174,6 +180,7 @@ page 460 "Purchases & Payables Setup"
                     ToolTip = 'Specifies if the value of the Vendor Invoice No. field must be copied to the Payment Reference field during posting unless the Payment Reference field is not blank.';
                     Importance = Additional;
                 }
+#if not CLEAN20
                 field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
                 {
                     ApplicationArea = Advanced;
@@ -181,11 +188,21 @@ page 460 "Purchases & Payables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of purchase invoices.';
                     Visible = false;
+                    ObsoleteReason = 'Replaced by direct selection of posting interface in codeunits.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("Document Default Line Type"; "Document Default Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the default value for the Type field on the first line in new purchase documents. If needed, you can change the value on the line.';
+                }
+                field("Disable Search by Name"; "Disable Search by Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that you can change the names of vendors on open purchase documents. The change applies only to the documents.';
                 }
             }
             group(Prices)
@@ -349,35 +366,6 @@ page 460 "Purchases & Payables Setup"
                     ToolTip = 'Specifies the output of the report that will be scheduled with a job queue entry when the Post and Print with Job Queue check box is selected.';
                 }
             }
-#if not CLEAN17
-            group(VAT)
-            {
-                Caption = 'VAT';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                field("Default VAT Date"; "Default VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default VAT date type for purchase document (posting date, document date, VAT date or blank).';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Default Orig. Doc. VAT Date"; "Default Orig. Doc. VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the default original document VAT date type for purchase document (posting date, document date, VAT date or blank).';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-            }
-#endif
             group(Archiving)
             {
                 Caption = 'Archiving';
@@ -401,6 +389,44 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = PurchReturnOrder;
                     ToolTip = 'Specifies if you want to archive purchase return orders when they are deleted.';
                 }
+            }
+            group("Journal Templates")
+            {
+                Caption = 'Journal Templates';
+                Visible = JnlTemplateNameVisible;
+
+                field("P. Invoice Template Name"; "P. Invoice Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that you can select the journal template to use for posting purchase invoices.';
+                }
+                field("P. Cr. Memo Template Name"; "P. Cr. Memo Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that you can select the journal template to use for posting purchase credit memos.';
+                }
+                field("P. Prep. Inv. Template Name"; "P. Prep. Inv. Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal template to use for purchase prepayment invoices.';
+                }
+                field("P. Prep. Cr.Memo Template Name"; "P. Prep. Cr.Memo Template Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which general journal template to use for purchase prepayment credit memos.';
+                    Visible = JnlTemplateNameVisible;
+                }
+                field("IC Purch. Invoice Templ. Name"; "IC Purch. Invoice Templ. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the intercompany journal template to use for purchase invoices.';
+                }
+                field("IC Purch. Cr. Memo Templ. Name"; "IC Purch. Cr. Memo Templ. Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the intercompany journal template to use for posting purchase credit memos.';
+                }
+
             }
             group("Default Accounts")
             {
@@ -467,6 +493,7 @@ page 460 "Purchases & Payables Setup"
 
     trigger OnOpenPage()
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         Rec.Reset;
@@ -475,10 +502,13 @@ page 460 "Purchases & Payables Setup"
             Rec.Insert;
         end;
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        GeneralLedgerSetup.Get();
+        JnlTemplateNameVisible := GeneralLedgerSetup."Journal Templ. Name Mandatory";
     end;
 
     var
         ExtendedPriceEnabled: Boolean;
+        JnlTemplateNameVisible: Boolean;
 }
 
 #endif

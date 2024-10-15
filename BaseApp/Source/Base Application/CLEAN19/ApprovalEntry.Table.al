@@ -54,6 +54,8 @@ table 454 "Approval Entry"
             begin
                 if (xRec.Status = Status::Created) and (Status = Status::Open) then
                     "Date-Time Sent for Approval" := CreateDateTime(Today, Time);
+                if not (Status in [Status::Created, Status::Open]) then
+                    DeleteWorkflowEventQueue();
             end;
         }
         field(10; "Date-Time Sent for Approval"; DateTime)
@@ -83,7 +85,7 @@ table 454 "Approval Entry"
         }
         field(14; "Due Date"; Date)
         {
-            Caption = 'Due Date';
+            Caption = 'Approval Due Date';
         }
         field(15; Amount; Decimal)
         {
@@ -124,7 +126,7 @@ table 454 "Approval Entry"
         field(22; "Record ID to Approve"; RecordID)
         {
             Caption = 'Record ID to Approve';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(23; "Delegation Date Formula"; DateFormula)
         {
@@ -204,6 +206,8 @@ table 454 "Approval Entry"
         NotificationEntry.SetRange(Type, NotificationEntry.Type::Approval);
         NotificationEntry.SetRange("Triggered By Record", RecordId);
         NotificationEntry.DeleteAll(true);
+
+        DeleteWorkflowEventQueue();
     end;
 
     trigger OnModify()
@@ -216,6 +220,14 @@ table 454 "Approval Entry"
         PageManagement: Codeunit "Page Management";
         RecNotExistTxt: Label 'The record does not exist.';
         ChangeRecordDetailsTxt: Label '; %1 changed from %2 to %3', Comment = 'Prefix = Record information %1 = field caption %2 = old value %3 = new value. Example: Customer 123455; Credit Limit changed from 100.00 to 200.00';
+
+    local procedure DeleteWorkflowEventQueue()
+    var
+        WorkflowEventQueue: Record "Workflow Event Queue";
+    begin
+        WorkflowEventQueue.SetRange("Record ID", RecordId);
+        WorkflowEventQueue.DeleteAll();
+    end;
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -267,8 +279,14 @@ table 454 "Approval Entry"
         PurchHeader: Record "Purchase Header";
         RecRef: RecordRef;
         ChangeRecordDetails: Text;
+        IsHandled: Boolean;
     begin
-        if not RecRef.Get("Record ID to Approve") then
+        IsHandled := false;
+        OnBeforeRecordDetails(Rec, Details, IsHandled);
+        if IsHandled then
+            exit(Details);
+
+        if not GetRecordToApprove(RecRef) then
             exit(RecNotExistTxt);
 
         ChangeRecordDetails := GetChangeRecordDetails;
@@ -295,6 +313,12 @@ table 454 "Approval Entry"
         end;
 
         OnAfterGetRecordDetails(RecRef, ChangeRecordDetails, Details);
+    end;
+
+    local procedure GetRecordToApprove(var RecRef: RecordRef) Result: Boolean
+    begin
+        Result := RecRef.Get("Record ID to Approve");
+        OnAfterGetRecordToApprove(Rec, RecRef, Result);
     end;
 
     procedure IsOverdue(): Boolean
@@ -346,7 +370,7 @@ table 454 "Approval Entry"
         WorkflowRecordChange.SetRange("Record ID", "Record ID to Approve");
         WorkflowRecordChange.SetRange("Workflow Step Instance ID", "Workflow Step Instance ID");
 
-        if WorkflowRecordChange.FindSet then
+        if WorkflowRecordChange.FindSet() then
             repeat
                 WorkflowRecordChange.CalcFields("Field Caption");
                 NewValue := WorkflowRecordChange.GetFormattedNewValue(true);
@@ -381,7 +405,7 @@ table 454 "Approval Entry"
         FilterGroup(-1); // Used to support the cross-column search
         SetRange("Approver ID", UserId);
         SetRange("Sender ID", UserId);
-        if FindSet then
+        if FindSet() then
             repeat
                 Mark(true);
             until Next() = 0;
@@ -391,6 +415,11 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterGetRecordDetails(RecRef: RecordRef; ChangeRecordDetails: Text; var Details: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordToApprove(ApprovalEntry: Record "Approval Entry"; var RecRef: RecordRef; var Result: Boolean)
     begin
     end;
 
@@ -406,6 +435,11 @@ table 454 "Approval Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowRecord(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecordDetails(var ApprovalEntry: Record "Approval Entry"; var Details: Text; var IsHandled: Boolean)
     begin
     end;
 

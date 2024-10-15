@@ -105,6 +105,14 @@ table 5225 "Employee Payment Buffer"
             Caption = 'Employee Posting Group';
             DataClassification = SystemMetadata;
             TableRelation = "Employee Posting Group";
+            ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+#if not CLEAN20        
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif  
         }
     }
 

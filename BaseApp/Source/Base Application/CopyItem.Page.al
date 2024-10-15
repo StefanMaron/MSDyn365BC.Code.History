@@ -180,12 +180,18 @@ page 729 "Copy Item"
                     Caption = 'Attributes';
                     ToolTip = 'Specifies if the selected data type if also copied to the new item.';
                 }
+#if not CLEAN20
                 field(ItemCrossReferences; "Item Cross References")
                 {
                     ApplicationArea = Basic, Suite;
+                    Visible = false;
                     Caption = 'Item Cross References';
                     ToolTip = 'Specifies if the selected data type if also copied to the new item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with parameter Item References';
+                    ObsoleteTag = '20.0';
                 }
+#endif                
                 field(ItemReferences; "Item References")
                 {
                     ApplicationArea = Basic, Suite;
@@ -218,7 +224,6 @@ page 729 "Copy Item"
         CopyItemParameters: Record "Copy Item Parameters";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         SpecifyTargetItemNoErr: Label 'You must specify the target item number.';
-        TargetItemDoesNotExistErr: Label 'Target item number %1 already exists.', Comment = '%1 - item number.';
         TargetItemNoTxt: Label 'Target Item No.';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = New Field Name';
 
@@ -245,7 +250,6 @@ page 729 "Copy Item"
 
     local procedure ValidateUserInput()
     var
-        Item: Record Item;
         CurrUserId: Code[50];
     begin
         CheckTargetItemNo;
@@ -277,14 +281,6 @@ page 729 "Copy Item"
         if ("Number of Copies" > 1) and ("Target Item No." <> '') then
             if INCSTR("Target Item No.") = '' then
                 Error(StrSubstNo(UnincrementableStringErr, TargetItemNoTxt));
-    end;
-
-    local procedure CheckExistingItem(ItemNo: Code[20])
-    var
-        Item: Record Item;
-    begin
-        if Item.Get(ItemNo) then
-            Error(TargetItemDoesNotExistErr, ItemNo);
     end;
 
     [IntegrationEvent(false, false)]

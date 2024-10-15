@@ -95,28 +95,6 @@ page 425 "Vendor Bank Account Card"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("UncPayerMgt.IsPublicBankAccount(""Vendor No."",""Vendor VAT Registration No."",""Bank Account No."",IBAN)"; UncPayerMgt.IsPublicBankAccount("Vendor No.", "Vendor VAT Registration No.", "Bank Account No.", IBAN))
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Public Bank Account';
-                    Editable = false;
-                    ToolTip = 'Specifies if the vendor''s bank account is public.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-                field("Third Party Bank Account"; "Third Party Bank Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the account is third party bank account.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
             group(Communication)
             {
@@ -182,11 +160,6 @@ page 425 "Vendor Bank Account Card"
     actions
     {
     }
-#if not CLEAN17
-
-    var
-        UncPayerMgt: Codeunit "Unc. Payer Mgt.";
-#endif
 }
 
 #endif

@@ -3993,26 +3993,6 @@
       </Page>
     </ReportSection>
   </ReportSections>
-  <ReportParameters>
-    <ReportParameter Name="VATRegistrationNo_VATEntryCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>VATRegistrationNo_VATEntryCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>VATRegistrationNo_VATEntryCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="CountryRegionCode_VATEntryCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>CountryRegionCode_VATEntryCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>CountryRegionCode_VATEntryCaption</Prompt>
-    </ReportParameter>
-  </ReportParameters>
   <Code>Public Function BlankZero(ByVal Value As Decimal)
     if Value = 0 then
         Return ""
@@ -4242,42 +4222,6 @@ End Function
         <Field Name="AdditinlCurrBase_VATEntryFormat">
           <DataField>AdditinlCurrBase_VATEntryFormat</DataField>
         </Field>
-        <Field Name="VATRegistrationNo_VATEntry">
-          <DataField>VATRegistrationNo_VATEntry</DataField>
-        </Field>
-        <Field Name="CountryRegionCode_VATEntry">
-          <DataField>CountryRegionCode_VATEntry</DataField>
-        </Field>
-        <Field Name="CountrySubtotalCaption">
-          <DataField>CountrySubtotalCaption</DataField>
-        </Field>
-        <Field Name="CountrySubBase">
-          <DataField>CountrySubBase</DataField>
-        </Field>
-        <Field Name="CountrySubBaseFormat">
-          <DataField>CountrySubBaseFormat</DataField>
-        </Field>
-        <Field Name="CountrySubAmount">
-          <DataField>CountrySubAmount</DataField>
-        </Field>
-        <Field Name="CountrySubAmountFormat">
-          <DataField>CountrySubAmountFormat</DataField>
-        </Field>
-        <Field Name="CountrySubUnrealBase">
-          <DataField>CountrySubUnrealBase</DataField>
-        </Field>
-        <Field Name="CountrySubUnrealBaseFormat">
-          <DataField>CountrySubUnrealBaseFormat</DataField>
-        </Field>
-        <Field Name="CountrySubUnrealAmount">
-          <DataField>CountrySubUnrealAmount</DataField>
-        </Field>
-        <Field Name="CountrySubUnrealAmountFormat">
-          <DataField>CountrySubUnrealAmountFormat</DataField>
-        </Field>
-        <Field Name="CountrySubTotalPrint">
-          <DataField>CountrySubTotalPrint</DataField>
-        </Field>
         <Field Name="PostingDate1">
           <DataField>PostingDate1</DataField>
         </Field>
@@ -4334,18 +4278,6 @@ End Function
         </Field>
         <Field Name="SettlementCaption">
           <DataField>SettlementCaption</DataField>
-        </Field>
-        <Field Name="GenJnlLineVATRegistrationNo">
-          <DataField>GenJnlLineVATRegistrationNo</DataField>
-        </Field>
-        <Field Name="GenJnlLineCountryRegionCode">
-          <DataField>GenJnlLineCountryRegionCode</DataField>
-        </Field>
-        <Field Name="GenJnlLine2VATRegistrationNo">
-          <DataField>GenJnlLine2VATRegistrationNo</DataField>
-        </Field>
-        <Field Name="GenJnlLine2CountryRegionCode">
-          <DataField>GenJnlLine2CountryRegionCode</DataField>
         </Field>
       </Fields>
       <Query>

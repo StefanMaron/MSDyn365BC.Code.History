@@ -46,6 +46,7 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "IC Outbox Sales Line" = RIMD,
                   tabledata "IC Outbox Transaction" = RIMD,
                   tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R,
 #if not CLEAN18
                   tabledata "Intrastat Delivery Group" = R,
 #endif
@@ -104,9 +105,6 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R,
                   tabledata "Source Code Setup" = R,
-#if not CLEAN17
-                  tabledata "Statistic Indication" = R,
-#endif
                   tabledata "Stockkeeping Unit" = R,
 #if not CLEAN18
                   tabledata "Subst. Customer Posting Group" = R,
@@ -122,9 +120,6 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = Ri,
-#if not CLEAN17
-                  tabledata "VAT Period" = r,
-#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

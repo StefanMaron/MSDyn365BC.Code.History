@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 1282 "Payment Bank Account List"
 {
     Caption = 'Payment Bank Account List';
@@ -6,7 +5,6 @@ page 1282 "Payment Bank Account List"
     Editable = false;
     PageType = List;
     SourceTable = "Bank Account";
-    SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
 
     layout
     {
@@ -56,4 +54,4 @@ page 1282 "Payment Bank Account List"
     var
         Linked: Boolean;
 }
-#endif
+

@@ -45,6 +45,10 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Prod. Order Comment Line" = rm,
                   TableData "Prod. Order Rtng Comment Line" = rm,
                   TableData "Prod. Order Comp. Cmt Line" = rm,
+                  TableData "Invt. Receipt Header" = rm,
+                  TableData "Invt. Receipt Line" = rm,
+                  TableData "Invt. Shipment Header" = rm,
+                  TableData "Invt. Shipment Line" = rm,
                   TableData "FA Ledger Entry" = rm,
                   TableData "Maintenance Ledger Entry" = rm,
                   TableData "Ins. Coverage Ledger Entry" = rm,
@@ -57,8 +61,17 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Service Contract Header" = rm,
                   TableData "Service Contract Line" = rm,
                   TableData "Service Invoice Line" = rm,
+                  tabledata "Service Cr.Memo Header" = rm,
+                  tabledata "Service Cr.Memo Line" = rm,
+                  tabledata "Service Invoice Header" = rm,
+                  tabledata "Service Shipment Header" = rm,
+                  tabledata "Service Shipment Line" = rm,
                   TableData "Warehouse Entry" = rm,
                   TableData "Filed Service Contract Header" = rm,
+                  TableData "Phys. Invt. Order Header" = rm,
+                  TableData "Phys. Invt. Order Line" = rm,
+                  TableData "Pstd. Phys. Invt. Order Hdr" = rm,
+                  TableData "Pstd. Phys. Invt. Order Line" = rm,
                   TableData "Return Shipment Header" = rm,
                   TableData "Return Shipment Line" = rm,
                   TableData "Return Receipt Header" = rm,
@@ -540,7 +553,7 @@ codeunit 483 "Change Global Dimensions"
     begin
         with DependentChangeGlobalDimLogEntry do begin
             SetRange("Parent Table ID", ChangeGlobalDimLogEntry."Table ID");
-            if FindSet then
+            if FindSet() then
                 repeat
                     "Task ID" := ChangeGlobalDimLogEntry."Task ID";
                     Validate("Completed Records", 0);
@@ -631,7 +644,7 @@ codeunit 483 "Change Global Dimensions"
                 ChangeGlobalDimLogEntry.Insert();
             until TempAllObjWithCaption.Next() = 0;
 
-            if TempParentTableInteger.FindSet then
+            if TempParentTableInteger.FindSet() then
                 repeat
                     if ChangeGlobalDimLogEntry.Get(TempParentTableInteger.Number) then begin
                         ChangeGlobalDimLogEntry."Is Parent Table" := true;
@@ -653,7 +666,7 @@ codeunit 483 "Change Global Dimensions"
         if IsHandled then
             exit;
 
-        if RecRef.FindFirst then
+        if RecRef.FindFirst() then
             RecRef.Modify();
     end;
 

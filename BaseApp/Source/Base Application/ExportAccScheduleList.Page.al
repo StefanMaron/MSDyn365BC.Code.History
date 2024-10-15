@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 31084 "Export Acc. Schedule List"
 {
     Caption = 'Export Acc. Schedule List';
@@ -5,6 +6,9 @@ page 31084 "Export Acc. Schedule List"
     Editable = false;
     PageType = List;
     SourceTable = "Export Acc. Schedule";
+    ObsoleteReason = 'The functionality will be removed and this page should not be used.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -87,11 +91,11 @@ page 31084 "Export Acc. Schedule List"
                         FilteredAccSchedExport: Report "Filtered Acc. Schedule Export";
                     begin
                         FilteredAccSchedExport.SetParameter(Rec);
-                        FilteredAccSchedExport.Run;
+                        FilteredAccSchedExport.Run();
                     end;
                 }
             }
         }
     }
 }
-
+#endif

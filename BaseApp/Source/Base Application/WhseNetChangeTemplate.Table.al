@@ -2,14 +2,9 @@ table 31073 "Whse. Net Change Template"
 {
     Caption = 'Whse. Net Change Template';
     DataCaptionFields = Name;
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    LookupPageID = "Whse. Net Change Template List";
-    ObsoleteState = Pending;
-#endif
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
@@ -47,4 +42,3 @@ table 31073 "Whse. Net Change Template"
     {
     }
 }
-

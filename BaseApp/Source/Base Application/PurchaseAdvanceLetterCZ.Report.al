@@ -352,10 +352,6 @@ report 31020 "Purchase - Advance Letter CZ"
         with PurchAdvanceLetterHeader do begin
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
-#if not CLEAN17
-
-            DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
-#endif
         end;
     end;
 }

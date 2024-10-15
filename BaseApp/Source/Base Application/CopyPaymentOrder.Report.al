@@ -60,11 +60,11 @@ report 11702 "Copy Payment Order"
 
         BankStmtLn.LockTable();
         BankStmtLn.SetRange("Bank Statement No.", BankStmtHdr."No.");
-        if BankStmtLn.FindLast then
+        if BankStmtLn.FindLast() then
             LineNo := BankStmtLn."Line No.";
 
         IssuedPmtOrdLn.SetRange("Payment Order No.", DocNo);
-        if IssuedPmtOrdLn.FindSet then
+        if IssuedPmtOrdLn.FindSet() then
             repeat
                 LineNo += 10000;
                 BankStmtLn.Init();

@@ -353,7 +353,7 @@ page 5975 "Posted Service Shipment"
                 {
                     ApplicationArea = Service;
                     Editable = false;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '18.0';
@@ -572,17 +572,6 @@ page 5975 "Posted Service Shipment"
                     Editable = false;
                     ToolTip = 'Specifies if the transaction is related to trade with a third party within the EU.';
                 }
-#if not CLEAN17
-                field("EU 3-Party Intermediate Role"; "EU 3-Party Intermediate Role")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies when the service header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
 #if not CLEAN18
                 field("Intrastat Exclude"; "Intrastat Exclude")
                 {
@@ -789,7 +778,7 @@ page 5975 "Posted Service Shipment"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -843,4 +832,3 @@ page 5975 "Posted Service Shipment"
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
     end;
 }
-

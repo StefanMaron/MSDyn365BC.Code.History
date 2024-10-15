@@ -36,8 +36,8 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [UT] [Movement Worksheet] [Qty. Handled]
         // [SCENARIO 312913] When Calculate Bin Replenishment in Movement Worksheet then Qty Handled (Base) is <zero>
-        Initialize;
-        ItemNo := LibraryInventory.CreateItemNo;
+        Initialize();
+        ItemNo := LibraryInventory.CreateItemNo();
         MinQty := LibraryRandom.RandInt(10);
 
         // [GIVEN] Location with with Pick Bin and Put-away Bin, Bin Ranking is higher for Pick Bin
@@ -61,7 +61,7 @@ codeunit 137931 "SCM - Movement"
 
         // [THEN] Whse. Worksheet Line is created for Pick Bin with Qty Handled = Qty Handled (Base) = 0
         WhseWorksheetLine.SetRange("Location Code", LocationCode);
-        WhseWorksheetLine.FindFirst;
+        WhseWorksheetLine.FindFirst();
         WhseWorksheetLine.TestField("To Bin Code", PickBin.Code);
         WhseWorksheetLine.TestField("Qty. Outstanding", 2 * MinQty);
         WhseWorksheetLine.TestField("Qty. Handled", 0);
@@ -93,11 +93,11 @@ codeunit 137931 "SCM - Movement"
         // [FEATURE] [Movement Worksheet] [FEFO] [Item Tracking]
         // [SCENARIO 312913] Create Movement from Movement Worksheet generates correct Movements when multiple Similar Lines Present
         // [SCENARIO 312913] and pending Whse Shipment when Pick According to FEFO is enabled
-        Initialize;
+        Initialize();
         InitQtys(MinQty, Qty, 2, 2, 10, 6);
         Delta := 1;
         for Index := 1 to ArrayLen(LotNo) do begin
-            LotNo[Index] := LibraryUtility.GenerateGUID;
+            LotNo[Index] := LibraryUtility.GenerateGUID();
             ExpirationDate[Index] := CalcDate(StrSubstNo('<%1M>', Index), WorkDate);
         end;
 
@@ -137,7 +137,7 @@ codeunit 137931 "SCM - Movement"
         for Index := 1 to ArrayLen(LotNo) - 1 do begin
             LibraryWarehouse.FindBin(PutAwayBin, LocationCode, PutAwayBin."Zone Code", Index);
             WarehouseActivityLine.SetRange("Lot No.", LotNo[Index + 1]);
-            WarehouseActivityLine.FindFirst;
+            WarehouseActivityLine.FindFirst();
             WarehouseActivityLine.Validate("Zone Code", PutAwayBin."Zone Code");
             WarehouseActivityLine.Validate("Bin Code", PutAwayBin.Code);
             WarehouseActivityLine.Modify(true);
@@ -175,7 +175,7 @@ codeunit 137931 "SCM - Movement"
         LibraryWarehouse.FindBin(PutAwayBin, LocationCode, PutAwayBin."Zone Code", 3);
         FindMovement(WarehouseActivityHeader, ItemNo);
         FilterWhseActivityLines(WarehouseActivityLine, WarehouseActivityHeader, WarehouseActivityLine."Action Type"::Take);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.TestField("Lot No.", LotNo[4]);
         WarehouseActivityLine.TestField("Bin Code", PutAwayBin.Code);
         WarehouseActivityLine.TestField("Qty. to Handle", 2 * Delta);
@@ -199,9 +199,9 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [Worksheet] [Item Tracking] [Bin]
         // [SCENARIO 325576] When pending Movements present then Movement is not created from Movement Worksheet if Lot Tracked Item has not enough PCS in the Bin
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         QtyLot[1] := 1 + LibraryRandom.RandInt(10);
         QtyLot[2] := LibraryRandom.RandInt(10);
 
@@ -270,9 +270,9 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [Worksheet] [Item Tracking] [Bin]
         // [SCENARIO 325576] When pending Movements present then Movement is created from Movement Worksheet if Lot Tracked Item has enough PCS in the Bin
-        Initialize;
-        LotNo[1] := LibraryUtility.GenerateGUID;
-        LotNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        LotNo[2] := LibraryUtility.GenerateGUID();
         QtyLot[1] := 1 + LibraryRandom.RandInt(10);
         QtyLot[2] := LibraryRandom.RandInt(10);
 
@@ -324,11 +324,11 @@ codeunit 137931 "SCM - Movement"
         WarehouseActivityLine.SetRange("Item No.");
         WarehouseActivityLine.SetRange("Bin Code", Bin.Code);
         WarehouseActivityLine.SetRange("Lot No.", LotNo[2]);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
         for Index := 1 to ArrayLen(LotNo) do begin
             WarehouseActivityLine.SetRange("Lot No.", LotNo[Index]);
-            WarehouseActivityLine.FindFirst;
+            WarehouseActivityLine.FindFirst();
             WarehouseActivityLine.TestField("Qty. (Base)", QtyLot[Index]);
         end;
         LibraryVariableStorage.AssertEmpty;
@@ -352,9 +352,9 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [Worksheet] [Item Tracking] [Bin]
         // [SCENARIO 325576] When pending Movements present then Movement is created from Movement Worksheet if Package Tracked Item has enough PCS in the Bin
-        Initialize;
-        PackageNo[1] := LibraryUtility.GenerateGUID;
-        PackageNo[2] := LibraryUtility.GenerateGUID;
+        Initialize();
+        PackageNo[1] := LibraryUtility.GenerateGUID();
+        PackageNo[2] := LibraryUtility.GenerateGUID();
         QtyPackage[1] := 1 + LibraryRandom.RandInt(10);
         QtyPackage[2] := LibraryRandom.RandInt(10);
 
@@ -406,11 +406,11 @@ codeunit 137931 "SCM - Movement"
         WarehouseActivityLine.SetRange("Item No.");
         WarehouseActivityLine.SetRange("Bin Code", Bin.Code);
         WarehouseActivityLine.SetRange("Package No.", PackageNo[2]);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityLine.SetRange("No.", WarehouseActivityLine."No.");
         for Index := 1 to ArrayLen(PackageNo) do begin
             WarehouseActivityLine.SetRange("Package No.", PackageNo[Index]);
-            WarehouseActivityLine.FindFirst;
+            WarehouseActivityLine.FindFirst();
             WarehouseActivityLine.TestField("Qty. (Base)", QtyPackage[Index]);
         end;
         LibraryVariableStorage.AssertEmpty();
@@ -426,7 +426,7 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [UT] [Internal Movement]
         // [SCENARIO 311310] Location Code cannot be changed in Internal Movement if Lines present.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Internal Movement with Location 'BLUE' had Internal Movement Line
         CreateLocationWithBinMandatory(Location, true);
@@ -452,7 +452,7 @@ codeunit 137931 "SCM - Movement"
     begin
         // [FEATURE] [UT] [Internal Movement]
         // [SCENARIO 311310] Location Code can be changed in Internal Movement Header when Lines do not present.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Internal Movement Header with Location 'BLUE'
         CreateLocationWithBinMandatory(Location, true);
@@ -1070,8 +1070,8 @@ codeunit 137931 "SCM - Movement"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
     end;
@@ -1111,7 +1111,7 @@ codeunit 137931 "SCM - Movement"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         LibraryVariableStorage.Enqueue(ArrayLen(LotNo));
         for Index := 1 to ArrayLen(LotNo) do begin
@@ -1126,7 +1126,7 @@ codeunit 137931 "SCM - Movement"
             ReservationEntry.SetRange("Source ID", PurchaseLine."Document No.");
             ReservationEntry.SetRange("Item No.", PurchaseLine."No.");
             ReservationEntry.SetRange("Lot No.", LotNo[Index]);
-            ReservationEntry.FindFirst;
+            ReservationEntry.FindFirst();
             ReservationEntry."Expiration Date" := ExpirationDate[Index];
             ReservationEntry.Modify();
         end;
@@ -1138,7 +1138,7 @@ codeunit 137931 "SCM - Movement"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         LibraryVariableStorage.Enqueue(1);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -1214,7 +1214,7 @@ codeunit 137931 "SCM - Movement"
     begin
         WhseSourceCreateDocument.SetWhseWkshLine(DummyWhseWorksheetLine);
         WhseSourceCreateDocument.UseRequestPage(false);
-        WhseSourceCreateDocument.Run;
+        WhseSourceCreateDocument.Run();
     end;
 
     local procedure PostWhseReceipt(PurchaseHeader: Record "Purchase Header")
@@ -1241,7 +1241,7 @@ codeunit 137931 "SCM - Movement"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryWarehouse.FindWhseActivityBySourceDoc(
           WarehouseActivityHeader, DATABASE::"Sales Line", SalesHeader."Document Type".AsInteger(), SalesHeader."No.", SalesLine."Line No.");
         LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
@@ -1337,7 +1337,7 @@ codeunit 137931 "SCM - Movement"
         PostedWhseReceiptLine: Record "Posted Whse. Receipt Line";
     begin
         PostedWhseReceiptLine.SetRange("Item No.", ItemNo);
-        PostedWhseReceiptLine.FindFirst;
+        PostedWhseReceiptLine.FindFirst();
         LibraryWarehouse.FindWhseActivityBySourceDoc(
           WarehouseActivityHeader, PostedWhseReceiptLine."Source Type", PostedWhseReceiptLine."Source Subtype",
           PostedWhseReceiptLine."Source No.", PostedWhseReceiptLine."Source Line No.");
@@ -1349,7 +1349,7 @@ codeunit 137931 "SCM - Movement"
     begin
         WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Movement);
         WarehouseActivityLine.SetRange("Item No.", ItemNo);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
     end;
 
@@ -1361,7 +1361,7 @@ codeunit 137931 "SCM - Movement"
         BinType.SetRange("Put Away", IsPutAway);
         BinType.SetRange(Ship, IsShip);
         BinType.SetRange(Receive, IsReceive);
-        BinType.FindFirst;
+        BinType.FindFirst();
         exit(BinType.Code);
     end;
 

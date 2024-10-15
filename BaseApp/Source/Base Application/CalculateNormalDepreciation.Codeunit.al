@@ -18,7 +18,9 @@ codeunit 5611 "Calculate Normal Depreciation"
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
         DepreciationCalc: Codeunit "Depreciation Calculation";
+#if not CLEAN18
         TempFALedgEntry3: Record "FA Ledger Entry" temporary;
+#endif
         DeprBookCode: Code[10];
         DaysInFiscalYear: Integer;
         EntryAmounts: array[4] of Decimal;
@@ -666,7 +668,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1',
           DepreciationCalc.ToMorrow(FADeprBook."Depreciation Starting Date", Year365Days));
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         NewYearDate := AccountingPeriod."Starting Date";
         if FirstDeprDate >= NewYearDate then
             exit(false);
@@ -816,7 +818,7 @@ codeunit 5611 "Calculate Normal Depreciation"
 
         DepGroup.SetRange(Code, FADeprBook."Depreciation Group Code");
         DepGroup.SetRange("Starting Date", 0D, TempFromDate);
-        if not DepGroup.FindLast then
+        if not DepGroup.FindLast() then
             if FADeprBook."Summarize Depr. Entries From" = '' then
                 exit(0);
 
@@ -833,10 +835,10 @@ codeunit 5611 "Calculate Normal Depreciation"
         end;
 
         FALeEntry.SetFilter("FA Posting Date", '..%1', UntilDate);
-        if FALeEntry.FindLast then
+        if FALeEntry.FindLast() then
             DateLastAppr := FALeEntry."FA Posting Date";
         FALeEntry.SetRange("FA Posting Date", CalcEndOfFiscalYear(AcquisitionDate) + 1, UntilDate);
-        if FALeEntry.FindFirst then;
+        if FALeEntry.FindFirst() then;
 
         if FADeprBook."Summarize Depr. Entries From" <> '' then begin
             TaxDeprAmount :=
@@ -958,7 +960,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         // NAVCZ
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '>%1', StartingDate);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             EndFiscYear := CalcDate('<-1D>', AccountingPeriod."Starting Date")
         else
             EndFiscYear := CalcDate('<CY>', StartingDate);
@@ -975,7 +977,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         TempFALeEntry.SetRange("FA Posting Type", TempFALeEntry."FA Posting Type"::Depreciation);
         TempFALeEntry.SetRange("FA Posting Date", LastAppr, UntilDate);
         TempFALeEntry.SetRange(Amount, 0);
-        if TempFALeEntry.FindSet then
+        if TempFALeEntry.FindSet() then
             repeat
                 Year.Number := Date2DMY(TempFALeEntry."FA Posting Date", 3);
                 if Year.Insert() then;
@@ -1002,7 +1004,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             FALedgEntry2.SetRange(Amount, 0)
         else
             FALedgEntry2.SetFilter(Amount, '<>%1', 0);
-        if FALedgEntry2.FindSet then
+        if FALedgEntry2.FindSet() then
             repeat
                 DeprBreakDays += FALedgEntry2."No. of Depreciation Days";
             until FALedgEntry2.Next() = 0;
@@ -1018,7 +1020,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         // NAVCZ
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod.SetFilter("Starting Date", '>%1', StartingDate);
-        if AccountingPeriod.FindFirst then
+        if AccountingPeriod.FindFirst() then
             StartFiscYear := CalcDate('<-1Y>', AccountingPeriod."Starting Date")
         else
             StartFiscYear := CalcDate('<-CY>', StartingDate);
@@ -1064,7 +1066,7 @@ codeunit 5611 "Calculate Normal Depreciation"
             FALedgEntry2.SetRange("FA Posting Date", StartDate, EndDate)
         else
             FALedgEntry2.SetRange("FA Posting Date", CalcStartOfFiscalYear(EndDate), EndDate);
-        if FALedgEntry2.FindSet then
+        if FALedgEntry2.FindSet() then
             repeat
                 NoOfDepreciatedDays += FALedgEntry2."No. of Depreciation Days";
             until FALedgEntry2.Next() = 0;

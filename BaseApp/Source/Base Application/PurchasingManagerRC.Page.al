@@ -191,6 +191,15 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Value Entries';
                         RunObject = page "Value Entries";
                     }
+                    action("Navi&gate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    }
                 }
                 group("Group3")
                 {
@@ -276,18 +285,6 @@ page 8905 "Purchasing Manager Role Center"
                         ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
                         ObsoleteTag = '19.0';
                     }
-#if not CLEAN17
-                    action("Quantity Received Check")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Quantity Received Check';
-                        RunObject = report "Quantity Received Check";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.0';
-                        Visible = false;
-                    }
-#endif
                 }
             }
             group("Group4")

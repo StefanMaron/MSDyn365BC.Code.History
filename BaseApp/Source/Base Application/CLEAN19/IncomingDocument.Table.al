@@ -294,7 +294,7 @@ table 130 "Incoming Document"
         field(58; "Related Record ID"; RecordID)
         {
             Caption = 'Related Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(160; "Job Queue Status"; Option)
         {
@@ -562,6 +562,18 @@ table 130 "Incoming Document"
 
         ReleaseIncomingDocument.Create(Rec);
 
+        ShowResultMessage(ErrorMessage);
+    end;
+
+    local procedure ShowResultMessage(var ErrorMessage: Record "Error Message")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowResultMessage(Rec, ErrorMessage, IsHandled);
+        if IsHandled then
+            exit;
+
         if ErrorMessage.ErrorMessageCount(ErrorMessage."Message Type"::Warning) > 0 then
             Message(DocCreatedWarningsMsg, Format("Document Type"), "Document No.")
         else
@@ -802,19 +814,19 @@ table 130 "Incoming Document"
             "Document Type"::Journal:
                 begin
                     GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if GenJnlLine.FindFirst then
+                    if GenJnlLine.FindFirst() then
                         Error(AlreadyUsedInJnlErr, GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
                 end;
             "Document Type"::"Sales Invoice", "Document Type"::"Sales Credit Memo":
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if SalesHeader.FindFirst then
+                    if SalesHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, SalesHeader."Document Type", SalesHeader."No.", SalesHeader.TableCaption);
                 end;
             "Document Type"::"Purchase Invoice", "Document Type"::"Purchase Credit Memo":
                 begin
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if PurchaseHeader.FindFirst then
+                    if PurchaseHeader.FindFirst() then
                         Error(AlreadyUsedInDocHdrErr, PurchaseHeader."Document Type", PurchaseHeader."No.", PurchaseHeader.TableCaption);
                 end;
         end;
@@ -1131,7 +1143,7 @@ table 130 "Incoming Document"
             exit;
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetFilter(Type, '<>%1', IncomingDocumentAttachment.Type::XML);
-        if IncomingDocumentAttachment.FindFirst then
+        if IncomingDocumentAttachment.FindFirst() then
             IncomingDocumentAttachment.Export('', true);
     end;
 
@@ -1139,7 +1151,7 @@ table 130 "Incoming Document"
     begin
         SetRange("Document No.", DocumentNo);
         SetRange("Posting Date", PostingDate);
-        if not FindFirst then begin
+        if not FindFirst() then begin
             Message(NoDocumentMsg);
             exit(true);
         end;
@@ -1153,7 +1165,7 @@ table 130 "Incoming Document"
     begin
         SetRange("Document No.", DocumentNo);
         SetRange("Posting Date", PostingDate);
-        if not FindFirst then
+        if not FindFirst() then
             exit;
         SetRecFilter;
         PAGE.Run(PAGE::"Incoming Document", Rec);
@@ -1272,7 +1284,7 @@ table 130 "Incoming Document"
     begin
         // If purchase
         PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if PurchaseHeader.FindFirst then begin
+        if PurchaseHeader.FindFirst() then begin
             case PurchaseHeader."Document Type" of
                 PurchaseHeader."Document Type"::Invoice:
                     "Document Type" := "Document Type"::"Purchase Invoice";
@@ -1287,7 +1299,7 @@ table 130 "Incoming Document"
 
         // If sales
         SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-        if SalesHeader.FindFirst then begin
+        if SalesHeader.FindFirst() then begin
             case SalesHeader."Document Type" of
                 SalesHeader."Document Type"::Invoice:
                     "Document Type" := "Document Type"::"Sales Invoice";
@@ -1302,7 +1314,7 @@ table 130 "Incoming Document"
 
         // If general journal line
         GenJournalLine.SetRange("Incoming Document Entry No.", "Entry No.");
-        if GenJournalLine.FindFirst then begin
+        if GenJournalLine.FindFirst() then begin
             "Document No." := GenJournalLine."Document No.";
             exit;
         end;
@@ -1393,13 +1405,21 @@ table 130 "Incoming Document"
     end;
 
     procedure SaveErrorMessages(var TempErrorMessageRef: Record "Error Message" temporary)
+    var
+        EntryNo: Integer;
     begin
-        if not TempErrorMessageRef.FindSet then
+        if not TempErrorMessageRef.FindSet() then
             exit;
 
+        Clear(TempErrorMessage);
+        if TempErrorMessage.FindLast() then;
+        EntryNo := TempErrorMessage.ID + 1;
+
         repeat
-            TempErrorMessage := TempErrorMessageRef;
+            TempErrorMessage.TransferFields(TempErrorMessageRef);
+            TempErrorMessage.ID := EntryNo;
             TempErrorMessage.Insert();
+            EntryNo += 1;
         until TempErrorMessageRef.Next() = 0;
     end;
 
@@ -1414,10 +1434,13 @@ table 130 "Incoming Document"
     [Scope('OnPrem')]
     procedure SendToOCR(ShowMessages: Boolean)
     var
+        IncomingDocumentCopy: Record "Incoming Document";
         SendIncomingDocumentToOCR: Codeunit "Send Incoming Document to OCR";
     begin
+        IncomingDocumentCopy.Copy(Rec);
+        IncomingDocumentCopy.Reset();
         SendIncomingDocumentToOCR.SetShowMessages(ShowMessages);
-        SendIncomingDocumentToOCR.SendDocToOCR(Rec);
+        SendIncomingDocumentToOCR.SendDocToOCR(IncomingDocumentCopy);
         SendIncomingDocumentToOCR.ScheduleJobQueueReceive;
     end;
 
@@ -1457,14 +1480,15 @@ table 130 "Incoming Document"
             exit('');
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExchangeType."Data Exch. Def. Code");
         DataExchLineDef.SetRange("Parent Code", '');
-        if not DataExchLineDef.FindFirst then
+        if not DataExchLineDef.FindFirst() then
             exit('');
         case FieldNumber of
             FieldNo("Vendor Name"):
                 exit(DataExchLineDef.GetPath(DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Buy-from Vendor Name")));
-            // TODO: This line needs updating. With introduction of SystemId in version 14 the Id is not matching the System Id.
             FieldNo("Vendor Id"):
-                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(Id)));
+                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo(SystemId)));
+            FieldNo("Vendor No."):
+                exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("No.")));
             FieldNo("Vendor VAT Registration No."):
                 exit(DataExchLineDef.GetPath(DATABASE::Vendor, Vendor.FieldNo("VAT Registration No.")));
             FieldNo("Vendor IBAN"):
@@ -1547,7 +1571,7 @@ table 130 "Incoming Document"
                     GLEntry.SetCurrentKey("Document No.", "Posting Date");
                     GLEntry.SetRange("Document No.", "Document No.");
                     GLEntry.SetRange("Posting Date", "Posting Date");
-                    if GLEntry.FindFirst then begin
+                    if GLEntry.FindFirst() then begin
                         RelatedRecord := GLEntry;
                         exit(true);
                     end;
@@ -1600,7 +1624,7 @@ table 130 "Incoming Document"
             "Document Type"::Journal:
                 begin
                     GenJournalLine.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if GenJournalLine.FindFirst then begin
+                    if GenJournalLine.FindFirst() then begin
                         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
                         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
                         RelatedRecord := GenJournalLine;
@@ -1611,7 +1635,7 @@ table 130 "Incoming Document"
             "Document Type"::"Sales Credit Memo":
                 begin
                     SalesHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if SalesHeader.FindFirst then begin
+                    if SalesHeader.FindFirst() then begin
                         RelatedRecord := SalesHeader;
                         exit(true);
                     end;
@@ -1620,7 +1644,7 @@ table 130 "Incoming Document"
             "Document Type"::"Purchase Credit Memo":
                 begin
                     PurchaseHeader.SetRange("Incoming Document Entry No.", "Entry No.");
-                    if PurchaseHeader.FindFirst then begin
+                    if PurchaseHeader.FindFirst() then begin
                         RelatedRecord := PurchaseHeader;
                         exit(true);
                     end;
@@ -1680,7 +1704,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         IncomingDocument: Record "Incoming Document";
     begin
-        if IncomingDocumentAttachment.Import then begin
+        if IncomingDocumentAttachment.Import(true) then begin
             IncomingDocument.Get(IncomingDocumentAttachment."Incoming Document Entry No.");
             PAGE.Run(PAGE::"Incoming Document", IncomingDocument);
         end;
@@ -1876,7 +1900,7 @@ table 130 "Incoming Document"
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         IncomingDocumentAttachment.SetRange(Default, true);
 
-        if IncomingDocumentAttachment.FindFirst then
+        if IncomingDocumentAttachment.FindFirst() then
             exit(IncomingDocumentAttachment.Type = IncomingDocumentAttachment.Type::XML);
 
         exit(false);
@@ -2148,6 +2172,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeDeleteApprovalEntries(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(TRUE, false)]
+    local procedure OnBeforeShowResultMessage(var IncomingDocument: Record "Incoming Document"; var ErrorMessage: Record "Error Message"; var IsHandled: Boolean)
     begin
     end;
 

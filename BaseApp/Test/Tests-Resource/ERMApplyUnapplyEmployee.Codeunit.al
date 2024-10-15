@@ -37,10 +37,12 @@ codeunit 134114 "ERM Apply Unapply Employee"
         NoOfLines: Integer;
         Amount: Decimal;
     begin
+        // Verify Additional Currency, Remaining Amount and Entries unapplied after Applying and then Unapplying Payment Entries for Employee.
+
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         NoOfLines := 2 * LibraryRandom.RandInt(2);
         Amount := -100 * LibraryRandom.RandInt(10);
 
@@ -62,8 +64,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Verify Additional Currency Amount, Detailed Employee Ledger Entry after Unapplying, Applying Payment Entries Again for Employee.
 
         // Setup: Update General Ledger Setup and take Random Amount greater than 100 (Standard Value)
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ApplyUnapplySeveralEmployeeEntries(
           -1, GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment);
 
@@ -79,8 +81,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Test that correct Source Code updated on Detailed Employee Ledger Entry after Unapply Payment from Employee Ledger Entry.
         // Use Random Number Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ApplyUnapplyAndCheckSourceCode(
           GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -LibraryRandom.RandDec(100, 2));
     end;
@@ -107,14 +109,15 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Check Document No can be change when Unapply Payment from Employee Ledger Entry.
         // Use Random Nunber Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         ChangeDocumentNoAndUnapply(
           GenJournalLine."Document Type"::" ", GenJournalLine."Document Type"::Payment, -LibraryRandom.RandInt(500));
     end;
 
     local procedure ChangeDocumentNoAndUnapply(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         GenJournalLine: Record "Gen. Journal Line";
         DetailedEmployeeLedgEntry: Record "Detailed Employee Ledger Entry";
         EmplEntryApplyPostedEntries: Codeunit "EmplEntry-Apply Posted Entries";
@@ -128,8 +131,9 @@ codeunit 134114 "ERM Apply Unapply Employee"
         DocumentNo := GenJournalLine."Account No.";
 
         // Exercise: Change Document No and Unapply Payment/Refund from Employee Ledger Entry.
-        EmplEntryApplyPostedEntries.PostUnApplyEmployee(
-          DetailedEmployeeLedgEntry, GenJournalLine."Account No.", GenJournalLine."Posting Date");
+        ApplyUnapplyParameters."Document No." := GenJournalLine."Account No.";
+        ApplyUnapplyParameters."Posting Date" := GenJournalLine."Posting Date";
+        EmplEntryApplyPostedEntries.PostUnApplyEmployee(DetailedEmployeeLedgEntry, ApplyUnapplyParameters);
 
         // Verify: Check Detailed Employee Ledger Entry with updated Document No exist after Unapply.
         FindDetailedLedgerEntry(DetailedEmployeeLedgEntry, DetailedEmployeeLedgEntry."Entry Type"::Application, DocumentNo, DocumentNo);
@@ -143,8 +147,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Unapply Invoice from Employee Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UnapplyFromEmployeeLedger(GenJournalLine."Document Type"::" ", -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -156,8 +160,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Unapply Payment from Employee Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UnapplyFromEmployeeLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -189,8 +193,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Unapply Invoice from Detailed Employee Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UnapplyFromDtldEmployeeLedger(GenJournalLine."Document Type"::" ", -LibraryRandom.RandDec(100, 2));
     end;
 
@@ -202,8 +206,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         // Unapply Payment from Detailed Employee Ledger Entry and verify error message.
         // Use Random Number Generator for Amount.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         UnapplyFromDtldEmployeeLedger(GenJournalLine."Document Type"::Payment, LibraryRandom.RandDec(100, 2));
     end;
 
@@ -246,8 +250,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Check Remaining Amount on Employee Ledger Entry after Creating and Posting expense for an employee without Currency and Apply with Partial Payment.
 
         // Setup: Create and Post Purchase Invoice, Create a Employee Payment and apply it to posted Invoice.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
         ExpenseAccNo := CreateBalanceSheetAccount;
         PostedDocumentNo := CreateAndPostEmplExpense(Employee, ExpenseAccNo, LibraryRandom.RandInt(100));
@@ -283,8 +287,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Check General Ledger, Employee Ledger and Detailed Employee ledger entries after posting Purchase documents with Currency and Apply to Oldest Application Method.
 
         // Setup: Modify General Ledger setup for Appln. Rounding Precision and Create Employee with Currency and with Apply to Oldest Application Method, Create and post Purchase Invoice with Random Quantity and Direct Unit Cost.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
         Employee.Validate("Application Method", Employee."Application Method"::"Apply to Oldest");
         Employee.Modify(true);
@@ -315,8 +319,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // Verify that Apply Employee Entry Page Shows Correct value when payment is applied.
 
         // Setup: Create and post Gen journal line for two Invoice and two Credit Memo. and Create One Payment Line.
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
         CreateEmployee(Employee);
         ExpenseAccNo := CreateBalanceSheetAccount;
         CreateAndPostEmplExpense(Employee, ExpenseAccNo, -LibraryRandom.RandIntInRange(100, 200));
@@ -341,6 +345,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     [Scope('OnPrem')]
     procedure ErrorMessageOnApplyWithoutAppliesToID()
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         Employee: Record Employee;
         EmplLedgerEntry: Record "Employee Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
@@ -353,8 +358,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         // [SCENARIO 380040] During application, if there is no "Applies-to ID", then "The application could not be posted, because no entry
         // [SCENARIO] has been selected to be applied / for none of the open entries the "Applies-to ID" has been specfied." error message should appear
 
-        Initialize;
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        Initialize();
+        LibraryLowerPermissions.SetOutsideO365Scope();
 
         // [GIVEN] Employee VVV
         // [GIVEN] Gen. Journal Batch GJB with two lines
@@ -381,7 +386,9 @@ codeunit 134114 "ERM Apply Unapply Employee"
 
         // [WHEN] Apply Payment to Invoice
         LibraryERM.FindEmployeeLedgerEntry(EmplLedgerEntry, EmplLedgerEntry."Document Type"::Payment, DocNo);
-        asserterror EmplEntryApplyPostedEntries.Apply(EmplLedgerEntry, DocNo, WorkDate);
+        ApplyUnapplyParameters."Document No." := DocNo;
+        ApplyUnapplyParameters."Posting Date" := WorkDate();
+        asserterror EmplEntryApplyPostedEntries.Apply(EmplLedgerEntry, ApplyUnapplyParameters);
 
         // [THEN] The following message appears: Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.
         Assert.ExpectedError(NoEntriesAppliedErr);
@@ -394,8 +401,8 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Apply Unapply Employee");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         EmployeePostingGroup.DeleteAll();
         Employee.DeleteAll();
         CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
@@ -404,13 +411,14 @@ codeunit 134114 "ERM Apply Unapply Employee"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Employee");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateLocalData();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         IsInitialized := true;
         Commit();
@@ -418,6 +426,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Employee");
     end;
 
@@ -445,7 +454,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         NoOfLines: Integer;
         Amount: Integer;
     begin
-        Initialize;
+        Initialize();
         NoOfLines := 2 * LibraryRandom.RandInt(2);
         Amount := Sign * 100 * LibraryRandom.RandInt(10);
 
@@ -517,7 +526,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         LibraryHumanResource.CreateEmployee(Employee);
-        EmployeePostingGroup.FindFirst;
+        EmployeePostingGroup.FindFirst();
         Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
         Employee.Validate("Application Method", Employee."Application Method"::Manual);
         Employee.Modify(true);
@@ -606,7 +615,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
     begin
         LibraryERM.FindEmployeeLedgerEntry(EmployeeLedgerEntry, DocumentType, DocumentNo);
         EmployeeLedgerEntry.SetRange(Open, false);
-        EmployeeLedgerEntry.FindLast;
+        EmployeeLedgerEntry.FindLast();
         LibraryERM.UnapplyEmployeeLedgerEntry(EmployeeLedgerEntry);
     end;
 
@@ -724,7 +733,7 @@ codeunit 134114 "ERM Apply Unapply Employee"
         EmployeePostingGroup: Record "Employee Posting Group";
     begin
         EmployeePostingGroup.Init();
-        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID);
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateGUID());
         EmployeePostingGroup.Validate("Payables Account", ExpenseAccNo);
         EmployeePostingGroup.Insert(true);
         exit(EmployeePostingGroup.Code);

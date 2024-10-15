@@ -5,9 +5,6 @@ page 370 "Bank Account Card"
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Bank Statement Service,Bank Account,Navigate';
     SourceTable = "Bank Account";
-#if not CLEAN17
-    SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
-#endif
 
     layout
     {
@@ -106,6 +103,12 @@ page 370 "Bank Account Card"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for bank clearing that is required according to the format standard you selected in the Bank Clearing Standard field.';
+                }
+                field("Use as Default for Currency"; "Use as Default for Currency")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies whether this is the default company account for payments in sales and service documents in the currency specified for this account. Each currency can have only one default bank account.';
                 }
                 group(Control45)
                 {
@@ -866,7 +869,6 @@ page 370 "Bank Account Card"
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
-                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1017,56 +1019,6 @@ page 370 "Bank Account Card"
                 RunObject = Page "Payment Journal";
                 ToolTip = 'Open the list of payment journals where you can register payments to vendors.';
             }
-#if not CLEAN17
-            group("F&unctions")
-            {
-                Caption = 'F&unctions';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                ObsoleteTag = '17.5';
-                Visible = false;
-                action("Create Cash Desk")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Create Cash Desk';
-                    Image = RegisterPutAway;
-                    ToolTip = 'This batch job creates the new cash desk card.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-
-                    trigger OnAction()
-                    var
-                        BankAcc: Record "Bank Account";
-                    begin
-                        // NAVCZ
-                        with BankAcc do begin
-                            Init;
-                            "Account Type" := "Account Type"::"Cash Desk";
-                            Name := Rec.Name;
-                            Address := Rec.Address;
-                            "Address 2" := Rec."Address 2";
-                            "Post Code" := Rec."Post Code";
-                            City := Rec.City;
-                            "Country/Region Code" := Rec."Country/Region Code";
-                            "Phone No." := Rec."Phone No.";
-                            "Fax No." := Rec."Fax No.";
-                            "E-Mail" := Rec."E-Mail";
-                            "Home Page" := Rec."Home Page";
-                            Contact := Rec.Contact;
-                            "Search Name" := Rec."Search Name";
-                            "Currency Code" := Rec."Currency Code";
-                            Insert(true);
-                            Commit();
-                        end;
-
-                        PAGE.Run(PAGE::"Cash Desk Card", BankAcc);
-                        // NAVCZ
-                    end;
-                }
-            }
-#endif
             action(PagePosPayExport)
             {
                 ApplicationArea = Suite;
@@ -1169,9 +1121,7 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
-        EmailFeature: Codeunit "Email Feature";
     begin
-        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
@@ -1187,7 +1137,6 @@ page 370 "Bank Account Card"
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
-        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

@@ -1,8 +1,16 @@
 table 11788 "Detailed Iss.Fin.Ch. Memo Line"
 {
     Caption = 'Detailed Iss.Fin.Ch. Memo Line';
+#if not CLEAN20
     DrillDownPageID = "Detailed Iss.Fin.Ch.Memo Lines";
     LookupPageID = "Detailed Iss.Fin.Ch.Memo Lines";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif
+    ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
 
     fields
     {

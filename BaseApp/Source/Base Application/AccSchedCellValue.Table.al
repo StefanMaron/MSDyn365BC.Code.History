@@ -29,9 +29,6 @@ table 342 "Acc. Sched. Cell Value"
         {
             Caption = 'Schedule Name';
             TableRelation = "Acc. Schedule Name";
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field Schedule Name will be removed and this field should not be used.';
-            ObsoleteTag = '19.0';
         }
     }
 
@@ -40,9 +37,6 @@ table 342 "Acc. Sched. Cell Value"
         key(Key1; "Schedule Name", "Row No.", "Column No.")
         {
             Clustered = true;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field Schedule Name will be removed from the primary key.';
-            ObsoleteTag = '19.0';
         }
     }
 

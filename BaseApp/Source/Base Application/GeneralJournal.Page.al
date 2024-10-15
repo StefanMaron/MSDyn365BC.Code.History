@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 39 "General Journal"
 {
     // // This page has two view modes based on global variable 'IsSimplePage' as :-
@@ -116,26 +117,6 @@ page 39 "General Journal"
                     ToolTip = 'Specifies the entry''s posting date.';
                     Visible = NOT IsSimplePage;
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date of the original document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -367,12 +348,18 @@ page 39 "General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Debit Amount"; "Debit Amount")
                 {
@@ -618,26 +605,6 @@ page 39 "General Journal"
                     ToolTip = 'Specifies the identification of the direct-debit mandate that is being used on the journal lines to process a direct debit collection.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Original Document Partner Type"; "Original Document Partner Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of partner (customer or vendor). It''s possible for VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document Partner No."; "Original Document Partner No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of partner (customer or vendor). It''s possible for VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
@@ -1062,7 +1029,7 @@ page 39 "General Journal"
 
                         GenJnlBatch.Get("Journal Template Name", CurrentJnlBatchName);
                         SaveAsStdGenJnl.Initialise(GeneralJnlLines, GenJnlBatch);
-                        SaveAsStdGenJnl.RunModal;
+                        SaveAsStdGenJnl.RunModal();
                         if not SaveAsStdGenJnl.GetStdGeneralJournal(StdGenJnl) then
                             exit;
 
@@ -1992,6 +1959,7 @@ page 39 "General Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
+        BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -2072,6 +2040,8 @@ page 39 "General Journal"
         ApplyEntriesActionEnabled := ApplyEntriesActionEnabled or
           ("Account Type" = "Account Type"::"G/L Account") or ("Bal. Account Type" = "Bal. Account Type"::"G/L Account");
         // NAVCZ
+
+        OnAfterEnableApplyEntriesAction(Rec, ApplyEntriesActionEnabled);
     end;
 
     local procedure CurrentJnlBatchNameOnAfterVali()
@@ -2243,7 +2213,7 @@ page 39 "General Journal"
           GenJournalBatch, CanRequestFlowApprovalForBatch, CanCancelFlowApprovalForBatch, CanRequestFlowApprovalForAllLines);
         CanRequestFlowApprovalForBatchAndAllLines := CanRequestFlowApprovalForBatch and CanRequestFlowApprovalForAllLines;
 
-        BackgroundErrorCheck := GenJournalBatch."Background Error Check";
+        BackgroundErrorCheck := BackgroundErrorHandlingMgt.BackgroundValidationFeatureEnabled();
         ShowAllLinesEnabled := true;
         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
         JournalErrorsMgt.SetFullBatchCheck(true);
@@ -2333,7 +2303,7 @@ page 39 "General Journal"
         if IsSimplePage then begin
             // Filter on the first record
             SetCurrentKey("Document No.", "Line No.");
-            if FindFirst then
+            if FindFirst() then
                 SetDataForSimpleMode(Rec)
             else begin
                 // if no rec is found reset the currentposting date to workdate and currency code to empty
@@ -2355,7 +2325,7 @@ page 39 "General Journal"
             GenJournalLine.SetRange("Journal Template Name", "Journal Template Name");
             GenJournalLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
             IsChangingDocNo := false;
-            if GenJournalLine.FindFirst then
+            if GenJournalLine.FindFirst() then
                 SetDataForSimpleMode(GenJournalLine);
         end;
     end;
@@ -2413,7 +2383,7 @@ page 39 "General Journal"
     begin
         PostedFromSimplePage := true;
         SetCurrentKey("Document No.", "Line No.");
-        if FindFirst then
+        if FindFirst() then
             SetDataForSimpleMode(Rec)
     end;
 
@@ -2484,5 +2454,10 @@ page 39 "General Journal"
     local procedure OnOpenPageOnBeforeGetLastViewedJournalBatchName(var CurrentJnlBatchName: Code[10]; var GenJnlManagement: Codeunit GenJnlManagement)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnableApplyEntriesAction(GenJournalLine: Record "Gen. Journal Line"; var ApplyEntriesActionEnabled: Boolean)
+    begin
+    end;
+}
+#endif

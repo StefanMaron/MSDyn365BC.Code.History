@@ -33,6 +33,11 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for this particular combination of VAT business posting group and VAT product posting group.';
                 }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if this particular combination of VAT business posting group and VAT product posting group is blocked.';
+                }
                 field("VAT %"; "VAT %")
                 {
                     ApplicationArea = Basic, Suite;
@@ -81,17 +86,6 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if documents that use this combination of VAT business posting group and VAT product posting group require a certificate of supply.';
                 }
-#if not CLEAN17
-                field("Allow Blank VAT Date"; "Allow Blank VAT Date")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies to post entries with blank VAT dates.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
 #if not CLEAN18
                 field("Non Deduct. VAT Corr. Account"; '')
                 {
@@ -105,60 +99,11 @@ page 473 "VAT Posting Setup Card"
                     Visible = false;
                 }
 #endif
-#if not CLEAN17
-                field("Reverse Charge Check"; "Reverse Charge Check")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies if the reverse charge will be checked';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Tax Category"; "Tax Category")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
                 }
-#if not CLEAN17
-                field("VAT Rate"; "VAT Rate")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies typ of VAT rate - base, reduced or reduced 2.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Supplies Mode Code"; "Supplies Mode Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies supplies mode code from VAT layer. The setting is used in the VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Corrections for Bad Receivable"; "Corrections for Bad Receivable")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the designation of the receivable for the purposes of VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Ratio Coefficient"; "Ratio Coefficient")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies ratio coefficient';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
             group(Sales)
             {
@@ -174,26 +119,6 @@ page 473 "VAT Posting Setup Card"
                     ToolTip = 'Specifies the general ledger account number to which to post unrealized sales VAT (as calculated when you post sales invoices) using this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = UnrealizedVATVisible;
                 }
-#if not CLEAN17
-                field("VIES Sales"; "VIES Sales")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies this option to include the posting group in VAT sales declarations.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Sales VAT Delay Account"; "Sales VAT Delay Account")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                }
-#endif
             }
             group(Purchases)
             {
@@ -231,26 +156,6 @@ page 473 "VAT Posting Setup Card"
                     ObsoleteTag = '18.0';
                     Editable = false;
                     Visible = false;
-                }
-#endif
-#if not CLEAN17
-                field("VIES Purchases"; "VIES Purchases")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies this option to include the posting group in VAT purchase declarations.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Purchase VAT Delay Account"; "Purchase VAT Delay Account")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the auxiliary account which will be used for posting date and VAT date by posting the different exchange rate.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
                 }
 #endif
             }
@@ -371,7 +276,7 @@ page 473 "VAT Posting Setup Card"
                 begin
                     CurrPage.SaveRecord;
                     CopyVATPostingSetup.SetVATSetup(Rec);
-                    CopyVATPostingSetup.RunModal;
+                    CopyVATPostingSetup.RunModal();
                     Clear(CopyVATPostingSetup);
                     CurrPage.Update();
                 end;

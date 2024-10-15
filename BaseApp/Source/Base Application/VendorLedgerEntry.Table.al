@@ -1,4 +1,4 @@
-table 25 "Vendor Ledger Entry"
+﻿table 25 "Vendor Ledger Entry"
 {
     Caption = 'Vendor Ledger Entry';
     DrillDownPageID = "Vendor Ledger Entries";
@@ -150,22 +150,28 @@ table 25 "Vendor Ledger Entry"
         field(33; "On Hold"; Code[3])
         {
             Caption = 'On Hold';
-#if not CLEAN18
 
             trigger OnValidate()
             var
-                GenJnlLine: Record "Gen. Journal Line";
+                GenJournalLine: Record "Gen. Journal Line";
             begin
-                // NAVCZ
-                GenJnlLine.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
-                GenJnlLine.SetRange("Account No.", "Vendor No.");
-                GenJnlLine.SetRange("Applies-to Doc. Type", "Document Type");
-                GenJnlLine.SetRange("Applies-to Doc. No.", "Document No.");
-                GenJnlLine.SetRange(Compensation, true);
-                if GenJnlLine.FindFirst then
-                    Error(OnHoldErr, GenJnlLine."Journal Template Name", GenJnlLine."Journal Batch Name", GenJnlLine."Line No.");
+                if "On Hold" = xRec."On Hold" then
+                    exit;
+                GenJournalLine.Reset();
+                GenJournalLine.SetLoadFields("On Hold");
+                GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::Vendor);
+                GenJournalLine.SetRange("Account No.", "Vendor No.");
+                GenJournalLine.SetRange("Applies-to Doc. Type", "Document Type");
+                GenJournalLine.SetRange("Applies-to Doc. No.", "Document No.");
+                GenJournalLine.SetRange("On Hold", xRec."On Hold");
+                if GenJournalLine.FindFirst() then
+                    if not Confirm(
+                        StrSubstNo(
+                            NetBalanceOnHoldErr,
+                            GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."))
+                    then
+                        Error('');
             end;
-#endif
         }
         field(34; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
@@ -209,6 +215,12 @@ table 25 "Vendor Ledger Entry"
             AutoFormatType = 1;
             Caption = 'Pmt. Disc. Rcd.(LCY)';
         }
+        field(42; "Orig. Pmt. Disc. Possible(LCY)"; Decimal)
+        {
+            AutoFormatType = 1;
+            Caption = 'Org. Pmt. Disc. Possible (LCY)';
+            Editable = false;
+        }
         field(43; Positive; Boolean)
         {
             Caption = 'Positive';
@@ -236,6 +248,10 @@ table 25 "Vendor Ledger Entry"
             begin
                 TestField(Open, true);
             end;
+        }
+        field(48; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
         }
         field(49; "Journal Batch Name"; Code[10])
         {
@@ -593,11 +609,7 @@ table 25 "Vendor Ledger Entry"
             Caption = 'Bank Account Code';
             TableRelation = IF ("Document Type" = FILTER(Invoice | Payment | Reminder | "Finance Charge Memo")) "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Vendor No."))
             ELSE
-#if CLEAN17
             IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Bank Account"."No.";
-#else
-            IF ("Document Type" = FILTER("Credit Memo" | Refund)) "Bank Account"."No." WHERE("Account Type" = CONST("Bank Account"));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
 #else
@@ -758,13 +770,9 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'VAT Date';
             Editable = false;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; Compensation; Boolean)
         {
@@ -941,9 +949,7 @@ table 25 "Vendor Ledger Entry"
     var
         MustHaveSameSignErr: Label 'must have the same sign as %1';
         MustNotBeLargerErr: Label 'must not be larger than %1';
-#if not CLEAN18
-        OnHoldErr: Label 'The operation is prohibited, until journal line of Journal Template Name = ''%1'', Journal Batch Name = ''%2'', Line No. = ''%3'' is deleted or posted.';
-#endif
+        NetBalanceOnHoldErr: Label 'General journal line number %3 on template name %1 batch name %2 is applied. Do you want to change On Hold value anyway?', Comment = '%1 - template name, %2 - batch name, %3 - line number';
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -1003,7 +1009,7 @@ table 25 "Vendor Ledger Entry"
     begin
         RecRef.GetTable(Record);
         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-        DocumentAttachmentDetails.RunModal;
+        DocumentAttachmentDetails.RunModal();
     end;
 
     procedure HasPostedDocAttachment(): Boolean
@@ -1127,6 +1133,7 @@ table 25 "Vendor Ledger Entry"
         "Due Date" := GenJnlLine."Due Date";
         "Pmt. Discount Date" := GenJnlLine."Pmt. Discount Date";
         "Applies-to ID" := GenJnlLine."Applies-to ID";
+        "Journal Templ. Name" := GenJnlLine."Journal Template Name";
         "Journal Batch Name" := GenJnlLine."Journal Batch Name";
         "Reason Code" := GenJnlLine."Reason Code";
         "User ID" := UserId;
@@ -1143,9 +1150,6 @@ table 25 "Vendor Ledger Entry"
         "Payment Method Code" := GenJnlLine."Payment Method Code";
         "Exported to Payment File" := GenJnlLine."Exported to Payment File";
         // NAVCZ
-#if not CLEAN17
-        "VAT Date" := GenJnlLine."VAT Date";
-#endif
 #if not CLEAN18
         Compensation := GenJnlLine.Compensation;
 #endif
@@ -1199,6 +1203,7 @@ table 25 "Vendor Ledger Entry"
         "Due Date" := CVLedgerEntryBuffer."Due Date";
         "Pmt. Discount Date" := CVLedgerEntryBuffer."Pmt. Discount Date";
         "Original Pmt. Disc. Possible" := CVLedgerEntryBuffer."Original Pmt. Disc. Possible";
+        "Orig. Pmt. Disc. Possible(LCY)" := CVLedgerEntryBuffer."Orig. Pmt. Disc. Possible(LCY)";
         "Remaining Pmt. Disc. Possible" := CVLedgerEntryBuffer."Remaining Pmt. Disc. Possible";
         "Pmt. Disc. Rcd.(LCY)" := CVLedgerEntryBuffer."Pmt. Disc. Given (LCY)";
         Positive := CVLedgerEntryBuffer.Positive;
@@ -1206,6 +1211,7 @@ table 25 "Vendor Ledger Entry"
         "Closed at Date" := CVLedgerEntryBuffer."Closed at Date";
         "Closed by Amount" := CVLedgerEntryBuffer."Closed by Amount";
         "Applies-to ID" := CVLedgerEntryBuffer."Applies-to ID";
+        "Journal Templ. Name" := CVLedgerEntryBuffer."Journal Templ. Name";
         "Journal Batch Name" := CVLedgerEntryBuffer."Journal Batch Name";
         "Reason Code" := CVLedgerEntryBuffer."Reason Code";
         "Bal. Account Type" := CVLedgerEntryBuffer."Bal. Account Type";
@@ -1376,4 +1382,3 @@ table 25 "Vendor Ledger Entry"
     end;
 #endif
 }
-

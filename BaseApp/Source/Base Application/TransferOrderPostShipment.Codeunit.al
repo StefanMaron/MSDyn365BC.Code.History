@@ -1,3 +1,4 @@
+#if not CLEAN20
 codeunit 5704 "TransferOrder-Post Shipment"
 {
     Permissions = TableData "Item Entry Relation" = i;
@@ -34,7 +35,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             CheckDim();
             CheckLines(TransHeader, TransLine);
 
-            WhseShip := TempWhseShptHeader.FindFirst;
+            WhseShip := TempWhseShptHeader.FindFirst();
             InvtPickPutaway := WhseReference <> 0;
             CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
 
@@ -219,7 +220,6 @@ codeunit 5704 "TransferOrder-Post Shipment"
         Text008: Label 'This order must be a complete shipment.';
         Text009: Label 'Item %1 is not in inventory.';
         SuppressCommit: Boolean;
-        TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 #if not CLEAN18
         IntrastatTransaction: Boolean;
@@ -325,7 +325,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
               TransferLine, ItemJnlLine, WhseShptHeader2, ItemJnlLine."Quantity (Base)")
         else
             ReserveTransLine.TransferTransferToItemJnlLine(
-              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", TransferDirection::Outbound);
+              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", "Transfer Direction"::Outbound);
     end;
 
     local procedure CheckDim()
@@ -335,7 +335,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         CheckDimValuePosting(TransHeader, TransLine);
 
         TransLine.SetRange("Document No.", TransHeader."No.");
-        if TransLine.FindFirst then begin
+        if TransLine.FindFirst() then begin
             CheckDimComb(TransHeader, TransLine);
             CheckDimValuePosting(TransHeader, TransLine);
         end;
@@ -391,7 +391,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
             TransHeader.DeleteOneTransferOrder(TransHeader, TransLine)
         else begin
             WhseTransferRelease.Release(TransHeader);
-            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Outbound);
+            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, "Transfer Direction"::Outbound);
         end;
     end;
 
@@ -405,7 +405,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TransLine3: Record "Transfer Line";
     begin
         TransLine3.SetRange("Document No.", FromDocNo);
-        if TransLine3.FindLast then
+        if TransLine3.FindLast() then
             exit(TransLine3."Line No." + 10000);
     end;
 
@@ -514,7 +514,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 WhseShptLine.SetRange("Source Type", DATABASE::"Transfer Line");
                 WhseShptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseShptLine.SetRange("Source Line No.", TransLine."Line No.");
-                if WhseShptLine.FindFirst then
+                if WhseShptLine.FindFirst() then
                     CreatePostedShptLineFromWhseShptLine(TransShptLine);
             end;
             ShouldRunPosting := WhsePosting;
@@ -563,7 +563,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ReserveTransLine.TransferTransferToTransfer(
-                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", TransferDirection::Inbound, TempHandlingSpecification);
+                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", "Transfer Direction"::Inbound, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next() = 0;
             TempHandlingSpecification.DeleteAll();
@@ -571,7 +571,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
         if TransferQty > 0 then
             ReserveTransLine.TransferTransferToTransfer(
-              FromTransLine, ToTransLine, TransferQty, TransferDirection::Inbound, DummySpecification);
+              FromTransLine, ToTransLine, TransferQty, "Transfer Direction"::Inbound, DummySpecification);
     end;
 
     local procedure CheckWarehouse(TransLine: Record "Transfer Line")
@@ -730,10 +730,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.LockTable();
-        if NoSeriesLine.FindLast then;
+        if NoSeriesLine.FindLast() then;
         if AutoCostPosting then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 
@@ -1023,4 +1023,4 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
     end;
 }
-
+#endif

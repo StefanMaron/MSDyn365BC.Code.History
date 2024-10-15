@@ -32,7 +32,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         FAExtendedPostingGroup: Record "FA Extended Posting Group";
     begin
         // [SCENARIO 263861] FA Extended Posting Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
         MultipleTableIDFilter := Format(Database::"FA Extended Posting Group");
 
         // [GIVEN] FA Extended Posting Group with "Maintenance Expense Account" = "G"
@@ -64,7 +64,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         FAExtendedPostingGroups: TestPage "FA Extended Posting Groups";
     begin
         // [SCENARIO 263861] FA Extended Posting Groups page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
         MultipleTableIDFilter := Format(Database::"FA Extended Posting Group");
 
         // [GIVEN] FA Extended Posting Group "FA Posting Group Code" = "FPGC", "FA Posting Type" = "Disposal", Code = "C" with "Maintenance Expense Account" = "G"
@@ -88,7 +88,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         BankAccount: Record "Bank Account";
     begin
         // [SCENARIO 263861] Bank Account should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account with "Non Associated Payment Account" = "G"
         LibraryERM.CreateBankAccount(BankAccount);
@@ -114,7 +114,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         BankAccountList: TestPage "Bank Account List";
     begin
         // [SCENARIO 263861] Bank Accounts page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account "B" with "Non Associated Payment Account" = "G"
         LibraryERM.CreateBankAccount(BankAccount);
@@ -138,7 +138,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         CreditsSetup: Record "Credits Setup";
     begin
         // [SCENARIO 263861] Credits Setup should be shown on Where-Used page
-        Initialize;
+        Initialize();
         MultipleTableIDFilter := Format(Database::"Credits Setup");
 
         // [GIVEN] Credits Setup with "Non Associated Payment Account" = "G"
@@ -165,7 +165,7 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
         CreditsSetupPage: TestPage "Credits Setup";
     begin
         // [SCENARIO 263861] Credits Setups page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
         MultipleTableIDFilter := Format(Database::"Credits Setup");
 
         // [GIVEN] Credits Setup with "Non Associated Payment Account" = "G"
@@ -184,8 +184,8 @@ codeunit 144544 "ERM G/L Account Where-Used CZ"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         MultipleTableIDFilter := '';
         if isInitialized then
             exit;

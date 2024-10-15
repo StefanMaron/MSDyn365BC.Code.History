@@ -8,11 +8,12 @@ table 11706 "Issued Bank Statement Header"
     Permissions = TableData "Issued Bank Statement Header" = m,
                   TableData "Issued Bank Statement Line" = md;
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -29,11 +30,7 @@ table 11706 "Issued Bank Statement Header"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(4; "Bank Account Name"; Text[100])
         {
@@ -61,7 +58,6 @@ table 11706 "Issued Bank Statement Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
         }
-#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Issued Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
@@ -115,7 +111,6 @@ table 11706 "Issued Bank Statement Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -272,7 +267,7 @@ table 11706 "Issued Bank Statement Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Document Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -429,4 +424,3 @@ table 11706 "Issued Bank Statement Header"
     end;
 #endif
 }
-

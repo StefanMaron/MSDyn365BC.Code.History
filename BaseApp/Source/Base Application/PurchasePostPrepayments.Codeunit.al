@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 444 "Purchase-Post Prepayments"
 {
     Permissions = TableData "Purchase Line" = imd,
@@ -35,12 +35,14 @@ codeunit 444 "Purchase-Post Prepayments"
         TempGlobalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer" temporary;
         TempPurchaseLine: Record "Purchase Line" temporary;
         VATPostingSetup: Record "VAT Posting Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
 #if not CLEAN19
         TempLineRelation: Record "Advance Letter Line Relation" temporary;
 #endif
         CurrExchRate: Record "Currency Exchange Rate";
         ErrorMessageMgt: Codeunit "Error Message Management";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
         Text013: Label 'It is not possible to assign a prepayment amount of %1 to the purchase lines.';
         Text014: Label 'VAT Amount';
         Text015: Label '%1% VAT';
@@ -355,8 +357,12 @@ codeunit 444 "Purchase-Post Prepayments"
             TestField("Pay-to Vendor No.");
             TestField("Posting Date");
             TestField("Document Date");
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                TestField("Journal Templ. Name");
+
             ErrorMessageMgt.PushContext(ErrorContextElement, PurchHeader.RecordId, 0, '');
-            if GenJnlCheckLine.IsDateNotAllowed("Posting Date", SetupRecID) then
+            if GenJnlCheckLine.DateNotAllowed("Posting Date", "Journal Templ. Name") then
                 ErrorMessageMgt.LogContextFieldError(
                   FieldNo("Posting Date"), StrSubstNo(PostingDateNotAllowedErr, FieldCaption("Posting Date")),
                   SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, ''),
@@ -379,9 +385,6 @@ codeunit 444 "Purchase-Post Prepayments"
 
     local procedure UpdateDocNos(var PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean)
     var
-        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
-        ErrorContextElement: Codeunit "Error Context Element";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -396,22 +399,9 @@ codeunit 444 "Purchase-Post Prepayments"
                         TestField("Prepayment Due Date");
                         TestField("Prepmt. Cr. Memo No.", '');
                         if "Prepayment No." = '' then
-                            if not PreviewMode then begin
-                                if "Prepayment No. Series" = '' then begin
-                                    PurchasesPayablesSetup.Get();
-                                    ErrorMessageMgt.PushContext(ErrorContextElement, PurchasesPayablesSetup.RecordId, 0, '');
-                                    if PurchasesPayablesSetup."Posted Prepmt. Inv. Nos." = '' then
-                                        ErrorMessageMgt.LogContextFieldError(
-                                                     PurchasesPayablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), SpecifyInvNoSerieTok,
-                                                     PurchasesPayablesSetup.RecordId, PurchasesPayablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), '');
-                                    ErrorMessageMgt.Finish(PurchasesPayablesSetup.RecordId);
-                                    "Prepayment No. Series" := PurchasesPayablesSetup."Posted Prepmt. Inv. Nos.";
-                                    ModifyHeader := true;
-                                end;
-                                TestField("Prepayment No. Series");
-                                "Prepayment No." := NoSeriesMgt.GetNextNo("Prepayment No. Series", "Posting Date", true);
-                                ModifyHeader := true;
-                            end else
+                            if not PreviewMode then
+                                UpdateInvoiceDocNos(PurchHeader, ModifyHeader)
+                            else
                                 "Prepayment No." := '***';
                         DocNo := "Prepayment No.";
                         NoSeriesCode := "Prepayment No. Series";
@@ -420,27 +410,77 @@ codeunit 444 "Purchase-Post Prepayments"
                     begin
                         TestField("Prepayment No.", '');
                         if "Prepmt. Cr. Memo No." = '' then
-                            if not PreviewMode then begin
-                                if "Prepmt. Cr. Memo No. Series" = '' then begin
-                                    PurchasesPayablesSetup.Get();
-                                    ErrorMessageMgt.PushContext(ErrorContextElement, PurchasesPayablesSetup.RecordId, 0, '');
-                                    if PurchasesPayablesSetup."Posted Prepmt. Cr. Memo Nos." = '' then
-                                        ErrorMessageMgt.LogContextFieldError(
-                                                     PurchasesPayablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
-                                                     PurchasesPayablesSetup.RecordId, PurchasesPayablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
-                                    ErrorMessageMgt.Finish(PurchasesPayablesSetup.RecordId);
-                                    "Prepmt. Cr. Memo No. Series" := PurchasesPayablesSetup."Posted Prepmt. Cr. Memo Nos.";
-                                    ModifyHeader := true;
-                                end;
-                                TestField("Prepmt. Cr. Memo No. Series");
-                                "Prepmt. Cr. Memo No." := NoSeriesMgt.GetNextNo("Prepmt. Cr. Memo No. Series", "Posting Date", true);
-                                ModifyHeader := true;
-                            end else
+                            if not PreviewMode then
+                                UpdateCrMemoDocNos(PurchHeader, ModifyHeader)
+                            else
                                 "Prepmt. Cr. Memo No." := '***';
                         DocNo := "Prepmt. Cr. Memo No.";
                         NoSeriesCode := "Prepmt. Cr. Memo No. Series";
                     end;
             end;
+    end;
+
+    local procedure UpdateInvoiceDocNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            PurchasesPayablesSetup.Get();
+            PurchasesPayablesSetup.TestField("P. Prep. Inv. Template Name");
+            GenJournalTemplate.Get(PurchasesPayablesSetup."P. Prep. Inv. Template Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            PurchHeader."Prepayment No." := NoSeriesMgt.GetNextNo(GenJournalTemplate."Posting No. Series", PurchHeader."Posting Date", true);
+            ModifyHeader := true;
+        end else begin
+            if PurchHeader."Prepayment No. Series" = '' then begin
+                PurchasesPayablesSetup.Get();
+                ErrorMessageMgt.PushContext(ErrorContextElement, PurchasesPayablesSetup.RecordId, 0, '');
+                if PurchasesPayablesSetup."Posted Prepmt. Inv. Nos." = '' then
+                    ErrorMessageMgt.LogContextFieldError(
+                        PurchasesPayablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), SpecifyInvNoSerieTok,
+                        PurchasesPayablesSetup.RecordId, PurchasesPayablesSetup.FieldNo("Posted Prepmt. Inv. Nos."), '');
+                ErrorMessageMgt.Finish(PurchasesPayablesSetup.RecordId);
+                PurchHeader."Prepayment No. Series" := PurchasesPayablesSetup."Posted Prepmt. Inv. Nos.";
+                ModifyHeader := true;
+            end;
+            PurchHeader.TestField("Prepayment No. Series");
+            PurchHeader."Prepayment No." := NoSeriesMgt.GetNextNo(PurchHeader."Prepayment No. Series", PurchHeader."Posting Date", true);
+            ModifyHeader := true;
+        end
+
+    end;
+
+    local procedure UpdateCrMemoDocNos(var PurchHeader: Record "Purchase Header"; var ModifyHeader: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            PurchasesPayablesSetup.Get();
+            PurchasesPayablesSetup.TestField("P. Prep. Cr.Memo Template Name");
+            GenJournalTemplate.Get(PurchasesPayablesSetup."P. Prep. Cr.Memo Template Name");
+            GenJournalTemplate.TestField("Posting No. Series");
+            PurchHeader."Prepmt. Cr. Memo No." :=
+                NoSeriesMgt.GetNextNo(GenJournalTemplate."Posting No. Series", PurchHeader."Posting Date", true);
+            ModifyHeader := true;
+        end else begin
+            if PurchHeader."Prepmt. Cr. Memo No. Series" = '' then begin
+                PurchasesPayablesSetup.Get();
+                ErrorMessageMgt.PushContext(ErrorContextElement, PurchasesPayablesSetup.RecordId, 0, '');
+                if PurchasesPayablesSetup."Posted Prepmt. Cr. Memo Nos." = '' then
+                    ErrorMessageMgt.LogContextFieldError(
+                        PurchasesPayablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), SpecifyCrNoSerieTok,
+                        PurchasesPayablesSetup.RecordId, PurchasesPayablesSetup.FieldNo("Posted Prepmt. Cr. Memo Nos."), '');
+                ErrorMessageMgt.Finish(PurchasesPayablesSetup.RecordId);
+                PurchHeader."Prepmt. Cr. Memo No. Series" := PurchasesPayablesSetup."Posted Prepmt. Cr. Memo Nos.";
+                ModifyHeader := true;
+            end;
+            PurchHeader.TestField("Prepmt. Cr. Memo No. Series");
+            PurchHeader."Prepmt. Cr. Memo No." :=
+                NoSeriesMgt.GetNextNo(PurchHeader."Prepmt. Cr. Memo No. Series", PurchHeader."Posting Date", true);
+            ModifyHeader := true;
+        end;
     end;
 
     procedure CheckOpenPrepaymentLines(PurchHeader: Record "Purchase Header"; DocumentType: Option) Found: Boolean
@@ -480,6 +520,9 @@ codeunit 444 "Purchase-Post Prepayments"
                 "VAT Amount" := "Amount Incl. VAT" - Amount;
                 if "VAT Base Amount" <> 0 then
                     "VAT Base Amount" := Amount;
+                "Orig. Pmt. Disc. Possible" :=
+                    AmountToLCY(
+                        PurchHeader, TotalPrepmtInvLineBuf."Orig. Pmt. Disc. Possible", TotalPrepmtInvLineBufLCY."Orig. Pmt. Disc. Possible");
             end;
 
         OnRoundAmountsOnBeforeIncrAmoutns(PurchHeader, PrepmtInvLineBuf, TotalPrepmtInvLineBuf, TotalPrepmtInvLineBufLCY);
@@ -538,7 +581,7 @@ codeunit 444 "Purchase-Post Prepayments"
                 Ratio[VAT] := 0
             else
                 Ratio[VAT] := PrepmtInvBufAmount[VAT] / TotalAmount[VAT];
-        if TempGlobalPrepmtInvLineBuf.FindSet then
+        if TempGlobalPrepmtInvLineBuf.FindSet() then
             repeat
                 TempGlobalPrepmtInvLineBuf.AmountsToArray(LineAmount);
                 PrepmtAmountRnded[VAT::Base] :=
@@ -664,6 +707,7 @@ codeunit 444 "Purchase-Post Prepayments"
         NewAmount: Decimal;
         NewAmountIncludingVAT: Decimal;
         NewVATBaseAmount: Decimal;
+        NewPmtDiscAmount: Decimal;
         VATAmount: Decimal;
         VATDifference: Decimal;
         PrepmtAmtToInvTotal: Decimal;
@@ -741,7 +785,7 @@ codeunit 444 "Purchase-Post Prepayments"
 
                             if (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") = 0 then
                                 VATDifference := 0
-                            else
+                            else begin
                                 if PrepmtAmtToInvTotal = 0 then
                                     VATDifference :=
                                       VATAmountLine."VAT Difference" * ("Prepmt. Line Amount" - "Prepmt. Amt. Inv.") /
@@ -750,7 +794,12 @@ codeunit 444 "Purchase-Post Prepayments"
                                     VATDifference :=
                                       VATAmountLine."VAT Difference" * ("Prepmt. Line Amount" - "Prepmt. Amt. Inv.") /
                                       PrepmtAmtToInvTotal;
+                                NewPmtDiscAmount :=
+                                  TempVATAmountLineRemainder."Pmt. Discount Amount" +
+                                  NewAmount * PurchHeader."Payment Discount %" / 100;
+                            end;
                             "Prepayment VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                            "Prepmt. Pmt. Discount Amount" := Round(NewPmtDiscAmount, Currency."Amount Rounding Precision");
 
                             OnUpdateVATOnLinesOnBeforePurchLineModify(PurchHeader, PurchLine, TempVATAmountLineRemainder, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
                             Modify;
@@ -759,6 +808,7 @@ codeunit 444 "Purchase-Post Prepayments"
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "Prepayment VAT Difference";
+                            TempVATAmountLineRemainder."Pmt. Discount Amount" := NewPmtDiscAmount - Round(NewPmtDiscAmount);
                             TempVATAmountLineRemainder.Modify();
                         end;
                     end;
@@ -871,7 +921,7 @@ codeunit 444 "Purchase-Post Prepayments"
                 UpdateVATOnLines(PurchHeader, ToPurchLine, TempVATAmountLine, 2);
                 ToPurchLine.CalcSums("Prepmt. Amt. Incl. VAT");
                 TotalAmt := ToPurchLine."Prepmt. Amt. Incl. VAT";
-                ToPurchLine.FindLast;
+                ToPurchLine.FindLast();
                 if InitInvoiceRoundingLine(PurchHeader, TotalAmt, InvRoundingPurchLine) then
                     with ToPurchLine do begin
                         NextLineNo := "Line No." + 1;
@@ -965,6 +1015,7 @@ codeunit 444 "Purchase-Post Prepayments"
             "VAT Amount" := PurchLine."Prepmt. Amt. Incl. VAT" - PurchLine."Prepayment Amount";
             "VAT Amount (ACY)" := PurchLine."Prepmt. Amt. Incl. VAT" - PurchLine."Prepayment Amount";
             "VAT Base Before Pmt. Disc." := PurchLine."Prepayment Amount";
+            "Orig. Pmt. Disc. Possible" := PurchLine."Prepmt. Pmt. Discount Amount";
             // NAVCZ
             if PurchHeader."Prepayment Type" = PurchHeader."Prepayment Type"::Advance then
                 // NAVCZ
@@ -1152,12 +1203,6 @@ codeunit 444 "Purchase-Post Prepayments"
               PrepmtInvLineBuffer."Global Dimension 1 Code", PrepmtInvLineBuffer."Global Dimension 2 Code",
               PrepmtInvLineBuffer."Dimension Set ID", PurchHeader."Reason Code");
 
-#if not CLEAN17
-            // NAVCZ
-            "VAT Date" := PurchHeader."VAT Date";
-            // NAVCZ
-
-#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
             CopyFromPurchHeaderPrepmt(PurchHeader);
             CopyFromPrepmtInvoiceBuffer(PrepmtInvLineBuffer);
@@ -1168,6 +1213,9 @@ codeunit 444 "Purchase-Post Prepayments"
             // NAVCZ
             "Prepayment Type" := "Prepayment Type"::Prepayment;
             // NAVCZ
+
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
 
             OnBeforePostPrepmtInvLineBuffer(GenJnlLine, PrepmtInvLineBuffer, SuppressCommit);
             RunGenJnlPostLine(GenJnlLine);
@@ -1192,12 +1240,6 @@ codeunit 444 "Purchase-Post Prepayments"
               PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
             OnPostVendorEntryOnAfterInitNewLine(GenJnlLine, PurchHeader);
 
-#if not CLEAN17
-            // NAVCZ
-            "VAT Date" := PurchHeader."VAT Date";
-            // NAVCZ
-
-#endif
             CopyDocumentFields(DocType, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode);
 
             CopyFromPurchHeaderPrepmtPost(PurchHeader, (DocumentType = DocumentType::Invoice) or CalcPmtDisc);
@@ -1209,9 +1251,15 @@ codeunit 444 "Purchase-Post Prepayments"
             "Profit (LCY)" := -TotalPrepmtInvLineBufferLCY.Amount;
 
             Correction := (DocumentType = DocumentType::"Credit Memo") and GLSetup."Mark Cr. Memos as Corrections";
+
+            "Orig. Pmt. Disc. Possible" := -TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
+            "Orig. Pmt. Disc. Possible(LCY)" := -TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
             // NAVCZ
             "Prepayment Type" := "Prepayment Type"::Prepayment;
             // NAVCZ
+
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
 
             OnBeforePostVendorEntry(GenJnlLine, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
@@ -1229,12 +1277,6 @@ codeunit 444 "Purchase-Post Prepayments"
               PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code",
               PurchHeader."Dimension Set ID", PurchHeader."Reason Code");
 
-#if not CLEAN17
-            // NAVCZ
-            "VAT Date" := PurchHeader."VAT Date";
-            // NAVCZ
-
-#endif
             if DocType = "Document Type"::"Credit Memo" then
                 CopyDocumentFields("Document Type"::Refund, DocNo, ExtDocNo, SrcCode, PostingNoSeriesCode)
             else
@@ -1258,6 +1300,11 @@ codeunit 444 "Purchase-Post Prepayments"
 
             "Applies-to Doc. Type" := DocType;
             "Applies-to Doc. No." := DocNo;
+
+            "Orig. Pmt. Disc. Possible" := TotalPrepmtInvLineBuffer."Orig. Pmt. Disc. Possible";
+            "Orig. Pmt. Disc. Possible(LCY)" := TotalPrepmtInvLineBufferLCY."Orig. Pmt. Disc. Possible";
+            if GLSetup."Journal Templ. Name Mandatory" then
+                "Journal Template Name" := GenJournalTemplate.Name;
 
             OnBeforePostBalancingEntry(GenJnlLine, VendLedgEntry, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, SuppressCommit);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
@@ -1322,7 +1369,7 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchLine: Record "Purchase Line";
     begin
         ApplyFilter(PurchHeader, 1, PurchLine);
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
                     PurchLines := PurchLine;
@@ -1446,7 +1493,7 @@ codeunit 444 "Purchase-Post Prepayments"
                 begin
                     VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
                     VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-                    VendorLedgerEntry.FindFirst;
+                    VendorLedgerEntry.FindFirst();
                     PurchInvHeader.Get(DocumentNo);
                     PurchInvHeader."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
                     PurchInvHeader.Modify();
@@ -1455,7 +1502,7 @@ codeunit 444 "Purchase-Post Prepayments"
                 begin
                     VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
                     VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-                    VendorLedgerEntry.FindFirst;
+                    VendorLedgerEntry.FindFirst();
                     PurchCrMemoHdr.Get(DocumentNo);
                     PurchCrMemoHdr."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
                     PurchCrMemoHdr.Modify();
@@ -1574,6 +1621,7 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchInvLine."VAT Identifier" := "VAT Identifier";
             PurchInvLine."Job No." := "Job No.";
             PurchInvLine."Job Task No." := "Job Task No.";
+            PurchInvLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert();
             if not PurchaseHeader."Compress Prepayment" then
@@ -1621,6 +1669,7 @@ codeunit 444 "Purchase-Post Prepayments"
             PurchCrMemoLine."VAT Identifier" := "VAT Identifier";
             PurchCrMemoLine."Job No." := "Job No.";
             PurchCrMemoLine."Job Task No." := "Job Task No.";
+            PurchCrMemoLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
             OnBeforePurchCrMemoLineInsert(PurchCrMemoLine, PurchCrMemoHdr, PrepmtInvLineBuffer, SuppressCommit);
             PurchCrMemoLine.Insert();
             if not PurchaseHeader."Compress Prepayment" then
@@ -1676,10 +1725,10 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchInvHeader.SetCurrentKey("Prepayment Order No.");
         PurchInvHeader.SetRange("Prepayment Order No.", PurchHeader."No.");
         PurchInvHeader.SetRange("Prepayment Invoice", true);
-        if PurchInvHeader.FindSet then
+        if PurchInvHeader.FindSet() then
             repeat
                 VendLedgEntry.SetRange("Document No.", PurchInvHeader."No.");
-                if VendLedgEntry.FindFirst then begin
+                if VendLedgEntry.FindFirst() then begin
                     VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                     PrepmtAmtReceived := PrepmtAmtReceived + VendLedgEntry.Amount - VendLedgEntry."Remaining Amount";
                 end;
@@ -1688,10 +1737,10 @@ codeunit 444 "Purchase-Post Prepayments"
         PurchCrMemoHeader.SetCurrentKey("Prepayment Order No.");
         PurchCrMemoHeader.SetRange("Prepayment Order No.", PurchHeader."No.");
         PurchCrMemoHeader.SetRange("Prepayment Credit Memo", true);
-        if PurchCrMemoHeader.FindSet then
+        if PurchCrMemoHeader.FindSet() then
             repeat
                 VendLedgEntry.SetRange("Document No.", PurchCrMemoHeader."No.");
-                if VendLedgEntry.FindFirst then begin
+                if VendLedgEntry.FindFirst() then begin
                     VendLedgEntry.CalcFields(Amount, "Remaining Amount");
                     PrepmtAmtReceived := PrepmtAmtReceived + VendLedgEntry.Amount - VendLedgEntry."Remaining Amount";
                 end;
@@ -1749,7 +1798,7 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
         // NAVCZ
         TempLineRelation.Reset();
-        if TempLineRelation.FindSet then
+        if TempLineRelation.FindSet() then
             repeat
                 LineRelation := TempLineRelation;
                 LineRelation.Insert();
@@ -1914,17 +1963,22 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckPrepmtDoc(PurchHeader: Record "Purchase Header"; DocumentType: Option Invoice,"Credit Memo")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateLinesOnBeforeGLPosting(var PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header"; PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var TempPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer" temporary; DocumentType: Option; var LastLineNo: Integer)
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
+#endif
     local procedure OnAfterFillInvLineBuffer(var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; PurchLine: Record "Purchase Line"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -1934,10 +1988,13 @@ codeunit 444 "Purchase-Post Prepayments"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is never raised.', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostPrepaymentsOnBeforeThrowPreviewModeError(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; VendLedgEntry: Record "Vendor Ledger Entry"; TotalPrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; TotalPrepmtInvLineBufferLCY: Record "Prepayment Inv. Line Buffer"; CommitIsSupressed: Boolean)

@@ -170,7 +170,7 @@ codeunit 5303 "Outlook Synch. Deletion Mgt."
 
         if OSynchLink."Synchronization Date" >= OSynchUserSetup."Last Synch. Time" then begin
             ChangeLogEntry.SetFilter("Date and Time", '>=%1', OSynchUserSetup."Last Synch. Time");
-            if not ChangeLogEntry.FindLast then
+            if not ChangeLogEntry.FindLast() then
                 exit;
 
             if ChangeLogEntry."Date and Time" <= OSynchLink."Synchronization Date" then
@@ -180,7 +180,7 @@ codeunit 5303 "Outlook Synch. Deletion Mgt."
         end else
             ChangeLogEntry.SetFilter("Date and Time", '>=%1&<=%2', OSynchUserSetup."Last Synch. Time", StartSynchTime);
 
-        if not ChangeLogEntry.FindFirst then
+        if not ChangeLogEntry.FindFirst() then
             exit;
 
         IsConflict := OSynchProcessLine.IsConflictDetected(ChangeLogEntry, SynchRecRef, RecID.TableNo);

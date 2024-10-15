@@ -362,12 +362,12 @@ report 31000 "Sales - Advance Letter CZ"
         with SalesAdvanceLetterHeader do begin
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
-            FormatDocument.SetPaymentSymbols(
+            FormatDocument.SetPaymentSymbolsArray(
               PaymentSymbol, PaymentSymbolLabel,
               "Variable Symbol", FieldCaption("Variable Symbol"),
               "Constant Symbol", FieldCaption("Constant Symbol"),
               "Specific Symbol", FieldCaption("Specific Symbol"));
-            DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
+            DocFooterText := FormatDocument.GetDocumentFooterTextByLanguage("Language Code");
         end;
     end;
 }

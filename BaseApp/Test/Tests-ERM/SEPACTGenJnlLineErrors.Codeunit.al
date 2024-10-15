@@ -33,7 +33,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -53,7 +53,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -75,7 +75,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -97,7 +97,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -118,7 +118,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -139,7 +139,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -159,7 +159,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -181,7 +181,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         Currency: Record Currency;
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryERM.CreateCurrency(Currency);
@@ -206,7 +206,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -227,7 +227,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -250,7 +250,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -271,7 +271,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -294,7 +294,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -318,7 +318,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -341,7 +341,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
         VendorBankAccount: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -365,7 +365,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         exit; // NAVCZ - SEPACZ Allow Empty Type on the Payment Order Line
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorGenJnlLineWithRecipientBankAcc(GenJnlLine);
@@ -391,7 +391,7 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SEPA CT Gen. Jnl Line Errors");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SEPA CT Gen. Jnl Line Errors");
@@ -412,8 +412,8 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     local procedure CreateBankAccount(var BankAcc: Record "Bank Account")
     begin
         LibraryERM.CreateBankAccount(BankAcc);
-        BankAcc.IBAN := LibraryUtility.GenerateGUID;
-        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
+        BankAcc.IBAN := LibraryUtility.GenerateGUID();
+        BankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
         BankAcc.Modify();
     end;
 
@@ -450,8 +450,8 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     local procedure CreateCustomerBankAccount(var CustomerBankAcc: Record "Customer Bank Account"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateCustomerBankAccount(CustomerBankAcc, CustomerNo);
-        CustomerBankAcc.IBAN := LibraryUtility.GenerateGUID;
-        CustomerBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
+        CustomerBankAcc.IBAN := LibraryUtility.GenerateGUID();
+        CustomerBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
         CustomerBankAcc.Modify();
     end;
 
@@ -468,8 +468,8 @@ codeunit 134407 "SEPA CT Gen. Jnl Line Errors"
     local procedure CreateVendorBankAccount(var VendorBankAcc: Record "Vendor Bank Account"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAcc, VendorNo);
-        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID;
-        VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID;
+        VendorBankAcc.IBAN := LibraryUtility.GenerateGUID();
+        VendorBankAcc."SWIFT Code" := LibraryUtility.GenerateGUID();
         VendorBankAcc.Modify();
     end;
 

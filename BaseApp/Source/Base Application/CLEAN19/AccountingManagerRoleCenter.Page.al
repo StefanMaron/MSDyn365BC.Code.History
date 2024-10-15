@@ -338,6 +338,14 @@ page 9001 "Accounting Manager Role Center"
                 RunObject = Page "Bank Account List";
                 ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
             }
+            action(BankDeposit)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposits Page";
+                ToolTip = 'Create a new bank deposit.';
+            }
             action("VAT Statements")
             {
                 ApplicationArea = Basic, Suite;
@@ -692,6 +700,13 @@ page 9001 "Accounting Manager Role Center"
                     RunObject = Page "Cost Budget Registers";
                     ToolTip = 'Get an overview of all cost budget entries sorted by posting date. ';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
             group(Administration)
             {
@@ -868,7 +883,7 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Adjust E&xchange Rates';
                 Ellipsis = true;
                 Image = AdjustExchangeRates;
-                RunObject = Report "Adjust Exchange Rates";
+                RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                 ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
             }
             action("P&ost Inventory Cost to G/L")
@@ -983,7 +998,7 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

@@ -1,4 +1,3 @@
-#if not CLEAN17
 table 1295 "Posted Payment Recon. Hdr"
 {
     Caption = 'Posted Payment Recon. Hdr';
@@ -11,7 +10,7 @@ table 1295 "Posted Payment Recon. Hdr"
         {
             Caption = 'Bank Account No.';
             NotBlank = true;
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
+            TableRelation = "Bank Account";
         }
         field(2; "Statement No."; Code[20])
         {
@@ -69,4 +68,4 @@ table 1295 "Posted Payment Recon. Hdr"
         exit('');
     end;
 }
-#endif
+

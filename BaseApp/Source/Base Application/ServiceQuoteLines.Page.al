@@ -395,26 +395,6 @@ page 5966 "Service Quote Lines"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Tariff No."; "Tariff No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a code for the item''s tariff number.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Statistic Indication"; "Statistic Indication")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the statistic indication code.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
             }
         }
         area(factboxes)
@@ -545,7 +525,7 @@ page 5966 "Service Quote Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()

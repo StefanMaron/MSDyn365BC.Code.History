@@ -2,7 +2,7 @@
 report 5607 "Fixed Asset - Projected Value"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CLEAN18/FixedAssetProjectedValue.rdlc';
+    RDLCLayout = './FixedAssetProjectedValue.rdlc';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Projected Value';
     UsageCategory = ReportsAndAnalysis;
@@ -668,7 +668,6 @@ report 5607 "Fixed Asset - Projected Value"
         CalculateDepr: Codeunit "Calculate Depreciation";
         FADateCalculation: Codeunit "FA Date Calculation";
         DepreciationCalculation: Codeunit "Depreciation Calculation";
-        DeprBookCode: Code[10];
         FAFilter: Text;
         DeprBookText: Text[50];
         GroupCodeName: Text[50];
@@ -689,9 +688,7 @@ report 5607 "Fixed Asset - Projected Value"
         Custom1DeprUntil: Date;
         PeriodLength: Integer;
         UseAccountingPeriod: Boolean;
-        StartingDate: Date;
         StartingDate2: Date;
-        EndingDate: Date;
         EndingDate2: Date;
         PrintAmountsPerDate: Boolean;
         UntilDate: Date;
@@ -737,6 +734,11 @@ report 5607 "Fixed Asset - Projected Value"
         FABufferProjectionFAPostingDateLbl: Label 'FA Posting Date';
         FABufferProjectionDepreciationLbl: Label 'Depreciation';
         FABufferProjectedValueLbl: Label 'Fixed Asset - Projected Value';
+
+    protected var
+        DeprBookCode: Code[10];
+        StartingDate: Date;
+        EndingDate: Date;
 
     local procedure SkipRecord(): Boolean
     begin
@@ -845,7 +847,7 @@ report 5607 "Fixed Asset - Projected Value"
             exit(FADateCalculation.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalculation.ToMorrow(PeriodEndingDate, Year365Days) + 1);
-        if AccountingPeriod.FindFirst then begin
+        if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
                 UntilDate2 := DepreciationCalculation.Yesterday(AccountingPeriod."Starting Date", Year365Days)
             else
@@ -1118,4 +1120,5 @@ report 5607 "Fixed Asset - Projected Value"
         TotalAmounts[1] := TotalAmounts[1] + DeprAmount;
     end;
 }
+
 #endif

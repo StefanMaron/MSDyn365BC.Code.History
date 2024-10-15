@@ -1,22 +1,15 @@
 table 31067 "VIES Declaration Line"
 {
     Caption = 'VIES Declaration Line';
-#if CLEAN17
     ObsoleteState = Removed;
-#else
-    ObsoleteState = Pending;
-#endif    
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-    ObsoleteTag = '17.0';
+    ObsoleteTag = '20.0';
 
     fields
     {
         field(1; "VIES Declaration No."; Code[20])
         {
             Caption = 'VIES Declaration No.';
-#if not CLEAN17
-            TableRelation = "VIES Declaration Header";
-#endif
         }
         field(2; "Trade Type"; Option)
         {
@@ -24,23 +17,6 @@ table 31067 "VIES Declaration Line"
             OptionCaption = 'Purchase,Sale, ';
             OptionMembers = Purchase,Sale," ";
             InitValue = " ";
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-
-                if "Trade Type" = "Trade Type"::" " then begin
-                    "Trade Role Type" := "Trade Role Type"::" ";
-                    "Number of Supplies" := 0;
-                    "Amount (LCY)" := 0;
-                end;
-
-                "Record Code" := "Record Code"::" ";
-                "VAT Reg. No. of Original Cust." := '';
-            end;
-#endif
         }
         field(6; "Line No."; Integer)
         {
@@ -51,13 +27,6 @@ table 31067 "VIES Declaration Line"
             Caption = 'Line Type';
             OptionCaption = 'New,Cancellation,Correction';
             OptionMembers = New,Cancellation,Correction;
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-            end;
-#endif
         }
         field(8; "Related Line No."; Integer)
         {
@@ -71,95 +40,33 @@ table 31067 "VIES Declaration Line"
         {
             Caption = 'Country/Region Code';
             TableRelation = "Country/Region";
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-            end;
-#endif
         }
         field(11; "VAT Registration No."; Text[20])
         {
             Caption = 'VAT Registration No.';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-                if "VAT Registration No." <> xRec."VAT Registration No." then
-                    "Corrected Reg. No." := true;
-            end;
-#endif
         }
         field(12; "Amount (LCY)"; Decimal)
         {
             Caption = 'Amount (LCY)';
             DecimalPlaces = 0 : 0;
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-                CheckTradeType();
-                if "Amount (LCY)" <> xRec."Amount (LCY)" then
-                    "Corrected Amount" := true;
-            end;
-#endif
         }
         field(13; "EU 3-Party Trade"; Boolean)
         {
             Caption = 'EU 3-Party Trade';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-            end;
-#endif
         }
         field(14; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-            end;
-#endif
         }
         field(15; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-            end;
-#endif
         }
         field(17; "Number of Supplies"; Decimal)
         {
             BlankNumbers = DontBlank;
             Caption = 'Number of Supplies';
             DecimalPlaces = 0 : 0;
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-                CheckTradeType();
-            end;
-#endif
         }
         field(20; "Corrected Reg. No."; Boolean)
         {
@@ -177,15 +84,6 @@ table 31067 "VIES Declaration Line"
             OptionCaption = 'Direct Trade,Intermediate Trade,Property Movement, ';
             OptionMembers = "Direct Trade","Intermediate Trade","Property Movement"," ";
             InitValue = " ";
-#if not CLEAN17
-
-            trigger OnValidate()
-            begin
-                TestStatusOpen();
-                CheckLineType();
-                CheckTradeType();
-            end;
-#endif
         }
         field(29; "System-Created"; Boolean)
         {
@@ -250,148 +148,4 @@ table 31067 "VIES Declaration Line"
     {
     }
 
-#if not CLEAN17
-    trigger OnDelete()
-    begin
-        TestStatusOpen();
-    end;
-
-    trigger OnInsert()
-    begin
-        TestStatusOpen();
-    end;
-
-    trigger OnModify()
-    begin
-        TestStatusOpen();
-        if ("Line Type" = "Line Type"::Cancellation) and (CurrFieldNo <> FieldNo("Line Type")) then
-            Error(CancelModifyErr);
-    end;
-
-    var
-        VIESDeclarationHeader: Record "VIES Declaration Header";
-        CancelModifyErr: Label 'You cannot change Cancellation line.';
-        CancelYesTxt: Label 'A', Comment = 'A';
-        CancelNoTxt: Label 'N', Comment = 'N';
-
-    local procedure TestStatusOpen()
-    begin
-        VIESDeclarationHeader.Get("VIES Declaration No.");
-        VIESDeclarationHeader.TestField(Status, VIESDeclarationHeader.Status::Open);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetTradeRole(): Code[10]
-    begin
-        case "Trade Role Type" of
-            "Trade Role Type"::"Direct Trade":
-                if (not "EU Service") and (not "EU 3-Party Intermediate Role") then
-                    exit('0');
-            "Trade Role Type"::"Property Movement":
-                exit('1');
-            "Trade Role Type"::"Intermediate Trade":
-                if (not "EU Service") then
-                    exit('2');
-        end;
-        if "EU Service" then
-            exit('3');
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetCancelCode(): Code[10]
-    begin
-        if "Line Type" = "Line Type"::Cancellation then
-            exit(CancelYesTxt);
-        exit(CancelNoTxt);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetVATRegNo(): Code[20]
-    begin
-        exit(FormatVATRegNo("VAT Registration No."));
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure GetOrigCustVATRegNo(): Code[20]
-    begin
-        exit(FormatVATRegNo("VAT Reg. No. of Original Cust."));
-    end;
-
-    local procedure FormatVATRegNo(VATRegNo: Code[20]): Code[20]
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        if "Country/Region Code" = '' then
-            exit(VATRegNo);
-
-        CountryRegion.Get("Country/Region Code");
-        if CopyStr(VATRegNo, 1, StrLen(CountryRegion."EU Country/Region Code")) = CountryRegion."EU Country/Region Code" then
-            exit(CopyStr(VATRegNo, StrLen(CountryRegion."EU Country/Region Code") + 1));
-        exit(VATRegNo);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure DrillDownAmountLCY()
-    var
-        VATEntry: Record "VAT Entry";
-        TempVATEntry: Record "VAT Entry" temporary;
-        VATPostingSetup: Record "VAT Posting Setup";
-        AddToDrillDown: Boolean;
-    begin
-        VIESDeclarationHeader.Get("VIES Declaration No.");
-
-        VATEntry.SetCurrentKey(Type, "Country/Region Code");
-        VATEntry.SetRange(Type, "Trade Type" + 1);
-        VATEntry.SetRange("Country/Region Code", "Country/Region Code");
-        VATEntry.SetRange("VAT Registration No.", "VAT Registration No.");
-        case "Trade Role Type" of
-            "Trade Role Type"::"Direct Trade":
-                VATEntry.SetRange("EU 3-Party Trade", false);
-            "Trade Role Type"::"Intermediate Trade":
-                VATEntry.SetRange("EU 3-Party Trade", true);
-            "Trade Role Type"::"Property Movement":
-                exit;
-        end;
-        VATEntry.SetRange("VAT Date", VIESDeclarationHeader."Start Date", VIESDeclarationHeader."End Date");
-        VATEntry.SetRange("EU Service", "EU Service");
-        if VATEntry.FindSet then
-            repeat
-                AddToDrillDown := false;
-                if VATPostingSetup.Get(VATEntry."VAT Bus. Posting Group", VATEntry."VAT Prod. Posting Group") then begin
-                    case "Trade Type" of
-                        "Trade Type"::Sale:
-                            AddToDrillDown := VATPostingSetup."VIES Sales";
-                        "Trade Type"::Purchase:
-                            AddToDrillDown := VATPostingSetup."VIES Purchases";
-                    end;
-                    if AddToDrillDown then begin
-                        TempVATEntry := VATEntry;
-                        TempVATEntry.Insert();
-                    end;
-                end;
-            until VATEntry.Next() = 0;
-
-        PAGE.Run(0, TempVATEntry);
-    end;
-
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
-    [Scope('OnPrem')]
-    procedure CheckLineType()
-    begin
-        if "Line Type" = "Line Type"::Cancellation then
-            Error(CancelModifyErr);
-    end;
-
-    local procedure CheckTradeType()
-    begin
-        if "Trade Type" = "Trade Type"::" " then
-            FieldError("Trade Type");
-    end;
-#endif
 }
-

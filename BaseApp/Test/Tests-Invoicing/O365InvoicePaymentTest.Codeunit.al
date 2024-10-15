@@ -29,7 +29,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PostedSalesDocumentNo: Code[20];
     begin
         // [SCENARIO] User pays an invoice with single click and NO dialogs
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice
@@ -51,7 +51,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PostedSalesDocumentNo: Code[20];
     begin
         // [SCENARIO] User cancels a paid invoice with single click and NO dialogs
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice
@@ -80,7 +80,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PostedSalesDocumentNo: Code[20];
     begin
         // [SCENARIO] User cancels an automatically paid invoice with single click and NO dialogs
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice that is automatically being paid
@@ -115,7 +115,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PostedSalesDocumentNo: Code[20];
     begin
         // [SCENARIO] User makes a partial payment for an invoice
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice
@@ -145,7 +145,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PostedSalesDocumentNo: Code[20];
     begin
         // [SCENARIO] User cancels a partial payment for an invoice
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice
@@ -184,7 +184,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         PaymentMethodCode: Code[10];
     begin
         // [SCENARIO 184609] Payment method specified for payment copied to the payment history
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
 
         // [GIVEN] A posted sales invoice
@@ -211,7 +211,7 @@ codeunit 138907 "O365 Invoice Payment Test"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Invoice Payment Test");
         LibraryVariableStorage.AssertEmpty;
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Invoice Payment Test");
@@ -219,7 +219,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         // Ensure WORKDATE does not drift too far from the accounting period start date
         AccountingPeriod.DeleteAll();
         AccountingPeriod.SetRange("New Fiscal Year", true);
-        if not AccountingPeriod.FindLast then begin
+        if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
             AccountingPeriod."New Fiscal Year" := true;
@@ -230,7 +230,7 @@ codeunit 138907 "O365 Invoice Payment Test"
         DeletePaymentMethodsNotForInvoicing;
 
         O365SalesInitialSetup.HideConfirmDialog;
-        O365SalesInitialSetup.Run;
+        O365SalesInitialSetup.Run();
         IsInitialized := true;
 
         if not O365C2GraphEventSettings.Get then
@@ -247,7 +247,7 @@ codeunit 138907 "O365 Invoice Payment Test"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", PostedSalesDocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreEqual(0, CustLedgerEntry."Closed by Entry No.", 'Invoice should not be paid.');
     end;
 
@@ -257,7 +257,7 @@ codeunit 138907 "O365 Invoice Payment Test"
     begin
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", PostedSalesDocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Assert.AreNotEqual(0, CustLedgerEntry."Closed by Entry No.", 'Invoice should be paid.');
         CustLedgerEntry.Get(CustLedgerEntry."Closed by Entry No.");
     end;

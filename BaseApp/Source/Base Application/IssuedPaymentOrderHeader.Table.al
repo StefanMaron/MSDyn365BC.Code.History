@@ -8,11 +8,12 @@ table 11710 "Issued Payment Order Header"
     Permissions = TableData "Issued Payment Order Header" = m,
                   TableData "Issued Payment Order Line" = md;
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -31,11 +32,7 @@ table 11710 "Issued Payment Order Header"
             Caption = 'Bank Account No.';
             Editable = true;
             NotBlank = true;
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(4; "Bank Account Name"; Text[100])
         {
@@ -63,7 +60,6 @@ table 11710 "Issued Payment Order Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
         }
-#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Issued Payment Order Line".Amount WHERE("Payment Order No." = FIELD("No."),
@@ -123,7 +119,6 @@ table 11710 "Issued Payment Order Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -274,7 +269,7 @@ table 11710 "Issued Payment Order Header"
         NavigatePage: Page Navigate;
     begin
         NavigatePage.SetDoc("Document Date", "No.");
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     [Scope('OnPrem')]
@@ -338,7 +333,7 @@ table 11710 "Issued Payment Order Header"
         GenJnlLn.FilterGroup(2);
         GenJnlLn.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLn.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        if GenJnlLn.FindLast then
+        if GenJnlLn.FindLast() then
             LineNo := GenJnlLn."Line No.";
 
         GenJnlLn.SetRange("Document No.", "No.");
@@ -356,9 +351,6 @@ table 11710 "Issued Payment Order Header"
 
                 GenJnlLn."Posting Date" := "Document Date";
                 GenJnlLn."Document Date" := "Document Date";
-#if not CLEAN17
-                GenJnlLn."VAT Date" := "Document Date";
-#endif
 
                 case IssuedPmtOrdLn.Type of
                     IssuedPmtOrdLn.Type::Vendor,

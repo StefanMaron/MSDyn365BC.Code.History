@@ -1,4 +1,4 @@
-﻿table 263 "Intrastat Jnl. Line"
+table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
 
@@ -198,9 +198,6 @@
                 "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
                 GetItemDescription;
                 // NAVCZ
-#if not CLEAN17
-                "Statistic Indication" := Item."Statistic Indication";
-#endif
                 "Specific Movement" := Item."Specific Movement";
                 // NAVCZ
 #endif
@@ -270,11 +267,12 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31061; "Source Entry Date"; Date)
         {
@@ -282,25 +280,24 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31062; "Statistic Indication"; Code[10])
         {
             Caption = 'Statistic Indication';
-#if not CLEAN17
-            TableRelation = "Statistic Indication".Code WHERE("Tariff No." = FIELD("Tariff No."));
-#endif
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31063; "Statistics Period"; Code[10])
         {
@@ -308,11 +305,12 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31065; "Declaration No."; Code[10])
         {
@@ -320,11 +318,12 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31066; "Statement Type"; Option)
         {
@@ -334,22 +333,24 @@
             OptionMembers = Primary,Null,Replacing,Deleting;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31067; "Prev. Declaration No."; Code[10])
         {
             Caption = 'Prev. Declaration No.';
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
 #if not CLEAN18
 
             trigger OnLookup()
@@ -377,11 +378,12 @@
             Caption = 'Prev. Declaration Line No.';
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
 #if not CLEAN18
 
             trigger OnLookup()
@@ -429,12 +431,13 @@
             Caption = 'Specific Movement';
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             TableRelation = "Specific Movement".Code;
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31071; "Supplem. UoM Code"; Code[10])
         {
@@ -443,11 +446,12 @@
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31072; "Supplem. UoM Quantity"; Decimal)
         {
@@ -456,11 +460,12 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31073; "Supplem. UoM Net Weight"; Decimal)
         {
@@ -469,11 +474,12 @@
             Editable = false;
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
         field(31074; "Base Unit of Measure"; Code[10])
         {
@@ -482,11 +488,12 @@
             TableRelation = "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."));
 #if CLEAN18
             ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
 #else
             ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
 #endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '18.0';
         }
     }
 
@@ -654,7 +661,7 @@
             if TemplateFilter <> '' then
                 IntrastatJnlBatch.SetFilter("Journal Template Name", TemplateFilter);
             IntrastatJnlBatch.SetFilter(Name, BatchFilter);
-            IntrastatJnlBatch.FindFirst;
+            IntrastatJnlBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -846,7 +853,7 @@
         exit('QV999999999999');
     end;
 
-    local procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
+    protected procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -855,7 +862,7 @@
         exit(false);
     end;
 
-    local procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
+    protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin
@@ -908,4 +915,3 @@
     end;
 #endif
 }
-

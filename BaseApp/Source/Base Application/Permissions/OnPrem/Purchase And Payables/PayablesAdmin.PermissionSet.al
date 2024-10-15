@@ -9,9 +9,6 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Currency for Fin. Charge Terms" = RIMD,
                   tabledata "Customized Calendar Change" = RIMD,
                   tabledata "Customized Calendar Entry" = RIMD,
-#if not CLEAN17
-                  tabledata "Document Footer" = RIMD,
-#endif
                   tabledata "Employee Posting Group" = RIMD,
                   tabledata "Finance Charge Terms" = RIMD,
                   tabledata "G/L Account" = R,
@@ -21,7 +18,9 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Gen. Journal Line" = MD,
                   tabledata "Gen. Journal Template" = RIMD,
                   tabledata "Item Charge" = RIMD,
+#if not CLEAN20
                   tabledata "Native - Payment" = MD,
+#endif
                   tabledata "Payment Method" = RIMD,
                   tabledata "Payment Terms" = RIMD,
                   tabledata "Purchases & Payables Setup" = RIMD,
@@ -33,7 +32,6 @@ permissionset 6092 "Payables - Admin"
                   tabledata "Return Reason" = RIMD,
                   tabledata "Salesperson/Purchaser" = RIMD,
                   tabledata "Shipment Method" = RIMD,
-                  tabledata "Social Listening Setup" = RIMD,
                   tabledata "Source Code Setup" = R,
                   tabledata "Standard Purchase Code" = RIMD,
                   tabledata "Standard Purchase Line" = RIMD,

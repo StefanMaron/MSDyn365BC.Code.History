@@ -22,7 +22,7 @@ codeunit 139166 "Integration Record Synch. Test"
         DestinationTableRecRef: RecordRef;
     begin
         // [SCENARIO] Synchronize Integration Table with Nav Table if destination record does not exist
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source row is filled, Destination row is empty
         PrepareSourceRowAndDestinationRefs(SourceTableRecRef, DestinationTableRecRef);
@@ -53,7 +53,7 @@ codeunit 139166 "Integration Record Synch. Test"
         SourceFieldRef: FieldRef;
     begin
         // [SCENARIO] Synchronize Integration Table with Nav Table if destination record already exists
-        Initialize;
+        Initialize();
 
         // [GIVEN] Source row is synced with Destination row once
         PrepareSourceRowAndDestinationRefs(SourceTableRecRef, DestinationTableRecRef);
@@ -105,7 +105,7 @@ codeunit 139166 "Integration Record Synch. Test"
         DestinationTableRecRef: RecordRef;
     begin
         // [SCENARIO] Synchronize Integration Table with Nav Table if parameters are not defined correctly
-        Initialize;
+        Initialize();
         Commit();
         // [GIVEN] Process parameters has not been set
         // [WHEN] Copying source row fields to Destination row
@@ -160,7 +160,7 @@ codeunit 139166 "Integration Record Synch. Test"
     begin
         // [FEATURE] [FlowField]
         // [SCENARIO] IntegrationRecordSynch should sync the value of calculated flowfield
-        Initialize;
+        Initialize();
         // [GIVEN] Destination row is empty
         ComparisonType.Init();
         DestinationRecordRef.GetTable(ComparisonType);

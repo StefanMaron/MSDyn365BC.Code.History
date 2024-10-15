@@ -17,48 +17,59 @@ codeunit 330 ReqJnlManagement
         LastReqLine: Record "Requisition Line";
         OpenFromBatch: Boolean;
 
-    procedure TemplateSelection(PageID: Integer; RecurringJnl: Boolean; Type: Option "Req.","For. Labor",Planning; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
+#if not CLEAN20
+    [Obsolete('Replaced by procedure WkshTemplateSelection()', '20.0')]
+    procedure TemplateSelection(PageID: Integer; RecurringJnl: Boolean; TemplateType: Option "Req.","For. Labor",Planning; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
+    begin
+        WkshTemplateSelection(
+            PageID, RecurringJnl, "Req. Worksheet Template Type".FromInteger(TemplateType), ReqLine, JnlSelected);
+    end;
+#endif
+
+    procedure WkshTemplateSelection(PageID: Integer; RecurringJnl: Boolean; TemplateType: Enum "Req. Worksheet Template Type"; var ReqLine: Record "Requisition Line"; var JnlSelected: Boolean)
     var
-        ReqWkshTmpl: Record "Req. Wksh. Template";
-        LocalText000: Label 'Req.,For. Labor,Planning';
+        ReqWkshTemplate: Record "Req. Wksh. Template";
     begin
         JnlSelected := true;
 
-        ReqWkshTmpl.Reset();
-        ReqWkshTmpl.SetRange("Page ID", PageID);
-        ReqWkshTmpl.SetRange(Recurring, RecurringJnl);
-        ReqWkshTmpl.SetRange(Type, Type);
-        OnTemplateSelectionSetFilter(ReqWkshTmpl, Type);
+        ReqWkshTemplate.Reset();
+        ReqWkshTemplate.SetRange("Page ID", PageID);
+        ReqWkshTemplate.SetRange(Recurring, RecurringJnl);
+        ReqWkshTemplate.SetRange(Type, TemplateType);
+#if not CLEAN20
+        OnTemplateSelectionSetFilter(ReqWkshTemplate, TemplateType);
+#endif        
+        OnWkshTemplateSelectionSetFilter(ReqWkshTemplate, TemplateType);
 
-        case ReqWkshTmpl.Count of
+        case ReqWkshTemplate.Count() of
             0:
                 begin
-                    ReqWkshTmpl.Init();
-                    ReqWkshTmpl.Recurring := RecurringJnl;
-                    ReqWkshTmpl.Type := Type;
+                    ReqWkshTemplate.Init();
+                    ReqWkshTemplate.Recurring := RecurringJnl;
+                    ReqWkshTemplate.Type := TemplateType;
                     if not RecurringJnl then begin
-                        ReqWkshTmpl.Name := CopyStr(Format(SelectStr(Type + 1, LocalText000)), 1, MaxStrLen(ReqWkshTmpl.Name));
-                        ReqWkshTmpl.Description := StrSubstNo(Text99000000, SelectStr(Type + 1, LocalText000));
+                        ReqWkshTemplate.Name := Format(TemplateType);
+                        ReqWkshTemplate.Description := StrSubstNo(Text99000000, Format(TemplateType));
                     end else begin
-                        ReqWkshTmpl.Name := Text002;
-                        ReqWkshTmpl.Description := Text99000001;
+                        ReqWkshTemplate.Name := Text002;
+                        ReqWkshTemplate.Description := Text99000001;
                     end;
-                    ReqWkshTmpl.Validate("Page ID");
-                    ReqWkshTmpl.Insert();
+                    ReqWkshTemplate.Validate("Page ID");
+                    ReqWkshTemplate.Insert();
                     Commit();
                 end;
             1:
-                ReqWkshTmpl.FindFirst;
+                ReqWkshTemplate.FindFirst();
             else
-                JnlSelected := PAGE.RunModal(0, ReqWkshTmpl) = ACTION::LookupOK;
+                JnlSelected := PAGE.RunModal(0, ReqWkshTemplate) = ACTION::LookupOK;
         end;
         if JnlSelected then begin
             ReqLine.FilterGroup := 2;
-            ReqLine.SetRange("Worksheet Template Name", ReqWkshTmpl.Name);
+            ReqLine.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
             ReqLine.FilterGroup := 0;
             if OpenFromBatch then begin
                 ReqLine."Worksheet Template Name" := '';
-                PAGE.Run(ReqWkshTmpl."Page ID", ReqLine);
+                PAGE.Run(ReqWkshTemplate."Page ID", ReqLine);
             end;
         end;
     end;
@@ -111,15 +122,15 @@ codeunit 330 ReqJnlManagement
         if not ReqWkshName.Find('-') then
             for ReqWkshTmpl.Type := ReqWkshTmpl.Type::"Req." to ReqWkshTmpl.Type::Planning do begin
                 ReqWkshTmpl.SetRange(Type, ReqWkshTmpl.Type);
-                if not ReqWkshTmpl.FindFirst then
-                    TemplateSelection(0, false, ReqWkshTmpl.Type, ReqLine, JnlSelected);
-                if ReqWkshTmpl.FindFirst then
+                if not ReqWkshTmpl.FindFirst() then
+                    WkshTemplateSelection(0, false, ReqWkshTmpl.Type, ReqLine, JnlSelected);
+                if ReqWkshTmpl.FindFirst() then
                     CheckTemplateName(ReqWkshTmpl.Name, ReqWkshName.Name);
                 if ReqWkshTmpl.Type in [ReqWkshTmpl.Type::"Req."] then begin
                     ReqWkshTmpl.SetRange(Recurring, true);
-                    if not ReqWkshTmpl.FindFirst then
-                        TemplateSelection(0, true, ReqWkshTmpl.Type, ReqLine, JnlSelected);
-                    if ReqWkshTmpl.FindFirst then
+                    if not ReqWkshTmpl.FindFirst() then
+                        WkshTemplateSelection(0, true, ReqWkshTmpl.Type, ReqLine, JnlSelected);
+                    if ReqWkshTmpl.FindFirst() then
                         CheckTemplateName(ReqWkshTmpl.Name, ReqWkshName.Name);
                     ReqWkshTmpl.SetRange(Recurring);
                 end;
@@ -135,7 +146,7 @@ codeunit 330 ReqJnlManagement
             ReqWkshTmpl.SetRange(Name, ReqWkshName.GetFilter("Worksheet Template Name"));
         case ReqWkshTmpl.Count of
             1:
-                ReqWkshTmpl.FindFirst;
+                ReqWkshTmpl.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, ReqWkshTmpl) = ACTION::LookupOK;
         end;
@@ -153,7 +164,7 @@ codeunit 330 ReqJnlManagement
     begin
         ReqWkshName.SetRange("Worksheet Template Name", CurrentJnlTemplateName);
         if not ReqWkshName.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not ReqWkshName.FindFirst then begin
+            if not ReqWkshName.FindFirst() then begin
                 ReqWkshName.Init();
                 ReqWkshName."Worksheet Template Name" := CurrentJnlTemplateName;
                 ReqWkshName.Name := Text004;
@@ -259,8 +270,16 @@ codeunit 330 ReqJnlManagement
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by event OnWkshTemplateSelectionSetFilter()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnTemplateSelectionSetFilter(var ReqWkshTemplate: Record "Req. Wksh. Template"; var Type: Option)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnWkshTemplateSelectionSetFilter(var ReqWkshTemplate: Record "Req. Wksh. Template"; var Type: Enum "Req. Worksheet Template Type")
     begin
     end;
 }

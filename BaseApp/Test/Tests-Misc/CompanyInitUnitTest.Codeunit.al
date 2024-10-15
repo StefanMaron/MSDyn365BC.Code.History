@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 134163 "Company Init Unit Test"
 {
     EventSubscriberInstance = Manual;
@@ -21,9 +22,13 @@ codeunit 134163 "Company Init Unit Test"
         InvPCostCodeTxt: Label 'INVTPCOST', Comment = 'Post Inventory to G/L';
         InvPCostValueTxt: Label 'Post Inventory Cost to G/L';
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
-        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates (Obsolet'; // NAVCZ
+#if not CLEAN18
+        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates (Obsolete)';
+#else
+        AdjExchRatesValueTxt: Label 'Adjust Exchange Rates';
+#endif
         ClsIncStmtCodeTxt: Label 'CLSINCOME', Comment = 'Close Income Statement';
-        ClsIncStmtValueTxt: Label 'Close Income Statement (Obsole'; // NAVCZ
+        ClsIncStmtValueTxt: Label 'Close Income Statement';
         ConsolidationCodeTxt: Label 'CONSOLID', Comment = 'Consolidation';
         ConsolidationValueTxt: Label 'Consolidation';
         GenJnlCodeTxt: Label 'GENJNL', Comment = 'General Journal';
@@ -48,10 +53,10 @@ codeunit 134163 "Company Init Unit Test"
         JobJnlValueTxt: Label 'Job Journals';
         SalesAppCodeTxt: Label 'SALESAPPL', Comment = 'Sales Entry Application';
         SalesAppValueTxt: Label 'Sales Entry Application';
-        PurchAppCodeTxt: Label 'PURCHAPPL', Comment = 'Pruchase Entry Applicaiton';
+        PurchAppCodeTxt: Label 'PURCHAPPL', Comment = 'Purchase Entry Applicaiton';
         PurchAppValueTxt: Label 'Purchase Entry Application';
         VatSettleCodeTxt: Label 'VATSTMT', Comment = 'Calculate and Post VAT Settlement';
-        VatSettleValueTxt: Label 'Calculate and Post VAT Settlem';
+        VatSettleValueTxt: Label 'Calculate and Post VAT Settlement';
         DateCompressGLCodeTxt: Label 'COMPRGL', Comment = 'Date Compress General Ledger';
         DateCompressGLValueTxt: Label 'Date Compress General Ledger';
         DateCompressVatCodeTxt: Label 'COMPRVAT', Comment = 'Date Compress VAT Entries';
@@ -64,8 +69,8 @@ codeunit 134163 "Company Init Unit Test"
         DateCompressRLValueTxt: Label 'Date Compress Resource Ledger';
         DateCompressJLCodeTxt: Label 'COMPRJOB', Comment = 'Date Compress Job Ledger';
         DateCompressJLValueTxt: Label 'Date Compress Job Ledge';
-        DateCompressBACodeTxt: Label 'COMPRBANK', Comment = 'Date Comrpess Bank Account Led';
-        DateCompressBAValueTxt: Label 'Date Compress Bank Account Led';
+        DateCompressBACodeTxt: Label 'COMPRBANK', Comment = 'Date Comrpess Bank Account Ledger';
+        DateCompressBAValueTxt: Label 'Date Compress Bank Account Ledger';
         DeleteCheckLedgerEntriesCodeTxt: Label 'COMPRCHECK', Comment = 'Date Compress Check Ledger Entries';
         DeleteCheckLedgerEntriesValueTxt: Label 'Delete Check Ledger Entries';
         FinVoidCheckCodeTxt: Label 'FINVOIDCHK', Comment = 'Financially Voided Checks';
@@ -104,10 +109,10 @@ codeunit 134163 "Company Init Unit Test"
         CapJnlValueTxt: Label 'Capacity Journals';
         WhseItemJnlCodeTxt: Label 'WHITEM', Comment = 'Warehouse Item journal';
         WhseItemJnlValueTxt: Label 'Warehouse Item Journal';
-        WhsePhysItemJnlCodeTxt: Label 'WHPHYSINVT', Comment = 'Warehouse Physical Item journal';
-        WhsePhysItemJnlValueTxt: Label 'Warehouse Physical Inventory J';
+        WhsePhysItemJnlCodeTxt: Label 'WHPHYSINVT', Comment = 'Warehouse Physical Inventory journal';
+        WhsePhysItemJnlValueTxt: Label 'Warehouse Physical Inventory Journal';
         WhseReclassJnlCodeTxt: Label 'WHRCLSSJNL', Comment = 'Whse. Reclassification Journal';
-        WhseReclassJnlValueTxt: Label 'Warehouse Reclassification Jou';
+        WhseReclassJnlValueTxt: Label 'Warehouse Reclassification Journals';
         ServiceMgtCodeTxt: Label 'SERVICE', Comment = 'Service Management';
         ServiceMgtValueTxt: Label 'Service Management';
         TransBankRecCodeTxt: Label 'BANKREC', Comment = 'Trans. Bank rec. to gen. jnml';
@@ -137,7 +142,7 @@ codeunit 134163 "Company Init Unit Test"
         WipECodeTxt: Label 'JOBGLWIP', Comment = 'WIP Entry';
         WipEValueTxt: Label 'WIP Entry';
         CompressItemBudgetCodeTxt: Label 'COMPRIBUDG', Locked = true;
-        CompressItemBudgetValueTxt: Label 'Date Compr. Item Budget Entrie';
+        CompressItemBudgetValueTxt: Label 'Date Compr. Item Budget Entries';
         CashFlowWorkCodeTxt: Label 'CFWKSH', Comment = 'Uppercase of the translation of cash flow work sheet with a max of 10 char';
         CashFlowWorkValueTxt: Label 'Cash Flow Worksheet';
         AssemblyCodeTxt: Label 'ASSEMBLY', Comment = 'Uppercase of the translation of assembly with a max of 10 char';
@@ -487,7 +492,7 @@ codeunit 134163 "Company Init Unit Test"
         CheckSourceCodeEntry(TransfBudCodeTxt, TransfBudValueTxt);
     end;
 
-    local procedure CheckSourceCodeEntry(RecCode: Code[10]; Value: Text[50])
+    local procedure CheckSourceCodeEntry(RecCode: Code[10]; Value: Text[100])
     var
         SourceCode: Record "Source Code";
     begin
@@ -504,7 +509,7 @@ codeunit 134163 "Company Init Unit Test"
         CheckStandardTextEntry(TravelExpensesCodeTxt, TravelExpensesValueTxt);
     end;
 
-    local procedure CheckStandardTextEntry(RecCode: Code[20]; Value: Text[50])
+    local procedure CheckStandardTextEntry(RecCode: Code[20]; Value: Text[100])
     var
         StandardText: Record "Standard Text";
     begin
@@ -540,132 +545,189 @@ codeunit 134163 "Company Init Unit Test"
     local procedure CheckReportSelections()
     var
         ReportSelections: Record "Report Selections";
-        AllObjWithCaption: Record AllObjWithCaption;
     begin
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31186) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', 31186) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1', REPORT::"Sales - Quote CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Blanket", '1', REPORT::"Blanket Sales Order");
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31187) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', 31187) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1', REPORT::"Order Confirmation CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Work Order", '1', REPORT::"Work Order");
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31189) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', 31189) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1', REPORT::"Sales - Invoice CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31188) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', 31188) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1', REPORT::"Return Order Confirmation CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31190) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', 31190) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1', REPORT::"Sales - Credit Memo CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31191) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', 31191) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1', REPORT::"Sales - Shipment CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31192) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', 31192) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1', REPORT::"Sales - Return Reciept CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Test", '1', REPORT::"Sales Document - Test");
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31184) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1', 31184) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1', REPORT::"Purchase - Quote CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Blanket", '1', REPORT::"Blanket Purchase Order");
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31185) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1', 31185) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1', REPORT::"Order CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Invoice", '1', REPORT::"Purchase - Invoice");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Return", '1', REPORT::"Return Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Cr.Memo", '1', REPORT::"Purchase - Credit Memo");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Receipt", '1', REPORT::"Purchase - Receipt");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Ret.Shpt.", '1', REPORT::"Purchase - Return Shipment");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Test", '1', REPORT::"Purchase Document - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"B.Stmt", '1', REPORT::"Bank Account Statement");
-        CheckReportSelectionEntry(ReportSelections.Usage::"B.Recon.Test", '1', REPORT::"Bank Acc. Recon. - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"B.Check", '1', REPORT::Check);
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31182) then
-            CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', 31182) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1', REPORT::"Reminder CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31183) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', 31183) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1', REPORT::"Finance Charge Memo CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"Rem.Test", '1', REPORT::"Reminder - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"F.C.Test", '1', REPORT::"Finance Charge Memo - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::Inv1, '1', REPORT::"Transfer Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::Inv2, '1', REPORT::"Transfer Shipment");
-        CheckReportSelectionEntry(ReportSelections.Usage::Inv3, '1', REPORT::"Transfer Receipt");
-        CheckReportSelectionEntry(ReportSelections.Usage::"Invt.Period Test", '1', REPORT::"Close Inventory Period - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"Prod.Order", '1', REPORT::"Prod. Order - Job Card");
-        CheckReportSelectionEntry(ReportSelections.Usage::M1, '1', REPORT::"Prod. Order - Job Card");
-        CheckReportSelectionEntry(ReportSelections.Usage::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
-        CheckReportSelectionEntry(ReportSelections.Usage::M3, '1', REPORT::"Prod. Order - Shortage List");
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31193) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', 31193) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1', REPORT::"Service Quote CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31194) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', 31194) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1', REPORT::"Service Order CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31197) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', 31197) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1', REPORT::"Service - Invoice CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31198) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', 31198) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31199) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', 31199) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1', REPORT::"Service - Shipment CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31195) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', 31195) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1', REPORT::"Service Contract Quote CZ"); // NAVCZ
-        if AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, 31196) then
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', 31196) // CZL
-        else
-            CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1', REPORT::"Service Contract CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Test", '1', REPORT::"Service Document - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"Asm.Order", '1', REPORT::"Assembly Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Asm.Order", '1', REPORT::"Posted Assembly Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Test Prepmt.", '1', REPORT::"Sales Prepmt. Document Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Test Prepmt.", '1', REPORT::"Purchase Prepmt. Doc. - Test");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Quote", '1', REPORT::"Archived Sales Quote");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Order", '1', REPORT::"Archived Sales Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Quote", '1', REPORT::"Archived Purchase Quote");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Order", '1', REPORT::"Archived Purchase Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Return", '1', REPORT::"Arch.Purch. Return Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1', REPORT::"Arch. Sales Return Order");
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1', REPORT::"Pick Instruction");
-        CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1', REPORT::"Standard Statement"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.Let", '1', Report::"Sales - Advance Letter CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.Inv", '1', Report::"Sales - Advance Invoice CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"S.Adv.CrM", '1', Report::"Sales - Advance Credit Memo CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.Let", '1', Report::"Purchase - Advance Letter CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.Inv", '1', Report::"Purchase - Advance Invoice CZ"); // NAVCZ
-        CheckReportSelectionEntry(ReportSelections.Usage::"P.Adv.CrM", '1', Report::"Purchase - Advance Cr. Memo CZ"); // NAVCZ
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Blanket", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Work Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Invoice", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Return", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Cr.Memo", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Shipment", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Ret.Rcpt.", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Blanket", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Invoice", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Return", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Cr.Memo", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Receipt", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Ret.Shpt.", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"B.Stmt", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"B.Recon.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"B.Check", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::Reminder, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"Fin.Charge", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"Rem.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"F.C.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::Inv1, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::Inv2, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::Inv3, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"Invt.Period Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"Prod.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::M1, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::M2, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::M3, '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Invoice", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Credit Memo", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Shipment", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"Asm.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Asm.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Test Prepmt.", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Test Prepmt.", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Quote", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Order", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"P.Arch.Return", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1');
     end;
 
-    local procedure CheckReportSelectionEntry(RecUsage: Enum "Report Selection Usage"; Sequence: Text; ReportId: Integer)
+    local procedure CheckReportSelectionEntry(RecUsage: Enum "Report Selection Usage"; Sequence: Text)
     var
         ReportSelections: Record "Report Selections";
+        ReportId: Integer;
     begin
+        ReportId := GetReportId(RecUsage, Sequence);
         ReportSelections.SetRange(Usage, RecUsage);
         ReportSelections.FindFirst();
         Assert.AreEqual(Sequence, ReportSelections.Sequence, ValuesAreNotEqualErr);
         Assert.AreEqual(ReportId, ReportSelections."Report ID", ValuesAreNotEqualErr);
+    end;
+
+    local procedure GetReportId(RecUsage: Enum "Report Selection Usage"; Sequence: Text) ReportId: Integer
+    begin
+        case RecUsage of
+            RecUsage::"S.Quote":
+                ReportId := Report::"Standard Sales - Quote";
+            RecUsage::"S.Blanket":
+                ReportId := Report::"Blanket Sales Order";
+            RecUsage::"S.Order":
+                ReportId := Report::"Standard Sales - Order Conf.";
+            RecUsage::"S.Work Order":
+                ReportId := Report::"Work Order";
+            RecUsage::"S.Invoice":
+                ReportId := Report::"Standard Sales - Invoice";
+            RecUsage::"S.Return":
+                ReportId := Report::"Return Order Confirmation";
+            RecUsage::"S.Cr.Memo":
+                ReportId := Report::"Standard Sales - Credit Memo";
+            RecUsage::"S.Shipment":
+                ReportId := Report::"Sales - Shipment";
+            RecUsage::"S.Ret.Rcpt.":
+                ReportId := Report::"Sales - Return Receipt";
+            RecUsage::"S.Test":
+                ReportId := Report::"Sales Document - Test";
+            RecUsage::"P.Quote":
+                ReportId := Report::"Purchase - Quote";
+            RecUsage::"P.Blanket":
+                ReportId := Report::"Blanket Purchase Order";
+            RecUsage::"P.Order":
+                ReportId := Report::Order;
+            RecUsage::"P.Invoice":
+                ReportId := Report::"Purchase - Invoice";
+            RecUsage::"P.Return":
+                ReportId := Report::"Return Order";
+            RecUsage::"P.Cr.Memo":
+                ReportId := Report::"Purchase - Credit Memo";
+            RecUsage::"P.Receipt":
+                ReportId := Report::"Purchase - Receipt";
+            RecUsage::"P.Ret.Shpt.":
+                ReportId := Report::"Purchase - Return Shipment";
+            RecUsage::"P.Test":
+                ReportId := Report::"Purchase Document - Test";
+            RecUsage::"B.Stmt":
+                ReportId := Report::"Bank Account Statement";
+            RecUsage::"B.Recon.Test":
+                ReportId := Report::"Bank Acc. Recon. - Test";
+            RecUsage::"B.Check":
+                ReportId := Report::Check;
+            RecUsage::Reminder:
+                ReportId := Report::Reminder;
+            RecUsage::"Fin.Charge":
+                ReportId := Report::"Finance Charge Memo";
+            RecUsage::"Rem.Test":
+                ReportId := Report::"Reminder - Test";
+            RecUsage::"F.C.Test":
+                ReportId := Report::"Finance Charge Memo - Test";
+            RecUsage::Inv1:
+                ReportId := Report::"Transfer Order";
+            RecUsage::Inv2:
+                ReportId := Report::"Transfer Shipment";
+            RecUsage::Inv3:
+                ReportId := Report::"Transfer Receipt";
+            RecUsage::"Invt.Period Test":
+                ReportId := Report::"Close Inventory Period - Test";
+            RecUsage::"Prod.Order":
+                ReportId := Report::"Prod. Order - Job Card";
+            RecUsage::M1:
+                ReportId := Report::"Prod. Order - Job Card";
+            RecUsage::M2:
+                ReportId := Report::"Prod. Order - Mat. Requisition";
+            RecUsage::M3:
+                ReportId := Report::"Prod. Order - Shortage List";
+            RecUsage::"SM.Quote":
+                ReportId := Report::"Service Quote";
+            RecUsage::"SM.Order":
+                ReportId := Report::"Service Order";
+            RecUsage::"SM.Invoice":
+                ReportId := Report::"Service - Invoice";
+            RecUsage::"SM.Credit Memo":
+                ReportId := Report::"Service - Credit Memo";
+            RecUsage::"SM.Shipment":
+                ReportId := Report::"Service - Shipment";
+            RecUsage::"SM.Contract Quote":
+                ReportId := Report::"Service Contract Quote";
+            RecUsage::"SM.Contract":
+                ReportId := Report::"Service Contract";
+            RecUsage::"SM.Test":
+                ReportId := Report::"Service Document - Test";
+            RecUsage::"Asm.Order":
+                ReportId := Report::"Assembly Order";
+            RecUsage::"P.Asm.Order":
+                ReportId := Report::"Posted Assembly Order";
+            RecUsage::"S.Test Prepmt.":
+                ReportId := Report::"Sales Prepmt. Document Test";
+            RecUsage::"P.Test Prepmt.":
+                ReportId := Report::"Purchase Prepmt. Doc. - Test";
+            RecUsage::"S.Arch.Quote":
+                ReportId := Report::"Archived Sales Quote";
+            RecUsage::"S.Arch.Order":
+                ReportId := Report::"Archived Sales Order";
+            RecUsage::"P.Arch.Quote":
+                ReportId := Report::"Archived Purchase Quote";
+            RecUsage::"P.Arch.Order":
+                ReportId := Report::"Archived Purchase Order";
+            RecUsage::"P.Arch.Return":
+                ReportId := Report::"Arch.Purch. Return Order";
+            RecUsage::"S.Arch.Return":
+                ReportId := Report::"Arch. Sales Return Order";
+            RecUsage::"S.Order Pick Instruction":
+                ReportId := Report::"Pick Instruction";
+            RecUsage::"C.Statement":
+                ReportId := Report::"Standard Statement";
+        end;
+
+        OnAfterGetReportId(RecUsage, Sequence, ReportId);
     end;
 
     local procedure CheckJobWIPMethods()
@@ -684,7 +746,7 @@ codeunit 134163 "Company Init Unit Test"
           JobWIPMethod."Recognized Sales"::"Percentage of Completion", 3);
     end;
 
-    local procedure CheckJobWIPMethodEntry(RecCode: Code[20]; Value: Text[50]; Costs: Option; Sales: Option; SystemIndex: Integer)
+    local procedure CheckJobWIPMethodEntry(RecCode: Code[20]; Value: Text[100]; Costs: Option; Sales: Option; SystemIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -1073,5 +1135,11 @@ codeunit 134163 "Company Init Unit Test"
         TempApplicationAreaBuffer.SetRange(Selected, false);
         Assert.RecordCount(TempApplicationAreaBuffer, 32);
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetReportId(RecUsage: Enum "Report Selection Usage"; Sequence: Text; var ReportId: Integer)
+    begin
+    end;
 }
 
+#endif

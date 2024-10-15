@@ -40,6 +40,8 @@ codeunit 905 "Assembly Line Management"
     local procedure SetLinkToBOM(AsmHeader: Record "Assembly Header"; var BOMComponent: Record "BOM Component")
     begin
         BOMComponent.SetRange("Parent Item No.", AsmHeader."Item No.");
+
+        OnAfterSetLinkToBOM(BOMComponent, AsmHeader);
     end;
 
     procedure GetNextAsmLineNo(var AsmLine: Record "Assembly Line"; AsmLineRecordIsTemporary: Boolean): Integer
@@ -117,14 +119,26 @@ codeunit 905 "Assembly Line Management"
             AssemblyLine.Position := BOMComponent.Position;
             AssemblyLine."Position 2" := BOMComponent."Position 2";
             AssemblyLine."Position 3" := BOMComponent."Position 3";
-            if "Location Code" <> '' then
-                if AssemblyLine.IsInventoriableItem() then
-                    AssemblyLine.Validate("Location Code", "Location Code");
+            UpdateAssemblyLineLocationCode(AssemblyHeader, AssemblyLine);
 
             OnAfterTransferBOMComponent(AssemblyLine, BOMComponent, AssemblyHeader);
 
             AssemblyLine.Modify(true);
         end;
+    end;
+
+    local procedure UpdateAssemblyLineLocationCode(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateAssemblyLineLocationCode(AssemblyHeader, AssemblyLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if AssemblyHeader."Location Code" <> '' then
+            if AssemblyLine.IsInventoriableItem() then
+                AssemblyLine.Validate("Location Code", AssemblyHeader."Location Code");
     end;
 
     procedure AddBOMLine(AsmHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component")
@@ -599,9 +613,9 @@ codeunit 905 "Assembly Line Management"
                 if ReplaceLinesFromBOM then
                     case TempNewAsmLine.Type of
                         TempNewAsmLine.Type::Item:
-                            TempNewAsmLine.CreateDim(DATABASE::Item, TempNewAsmLine."No.", NewHeaderSetID);
+                            TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                         TempNewAsmLine.Type::Resource:
-                            TempNewAsmLine.CreateDim(DATABASE::Resource, TempNewAsmLine."No.", NewHeaderSetID);
+                            TempNewAsmLine.CreateDimFromDefaultDim(NewHeaderSetID);
                     end
                 else begin
                     if UpdateDimension then
@@ -755,6 +769,11 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetLinkToBOM(var BOMComponent: Record "BOM Component"; var AssemblyHeader: Record "Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferBOMComponent(var AssemblyLine: Record "Assembly Line"; BOMComponent: Record "BOM Component"; AssemblyHeader: Record "Assembly Header")
     begin
     end;
@@ -795,6 +814,11 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAssemblyLineLocationCode(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAssemblyLineQuantity(AssemblyHeader: Record "Assembly Header"; var AssemblyLine: Record "Assembly Line"; var QtyRatio: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -825,7 +849,7 @@ codeunit 905 "Assembly Line Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateAssemblyLinesOnAfterCopyAssemblyData(var AssemblyLine: Record "Assembly Line"; ReplaceLinesFromBOM: Boolean)
+    local procedure OnUpdateAssemblyLinesOnAfterCopyAssemblyData(var AssemblyLine: Record "Assembly Line"; var ReplaceLinesFromBOM: Boolean)
     begin
     end;
 }

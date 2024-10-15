@@ -214,7 +214,7 @@ report 31072 "Sales Price Import/Export"
             ReadSheet;
 
             NoOfColumns := 14;
-            if FindLast then
+            if FindLast() then
                 NoOfRows := "Row No."
             else
                 Error(ExcelBuffEmptyErr);
@@ -367,7 +367,7 @@ report 31072 "Sales Price Import/Export"
                             WorkLFile.TextMode(true);
                             WorkLFile.WriteMode(true);
                             WorkLFile.Create(ServerFileName);
-                            if "Sales Price".FindSet then
+                            if "Sales Price".FindSet() then
                                 repeat
                                     WorkLFile.Write(ExpLine("Sales Price"));
                                 until "Sales Price".Next() = 0;

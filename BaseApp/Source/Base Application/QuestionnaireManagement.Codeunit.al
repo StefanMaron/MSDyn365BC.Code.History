@@ -42,13 +42,13 @@ codeunit 8610 "Questionnaire Management"
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
-        if ConfigQuestion.FindLast then
+        if ConfigQuestion.FindLast() then
             NextQuestionNo := ConfigQuestion."No." + 1
         else
             NextQuestionNo := 1;
 
         ConfigPackageMgt.SetFieldFilter(Field, ConfigQuestionArea."Table ID", 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 ConfigQuestion.Init();
                 ConfigQuestion."Questionnaire Code" := ConfigQuestionArea."Questionnaire Code";
@@ -90,7 +90,7 @@ codeunit 8610 "Questionnaire Management"
 
         ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
-        if ConfigQuestionArea.FindSet then begin
+        if ConfigQuestionArea.FindSet() then begin
             ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text008);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
@@ -147,7 +147,7 @@ codeunit 8610 "Questionnaire Management"
     begin
         ConfigQuestionArea.Reset();
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
-        if ConfigQuestionArea.FindSet then begin
+        if ConfigQuestionArea.FindSet() then begin
             ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text007);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
@@ -188,7 +188,7 @@ codeunit 8610 "Questionnaire Management"
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             ConfigQuestion.SetRange("Field ID", FieldRef.Number);
-            if ConfigQuestion.FindFirst then begin
+            if ConfigQuestion.FindFirst() then begin
                 ConfigValidateMgt.ValidateFieldValue(RecRef, FieldRef, ConfigQuestion.Answer, false, GlobalLanguage);
             end else
                 if KeyRef.FieldCount <> 1 then
@@ -216,7 +216,7 @@ codeunit 8610 "Questionnaire Management"
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
 
-        if ConfigQuestion.FindSet then
+        if ConfigQuestion.FindSet() then
             repeat
                 TempConfigPackageField.DeleteAll();
                 if ConfigQuestion.Answer <> '' then begin
@@ -277,7 +277,7 @@ codeunit 8610 "Questionnaire Management"
         CreateFieldSubtree(RecRef, DocumentNode);
 
         ConfigQuestionArea.SetRange("Questionnaire Code", ConfigQuestionnaire.Code);
-        if ConfigQuestionArea.FindSet then begin
+        if ConfigQuestionArea.FindSet() then begin
             ConfigProgressBar.Init(ConfigQuestionArea.Count, 1, Text001);
             repeat
                 ConfigProgressBar.Update(ConfigQuestionArea.Code);
@@ -435,7 +435,7 @@ codeunit 8610 "Questionnaire Management"
 
         ConfigQuestion.SetRange("Questionnaire Code", ConfigQuestionArea."Questionnaire Code");
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionArea.Code);
-        if ConfigQuestion.FindSet then
+        if ConfigQuestion.FindSet() then
             repeat
                 QuestionNode := QuestionnaireXML.CreateElement(GetElementName(ConfigQuestion.TableName));
                 QuestionAreaNode.AppendChild(QuestionNode);
@@ -636,7 +636,7 @@ codeunit 8610 "Questionnaire Management"
         FieldRef: FieldRef;
     begin
         ConfigPackageMgt.SetFieldFilter(Field, RecRef.Number, 0);
-        if Field.FindSet then
+        if Field.FindSet() then
             repeat
                 FieldRef := RecRef.Field(Field."No.");
                 if FieldNodeExists(RecordNode, GetElementName(FieldRef.Name)) then

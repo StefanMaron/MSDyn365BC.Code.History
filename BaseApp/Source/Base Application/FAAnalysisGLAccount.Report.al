@@ -186,7 +186,7 @@ report 31041 "FA - Analysis G/L Account"
                 if GetFilter("No.") = '' then
                     Error(Text001Err, TableCaption);
 
-                if "G/L Entry".FindLast then
+                if "G/L Entry".FindLast() then
                     LastGLEntry := "G/L Entry"."Entry No.";
             end;
         }

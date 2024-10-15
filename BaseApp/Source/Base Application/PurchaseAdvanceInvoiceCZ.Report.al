@@ -123,21 +123,12 @@ report 31021 "Purchase - Advance Invoice CZ"
             column(VATRegistrationNo_PurchInvHeader; "VAT Registration No.")
             {
             }
-#if CLEAN17
             column(RegistrationNo_PurchInvHeaderCaption; FieldCaptionDictionary.Get(RegistrationNoFldTok))
             {
             }
             column(RegistrationNo_PurchInvHeader; FieldValueDictionary.Get(RegistrationNoFldTok))
             {
             }
-#else
-            column(RegistrationNo_PurchInvHeaderCaption; FieldCaption("Registration No."))
-            {
-            }
-            column(RegistrationNo_PurchInvHeader; "Registration No.")
-            {
-            }
-#endif
 #if CLEAN18
             column(BankAccountNo_PurchInvHeaderCaption; FieldCaptionDictionary.Get(BankAccountNoFldTok))
             {
@@ -183,21 +174,12 @@ report 31021 "Purchase - Advance Invoice CZ"
             column(DocumentDate_PurchInvHeader; "Document Date")
             {
             }
-#if CLEAN17
             column(VATDate_PurchInvHeaderCaption; FieldCaptionDictionary.Get(VATDateFldTok))
             {
             }
             column(VATDate_PurchInvHeader; FieldValueDictionary.Get(VATDateFldTok))
             {
             }
-#else
-            column(VATDate_PurchInvHeaderCaption; FieldCaption("VAT Date"))
-            {
-            }
-            column(VATDate_PurchInvHeader; "VAT Date")
-            {
-            }
-#endif
             column(PaymentTerms; PaymentTerms.Description)
             {
             }
@@ -404,14 +386,7 @@ report 31021 "Purchase - Advance Invoice CZ"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-#if CLEAN17
-                DocFooterText := FormatDocument.GetDocumentFooterText("Language Code");
-#else
-                DocFooter.SetFilter("Language Code", '%1|%2', '', "Language Code");
-                if DocFooter.FindLast then
-                    DocFooterText := DocFooter."Footer Text"
-                else
-#endif
+                DocFooterText := FormatDocument.GetDocumentFooterTextByLanguage("Language Code");
                 DocFooterText := '';
 
                 if "Currency Code" = '' then
@@ -437,11 +412,9 @@ report 31021 "Purchase - Advance Invoice CZ"
                     PaymentMethod.Init
                 else
                     PaymentMethod.Get("Payment Method Code");
-#if CLEAN17
 
                 EnlistExtensionFields(FieldValueDictionary, FieldCaptionDictionary);
                 ExtensionFieldsManagement.GetRecordExtensionFields("Purch. Inv. Header".RecordId, FieldValueDictionary, FieldCaptionDictionary);
-#endif
             end;
         }
     }
@@ -481,20 +454,15 @@ report 31021 "Purchase - Advance Invoice CZ"
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         CurrExchRate: Record "Currency Exchange Rate";
-#if not CLEAN17
-        DocFooter: Record "Document Footer";
-#endif
         VATPostingSetup: Record "VAT Posting Setup";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
-#if CLEAN17
         FormatDocument: Codeunit "Format Document";
         ExtensionFieldsManagement: Codeunit "Extension Fields Management";
         FieldValueDictionary: Dictionary of [Text[30], Text];
         FieldCaptionDictionary: Dictionary of [Text[30], Text];
         RegistrationNoFldTok: Label 'Registration No. CZL', Locked = true;
         VATDateFldTok: Label 'VAT Date CZL', Locked = true;
-#endif
 #if CLEAN18
         BankAccountNoFldTok: Label 'Bank Account No. CZL', Locked = true;
         IBANFldTok: Label 'IBAN CZL', Locked = true;
@@ -534,7 +502,6 @@ report 31021 "Purchase - Advance Invoice CZ"
     begin
         exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
     end;
-#if CLEAN17
 
     local procedure EnlistExtensionFields(var FieldValueDictionary: Dictionary of [Text[30], Text]; var FieldCaptionDictionary: Dictionary of [Text[30], Text])
     begin
@@ -548,6 +515,5 @@ report 31021 "Purchase - Advance Invoice CZ"
 
         ExtensionFieldsManagement.CopyDictionaryKeys(FieldValueDictionary, FieldCaptionDictionary);
     end;
-#endif    
 }
 #endif

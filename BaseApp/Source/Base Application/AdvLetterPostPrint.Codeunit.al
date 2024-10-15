@@ -307,7 +307,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
     begin
         AdvLetterPostPrint := Subscriber;
         PreviewMode := true;
-        Result := AdvLetterPostPrint.Run;
+        Result := AdvLetterPostPrint.Run();
     end;
 
     [IntegrationEvent(false, false)]

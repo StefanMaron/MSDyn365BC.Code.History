@@ -1,7 +1,6 @@
-#if not CLEAN17
 report 296 "Batch Post Sales Orders"
 {
-    Caption = 'Batch Post Sales Orders (Obsolete)';
+    Caption = 'Batch Post Sales Orders';
     ProcessingOnly = true;
 
     dataset
@@ -15,18 +14,15 @@ report 296 "Batch Post Sales Orders"
             trigger OnPreDataItem()
             var
                 SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.";
+                IsHandled: Boolean;
             begin
-                OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq);
-
-                if ReplaceVATDate and (VATDateReq = 0D) then
-                    Error(EnterVATDateErr);
-
-                SalesBatchPostMgt.AddParameter("Batch Posting Parameter Type"::"Replace VAT Date", ReplaceVATDate);
-                SalesBatchPostMgt.AddParameter("Batch Posting Parameter Type"::"VAT Date", VATDateReq);
-
-                SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
-                SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
-
+                IsHandled := false;
+                OnBeforeSalesBatchPostMgt("Sales Header", ShipReq, InvReq, SalesBatchPostMgt, IsHandled);
+                if not IsHandled then begin
+                    SalesBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
+                    SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
+                end;
+                OnAfterSalesBatchPostMgt("Sales Header", SalesBatchPostMgt);
                 CurrReport.Break();
             end;
         }
@@ -60,21 +56,6 @@ report 296 "Batch Post Sales Orders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the date that the program will use as the document and/or posting date when you post if you place a checkmark in one or both of the following boxes.';
-
-                        trigger OnValidate()
-                        begin
-                            VATDateReq := PostingDateReq; // NAVCZ
-                        end;
-                    }
-                    field(VATDate; VATDateReq)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'VAT Date';
-                        ToolTip = 'Specifies VAT Date for posting.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = UseVATDate;
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
                     {
@@ -93,16 +74,6 @@ report 296 "Batch Post Sales Orders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace Document Date';
                         ToolTip = 'Specifies if you want to replace the sales orders'' document date with the date in the Posting Date field.';
-                    }
-                    field(ReplaceVATDate; ReplaceVATDate)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Replace VAT Date';
-                        ToolTip = 'Specifies if the new VAT date will be applied.';
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = UseVATDate;
                     }
                     field(CalcInvDisc; CalcInvDisc)
                     {
@@ -157,8 +128,6 @@ report 296 "Batch Post Sales Orders"
                 PrintDoc := false;
                 PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
             end;
-            SetControlVisibility; // NAVCZ
-            
             OnAfterOnOpenPage(ShipReq, InvReq, PostingDateReq, ReplacePostingDate, ReplaceDocumentDate, CalcInvDisc);
         end;
     }
@@ -169,20 +138,17 @@ report 296 "Batch Post Sales Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will not apply to the sales lines.';
-        ShipReq: Boolean;
-        InvReq: Boolean;
-        PostingDateReq: Date;
-        VATDateReq: Date;
-        ReplacePostingDate: Boolean;
-        ReplaceDocumentDate: Boolean;
-        ReplaceVATDate: Boolean;
-        [InDataSet]
-        UseVATDate: Boolean;
-        CalcInvDisc: Boolean;
         PrintDoc: Boolean;
         [InDataSet]
         PrintDocVisible: Boolean;
-        EnterVATDateErr: Label 'Enter the VAT date.';
+
+    protected var
+        ShipReq: Boolean;
+        InvReq: Boolean;
+        PostingDateReq: Date;
+        ReplacePostingDate: Boolean;
+        ReplaceDocumentDate: Boolean;
+        CalcInvDisc: Boolean;
 
     procedure InitializeRequest(ShipParam: Boolean; InvoiceParam: Boolean; PostingDateParam: Date; ReplacePostingDateParam: Boolean; ReplaceDocumentDateParam: Boolean; CalcInvDiscParam: Boolean)
     begin
@@ -194,23 +160,19 @@ report 296 "Batch Post Sales Orders"
         CalcInvDisc := CalcInvDiscParam;
     end;
 
-    local procedure SetControlVisibility()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        UseVATDate := GLSetup."Use VAT Date";
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnOpenPage(var ShipReq: Boolean; var InvReq: Boolean; var PostingDateReq: Date; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var CalcInvDisc: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean)
+    local procedure OnBeforeSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var ShipReq: Boolean; var InvReq: Boolean; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesBatchPostMgt(var SalesHeader: Record "Sales Header"; var SalesBatchPostMgt: Codeunit "Sales Batch Post Mgt.")
     begin
     end;
 }
-#endif
+

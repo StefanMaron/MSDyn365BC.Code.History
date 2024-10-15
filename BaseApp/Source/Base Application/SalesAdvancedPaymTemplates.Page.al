@@ -30,7 +30,7 @@ page 31010 "Sales Advanced Paym. Templates"
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer s market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customer s market type to link business transactions to.';
                     Visible = false;
                 }
                 field("Amounts Including VAT"; "Amounts Including VAT")

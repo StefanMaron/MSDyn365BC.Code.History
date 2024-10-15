@@ -76,12 +76,6 @@ codeunit 483 "Change Global Dimensions"
                   TableData "Return Shipment Line" = rm,
                   TableData "Return Receipt Header" = rm,
                   TableData "Return Receipt Line" = rm,
-#if not CLEAN17
-                  TableData "Cash Document Header" = rm,
-                  TableData "Cash Document Line" = rm,
-                  TableData "Posted Cash Document Header" = rm,
-                  TableData "Posted Cash Document Line" = rm,
-#endif
                   TableData "Sales Advance Letter Header" = rm,
                   TableData "Sales Advance Letter Line" = rm,
                   TableData "Purch. Advance Letter Header" = rm,
@@ -569,7 +563,7 @@ codeunit 483 "Change Global Dimensions"
     begin
         with DependentChangeGlobalDimLogEntry do begin
             SetRange("Parent Table ID", ChangeGlobalDimLogEntry."Table ID");
-            if FindSet then
+            if FindSet() then
                 repeat
                     "Task ID" := ChangeGlobalDimLogEntry."Task ID";
                     Validate("Completed Records", 0);
@@ -660,7 +654,7 @@ codeunit 483 "Change Global Dimensions"
                 ChangeGlobalDimLogEntry.Insert();
             until TempAllObjWithCaption.Next() = 0;
 
-            if TempParentTableInteger.FindSet then
+            if TempParentTableInteger.FindSet() then
                 repeat
                     if ChangeGlobalDimLogEntry.Get(TempParentTableInteger.Number) then begin
                         ChangeGlobalDimLogEntry."Is Parent Table" := true;
@@ -682,7 +676,7 @@ codeunit 483 "Change Global Dimensions"
         if IsHandled then
             exit;
 
-        if RecRef.FindFirst then
+        if RecRef.FindFirst() then
             RecRef.Modify();
     end;
 

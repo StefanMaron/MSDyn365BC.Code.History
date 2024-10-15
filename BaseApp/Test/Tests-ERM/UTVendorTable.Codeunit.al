@@ -1,4 +1,4 @@
-codeunit 134824 "UT Vendor Table"
+﻿codeunit 134824 "UT Vendor Table"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;
@@ -34,7 +34,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text[50];
         RandomText2: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1."No.") / 2), 1, MaxStrLen(RandomText1));
@@ -56,7 +56,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1."No.") / 2 - 1), 1, MaxStrLen(RandomText1));
@@ -78,7 +78,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1."No.") / 2 - 2);
@@ -100,7 +100,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text[50];
         RandomText2: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1.Name) / 2), 1, MaxStrLen(RandomText1));
@@ -122,7 +122,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1.Name) / 2), 1, MaxStrLen(RandomText1));
@@ -144,7 +144,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1.Name) / 2);
@@ -163,7 +163,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -181,7 +181,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor: Record Vendor;
         RandomText: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -199,7 +199,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -216,7 +216,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -233,7 +233,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorFromName(Vendor, VendorNameWithFilterCharsTxt);
@@ -249,7 +249,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         // Offset the random
         LibraryUtility.GenerateRandomText(1);
 
@@ -269,10 +269,10 @@ codeunit 134824 "UT Vendor Table"
         Vendor: Record Vendor;
         NoneExistingVendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
-        NoneExistingVendorNo := LibraryPurchase.CreateVendorNo;
+        NoneExistingVendorNo := LibraryPurchase.CreateVendorNo();
         Vendor.Get(NoneExistingVendorNo);
         Vendor.Delete();
 
@@ -292,7 +292,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1."No.") / 2 - 3);
@@ -317,7 +317,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text;
         RandomText2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         RandomText1 := LibraryUtility.GenerateRandomText(MaxStrLen(Vendor1."No.") / 2 - 3);
@@ -336,7 +336,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -352,7 +352,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -368,7 +368,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -384,7 +384,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -400,7 +400,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -416,7 +416,7 @@ codeunit 134824 "UT Vendor Table"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -437,8 +437,8 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Contact] [Marketing Setup]
         // [SCENARIO 231916] When "Bus. Relation Code" is empty in Marketing Setup and random text is inserted into Vendor Contact field then "Primary Contact No." and Contact fields are not cleared.
-        Initialize;
-        ExpectedPrimaryContactNo := LibraryUtility.GenerateGUID;
+        Initialize();
+        ExpectedPrimaryContactNo := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "Bus. Relation Code" = '' in Marketing Setup
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", '');
@@ -469,7 +469,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -483,7 +483,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Quote]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Quote.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Quote for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -497,7 +497,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Credit Memo.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Credit Memo for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -511,7 +511,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Order]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -525,7 +525,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Return Order]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Return Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Return Order for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -539,7 +539,7 @@ codeunit 134824 "UT Vendor Table"
     begin
         // [FEATURE] [Purchase] [Blanket Order]
         // [SCENARIO 235731] The error is shown when trying to delete Vendor with outstanding Purchase Blanket Order.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Blanket Order for Vendor "V"
         // [WHEN] Trying to delete "V"
@@ -554,7 +554,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor: Record Vendor;
     begin
         // [SCENARIO 321935] The error is shown when trying to enter letters in the Phone No. field.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created a Vendor
         LibraryPurchase.CreateVendor(Vendor);
@@ -578,7 +578,7 @@ codeunit 134824 "UT Vendor Table"
         RandomText1: Text[100];
         RandomText2: Text[100];
     begin
-        Initialize;
+        Initialize();
 
         RandomText1 := 'aaa';
         RandomText2 := 'AAA';
@@ -699,12 +699,14 @@ codeunit 134824 "UT Vendor Table"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT Vendor Table");
         Vendor.DeleteAll();
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibrarySetupStorage.Restore;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT Vendor Table");
+
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");

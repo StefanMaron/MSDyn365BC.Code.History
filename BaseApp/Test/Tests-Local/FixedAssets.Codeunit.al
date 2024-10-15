@@ -36,7 +36,7 @@ codeunit 144300 "Fixed Assets"
         FAJournalSetup: Record "FA Journal Setup";
         DepreciationBook: Record "Depreciation Book";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -98,7 +98,7 @@ codeunit 144300 "Fixed Assets"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Get FA Setup
         FASetup.Get();
@@ -139,7 +139,7 @@ codeunit 144300 "Fixed Assets"
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         FALedgerEntry.SetRange("Depreciation Book Code", FASetup."Tax Depr. Book");
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
     end;
 
     [Test]
@@ -156,7 +156,7 @@ codeunit 144300 "Fixed Assets"
     begin
         // Test the Posting of Calculated Depreciation with use Depreciation Group of Straight-line type with Interruption
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Get FA Setup
         FASetup.Get();
@@ -199,7 +199,7 @@ codeunit 144300 "Fixed Assets"
         FALedgerEntry.SetRange("FA No.", FixedAsset."No.");
         FALedgerEntry.SetRange("Depreciation Book Code", FASetup."Tax Depr. Book");
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::Depreciation);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FALedgerEntry.TestField(Amount, 0);
     end;
 
@@ -215,7 +215,7 @@ codeunit 144300 "Fixed Assets"
     begin
         // Verify that change of Responsible Employee or FA Location Code on the Fixed Asset Card will cause creation FA HIstory Entry
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         UpdateFASetupWithFAHistory(true);
         CreateEmployee(Employee);
@@ -231,11 +231,11 @@ codeunit 144300 "Fixed Assets"
         FAHistoryEntry.SetCurrentKey("FA No.");
         FAHistoryEntry.SetRange("FA No.", FixedAsset."No.");
         FAHistoryEntry.SetRange(Type, FAHistoryEntry.Type::"Responsible Employee");
-        FAHistoryEntry.FindFirst;
+        FAHistoryEntry.FindFirst();
         FAHistoryEntry.TestField("New Value", Employee."No.");
 
         FAHistoryEntry.SetRange(Type, FAHistoryEntry.Type::Location);
-        FAHistoryEntry.FindFirst;
+        FAHistoryEntry.FindFirst();
         FAHistoryEntry.TestField("New Value", FALocation.Code);
 
         // 4.Teardown
@@ -258,7 +258,7 @@ codeunit 144300 "Fixed Assets"
         // Test the Posting of Fixed Asset Disposal, change field "Disposed" on the FA Depreciation Book and
         // creation G/L Entry with G/L Account from FA Extended Posting Group
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Depreciation Book
         CreateDepreciationBook(DepreciationBook);
@@ -301,7 +301,7 @@ codeunit 144300 "Fixed Assets"
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Posting Date", GenJournalLine."Posting Date");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("G/L Account No.", FAExtendedPostingGroup."Sales Acc. On Disp. (Gain)");
     end;
 
@@ -391,7 +391,7 @@ codeunit 144300 "Fixed Assets"
         DepreciationBook.Modify(true);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBook.Code);
-        if FAPostingTypeSetup.FindSet then
+        if FAPostingTypeSetup.FindSet() then
             repeat
                 FAPostingTypeSetup."Include in Gain/Loss Calc." := true;
                 FAPostingTypeSetup.Modify();
@@ -608,7 +608,7 @@ codeunit 144300 "Fixed Assets"
         FAJournalSetup.Get(DepreciationBookCode, UserId);
         FAJournalLine.SetRange("Journal Template Name", FAJournalSetup."FA Jnl. Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalSetup."FA Jnl. Batch Name");
-        FAJournalLine.FindFirst;
+        FAJournalLine.FindFirst();
 
         FAJournalBatch.Get(FAJournalLine."Journal Template Name", FAJournalLine."Journal Batch Name");
         FAJournalBatch.Validate("No. Series", '');

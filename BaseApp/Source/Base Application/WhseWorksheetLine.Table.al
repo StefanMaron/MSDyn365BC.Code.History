@@ -435,7 +435,9 @@ table 7326 "Whse. Worksheet Line"
             IF ("Whse. Document Type" = CONST(Production)) "Production Order"."No." WHERE("No." = FIELD("Whse. Document No."))
             ELSE
             IF ("Whse. Document Type" = CONST(Assembly)) "Assembly Header"."No." WHERE("Document Type" = CONST(Order),
-                                                                                                           "No." = FIELD("Whse. Document No."));
+                                                                                                           "No." = FIELD("Whse. Document No."))
+            else
+            if ("Whse. Document Type" = const(Job)) Job."No." where("No." = field("Whse. Document No."));
         }
         field(48; "Whse. Document Line No."; Integer)
         {
@@ -460,7 +462,10 @@ table 7326 "Whse. Worksheet Line"
             ELSE
             IF ("Whse. Document Type" = CONST(Assembly)) "Assembly Line"."Line No." WHERE("Document Type" = CONST(Order),
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          "Document No." = FIELD("Whse. Document No."),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Line No." = FIELD("Whse. Document Line No."));
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         "Line No." = FIELD("Whse. Document Line No."))
+            else
+            if ("Whse. Document Type" = const(Job)) "Job Planning Line"."Job Contract Entry No." where("Job No." = field("Whse. Document No."),
+                                                                                          "Job Contract Entry No." = field("Whse. Document Line No."));
         }
         field(50; "Qty. Rounding Precision"; Decimal)
         {
@@ -935,7 +940,7 @@ table 7326 "Whse. Worksheet Line"
             exit;
 
         CreatePutAwayFromWhseSource.SetWhseWkshLine(WhsePutAwayWkshLine);
-        CreatePutAwayFromWhseSource.RunModal;
+        CreatePutAwayFromWhseSource.RunModal();
         CreatePutAwayFromWhseSource.GetResultMessage(1);
         Clear(CreatePutAwayFromWhseSource);
     end;
@@ -951,7 +956,7 @@ table 7326 "Whse. Worksheet Line"
             exit;
 
         CreateMovFromWhseSource.SetWhseWkshLine(WhseWkshLine);
-        CreateMovFromWhseSource.RunModal;
+        CreateMovFromWhseSource.RunModal();
         CreateMovFromWhseSource.GetResultMessage(3);
         Clear(CreateMovFromWhseSource);
     end;
@@ -991,7 +996,7 @@ table 7326 "Whse. Worksheet Line"
                     Commit();
                 end;
             1:
-                WhseWkshTemplate.FindFirst;
+                WhseWkshTemplate.FindFirst();
             else
                 WhseWkshSelected := PAGE.RunModal(0, WhseWkshTemplate) = ACTION::LookupOK;
         end;
@@ -1060,9 +1065,9 @@ table 7326 "Whse. Worksheet Line"
         if not WhseWkshName.Find('-') then
             for WhseWkshTemplate.Type := WhseWkshTemplate.Type::"Put-away" to WhseWkshTemplate.Type::Movement do begin
                 WhseWkshTemplate.SetRange(Type, WhseWkshTemplate.Type);
-                if not WhseWkshTemplate.FindFirst then
+                if not WhseWkshTemplate.FindFirst() then
                     TemplateSelection(0, WhseWkshTemplate.Type.AsInteger(), WhseWkshLine, JnlSelected);
-                if WhseWkshTemplate.FindFirst then begin
+                if WhseWkshTemplate.FindFirst() then begin
                     if WhseWkshName."Location Code" = '' then
                         WhseWkshName."Location Code" := WmsMgt.GetDefaultLocation;
                     CheckTemplateName(WhseWkshTemplate.Name, WhseWkshName.Name, WhseWkshName."Location Code");
@@ -1077,7 +1082,7 @@ table 7326 "Whse. Worksheet Line"
             WhseWkshTemplate.SetRange(Name, WhseWkshName.GetFilter("Worksheet Template Name"));
         case WhseWkshTemplate.Count of
             1:
-                WhseWkshTemplate.FindFirst;
+                WhseWkshTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, WhseWkshTemplate) = ACTION::LookupOK;
         end;
@@ -1112,7 +1117,7 @@ table 7326 "Whse. Worksheet Line"
                 CurrentLocationCode := WmsMgt.GetDefaultLocation;
                 WhseWkshName.SetRange("Location Code", CurrentLocationCode);
             end;
-            if not WhseWkshName.FindFirst then begin
+            if not WhseWkshName.FindFirst() then begin
                 if UserId <> '' then begin
                     WhseEmployee.SetCurrentKey(Default);
                     WhseEmployee.SetRange(Default, false);
@@ -1120,7 +1125,7 @@ table 7326 "Whse. Worksheet Line"
                     if WhseEmployee.Find('-') then
                         repeat
                             WhseWkshName.SetRange("Location Code", WhseEmployee."Location Code");
-                            FoundLocation := WhseWkshName.FindFirst;
+                            FoundLocation := WhseWkshName.FindFirst();
                         until (WhseEmployee.Next() = 0) or FoundLocation;
                 end;
                 if not FoundLocation then begin
@@ -1297,7 +1302,7 @@ table 7326 "Whse. Worksheet Line"
                 WhseItemTrackingForm.SetSource(Rec, DATABASE::"Whse. Worksheet Line");
         end;
 
-        WhseItemTrackingForm.RunModal;
+        WhseItemTrackingForm.RunModal();
     end;
 
     procedure AvailableQtyToPick(): Decimal
@@ -1421,7 +1426,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWorksheetLine2: Record "Whse. Worksheet Line";
     begin
         WhseWorksheetLine2.CopyFilters(WhseWorksheetLine);
-        if WhseWorksheetLine2.FindLast then
+        if WhseWorksheetLine2.FindLast() then
             exit(WhseWorksheetLine2."Line No.");
         exit(0);
     end;
@@ -1492,7 +1497,7 @@ table 7326 "Whse. Worksheet Line"
         WhseWorksheetLine2.SetRecFilter;
         WhseWorksheetLine2.SetRange("Line No.");
         WhseWorksheetLine2.SetCurrentKey("Worksheet Template Name", Name, "Location Code", "Sorting Sequence No.");
-        if WhseWorksheetLine2.FindLast then
+        if WhseWorksheetLine2.FindLast() then
             exit(WhseWorksheetLine2."Sorting Sequence No.");
         exit(0);
     end;
@@ -1564,18 +1569,6 @@ table 7326 "Whse. Worksheet Line"
         if BinCode <> '' then
             Validate("From Bin Code", BinCode);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by LookupItemTracking()', '17.0')]
-    procedure RetrieveItemTracking(var LotNo: Code[50]; var SerialNo: Code[50])
-    var
-        WhseItemTrackingSetup: Record "Item Tracking Setup";
-    begin
-        LookupItemTracking(WhseItemTrackingSetup);
-        SerialNo := WhseItemTrackingSetup."Serial No.";
-        LotNo := WhseItemTrackingSetup."Lot No.";
-    end;
-#endif
 
     procedure LookupItemTracking(var WhseItemTrackingSetup: Record "Item Tracking Setup")
     var

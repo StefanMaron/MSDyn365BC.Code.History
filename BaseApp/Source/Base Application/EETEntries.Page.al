@@ -161,12 +161,11 @@ page 31123 "EET Entries"
                 Caption = 'Show Document';
                 Image = Document;
                 ToolTip = 'Displays the document related to the entry.';
-#if not CLEAN17
+
                 trigger OnAction()
                 begin
-                    ShowDocument;
+                    exit;
                 end;
-#endif
             }
         }
         area(processing)
@@ -241,7 +240,7 @@ page 31123 "EET Entries"
                         EETEntry := Rec;
                         EETEntry.SetRecFilter;
                         EETConfirmation.SetTableView(EETEntry);
-                        EETConfirmation.RunModal;
+                        EETConfirmation.RunModal();
                     end;
                 }
             }

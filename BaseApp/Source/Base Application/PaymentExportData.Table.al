@@ -47,11 +47,7 @@ table 1226 "Payment Export Data"
         field(30; "Sender Bank Account Code"; Code[20])
         {
             Caption = 'Sender Bank Account Code';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(31; "Sender Bank Account No."; Text[50])
         {
@@ -525,7 +521,7 @@ table 1226 "Payment Export Data"
     begin
         if NewText = '' then
             exit;
-        if TempPaymentExportRemittanceText.FindLast then;
+        if TempPaymentExportRemittanceText.FindLast() then;
         TempPaymentExportRemittanceText."Pmt. Export Data Entry No." := "Entry No.";
         TempPaymentExportRemittanceText."Line No." += 1;
         if PreserveNonLatinCharacters then
@@ -537,7 +533,7 @@ table 1226 "Payment Export Data"
 
     procedure GetRemittanceTexts(var PaymentExportRemittanceText: Record "Payment Export Remittance Text")
     begin
-        if TempPaymentExportRemittanceText.FindSet then
+        if TempPaymentExportRemittanceText.FindSet() then
             repeat
                 PaymentExportRemittanceText := TempPaymentExportRemittanceText;
                 PaymentExportRemittanceText.Insert();
@@ -731,4 +727,3 @@ table 1226 "Payment Export Data"
     begin
     end;
 }
-

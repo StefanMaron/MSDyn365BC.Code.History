@@ -6,11 +6,12 @@ table 11704 "Bank Statement Header"
     DrillDownPageID = "Bank Statement List";
     LookupPageID = "Bank Statement List";
     ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
 #else
     ObsoleteState = Removed;
+    ObsoleteTag = '22.0';
 #endif
     ObsoleteReason = 'Moved to Banking Documents Localization for Czech.';
-    ObsoleteTag = '19.0';
 
     fields
     {
@@ -38,11 +39,7 @@ table 11704 "Bank Statement Header"
         field(3; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif            
 #if not CLEAN19
 
             trigger OnValidate()
@@ -128,7 +125,6 @@ table 11704 "Bank Statement Header"
             end;
 #endif
         }
-#if not CLEAN19
         field(9; Amount; Decimal)
         {
             CalcFormula = Sum("Bank Statement Line".Amount WHERE("Bank Statement No." = FIELD("No.")));
@@ -182,7 +178,6 @@ table 11704 "Bank Statement Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(16; "Last Date Modified"; Date)
         {
             Caption = 'Last Date Modified';
@@ -261,7 +256,7 @@ table 11704 "Bank Statement Header"
                     TestField("Document Date");
                     BankStmtHeader.SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', "Document Date"), CalcDate('<CY>', "Document Date"));
                 end;
-                if BankStmtHeader.FindFirst then begin
+                if BankStmtHeader.FindFirst() then begin
                     Message(ExternalDocMsg, BankStmtHeader.FieldCaption("External Document No."), BankStmtHeader.TableCaption,
                       BankStmtHeader.FieldCaption("No."), BankStmtHeader."No.");
                     exit;
@@ -273,7 +268,7 @@ table 11704 "Bank Statement Header"
                     TestField("Document Date");
                     IssuedBankStmtHeader.SetRange("Document Date", CalcDate('<CY>-<1Y>+<1D>', "Document Date"), CalcDate('<CY>', "Document Date"));
                 end;
-                if IssuedBankStmtHeader.FindFirst then begin
+                if IssuedBankStmtHeader.FindFirst() then begin
                     Message(ExternalDocMsg, IssuedBankStmtHeader.FieldCaption("External Document No."), IssuedBankStmtHeader.TableCaption,
                       IssuedBankStmtHeader.FieldCaption("No."), IssuedBankStmtHeader."No.");
                     exit;
@@ -443,7 +438,7 @@ table 11704 "Bank Statement Header"
 
         BankStmtLine.Reset();
         BankStmtLine.SetRange("Bank Statement No.", "No.");
-        if BankStmtLine.FindSet then
+        if BankStmtLine.FindSet() then
             repeat
                 case ChangedFieldName of
                     FieldCaption("Currency Code"):
@@ -538,4 +533,3 @@ table 11704 "Bank Statement Header"
     end;
 #endif
 }
-

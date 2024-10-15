@@ -74,7 +74,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalSalesHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalSalesHeader."Recalculate Invoice Disc." then
-                if TotalSalesLine2.FindFirst then begin
+                if TotalSalesLine2.FindFirst() then begin
                     SalesCalcDiscount.CalculateInvoiceDiscountOnLine(TotalSalesLine2);
                     NeedRefreshSalesLine := true;
                 end;
@@ -222,6 +222,8 @@ codeunit 57 "Document Totals"
 
         PurchPost.SumPurchLinesTemp(
           PurchaseHeader, TempPurchaseLine, 0, TempTotalPurchaseLine, TempTotalPurchaseLineLCY, VATAmount, VATAmountText);
+
+        OnAfterCalculateTotalPurchaseLineAndVATAmount(PurchaseHeader, VATAmount, TempTotalPurchaseLine);
     end;
 
     procedure RefreshSalesLine(var SalesLine: Record "Sales Line")
@@ -628,7 +630,7 @@ codeunit 57 "Document Totals"
         then begin
             TotalPurchaseHeader.CalcFields("Recalculate Invoice Disc.");
             if TotalPurchaseHeader."Recalculate Invoice Disc." then
-                if TotalPurchaseLine2.FindFirst then begin
+                if TotalPurchaseLine2.FindFirst() then begin
                     PurchCalcDiscount.CalculateInvoiceDiscountOnLine(TotalPurchaseLine2);
                     NeedRefreshPurchaseLine := true;
                 end;
@@ -916,6 +918,11 @@ codeunit 57 "Document Totals"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculatePurchaseSubPageTotals(var TotalPurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var VATAmount: Decimal; var InvoiceDiscountAmount: Decimal; var InvoiceDiscountPct: Decimal; var TotalPurchaseLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotalPurchaseLineAndVATAmount(PurchaseHeader: Record "Purchase Header"; var VATAmount: Decimal; var TempTotalPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
 

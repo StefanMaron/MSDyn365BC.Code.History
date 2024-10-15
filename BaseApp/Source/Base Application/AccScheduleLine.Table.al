@@ -28,6 +28,10 @@ table 85 "Acc. Schedule Line"
             ELSE
             IF ("Totaling Type" = CONST("Total Accounts")) "G/L Account"
             ELSE
+#if not CLEAN19
+            IF ("Totaling Type" = CONST("Account Category")) "G/L Account Category"
+            ELSE
+#endif
             IF ("Totaling Type" = CONST("Cash Flow Entry Accounts")) "Cash Flow Account"
             ELSE
             IF ("Totaling Type" = CONST("Cash Flow Total Accounts")) "Cash Flow Account"
@@ -243,6 +247,16 @@ table 85 "Acc. Schedule Line"
                 end;
             end;
         }
+        field(40; "Hide Currency Symbol"; Boolean)
+        {
+            Caption = 'Hide Currency Symbol';
+
+            trigger OnValidate()
+            begin
+                if "Hide Currency Symbol" then
+                    TestField("Totaling Type", "Acc. Schedule Line Totaling Type"::Formula);
+            end;
+        }
         field(840; "Cash Flow Forecast Filter"; Code[20])
         {
             Caption = 'Cash Flow Forecast Filter';
@@ -289,37 +303,25 @@ table 85 "Acc. Schedule Line"
             InitValue = Always;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31081; "Row Correction"; Code[10])
         {
             Caption = 'Row Correction';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31082; "Assets/Liabilities Type"; Option)
         {
             Caption = 'Assets/Liabilities Type';
             OptionCaption = ' ,Assets,Liabilities';
             OptionMembers = " ",Assets,Liabilities;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(31083; "Source Table"; Option)
         {
@@ -342,14 +344,6 @@ table 85 "Acc. Schedule Line"
         {
             Clustered = true;
         }
-#if not CLEAN17
-        key(Key2; "Schedule Name", "Row Correction")
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.5';
-        }
-#endif
     }
 
     fieldgroups
@@ -393,7 +387,9 @@ table 85 "Acc. Schedule Line"
         CostType: Record "Cost Type";
         HasGLSetup: Boolean;
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
+#if not CLEAN19        
         AccSchedManagement: Codeunit AccSchedManagement;
+#endif
 
     procedure LookUpDimFilter(DimNo: Integer; var Text: Text) Result: Boolean
     var
@@ -562,11 +558,12 @@ table 85 "Acc. Schedule Line"
         end;
     end;
 
-    local procedure LookupTotaling()
+    procedure LookupTotaling()
     var
         GLAccList: Page "G/L Account List";
         CostTypeList: Page "Cost Type List";
         CFAccList: Page "Cash Flow Account List";
+        GLAccCatList: Page "G/L Account Categories";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -579,7 +576,7 @@ table 85 "Acc. Schedule Line"
             "Totaling Type"::"Total Accounts":
                 begin
                     GLAccList.LookupMode(true);
-                    if GLAccList.RunModal = ACTION::LookupOK then
+                    if GLAccList.RunModal() = ACTION::LookupOK then
                         Validate(Totaling, GLAccList.GetSelectionFilter);
                 end;
             "Totaling Type"::"Cost Type",
@@ -596,6 +593,12 @@ table 85 "Acc. Schedule Line"
                     if CFAccList.RunModal = ACTION::LookupOK then
                         Validate(Totaling, CFAccList.GetSelectionFilter);
                 end;
+            "Totaling Type"::"Account Category":
+                begin
+                    GLAccCatList.LookupMode(true);
+                    if GLAccCatList.RunModal() = ACTION::LookupOK then
+                        Validate(Totaling, GLAccCatList.GetSelectionFilter());
+                end;
         end;
 
         OnAfterLookupTotaling(Rec);
@@ -607,7 +610,7 @@ table 85 "Acc. Schedule Line"
     begin
         GLBudgetNames.LookupMode(true);
         if GLBudgetNames.RunModal = ACTION::LookupOK then begin
-            Text := GLBudgetNames.GetSelectionFilter;
+            Text := GLBudgetNames.GetSelectionFilter();
             exit(true);
         end;
         exit(false)
@@ -657,4 +660,3 @@ table 85 "Acc. Schedule Line"
     begin
     end;
 }
-

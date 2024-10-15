@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 8909 "Warehouse Manager Role Center"
 {
     Caption = 'Warehouse Manager Role Center';
@@ -380,6 +379,15 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Warehouse Entries';
                         RunObject = page "Warehouse Entries";
+                    }
+                    action("Navi&gate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                     }
                 }
                 group("Group7")
@@ -914,26 +922,6 @@ page 8909 "Warehouse Manager Role Center"
                         Caption = 'Whse. Worksheet Templates';
                         RunObject = page "Whse. Worksheet Templates";
                     }
-                    action("Stockkeeping Unit Templates")
-                    {
-                        ApplicationArea = Warehouse;
-                        Caption = 'Stockkeeping Unit Templates';
-                        RunObject = page "Stockkeeping Unit Templates";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
-                    action("Whse. Net Change Template List")
-                    {
-                        ApplicationArea = Warehouse;
-                        Caption = 'Whse. Net Change Templates';
-                        RunObject = page "Whse. Net Change Template List";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.4';
-                        Visible = false;
-                    }
                 }
                 group("Group22")
                 {
@@ -961,4 +949,3 @@ page 8909 "Warehouse Manager Role Center"
         }
     }
 }
-#endif

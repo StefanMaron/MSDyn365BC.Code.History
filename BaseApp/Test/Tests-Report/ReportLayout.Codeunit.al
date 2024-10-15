@@ -18,7 +18,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestTrailBalancePreviousYear()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Trial Balance/Previous Year");
     end;
 
@@ -27,7 +27,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestVendorOrderSummary()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Vendor - Order Summary");
     end;
 
@@ -36,7 +36,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestItemBudget()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Item Budget");
     end;
 
@@ -45,7 +45,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCustomerTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Trial Balance");
     end;
 
@@ -54,7 +54,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCheck()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::Check);
     end;
 
@@ -63,7 +63,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestVendorBalancetoDate()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Vendor - Balance to Date");
     end;
 
@@ -72,7 +72,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestBudget()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::Budget);
     end;
 
@@ -81,7 +81,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFixedAssetBookValue01()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Asset - Book Value 01");
     end;
 
@@ -90,7 +90,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCompareList()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Compare List");
     end;
 
@@ -99,7 +99,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestSalesStatistics()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Sales Statistics");
     end;
 
@@ -108,7 +108,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestAgedAccountsPayable()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Aged Accounts Payable");
     end;
 
@@ -117,7 +117,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFixedAssetAcquisitionList()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Asset - Acquisition List");
     end;
 
@@ -126,7 +126,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestStatement()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::Statement);
     end;
 
@@ -135,7 +135,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCustomerBalancetoDate()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Balance to Date");
     end;
 
@@ -144,7 +144,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFAPostingGroupNetChange()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"FA Posting Group - Net Change");
     end;
 
@@ -153,7 +153,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestItemAgeCompositionQty()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Item Age Composition - Qty.");
     end;
 
@@ -162,7 +162,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestItemAgeCompositionValue()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Item Age Composition - Value");
     end;
 
@@ -171,7 +171,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestContractInvoicing()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Contract Invoicing");
     end;
 
@@ -180,7 +180,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCostAcctgStmtperPeriod()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Cost Acctg. Stmt. per Period");
     end;
 
@@ -189,7 +189,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestInventoryAvailabilityPlan()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Inventory - Availability Plan");
     end;
 
@@ -202,7 +202,7 @@ codeunit 132600 "Report Layout"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
-        Initialize;
+        Initialize();
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
         LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo);
         Commit();
@@ -215,7 +215,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestGLConsolidationEliminations()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"G/L Consolidation Eliminations");
     end;
 
@@ -224,7 +224,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCustomerSummaryAging()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Summary Aging");
     end;
 
@@ -233,7 +233,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestAccountSchedule()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Account Schedule");
     end;
 
@@ -242,7 +242,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestConsolidatedTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Consolidated Trial Balance");
     end;
 
@@ -251,7 +251,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestVendorTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Vendor - Trial Balance");
     end;
 
@@ -260,7 +260,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCashFlowDimensionsDetail()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Cash Flow Dimensions - Detail");
     end;
 
@@ -269,7 +269,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCustomerOrderSummary()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Order Summary");
     end;
 
@@ -278,7 +278,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestClosingTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Closing Trial Balance");
     end;
 
@@ -287,7 +287,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestAgedAccountsReceivable()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Aged Accounts Receivable");
     end;
 
@@ -296,7 +296,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCustomerSummaryAgingSimp()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Customer - Summary Aging Simp.");
     end;
 
@@ -305,7 +305,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFiscalYearBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fiscal Year Balance");
     end;
 
@@ -314,7 +314,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestTrialBalancebyPeriod()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Trial Balance by Period");
     end;
 
@@ -323,7 +323,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestBalanceCompPrevYear()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Balance Comp. - Prev. Year");
     end;
 
@@ -332,7 +332,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestDimensionsDetail()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Dimensions - Detail");
     end;
 
@@ -341,7 +341,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestTrialBalance()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Trial Balance");
     end;
 
@@ -350,7 +350,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCalcPostVATSettlement()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
     end;
 
@@ -359,7 +359,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestPurchaseReservationAvail()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Purchase Reservation Avail.");
     end;
 
@@ -368,7 +368,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestInventoryValuationWIP()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Inventory Valuation - WIP");
     end;
 
@@ -377,7 +377,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestVATVIESDeclarationTaxAuth()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"VAT- VIES Declaration Tax Auth");
     end;
 
@@ -386,7 +386,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestInventoryReorders()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Inventory - Reorders");
     end;
 
@@ -395,7 +395,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestItemDimensionsTotal()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Item Dimensions - Total");
     end;
 
@@ -404,7 +404,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestAnalysisReport()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Analysis Report");
     end;
 
@@ -413,7 +413,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestMaintenanceAnalysis()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Maintenance - Analysis");
     end;
 
@@ -422,7 +422,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFixedAssetBookValue02()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Asset - Book Value 02");
     end;
 
@@ -431,7 +431,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestDimensionsTotal()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Dimensions - Total");
     end;
 
@@ -440,7 +440,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestTrialBalBudget()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Trial Balance/Budget");
     end;
 
@@ -449,7 +449,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestFixedAssetProjValue()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Fixed Asset - Projected Value");
     end;
 
@@ -458,7 +458,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestSalesReservationAvail()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Sales Reservation Avail.");
     end;
 
@@ -467,7 +467,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCostAcctgAnalysis()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Cost Acctg. Analysis");
     end;
 
@@ -476,7 +476,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestMovementList()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Movement List");
     end;
 
@@ -485,7 +485,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestCostAcctgBalanceBudget()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Cost Acctg. Balance/Budget");
     end;
 
@@ -494,7 +494,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestPostInventoryCosttoGL()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Post Inventory Cost to G/L");
     end;
 
@@ -503,7 +503,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestContrServOrdersTest()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Contr. Serv. Orders - Test");
     end;
 
@@ -512,7 +512,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestPostInvtCosttoGLtest()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Post Invt. Cost to G/L - Test");
     end;
 
@@ -521,7 +521,7 @@ codeunit 132600 "Report Layout"
     [Scope('OnPrem')]
     procedure TestContractPriceUpdateTest()
     begin
-        Initialize;
+        Initialize();
         REPORT.Run(REPORT::"Contract Price Update - Test");
     end;
 
@@ -530,7 +530,7 @@ codeunit 132600 "Report Layout"
         SalesSetup: Record "Sales & Receivables Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -539,7 +539,7 @@ codeunit 132600 "Report Layout"
         SalesSetup.Validate("Logo Position on Documents", SalesSetup."Logo Position on Documents"::Center);
         SalesSetup.Modify(true);
 
-        LibraryERMCountryData.CreateVATData; // NAVCZ
+        LibraryERMCountryData.CreateVATData(); // NAVCZ
 
         isInitialized := true;
         Commit
@@ -571,7 +571,7 @@ codeunit 132600 "Report Layout"
         Item.SetRange(Blocked, false);
         Item.SetFilter("Unit Price", '<>0');
         Item.SetFilter(Reserve, '<>%1', Item.Reserve::Always);
-        Item.FindFirst;
+        Item.FindFirst();
     end;
 
     [ConfirmHandler]
@@ -622,7 +622,7 @@ codeunit 132600 "Report Layout"
         BankAcc: Record "Bank Account";
     begin
         BankAcc.SetFilter("Last Check No.", '<>%1', '');
-        BankAcc.FindFirst;
+        BankAcc.FindFirst();
         Check.BankAccount.SetValue(BankAcc."No.");
         Check.LastCheckNo.SetValue(BankAcc."Last Check No.");
         Check.TestPrinting.SetValue(true);
@@ -810,9 +810,9 @@ codeunit 132600 "Report Layout"
         AccScheduleName: Record "Acc. Schedule Name";
         ColumnLayoutName: Record "Column Layout Name";
     begin
-        AccScheduleName.FindFirst;
+        AccScheduleName.FindFirst();
         AccountSchedule.AccSchedNam.SetValue(AccScheduleName.Name);
-        ColumnLayoutName.FindFirst;
+        ColumnLayoutName.FindFirst();
         AccountSchedule.ColumnLayoutNames.SetValue(ColumnLayoutName.Name);
         AccountSchedule.StartDate.SetValue(WorkDate);
         AccountSchedule.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
@@ -844,7 +844,7 @@ codeunit 132600 "Report Layout"
         CashFlowForecast: Record "Cash Flow Forecast";
         LibraryCashFlow: Codeunit "Library - Cash Flow";
     begin
-        AnalysisView.FindFirst;
+        AnalysisView.FindFirst();
         CashFlowDimensionsDetail.AnalysisViewCodes.SetValue(AnalysisView.Code);
         LibraryCashFlow.FindCashFlowCard(CashFlowForecast);
         CashFlowDimensionsDetail.ForecastFilter.SetValue(CashFlowForecast."No.");
@@ -929,7 +929,7 @@ codeunit 132600 "Report Layout"
     var
         AnalysisView: Record "Analysis View";
     begin
-        AnalysisView.FindFirst;
+        AnalysisView.FindFirst();
         DimensionsDetail.AnalysisViewCode.SetValue(AnalysisView.Code);
         DimensionsDetail.DtFilter.SetValue(WorkDate);
         DimensionsDetail.SaveAsPdf(FormatFileName(DimensionsDetail.Caption));
@@ -1002,8 +1002,8 @@ codeunit 132600 "Report Layout"
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
         ItemAnalysisView.SetRange("Analysis Area", ItemAnalysisView."Analysis Area"::Sales);
-        ItemAnalysisView.FindFirst;
-        AnalysisColumnTemplate.FindFirst;
+        ItemAnalysisView.FindFirst();
+        AnalysisColumnTemplate.FindFirst();
         ItemDimensionsTotal.AnalysisViewCode.SetValue(ItemAnalysisView.Code);
         ItemDimensionsTotal.ColumnTemplate.SetValue(AnalysisColumnTemplate.Name);
         ItemDimensionsTotal.DateFilter.SetValue(StrSubstNo('%1..%2', Format(WorkDate), CalcDate('<+10Y>', WorkDate)));
@@ -1018,8 +1018,8 @@ codeunit 132600 "Report Layout"
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisArea: Option Sales,Purchase,Inventory;
     begin
-        AnalysisLineTemplate.FindFirst;
-        AnalysisColumnTemplate.FindFirst;
+        AnalysisLineTemplate.FindFirst();
+        AnalysisColumnTemplate.FindFirst();
         AnalysisReport.AnalysisArea.SetValue(AnalysisArea::Sales);
         AnalysisReport.AnalysisLineName.SetValue(AnalysisLineTemplate.Name);
         AnalysisReport.AnalysisColumnName.SetValue(AnalysisColumnTemplate.Name);
@@ -1033,7 +1033,7 @@ codeunit 132600 "Report Layout"
     var
         DepreciationBook: Record "Depreciation Book";
     begin
-        DepreciationBook.FindFirst;
+        DepreciationBook.FindFirst();
         MaintenanceAnalysis.DeprBookCode.SetValue(DepreciationBook.Code);
         MaintenanceAnalysis.StartingDate.SetValue(WorkDate);
         MaintenanceAnalysis.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
@@ -1048,7 +1048,7 @@ codeunit 132600 "Report Layout"
         DepreciationBook: Record "Depreciation Book";
         GrpTotal: Option " ","FA Class","FA Subclass","FA Location","Main Asset","Global Dimension 1","Global Dimension 2","FA Posting Group";
     begin
-        DepreciationBook.FindFirst;
+        DepreciationBook.FindFirst();
         FixedAssetBookValue02.DeprBookCode.SetValue(DepreciationBook.Code);
         FixedAssetBookValue02.StartingDate.SetValue(WorkDate);
         FixedAssetBookValue02.EndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
@@ -1065,9 +1065,9 @@ codeunit 132600 "Report Layout"
         ColumnLayoutName: Record "Column Layout Name";
         GLBudgetName: Record "G/L Budget Name";
     begin
-        AnalysisViewCode.FindFirst;
-        ColumnLayoutName.FindFirst;
-        GLBudgetName.FindFirst;
+        AnalysisViewCode.FindFirst();
+        ColumnLayoutName.FindFirst();
+        GLBudgetName.FindFirst();
         DimensionsTotal.AnalysisViewCode.SetValue(AnalysisViewCode.Code);
         DimensionsTotal.ColumnLayoutName.SetValue(ColumnLayoutName.Name);
         DimensionsTotal.DtFilter.SetValue(WorkDate);
@@ -1089,7 +1089,7 @@ codeunit 132600 "Report Layout"
     var
         GLBudgetName: Record "G/L Budget Name";
     begin
-        GLBudgetName.FindFirst;
+        GLBudgetName.FindFirst();
         FixedAssetProjValue.FirstDeprDate.SetValue(WorkDate);
         FixedAssetProjValue.LastDeprDate.SetValue(WorkDate);
         FixedAssetProjValue.CopyToGLBudgetName.SetValue(GLBudgetName.Name);
@@ -1150,9 +1150,9 @@ codeunit 132600 "Report Layout"
         CostObject: Record "Cost Object";
         CostBudgetName: Record "Cost Budget Name";
     begin
-        CostCenter.FindFirst;
-        CostObject.FindFirst;
-        CostBudgetName.FindFirst;
+        CostCenter.FindFirst();
+        CostObject.FindFirst();
+        CostBudgetName.FindFirst();
         CostAcctgBalanceBudget.StartDate.SetValue(Format(WorkDate));
         CostAcctgBalanceBudget.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
         CostAcctgBalanceBudget.YearStartDate.SetValue(Format(WorkDate));

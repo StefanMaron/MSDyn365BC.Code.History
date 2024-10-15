@@ -78,22 +78,22 @@ codeunit 5632 "FA Jnl.-Post Line"
                     PostFixedAsset;
                 end;
             end;
-
-            // NAVCZ
-            FASetup.Get();
-            if FASetup."Fixed Asset History" and
-               (FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Disposal) and
-               (FASetup."Default Depr. Book" = FAJnlLine."Depreciation Book Code")
-            then
-                if FAJnlLine."FA Error Entry No." = 0 then begin
-                    InsertFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
-                    InsertFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
-                end else begin
-                    UpdateFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
-                    UpdateFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
-                end;
-            // NAVCZ
         end;
+
+        // NAVCZ
+        FASetup.Get();
+        if FASetup."Fixed Asset History" and
+           (FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Disposal) and
+           (FASetup."Default Depr. Book" = FAJnlLine."Depreciation Book Code")
+        then
+            if FAJnlLine."FA Error Entry No." = 0 then begin
+                InsertFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
+                InsertFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
+            end else begin
+                UpdateFAHistoryEntry(FAHistoryEntry.Type::Location, FAJnlLine."FA No.");
+                UpdateFAHistoryEntry(FAHistoryEntry.Type::"Responsible Employee", FAJnlLine."FA No.");
+            end;
+        // NAVCZ
         OnAfterFAJnlPostLine(FAJnlLine);
     end;
 
@@ -111,12 +111,6 @@ codeunit 5632 "FA Jnl.-Post Line"
                     exit;
                 if "FA Posting Date" = 0D then
                     "FA Posting Date" := "Posting Date";
-#if not CLEAN17
-                // NAVCZ
-                if "VAT Date" = 0D then
-                    "VAT Date" := "Posting Date";
-                // NAVCZ
-#endif
                 if "Journal Template Name" = '' then
                     Quantity := 0;
                 DuplicateDeprBook.DuplicateGenJnlLine(GenJnlLine, FAAmount);
@@ -523,7 +517,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             end;
     end;
 
-    local procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
+    procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
     var
         EntryAmounts: array[4] of Decimal;
         i: Integer;
@@ -541,7 +535,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             end;
     end;
 
-    local procedure PostGLBalAcc(FALedgEntry: Record "FA Ledger Entry"; AllocatedPct: Decimal)
+    procedure PostGLBalAcc(FALedgEntry: Record "FA Ledger Entry"; AllocatedPct: Decimal)
     begin
         if AllocatedPct > 0 then begin
             FALedgEntry."Entry No." := 0;
@@ -606,7 +600,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         exit(DepreciationCalc.FAName(FA, DeprBookCode));
     end;
 
-    local procedure SetResultOnDisposal(var FALedgEntry: Record "FA Ledger Entry")
+    procedure SetResultOnDisposal(var FALedgEntry: Record "FA Ledger Entry")
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
@@ -642,7 +636,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         OldMaintenanceLedgEntry.SetRange("FA No.", MaintenanceLedgEntry."FA No.");
         OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", MaintenanceLedgEntry."Depreciation Book Code");
         OldMaintenanceLedgEntry.SetRange("Document No.", MaintenanceLedgEntry."Document No.");
-        if OldMaintenanceLedgEntry.FindFirst then begin
+        if OldMaintenanceLedgEntry.FindFirst() then begin
             FAJnlLine2."FA Posting Type" := FAJnlLine2."FA Posting Type"::Maintenance;
             Error(
               Text003,
@@ -658,7 +652,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     var
         FAReg: Record "FA Register";
     begin
-        if FAReg.FindLast then begin
+        if FAReg.FindLast() then begin
             FAReg."G/L Register No." := GLRegNo;
             FAReg.Modify();
         end;
@@ -698,7 +692,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FAHistoryEntry.SetRange("FA No.", FANo);
         FAHistoryEntry.SetRange("Closed by Entry No.", 0);
         FAHistoryEntry.SetRange(Type, FAHType);
-        if FAHistoryEntry.FindLast then begin
+        if FAHistoryEntry.FindLast() then begin
             FA.Get(FANo);
             case FAHType of
                 FAHType::Location:

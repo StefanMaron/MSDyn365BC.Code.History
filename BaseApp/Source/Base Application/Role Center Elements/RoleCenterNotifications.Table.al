@@ -66,7 +66,7 @@ table 1430 "Role Center Notifications"
 
     procedure IsFirstLogon(): Boolean
     begin
-        Initialize;
+        Initialize();
         exit(SessionId = "First Session ID");
     end;
 

@@ -244,13 +244,13 @@ page 390 "Phys. Inventory Ledger Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Delete Entries")
@@ -267,34 +267,6 @@ page 390 "Phys. Inventory Ledger Entries"
             ObsoleteState = Pending;
             ObsoleteReason = 'Merge to W1.';
             ObsoleteTag = '19.0';
-#if not CLEAN17
-            action("&Print")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = '&Print';
-                Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                RunObject = Report "Phys. Invt. Counting Document";
-                ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.0';
-                Visible = false;
-
-                trigger OnAction()
-                var
-                    PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
-                begin
-                    // NAVCZ
-                    PhysInvtLedgEntry.Reset();
-                    PhysInvtLedgEntry.SetRange("Document No.", "Document No.");
-                    PhysInvtLedgEntry.SetRange("Posting Date", "Posting Date");
-                    REPORT.Run(REPORT::"Phys. Invt. Counting Document", true, false, PhysInvtLedgEntry);
-                    // NAVCZ
-                end;
-            }
-#endif
         }
     }
 

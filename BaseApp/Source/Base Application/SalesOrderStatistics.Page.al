@@ -887,14 +887,12 @@ page 402 "Sales Order Statistics"
         PrevNo: Code[20];
         ActiveTab: Option General,Invoicing,Shipping,Prepayment;
         PrevTab: Option General,Invoicing,Shipping,Prepayment;
-        VATLinesFormIsEditable: Boolean;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
         Text006: Label 'Prepmt. Amount';
         Text007: Label 'Prepmt. Amt. Invoiced';
         Text008: Label 'Prepmt. Amt. Deducted';
         Text009: Label 'Prepmt. Amt. to Deduct';
-        DynamicEditable: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         Text26506: Label 'Prepmt. Amt. Requested';
         Text26507: Label 'Prepmt. Amt. Received';
@@ -912,6 +910,8 @@ page 402 "Sales Order Statistics"
         TotalAmount1: array[3] of Decimal;
         TotalAmount2: array[3] of Decimal;
         VATAmount: array[3] of Decimal;
+        DynamicEditable: Boolean;
+        VATLinesFormIsEditable: Boolean;
 
     local procedure RefreshOnAfterGetRecord()
     var
@@ -1362,14 +1362,7 @@ page 402 "Sales Order Statistics"
         VATLinesForm.InitGlobals(
           "Currency Code", AllowVATDifference, AllowVATDifference and ThisTabAllowsVATEditing,
           "Prices Including VAT", AllowInvDisc, "VAT Base Discount %");
-#if not CLEAN17
-        // NAVCZ
-        VATLinesForm.SetCurrencyFactor("Currency Factor");
-        if "Currency Factor" <> "VAT Currency Factor" then
-            VATLinesForm.SetVATCurrencyFactor("VAT Currency Factor");
-        // NAVCZ
-#endif
-        VATLinesForm.RunModal;
+        VATLinesForm.RunModal();
         VATLinesForm.GetTempVATAmountLine(VATLinesToDrillDown);
     end;
 
@@ -1403,14 +1396,14 @@ page 402 "Sales Order Statistics"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Prepmt. Line Amount", '<>0');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 TempSalesLine2 := SalesLine;
                 TempSalesLine2.Insert();
             until SalesLine.Next() = 0;
 
         SalesPostAdv.AdvanceCalcVATAmountLines(SalesHeader, TempSalesLine2, VATAmountLine);
-        if VATAmountLine.FindSet then begin
+        if VATAmountLine.FindSet() then begin
             PrevVATPct := VATAmountLine."VAT %";
             repeat
                 if VATAmountLine."VAT %" <> PrevVATPct then
@@ -1447,7 +1440,7 @@ page 402 "Sales Order Statistics"
     begin
         // NAVCZ
         with VATAmountLine do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempVATAmountLineTot := VATAmountLine;
                     TempVATAmountLineTot.Positive := true;
@@ -1489,7 +1482,7 @@ page 402 "Sales Order Statistics"
         Clear(VATAmount);
         Clear(VATBaseAmount);
 
-        if VATAmountLine.FindSet then
+        if VATAmountLine.FindSet() then
             repeat
                 AmountIncVAT += VATAmountLine."Amount Including VAT";
                 VATAmount += VATAmountLine."VAT Amount";

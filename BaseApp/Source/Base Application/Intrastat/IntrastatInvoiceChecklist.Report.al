@@ -1,12 +1,9 @@
 #if not CLEAN18
 report 31061 "Intrastat - Invoice Checklist"
 {
-    // //CO4.20: Controling - Basic: Intrastat CZ modification;
-    //       //aaa
+    Caption = 'Intrastat - Invoice Checklist (Obsolete)';
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatInvoiceChecklist.rdlc';
-
-    Caption = 'Intrastat - Invoice Checklist (Obsolete)';
     ObsoleteState = Pending;
     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
     ObsoleteTag = '18.0';
@@ -173,7 +170,7 @@ report 31061 "Intrastat - Invoice Checklist"
 
                 trigger OnPreDataItem()
                 begin
-                    if not greTBuffer.FindSet then
+                    if not greTBuffer.FindSet() then
                         CurrReport.Break();
 
                     SetRange(Number, 1, greTBuffer.Count);
@@ -197,7 +194,7 @@ report 31061 "Intrastat - Invoice Checklist"
                 lreValueEntry.SetRange("Item Ledger Entry No.", "Source Entry No.");
                 lreValueEntry.SetRange("Posting Date", gdaStartDate, gdaEndDate);
                 lreValueEntry.SetRange("Entry Type", lreValueEntry."Entry Type"::"Direct Cost");
-                if lreValueEntry.FindSet then
+                if lreValueEntry.FindSet() then
                     repeat
                         if lreValueEntry."Item Charge No." = '' then
                             lboCalculate := true
@@ -283,7 +280,7 @@ report 31061 "Intrastat - Invoice Checklist"
                 linMonth: Integer;
             begin
                 greGLSetup.Get();
-                if not FindFirst then
+                if not FindFirst() then
                     CurrReport.Break();
 
                 greIntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");

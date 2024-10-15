@@ -96,6 +96,8 @@
                 DATABASE::"Assembly Line", AsmLine."Document Type"::Order.AsInteger(), "Order No.", "Order Line No.");
     end;
 
+#if not CLEAN20
+    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure TestTransferShptLine(TransShptLine: Record "Transfer Shipment Line")
     begin
@@ -110,6 +112,7 @@
         // NAVCZ
     end;
 
+#endif
     procedure RunTestAllTransactions(UndoType: Integer; UndoID: Code[20]; UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     begin
         TestAllTransactions(UndoType, UndoID, UndoLineNo, SourceType, SourceSubtype, SourceID, SourceRefNo);
@@ -208,7 +211,7 @@
     begin
         with WhseEntry do begin
             SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
-            if not FindFirst then
+            if not FindFirst() then
                 exit;
 
             BinContent.Get("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
@@ -434,7 +437,7 @@
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
             if not IsEmpty() then
-                if FindFirst then
+                if FindFirst() then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
     end;
@@ -456,7 +459,7 @@
             SetRange("Applies-to Doc. No.", SourceID);
             SetRange("Applies-to Doc. Line No.", SourceRefNo);
             if not IsEmpty() then
-                if FindFirst then
+                if FindFirst() then
                     Error(Text011, UndoLineNo, "Document Type", "Document No.", "Line No.");
         end;
     end;
@@ -651,6 +654,8 @@
           NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
     end;
 
+#if not CLEAN20
+    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure PostItemJnlLineAppliedToListTr(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary)
     var
@@ -724,6 +729,7 @@
         // NAVCZ
     end;
 
+#endif
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -1149,6 +1155,8 @@
         end;
     end;
 
+#if not CLEAN20
+    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure UpdateTransferLine(TransferLine: Record "Transfer Line"; UndoQty: Decimal; UndoQtyBase: Decimal; var TempUndoneItemLedgEntry: Record "Item Ledger Entry" temporary)
     var
@@ -1196,7 +1204,7 @@
 
                         ResEntry.Reset();
                         Clear(ResEntryNo);
-                        if ResEntry.FindLast then
+                        if ResEntry.FindLast() then
                             ResEntryNo := ResEntry."Entry No.";
                         ResEntryNo += 1;
                         ResEntry.Init();
@@ -1244,11 +1252,12 @@
             TransferLine2.SetRange("Document No.", "Document No.");
             TransferLine2.SetRange("Derived From Line No.", "Line No.");
             TransferLine2.SetRange(Quantity, UndoQty);
-            TransferLine2.FindFirst;
+            TransferLine2.FindFirst();
             TransferLine2.Delete(true);
         end;
     end;
 
+#endif
     local procedure IsSNRequired(ItemJnlLine: Record "Item Journal Line"): Boolean
     var
         Item: Record Item;
@@ -1274,7 +1283,7 @@
 
         with ValueEntry do begin
             SetRange("Item Ledger Entry No.", EntryNo);
-            FindFirst;
+            FindFirst();
             ItemJnlLine."Source Posting Group" := "Source Posting Group";
             ItemJnlLine."Salespers./Purch. Code" := "Salespers./Purch. Code";
         end;
@@ -1303,17 +1312,16 @@
         ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Inbound Item Entry No.", ItemRcptEntryNo);
         ItemApplnEntry.SetFilter("Item Ledger Entry No.", '<>%1', ItemRcptEntryNo);
-        ItemApplnEntry.FindFirst;
+        ItemApplnEntry.FindFirst();
     end;
 
     procedure FindItemShipmentApplication(var ItemApplnEntry: Record "Item Application Entry"; ItemShipmentEntryNo: Integer)
     begin
         ItemApplnEntry.Reset();
         ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemShipmentEntryNo);
-        ItemApplnEntry.FindFirst;
+        ItemApplnEntry.FindFirst();
     end;
 
-    [Scope('OnPrem')]
     procedure UpdatePurchaseLineOverRcptQty(PurchaseLine: Record "Purchase Line"; OverRcptQty: Decimal)
     begin
         PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.", PurchaseLine."Line No.");

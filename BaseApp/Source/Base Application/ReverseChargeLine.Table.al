@@ -67,9 +67,6 @@ table 31094 "Reverse Charge Line"
         field(20; "Commodity Code"; Code[10])
         {
             Caption = 'Commodity Code';
-#if not CLEAN17
-            TableRelation = Commodity;
-#endif
         }
         field(25; Quantity; Decimal)
         {
@@ -140,4 +137,3 @@ table 31094 "Reverse Charge Line"
         end;
     end;
 }
-

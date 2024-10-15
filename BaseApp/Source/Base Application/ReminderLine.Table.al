@@ -39,7 +39,9 @@ table 296 "Reminder Line"
                         if CustPostingGr."Add. Fee per Line Account" <> '' then
                             Validate("No.", CustPostingGr."Add. Fee per Line Account");
                     end;
+#if not CLEAN20
                     DeleteDtldReminderLine; // NAVCZ
+#endif
                 end;
             end;
         }
@@ -162,13 +164,15 @@ table 296 "Reminder Line"
 
                 TestField(Type, Type::"Customer Ledger Entry");
                 "Entry No." := 0;
+#if not CLEAN20
                 DeleteDtldReminderLine; // NAVCZ
+#endif
                 if "Document No." <> '' then begin
                     SetCustLedgEntryView;
                     if "Document Type" <> "Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Document Type");
                     CustLedgEntry.SetRange("Document No.", "Document No.");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         Validate("Entry No.", CustLedgEntry."Entry No.")
                     else
                         Error(NoOpenEntriesErr, Format(Type), FieldCaption("Document No."), "Document No.");
@@ -399,7 +403,7 @@ table 296 "Reminder Line"
                     CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                 if "Applies-to Document No." <> '' then
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
-                if CustLedgEntry.FindFirst then;
+                if CustLedgEntry.FindFirst() then;
                 CustLedgEntry.SetRange("Document Type");
                 CustLedgEntry.SetRange("Document No.");
                 LookupCustLedgEntry;
@@ -416,7 +420,7 @@ table 296 "Reminder Line"
                     if "Applies-to Document Type" <> "Applies-to Document Type"::" " then
                         CustLedgEntry.SetRange("Document Type", "Applies-to Document Type");
                     CustLedgEntry.SetRange("Document No.", "Applies-to Document No.");
-                    if not CustLedgEntry.FindFirst then
+                    if not CustLedgEntry.FindFirst() then
                         Error(NoOpenEntriesErr, CustLedgEntry.TableName, FieldCaption("Document No."), "Applies-to Document No.");
                     "Applies-to Document Type" := CustLedgEntry."Document Type";
 
@@ -481,20 +485,41 @@ table 296 "Reminder Line"
         field(11761; Days; Integer)
         {
             Caption = 'Days';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
         field(11762; "Multiple Interest Rate"; Decimal)
         {
             Caption = 'Multiple Interest Rate';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#if not CLEAN20
         field(11763; "Interest Amount"; Decimal)
         {
             BlankZero = true;
-            CalcFormula = Sum ("Detailed Reminder Line"."Interest Amount" WHERE("Reminder No." = FIELD("Reminder No."),
+            CalcFormula = Sum("Detailed Reminder Line"."Interest Amount" WHERE("Reminder No." = FIELD("Reminder No."),
                                                                                 "Reminder Line No." = FIELD("Line No.")));
             Caption = 'Interest Amount';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
+#endif
     }
 
     keys
@@ -532,13 +557,14 @@ table 296 "Reminder Line"
         ReminderLine.SetRange("Reminder No.", "Reminder No.");
         ReminderLine.SetRange("Attached to Line No.", "Line No.");
         ReminderLine.DeleteAll();
-
+#if not CLEAN20
         // NAVCZ
         DtldReminderLine.Reset();
         DtldReminderLine.SetRange("Reminder No.", "Reminder No.");
         DtldReminderLine.SetRange("Reminder Line No.", "Line No.");
         DtldReminderLine.DeleteAll();
         // NAVCZ
+#endif
     end;
 
     trigger OnInsert()
@@ -569,16 +595,177 @@ table 296 "Reminder Line"
         GLAcc: Record "G/L Account";
         StdTxt: Record "Standard Text";
         GenProdPostingGrp: Record "Gen. Product Posting Group";
+#if not CLEAN20
         DtldReminderLine: Record "Detailed Reminder Line";
+        ReplaceMulIntRateMgt: Codeunit "Replace Mul. Int. Rate Mgt.";
+#endif
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         InterestCalcDate: Date;
+        CalcInterest: Boolean;
         NoOpenEntriesErr: Label 'There is no open %1 with %2 %3.', Comment = '%1 = Table name, %2 = Document Type, %3 = Document No.';
         EntryNotOverdueErr: Label '%1 %2 in %3 is not overdue.', Comment = '%1 = Document Type, %2 = Document No., %3 = Table name';
         LineFeeAlreadyIssuedErr: Label 'The line fee for %1 %2 on reminder level %3 has already been issued.', Comment = '%1 = Document TYpe, %2 = Document No, %3 = Level number';
         MustBePositiveErr: Label '%1 must be positive.';
+        NrOfLinesToInsert: Integer;
+        NotEnoughSpaceToInsertErr: Label 'There is not enough space to insert lines with additional interest rates.';
+        InvalidInterestRateDateErr: Label 'Create interest rate with start date prior to %1.', Comment = '%1 - date';
+#if not CLEAN20
         DtldLineNo: Integer;
+        IsCalcFinChrgCZSkipped: Boolean;
+#endif
 
     local procedure CalcFinChrg()
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        FinanceChargeInterestRate: Record "Finance Charge Interest Rate";
+        ExtraReminderLine: Record "Reminder Line";
+        InterestStartDate: Date;
+        LineFee: Decimal;
+        UseDueDate: Date;
+        UseCalcDate: Date;
+        UseInterestRate: Decimal;
+        CumAmount: Decimal;
+        IsHandled: Boolean;
+        ShouldSkipCalcFinChrg: Boolean;
+    begin
+#if not CLEAN20
+        if not ReplaceMulIntRateMgt.IsEnabled() and not IsCalcFinChrgCZSkipped then begin
+            CalcFinChrgCZ();
+            exit;
+        end;
+#endif
+        IsHandled := false;
+        OnBeforeCalcFinChrg(Rec, ReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        GetReminderHeader;
+        "Interest Rate" := 0;
+        Amount := 0;
+        "VAT Amount" := 0;
+        "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
+        "Gen. Prod. Posting Group" := '';
+        "VAT Prod. Posting Group" := '';
+        ExtraReminderLine := Rec;
+        ExtraReminderLine.SetRange("Reminder No.", "Reminder No.");
+        ExtraReminderLine.SetRange("Detailed Interest Rates Entry", true);
+        ExtraReminderLine.SetRange("Entry No.", "Entry No.");
+        ExtraReminderLine.DeleteAll();
+        CustLedgEntry.Get("Entry No.");
+        ShouldSkipCalcFinChrg := (CustLedgEntry."On Hold" <> '') or ("Due Date" >= ReminderHeader."Document Date");
+        OnCalcFinChrgOnAfterCalcShouldSkipCalcFinChrg(Rec, ReminderHeader, CustLedgEntry, ShouldSkipCalcFinChrg);
+        if ShouldSkipCalcFinChrg then
+            exit;
+
+        ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
+        if ReminderHeader."Use Header Level" then
+            ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level")
+        else
+            ReminderLevel.SetRange("No.", 1, "No. of Reminders");
+        if not ReminderLevel.FindLast() then
+            ReminderLevel.Init();
+        if (not ReminderLevel."Calculate Interest") or (ReminderHeader."Fin. Charge Terms Code" = '') then
+            exit;
+        FinChrgTerms.Get(ReminderHeader."Fin. Charge Terms Code");
+
+        CalcFinanceChargeInterestRate(FinanceChargeInterestRate, UseDueDate, UseInterestRate, UseCalcDate);
+
+        case FinChrgTerms."Interest Calculation Method" of
+            FinChrgTerms."Interest Calculation Method"::"Average Daily Balance":
+                begin
+                    CalcInterest := false;
+                    if NrOfLinesToInsert = 0 then
+                        FinChrgTerms.TestField("Interest Period (Days)")
+                    else
+                        FinanceChargeInterestRate.TestField("Interest Period (Days)");
+                    InterestCalcDate := CustLedgEntry."Due Date";
+                    ReminderEntry.SetCurrentKey("Customer Entry No.");
+                    ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
+                    ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
+                    ReminderEntry.SetRange("Interest Posted", true);
+                    if ReminderEntry.FindLast() then
+                        InterestCalcDate := ReminderEntry."Document Date";
+                    ReminderEntry.SetRange(Type, ReminderEntry.Type::"Finance Charge Memo");
+                    ReminderEntry.SetRange("Interest Posted");
+                    if ReminderEntry.FindLast() then
+                        if ReminderEntry."Document Date" > InterestCalcDate then
+                            InterestCalcDate := ReminderEntry."Document Date";
+                    if InterestCalcDate < ReminderHeader."Document Date" then begin
+                        CalcInterest := true;
+                        DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+                        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+                        DetailedCustLedgEntry.SetFilter("Entry Type", '%1|%2|%3|%4|%5',
+                          DetailedCustLedgEntry."Entry Type"::"Initial Entry",
+                          DetailedCustLedgEntry."Entry Type"::Application,
+                          DetailedCustLedgEntry."Entry Type"::"Payment Tolerance",
+                          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Excl.)",
+                          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)");
+                        DetailedCustLedgEntry.SetRange("Posting Date", 0D, ReminderHeader."Document Date");
+                        if DetailedCustLedgEntry.Find('-') then
+                            repeat
+                                if DetailedCustLedgEntry."Entry Type" = DetailedCustLedgEntry."Entry Type"::"Initial Entry" then
+                                    InterestStartDate := CustLedgEntry."Due Date"
+                                else
+                                    InterestStartDate := DetailedCustLedgEntry."Posting Date";
+                                if InterestCalcDate > InterestStartDate then
+                                    InterestStartDate := InterestCalcDate;
+                                Amount := Amount + DetailedCustLedgEntry.Amount * (ReminderHeader."Document Date" - InterestStartDate);
+                            until DetailedCustLedgEntry.Next() = 0;
+                        if not FinChrgTerms."Add. Line Fee in Interest" then
+                            if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
+                                if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
+                                    IssuedReminderHeader.CalcFields("Add. Fee per Line");
+                                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount;
+                                    Amount := Amount - LineFee * (ReminderHeader."Document Date" - InterestStartDate);
+                                    if Amount < 0 then
+                                        Amount := 0;
+                                end;
+                    end;
+                    if CalcInterest then
+                        Amount := Amount / FinChrgTerms."Interest Period (Days)" * "Interest Rate" / 100
+                    else
+                        Amount := 0;
+                    if (InterestCalcDate < ReminderHeader."Document Date") and (NrOfLinesToInsert = 0) then
+                        if NrOfLinesToInsert = 0 then
+                            CumulateDetailedEntries(
+                              Amount, UseDueDate, UseCalcDate, UseInterestRate, FinChrgTerms."Interest Period (Days)")
+                        else
+                            CumulateDetailedEntries(
+                              Amount, UseDueDate, UseCalcDate, UseInterestRate, FinanceChargeInterestRate."Interest Period (Days)");
+                    if (NrOfLinesToInsert > 0) and
+                       (FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance")
+                    then
+                        CreateMulitplyInterestRateEntries(
+                          ExtraReminderLine, FinanceChargeInterestRate, UseDueDate, UseInterestRate, UseCalcDate, CumAmount);
+
+                    if CumAmount <> 0 then
+                        Validate(Amount, CumAmount);
+                end;
+            FinChrgTerms."Interest Calculation Method"::"Balance Due":
+                if "Due Date" < ReminderHeader."Document Date" then
+                    Amount := "Remaining Amount" * "Interest Rate" / 100;
+        end;
+
+        OnCalcFinChrgOnBeforeValidatePostingGroups(Rec, ReminderHeader, Amount);
+        if Amount <> 0 then begin
+            CustPostingGr.Get(ReminderHeader."Customer Posting Group");
+            GLAcc.Get(CustPostingGr.GetInterestAccount);
+            GLAcc.TestField("Gen. Prod. Posting Group");
+            "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
+            Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
+        end;
+
+        OnAfterCalcFinChrg(Rec, ReminderHeader);
+    end;
+
+#if not CLEAN20
+    internal procedure SkipCalcFinChrgCZ()
+    begin
+        IsCalcFinChrgCZSkipped := true;
+    end;
+
+    local procedure CalcFinChrgCZ()
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         IssuedReminderHeader: Record "Issued Reminder Header";
@@ -589,6 +776,7 @@ table 296 "Reminder Line"
         IsHandled: Boolean;
         ShouldSkipCalcFinChrg: Boolean;
     begin
+        // NAVCZ
         IsHandled := false;
         OnBeforeCalcFinChrg(Rec, ReminderHeader, IsHandled);
         if IsHandled then
@@ -613,7 +801,7 @@ table 296 "Reminder Line"
             ReminderLevel.SetRange("No.", 1, ReminderHeader."Reminder Level")
         else
             ReminderLevel.SetRange("No.", 1, "No. of Reminders");
-        if not ReminderLevel.FindLast then
+        if not ReminderLevel.FindLast() then
             ReminderLevel.Init();
         if (not ReminderLevel."Calculate Interest") or (ReminderHeader."Fin. Charge Terms Code" = '') then
             exit;
@@ -628,11 +816,11 @@ table 296 "Reminder Line"
                     ReminderEntry.SetRange("Customer Entry No.", "Entry No.");
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
                     ReminderEntry.SetRange("Interest Posted", true);
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         InterestCalcDate := ReminderEntry."Document Date";
                     ReminderEntry.SetRange(Type, ReminderEntry.Type::"Finance Charge Memo");
                     ReminderEntry.SetRange("Interest Posted");
-                    if ReminderEntry.FindLast then
+                    if ReminderEntry.FindLast() then
                         if ReminderEntry."Document Date" > InterestCalcDate then
                             InterestCalcDate := ReminderEntry."Document Date";
                     if InterestCalcDate < ReminderHeader."Document Date" then begin
@@ -654,7 +842,6 @@ table 296 "Reminder Line"
                                     InterestStartDate := DetailedCustLedgEntry."Posting Date";
                                 if InterestCalcDate > InterestStartDate then
                                     InterestStartDate := InterestCalcDate;
-                                // NAVCZ
                                 DtldLineNo := 0;
                                 MultipleInterestCalcLine.DeleteAll();
                                 FinChrgTerms.SetRatesForCalc(InterestStartDate, ReminderHeader."Document Date", MultipleInterestCalcLine);
@@ -697,12 +884,10 @@ table 296 "Reminder Line"
                                         Amount := 0;
                                 end;
                     end;
-                    // NAVCZ
                     DtldReminderLine.SetRange("Reminder No.", ReminderHeader."No.");
                     DtldReminderLine.SetRange("Reminder Line No.", "Line No.");
                     DtldReminderLine.CalcSums("Interest Amount");
                     Amount := DtldReminderLine."Interest Amount";
-                    // NAVCZ
                 end;
             FinChrgTerms."Interest Calculation Method"::"Balance Due":
                 if "Due Date" < ReminderHeader."Document Date" then
@@ -720,6 +905,7 @@ table 296 "Reminder Line"
 
         OnAfterCalcFinChrg(Rec, ReminderHeader);
     end;
+#endif
 
     local procedure SetCustLedgEntryView()
     begin
@@ -812,7 +998,7 @@ table 296 "Reminder Line"
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
         OnGetNoOfReminderForCustLedgEntryOnAfterReminderEntrySetFilters(ReminderEntry);
-        if ReminderEntry.FindLast then
+        if ReminderEntry.FindLast() then
             NoOfReminders := ReminderEntry."Reminder Level";
         if (CustLedgerEntry."On Hold" = '') and (CustLedgerEntry."Due Date" < ReminderHeader."Document Date") then
             NoOfReminders := NoOfReminders + 1;
@@ -839,8 +1025,53 @@ table 296 "Reminder Line"
             ReminderLevel.SetRange("No.", LevelStart, ReminderHeader."Reminder Level")
         else
             ReminderLevel.SetRange("No.", LevelStart, LevelEnd);
-        if not ReminderLevel.FindLast then
+        if not ReminderLevel.FindLast() then
             ReminderLevel.Init();
+    end;
+
+    procedure CumulateDetailedEntries(var CumAmount: Decimal; UseDueDate: Date; UseCalcDate: Date; UseInterestRate: Decimal; UseInterestPeriod: Decimal)
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        InterestStartDate: Date;
+        LineFee: Decimal;
+    begin
+        CalcInterest := true;
+        DetailedCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgEntry."Entry No.");
+        DetailedCustLedgEntry.SetFilter("Entry Type", '%1|%2|%3|%4|%5',
+          DetailedCustLedgEntry."Entry Type"::"Initial Entry",
+          DetailedCustLedgEntry."Entry Type"::Application,
+          DetailedCustLedgEntry."Entry Type"::"Payment Tolerance",
+          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Excl.)",
+          DetailedCustLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)");
+        DetailedCustLedgEntry.SetRange("Posting Date", 0D, ReminderHeader."Document Date");
+        CumAmount := 0;
+        if DetailedCustLedgEntry.Find('-') then
+            repeat
+                if DetailedCustLedgEntry."Entry Type" = DetailedCustLedgEntry."Entry Type"::"Initial Entry" then
+                    InterestStartDate := UseDueDate
+                else
+                    if UseDueDate < DetailedCustLedgEntry."Posting Date" then
+                        InterestStartDate := DetailedCustLedgEntry."Posting Date";
+                if InterestCalcDate > InterestStartDate then
+                    InterestStartDate := InterestCalcDate;
+                if InterestStartDate < UseCalcDate then
+                    CumAmount := CumAmount + (DetailedCustLedgEntry.Amount * (UseCalcDate - InterestStartDate));
+            until DetailedCustLedgEntry.Next() = 0;
+        if not FinChrgTerms."Add. Line Fee in Interest" then
+            if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
+                if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
+                    IssuedReminderHeader.CalcFields("Add. Fee per Line");
+                    LineFee := IssuedReminderHeader."Add. Fee per Line" + IssuedReminderHeader.CalculateLineFeeVATAmount;
+                    CumAmount := CumAmount - LineFee * (ReminderHeader."Document Date" - InterestStartDate);
+                    if CumAmount < 0 then
+                        CumAmount := 0;
+                end;
+        if CalcInterest then
+            CumAmount := Round(CumAmount / UseInterestPeriod * UseInterestRate / 100, Currency."Amount Rounding Precision")
+        else
+            CumAmount := 0;
     end;
 
     procedure LookupDocNo()
@@ -860,12 +1091,106 @@ table 296 "Reminder Line"
             CustLedgEntry.SetRange("Document Type", "Document Type");
         if "Document No." <> '' then
             CustLedgEntry.SetRange("Document No.", "Document No.");
-        if CustLedgEntry.FindFirst then;
+        if CustLedgEntry.FindFirst() then;
         CustLedgEntry.SetRange("Document Type");
         CustLedgEntry.SetRange("Document No.");
         LookupCustLedgEntry();
     end;
 
+    procedure CalcFinanceChargeInterestRate(var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseInterestRate: Decimal; var UseCalcDate: Date)
+    var
+        LastRateFound: Boolean;
+    begin
+        UseDueDate := CustLedgEntry."Due Date";
+        UseInterestRate := FinChrgTerms."Interest Rate";
+        UseCalcDate := 0D;
+        NrOfLinesToInsert := 0;
+
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", ReminderHeader."Fin. Charge Terms Code");
+        FinanceChargeInterestRate."Fin. Charge Terms Code" := ReminderHeader."Fin. Charge Terms Code";
+        if FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance" then
+            FinanceChargeInterestRate."Start Date" := CalcDate('<+1D>', CustLedgEntry."Due Date")
+        else
+            FinanceChargeInterestRate."Start Date" := ReminderHeader."Document Date";
+        NrOfLinesToInsert := 0;
+        LastRateFound := false;
+        if FinanceChargeInterestRate.Find('=<') then begin
+            UseInterestRate := FinanceChargeInterestRate."Interest Rate";
+            if FinChrgTerms."Interest Calculation Method" = FinChrgTerms."Interest Calculation Method"::"Average Daily Balance" then
+                repeat
+                    if FinanceChargeInterestRate."Start Date" <= ReminderHeader."Document Date" then
+                        NrOfLinesToInsert := NrOfLinesToInsert + 1
+                    else
+                        LastRateFound := true;
+                until LastRateFound or (FinanceChargeInterestRate.Next() = 0);
+            if UseCalcDate = 0D then begin
+                FinanceChargeInterestRate.Next(-1);
+                UseCalcDate := FinanceChargeInterestRate."Start Date";
+            end;
+        end else
+            if FinanceChargeInterestRate.Count > 0 then
+                Error(InvalidInterestRateDateErr, FinanceChargeInterestRate."Start Date");
+
+        if (UseCalcDate = 0D) or (UseCalcDate < ReminderHeader."Document Date") then
+            UseCalcDate := ReminderHeader."Document Date";
+        "Interest Rate" := UseInterestRate;
+    end;
+
+    procedure CreateMulitplyInterestRateEntries(var ExtraReminderLine: Record "Reminder Line"; var FinanceChargeInterestRate: Record "Finance Charge Interest Rate"; var UseDueDate: Date; var UseInterestRate: Decimal; var UseCalcDate: Date; var CumAmount: Decimal)
+    var
+        LineSpacing: Integer;
+        NextLineNo: Integer;
+        UseInterestPeriod: Integer;
+        CurrInterestRateStartDate: Date;
+    begin
+        ExtraReminderLine.Reset();
+        ExtraReminderLine.SetRange("Reminder No.", "Reminder No.");
+        ExtraReminderLine := Rec;
+        if ExtraReminderLine.Find('>') then begin
+            LineSpacing := (ExtraReminderLine."Line No." - "Line No.") div
+              (1 + NrOfLinesToInsert);
+            if LineSpacing = 0 then
+                Error(NotEnoughSpaceToInsertErr);
+        end else
+            LineSpacing := 10000;
+        NextLineNo := "Line No." + LineSpacing;
+        FinanceChargeInterestRate.Init();
+        FinanceChargeInterestRate.SetRange("Fin. Charge Terms Code", ReminderHeader."Fin. Charge Terms Code");
+        FinanceChargeInterestRate."Fin. Charge Terms Code" := ReminderHeader."Fin. Charge Terms Code";
+        FinanceChargeInterestRate."Start Date" := CalcDate('<+1D>', CustLedgEntry."Due Date");
+        if FinanceChargeInterestRate.Find('=<') then
+            repeat
+                FinanceChargeInterestRate.TestField("Interest Period (Days)");
+                UseInterestPeriod := FinanceChargeInterestRate."Interest Period (Days)";
+                UseDueDate := CalcDate('<-1D>', FinanceChargeInterestRate."Start Date");
+                CurrInterestRateStartDate := FinanceChargeInterestRate."Start Date";
+                UseInterestRate := FinanceChargeInterestRate."Interest Rate";
+                if FinanceChargeInterestRate.Next <> 0 then begin
+                    if FinanceChargeInterestRate."Start Date" <= ReminderHeader."Document Date" then
+                        UseCalcDate := CalcDate('<-1D>', FinanceChargeInterestRate."Start Date")
+                    else
+                        UseCalcDate := ReminderHeader."Document Date";
+                end else
+                    UseCalcDate := ReminderHeader."Document Date";
+                ExtraReminderLine := Rec;
+                ExtraReminderLine."Line No." := NextLineNo;
+                ExtraReminderLine."Due Date" := CalcDate('<+1D>', InterestCalcDate);
+                if CurrInterestRateStartDate > ExtraReminderLine."Due Date" then
+                    ExtraReminderLine."Due Date" := CurrInterestRateStartDate;
+                ExtraReminderLine."Interest Rate" := UseInterestRate;
+                CumulateDetailedEntries(ExtraReminderLine.Amount, UseDueDate, UseCalcDate, UseInterestRate, UseInterestPeriod);
+                if ExtraReminderLine.Amount <> 0 then begin
+                    CumAmount := CumAmount + ExtraReminderLine.Amount;
+                    ExtraReminderLine."Detailed Interest Rates Entry" := true;
+                    ExtraReminderLine.Insert();
+                    NextLineNo := ExtraReminderLine."Line No." + LineSpacing;
+                end;
+                NrOfLinesToInsert := NrOfLinesToInsert - 1;
+            until NrOfLinesToInsert = 0;
+    end;
+
+#if not CLEAN20
     [Scope('OnPrem')]
     procedure DeleteDtldReminderLine()
     begin
@@ -875,7 +1200,7 @@ table 296 "Reminder Line"
         DtldReminderLine.SetRange("Reminder Line No.", "Line No.");
         DtldReminderLine.DeleteAll();
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromCustLedgEntry(var ReminderLine: Record "Reminder Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin

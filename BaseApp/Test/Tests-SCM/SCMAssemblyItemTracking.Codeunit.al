@@ -47,7 +47,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Assembly Item Tracking");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryPatterns.SETNoSeries;
         Initialized := true;
         Commit();
@@ -72,7 +72,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibrarySales: Codeunit "Library - Sales";
         SNChild: Code[20];
     begin
-        Initialize;
+        Initialize();
         LibrarySales.SetCreditWarningsToNoWarnings;
 
         // Create items
@@ -101,7 +101,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ATOLink.SetRange(Type, ATOLink.Type::Sale);
         ATOLink.SetRange("Document Type", ATOLink."Document Type"::Quote);
         ATOLink.SetRange("Document No.", SalesHeader."No.");
-        ATOLink.FindFirst;
+        ATOLink.FindFirst();
         AssemblyLine.Get(AssemblyLine."Document Type"::Quote, ATOLink."Assembly Document No.", 10000);
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AssemblyLine, SNChild, '', 1);
 
@@ -123,7 +123,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     var
         ItemTrackingCodeSN: Record "Item Tracking Code";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeSN, true, false);
         FullPosting(ItemTrackingCodeSN, true, false);
     end;
@@ -134,7 +134,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     var
         ItemTrackingCodeLot: Record "Item Tracking Code";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeLot, false, true);
         FullPosting(ItemTrackingCodeLot, false, true);
     end;
@@ -149,7 +149,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeSN, true, false);
 
         MockItem(ItemParent);
@@ -177,7 +177,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeSN, true, false);
 
         MockItem(ItemParent);
@@ -205,7 +205,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeLN, false, true);
 
         MockItem(ItemParent);
@@ -231,7 +231,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeLN, false, true);
 
         MockItem(ItemParent);
@@ -253,7 +253,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     var
         ItemTrackingCodeLot: Record "Item Tracking Code";
     begin
-        Initialize;
+        Initialize();
         CreateItemTrackingCode(ItemTrackingCodeLot, false, true);
         PartialPosting(ItemTrackingCodeLot, '', '', 'LOTA', 'LOT0001');
     end;
@@ -263,7 +263,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure WMS_Pick_AssignITOnAsmLine()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(0, false, false, true, 0); // LN
         WhseScenario(0, false, true, false, 0); // SN
     end;
@@ -273,7 +273,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure WMS_Pick_AssignITOnPick()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(0, false, false, true, 1); // LN
         WhseScenario(0, false, true, false, 1); // SN
     end;
@@ -282,7 +282,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure WMS_PickWksh_AssingITOnAsmLine()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(0, true, false, true, 0);  // LN
         WhseScenario(0, true, true, false, 0);  // SN
     end;
@@ -291,7 +291,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure WMS_PickWksh_AssingITOnWksh()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(0, true, false, true, 3);  // LN
         WhseScenario(0, true, true, false, 3);  // SN
     end;
@@ -300,7 +300,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure WMS_PickWksh_AssingITOnPick()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(0, true, false, true, 1);  // LN
         WhseScenario(0, true, true, false, 1);  // SN
     end;
@@ -310,7 +310,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure BW_AssignITOnAsmLine()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(1, false, false, true, 0); // LN
         WhseScenario(1, false, true, false, 0); // SN
     end;
@@ -320,7 +320,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     [Scope('OnPrem')]
     procedure BW_AssignITOnInvtMovement()
     begin
-        Initialize;
+        Initialize();
         WhseScenario(1, false, false, true, 2); // LN
         WhseScenario(1, false, true, false, 2); // SN
     end;
@@ -473,7 +473,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
             else
                 if AssignITOn = AssignITOn::PickWorksheet then begin
                     WhseWkshTemplate.SetRange(Type, WhseWkshTemplate.Type::Pick);
-                    WhseWkshTemplate.FindFirst;
+                    WhseWkshTemplate.FindFirst();
                     WhseWkshLine.Get(WhseWkshTemplate.Name, Location.Code, Location.Code, 10000);
                     LibraryItemTracking.CreateWhseWkshItemTracking(WhseItemTrackingLine, WhseWkshLine, SerialNo, LotNo, 1);
                 end;
@@ -484,7 +484,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
             if UsePickWorksheet then begin
                 CreatePick.SetWkshPickLine(WhseWkshLine);
                 CreatePick.UseRequestPage(false);
-                CreatePick.RunModal;
+                CreatePick.RunModal();
             end else
                 LibraryAssembly.CreateWhsePick(AssemblyHeader, '', 0, false, false, false) // create pick
         else
@@ -662,12 +662,12 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Assembly Consumption");
         WhseActivityLine.SetRange("Source No.", SourceNo);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
 
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetRange(Type, ActivityType);
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
-        WhseActivityHeader.FindFirst;
+        WhseActivityHeader.FindFirst();
         LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
         if (ActivityType = ActivityType::"Put-away") or (ActivityType = ActivityType::Pick) then
             LibraryWarehouse.RegisterWhseActivity(WhseActivityHeader)
@@ -713,11 +713,11 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
         if DirectedPutPick then begin // create a zone and set bin type code
             BinTypePick.SetRange(Pick, true);
-            BinTypePick.FindFirst;
+            BinTypePick.FindFirst();
             LibraryWarehouse.CreateZone(Zone, 'ZONE', Location.Code, BinTypePick.Code, '', '', 0, false);
             BinTypePutaway.SetRange("Put Away", true);
             BinTypePutaway.SetRange(Pick, false);
-            BinTypePutaway.FindFirst;
+            BinTypePutaway.FindFirst();
             LibraryWarehouse.CreateBin(Bin, Location.Code, 'BINX', Zone.Code, BinTypePick.Code);
             Location.Validate("Adjustment Bin Code", 'BINX');
             Location.Modify(true);
@@ -740,9 +740,9 @@ codeunit 137926 "SCM Assembly Item Tracking"
         // IF SN is used Quantity must be 1
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         LibraryInventory.CreateItemJournalLine(ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name,
           ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
@@ -765,15 +765,15 @@ codeunit 137926 "SCM Assembly Item Tracking"
     begin
         ItemJournalTemplate.SetRange(Type, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.SetRange(Recurring, false);
-        ItemJournalTemplate.FindFirst;
+        ItemJournalTemplate.FindFirst();
         ItemJournalBatch.SetRange("Journal Template Name", ItemJournalTemplate.Name);
-        ItemJournalBatch.FindFirst;
+        ItemJournalBatch.FindFirst();
 
         if Location."Directed Put-away and Pick" then begin
             WarehouseJournalTemplate.SetRange(Type, WarehouseJournalTemplate.Type::Item);
-            WarehouseJournalTemplate.FindFirst;
+            WarehouseJournalTemplate.FindFirst();
             WarehouseJournalBatch.SetRange("Journal Template Name", WarehouseJournalTemplate.Name);
-            WarehouseJournalBatch.FindFirst;
+            WarehouseJournalBatch.FindFirst();
             LibraryWarehouse.CreateWhseJournalLine(
               WarehouseJournalLine, WarehouseJournalTemplate.Name, WarehouseJournalBatch.Name,
               Location.Code, '', BinCode, WarehouseJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Quantity);
@@ -845,7 +845,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseActivityLine.SetRange("Source Type", DATABASE::"Assembly Line");
         WhseActivityLine.SetRange("Source Document", WhseActivityLine."Source Document"::"Assembly Consumption");
         WhseActivityLine.SetRange("Source No.", AsmOrderNo);
-        WhseActivityLine.FindFirst;
+        WhseActivityLine.FindFirst();
         if ExpectedSN <> '' then
             Assert.AreEqual(WhseActivityLine."Serial No.", ExpectedSN, WrongSNErr);
         if ExpectedLN <> '' then

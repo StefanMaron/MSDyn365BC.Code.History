@@ -253,7 +253,7 @@ page 31127 "EET Entry Preview Card"
         EETEntryStatusLogPreview: Page "EET Entry Status Log Preview";
     begin
         EETEntryStatusLogPreview.Set(TempEETEntryStatus, TempErrorMessage);
-        EETEntryStatusLogPreview.RunModal;
+        EETEntryStatusLogPreview.RunModal();
     end;
 }
 #endif

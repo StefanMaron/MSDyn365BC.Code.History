@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 1522 "Workflow Request Page Handling"
 {
 
@@ -15,10 +15,6 @@ codeunit 1522 "Workflow Request Page Handling"
         IncomingDocumentDescTxt: Label 'Incoming Document';
         PaymentOrderCodeTxt: Label 'PMTORD', Locked = true;
         PaymentOrderDescTxt: Label 'Payment Order';
-#if not CLEAN17
-        CashDocumentCodeTxt: Label 'CASHDOC', Locked = true;
-        CashDocumentDescTxt: Label 'Cash Document';
-#endif
 #if not CLEAN18
         CreditDocumentCodeTxt: Label 'CREDIT', Locked = true;
         CreditDocumentDescTxt: Label 'Credit';
@@ -42,9 +38,6 @@ codeunit 1522 "Workflow Request Page Handling"
         AssignEntityToWorkflowEvent(DATABASE::"Incoming Document", IncomingDocumentCodeTxt);
         // NAVCZ
         AssignEntityToWorkflowEvent(DATABASE::"Payment Order Header", PaymentOrderCodeTxt);
-#if not CLEAN17
-        AssignEntityToWorkflowEvent(DATABASE::"Cash Document Header", CashDocumentCodeTxt);
-#endif
 #if not CLEAN18
         AssignEntityToWorkflowEvent(DATABASE::"Credit Header", CreditDocumentCodeTxt);
 #endif
@@ -68,11 +61,6 @@ codeunit 1522 "Workflow Request Page Handling"
         // NAVCZ
         InsertReqPageEntity(
           PaymentOrderCodeTxt, PaymentOrderDescTxt, DATABASE::"Payment Order Header", DATABASE::"Payment Order Line");
-#if not CLEAN17
-        InsertReqPageEntity(
-
-          CashDocumentCodeTxt, CashDocumentDescTxt, DATABASE::"Cash Document Header", DATABASE::"Cash Document Line");
-#endif
 #if not CLEAN18
         InsertReqPageEntity(
           CreditDocumentCodeTxt, CreditDocumentDescTxt, DATABASE::"Credit Header", DATABASE::"Credit Line");
@@ -139,11 +127,6 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertPaymentOrderHeaderReqPageFields();
         InsertPaymentOrderLineReqPageFields();
 
-#if not CLEAN17
-        InsertCashDocHeaderReqPageFields();
-        InsertCashDocLineReqPageFields();
-
-#endif
 #if not CLEAN18
         InsertCreditHeaderReqPageFields();
         InsertCreditLineReqPageFields();
@@ -278,29 +261,6 @@ codeunit 1522 "Workflow Request Page Handling"
         InsertDynReqPageField(DATABASE::"Payment Order Line", PmtOrdLn.FieldNo("Amount to Pay"));
     end;
 
-#if not CLEAN17
-    local procedure InsertCashDocHeaderReqPageFields()
-    var
-        CashDocHdr: Record "Cash Document Header";
-    begin
-        // NAVCZ
-        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Desk No."));
-        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Cash Document Type"));
-        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo(Amount));
-        InsertDynReqPageField(DATABASE::"Cash Document Header", CashDocHdr.FieldNo("Currency Code"));
-    end;
-
-    local procedure InsertCashDocLineReqPageFields()
-    var
-        CashDocLn: Record "Cash Document Line";
-    begin
-        // NAVCZ
-        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account Type"));
-        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo("Account No."));
-        InsertDynReqPageField(DATABASE::"Cash Document Line", CashDocLn.FieldNo(Amount));
-    end;
-
-#endif
 #if not CLEAN18
     local procedure InsertCreditHeaderReqPageFields()
     var

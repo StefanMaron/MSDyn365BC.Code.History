@@ -1,4 +1,4 @@
-﻿table 352 "Default Dimension"
+table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -531,12 +531,6 @@
                 UpdateItemTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
             Database::"Employee Templ.":
                 UpdateEmployeeTemplGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
-#if not CLEAN17
-            // NAVCZ
-            DATABASE::"Cash Desk Event":
-                UpdateCashDeskEventGlobalDimCode(GlobalDimCodeNo, AccNo, NewDimValue);
-            // NAVCZ
-#endif
             else
                 OnAfterUpdateGlobalDimCode(GlobalDimCodeNo, TableID, AccNo, NewDimValue);
         end;
@@ -860,24 +854,6 @@
         end;
     end;
 
-#if not CLEAN17
-    local procedure UpdateCashDeskEventGlobalDimCode(GlobalDimCodeNo: Integer; CashDeskEventNo: Code[20]; NewDimValue: Code[20])
-    var
-        CashDeskEvent: Record "Cash Desk Event";
-    begin
-        // NAVCZ
-        if CashDeskEvent.Get(CashDeskEventNo) then begin
-            case GlobalDimCodeNo of
-                1:
-                    CashDeskEvent."Global Dimension 1 Code" := NewDimValue;
-                2:
-                    CashDeskEvent."Global Dimension 2 Code" := NewDimValue;
-            end;
-            CashDeskEvent.Modify(true);
-        end;
-    end;
-
-#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20])
     begin
@@ -1277,7 +1253,7 @@
     begin
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
         AllObjWithCaption.SetRange("Object ID", TableID);
-        if AllObjWithCaption.FindFirst then;
+        if AllObjWithCaption.FindFirst() then;
         Error(StrSubstNo(RequestedRecordIsNotSupportedErr, AllObjWithCaption."Object Caption"));
     end;
 
@@ -1539,4 +1515,3 @@
     begin
     end;
 }
-

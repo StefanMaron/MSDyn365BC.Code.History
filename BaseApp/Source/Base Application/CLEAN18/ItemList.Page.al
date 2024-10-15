@@ -13,6 +13,9 @@ page 31 "Item List"
     SourceTable = Item;
     UsageCategory = Lists;
 
+    AboutTitle = 'About items';
+    AboutText = '**Items** represent the products and services you buy and sell. For each item, you can manage the default sales and purchase prices used when creating documents, as well as track inventory numbers. With [Item Templates](?page=1383 "Opens the Item Templates") you can quickly create new items having common details defined by the template.';
+
     layout
     {
         area(content)
@@ -278,27 +281,6 @@ page 31 "Item List"
                 Caption = 'Power BI Reports';
                 Visible = PowerBIVisible;
             }
-            part(Control3; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Item),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control26; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Item),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
             part(Control1901314507; "Item Invoicing FactBox")
             {
                 ApplicationArea = Basic, Suite;
@@ -506,29 +488,11 @@ page 31 "Item List"
                     RunPageView = SORTING("Item No.", "Variant Code", "Unit of Measure Code");
                     ToolTip = 'View a unique identifier for each item that you want warehouse employees to keep track of within the warehouse when using handheld devices. The item identifier can include the item number, the variant code and the unit of measure.';
                 }
-#if not CLEAN17
-                action("Cross Re&ferences")
-                {
-                    ApplicationArea = Advanced;
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '17.0';
-                    RunObject = Page "Item Cross Reference Entries";
-                    RunPageLink = "Item No." = FIELD("No.");
-                    Scope = Repeater;
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                }
-#endif
                 action("Item Refe&rences")
                 {
-                    ApplicationArea = Suite;
+                    AccessByPermission = TableData "Item Reference" = R;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
-                    Visible = ItemReferenceVisible;
                     Image = Change;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -536,7 +500,7 @@ page 31 "Item List"
                     RunObject = Page "Item Reference Entries";
                     RunPageLink = "Item No." = FIELD("No.");
                     Scope = Repeater;
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. References to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
                 }
                 action("E&xtended Texts")
                 {
@@ -583,7 +547,7 @@ page 31 "Item List"
                         begin
                             Commit();
                             AdjustInventory.SetItem("No.");
-                            AdjustInventory.RunModal;
+                            AdjustInventory.RunModal();
                         end;
                     }
                 }
@@ -618,7 +582,7 @@ page 31 "Item List"
                         begin
                             CurrPage.SetSelectionFilter(Item);
                             DefaultDimMultiple.SetMultiRecord(Item, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -767,7 +731,7 @@ page 31 "Item List"
                     begin
                         SalesPriceAndLineDiscounts.InitPage(true);
                         SalesPriceAndLineDiscounts.LoadItem(Rec);
-                        SalesPriceAndLineDiscounts.RunModal;
+                        SalesPriceAndLineDiscounts.RunModal();
                     end;
                 }
                 action("Sales Price Worksheet")
@@ -879,7 +843,7 @@ page 31 "Item List"
                         PurchasesPriceAndLineDisc: Page "Purchases Price and Line Disc.";
                     begin
                         PurchasesPriceAndLineDisc.LoadItem(Rec);
-                        PurchasesPriceAndLineDisc.RunModal;
+                        PurchasesPriceAndLineDisc.RunModal();
                     end;
                 }
 #endif
@@ -1141,12 +1105,8 @@ page 31 "Item List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Apply Template';
-                Ellipsis = true;
                 Image = ApplyTemplate;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality will be replaced by other templates.';
-                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -1743,7 +1703,7 @@ page 31 "Item List"
                         ApplicationArea = Suite;
                         Caption = 'Match-Based Coupling';
                         Image = CoupledItem;
-                        ToolTip = 'Couple to existing Dataverse products based on matching criteria.';
+                        ToolTip = 'Couple items to products in Dynamics 365 Sales based on criteria.';
 
                         trigger OnAction()
                         var
@@ -1808,7 +1768,7 @@ page 31 "Item List"
                         BOMStructure: Page "BOM Structure";
                     begin
                         BOMStructure.InitItem(Rec);
-                        BOMStructure.Run;
+                        BOMStructure.Run();
                     end;
                 }
                 action("Cost Shares")
@@ -1823,7 +1783,7 @@ page 31 "Item List"
                         BOMCostShares: Page "BOM Cost Shares";
                     begin
                         BOMCostShares.InitItem(Rec);
-                        BOMCostShares.Run;
+                        BOMCostShares.Run();
                     end;
                 }
                 group(Assembly)
@@ -1903,7 +1863,7 @@ page 31 "Item List"
                             ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                         begin
                             ProdBOMWhereUsed.SetItem(Rec, WorkDate);
-                            ProdBOMWhereUsed.RunModal;
+                            ProdBOMWhereUsed.RunModal();
                         end;
                     }
                     action(Action24)
@@ -1937,7 +1897,7 @@ page 31 "Item List"
                             ItemStatistics: Page "Item Statistics";
                         begin
                             ItemStatistics.SetItem(Rec);
-                            ItemStatistics.RunModal;
+                            ItemStatistics.RunModal();
                         end;
                     }
                     action("Entry Statistics")
@@ -2228,7 +2188,7 @@ page 31 "Item List"
                     begin
                         Clear(SkilledResourceList);
                         SkilledResourceList.Initialize(ResourceSkill.Type::Item, "No.", Description);
-                        SkilledResourceList.RunModal;
+                        SkilledResourceList.RunModal();
                     end;
                 }
             }
@@ -2238,12 +2198,8 @@ page 31 "Item List"
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
-        SocialListeningMgt: Codeunit "Social Listening Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
-        if SocialListeningSetupVisible then
-            SocialListeningMgt.GetItemFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
-
         if CRMIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
 
@@ -2300,23 +2256,18 @@ page 31 "Item List"
 
     trigger OnOpenPage()
     var
-        SocialListeningSetup: Record "Social Listening Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ClientTypeManagement: Codeunit "Client Type Management";
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         if CRMIntegrationEnabled then
             if IntegrationTableMapping.Get('ITEM-PRODUCT') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field54=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        with SocialListeningSetup do
-            SocialListeningSetupVisible := Get and "Show on Customers" and "Accept License Agreement" and ("Solution ID" <> '');
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         SetWorkflowManagementEnabledState;
         IsOnPhone := ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone;
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     var
@@ -2350,13 +2301,7 @@ page 31 "Item List"
         IsNonInventoriable: Boolean;
         [InDataSet]
         IsInventoriable: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
         PowerBIVisible: Boolean;
-        [InDataSet]
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
 
     procedure SelectActiveItems(): Text
     var
@@ -2444,7 +2389,7 @@ page 31 "Item List"
         RunOnTempRec := true;
         RunOnPickItem := true;
 
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 TempItemFilteredFromAttributes := Item;
                 TempItemFilteredFromAttributes.Insert();
@@ -2462,7 +2407,7 @@ page 31 "Item List"
         TempItemFilteredFromAttributes.DeleteAll();
         RunOnTempRec := true;
 
-        if TempItemFilteredFromPickItem.FindSet then
+        if TempItemFilteredFromPickItem.FindSet() then
             repeat
                 TempItemFilteredFromAttributes := TempItemFilteredFromPickItem;
                 TempItemFilteredFromAttributes.Insert();

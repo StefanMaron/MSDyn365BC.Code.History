@@ -8,7 +8,7 @@ page 30 "Item Card"
     SourceTable = Item;
 
     AboutTitle = 'About item details';
-    AboutText = 'With the Item Card you manage the information that appears in sales and purchase documents when you buy or sell an item, such as line description and price. You can also find settings for how an item is priced, replenished, stocked, and for how costing and posting is done.';
+    AboutText = 'With the **Item Card** you manage the information that appears in sales and purchase documents when you buy or sell an item, such as line description and price. You can also find settings for how an item is priced, replenished, stocked, and for how costing and posting is done.';
 
     layout
     {
@@ -268,17 +268,6 @@ page 30 "Item Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the gross weight of the item.';
                 }
-#if not CLEAN17
-                field("Statistic Indication"; "Statistic Indication")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the statistic indication code for the item.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-                }
-#endif
                 field("Specific Movement"; "Specific Movement")
                 {
                     ApplicationArea = Basic, Suite;
@@ -434,7 +423,7 @@ page 30 "Item Card"
                         begin
                             if SpecialPurchPricesAndDiscountsTxt = ViewExistingTxt then begin
                                 PurchasesPriceAndLineDisc.LoadItem(Rec);
-                                PurchasesPriceAndLineDisc.RunModal;
+                                PurchasesPriceAndLineDisc.RunModal();
                                 exit;
                             end;
 
@@ -601,7 +590,7 @@ page 30 "Item Card"
                         if SpecialPricesAndDiscountsTxt = ViewExistingTxt then begin
                             SalesPriceAndLineDiscounts.InitPage(true);
                             SalesPriceAndLineDiscounts.LoadItem(Rec);
-                            SalesPriceAndLineDiscounts.RunModal;
+                            SalesPriceAndLineDiscounts.RunModal();
                             exit;
                         end;
 
@@ -751,6 +740,7 @@ page 30 "Item Card"
                 group(Replenishment_Assembly)
                 {
                     Caption = 'Assembly';
+                    Visible = IsInventoriable;
                     field("Assembly Policy"; "Assembly Policy")
                     {
                         ApplicationArea = Assembly;
@@ -1059,27 +1049,6 @@ page 30 "Item Card"
             {
                 ApplicationArea = Basic, Suite;
             }
-            part(Control132; "Social Listening FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Item),
-                              "Source No." = FIELD("No.");
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
-            part(Control134; "Social Listening Setup FactBox")
-            {
-                ApplicationArea = All;
-                SubPageLink = "Source Type" = CONST(Item),
-                              "Source No." = FIELD("No.");
-                UpdatePropagation = Both;
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Microsoft Social Engagement has been discontinued.';
-                ObsoleteTag = '17.0';
-            }
             part(WorkflowStatus; "Workflow Status FactBox")
             {
                 ApplicationArea = Suite;
@@ -1143,7 +1112,7 @@ page 30 "Item Card"
                     begin
                         Commit();
                         AdjustInventory.SetItem("No.");
-                        AdjustInventory.RunModal;
+                        AdjustInventory.RunModal();
                     end;
                 }
                 action("Va&riants")
@@ -1197,7 +1166,7 @@ page 30 "Item Card"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1268,7 +1237,7 @@ page 30 "Item Card"
                     begin
                         SalesPriceAndLineDiscounts.InitPage(true);
                         SalesPriceAndLineDiscounts.LoadItem(Rec);
-                        SalesPriceAndLineDiscounts.RunModal;
+                        SalesPriceAndLineDiscounts.RunModal();
                     end;
                 }
 #endif
@@ -1366,7 +1335,7 @@ page 30 "Item Card"
                         PurchasesPriceAndLineDisc: Page "Purchases Price and Line Disc.";
                     begin
                         PurchasesPriceAndLineDisc.LoadItem(Rec);
-                        PurchasesPriceAndLineDisc.RunModal;
+                        PurchasesPriceAndLineDisc.RunModal();
                     end;
                 }
 #endif
@@ -1550,7 +1519,7 @@ page 30 "Item Card"
                         begin
                             // Opens page 6400 where the user can use filtered templates to create new Flows.
                             FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetItemTemplateFilter);
-                            FlowTemplateSelector.Run;
+                            FlowTemplateSelector.Run();
                         end;
                     }
                     action(SeeFlows)
@@ -1836,7 +1805,7 @@ page 30 "Item Card"
                             Item.SetRange("No.", "No.");
                             Clear(ExportItemData);
                             ExportItemData.SetTableView(Item);
-                            ExportItemData.Run;
+                            ExportItemData.Run();
                         end;
                     }
                 }
@@ -1859,20 +1828,6 @@ page 30 "Item Card"
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
                 }
-#if not CLEAN18
-#pragma warning disable
-                action("Cross Re&ferences")
-                {
-                    Caption = 'Cross Re&ferences';
-                    Image = Change;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by Item Reference feature.';
-                    ObsoleteTag = '18.0';
-                    ToolTip = 'Set up a customer''s or vendor''s own identification of the item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
-                    Visible = false;
-                }
-#pragma warning restore
-#endif
                 action("Item Re&ferences")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -2177,7 +2132,7 @@ page 30 "Item Card"
                             ItemStatistics: Page "Item Statistics";
                         begin
                             ItemStatistics.SetItem(Rec);
-                            ItemStatistics.RunModal;
+                            ItemStatistics.RunModal();
                         end;
                     }
                     action("Entry Statistics")
@@ -2309,7 +2264,7 @@ page 30 "Item Card"
                         BOMStructure: Page "BOM Structure";
                     begin
                         BOMStructure.InitItem(Rec);
-                        BOMStructure.Run;
+                        BOMStructure.Run();
                     end;
                 }
                 action("Cost Shares")
@@ -2324,7 +2279,7 @@ page 30 "Item Card"
                         BOMCostShares: Page "BOM Cost Shares";
                     begin
                         BOMCostShares.InitItem(Rec);
-                        BOMCostShares.Run;
+                        BOMCostShares.Run();
                     end;
                 }
                 group(Assembly)
@@ -2408,7 +2363,7 @@ page 30 "Item Card"
                             ProdBOMWhereUsed: Page "Prod. BOM Where-Used";
                         begin
                             ProdBOMWhereUsed.SetItem(Rec, WorkDate);
-                            ProdBOMWhereUsed.RunModal;
+                            ProdBOMWhereUsed.RunModal();
                         end;
                     }
                     action(Action5)
@@ -2520,7 +2475,7 @@ page 30 "Item Card"
                     begin
                         Clear(SkilledResourceList);
                         SkilledResourceList.Initialize(ResourceSkill.Type::Item, "No.", Description);
-                        SkilledResourceList.RunModal;
+                        SkilledResourceList.RunModal();
                     end;
                 }
             }
@@ -2528,6 +2483,12 @@ page 30 "Item Card"
     }
 
     trigger OnAfterGetCurrRecord()
+    begin
+        if GuiAllowed() then
+            OnAfterGetCurrRecordFunc();
+    end;
+
+    Local procedure OnAfterGetCurrRecordFunc()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
@@ -2561,6 +2522,8 @@ page 30 "Item Card"
         WorkflowManagement: Codeunit "Workflow Management";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
+        if not GuiAllowed then
+            exit;
         InitControls;
         EventFilter := WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode + '|' +
           WorkflowEventHandling.RunWorkflowOnItemChangedCode;
@@ -2579,11 +2542,20 @@ page 30 "Item Card"
     end;
 
     trigger OnOpenPage()
+    begin
+        OnBeforeOnOpenPage(Rec);
+        if GuiAllowed() then
+            OnOpenPageFunc()
+        else
+            EnableControls();
+        OnAfterOnOpenPage();
+    end;
+
+    Local procedure OnOpenPageFunc()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        OnBeforeOnOpenPage(Rec);
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
@@ -2597,15 +2569,8 @@ page 30 "Item Card"
             if IntegrationTableMapping.Get('ITEM-PRODUCT') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field54=1(0)');
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-
         EnableShowStockOutWarning;
-
         EnableShowShowEnforcePositivInventory;
-
-        if CurrentClientType = ClientType::ODataV4 then
-            EnableControls();
-
-        OnAfterOnOpenPage();
     end;
 
     var

@@ -15,7 +15,7 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
         PaymentExportMgt: Codeunit "Payment Export Mgt";
     begin
         GenJnlLine.CopyFilters(Rec);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
 
         GetDataExchDefinition(GenJnlLine, DataExchDef); //  NAVCZ
 
@@ -34,7 +34,7 @@ codeunit 1270 "Exp. Launcher Gen. Jnl."
 
         DataExchMapping.SetRange("Data Exch. Def Code", DataExchDef.Code);
         DataExchMapping.SetRange("Table ID", DATABASE::"Payment Export Data");
-        DataExchMapping.FindFirst;
+        DataExchMapping.FindFirst();
 
         DataExch.ExportFromDataExch(DataExchMapping);
     end;

@@ -108,7 +108,7 @@ codeunit 31000 "Sales-Post Advances"
                 if IsEmpty() then
                     Error(Text006Err);
             end else begin
-                if FindFirst then
+                if FindFirst() then
                     repeat
                         TestField("Prepayment Type", "Prepayment Type"::Advance);
                         TestField("Reversed By Cr. Memo No.", '');
@@ -170,10 +170,6 @@ codeunit 31000 "Sales-Post Advances"
             SalesAdvanceLetterHeader."Language Code" := "Language Code";
             SalesAdvanceLetterHeader."Payment Terms Code" := "Prepmt. Payment Terms Code";
             SalesAdvanceLetterHeader."Payment Method Code" := "Payment Method Code";
-#if not CLEAN17
-            SalesAdvanceLetterHeader."Registration No." := "Registration No.";
-            SalesAdvanceLetterHeader."Tax Registration No." := "Tax Registration No.";
-#endif
             SalesAdvanceLetterHeader."VAT Country/Region Code" := "VAT Country/Region Code";
 
             SalesAdvanceLetterHeader."Template Code" := AdvanceTemplCode;
@@ -259,21 +255,21 @@ codeunit 31000 "Sales-Post Advances"
                         if LetterNoToInvoice <> '' then
                             SalesAdvanceLetterHeader.SetRange("No.", LetterNoToInvoice);
                         CheckLetter(SalesAdvanceLetterHeader, DocumentType);
-                        if SalesAdvanceLetterHeader.FindSet then
+                        if SalesAdvanceLetterHeader.FindSet() then
                             repeat
                                 PostLetter(SalesAdvanceLetterHeader, DocumentType);
                             until SalesAdvanceLetterHeader.Next() = 0;
                     end;
                 DocumentType::"Credit Memo":
                     begin
-                        if SalesInvHeaderBuf.FindSet then
+                        if SalesInvHeaderBuf.FindSet() then
                             repeat
                                 TempSalesAdvanceLetterHeader."No." := SalesInvHeaderBuf."Letter No.";
                                 if TempSalesAdvanceLetterHeader.Insert() then;
                             until SalesInvHeaderBuf.Next() = 0;
                         CheckLetter(TempSalesAdvanceLetterHeader, DocumentType);
                         TempSalesAdvanceLetterHeader.DeleteAll();
-                        if SalesInvHeaderBuf.FindSet then
+                        if SalesInvHeaderBuf.FindSet() then
                             repeat
                                 CurrSalesInvHeader := SalesInvHeaderBuf;
                                 if (LetterNoToInvoice = '') or (LetterNoToInvoice = SalesInvHeaderBuf."Letter No.") then begin
@@ -302,7 +298,7 @@ codeunit 31000 "Sales-Post Advances"
             SetRange("Document No.", SalesHeader."No.");
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter("Prepmt. Line Amount", '<>0');
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     if "Prepmt. Line Amount" > 0 then
                         exit(true);
@@ -378,7 +374,7 @@ codeunit 31000 "Sales-Post Advances"
     begin
         SystemRun := true;
         if CheckLetter(TempSalesAdvanceLetterHeader, DocumentType::Invoice) then
-            if TempSalesAdvanceLetterHeader.FindSet then
+            if TempSalesAdvanceLetterHeader.FindSet() then
                 repeat
                     SalesAdvanceLetterHeader.Get(TempSalesAdvanceLetterHeader."No.");
                     Clear(SalesHeader);
@@ -434,7 +430,7 @@ codeunit 31000 "Sales-Post Advances"
             SalesAdvanceLetterLine.SetRange("Link Code", GenJnlLine."Advance Letter Link Code")
         else
             SalesAdvanceLetterLine.SetRange("Applies-to ID", GenJnlLine."Document No.");
-        if SalesAdvanceLetterLine.FindSet then begin
+        if SalesAdvanceLetterLine.FindSet() then begin
             repeat
                 if Abs(SalesAdvanceLetterLine."Amount Linked To Journal Line") > Abs(SalesAdvanceLetterLine."Amount To Link") then
                     SalesAdvanceLetterLine.FieldError(
@@ -458,7 +454,7 @@ codeunit 31000 "Sales-Post Advances"
         CustLedgEntry: Record "Cust. Ledger Entry";
         AmountToLink: Decimal;
     begin
-        if AdvanceLinkBuf.FindSet then begin
+        if AdvanceLinkBuf.FindSet() then begin
             repeat
                 if AdvanceLinkBuf."Entry Type" = AdvanceLinkBuf."Entry Type"::Payment then begin
                     TempAdvanceLinkBufPmt := AdvanceLinkBuf;
@@ -523,12 +519,12 @@ codeunit 31000 "Sales-Post Advances"
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
         AdvanceLink.LockTable();
-        if AdvanceLink.FindLast then
+        if AdvanceLink.FindLast() then
             NextLinkEntryNo := AdvanceLink."Entry No." + 1
         else
             NextLinkEntryNo := 1;
 
-        if AdvanceLinkTemp.FindSet then
+        if AdvanceLinkTemp.FindSet() then
             repeat
                 AdvanceLink.TransferFields(AdvanceLinkTemp);
                 AdvanceLink."Entry No." := NextLinkEntryNo;
@@ -658,7 +654,7 @@ codeunit 31000 "Sales-Post Advances"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 CustLedgEntry.Get(TempCustLedgEntry."Entry No.");
                 CustLedgEntry.CalcFields("Remaining Amount to Link");
@@ -673,7 +669,7 @@ codeunit 31000 "Sales-Post Advances"
         OK: Boolean;
     begin
         OK := false;
-        if SalesAdvanceLetterHeader2.FindSet then
+        if SalesAdvanceLetterHeader2.FindSet() then
             repeat
                 SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader2."No.");
                 if DocumentType = DocumentType::Invoice then
@@ -713,7 +709,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
         AdvanceLink.SetRange("Invoice No.", '');
         OnTransAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink);
-        if AdvanceLink.FindSet then
+        if AdvanceLink.FindSet() then
             repeat
                 if AdvanceLink."Transfer Date" = 0D then begin
                     SalesAdvanceLetterLine.Get(AdvanceLink."Document No.", AdvanceLink."Line No.");
@@ -754,7 +750,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
         AdvanceLink.SetRange("Invoice No.", '');
         OnRestoreTransfAmountWithoutInvOnAfterSetAdvanceLinkFilters(AdvanceLink, SalesAdvanceLetterHeader);
-        if AdvanceLink.FindSet then
+        if AdvanceLink.FindSet() then
             repeat
                 if (AdvanceLink."Transfer Date" <> 0D) and
                    (AdvanceLink.Amount = AdvanceLink."Remaining Amount to Deduct")
@@ -902,7 +898,7 @@ codeunit 31000 "Sales-Post Advances"
                     BuilCreditMemoBuf(SalesAdvanceLetterHeader, TempPrepmtInvLineBuf);
             end;
 
-            if TempPrepmtInvLineBuf.FindSet then
+            if TempPrepmtInvLineBuf.FindSet() then
                 repeat
                     if TempPrepmtInvLineBuf."VAT Calculation Type" =
                        TempPrepmtInvLineBuf."VAT Calculation Type"::"Reverse Charge VAT"
@@ -1027,9 +1023,6 @@ codeunit 31000 "Sales-Post Advances"
             "Payment Terms Code" := SalesHeader."Prepmt. Payment Terms Code";
             "Posting Date" := PostingDate;
             "Document Date" := PostingDate;
-#if not CLEAN17
-            "VAT Date" := VATDate;
-#endif
             if "Currency Code" <> '' then
                 "Currency Factor" := GetInvCurrFactor(SalesAdvanceLetterHeader."No.");
             "Pre-Assigned No. Series" := '';
@@ -1041,10 +1034,6 @@ codeunit 31000 "Sales-Post Advances"
             "External Document No." := SalesAdvanceLetterHeader."External Document No.";
             "Your Reference" := SalesAdvanceLetterHeader."Your Reference";
             "Language Code" := SalesAdvanceLetterHeader."Language Code";
-#if not CLEAN17
-            "Registration No." := SalesAdvanceLetterHeader."Registration No.";
-            "Tax Registration No." := SalesAdvanceLetterHeader."Tax Registration No.";
-#endif
             if SalesAdvanceLetterHeader."Order No." <> '' then
                 "Prepayment Order No." := SalesHeader."No.";
             "Letter No." := SalesAdvanceLetterHeader."No.";
@@ -1106,16 +1095,8 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "Reason Code" := SalesAdvanceLetterHeader."Reason Code";
-#if not CLEAN17
-            "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-#endif
             "Posting Date" := SalesAdvanceLetterHeader."Document Date";
             "Document Date" := "Posting Date";
-#if not CLEAN17
-            "VAT Date" := SalesAdvanceLetterHeader."VAT Date";
-            IF "VAT Date" = 0D THEN
-                "VAT Date" := "Posting Date";
-#endif
             OnPostLetter_SetCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader);
             Insert;
         end;
@@ -1132,7 +1113,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesAdvanceLetterEntry.SetRange("Entry Type", SalesAdvanceLetterEntry."Entry Type"::VAT);
         SalesAdvanceLetterEntry.SetRange("Document Type", SalesAdvanceLetterEntry."Document Type"::Invoice);
         SalesAdvanceLetterEntry.SetRange("Document No.", SalesInvHeaderNo);
-        SalesAdvanceLetterEntry.FindFirst;
+        SalesAdvanceLetterEntry.FindFirst();
         SalesInvoiceLine.Get(SalesAdvanceLetterEntry."Document No.", SalesAdvanceLetterEntry."Sale Line No.");
         SalesCrMemoLine.Init();
         SalesCrMemoLine.TransferFields(SalesInvoiceLine);
@@ -1149,9 +1130,6 @@ codeunit 31000 "Sales-Post Advances"
             "Advance Letter No." := SalesAdvanceLetterHeader."No.";
             "Advance Letter Line No." := PrepaymentInvLineBuffer."Line No.";
             "Posting Date" := PostingDate;
-#if not CLEAN17
-            "VAT Date" := VATDate;
-#endif
             "Document Date" := "Posting Date";
             Description := PostingDescription;
             Prepayment := true;
@@ -1337,7 +1315,7 @@ codeunit 31000 "Sales-Post Advances"
             end;
         PostPaymentCorrection(SalesInvHeader, TempCustLedgEntry);
 
-        if TempSalesAdvanceLetterHeader2.FindSet then
+        if TempSalesAdvanceLetterHeader2.FindSet() then
             repeat
                 SalesAdvanceLetterHeader.Get(TempSalesAdvanceLetterHeader2."No.");
                 SalesAdvanceLetterHeader.UpdateClosing(true);
@@ -1414,7 +1392,7 @@ codeunit 31000 "Sales-Post Advances"
                     EntryCount := TempCustLedgEntryGre.Count();
 
                     for i := 1 to 2 do begin
-                        if TempCustLedgEntryGre.FindSet then
+                        if TempCustLedgEntryGre.FindSet() then
                             repeat
                                 AdvanceLink.Reset();
                                 AdvanceLink.SetCurrentKey("CV Ledger Entry No.", "Entry Type", "Document No.", "Line No.");
@@ -1439,7 +1417,7 @@ codeunit 31000 "Sales-Post Advances"
                                     AdvanceLink2.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
                                     AdvanceLink2.SetRange("Document No.", SalesAdvanceLetterLine."Letter No.");
                                     AdvanceLink2.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
-                                    AdvanceLink2.FindLast;
+                                    AdvanceLink2.FindLast();
 
                                     PostVATCorrection(
                                       SalesAdvanceLetterLine, SalesInvHeader, DocNoForVATCorr, VATAmount, AdvanceLetterLineRelation,
@@ -1714,7 +1692,7 @@ codeunit 31000 "Sales-Post Advances"
         NextLineNo: Integer;
     begin
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
-        if not SalesInvLine.FindLast then
+        if not SalesInvLine.FindLast() then
             exit(false);
 
         NextLineNo := SalesInvLine."Line No.";
@@ -1777,7 +1755,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesInvHeader.SetRange("Letter No.", SalesAdvanceLetterLine."Letter No.");
         SalesInvHeader.SetRange("Reversed By Cr. Memo No.", '');
         SalesInvHeader.SetRange("Prepayment Invoice", true);
-        if SalesInvHeader.FindSet then
+        if SalesInvHeader.FindSet() then
             repeat
                 NextLineNo := NextLineNo + 10000;
 
@@ -1813,9 +1791,6 @@ codeunit 31000 "Sales-Post Advances"
     local procedure PrepareGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; SalesInvHeader: Record "Sales Invoice Header")
     begin
         GenJnlLine."Posting Date" := SalesInvHeader."Posting Date";
-#if not CLEAN17
-        GenJnlLine."VAT Date" := SalesInvHeader."VAT Date";
-#endif
         GenJnlLine."Document Date" := SalesInvHeader."Document Date";
         GenJnlLine."Prepayment Type" := GenJnlLine."Prepayment Type"::Advance;
         GenJnlLine."Reason Code" := SalesInvHeader."Reason Code";
@@ -1874,7 +1849,7 @@ codeunit 31000 "Sales-Post Advances"
 
         CustLedgEntry.SetRange("Customer No.", SalesInvHeader."Bill-to Customer No.");
         CustLedgEntry.SetRange("Document No.", SalesInvHeader."No.");
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         CustLedgEntry.CalcFields("Remaining Amount");
         InvoiceAmount := CustLedgEntry."Remaining Amount";
 
@@ -1885,7 +1860,7 @@ codeunit 31000 "Sales-Post Advances"
         PreparePmtJnlLine(GenJnlLine, SalesInvHeader);
         SourceCodeSetup.Get();
         GenJnlLine."Source Code" := SourceCodeSetup."Sales Entry Application";
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 if TempCustLedgEntry."Posting Date" > SalesInvHeader."Posting Date" then
                     Error(Text4005240Err);
@@ -1951,7 +1926,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange("Document No.", SalesAdvanceLetterLine."Letter No.");
         AdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
-        if AdvanceLink.FindSet then
+        if AdvanceLink.FindSet() then
             repeat
                 if CustLedgEntry.Get(AdvanceLink."CV Ledger Entry No.") then
                     if TempCustLedgEntry.Get(CustLedgEntry."Entry No.") then begin
@@ -1985,7 +1960,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
         AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
 
-        if AdvanceLink.FindSet then
+        if AdvanceLink.FindSet() then
             repeat
                 if CustLedgEntry.Get(AdvanceLink."CV Ledger Entry No.") then begin
                     AmountToApply := CalcAmountToApply(TotalAmountToApply, AdvanceLink);
@@ -2045,7 +2020,7 @@ codeunit 31000 "Sales-Post Advances"
         PostingDate := 0D;
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
         SalesAdvanceLetterLine.SetFilter("Amount To Invoice", '<>0');
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 AdvanceLink.SetCurrentKey("Document No.", "Line No.", "Entry Type");
                 AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
@@ -2053,7 +2028,7 @@ codeunit 31000 "Sales-Post Advances"
                 AdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
                 AdvanceLink.SetFilter("Invoice No.", '=%1', '');
                 AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
-                if AdvanceLink.FindSet then
+                if AdvanceLink.FindSet() then
                     repeat
                         if PostingDate < AdvanceLink."Posting Date" then
                             PostingDate := AdvanceLink."Posting Date";
@@ -2158,7 +2133,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
         AdvanceLetterLineRelation.SetRange("Document Type", SalesHeader."Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", SalesHeader."No.");
-        if AdvanceLetterLineRelation.FindSet then begin
+        if AdvanceLetterLineRelation.FindSet() then begin
             repeat
                 if not TempSalesAdvanceLetterLine.Get(
                      AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.")
@@ -2175,7 +2150,7 @@ codeunit 31000 "Sales-Post Advances"
             PrepmtAmtReceived += TempSalesAdvanceLetterLine."Amount Linked";
         end else begin
             SalesAdvanceLetterHeader.SetRange("Order No.", SalesHeader."No.");
-            if SalesAdvanceLetterHeader.FindSet then
+            if SalesAdvanceLetterHeader.FindSet() then
                 repeat
                     SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
                     SalesAdvanceLetterLine.CalcSums("Amount Including VAT", "Amount Linked");
@@ -2211,7 +2186,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLetterLineRelation2.Reset();
 
         AdvanceLetterLineRelation2.SetRange("Letter Line No.", BufEntryNo);
-        if AdvanceLetterLineRelation2.FindSet then
+        if AdvanceLetterLineRelation2.FindSet() then
             repeat
                 AdvanceLetterLineRelation := AdvanceLetterLineRelation2;
                 AdvanceLetterLineRelation."Letter No." := SalesAdvanceLetterLine."Letter No.";
@@ -2265,7 +2240,7 @@ codeunit 31000 "Sales-Post Advances"
             AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
             AdvanceLetterLineRelation.SetRange("Letter No.", SalesAdvanceLetterLine."Letter No.");
             AdvanceLetterLineRelation.SetRange("Letter Line No.", SalesAdvanceLetterLine."Line No.");
-            if AdvanceLetterLineRelation.FindSet then
+            if AdvanceLetterLineRelation.FindSet() then
                 repeat
                     if AdvanceLetterLineRelation.Amount > AdvanceLetterLineRelation."Invoiced Amount" then begin
                         if AmtDif > (AdvanceLetterLineRelation.Amount - AdvanceLetterLineRelation."Invoiced Amount") then begin
@@ -2320,7 +2295,7 @@ codeunit 31000 "Sales-Post Advances"
                       SalesAdvanceLetterLine."Letter No.", SalesAdvanceLetterLine."Line No.");
                 end;
             end;
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
                 SalesHeader.Get(TempSalesLine."Document Type", TempSalesLine."Document No.");
                 SalesLine.Get(TempSalesLine."Document Type", TempSalesLine."Document No.", TempSalesLine."Line No.");
@@ -2435,7 +2410,7 @@ codeunit 31000 "Sales-Post Advances"
         VATAmountLCY: Decimal;
     begin
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 CalcVATToDeduct(SalesAdvanceLetterLine, BaseToDeduct, VATAmtToDeduct, BaseToDeductLCY, VATAmountLCY, 0);
                 if (BaseToDeduct <> 0) or (VATAmtToDeduct <> 0) or (BaseToDeductLCY <> 0) or (VATAmountLCY <> 0) then
@@ -2479,7 +2454,7 @@ codeunit 31000 "Sales-Post Advances"
         TempPrepmtInvLineBuf.DeleteAll();
         BuildCreditMemoLineBuf(SalesAdvanceLetterHeader, TempPrepmtInvLineBuf);
         OnPostVATCreditMemoOnAfterBuildCreditMemoLineBuf(SalesCrMemoHeader, TempPrepmtInvLineBuf);
-        if TempPrepmtInvLineBuf.FindSet then begin
+        if TempPrepmtInvLineBuf.FindSet() then begin
             repeat
                 PostVATCrMemoLine(SalesCrMemoLine, TempPrepmtInvLineBuf, SalesCrMemoHeader);
 
@@ -2600,10 +2575,6 @@ codeunit 31000 "Sales-Post Advances"
         SalesHeader.TransferFields(SalesAdvanceLetterHeader);
         CopyBillToSellFromAdvLetter(SalesHeader, SalesAdvanceLetterHeader);
 
-#if not CLEAN17
-        SalesHeader."VAT Date" := VATDate;
-
-#endif
 
         SourceCodeSetup.Get();
         SrcCode := SourceCodeSetup.Sales;
@@ -2616,9 +2587,6 @@ codeunit 31000 "Sales-Post Advances"
 #endif
             TransferFields(SalesHeader);
             "Posting Date" := PostingDate;
-#if not CLEAN17
-            "VAT Date" := VATDate;
-#endif
             "Document Date" := PostingDate;
             "Currency Factor" :=
               CurrExchRate.ExchangeRate(PostingDate, SalesHeader."Currency Code");
@@ -2633,9 +2601,6 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "Reason Code" := SalesAdvanceLetterHeader."Reason Code";
-#if not CLEAN17
-            "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-#endif
             OnPostVATCrMemoHeaderOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader, VATDate);
             Insert;
         end;
@@ -2680,9 +2645,6 @@ codeunit 31000 "Sales-Post Advances"
             "Advance Letter No." := SalesAdvanceLetterHeader."No.";
             "Advance Letter Line No." := PrepaymentInvLineBuffer."Line No.";
             "Posting Date" := PostingDate;
-#if not CLEAN17
-            "VAT Date" := VATDate;
-#endif
             "Document Date" := PostingDate;
             Description := PrepaymentInvLineBuffer.Description;
             Prepayment := true;
@@ -2759,7 +2721,7 @@ codeunit 31000 "Sales-Post Advances"
         PrepmtInvLineBuf2: Record "Prepayment Inv. Line Buffer";
     begin
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 if SalesAdvanceLetterLine."Amount Including VAT" <> 0 then begin
                     FillCreditMemoLineBuf(SalesAdvanceLetterLine, PrepmtInvLineBuf2);
@@ -2852,7 +2814,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
         SalesAdvanceLetterLine.SetFilter("Amount To Refund", '>0');
         OnPostRefundCorrectionOnAfterSalesAdvanceLetterLineSetFilter(SalesAdvanceLetterLine);
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 TotAmt := 0;
                 TotAmtRnded := 0;
@@ -2863,7 +2825,7 @@ codeunit 31000 "Sales-Post Advances"
                 AdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
                 AdvanceLink.SetRange(Type, AdvanceLink.Type::Sale);
 
-                if AdvanceLink.FindSet then
+                if AdvanceLink.FindSet() then
                     repeat
                         if CustLedgEntry.Get(AdvanceLink."CV Ledger Entry No.") then begin
                             CustLedgEntry.CalcFields("Remaining Amount");
@@ -2929,9 +2891,6 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Account No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
         GenJnlLine."Posting Date" := PostingDate;
-#if not CLEAN17
-        GenJnlLine."VAT Date" := VATDate;
-#endif
         GenJnlLine."Document Date" := PostingDate;
         GenJnlLine."Prepayment Type" := GenJnlLine."Prepayment Type"::Advance;
         GenJnlLine."Document No." := DocumentNo;
@@ -2945,7 +2904,7 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Source No." := SalesAdvanceLetterHeader."Bill-to Customer No.";
         OnPostRefundCorrToGLOnFillAdvanceRefundGenJnlLine(SalesAdvanceLetterHeader, GenJnlLine, VATDate);
 
-        if TempCustLedgEntry.FindSet then
+        if TempCustLedgEntry.FindSet() then
             repeat
                 TempCustLedgEntry.TestField("Currency Code", SalesAdvanceLetterHeader."Currency Code");
                 CustLedgEntry.Get(TempCustLedgEntry."Entry No.");
@@ -2983,9 +2942,6 @@ codeunit 31000 "Sales-Post Advances"
         GenJnlLine."Financial Void" := true;
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
         GenJnlLine."Posting Date" := PostingDate;
-#if not CLEAN17
-        GenJnlLine."VAT Date" := VATDate;
-#endif
         GenJnlLine."Document Date" := PostingDate;
         GenJnlLine."Document No." := DocumentNo;
         GenJnlLine.Validate("Account No.", SalesAdvanceLetterHeader."Bill-to Customer No.");
@@ -3022,7 +2978,7 @@ codeunit 31000 "Sales-Post Advances"
     begin
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
         SalesAdvanceLetterLine.SetFilter("Amount To Refund", '>%1', 0);
-        if not SalesAdvanceLetterLine.FindFirst then
+        if not SalesAdvanceLetterLine.FindFirst() then
             Error(Text037Err);
 
         if SalesAdvanceLetterLine."Amount To Deduct" + SalesAdvanceLetterLine."Amount To Invoice" <
@@ -3039,7 +2995,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
     begin
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine."Amount To Refund" := 0;
                 SalesAdvanceLetterLine.Modify();
@@ -3110,7 +3066,7 @@ codeunit 31000 "Sales-Post Advances"
 
         // Calc Amount To Refund
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine."Amount To Refund" := SalesAdvanceLetterLine."Amount To Invoice" +
                   SalesAdvanceLetterLine."Amount To Deduct";
@@ -3125,7 +3081,7 @@ codeunit 31000 "Sales-Post Advances"
 
         // Set Amount To Link = 0 and Close
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine."Amount To Link" := 0;
                 SalesAdvanceLetterLine.Status := SalesAdvanceLetterLine.Status::Closed;
@@ -3210,7 +3166,7 @@ codeunit 31000 "Sales-Post Advances"
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         TempSalesAdvanceLetterEntry."Transaction No." := VATEntry."Transaction No.";
         TempSalesAdvanceLetterEntry."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
         TempSalesAdvanceLetterEntry."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
@@ -3222,9 +3178,6 @@ codeunit 31000 "Sales-Post Advances"
         TempSalesAdvanceLetterEntry."VAT Base Amount (LCY)" := VATEntry."Advance Base";
         TempSalesAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempSalesAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
-#if not CLEAN17
-        TempSalesAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
-#endif
         OnFillVATFieldsOfDeductionEntryOnBeforeTempSalesAdvanceLetterEntry(TempSalesAdvanceLetterEntry, VATEntry);
         TempSalesAdvanceLetterEntry.Modify();
     end;
@@ -3232,9 +3185,9 @@ codeunit 31000 "Sales-Post Advances"
     local procedure FillDeductionLineNo(DeductionLineNo: Integer)
     begin
         TempSalesAdvanceLetterEntry.SetRange("Entry Type", TempSalesAdvanceLetterEntry."Entry Type"::Deduction);
-        if not TempSalesAdvanceLetterEntry.FindLast then begin
+        if not TempSalesAdvanceLetterEntry.FindLast() then begin
             TempSalesAdvanceLetterEntry.SetRange("Entry Type");
-            TempSalesAdvanceLetterEntry.FindLast;
+            TempSalesAdvanceLetterEntry.FindLast();
         end;
         TempSalesAdvanceLetterEntry.SetRange("Entry Type");
         repeat
@@ -3250,7 +3203,7 @@ codeunit 31000 "Sales-Post Advances"
         NextEntryNo: Integer;
     begin
         TempSalesAdvanceLetterEntry.Reset();
-        if TempSalesAdvanceLetterEntry.FindSet then begin
+        if TempSalesAdvanceLetterEntry.FindSet() then begin
             SalesAdvanceLetterEntry.LockTable();
             NextEntryNo := SalesAdvanceLetterEntry.GetLastEntryNo() + 1;
             repeat
@@ -3285,7 +3238,7 @@ codeunit 31000 "Sales-Post Advances"
     begin
         with AdvanceLink do
             if TempAdvanceLink.Get(DtldCVLedgEntryBuf."Entry No.") then begin
-                if FindLast then
+                if FindLast() then
                     NextLinkEntryNo := "Entry No." + 1
                 else
                     NextLinkEntryNo := 1;
@@ -3350,7 +3303,7 @@ codeunit 31000 "Sales-Post Advances"
             SalesAdvanceLetterEntry2.Find('+');
             EntryNo := SalesAdvanceLetterEntry2."Entry No.";
             AdvanceLink2.LockTable();
-            AdvanceLink2.FindLast;
+            AdvanceLink2.FindLast();
             AdvanceLinkEntryNo := AdvanceLink2."Entry No.";
             repeat
                 case SalesAdvanceLetterEntry."Entry Type" of
@@ -3453,7 +3406,7 @@ codeunit 31000 "Sales-Post Advances"
                 if SalesAdvanceLetterEntry2."Entry Type" in [SalesAdvanceLetterEntry2."Entry Type"::"VAT Deduction",
                                                              SalesAdvanceLetterEntry2."Entry Type"::"VAT Rate"]
                 then begin
-                    VATEntry.FindLast;
+                    VATEntry.FindLast();
                     SalesAdvanceLetterEntry2."Transaction No." := VATEntry."Transaction No.";
                     SalesAdvanceLetterEntry2."VAT Entry No." := VATEntry."Entry No.";
                 end;
@@ -3519,12 +3472,12 @@ codeunit 31000 "Sales-Post Advances"
             DtldCustLedgEntry.SetRange("Document No.", UnapplyDocNo);
         Succes := false;
         repeat
-            if DtldCustLedgEntry.FindLast then begin
+            if DtldCustLedgEntry.FindLast() then begin
                 DtldCustLedgEntry2.Reset();
                 DtldCustLedgEntry2.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
                 DtldCustLedgEntry2.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
                 DtldCustLedgEntry2.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
-                if DtldCustLedgEntry2.FindSet then
+                if DtldCustLedgEntry2.FindSet() then
                     repeat
                         if (DtldCustLedgEntry2."Entry Type" <> DtldCustLedgEntry2."Entry Type"::"Initial Entry") and
                            not DtldCustLedgEntry2.Unapplied
@@ -3542,9 +3495,6 @@ codeunit 31000 "Sales-Post Advances"
                 GenJnlLine.Init();
                 GenJnlLine."Document No." := DtldCustLedgEntry."Document No.";
                 GenJnlLine."Posting Date" := DtldCustLedgEntry."Posting Date";
-#if not CLEAN17
-                GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
-#endif
                 GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
                 GenJnlLine."Account No." := DtldCustLedgEntry."Customer No.";
                 GenJnlLine.Correction := true;
@@ -3577,7 +3527,7 @@ codeunit 31000 "Sales-Post Advances"
         CustLedgEntry.SetRange("Document No.", SalesInvHeader."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
         CustLedgEntry.SetRange("Customer No.", SalesInvHeader."Bill-to Customer No.");
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         UnapplyCustLedgEntry(CustLedgEntry, SalesInvHeader."No.");
 
         AdvanceLink.Reset();
@@ -3590,7 +3540,7 @@ codeunit 31000 "Sales-Post Advances"
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Payment);
         CustLedgEntry.SetRange(Prepayment, false);
         CustLedgEntry.SetRange(Open, true);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         CustLedgEntry."Amount to Apply" := -AdvanceLink.Amount;
         CustLedgEntry.Modify();
 
@@ -3622,7 +3572,7 @@ codeunit 31000 "Sales-Post Advances"
             until AdvanceLink.Next() = 0;
 
         TempCustLedgEntry.SetFilter("Amount to Apply", '<>0');
-        if TempCustLedgEntry.FindSet then begin
+        if TempCustLedgEntry.FindSet() then begin
             GenJnlLine.Init();
             GenJnlLine.Prepayment := true;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
@@ -3635,7 +3585,7 @@ codeunit 31000 "Sales-Post Advances"
                 CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
                 CustLedgEntry.SetRange(Prepayment, true);
                 CustLedgEntry.SetRange(Open, true);
-                CustLedgEntry.FindFirst;
+                CustLedgEntry.FindFirst();
                 CustLedgEntry."Amount to Apply" := TempCustLedgEntry."Amount to Apply";
                 CustLedgEntry.Modify();
 
@@ -3657,7 +3607,7 @@ codeunit 31000 "Sales-Post Advances"
         end;
 
         // Correct Remaining Amount
-        if TempSalesAdvanceLetterEntry.FindSet then
+        if TempSalesAdvanceLetterEntry.FindSet() then
             repeat
                 AdvanceLink.Reset();
                 AdvanceLink.SetCurrentKey("Document No.", "Line No.", "Entry Type");
@@ -3665,7 +3615,7 @@ codeunit 31000 "Sales-Post Advances"
                 AdvanceLink.SetRange("Line No.", TempSalesAdvanceLetterEntry."Letter Line No.");
                 AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
                 AdvanceLink.SetRange("CV Ledger Entry No.", TempSalesAdvanceLetterEntry."Customer Entry No.");
-                if AdvanceLink.FindSet then
+                if AdvanceLink.FindSet() then
                     repeat
                         AdvanceLink."Remaining Amount to Deduct" := AdvanceLink."Remaining Amount to Deduct" +
                           TempSalesAdvanceLetterEntry.Amount;
@@ -3700,7 +3650,7 @@ codeunit 31000 "Sales-Post Advances"
                     SalesInvLine2."Line Amount" := -SalesInvLine2."Line Amount";
                     SalesInvLine2.Insert();
                     TempSalesAdvanceLetterEntry2.SetRange("Deduction Line No.", SalesInvLine."Line No.");
-                    if TempSalesAdvanceLetterEntry2.FindSet then begin
+                    if TempSalesAdvanceLetterEntry2.FindSet() then begin
                         repeat
                             SalesAdvanceLetterEntry.Get(TempSalesAdvanceLetterEntry2."Entry No.");
                             SalesAdvanceLetterEntry."Deduction Line No." := SalesInvLine2."Line No.";
@@ -3789,7 +3739,7 @@ codeunit 31000 "Sales-Post Advances"
         PrepmtInvLineBuf.Reset();
         PrepmtInvLineBuf.DeleteAll();
         SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 if SalesAdvanceLetterLine."Amount To Invoice" <> 0 then begin
                     if SalesAdvanceLetterLine."Currency Code" <> '' then begin
@@ -3797,7 +3747,7 @@ codeunit 31000 "Sales-Post Advances"
                         AdvanceLink.SetRange("Document No.", SalesAdvanceLetterHeader."No.");
                         AdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
                         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
-                        AdvanceLink.FindLast;
+                        AdvanceLink.FindLast();
                         CustLedgEntry.Get(AdvanceLink."CV Ledger Entry No.");
                     end;
 
@@ -4493,7 +4443,7 @@ codeunit 31000 "Sales-Post Advances"
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Prepmt Amt to Deduct", '<>0');
         SalesLine.SetFilter("Prepayment %", '<>0');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 if SalesLine."Adjust Prepmt. Relation" and AdjustRelations then
                     AdjustmentToleranceAmt := Currency."Amount Rounding Precision"
@@ -4516,7 +4466,7 @@ codeunit 31000 "Sales-Post Advances"
                 AdvanceLetterLineRelation.SetRange("Document Type", SalesHeader."Document Type");
                 AdvanceLetterLineRelation.SetRange("Document No.", SalesLine."Document No.");
                 AdvanceLetterLineRelation.SetRange("Document Line No.", SalesLine."Line No.");
-                if AdvanceLetterLineRelation.FindSet then
+                if AdvanceLetterLineRelation.FindSet() then
                     repeat
                         if AmtToDeductLoc > 0 then
                             if AmtToDeductLoc > AdvanceLetterLineRelation."Invoiced Amount" -
@@ -4558,7 +4508,7 @@ codeunit 31000 "Sales-Post Advances"
                 if AmtToDeductLoc > AdjustmentToleranceAmt then
                     Error(Text4005249Err, SalesLine."Line No.", SalesLine."Document Type", SalesLine."Document No.");
                 DocRemainderAmt += AmtToDeductLoc;
-                if AdvanceLetterLineRelation.FindSet then
+                if AdvanceLetterLineRelation.FindSet() then
                     repeat
                         if DocRemainderAmt > 0 then begin
                             SalesAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
@@ -4610,7 +4560,7 @@ codeunit 31000 "Sales-Post Advances"
             SalesLine.SetRange("Prepmt Amt to Deduct");
             SalesLine.SetRange("Adjust Prepmt. Relation", true);
             SalesLine.SetFilter("Prepayment %", '<>0');
-            if SalesLine.FindSet then
+            if SalesLine.FindSet() then
                 repeat
                     TempSalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
                     SalesLine.CalcFields("Adv.Letter Link.Amt. to Deduct");
@@ -4621,7 +4571,7 @@ codeunit 31000 "Sales-Post Advances"
                         repeat
                             SalesAdvanceLetterLine.SetRange("Letter No.", TempSalesAdvanceLetterHeader."No.");
                             SalesAdvanceLetterLine.SetFilter("Amount To Deduct", '>0');
-                            if SalesAdvanceLetterLine.FindSet then
+                            if SalesAdvanceLetterLine.FindSet() then
                                 repeat
                                     SalesAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount");
                                     if (SalesAdvanceLetterLine."Document Linked Amount" < SalesAdvanceLetterLine."Amount Including VAT") and
@@ -4661,7 +4611,7 @@ codeunit 31000 "Sales-Post Advances"
             repeat
                 SalesAdvanceLetterLine.SetRange("Letter No.", TempSalesAdvanceLetterHeader."No.");
                 SalesAdvanceLetterLine.SetFilter("Amount To Deduct", '>0');
-                if SalesAdvanceLetterLine.FindSet then
+                if SalesAdvanceLetterLine.FindSet() then
                     repeat
                         SalesAdvanceLetterLine.CalcFields("Document Linked Amount", "Document Linked Inv. Amount");
                         if (SalesAdvanceLetterLine."Document Linked Amount" < SalesAdvanceLetterLine."Amount Including VAT") and
@@ -4675,7 +4625,7 @@ codeunit 31000 "Sales-Post Advances"
                                 AmtToDeductLoc := SalesAdvanceLetterLine."Amount Invoiced" - SalesAdvanceLetterLine."Document Linked Inv. Amount"
                             else
                                 AmtToDeductLoc := SalesAdvanceLetterLine."Amount Including VAT" - SalesAdvanceLetterLine."Document Linked Amount";
-                            if SalesLine.FindSet then
+                            if SalesLine.FindSet() then
                                 repeat
                                     TempSalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
                                     SalesLine.CalcFields("Adv.Letter Link.Amt. to Deduct");
@@ -4720,7 +4670,7 @@ codeunit 31000 "Sales-Post Advances"
         TempSalesLine.DeleteAll();
         SalesHeader.GetPostingLineImage(TempSalesLine, QtyType::Invoicing, false);
         SalesHeader.CalcFields("Adv.Letter Link.Amt. to Deduct");
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
                 TotalInvoicedAmtLoc += TempSalesLine."Amount Including VAT";
             until TempSalesLine.Next() = 0;
@@ -4736,7 +4686,7 @@ codeunit 31000 "Sales-Post Advances"
 #endif
             SalesLine.SetFilter("Prepmt Amt to Deduct", '<>0');
             SalesLine.SetRange("Adjust Prepmt. Relation", true);
-            if SalesLine.FindSet then
+            if SalesLine.FindSet() then
                 repeat
 #if CLEAN18
                     SalesLineVATDifferenceLCY := Round(
@@ -4756,7 +4706,7 @@ codeunit 31000 "Sales-Post Advances"
                     AdvanceLetterLineRelation.SetRange("Document Type", SalesLine."Document Type");
                     AdvanceLetterLineRelation.SetRange("Document No.", SalesLine."Document No.");
                     AdvanceLetterLineRelation.SetRange("Document Line No.", SalesLine."Line No.");
-                    if AdvanceLetterLineRelation.FindSet then
+                    if AdvanceLetterLineRelation.FindSet() then
                         repeat
                             if AdvanceLetterLineRelation."Amount To Deduct" > 0 then begin
                                 if AdvanceLetterLineRelation."Amount To Deduct" > ReduceAmt then begin
@@ -4781,13 +4731,13 @@ codeunit 31000 "Sales-Post Advances"
 #endif
                 SalesLine.SetFilter("Prepmt Amt to Deduct", '<>0');
                 SalesLine.SetRange("Adjust Prepmt. Relation", true);
-                if SalesLine.FindSet then
+                if SalesLine.FindSet() then
                     repeat
                         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
                         AdvanceLetterLineRelation.SetRange("Document Type", SalesLine."Document Type");
                         AdvanceLetterLineRelation.SetRange("Document No.", SalesLine."Document No.");
                         AdvanceLetterLineRelation.SetRange("Document Line No.", SalesLine."Line No.");
-                        if AdvanceLetterLineRelation.FindSet then
+                        if AdvanceLetterLineRelation.FindSet() then
                             repeat
                                 if AdvanceLetterLineRelation."Amount To Deduct" > 0 then begin
                                     if AdvanceLetterLineRelation."Amount To Deduct" > AdvanceLetterRemainderAmt then begin
@@ -4842,14 +4792,14 @@ codeunit 31000 "Sales-Post Advances"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Qty. to Invoice", '<>0');
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
                 AdvanceLetterLineRelation.SetRange("Document Type", SalesLine."Document Type");
 
                 AdvanceLetterLineRelation.SetRange("Document No.", SalesLine."Document No.");
                 AdvanceLetterLineRelation.SetRange("Document Line No.", SalesLine."Line No.");
-                if AdvanceLetterLineRelation.FindSet then begin
+                if AdvanceLetterLineRelation.FindSet() then begin
                     repeat
                         SalesAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
                         CreateBufLink(TempAdvanceLink, SalesAdvanceLetterLine);
@@ -4869,7 +4819,7 @@ codeunit 31000 "Sales-Post Advances"
                         EntryPos := 0;
 
                         for i := 1 to 2 do begin
-                            if TempCustLedgEntryGre.FindSet then
+                            if TempCustLedgEntryGre.FindSet() then
                                 repeat
                                     TempAdvanceLink.Reset();
                                     TempAdvanceLink.SetCurrentKey("CV Ledger Entry No.", "Entry Type", "Document No.", "Line No.");
@@ -5036,7 +4986,7 @@ codeunit 31000 "Sales-Post Advances"
         TempAdvanceLink.SetRange("Document No.", SalesAdvanceLetterLine."Letter No.");
         TempAdvanceLink.SetRange("Line No.", SalesAdvanceLetterLine."Line No.");
         TempAdvanceLink.SetFilter("Remaining Amount to Deduct", '<>0');
-        if TempAdvanceLink.FindSet then
+        if TempAdvanceLink.FindSet() then
             repeat
                 if CustLedgEntry.Get(TempAdvanceLink."CV Ledger Entry No.") then begin
                     AmountToApply := CalcAmountToApply(TotalAmountToApply, TempAdvanceLink);
@@ -5121,7 +5071,7 @@ codeunit 31000 "Sales-Post Advances"
         TempVATAmountLineDiff.DeleteAll();
 
         SumVATAmountLines(TempVATAmountLine, TempSumVATAmountLine);
-        if TempSumVATAmountLine.FindSet then
+        if TempSumVATAmountLine.FindSet() then
             repeat
                 TempVATAmountLineOrigSum := TempSumVATAmountLine;
                 TempVATAmountLineOrigSum.Insert();
@@ -5134,7 +5084,7 @@ codeunit 31000 "Sales-Post Advances"
         TempSumVATAmountLine.SetRange("VAT Difference (LCY)", 0);
 #endif
         TempSumVATAmountLine.SetRange("VAT Difference", 0);
-        if TempSumVATAmountLine.FindSet then begin
+        if TempSumVATAmountLine.FindSet() then begin
             repeat
                 // Calc Invoice VAT & Deducted VAT difference
                 TempVATAmountLineDiff := TempSumVATAmountLine;
@@ -5156,11 +5106,11 @@ codeunit 31000 "Sales-Post Advances"
 
             TempVATAmountLineDiff.SetFilter("VAT Base", '<>0');
             if not SalesHeader."Prices Including VAT" then
-                if TempVATAmountLineDiff.FindSet then begin
+                if TempVATAmountLineDiff.FindSet() then begin
                     repeat
                         // Adjust VAT Base - Insert Sales Line VAT Base difference
                         TempSalesLine.SetRange("VAT Identifier", TempVATAmountLineDiff."VAT Identifier");
-                        TempSalesLine.FindFirst;
+                        TempSalesLine.FindFirst();
                         VATPostingSetup.Get(TempSalesLine."VAT Bus. Posting Group", TempSalesLine."VAT Prod. Posting Group");
                         VATPostingSetup.TestField("Sales Ded. VAT Base Adj. Acc.");
                         if TempSalesLine.GetCPGInvRoundAcc(SalesHeader) = VATPostingSetup."Sales Ded. VAT Base Adj. Acc." then
@@ -5177,7 +5127,7 @@ codeunit 31000 "Sales-Post Advances"
                             SalesLineCorr.SetRange("Unit Price", -1)
                         else
                             SalesLineCorr.SetRange("Unit Price", 1);
-                        if SalesLineCorr.FindFirst then begin
+                        if SalesLineCorr.FindFirst() then begin
                             SalesLineCorr.SuspendStatusCheck(true);
                             SalesLineCorr.Validate(Quantity, SalesLineCorr.Quantity + Abs(TempVATAmountLineDiff."VAT Base"));
                             SalesLineCorr.Modify(true);
@@ -5185,7 +5135,7 @@ codeunit 31000 "Sales-Post Advances"
                             SalesLineCorr.Reset();
                             SalesLineCorr.SetRange("Document Type", SalesHeader."Document Type");
                             SalesLineCorr.SetRange("Document No.", SalesHeader."No.");
-                            SalesLineCorr.FindLast;
+                            SalesLineCorr.FindLast();
                             SalesLineCorr.Init();
                             SalesLineCorr.SuspendStatusCheck(true);
                             SalesLineCorr."Line No." += 10000;
@@ -5236,7 +5186,7 @@ codeunit 31000 "Sales-Post Advances"
 
     local procedure CorrectVATbyDeductedVAT_CorrLine(var TempSumVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineOrigSum: Record "VAT Amount Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TempVATAmountLineDiff: Record "VAT Amount Line" temporary; var TempAdvanceVATAmtLine: Record "VAT Amount Line" temporary)
     begin
-        if TempSumVATAmountLine.FindSet then begin
+        if TempSumVATAmountLine.FindSet() then begin
             repeat
                 // Calc Invoice VAT & Deducted VAT difference
                 TempVATAmountLineOrigSum := TempSumVATAmountLine;
@@ -5261,7 +5211,7 @@ codeunit 31000 "Sales-Post Advances"
 
             // Adjust VAT Amount - Correct Statistics
             TempVATAmountLineDiff.SetFilter("VAT Amount", '<>0');
-            if TempVATAmountLineDiff.FindSet then begin
+            if TempVATAmountLineDiff.FindSet() then begin
                 repeat
                     TempVATAmountLine := TempVATAmountLineDiff;
                     TempVATAmountLine.Find;
@@ -5296,13 +5246,13 @@ codeunit 31000 "Sales-Post Advances"
         TempVATAmountLineNeg: Record "VAT Amount Line" temporary;
     begin
         TempVATAmountLine.SetRange(Positive, false);
-        if TempVATAmountLine.FindSet then
+        if TempVATAmountLine.FindSet() then
             repeat
                 TempVATAmountLineNeg := TempVATAmountLine;
                 TempVATAmountLineNeg.Insert();
             until TempVATAmountLine.Next() = 0;
         TempVATAmountLine.SetRange(Positive);
-        if TempVATAmountLine.FindSet then
+        if TempVATAmountLine.FindSet() then
             repeat
                 TempVATAmountLineSum := TempVATAmountLine;
                 if TempVATAmountLineSum.Positive then begin
@@ -5342,7 +5292,7 @@ codeunit 31000 "Sales-Post Advances"
     begin
         SalesHeader.GetPostingLineImage(TempSalesLine, QtyType::Invoicing, false);
         SalesHeader.GetPostingLineImage(TempSalesLine2, QtyType::Invoicing, false);
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
                 if SalesLineOrigin.Get(TempSalesLine."Document Type", TempSalesLine."Document No.", TempSalesLine."Line No.") then
                     if TempSalesLine."Amount Including VAT" - SalesLineOrigin."Amount Including VAT" < 0 then begin
@@ -5390,12 +5340,12 @@ codeunit 31000 "Sales-Post Advances"
                                     TempSalesLine2.SetRange("Document Type", TempSalesLine."Document Type");
                                     TempSalesLine2.SetRange("Document No.", TempSalesLine."Document No.");
                                     TempSalesLine2.SetRange("VAT Identifier", TempSalesLine."VAT Identifier");
-                                    if TempSalesLine2.FindLast then begin
+                                    if TempSalesLine2.FindLast() then begin
                                         TempSalesLine2.CalcFields("Adv.Letter Linked Ded. Amount", "Adv.Letter Linked Inv. Amount");
                                         if TempSalesLine2."Amount Including VAT" - TempSalesLine2."Adv.Letter Linked Inv. Amount" +
                                            TempSalesLine2."Adv.Letter Linked Ded. Amount" >= DecrementAmt
                                         then
-                                            if TempSalesAdvanceLetterLineLoc.FindSet then
+                                            if TempSalesAdvanceLetterLineLoc.FindSet() then
                                                 repeat
                                                     SalesAdvanceLetterLine.Get(TempSalesAdvanceLetterLineLoc."Letter No.",
                                                       TempSalesAdvanceLetterLineLoc."Line No.");
@@ -5493,9 +5443,6 @@ codeunit 31000 "Sales-Post Advances"
         SalesHeader.Init();
         SalesHeader.TransferFields(SalesAdvanceLetterHeader);
         CopyBillToSellFromAdvLetter(SalesHeader, SalesAdvanceLetterHeader);
-#if not CLEAN17
-        SalesHeader."VAT Date" := VATDate;
-#endif
         // Create posted header
         with SalesCrMemoHeader do begin
             Init;
@@ -5505,9 +5452,6 @@ codeunit 31000 "Sales-Post Advances"
             TransferFields(SalesHeader);
             "No." := DocumentNo;
             "Posting Date" := PostingDate;
-#if not CLEAN17
-            "VAT Date" := VATDate;
-#endif
             "Document Date" := PostingDate;
             "Letter No." := SalesAdvanceLetterHeader."No.";
             "User ID" := UserId;
@@ -5516,9 +5460,6 @@ codeunit 31000 "Sales-Post Advances"
             "Prepayment Credit Memo" := true;
             "Currency Factor" :=
               CurrExchRate.ExchangeRate(PostingDate, SalesHeader."Currency Code");
-#if not CLEAN17
-            "Credit Memo Type" := "Credit Memo Type"::"Corrective Tax Document";
-#endif
             OnCreateBlankCrMemoOnBeforeInsertSalesCrMemoHeader(SalesAdvanceLetterHeader, SalesCrMemoHeader, VATDate);
             Insert;
         end;
@@ -5626,7 +5567,7 @@ codeunit 31000 "Sales-Post Advances"
         AdvanceLink.SetRange("Invoice No.", '');
         AdvanceLink.SetRange("Transfer Date", 0D);
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
-        AdvanceLink.FindLast;
+        AdvanceLink.FindLast();
         CustLedgerEntry.Get(AdvanceLink."CV Ledger Entry No.");
         exit(CustLedgerEntry."Original Currency Factor");
     end;

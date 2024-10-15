@@ -37,7 +37,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     begin
         // [SCENARIO 252239] The description from reversal entry is transfered to posted FA Ledger Entry
 
-        Initialize;
+        Initialize();
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
         DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
         DepreciationBook.Modify(true);
@@ -45,7 +45,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         CreateAndPostGenJournalLine(
           GenJournalLine, LibraryRandom.RandDec(100, 2), GenJournalLine."FA Posting Type"::"Acquisition Cost",
           CreateFixedAssetWithFADepreciationBook(DepreciationBook.Code), DepreciationBook.Code, GenJournalBatch);
-        ExpectedDescription := LibraryUtility.GenerateGUID;
+        ExpectedDescription := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ExpectedDescription);
 
         LibraryLowerPermissions.SetJournalsPost;
@@ -71,14 +71,14 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // Check Reverse Error when Fixed Asset is Acquisition and Disposal.
 
         // Create General Journal Line for Fixed Asset with Acquisition Cost and Disposal and Post them then Reverse.
-        Initialize;
+        Initialize();
         // Setup: Create General Journal Line for Fixed Asset.
         DocumentNo := CreateFixedAssetWithJournalLine(
             GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost", GenJournalLine."FA Posting Type"::Disposal);
 
         // Exercise: Reverse Fixed Asset Ledger Entry.
         LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
+        LibraryLowerPermissions.AddJournalsPost();
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
         // Verify: Verify Reverse Error for Fixed Asset on Disposed.
@@ -96,14 +96,14 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // Check Reverse Error when Fixed Asset is Acquisition and Depreciation.
 
         // Create General Journal Line for Fixed Asset with Acquisition Cost and Depreciation and Post them then Reverse.
-        Initialize;
+        Initialize();
         // Setup: Create General Journal Line for Fixed Asset.
         DocumentNo := CreateFixedAssetWithJournalLine(
             GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost", GenJournalLine."FA Posting Type"::Depreciation);
 
         // Exercise: Reverse Fixed Asset Ledger Entry.
         LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
+        LibraryLowerPermissions.AddJournalsPost();
         asserterror ReverseFALedgerEntry(DocumentNo, true);
 
         // Verify: Verify Reverse Error for Deprecated Fixed Asset.
@@ -139,18 +139,18 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         // [SCENARIO 252239] The description from reversal entry is transfered to posted Maintenance Ledger Entry
 
         // Create General Journal Line for Fixed Asset with Mainteancne with Random Value and Post.
-        Initialize;
+        Initialize();
         CreateDepreciationBookWithMaintenanceGLIntegration(DepreciationBook);
         SetupGenJournalBatch(GenJournalBatch);
         CreateAndPostGenJournalLine(
           GenJournalLine, LibraryRandom.RandDec(100, 2), GenJournalLine."FA Posting Type"::Maintenance,
           CreateFixedAssetWithFADepreciationBook(DepreciationBook.Code), DepreciationBook.Code, GenJournalBatch);
-        ExpectedDescription := LibraryUtility.GenerateGUID;
+        ExpectedDescription := LibraryUtility.GenerateGUID();
         LibraryVariableStorage.Enqueue(ExpectedDescription);
 
         // Exercise: Reverse Maintenance Ledger Entry.
         LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
+        LibraryLowerPermissions.AddJournalsPost();
         ReverseMaintenanceLedgerEntry(GenJournalLine."Document No.", false);
 
         // Verify: Verify Reversed Maintenance Ledger Entry.
@@ -191,7 +191,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         FixedAsset: Code[20];
     begin
         // Post FA Entries from General Journal Line and verify Maintenance Ledger Entry.
-        Initialize;
+        Initialize();
 
         // Setup: Create Depreciation Book.
         CreateDepreciationBookWithMaintenanceGLIntegration(DepreciationBook);
@@ -203,7 +203,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
 
         // Exercise: Post General Journal Line with Random values.
         LibraryLowerPermissions.SetO365FAEdit;
-        LibraryLowerPermissions.AddJournalsPost;
+        LibraryLowerPermissions.AddJournalsPost();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Maintenance Ledger Entry.
@@ -520,9 +520,9 @@ codeunit 134135 "ERM Reverse Fixed Assets"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Fixed Assets");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Reverse Fixed Assets");
@@ -532,7 +532,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
         DepreciationBookCode := CreateDepreciationBookWithAcqCostDeprDispGLIntegration;
         CreateFAJournalSetup(DepreciationBookCode);
         FANo := CreateFixedAssetWithFADepreciationBook(DepreciationBookCode);
@@ -683,8 +683,8 @@ codeunit 134135 "ERM Reverse Fixed Assets"
             SetFilter("FA Error Entry No.", '<>%1', FALedgerEntry."Entry No.");
             DeleteAll(true);
             SetRange("FA Error Entry No.");
-            FindFirst;
-            Validate("Document No.", LibraryUtility.GenerateGUID);
+            FindFirst();
+            Validate("Document No.", LibraryUtility.GenerateGUID());
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", BalGLAccountNo);
             Modify(true);
@@ -697,7 +697,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         Clear(FALedgerEntry);
         FALedgerEntry.SetRange("FA No.", FixedAssetNo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure SetupGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -712,7 +712,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         ReversalEntry: Record "Reversal Entry";
     begin
         FALedgerEntry.SetRange("Document No.", DocumentNo);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
 
         ReversalEntry.SetHideDialog(HideUI);
         ReversalEntry.ReverseTransaction(FALedgerEntry."Transaction No.");
@@ -724,7 +724,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         ReversalEntry: Record "Reversal Entry";
     begin
         MaintenanceLedgerEntry.SetRange("Document No.", DocumentNo);
-        MaintenanceLedgerEntry.FindFirst;
+        MaintenanceLedgerEntry.FindFirst();
         ReversalEntry.SetHideDialog(HideUI);
         ReversalEntry.ReverseTransaction(MaintenanceLedgerEntry."Transaction No.");
     end;
@@ -736,7 +736,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     begin
         GeneralLedgerSetup.Get();
         FALedgerEntry.SetRange("Document No.", DocumentNo);
-        FALedgerEntry.FindLast;
+        FALedgerEntry.FindLast();
         Assert.AreNearlyEqual(
           DebitAmount, FALedgerEntry."Debit Amount", GeneralLedgerSetup."Appln. Rounding Precision",
           StrSubstNo(AmountErr, FALedgerEntry.FieldCaption("Debit Amount"), DebitAmount));
@@ -751,7 +751,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     begin
         GeneralLedgerSetup.Get();
         MaintenanceLedgerEntry.SetRange("Document No.", DocumentNo);
-        MaintenanceLedgerEntry.FindLast;
+        MaintenanceLedgerEntry.FindLast();
         Assert.AreNearlyEqual(
           DebitAmount, MaintenanceLedgerEntry."Debit Amount", GeneralLedgerSetup."Appln. Rounding Precision",
           StrSubstNo(AmountErr, MaintenanceLedgerEntry.FieldCaption("Debit Amount"), DebitAmount));
@@ -763,7 +763,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     var
         GLRegister: Record "G/L Register";
     begin
-        GLRegister.FindLast;
+        GLRegister.FindLast();
         GLRegister.TestField(Reversed, true);
     end;
 
@@ -771,7 +771,7 @@ codeunit 134135 "ERM Reverse Fixed Assets"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         GLEntry.TestField("Transaction No.", ExpectedTransactionNo);
     end;
 

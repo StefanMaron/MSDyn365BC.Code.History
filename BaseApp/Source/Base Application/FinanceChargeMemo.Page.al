@@ -13,7 +13,7 @@ page 446 "Finance Charge Memo"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -22,11 +22,11 @@ page 446 "Finance Charge Memo"
 
                     trigger OnAssistEdit()
                     begin
-                        if AssistEdit(xRec) then
+                        if Rec.AssistEdit(xRec) then
                             CurrPage.Update();
                     end;
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -38,36 +38,36 @@ page 446 "Finance Charge Memo"
                         Customer.GetPrimaryContact("Customer No.", PrimaryContact);
                     end;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the customer the finance charge memo is for.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
                     ToolTip = 'Specifies the address of the customer the finance charge memo is for.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     QuickEntry = false;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city name of the customer the finance charge memo is for.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
@@ -99,7 +99,7 @@ page 446 "Finance Charge Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
                 }
-                field("Posting Description"; "Posting Description")
+                field("Posting Description"; Rec."Posting Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
@@ -108,18 +108,18 @@ page 446 "Finance Charge Memo"
                     ObsoleteTag = '19.0';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the finance charge memo should be issued.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
@@ -133,20 +133,20 @@ page 446 "Finance Charge Memo"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies when payment of the amount on the finance charge memo is due.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -154,37 +154,38 @@ page 446 "Finance Charge Memo"
 
                     trigger OnAssistEdit()
                     begin
-                        TestField("Posting Date");
+                        Rec.TestField("Posting Date");
                         ChangeExchangeRate.SetParameter(
-                          "Currency Code",
-                          CurrExchRate.ExchangeRate("Posting Date", "Currency Code"),
-                          "Posting Date");
+                          Rec."Currency Code",
+                          CurrExchRate.ExchangeRate(Rec."Posting Date", Rec."Currency Code"),
+                          Rec."Posting Date");
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal = ACTION::OK then;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-#if not CLEAN18
-                field("Customer Posting Group"; "Customer Posting Group")
+                field("Customer Posting Group"; Rec."Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '18.0';
-                    Visible = false;
+                    Editable = IsPostingGroupEditable;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
-#endif
             }
 #if not CLEAN18
             group(Payments)
@@ -355,7 +356,7 @@ page 446 "Finance Charge Memo"
                     AccessByPermission = TableData Dimension = R;
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
-                    Enabled = "No." <> '';
+                    Enabled = Rec."No." <> '';
                     Image = Dimensions;
                     Promoted = true;
                     PromotedCategory = Category4;
@@ -365,8 +366,8 @@ page 446 "Finance Charge Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDocDim;
-                        CurrPage.SaveRecord;
+                        Rec.ShowDocDim();
+                        CurrPage.SaveRecord();
                     end;
                 }
                 separator(Action32)
@@ -452,7 +453,7 @@ page 446 "Finance Charge Memo"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(FinChrgMemoHeader);
-                        FinChrgMemoHeader.PrintRecords;
+                        FinChrgMemoHeader.PrintRecords();
                     end;
                 }
                 action(Issue)
@@ -524,24 +525,25 @@ page 446 "Finance Charge Memo"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.SaveRecord;
-        exit(ConfirmDeletion);
+        CurrPage.SaveRecord();
+        exit(Rec.ConfirmDeletion());
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        if (not DocNoVisible) and ("No." = '') then
-            SetCustomerFromFilter;
+        if (not DocNoVisible) and (Rec."No." = '') then
+            Rec.SetCustomerFromFilter();
     end;
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
+        SetDocNoVisible();
+        SetPostingGroupEditable();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        Customer.GetPrimaryContact("Customer No.", PrimaryContact);
+        Customer.GetPrimaryContact(Rec."Customer No.", PrimaryContact);
     end;
 
     var
@@ -549,15 +551,23 @@ page 446 "Finance Charge Memo"
         Customer: Record Customer;
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         CurrExchRate: Record "Currency Exchange Rate";
+        SalesSetup: Record "Sales & Receivables Setup";
         ChangeExchangeRate: Page "Change Exchange Rate";
         DocNoVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
         DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo;
     begin
-        DocNoVisible := DocumentNoVisibility.SalesDocumentNoIsVisible(DocType::FinChMemo, "No.");
+        DocNoVisible := DocumentNoVisibility.SalesDocumentNoIsVisible(DocType::FinChMemo, Rec."No.");
+    end;
+
+    procedure SetPostingGroupEditable()
+    begin
+        SalesSetup.GetRecordOnce();
+        IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
     end;
 }
 

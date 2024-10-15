@@ -40,7 +40,7 @@ codeunit 143051 "Library - Credit"
         CustLedgEntry.SetRange("Document Type", DocumentType);
         CustLedgEntry.SetRange(Open, true);
         CustLedgEntry.SetRange("Amount on Credit (LCY)", 0);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
     end;
 
     [Scope('OnPrem')]
@@ -50,7 +50,7 @@ codeunit 143051 "Library - Credit"
         VendLedgEntry.SetRange("Document Type", DocumentType);
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetRange("Amount on Credit (LCY)", 0);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
     end;
 
     [Scope('OnPrem')]

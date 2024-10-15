@@ -26,9 +26,6 @@ table 31123 "EET Entry"
         field(12; "Source No."; Code[20])
         {
             Caption = 'Source No.';
-#if not CLEAN17
-            TableRelation = IF ("Source Type" = CONST("Cash Desk")) "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-#endif
         }
         field(20; "Business Premises Code"; Code[10])
         {
@@ -239,23 +236,6 @@ table 31123 "EET Entry"
         EETEntryStatus.SetCurrentKey("EET Entry No.");
         EETEntryStatus.SetRange("EET Entry No.", "Entry No.");
         PAGE.Run(0, EETEntryStatus);
-    end;
-
-#endif
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.5')]
-    procedure ShowDocument()
-    var
-        PstdCashDocHeader: Record "Posted Cash Document Header";
-    begin
-        TestField("Source No.");
-        TestField("Document No.");
-        case "Source Type" of
-            "Source Type"::"Cash Desk":
-                if PstdCashDocHeader.Get("Source No.", "Document No.") then
-                    PAGE.Run(PAGE::"Posted Cash Document", PstdCashDocHeader);
-        end;
     end;
 
 #endif

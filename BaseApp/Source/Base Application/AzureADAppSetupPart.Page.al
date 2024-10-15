@@ -47,7 +47,7 @@ page 6301 "Azure AD App Setup Part"
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
-        if not FindFirst then
+        if not FindFirst() then
             Init;
 
         HomePageUrl := GetUrl(CLIENTTYPE::Web);

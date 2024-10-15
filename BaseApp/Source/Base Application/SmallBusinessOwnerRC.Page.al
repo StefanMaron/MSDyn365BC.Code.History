@@ -161,50 +161,6 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Inventory - Sales Back Orders";
                 ToolTip = 'View a list with the order lines whose shipment date has been exceeded. The following information is shown for the individual orders for each item: number, customer name, customer''s telephone number, shipment date, order quantity and quantity on back order. The report also shows whether there are other items for the customer on back order.';
             }
-#if not CLEAN17
-            action("Phys. Invt. Counting Document")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Phys. Invt. Counting Document';
-                Image = PhysicalInventory;
-                RunObject = Report "Phys. Invt. Counting Document";
-                ToolTip = 'Open the report for physical invt. counting document.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-            separator(Action1220000)
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-            }
-            action("Balance Sheet")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Balance Sheet';
-                Image = Balance;
-                RunObject = Report "Balance Sheet";
-                ToolTip = 'Open the report for balance sheet.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-            action("Income Statement")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Income Statement';
-                Image = VATStatement;
-                RunObject = Report "Income Statement";
-                ToolTip = 'Open the report for income statement.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.4';
-                Visible = false;
-            }
-#endif
 #if not CLEAN19
             separator(Action1220003)
             {
@@ -656,6 +612,13 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Issued Fin. Charge Memo List";
                     ToolTip = 'View the list of issued finance charge memos.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
             group(Finance)
             {
@@ -681,25 +644,8 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Bank Accounts';
                     Image = BankAccount;
                     RunObject = Page "Bank Account List";
-#if not CLEAN17
-                    RunPageView = WHERE("Account Type" = CONST("Bank Account"));
-#endif
                     ToolTip = 'View or set up detailed information about your bank account, such as which currency to use, the format of bank files that you import and export as electronic payments, and the numbering of checks.';
                 }
-#if not CLEAN17
-                action("Cash Desk Accounts")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Cash Desk Accounts';
-                    RunObject = Page "Bank Account List";
-                    RunPageView = WHERE("Account Type" = CONST("Cash Desk"));
-                    ToolTip = 'Specifies cash desk accounts';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-                    ObsoleteTag = '17.5';
-                    Visible = false;
-                }
-#endif
                 action(Currencies)
                 {
                     ApplicationArea = Basic, Suite;
@@ -730,6 +676,16 @@ page 9020 "Small Business Owner RC"
                     Caption = 'Bank Account Posting Groups';
                     RunObject = Page "Bank Account Posting Groups";
                     ToolTip = 'Set up posting groups, so that payments in and out of each bank account are posted to the specified general ledger account.';
+                }
+            }
+            group("Cash Management")
+            {
+                Caption = 'Cash Management';
+                action("Deposits to Post")
+                {
+                    Caption = 'Bank Deposits to Post';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'View the list of bank deposits that are ready to post.';
                 }
             }
             group(Marketing)
@@ -985,6 +941,13 @@ page 9020 "Small Business Owner RC"
                 RunPageMode = Create;
                 ToolTip = 'Create a reminder to remind a customer of overdue payment.';
             }
+            action(Deposit)
+            {
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
+            }
             separator(Action5)
             {
             }
@@ -1012,20 +975,6 @@ page 9020 "Small Business Owner RC"
                 RunPageMode = Create;
                 ToolTip = 'Purchase goods or services from a vendor.';
             }
-#if not CLEAN17
-            action("VIES Declaration")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VIES Declaration';
-                Image = PrintVAT;
-                RunObject = Page "VIES Declaration";
-                ToolTip = 'Specifies vies declaration';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                ObsoleteTag = '17.5';
-                Visible = false;
-            }
-#endif
         }
         area(processing)
         {
@@ -1199,7 +1148,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

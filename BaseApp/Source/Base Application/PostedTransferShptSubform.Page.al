@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 5744 "Posted Transfer Shpt. Subform"
 {
     Caption = 'Lines';
@@ -154,7 +155,7 @@ page 5744 "Posted Transfer Shpt. Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -165,13 +166,17 @@ page 5744 "Posted Transfer Shpt. Subform"
                 action(UndoShipment)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = '&Undo Shipment';
+                    Caption = '&Undo Shipment (Obsolete)';
                     Image = UndoShipment;
                     ToolTip = 'Withdraw the line from the shipment. This is useful for making corrections, because the line is not deleted. You can make changes and post it again.';
+                    ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '20.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
-                        UndoShipmentPosting;
+                        UndoShipmentPosting();
                     end;
                 }
             }
@@ -213,6 +218,7 @@ page 5744 "Posted Transfer Shpt. Subform"
         Clear(DimMgt);
     end;
 
+    [Obsolete('Moved to Advance Localization Pack for Czech.', '20.0')]
     [Scope('OnPrem')]
     procedure UndoShipmentPosting()
     var
@@ -225,4 +231,4 @@ page 5744 "Posted Transfer Shpt. Subform"
         // NAVCZ
     end;
 }
-
+#endif

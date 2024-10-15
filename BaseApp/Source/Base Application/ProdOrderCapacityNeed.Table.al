@@ -227,18 +227,6 @@ table 5410 "Prod. Order Capacity Need"
         CurrDate := DT2Date("Ending Date-Time");
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by SetCapacityFilters.', '17.0')]
-    procedure SetFilters(Type2: Option; No2: Code[20])
-    begin
-        SetCurrentKey(Type, "No.", "Ending Date-Time", "Starting Date-Time");
-        SetRange(Type, Type2);
-        SetRange("No.", No2);
-        SetFilter(Status, '<> %1', Status::Simulated);
-        SetFilter("Allocated Time", '> 0');
-    end;
-#endif
-
     procedure SetCapacityFilters(CapType: Enum "Capacity Type"; CapNo: Code[20])
     begin
         SetCurrentKey(Type, "No.", "Ending Date-Time", "Starting Date-Time");

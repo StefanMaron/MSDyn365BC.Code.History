@@ -47,9 +47,9 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         // Setup Demonstration data.
         isInitialized := true;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
 
         MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
@@ -72,7 +72,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         ItemFilter: Text[250];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateInventorySetup(InventorySetup, AutCostPosting, false, AutCostAdj,
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant",
           InventorySetup."Average Cost Period"::Day);
@@ -240,7 +240,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         DocNo: Code[20];
     begin
         // Setup. Perform adjustment scenario.
-        Initialize;
+        Initialize();
         AssemblyHeaderNo :=
           Adjustment(ParentCostingMethod, CompCostingMethod, false, InventorySetup."Automatic Cost Adjustment"::Never,
             AdjustHeader, AdjSource1, AdjSource2);
@@ -251,7 +251,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         // Exercise: Post Inventory cost to G/L for the selected items.
         PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
-        PostedAssemblyHeader.FindFirst;
+        PostedAssemblyHeader.FindFirst();
         if PerPostingGroup then
             DocNo := PostedAssemblyHeader."No."
         else
@@ -322,7 +322,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         ResourceNo: array[10] of Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateInventorySetup(InventorySetup, AutCostPosting, false, AutCostAdj,
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant",
           InventorySetup."Average Cost Period"::Day);
@@ -414,7 +414,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         AssemblyHeaderNo2: Code[20];
     begin
         // Setup. Perform adjustment scenario.
-        Initialize;
+        Initialize();
         BatchAdjustment(AssemblyHeaderNo1, AssemblyHeaderNo2,
           ParentCostingMethod, CompCostingMethod, AutCostPosting, AutCostAdj, AdjustHeader, AdjSource, AdjSource);
         LibraryAssembly.UpdateInventorySetup(InventorySetup, AutCostPosting, false, AutCostAdj,
@@ -564,7 +564,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         AsmInvtPostingGr: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LocationCode := '';
         LibraryAssembly.UpdateInventorySetup(InventorySetup, false, false, InventorySetup."Automatic Cost Adjustment"::Never,
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
@@ -672,7 +672,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
         AsmInvtPostingGr: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Order Header",
           LibraryUtility.GetGlobalNoSeriesCode);
 

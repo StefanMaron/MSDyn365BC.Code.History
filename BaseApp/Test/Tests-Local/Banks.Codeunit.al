@@ -40,7 +40,7 @@ codeunit 144000 Banks
     local procedure Initialize()
     begin
         LibraryRandom.SetSeed(1);  // Use Random Number Generator to generate the seed for RANDOM function.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -61,7 +61,7 @@ codeunit 144000 Banks
         // Check if the system allows creating a new Payment Order.
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Payment Order
         CreatePaymentOrder(PmtOrdHdr, PmtOrdLn);
@@ -84,7 +84,7 @@ codeunit 144000 Banks
         // and create Payment Order Lines
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Purchase Invoice for payments suggestion
         CreatePurchaseInvoice(PurchHdr, PurchLn);
@@ -116,7 +116,7 @@ codeunit 144000 Banks
         // Test issuing Payment Order and create Issued Payment Order
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Payment Order with lines
         CreatePaymentOrder(PmtOrdHdr, PmtOrdLn);
@@ -142,7 +142,7 @@ codeunit 144000 Banks
         // Test copying Payment Order to Bank Statement
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Payment Order with lines
         CreatePaymentOrder(PmtOrdHdr, PmtOrdLn);
@@ -178,14 +178,14 @@ codeunit 144000 Banks
         // Payment Reconciliation Journal that corresponds to the Sales Invoice
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Sales Invoice
         CreateSalesInvoice(SalesHdr, SalesLn);
 
         // Post Purchase Invoice
         PostDocNo := PostSalesDocument(SalesHdr);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.CalcFields(Amount);
 
         // Create Bank Statement
@@ -221,7 +221,7 @@ codeunit 144000 Banks
         // Test that invalid bank account no. will cause error during the issuing
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Payment Order with invalid bank account no.
         CreatePaymentOrder(PmtOrdHdr, PmtOrdLn);
@@ -250,7 +250,7 @@ codeunit 144000 Banks
         // Test suggests that payment of the invoice within two Payment Orders
 
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Purchase Invoice for payments suggestion
         CreatePurchaseInvoice(PurchHdr, PurchLn);
@@ -278,7 +278,7 @@ codeunit 144000 Banks
         IssuedPmtOrdHdr: Record "Issued Payment Order Header";
     begin
         // 1.Setup:
-        Initialize;
+        Initialize();
 
         // Create Payment Order
         CreatePaymentOrder(PmtOrdHdr, PmtOrdLn);
@@ -375,7 +375,7 @@ codeunit 144000 Banks
         Vendor.SetFilter("Vendor Posting Group", '<>''''');
         Vendor.SetFilter("Gen. Bus. Posting Group", '<>''''');
         Vendor.SetRange(Blocked, Vendor.Blocked::" ");
-        Vendor.FindFirst;
+        Vendor.FindFirst();
     end;
 
     local procedure FindGLAccount(var GLAccount: Record "G/L Account")

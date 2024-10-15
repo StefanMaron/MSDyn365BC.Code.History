@@ -2,7 +2,7 @@
 report 5605 "Fixed Asset - Book Value 01"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CLEAN18/FixedAssetBookValue01.rdlc';
+    RDLCLayout = './FixedAssetBookValue01.rdlc';
     ApplicationArea = FixedAssets;
     Caption = 'Fixed Asset Book Value 01';
     PreviewMode = PrintLayout;
@@ -625,4 +625,5 @@ report 5605 "Fixed Asset - Book Value 01"
         end;
     end;
 }
+
 #endif

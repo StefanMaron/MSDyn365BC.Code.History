@@ -4,12 +4,13 @@ table 31050 "Credit Header"
     DataCaptionFields = "No.", Description;
 #if CLEAN18
     ObsoleteState = Removed;
+    ObsoleteTag = '21.0';
 #else
     LookupPageID = "Credits List";
     ObsoleteState = Pending;
+    ObsoleteTag = '18.0';
 #endif
     ObsoleteReason = 'Moved to Compensation Localization Pack for Czech.';
-    ObsoleteTag = '18.0';
 
     fields
     {
@@ -206,7 +207,6 @@ table 31050 "Credit Header"
             Caption = 'No. Series';
             TableRelation = "No. Series";
         }
-#if not CLEAN18
         field(90; "Balance (LCY)"; Decimal)
         {
             CalcFormula = Sum("Credit Line"."Ledg. Entry Rem. Amt. (LCY)" WHERE("Credit No." = FIELD("No.")));
@@ -221,7 +221,6 @@ table 31050 "Credit Header"
             Editable = false;
             FieldClass = FlowField;
         }
-#endif
         field(100; Type; Option)
         {
             Caption = 'Type';
@@ -338,7 +337,7 @@ table 31050 "Credit Header"
         with CreditHeader do begin
             Copy(Rec);
             OnCheckCreditPrintRestrictions;
-            FindFirst;
+            FindFirst();
             CreditReportSelections.SetRange(Usage, CreditReportSelections.Usage::Credit);
             CreditReportSelections.SetFilter("Report ID", '<>0');
             CreditReportSelections.Find('-');

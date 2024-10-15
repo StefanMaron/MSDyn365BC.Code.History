@@ -1,9 +1,7 @@
-#if not CLEAN17
 page 1283 "Payment Bank Account Card"
 {
     Caption = 'Payment Bank Account Card';
     SourceTable = "Bank Account";
-    SourceTableView = WHERE("Account Type" = CONST("Bank Account"));
 
     layout
     {
@@ -119,4 +117,4 @@ page 1283 "Payment Bank Account Card"
         }
     }
 }
-#endif
+

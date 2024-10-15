@@ -148,7 +148,7 @@ table 134 "Posted Docs. With No Inc. Buf."
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Posting Date", PostingDate);
         GLEntry.SetFilter(Description, '<>%1', '');
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             exit(GLEntry.Description);
         exit('');
     end;
@@ -165,24 +165,24 @@ table 134 "Posted Docs. With No Inc. Buf."
 #endif
     begin
         PurchaseHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if PurchaseHeader.FindFirst then
+        if PurchaseHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
         SalesHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, SalesHeader."Document Type", SalesHeader."No.");
         GenJournalLine.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if GenJournalLine.FindFirst then
+        if GenJournalLine.FindFirst() then
             Error(AlreadyIncomingDocErr, GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name");
         // NAVCZ
         SalesAdvanceLetterHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if SalesAdvanceLetterHeader.FindFirst then
+        if SalesAdvanceLetterHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, SalesAdvanceLetterHeader.TableCaption, SalesAdvanceLetterHeader."No.");
         PurchAdvanceLetterHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if PurchAdvanceLetterHeader.FindFirst then
+        if PurchAdvanceLetterHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, PurchAdvanceLetterHeader.TableCaption, PurchAdvanceLetterHeader."No.");
 #if not CLEAN18
         CreditHeader.SetRange("Incoming Document Entry No.", IncomingDocEntryNo);
-        if CreditHeader.FindFirst then
+        if CreditHeader.FindFirst() then
             Error(AlreadyIncomingDocErr, CreditHeader.TableCaption, CreditHeader."No.");
 #endif
         // NAVCZ

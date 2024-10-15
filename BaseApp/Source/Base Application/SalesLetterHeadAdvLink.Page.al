@@ -48,7 +48,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -126,7 +126,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
                 begin
                     SalesAdvanceLetterHeader2 := Rec;
                     CurrPage.SetSelectionFilter(SalesAdvanceLetterHeader);
-                    if SalesAdvanceLetterHeader.FindSet then
+                    if SalesAdvanceLetterHeader.FindSet() then
                         repeat
                             Rec := SalesAdvanceLetterHeader;
                             Mark := not Mark;
@@ -226,7 +226,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
     begin
         TempSalesHeader := SalesHeader;
         TempSalesHeader.Insert();
-        if SalesAdvanceLetterHeader.FindSet then
+        if SalesAdvanceLetterHeader.FindSet() then
             repeat
                 TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
                 TempSalesAdvanceLetterHeader.Insert();
@@ -237,7 +237,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
     [Scope('OnPrem')]
     procedure UpdateLetters(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
-        if SalesAdvanceLetterHeader.FindSet then
+        if SalesAdvanceLetterHeader.FindSet() then
             repeat
                 if TempSalesAdvanceLetterHeader.Get(SalesAdvanceLetterHeader."No.") then begin
                     TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
@@ -254,7 +254,7 @@ page 31013 "Sales Letter Head. - Adv.Link."
     begin
         TempSalesAdvanceLetterHeader.Copy(Rec);
         TempSalesAdvanceLetterHeader.MarkedOnly(true);
-        if TempSalesAdvanceLetterHeader.FindSet then
+        if TempSalesAdvanceLetterHeader.FindSet() then
             repeat
                 SalesAdvanceLetterHeader := TempSalesAdvanceLetterHeader;
                 SalesAdvanceLetterHeader.Insert();

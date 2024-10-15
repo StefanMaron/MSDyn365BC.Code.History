@@ -50,7 +50,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     procedure PriceListCustomer()
     begin
         // Test Price List Report - Sales Type: Customer.
-        Initialize;
+        Initialize();
         CustomerPriceListReport('');
     end;
 
@@ -62,7 +62,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CurrencyCode: Code[10];
     begin
         // Test Price List Report - Sales Type: Customer, and Random Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := SelectCurrencyCode;
         CustomerPriceListReport(CurrencyCode);
     end;
@@ -78,7 +78,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(10, 2));
 
         // 2. Exercise: Generate the Price List.
-        CustNo := LibrarySales.CreateCustomerNo;
+        CustNo := LibrarySales.CreateCustomerNo();
         Commit();
         RunPriceListReport(Item."No.", SalesType::Customer, CustNo, CurrencyCode);
 
@@ -92,7 +92,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     procedure PriceListCustPriceGroup()
     begin
         // Test Price List Report - Sales Type: Customer Price Group.
-        Initialize;
+        Initialize();
         CustPriceGroupPriceListReport('');
     end;
 
@@ -104,7 +104,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CurrencyCode: Code[10];
     begin
         // Test Price List Report - Sales Type: Customer Price Group, and Random Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := SelectCurrencyCode;
         CustPriceGroupPriceListReport(CurrencyCode);
     end;
@@ -135,7 +135,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     procedure PriceListAllCustomer()
     begin
         // Test Price List Report - Sales Type: All Customer.
-        Initialize;
+        Initialize();
         AllCustomerPriceListReport('');
     end;
 
@@ -147,7 +147,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CurrencyCode: Code[10];
     begin
         // Test Price List Report - Sales Type: All Customer, and Random Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := SelectCurrencyCode;
         AllCustomerPriceListReport(CurrencyCode);
     end;
@@ -176,7 +176,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     var
     begin
         // Test Price List Report - Sales Type: Campaign.
-        Initialize;
+        Initialize();
         CampaignPriceListReport('');
     end;
 
@@ -188,7 +188,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CurrencyCode: Code[10];
     begin
         // Test Price List Report - Sales Type: Campaign, and Random Currency.
-        Initialize;
+        Initialize();
         CurrencyCode := SelectCurrencyCode;
         CampaignPriceListReport(CurrencyCode);
     end;
@@ -214,7 +214,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // 3. Verify: Check the value of Unit Price from Sales Price.
         SalesPrice.SetRange("Item No.", Item."No.");
-        SalesPrice.FindFirst;
+        SalesPrice.FindFirst();
         VerifyUnitPrice(Item, CurrencyCode, SalesPrice."Unit Price");
     end;
 #endif
@@ -230,7 +230,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // 1. Setup: Create Item and Item Journal Line.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, Item."No.");
@@ -263,7 +263,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ItemJournalLine: Record "Item Journal Line";
     begin
         // 1. Setup: Create Item and post Item Journal Line for Item purchase.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, Item."No.");
         ItemJournalLine.Validate("Document No.", Item."No.");
@@ -293,7 +293,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         // [SCENARIO 360763] Report Inventory Valuation - Cost Spec. Quantity is equal to ItemLedgerEntry's Quantity that correspondes with "Limits Totals to" filters
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Item
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
@@ -322,7 +322,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Quantity: Decimal;
     begin
         // 1. Setup: Create Item and post Item Journal Line for Item purchase.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         UpdateItem(Item, Item.FieldNo(Description), Item."No.");
         CreateItemJournalLine(ItemJournalBatch, ItemJournalLine, Item."No.");
@@ -352,7 +352,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CostAmountActual: Decimal;
     begin
         // 1. Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
 
         // Create Production BOM.
         // Create Parent Item and attach Routing and Production BOM.
@@ -394,7 +394,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         PurchaseReserveAvailReport(PurchaseHeader, Item."No.", false);  // PurchaseReserveAvailReport contains Exercise.
 
@@ -415,7 +415,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         PurchaseReserveAvailReport(PurchaseHeader, Item."No.", true);  // PurchaseReserveAvailReport contains Exercise.
 
@@ -436,7 +436,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesHeader: Record "Sales Header";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         SalesReserveAvailReport(SalesHeader, Item."No.", false);  // SalesReserveAvailReport contains Exercise.
 
@@ -457,7 +457,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesLine: Record "Sales Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         SalesReserveAvailReport(SalesHeader, Item."No.", true);  // SalesReserveAvailReport contains Exercise.
 
@@ -481,7 +481,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Quantity: Decimal;
     begin
         // Setup: Create Item with Reservation - Always, Purchase Order and Sales Order. Auto-reserve Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         UpdateItem(Item, Item.FieldNo(Reserve), Item.Reserve::Always);
         Quantity := LibraryRandom.RandDec(10, 2);
@@ -515,7 +515,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Production Item Setup.
-        Initialize;
+        Initialize();
         CreateProdItemSetup(Item);
 
         // Exercise: Generate the Rolled up Cost Shares report.
@@ -544,7 +544,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item: Record Item;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
 
         // Exercise: Generate the Single Level Cost Shares report.
@@ -568,7 +568,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Production Item Setup.
-        Initialize;
+        Initialize();
         CreateProdItemSetup(Item);
 
         // Exercise: Generate the Detailed Calculation report.
@@ -598,7 +598,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMLine: Record "Production BOM Line";
     begin
         // Setup: Create Production Item Setup and select a child item.
-        Initialize;
+        Initialize();
         CreateProdItemSetup(Item);
         SelectProductionBOMLines(ProductionBOMLine, Item."Production BOM No.");
 
@@ -626,7 +626,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ScheduledReceipt: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         ScheduledReceipt := LibraryRandom.RandDecInRange(10, 100, 2);
         GrossReq := LibraryRandom.RandDecInDecimalRange(1, ScheduledReceipt, 2);
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
@@ -653,7 +653,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     procedure StatusReportForPurchaseOrderWithSameUOM()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StatusReportForPurchaseOrder(false);  // Change Unit of Measure as False.
     end;
 
@@ -663,7 +663,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     procedure StatusReportForPurchaseOrderWithDiffUOM()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         StatusReportForPurchaseOrder(true);  // Change Unit of Measure as True.
     end;
 
@@ -695,7 +695,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Setup: Create Item, Create and Post Purchase Order with Receive Option.
-        Initialize;
+        Initialize();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         CreateAndPostPurchaseOrderWithUOM(PurchaseHeader, Item, false);  // Change Unit Of Measure  as False.
 
@@ -721,7 +721,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Run the Inventory Valuation - WIP report. Verify Cost Posted To GL After Posting Revalution Journal.
 
         // Setup: Create and Post Revaluation Journal after Adjusting Cost Item Entries.
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
@@ -764,7 +764,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ExpectedPurchQty: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Setup: Create and post Purchase Order
@@ -799,7 +799,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchQty: Decimal;
     begin
         // Setup: Create Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Setup: Create and post Purchase Order.
@@ -840,7 +840,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ExpectedPurchQty: Decimal;
     begin
         // Setup: Create Item. Create three Purchase Order and post two of them. Create Sales Order. Auto-reserve Item.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // Setup: Create three Purchase Order and post two of them.
@@ -892,10 +892,10 @@ codeunit 137302 "SCM Inventory Reports - II"
         i: Integer;
     begin
         // 1. Setup: Create Item with Variant Code, Sales Price & Line Discount.
-        Initialize;
+        Initialize();
         PriceListLine.DeleteAll();
 
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(100, 2));
 
@@ -977,7 +977,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CostPostedToGL: Decimal;
     begin
         // Setup: Create Production Order Setup.
-        Initialize;
+        Initialize();
 
         // Setup: Create Production BOM.
         // Setup: Create Parent Item and attach Routing and Production BOM.
@@ -1077,7 +1077,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Number: Integer;
     begin
         // Setup: Create Component Item and Production Item, and update Inventory.
-        Initialize;
+        Initialize();
         CreateItem(ComponentItem, '', '', ComponentItem."Manufacturing Policy"::"Make-to-Stock");
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         ItemJournalSetup(ItemJournalBatch);
@@ -1128,7 +1128,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         // [FEATURE] [Inventory Availability]
         // [SCENARIO 363787] Planned Order Receipt and Projected Available Balance in Inventory Availability report is equal to Quantity of appropriate Requisition Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with Inventory = 0
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
@@ -1388,7 +1388,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         // [FEATURE] [Production BOM]  [Unit of Measure]
         // [SCENARIO 379112] When generating BOM tree for a multilevel BOM with different UoMs on BOM levels, unit of measure should be taken from Base Unit of Measure.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Component item "I1" with Production BOM "B1" and base UoM = "X"
         CreateItemWithProductionBOM(Item[1]);
@@ -1409,7 +1409,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // [THEN] In the component line with item "I3" Unit of Measure Code = "X"
         TempBOMBuffer.SetRange("No.", Item[3]."No.");
-        TempBOMBuffer.FindFirst;
+        TempBOMBuffer.FindFirst();
         TempBOMBuffer.TestField("Unit of Measure Code", Item[3]."Base Unit of Measure");
     end;
 
@@ -1657,7 +1657,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // [SCENARIO 387837] Created two price of Item: one for Customer, another for All Customer. Then run report "Price List" for Customer
         // [GIVEN] Created Customer and Item
         Initialize();
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         CreateItem(Item, '', '', Item."Manufacturing Policy"::"Make-to-Order");
         UpdateItem(Item, Item.FieldNo("Unit Price"), LibraryRandom.RandDec(100, 2));
 
@@ -1689,8 +1689,8 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Reports - II");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 #if not CLEAN19
         LibraryPriceCalculation.SetupDefaultHandler("Price Calculation Handler"::"Business Central (Version 15.0)");
 #else
@@ -1701,9 +1701,9 @@ codeunit 137302 "SCM Inventory Reports - II"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - II");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup(); // NAVCZ
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         isInitialized := true;
@@ -1849,7 +1849,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryReportDataset.LoadDataSetFile;
         if CurrencyCode <> '' then begin
             CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-            CurrencyExchangeRate.FindFirst;
+            CurrencyExchangeRate.FindFirst();
             LibraryReportDataset.SetRange('UnitPriceFieldCaption', Item.FieldCaption("Unit Price") + ' ' + '(' + CurrencyCode + ')');
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('SalesPriceUnitPrice', ExpUnitPrice /
@@ -1890,16 +1890,16 @@ codeunit 137302 "SCM Inventory Reports - II"
     local procedure CreateItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         with ItemLedgerEntry do begin
-            if FindLast then;
+            if FindLast() then;
 
             Init;
             "Entry No." += 1;
             "Item No." := ItemNo;
             Quantity := LibraryRandom.RandDec(100, 2);
-            "Location Code" := LibraryUtility.GenerateGUID;
-            "Variant Code" := LibraryUtility.GenerateGUID;
-            "Global Dimension 1 Code" := LibraryUtility.GenerateGUID;
-            "Global Dimension 2 Code" := LibraryUtility.GenerateGUID;
+            "Location Code" := LibraryUtility.GenerateGUID();
+            "Variant Code" := LibraryUtility.GenerateGUID();
+            "Global Dimension 1 Code" := LibraryUtility.GenerateGUID();
+            "Global Dimension 2 Code" := LibraryUtility.GenerateGUID();
             Insert;
         end;
     end;
@@ -2052,7 +2052,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         RoutingLine: Record "Routing Line";
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        if RoutingLine.FindLast then
+        if RoutingLine.FindLast() then
             exit(RoutingLine."Operation No.");
     end;
 
@@ -2149,7 +2149,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
 
             ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
-            ProdOrderLine.FindFirst;
+            ProdOrderLine.FindFirst();
             LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
@@ -2165,7 +2165,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         RequisitionLine: Record "Requisition Line";
     begin
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
-        ReqWkshTemplate.FindFirst;
+        ReqWkshTemplate.FindFirst();
         LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
         LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
         with RequisitionLine do begin
@@ -2216,7 +2216,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMVersion: Record "Production BOM Version";
     begin
         // Setup: Create Production BOM with component Item and Production BOM Version.
-        Initialize;
+        Initialize();
         CreateProdItemSetup(Item);
         CreateProdBOMVersion(ProductionBOMVersion, Item, Status);
 
@@ -2238,7 +2238,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         // Run the Rolled Up Cost Shares report with Type Production BOM and check the component item on report when one component is delete from Production BOM Version with Under Development status.
 
         // Setup: Create Production BOM with component Item and with One Production BOM and Create Production BOM Version.
-        Initialize;
+        Initialize();
         CreateProdItemSetup(Item);
         ProductionBOMHeader.Get(Item."Production BOM No.");
         UpdateProdBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::"Under Development");
@@ -2334,7 +2334,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Order);
         SalesLine.SetRange("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateProdItemSetup(var Item3: Record Item)
@@ -2359,14 +2359,14 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderLine.FindFirst;
+        ProdOrderLine.FindFirst();
     end;
 
     local procedure RunStatusReport(No: Code[20])
@@ -2396,7 +2396,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMVersion.Validate("Unit of Measure Code", ProdBOMHeader."Unit of Measure Code");
         ProductionBOMVersion.Modify(true);
         ProductionBOMLine.SetRange("Version Code", VersionCode);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         ProductionBOMLine.Delete();
     end;
 
@@ -2459,13 +2459,13 @@ codeunit 137302 "SCM Inventory Reports - II"
     local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindRoutingLine(var RoutingLine: Record "Routing Line"; RoutingNo: Code[20])
     begin
         RoutingLine.SetRange("Routing No.", RoutingNo);
-        RoutingLine.FindFirst;
+        RoutingLine.FindFirst();
     end;
 
     local procedure ExplodeOutputJournal(ItemNo: Code[20]; ProductionOrderNo: Code[20])
@@ -2571,7 +2571,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         GLSetup.Get();
         BOMBuffer.SetRange("No.", Item."No.");
-        BOMBuffer.FindFirst;
+        BOMBuffer.FindFirst();
         Assert.AreEqual(Round(QtyPerTop + ScrapQty, 0.00001), BOMBuffer."Qty. per Parent", ReportQtyErr);
         Assert.AreEqual(Round(QtyPerTop + ScrapQty, 0.00001), BOMBuffer."Qty. per Top Item", ReportQtyErr);
         Assert.AreEqual(Round(ScrapQty, 0.00001), BOMBuffer."Scrap Qty. per Parent", ReportQtyErr);
@@ -2687,7 +2687,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryVariableStorage.Dequeue(ProdOrderNo);
         ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
         ItemJournalLine.SetRange("Order No.", ProdOrderNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJnlPostLine.RunWithCheck(ItemJournalLine);
     end;
 

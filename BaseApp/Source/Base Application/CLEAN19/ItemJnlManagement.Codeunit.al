@@ -58,7 +58,7 @@ codeunit 240 ItemJnlManagement
                     Commit();
                 end;
             1:
-                ItemJnlTemplate.FindFirst;
+                ItemJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, ItemJnlTemplate) = ACTION::LookupOK;
         end;
@@ -120,9 +120,9 @@ codeunit 240 ItemJnlManagement
         if not ItemJnlBatch.Find('-') then
             for ItemJnlTemplate.Type := ItemJnlTemplate.Type::Item to ItemJnlTemplate.Type::"Prod. Order" do begin
                 ItemJnlTemplate.SetRange(Type, ItemJnlTemplate.Type);
-                if not ItemJnlTemplate.FindFirst then
+                if not ItemJnlTemplate.FindFirst() then
                     TemplateSelection(0, ItemJnlTemplate.Type.AsInteger(), false, ItemJnlLine, JnlSelected);
-                if ItemJnlTemplate.FindFirst then
+                if ItemJnlTemplate.FindFirst() then
                     CheckTemplateName(ItemJnlTemplate.Name, ItemJnlBatch.Name);
                 if ItemJnlTemplate.Type in [ItemJnlTemplate.Type::Item,
                                             ItemJnlTemplate.Type::Consumption,
@@ -130,9 +130,9 @@ codeunit 240 ItemJnlManagement
                                             ItemJnlTemplate.Type::Capacity]
                 then begin
                     ItemJnlTemplate.SetRange(Recurring, true);
-                    if not ItemJnlTemplate.FindFirst then
+                    if not ItemJnlTemplate.FindFirst() then
                         TemplateSelection(0, ItemJnlTemplate.Type.AsInteger(), true, ItemJnlLine, JnlSelected);
-                    if ItemJnlTemplate.FindFirst then
+                    if ItemJnlTemplate.FindFirst() then
                         CheckTemplateName(ItemJnlTemplate.Name, ItemJnlBatch.Name);
                     ItemJnlTemplate.SetRange(Recurring);
                 end;
@@ -149,7 +149,7 @@ codeunit 240 ItemJnlManagement
         OnOpenJnlBatchOnBeforeCaseSelectItemJnlTemplate(ItemJnlTemplate, ItemJnlBatch);
         case ItemJnlTemplate.Count of
             1:
-                ItemJnlTemplate.FindFirst;
+                ItemJnlTemplate.FindFirst();
             else
                 JnlSelected := PAGE.RunModal(0, ItemJnlTemplate) = ACTION::LookupOK;
         end;
@@ -168,7 +168,7 @@ codeunit 240 ItemJnlManagement
         OnBeforeCheckTemplateName(CurrentJnlTemplateName, CurrentJnlBatchName);
         ItemJnlBatch.SetRange("Journal Template Name", CurrentJnlTemplateName);
         if not ItemJnlBatch.Get(CurrentJnlTemplateName, CurrentJnlBatchName) then begin
-            if not ItemJnlBatch.FindFirst then begin
+            if not ItemJnlBatch.FindFirst() then begin
                 ItemJnlBatch.Init();
                 ItemJnlBatch."Journal Template Name" := CurrentJnlTemplateName;
                 ItemJnlBatch.SetupNewBatch;

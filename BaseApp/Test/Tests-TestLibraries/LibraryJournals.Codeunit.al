@@ -132,7 +132,7 @@ codeunit 131306 "Library - Journals"
         GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
         LibraryERM.CreateGLAccount(GLAccount);
 
-        if not GenJournalBatch.FindFirst then begin
+        if not GenJournalBatch.FindFirst() then begin
             // Create New General Journal Batch.
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplateCode);
             GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
@@ -151,7 +151,7 @@ codeunit 131306 "Library - Journals"
         GenJournalTemplate.SetRange(Recurring, false);
         GenJournalTemplate.SetRange("Page ID", PageID);
 
-        if not GenJournalTemplate.FindFirst then begin
+        if not GenJournalTemplate.FindFirst() then begin
             GenJournalTemplate.Init();
             GenJournalTemplate.Validate(
               Name, LibraryUtility.GenerateRandomCode(GenJournalTemplate.FieldNo(Name), DATABASE::"Gen. Journal Template"));
@@ -173,7 +173,7 @@ codeunit 131306 "Library - Journals"
     begin
         LastGenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         LastGenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
-        LineExists := LastGenJnlLine.FindLast;
+        LineExists := LastGenJnlLine.FindLast();
         GenJnlManagement.CalcBalance(GenJournalLine, LastGenJnlLine, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         exit(LineExists);
     end;
@@ -216,7 +216,7 @@ codeunit 131306 "Library - Journals"
         with JournalUserPreferences do begin
             SETFILTER("User ID", '%1', USERSECURITYID);
             SETFILTER("Page ID", '%1', PageID);
-            IF FINDFIRST THEN BEGIN
+            IF FindFirst() then BEGIN
                 "Journal Batch Name" := GenJournalBatchName;
                 MODIFY;
             END else begin

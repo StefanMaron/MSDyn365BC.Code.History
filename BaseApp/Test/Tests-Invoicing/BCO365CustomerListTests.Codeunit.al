@@ -27,7 +27,7 @@ codeunit 138943 "BC O365 Customer List Tests"
     begin
         // [SCENARIO] Verify customer totals are updated correctly for normal invoices
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted invoice
         PostedInvoiceNo := LibraryInvoicingApp.SendInvoice(LibraryInvoicingApp.CreateInvoice);
@@ -54,7 +54,7 @@ codeunit 138943 "BC O365 Customer List Tests"
     begin
         // [SCENARIO] Verify customer totals are updated correctly for invoices due today
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted invoice with due date today
         SalesInvoiceHeader.Get(SendInvoice(WorkDate));
@@ -82,7 +82,7 @@ codeunit 138943 "BC O365 Customer List Tests"
     begin
         // [SCENARIO] Verify customer totals are updated correctly for invoices due in the past
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted invoice with due date yesterday
         SalesInvoiceHeader.Get(SendInvoice(WorkDate - 1));
@@ -120,7 +120,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         // [FEATURE] [Blocked]
         // [SCENARIO] Given that a customer has been blocked, When the customer list is displayed, Then that customer record is visible and "blocked" is clearly visible
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blocked customer
         LibraryInvoicingApp.CreateBlockedCustomer(Customer);
@@ -143,7 +143,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         // [FEATURE] [Blocked]
         // [SCENARIO] Given that a customer is blocked, When the customer page is displayed, Then a check mark "Blocked" is displayed. If C1 unblocks, a pop up is displayed asking if C1 is really sure.
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blocked customer
         LibraryInvoicingApp.CreateBlockedCustomer(Customer);
@@ -174,7 +174,7 @@ codeunit 138943 "BC O365 Customer List Tests"
         // [FEATURE] [Blocked]
         // [SCENARIO] Given that a customer is blocked, When C1 unblocks, the contact is recreated.
         LibraryLowerPermissions.SetInvoiceApp;
-        Initialize;
+        Initialize();
 
         // [GIVEN] A blocked customer
         LibraryInvoicingApp.CreateBlockedCustomer(Customer);
@@ -199,10 +199,11 @@ codeunit 138943 "BC O365 Customer List Tests"
     var
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        LibraryWorkflow: Codeunit "Library - Workflow";
     begin
         EventSubscriberInvoicingApp.Clear;
-        LibraryInvoicingApp.SetupEmail;
-        LibraryVariableStorage.Clear;
+        LibraryWorkflow.SetUpEmailAccount();
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 

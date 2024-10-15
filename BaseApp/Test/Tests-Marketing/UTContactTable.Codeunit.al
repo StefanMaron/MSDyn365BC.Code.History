@@ -214,7 +214,7 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, '');
 
         // [WHEN] Update Customer Name to 'AAA'
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
@@ -236,7 +236,7 @@ codeunit 134826 "UT Contact Table"
 
         // [GIVEN] Customer record with name 'AAA' created
         Customer.Init();
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         Customer.Insert(true);
 
         // [GIVEN] Contact with name 'AAA' created automatically for Customer
@@ -244,7 +244,7 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, Customer.Name);
 
         // [GIVEN] Contact Name is updated to 'XXX'
-        ContactName := LibraryUtility.GenerateGUID;
+        ContactName := LibraryUtility.GenerateGUID();
         Contact.Name := CopyStr(ContactName, 1, MaxStrLen(Contact.Name));
         Contact.Modify(true);
         Contact.TestField(Name, ContactName);
@@ -278,7 +278,7 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, '');
 
         // [WHEN] Update Vendor Name to 'AAA'
-        Vendor.Name := LibraryUtility.GenerateGUID;
+        Vendor.Name := LibraryUtility.GenerateGUID();
         Vendor.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
@@ -300,7 +300,7 @@ codeunit 134826 "UT Contact Table"
 
         // [GIVEN] Vendor record with name 'AAA' created
         Vendor.Init();
-        Vendor.Name := LibraryUtility.GenerateGUID;
+        Vendor.Name := LibraryUtility.GenerateGUID();
         Vendor.Insert(true);
 
         // [GIVEN] Contact with name 'AAA' created automatically for Vendor
@@ -308,7 +308,7 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, Vendor.Name);
 
         // [GIVEN] Contact Name is updated to 'XXX'
-        ContactName := LibraryUtility.GenerateGUID;
+        ContactName := LibraryUtility.GenerateGUID();
         Contact.Name := CopyStr(ContactName, 1, MaxStrLen(Contact.Name));
         Contact.Modify(true);
         Contact.TestField(Name, ContactName);
@@ -335,7 +335,7 @@ codeunit 134826 "UT Contact Table"
 
         // [GIVEN] Bank Account record created with blank fields
         BankAccount.Init();
-        BankAccount.IBAN := LibraryUtility.GenerateGUID;
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
         BankAccount.Insert(true);
 
         // [GIVEN] Contact with blank Name created for Bank Account automatically
@@ -343,7 +343,7 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, '');
 
         // [WHEN] Update Bank Account Name to 'AAA'
-        BankAccount.Name := LibraryUtility.GenerateGUID;
+        BankAccount.Name := LibraryUtility.GenerateGUID();
         BankAccount.Modify(true);
 
         // [THEN] Contact Name is updated to 'AAA' respectively
@@ -365,8 +365,8 @@ codeunit 134826 "UT Contact Table"
 
         // [GIVEN] Bank Account record with name 'AAA' created
         BankAccount.Init();
-        BankAccount.IBAN := LibraryUtility.GenerateGUID;
-        BankAccount.Name := LibraryUtility.GenerateGUID;
+        BankAccount.IBAN := LibraryUtility.GenerateGUID();
+        BankAccount.Name := LibraryUtility.GenerateGUID();
         BankAccount.Insert(true);
 
         // [GIVEN] Contact with name 'AAA' created automatically for Bank Account
@@ -374,13 +374,13 @@ codeunit 134826 "UT Contact Table"
         Contact.TestField(Name, BankAccount.Name);
 
         // [GIVEN] Contact Name is updated to 'XXX'
-        ContactName := LibraryUtility.GenerateGUID;
+        ContactName := LibraryUtility.GenerateGUID();
         Contact.Name := CopyStr(ContactName, 1, MaxStrLen(Contact.Name));
         Contact.Modify(true);
         Contact.TestField(Name, ContactName);
 
         // [WHEN] Bank Account "Bank Branch No." is changed and Bank Account record is modified
-        BankAccount.Validate("Bank Branch No.", LibraryUtility.GenerateGUID);
+        BankAccount.Validate("Bank Branch No.", LibraryUtility.GenerateGUID());
         BankAccount.Modify(true);
 
         // [THEN] Contact still have name 'XXX'
@@ -973,7 +973,7 @@ codeunit 134826 "UT Contact Table"
     begin
         ContactBusinessRelation.SetRange("Link to Table", LinkOption);
         ContactBusinessRelation.SetRange("No.", CodeNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         exit(ContactBusinessRelation."Contact No.");
     end;
 
@@ -1024,7 +1024,7 @@ codeunit 134826 "UT Contact Table"
     local procedure MockSalesQuoteWithSellBillToContactNo(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
     begin
         SalesHeader.Init();
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         SalesHeader."Sell-to Contact No." := ContactNo;
         SalesHeader."Bill-to Contact No." := ContactNo;

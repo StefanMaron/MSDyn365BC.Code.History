@@ -7,11 +7,7 @@ table 1293 "Payment Application Proposal"
         field(1; "Bank Account No."; Code[20])
         {
             Caption = 'Bank Account No.';
-#if CLEAN17
             TableRelation = "Bank Account";
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Bank Account"));
-#endif
         }
         field(2; "Statement No."; Code[20])
         {
@@ -507,7 +503,7 @@ table 1293 "Payment Application Proposal"
 
         AddFilterOnAppliedPmtEntry(AppliedPaymentEntry);
 
-        if AppliedPaymentEntry.FindSet then
+        if AppliedPaymentEntry.FindSet() then
             repeat
                 Get(
                   AppliedPaymentEntry."Statement Type", AppliedPaymentEntry."Bank Account No.",
@@ -876,10 +872,9 @@ table 1293 "Payment Application Proposal"
         CheckLedgerEntry: Record "Check Ledger Entry";
     begin
         CheckLedgerEntry.SetRange("Bank Account Ledger Entry No.", EntryNo);
-        if CheckLedgerEntry.FindFirst then
+        if CheckLedgerEntry.FindFirst() then
             Type := Type::"Check Ledger Entry"
         else
             Type := Type::"Bank Account Ledger Entry";
     end;
 }
-

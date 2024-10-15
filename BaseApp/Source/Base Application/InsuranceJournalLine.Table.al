@@ -26,7 +26,7 @@ table 5635 "Insurance Journal Line"
             trigger OnValidate()
             begin
                 if "Insurance No." = '' then begin
-                    CreateDim(DATABASE::Insurance, "Insurance No.");
+                    CreateDimFromDefaultDim();
                     exit;
                 end;
 
@@ -35,7 +35,7 @@ table 5635 "Insurance Journal Line"
                 Description := Insurance.Description;
 
                 OnValidateInsuranceNoOnBeforeCreateDim(Rec);
-                CreateDim(DATABASE::Insurance, "Insurance No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(6; "FA No."; Code[20])
@@ -194,7 +194,7 @@ table 5635 "Insurance Journal Line"
         InsuranceJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         InsuranceJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         InsuranceJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-        if InsuranceJnlLine.FindFirst then begin
+        if InsuranceJnlLine.FindFirst() then begin
             "Posting Date" := LastInsuranceJnlLine."Posting Date";
             "Document No." := LastInsuranceJnlLine."Document No.";
         end else begin
@@ -210,6 +210,8 @@ table 5635 "Insurance Journal Line"
         OnAfterSetUpNewLine(Rec, InsuranceJnlTempl, InsuranceJnlBatch, LastInsuranceJnlLine);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
@@ -227,6 +229,28 @@ table 5635 "Insurance Journal Line"
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
             Rec, CurrFieldNo, TableID, No, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        OnAfterCreateDim(Rec, CurrFieldNo);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        if RunEventOnAfterCreateDimTableIDs(DefaultDimSource) then
+            exit;
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, "Source Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
@@ -272,10 +296,66 @@ table 5635 "Insurance Journal Line"
             if TemplateFilter <> '' then
                 InsuranceJournalBatch.SetFilter("Journal Template Name", TemplateFilter);
             InsuranceJournalBatch.SetFilter(Name, BatchFilter);
-            InsuranceJournalBatch.FindFirst;
+            InsuranceJournalBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Insurance, Rec."Insurance No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Insurance Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Insurance Journal Line", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]) IsHandled: Boolean
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Insurance Journal Line") then
+            exit;
+
+        IsHandled := false;
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No, IsHandled);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var InsuranceJournalLine: Record "Insurance Journal Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var InsuranceJournalLine: Record "Insurance Journal Line"; var IsHandled: Boolean);
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -283,10 +363,13 @@ table 5635 "Insurance Journal Line"
     begin
     end;
 
+#if not CLEAN20
     [IntegrationEvent(false, false)]
+    [Obsolete('Temporary event for compatibility', '20.0')]
     local procedure OnAfterCreateDimTableIDs(var InsuranceJournalLine: Record "Insurance Journal Line"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var IsHandled: Boolean)
     begin
     end;
+#endif
 
 #if not CLEAN19
     [Obsolete('This procedure is discontinued. Use InsuranceJnlManagement event OnBeforeOpenJournal.', '19.0')]

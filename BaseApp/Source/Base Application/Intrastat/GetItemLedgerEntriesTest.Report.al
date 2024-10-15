@@ -25,7 +25,7 @@ report 31059 "Get Item Ledger Entries - Test"
                 trigger OnAfterGetRecord()
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if Item."No." <> "Item No." then

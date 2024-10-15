@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 8907 "Sales & Marketing Manager RC"
 {
     Caption = 'Sales & Marketing Manager RC';
@@ -70,7 +71,7 @@ page 8907 "Sales & Marketing Manager RC"
                     {
                         ApplicationArea = Manufacturing;
                         Caption = 'Production Forecast';
-                        RunObject = page "Demand Forecast";
+                        RunObject = page "Demand Forecast Names";
                     }
                     action("Item Dimensions - Detail")
                     {
@@ -410,6 +411,15 @@ page 8907 "Sales & Marketing Manager RC"
                         Caption = 'Value Entries';
                         RunObject = page "Value Entries";
                     }
+                    action("Navigate")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Find entries...';
+                        Image = Navigate;
+                        RunObject = Page Navigate;
+                        ShortCutKey = 'Ctrl+Alt+Q';
+                        ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                    }
                 }
                 group("Group10")
                 {
@@ -466,18 +476,6 @@ page 8907 "Sales & Marketing Manager RC"
                         ObsoleteTag = '19.0';
                         Visible = false;
                         RunObject = report "Sales Advance Letter List";
-                    }
-#endif
-#if not CLEAN17
-                    action("Quantity Shipped Check")
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Quantity Shipped Check';
-                        RunObject = report "Quantity Shipped Check";
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                        ObsoleteTag = '17.0';
-                        Visible = false;
                     }
 #endif
                 }
@@ -1028,3 +1026,4 @@ page 8907 "Sales & Marketing Manager RC"
         }
     }
 }
+#endif

@@ -179,7 +179,7 @@
         Reset;
         SetRange("Line No.", LineNo);
         SetFilter("Entry No.", '%1..', EntryNo);
-        if FindLast then
+        if FindLast() then
             EntryNo := "Entry No." + 1;
 
         AddMatchCandidate(LineNo, EntryNo, Quality2, Type, AccountNo);
@@ -210,7 +210,7 @@
         SetRange("Entry No.", -1);
         SetRange("One to Many Match", true);
 
-        if not FindFirst then begin
+        if not FindFirst() then begin
             "Line No." := LineNo;
             "Account Type" := AccountType;
             "Account No." := TempLedgerEntryMatchingBuffer."Account No.";

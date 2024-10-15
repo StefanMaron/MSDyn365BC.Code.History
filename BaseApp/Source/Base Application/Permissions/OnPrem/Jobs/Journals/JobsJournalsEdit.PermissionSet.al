@@ -73,9 +73,6 @@ permissionset 7787 "Jobs Journals - Edit"
                   tabledata "Transport Method" = R,
                   tabledata "Unit of Measure" = R,
                   tabledata "Value Entry" = R,
-#if not CLEAN17
-                  tabledata "VAT Period" = R,
-#endif
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "Work Type" = R;
 }

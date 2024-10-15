@@ -17,6 +17,14 @@ table 5 "Finance Charge Terms"
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                FinChrgInterestRate.Reset();
+                FinChrgInterestRate.SetRange("Fin. Charge Terms Code", Code);
+                if not FinChrgInterestRate.IsEmpty() then
+                    Message(InterestRateNotificationMsg);
+            end;
         }
         field(3; "Minimum Amount (LCY)"; Decimal)
         {
@@ -81,10 +89,26 @@ table 5 "Finance Charge Terms"
         field(11760; "Detailed Line Description"; Text[50])
         {
             Caption = 'Detailed Line Description';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
         field(11761; "Grace Tax Period"; DateFormula)
         {
             Caption = 'Grace Tax Period';
+#if not CLEAN20
+            ObsoleteState = Pending;
+            ObsoleteTag = '20.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '23.0';
+#endif
+            ObsoleteReason = 'Replaced by Finance Charge Interest Rate';
         }
     }
 
@@ -104,24 +128,34 @@ table 5 "Finance Charge Terms"
     }
 
     trigger OnDelete()
+#if not CLEAN20
     var
         MultipleInterestRate: Record "Multiple Interest Rate";
+#endif
     begin
         FinChrgText.SetRange("Fin. Charge Terms Code", Code);
         FinChrgText.DeleteAll();
 
         CurrForFinChrgTerms.SetRange("Fin. Charge Terms Code", Code);
         CurrForFinChrgTerms.DeleteAll();
+
+        FinChrgInterestRate.SetRange("Fin. Charge Terms Code", Code);
+        FinChrgInterestRate.DeleteAll();
+#if not CLEAN20
         // NAVCZ
         MultipleInterestRate.SetRange("Finance Charge Code", Code);
         MultipleInterestRate.DeleteAll();
         // NAVCZ
+#endif
     end;
 
     var
         FinChrgText: Record "Finance Charge Text";
         CurrForFinChrgTerms: Record "Currency for Fin. Charge Terms";
-
+        FinChrgInterestRate: Record "Finance Charge Interest Rate";
+        InterestRateNotificationMsg: Label 'This interest rate will only be used if no relevant interest rate per date has been entered.';
+#if not CLEAN20
+    [Obsolete('Replaced by Finance Charge Interest Rate', '20.0')]
     [Scope('OnPrem')]
     procedure SetRatesForCalc(PayDate: Date; ClosingDate: Date; var MultipleInterestCalcLine: Record "Multiple Interest Calc. Line")
     var
@@ -143,7 +177,7 @@ table 5 "Finance Charge Terms"
             if StartDate <= ClosingDate then begin
                 CreateRate := true;
                 MultipleInterestRate.SetRange("Valid from Date", CalcDate('<2D>', PayDate), ClosingDate);
-                if MultipleInterestRate.FindSet then begin
+                if MultipleInterestRate.FindSet() then begin
                     repeat
                         if MultipleInterestRate."Valid from Date" < ClosingDate then begin
                             InsertMultInterestCalcRate(MultipleInterestCalcLine, StartDate, InterestRate,
@@ -169,6 +203,7 @@ table 5 "Finance Charge Terms"
               ClosingDate - PayDate, 100 * "Interest Period (Days)");
     end;
 
+    [Obsolete('Replaced by Finance Charge Interest Rate', '20.0')]
     [Scope('OnPrem')]
     procedure InsertMultInterestCalcRate(var MultipleInterestCalcLine: Record "Multiple Interest Calc. Line"; LineDate: Date; LineRate: Decimal; LineDays: Integer; LineRateFactor: Decimal)
     begin
@@ -182,6 +217,7 @@ table 5 "Finance Charge Terms"
         end;
     end;
 
+    [Obsolete('Replaced by Finance Charge Interest Rate', '20.0')]
     [Scope('OnPrem')]
     procedure FindMultipleInterestRate(InterestStartDate: Date; var MultipleInterestRate: Record "Multiple Interest Rate")
     var
@@ -192,8 +228,9 @@ table 5 "Finance Charge Terms"
         if SalesSetup."Multiple Interest Rates" then begin
             MultipleInterestRate.SetRange("Finance Charge Code", Code);
             MultipleInterestRate.SetRange("Valid from Date", 0D, CalcDate('<1D>', InterestStartDate));
-            MultipleInterestRate.FindLast;
+            MultipleInterestRate.FindLast();
         end;
     end;
+#endif
 }
 

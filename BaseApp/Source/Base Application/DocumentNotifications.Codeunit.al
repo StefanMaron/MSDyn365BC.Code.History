@@ -310,6 +310,22 @@ codeunit 1390 "Document Notifications"
     begin
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
     end;
+    
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableWarningWhenPostingSalesQtyZero()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetWarnZeroQuantitySalesPosting();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableWarningWhenPostingPurchaseQtyZero()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.SetWarnZeroQuantityPurchasePosting();
+    end;
 
     [Obsolete('Replaced by Advance Payments Localization for Czech.', '19.0')]
     procedure CopyBillToCustomerAddressFieldsFromSalesAdvDocument(ModifyCustomerAddressNotification: Notification)

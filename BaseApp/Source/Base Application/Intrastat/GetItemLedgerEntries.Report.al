@@ -1,4 +1,4 @@
-﻿#if not CLEAN18
+#if not CLEAN18
 report 594 "Get Item Ledger Entries"
 {
     Caption = 'Get Item Ledger Entries (Obsolete)';
@@ -22,7 +22,7 @@ report 594 "Get Item Ledger Entries"
                     ItemLedgEntry: Record "Item Ledger Entry";
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Entry Type" in ["Entry Type"::Sale, "Entry Type"::Purchase] then begin
@@ -35,7 +35,7 @@ report 594 "Get Item Ledger Entries"
                                                "Document Type"::"Purchase Receipt", "Document Type"::"Purchase Return Shipment"]
                         then begin
                             ItemLedgEntry.SetRange("Document Type", "Document Type");
-                            if ItemLedgEntry.FindSet then
+                            if ItemLedgEntry.FindSet() then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
@@ -116,7 +116,7 @@ report 594 "Get Item Ledger Entries"
             begin
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
@@ -151,7 +151,7 @@ report 594 "Get Item Ledger Entries"
                                 "Item Ledger Entry"."Document Type"::"Purchase Return Shipment"]
                             then begin
                                 ItemLedgEntry.SetRange("Document Type", "Item Ledger Entry"."Document Type");
-                                if ItemLedgEntry.FindSet then
+                                if ItemLedgEntry.FindSet() then
                                     repeat
                                         if IsItemLedgerEntryCorrected(ItemLedgEntry, "Item Ledger Entry"."Entry No.") then
                                             CurrReport.Skip();
@@ -262,7 +262,7 @@ report 594 "Get Item Ledger Entries"
 
     trigger OnInitReport()
     begin
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
     end;
 
     trigger OnPreReport()
@@ -270,7 +270,7 @@ report 594 "Get Item Ledger Entries"
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlLine.LockTable();
-        if IntrastatJnlLine.FindLast then;
+        if IntrastatJnlLine.FindLast() then;
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
@@ -301,7 +301,6 @@ report 594 "Get Item Ledger Entries"
     var
         Text000: Label 'Prices including VAT cannot be calculated when %1 is %2.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
         Item: Record Item;
@@ -312,18 +311,12 @@ report 594 "Get Item Ledger Entries"
         Currency: Record Currency;
         StatReportingSetup: Record "Stat. Reporting Setup";
         UOMMgt: Codeunit "Unit of Measure Management";
-        StartDate: Date;
-        EndDate: Date;
-        IndirectCostPctReq: Decimal;
         TotalAmt: Decimal;
         AddCurrencyFactor: Decimal;
         AverageCost: Decimal;
         AverageCostACY: Decimal;
         GLSetupRead: Boolean;
         StatReportingSetupRead: Boolean;
-        ShowBlank: Boolean;
-        SkipRecalcZeroAmounts: Boolean;
-        SkipZeroAmounts: Boolean;
         Direction: Text[1];
         IntrExchRateMandatory: Boolean;
         TotalICAmt: array[2] of Decimal;
@@ -331,6 +324,15 @@ report 594 "Get Item Ledger Entries"
         TotalICAmtExpected: array[2] of Decimal;
         TotalICCostAmtExpected: array[2] of Decimal;
         TotalCostAmt2: Decimal;
+
+    protected var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        StartDate: Date;
+        EndDate: Date;
+        IndirectCostPctReq: Decimal;
+        SkipRecalcZeroAmounts: Boolean;
+        SkipZeroAmounts: Boolean;
+        ShowBlank: Boolean;
         ShowItemCharges: Boolean;
 
     procedure SetIntrastatJnlLine(NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -598,7 +600,7 @@ report 594 "Get Item Ledger Entries"
                             ItemLedgEntry2.SetRange("Item No.", "Item No.");
                             ItemLedgEntry2.SetRange("Posting Date", "Posting Date");
                             ItemLedgEntry2.SetRange("Applies-to Entry", "Entry No.");
-                            ItemLedgEntry2.FindFirst;
+                            ItemLedgEntry2.FindFirst();
                         end else
                             ItemLedgEntry2.Get("Applies-to Entry");
                         if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and
@@ -993,16 +995,9 @@ report 594 "Get Item Ledger Entries"
                 Validate("Net Weight", "Item Ledger Entry"."Net Weight");
             if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
                (Item."Tariff No." <> '')
-#if CLEAN17
             then
                 Validate("Tariff No.", Item."Tariff No.")
             else begin
-#else
-            then begin
-                Validate("Tariff No.", Item."Tariff No.");
-                "Statistic Indication" := Item."Statistic Indication";
-            end else begin
-#endif
                 Validate("Tariff No.", "Item Ledger Entry"."Tariff No.");
                 "Statistic Indication" := "Item Ledger Entry"."Statistic Indication";
             end;
@@ -1041,16 +1036,9 @@ report 594 "Get Item Ledger Entries"
                 Validate("Net Weight", "Job Ledger Entry"."Net Weight");
             if (StatReportingSetup."Get Tariff No. From" = StatReportingSetup."Get Tariff No. From"::"Item Card") and
                (Item."Tariff No." <> '')
-#if CLEAN17
             then
                 Validate("Tariff No.", Item."Tariff No.")
             else begin
-#else
-            then begin
-                Validate("Tariff No.", Item."Tariff No.");
-                "Statistic Indication" := Item."Statistic Indication";
-            end else begin
-#endif
                 Validate("Tariff No.", "Job Ledger Entry"."Tariff No.");
                 "Statistic Indication" := "Job Ledger Entry"."Statistic Indication";
             end;
@@ -1131,99 +1119,66 @@ report 594 "Get Item Ledger Entries"
                     TempSalesHeader."Posting Date" := SalesShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesShptHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := SalesShptHeader."Currency Factor";
-#endif
                 end;
             DocumentType::"Sales Invoice":
                 if SalesInvoiceHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := SalesInvoiceHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesInvoiceHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesInvoiceHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := SalesInvoiceHeader."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Sales Credit Memo":
                 if SalesCrMemoHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := SalesCrMemoHeader."Posting Date";
                     TempSalesHeader."Currency Code" := SalesCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := SalesCrMemoHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := SalesCrMemoHeader."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Sales Return Receipt":
                 if ReturnRcptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ReturnRcptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ReturnRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnRcptHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := ReturnRcptHeader."Currency Factor";
-#endif
                 end;
             DocumentType::"Service Shipment":
                 if ServiceShptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceShptHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := ServiceShptHeader."Currency Factor";
-#endif
                 end;
             DocumentType::"Service Invoice":
                 if ServiceInvHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceInvHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceInvHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := ServiceInvHeader."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Service Credit Memo":
                 if ServiceCrMemoHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ServiceCrMemoHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ServiceCrMemoHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ServiceCrMemoHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := ServiceCrMemoHeader."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Purchase Receipt":
                 if PurchRcptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchRcptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := PurchRcptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchRcptHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := PurchRcptHeader."Currency Factor";
-#endif
                 end;
             DocumentType::"Purchase Invoice":
                 if PurchInvHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchInvHeader."Posting Date";
                     TempSalesHeader."Currency Code" := PurchInvHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchInvHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := PurchInvHeader."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Purchase Credit Memo":
                 if PurchCrMemoHdr.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := PurchCrMemoHdr."Posting Date";
                     TempSalesHeader."Currency Code" := PurchCrMemoHdr."Currency Code";
                     TempSalesHeader."Currency Factor" := PurchCrMemoHdr."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := PurchCrMemoHdr."VAT Currency Factor";
-#endif
                 end;
             DocumentType::"Purchase Return Shipment":
                 if ReturnShptHeader.Get(DocumentNo) then begin
                     TempSalesHeader."Posting Date" := ReturnShptHeader."Posting Date";
                     TempSalesHeader."Currency Code" := ReturnShptHeader."Currency Code";
                     TempSalesHeader."Currency Factor" := ReturnShptHeader."Currency Factor";
-#if not CLEAN17
-                    TempSalesHeader."VAT Currency Factor" := ReturnShptHeader."Currency Factor";
-#endif
                 end;
             else
                 exit(false);
@@ -1232,12 +1187,7 @@ report 594 "Get Item Ledger Entries"
         exit(
           (TempSalesHeader."Posting Date" <> 0D) or
           (TempSalesHeader."Currency Code" <> '') or
-#if CLEAN17
           (TempSalesHeader."Currency Factor" <> 0));
-#else
-          (TempSalesHeader."Currency Factor" <> 0) or
-          (TempSalesHeader."VAT Currency Factor" <> 0));
-#endif
     end;
 
     local procedure GetDocumentFromItemLedgEntry(ItemLedgerEntry: Record "Item Ledger Entry"; var TempSalesHeader: Record "Sales Header" temporary): Boolean
@@ -1280,11 +1230,7 @@ report 594 "Get Item Ledger Entries"
     begin
         // NAVCZ
         with TempSalesHeader do
-#if CLEAN17
             exit(CalculateExchangeRate("Posting Date", "Currency Code", "Currency Factor"));
-#else
-            exit(CalculateExchangeRate("Posting Date", "Currency Code", "VAT Currency Factor"));
-#endif
     end;
 
     local procedure CalculateExchangeAmount(Amount: Decimal; DocumentCurrencyFactor: Decimal; IntrastatCurrencyFactor: Decimal): Decimal

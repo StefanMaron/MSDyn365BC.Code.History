@@ -1,4 +1,5 @@
-﻿page 38 "Item Ledger Entries"
+﻿#if not CLEAN20
+page 38 "Item Ledger Entries"
 {
     AdditionalSearchTerms = 'inventory transactions';
     ApplicationArea = Basic, Suite;
@@ -276,6 +277,9 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies where the entry originated.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
 #if not CLEAN18
                 field("Source No. 2"; "Source No. 2")
@@ -508,7 +512,7 @@
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -665,4 +669,4 @@
     begin
     end;
 }
-
+#endif

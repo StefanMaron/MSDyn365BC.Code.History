@@ -254,14 +254,14 @@ table 911 "Posted Assembly Line"
                     SalesShipmentLine.Get(TempItemLedgerEntry."Document No.", TempItemLedgerEntry."Document Line No.");
                     if SalesShipmentLine.AsmToShipmentExists(PostedAsmHeader) then begin
                         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-                        if PostedAsmLine.FindSet then
+                        if PostedAsmLine.FindSet() then
                             repeat
                                 TempPostedAssemblyLine.SetRange(Type, PostedAsmLine.Type);
                                 TempPostedAssemblyLine.SetRange("No.", PostedAsmLine."No.");
                                 TempPostedAssemblyLine.SetRange("Variant Code", PostedAsmLine."Variant Code");
                                 TempPostedAssemblyLine.SetRange(Description, PostedAsmLine.Description);
                                 TempPostedAssemblyLine.SetRange("Unit of Measure Code", PostedAsmLine."Unit of Measure Code");
-                                if TempPostedAssemblyLine.FindFirst then begin
+                                if TempPostedAssemblyLine.FindFirst() then begin
                                     TempPostedAssemblyLine.Quantity += PostedAsmLine.Quantity;
                                     TempPostedAssemblyLine.Modify();
                                 end else begin

@@ -259,9 +259,6 @@ table 49 "Invoice Post. Buffer"
         {
             Caption = 'VAT Date';
             DataClassification = SystemMetadata;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
         }
         field(11761; Description; Text[100])
         {
@@ -369,33 +366,22 @@ table 49 "Invoice Post. Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = ' ,Prepayment,Advance';
             OptionMembers = " ",Prepayment,Advance;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
         }
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
             DataClassification = SystemMetadata;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
     keys
     {
-
         key(Key1; Type, "G/L Account", "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Tax Area Code", "Tax Group Code", "Tax Liable", "Use Tax", "Dimension Set ID", "Job No.", "Fixed Asset Line No.", "Deferral Code", "VAT Date", "Prepayment Type", "Additional Grouping Identifier")
         {
             Clustered = true;
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Field "Prepayment Type" is removed and cannot be used in an active key.';
-            ObsoleteTag = '19.0';
         }
     }
 
@@ -458,10 +444,6 @@ table 49 "Invoice Post. Buffer"
             "Prepayment Type" := "Prepayment Type"::Prepayment;
 #if not CLEAN18
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-#endif
-#if not CLEAN17
-        "VAT Date" := SalesHeader."VAT Date";
-        "Original Document VAT Date" := SalesHeader."Original Document VAT Date";
 #endif
 #if not CLEAN18
         Correction := SalesHeader.Correction xor SalesLine.Negative;
@@ -589,6 +571,7 @@ table 49 "Invoice Post. Buffer"
             "VAT Amount (ACY)" := 0;
         end;
 
+#if not CLEAN19
         // NAVCZ
 #if not CLEAN18
         "Ext. VAT Difference (LCY)" := PurchLine."Ext. VAT Difference (LCY)";
@@ -596,14 +579,11 @@ table 49 "Invoice Post. Buffer"
         if PurchLine."Prepayment Line" then
             "Prepayment Type" := "Prepayment Type"::Prepayment;
         PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
-#if not CLEAN17
-        "VAT Date" := PurchHeader."VAT Date";
-        "Original Document VAT Date" := PurchHeader."Original Document VAT Date";
-#endif
 #if not CLEAN18
         Correction := PurchHeader.Correction xor PurchLine.Negative;
 #endif
         // NAVCZ
+#endif
 
         OnAfterInvPostBufferPreparePurchase(PurchLine, Rec);
     end;
@@ -665,10 +645,6 @@ table 49 "Invoice Post. Buffer"
     end;
 
     procedure PrepareService(var ServiceLine: Record "Service Line")
-#if not CLEAN17
-    var
-        ServiceHeader: Record "Service Header";
-#endif
     begin
         Clear(Rec);
         case ServiceLine.Type of
@@ -694,10 +670,6 @@ table 49 "Invoice Post. Buffer"
 #if not CLEAN18
         // NAVCZ
         "VAT Difference (LCY)" := ServiceLine."VAT Difference (LCY)";
-#if not CLEAN17
-        ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-        "VAT Date" := ServiceHeader."VAT Date";
-#endif
         // NAVCZ
 #endif
         if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
@@ -1028,4 +1000,3 @@ table 49 "Invoice Post. Buffer"
     begin
     end;
 }
-

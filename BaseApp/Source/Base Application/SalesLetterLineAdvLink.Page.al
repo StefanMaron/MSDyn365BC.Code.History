@@ -48,7 +48,7 @@ page 31014 "Sales Letter Line - Adv.Link."
                 field("Customer Posting Group"; "Customer Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customerÍs market type to link business transakcions to.';
+                    ToolTip = 'Specifies the customerÍs market type to link business transactions to.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
@@ -119,7 +119,7 @@ page 31014 "Sales Letter Line - Adv.Link."
                 begin
                     SalesAdvanceLetterLine2 := Rec;
                     CurrPage.SetSelectionFilter(SalesAdvanceLetterLine);
-                    if SalesAdvanceLetterLine.FindSet then
+                    if SalesAdvanceLetterLine.FindSet() then
                         repeat
                             Rec := SalesAdvanceLetterLine;
                             Mark := not Mark;
@@ -219,7 +219,7 @@ page 31014 "Sales Letter Line - Adv.Link."
     begin
         TempSalesHeader := SalesHeader;
         TempSalesHeader.Insert();
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 TempSalesAdvanceLetterLine := SalesAdvanceLetterLine;
                 TempSalesAdvanceLetterLine.Insert();
@@ -230,7 +230,7 @@ page 31014 "Sales Letter Line - Adv.Link."
     [Scope('OnPrem')]
     procedure UpdateLetters(var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
-        if SalesAdvanceLetterLine.FindSet then
+        if SalesAdvanceLetterLine.FindSet() then
             repeat
                 if TempSalesAdvanceLetterLine.Get(SalesAdvanceLetterLine."Letter No.", SalesAdvanceLetterLine."Line No.") then begin
                     TempSalesAdvanceLetterLine := SalesAdvanceLetterLine;
@@ -247,7 +247,7 @@ page 31014 "Sales Letter Line - Adv.Link."
     begin
         TempSalesAdvanceLetterLine.Copy(Rec);
         TempSalesAdvanceLetterLine.MarkedOnly(true);
-        if TempSalesAdvanceLetterLine.FindSet then
+        if TempSalesAdvanceLetterLine.FindSet() then
             repeat
                 SalesAdvanceLetterLine := TempSalesAdvanceLetterLine;
                 SalesAdvanceLetterLine.Insert();

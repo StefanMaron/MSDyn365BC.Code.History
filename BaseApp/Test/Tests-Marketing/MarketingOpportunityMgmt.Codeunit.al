@@ -134,7 +134,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // Test Sales Cycle update on Creation of Comment for Sales Cycle.
 
         // 1. Setup: Create Sales Cycle.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateSalesCycle(SalesCycle);
 
         // 2. Exercise: Create Comment for Created Sales Cycle.
@@ -156,7 +156,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // Test Close Opportunity Code Successfully Created.
 
         // 1. Setup:
-        Initialize;
+        Initialize();
 
         // 2. Exercise: Create Close Opportunity Code.
         LibraryMarketing.CreateCloseOpportunityCode(CloseOpportunityCode);
@@ -175,7 +175,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // Test Close Opportunity Code Successfully Modified.
 
         // 1. Setup: Create Close Opportunity Code.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCloseOpportunityCode(CloseOpportunityCode);
 
         // 2. Exercise: Update Close Opportunity Code.
@@ -197,7 +197,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // Test Close Opportunity Code Successfully Deleted.
 
         // 1. Setup: Create Close Opportunity Code.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCloseOpportunityCode(CloseOpportunityCode);
 
         // 2. Exersice: Delete Close Opportunity Code.
@@ -273,7 +273,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Close the Opportunity and Delete closed Opportunity.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
 
         Opportunity.Get(Opportunity."No.");
@@ -310,7 +310,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify error occurs on selecting different option except First on Update opportunity wizard.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         asserterror Opportunity.UpdateOpportunity;
         Assert.ExpectedError(StrSubstNo(DoesNotExistErr, SalesCycleStage.TableCaption));
     end;
@@ -398,12 +398,12 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Create To-Do for Opportunity.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Task.SetRange("Opportunity No.", Opportunity."No.");
         TempTask.CreateTaskFromTask(Task);
 
         // 3. Verify: Verify To-Do for opportunity Successfully created with Type Meeting.
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField("Salesperson Code", Contact."Salesperson Code");
         Task.TestField(Type, Task.Type::Meeting);
     end;
@@ -437,17 +437,17 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Create To-Do for Opportunity and Update Salesperson Code on Created To-Do.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Task.SetRange("Opportunity No.", Opportunity."No.");
         TempTask.CreateTaskFromTask(Task);
 
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Task.Modify(true);
 
         // 3. Verify: Verify To-Do successfully changed to New salesperson Code.
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Task.FindFirst;
+        Task.FindFirst();
         Task.TestField("Opportunity No.", Opportunity."No.");
     end;
 
@@ -477,11 +477,11 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Create To-Do for Opportunity and Delete the Created To-Do.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Task.SetRange("Opportunity No.", Opportunity."No.");
         TempTask.CreateTaskFromTask(Task);
 
-        Task.FindFirst;
+        Task.FindFirst();
         Task.Delete(true);
 
         // 3. Verify: Verify To-Do for opportunity deleted.
@@ -514,7 +514,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 3. Verify: Verify error occurs on select Show Sales Quote for Opportunity.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         asserterror Opportunity.ShowSalesQuoteWithCheck;
         Assert.AreEqual(StrSubstNo(ShowSalesQuoteErr), GetLastErrorText, UnknownErr);
     end;
@@ -576,7 +576,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         UpdateOpportunityValue(Contact."No.");
 
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CreateQuote;
 
         // 3. Verify: Verify Sales Quote successfully Assign to Opportunity.
@@ -609,7 +609,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         UpdateOpportunityValue(Contact."No.");
 
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CreateQuote;
 
         // 3. Verify: Verify error occurs on Make Order from Create Sales Quote to Active Opportunity.
@@ -643,7 +643,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Create Sales Quote to Opportunity and Make order from assigned Sales Quote.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CreateQuote;
         Commit();
 
@@ -656,7 +656,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
           StrSubstNo(ExistErr, SalesHeader.TableCaption, SalesHeader."Document Type", SalesQuoteNo));
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.SetRange("Quote No.", SalesQuoteNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
         SalesHeader.TestField("Opportunity No.", Opportunity."No.");
     end;
 
@@ -684,7 +684,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Close opportunity for Contact.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
 
         // 3. Verify: Verify error occurs on Create Sales Quote to close Opportunity.
@@ -754,7 +754,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Close opportunity for Contact.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CloseOpportunity;
 
         // 3. Verify: Verify Opportunity, Contact, Salesperson, Sales cycle and Sales Cycle Stage Statistics values.
@@ -799,11 +799,11 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [WHEN] Opportunity page is opened
         // [THEN] Statistics FactBox shows values corresponding to current record
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
 
         Clear(OpportunityCard);
         OpportunityCard.SetRecord(Opportunity);
-        OpportunityCard.Run;
+        OpportunityCard.Run();
     end;
 
     [Test]
@@ -825,11 +825,11 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [WHEN] Sales Cycles page is opened
         // [THEN] Statistics FactBox shows values corresponding to current record
         SalesCycle.SetRange(Code, SalesCycleCode);
-        SalesCycle.FindFirst;
+        SalesCycle.FindFirst();
 
         Clear(SalesCycles);
         SalesCycles.SetRecord(SalesCycle);
-        SalesCycles.Run;
+        SalesCycles.Run();
     end;
 
     [Test]
@@ -846,7 +846,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [SCENARIO 180155] Create Sales Quote from Opportunity with a new Customer using Customer Template selection.
         // [SCENARIO 253087] Update the dialogs and modal windows.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C" with Company Type, Customer Template "CT"
         CustomerTemplateCode := CreateCustomerTemplateForContact('');
@@ -882,7 +882,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [SCENARIO 180155] Create Sales Quote from Opportunity without a new Customer but with Customer Template selection applied.
         // [SCENARIO 253087] Update the dialogs and modal windows.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C" with Company Type, Customer Template "CT"
         CustomerTemplateCode := CreateCustomerTemplateForContact('');
@@ -917,7 +917,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         ActionOption: Option LookupOK,Cancel;
     begin
         // [SCENARIO 253087] Sales Quote created from Opportunity where user declines to create Customer and confirms to add Customer Template and then cancels the Customer Template page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C" with Company Type
         ContactNo := CreateContactWithCustTemplateAndOpportunity(true);
@@ -950,7 +950,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [SCENARIO 180155] Sales Quote created from Opportunity without creating a new Customer and without Customer Template.
         // [SCENARIO 253087] Update the dialogs and modal windows.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C" with Company Type
         ContactNo := CreateContactWithCustTemplateAndOpportunity(true);
@@ -978,7 +978,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         ContactNo: Code[20];
     begin
         // [SCENARIO 180155] Assign Quote enabled after activation of first stage of Opportunity
-        Initialize;
+        Initialize();
 
         // [GIVEN] New Opportunity "O"
         ContactNo := CreateContactWithCustTemplateAndOpportunity(false);
@@ -1013,7 +1013,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         ActionOption: Option LookupOK,Cancel;
     begin
         // [SCENARIO 180154] Close Opportunity on creation of Sales Order from Sales Quote sets default fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact "C"
         CreateVATPostingSetup(VATPostingSetup);
@@ -1065,7 +1065,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199903] User is able to add comments for opportunity when user experience is Suite from card page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create opportunity XXX
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1099,7 +1099,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 199903] User is able to add comments for opportunity when user experience is Suite from list page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create opportunity XXX
         LibraryMarketing.CreateCompanyContact(Contact);
@@ -1131,9 +1131,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201923] User creates Opportunity and activates first stage on closing card page
-        Initialize;
+        Initialize();
         // [GIVEN] New Opportunity
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
         OpportunityCard."Sales Cycle Code".SetValue(CreateSalesCycleWithStage);
         Opportunity.Get(OpportunityCard."No.".Value);
         // [WHEN] Close Opportunity card and click "OK" for first stage activation question
@@ -1153,9 +1153,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201923] User creates Opportunity and doesn't activate first stage on closing card page
-        Initialize;
+        Initialize();
         // [GIVEN] New Opportunity
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
         OpportunityCard."Sales Cycle Code".SetValue(CreateSalesCycleWithStage);
         Opportunity.Get(OpportunityCard."No.".Value);
         // [WHEN] Close Opportunity card and click "Cancel" for first stage activation question
@@ -1173,7 +1173,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         CreationDate: Date;
     begin
         // [SCENARIO 186663] Opportunity "Creation Date" is equal to WORKDATE after it was created
-        Initialize;
+        Initialize();
         // [GIVEN] Creation Date = "CD" = WORKDATE
         CreationDate := WorkDate;
         // [WHEN] Create opportunity "O"
@@ -1281,7 +1281,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201759] Notification displayed when opportunity is being created from interaction log entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock interaction log entry
         MockInterLogEntry(InteractionLogEntry);
@@ -1311,7 +1311,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201759] Message displayed when opportunity is being created from interaction log entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Mock interaction log entry
         MockInterLogEntry(InteractionLogEntry);
@@ -1341,7 +1341,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 207179] Opportunity created from Campaign should have filled in "Campaign No." after.
-        Initialize;
+        Initialize();
         // [GIVEN] Campaign "C"
         LibraryMarketing.CreateCampaign(Campaign);
         // [GIVEN] Opportunity "O" with filter for "Campaign No."
@@ -1365,7 +1365,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 208522] Field "Sales Cycle Stage Description" of Opportunity Entry update correctly when new entry is inserting and the value have to be shown in Opportunity Card.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Contact" = "C" and "Sales Cycle Stage" with Description = "Descr"
         CreateContactWithSalesCycle(SalesCycleStage, Contact);
@@ -1382,7 +1382,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [THEN] "Opportunity Entry"."Description" = "Descr"
         OpportunityEntry.SetRange("Sales Cycle Code", SalesCycleStage."Sales Cycle Code");
         OpportunityEntry.SetRange("Sales Cycle Stage", SalesCycleStage.Stage);
-        OpportunityEntry.FindFirst;
+        OpportunityEntry.FindFirst();
         OpportunityEntry.TestField("Sales Cycle Stage Description", SalesCycleStage.Description);
 
         // [THEN] Page Opportunity Card is showing value of Sales Cycle Stage Description = "Descr"
@@ -1401,7 +1401,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 208552] Value of "Sales Cycle Stage Description" of Opportunity Entry have to be filled after Validation of "Sales Cycle Stage"
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Sales Cycle Stage" with Description = "DESCR1" and "Sales Cycle Code" = "SCC"
         LibraryMarketing.CreateSalesCycle(SalesCycle);
@@ -1436,7 +1436,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [SCENARIO 228825] Opportunity Card "Sales Document Type" field allows Empty value
 
         // [GIVEN] Create new Opportunity "O" on Opportunity Card page "OC"
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
 
         // [WHEN] Set "OC"."Sales Document Type" with value " "
         OpportunityCard."Sales Document Type".SetValue(Opportunity."Sales Document Type"::" ");
@@ -1461,7 +1461,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [SCENARIO 228825] Opportunity Card "Sales Document Type" field allows Order value
 
         // [GIVEN] Create new Opportunity "O" on Opportunity Card page "OC"
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
 
         // [WHEN]  Set "OC"."Sales Document Type" with value Order
         OpportunityCard."Sales Document Type".SetValue(Opportunity."Sales Document Type"::Order);
@@ -1486,7 +1486,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [SCENARIO 228825] Opportunity Card "Sales Document Type" field allows Quote value
 
         // [GIVEN] Create new Opportunity "O" on Opportunity Card page "OC"
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
 
         // [WHEN]  Set "OC"."Sales Document Type" with value Quote
         OpportunityCard."Sales Document Type".SetValue(Opportunity."Sales Document Type"::Quote);
@@ -1510,7 +1510,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [SCENARIO 228825] Opportunity Card "Sales Document Type" field does not allow Posted Invoice value
 
         // [GIVEN] Create new Opportunity on Opportunity Card page "OC"
-        OpportunityCard.OpenNew;
+        OpportunityCard.OpenNew();
 
         // [WHEN] Set "OC"."Sales Document Type" with value Posted Invoice
         asserterror OpportunityCard."Sales Document Type".SetValue(Opportunity."Sales Document Type"::"Posted Invoice");
@@ -1534,7 +1534,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [Segment]
         // [SCENARIO 275160] Opportunity First Stage Activation creates number of tasks equal to Activity Steps
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contact, Sales Cycle with 5 Activity Step for 1st Stage
         CreateContactWithSalesCycle(SalesCycleStage, Contact);
@@ -1569,7 +1569,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [FEATURE] [UT]
         // [SCENARIO 277501] Opportunity table has key Description
 
-        Initialize;
+        Initialize();
 
         Key.SetRange(TableNo, DATABASE::Opportunity);
         Key.SetRange(Key, 'Description');
@@ -1586,7 +1586,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309620] Table 5091 "Sales Cycle Stage" has LookupPageID value.
-        Initialize;
+        Initialize();
 
         Result := PAGE.RunModal(0, SalesCycleStage) = ACTION::LookupOK;
         // OK is invoked at SalesCycleStagesModalPageHandler
@@ -1606,7 +1606,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 346726] Page "Update Entry" field "Sales Cycle Description" shows Description of Sales Cycle Stage.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Opportunity with Opportunity Entry.
         LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
@@ -1727,7 +1727,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LineNo: Integer;
     begin
         TempAttendee.SetRange("To-do No.", '');
-        if TempAttendee.FindLast then
+        if TempAttendee.FindLast() then
             LineNo := TempAttendee."Line No." + 10000
         else
             LineNo := 10000;
@@ -1756,7 +1756,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // 2. Exercise: Update Opportunity.
         Opportunity.SetRange("Contact No.", Contact."No.");
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.UpdateOpportunity;
     end;
 
@@ -1767,12 +1767,12 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         SalesCycle: Record "Sales Cycle";
     begin
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, Contact."No.", BusinessRelation.Code);
         ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Customer;
-        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo;
+        ContactBusinessRelation."No." := LibrarySales.CreateCustomerNo();
         ContactBusinessRelation.Modify(true);
         CreateSalespersonWithEmail(SalespersonPurchaser);
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -1786,7 +1786,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        Initialize;
+        Initialize();
         LibraryMarketing.CreatePersonContact(Contact);
         CreateSalespersonWithEmail(SalespersonPurchaser);
         Contact.Validate("Salesperson Code", SalespersonPurchaser.Code);
@@ -1863,7 +1863,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         Activity: Record Activity;
     begin
-        Activity.FindFirst;
+        Activity.FindFirst();
         LibraryMarketing.CreateSalesCycleStage(SalesCycleStage, SalesCycleCode);
         SalesCycleStage.Validate("Completed %", LibraryRandom.RandInt(100));  // Use Random because value is not important.
         SalesCycleStage.Validate("Chances of Success %", LibraryRandom.RandInt(100));  // Use Random because value is not important.
@@ -1978,7 +1978,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         OpportunityCard.OpenEdit;
         OpportunityCard.GotoRecord(Opportunity);
     end;
@@ -1989,7 +1989,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         Clear(ContactStatistics);
         ContactStatistics.SetRecord(Contact);
-        ContactStatistics.Run;
+        ContactStatistics.Run();
     end;
 
     local procedure RunOpportunityStatistics(ContactNo: Code[20])
@@ -1999,9 +1999,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         Clear(OpportunityStatistics);
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         OpportunityStatistics.SetRecord(Opportunity);
-        OpportunityStatistics.Run;
+        OpportunityStatistics.Run();
     end;
 
     local procedure RunSalesCycleStatistics(SalesCycleCode: Code[10])
@@ -2011,9 +2011,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         Clear(SalesCycleStatistics);
         SalesCycle.SetRange(Code, SalesCycleCode);
-        SalesCycle.FindFirst;
+        SalesCycle.FindFirst();
         SalesCycleStatistics.SetRecord(SalesCycle);
-        SalesCycleStatistics.Run;
+        SalesCycleStatistics.Run();
     end;
 
     local procedure RunSalesCycleStageStatistics(SalesCycleStage: Record "Sales Cycle Stage")
@@ -2022,7 +2022,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         Clear(SalesCycleStageStatistics);
         SalesCycleStageStatistics.SetRecord(SalesCycleStage);
-        SalesCycleStageStatistics.Run;
+        SalesCycleStageStatistics.Run();
     end;
 
     local procedure RunSalespersonStatistics(SalespersonCode: Code[20])
@@ -2032,9 +2032,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         Clear(SalespersonStatistics);
         SalespersonPurchaser.SetRange(Code, SalespersonCode);
-        SalespersonPurchaser.FindFirst;
+        SalespersonPurchaser.FindFirst();
         SalespersonStatistics.SetRecord(SalespersonPurchaser);
-        SalespersonStatistics.Run;
+        SalespersonStatistics.Run();
     end;
 
     local procedure UpdateOpportunityValue(ContactNo: Code[20])
@@ -2042,7 +2042,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.UpdateOpportunity;
     end;
 
@@ -2060,7 +2060,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.TestField("Sales Cycle Code", SalesCycleStage."Sales Cycle Code");
         Opportunity.CalcFields("Current Sales Cycle Stage", "Estimated Value (LCY)", "Chances of Success %");
         Opportunity.TestField("Current Sales Cycle Stage", SalesCycleStage.Stage);
@@ -2126,7 +2126,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Opportunity: Record Opportunity;
     begin
         Opportunity.SetRange("Contact No.", ContactNo);
-        Opportunity.FindFirst;
+        Opportunity.FindFirst();
         Opportunity.CalcFields("Calcd. Current Value (LCY)", "Probability %");
         if ProbabilityCalculation = SalesCycle."Probability Calculation"::"Completed %" then begin
             Opportunity.TestField("Probability %", Completed2);
@@ -2182,7 +2182,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
             CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Won)
         else
             CloseOpportunityCode.SetRange(Type, CloseOpportunityCode.Type::Lost);
-        CloseOpportunityCode.FindFirst;
+        CloseOpportunityCode.FindFirst();
 
         TempOpportunityEntry.Validate("Close Opportunity Code", CloseOpportunityCode.Code);
         TempOpportunityEntry.Validate("Calcd. Current Value (LCY)", WizardEstimatedValueLCY);

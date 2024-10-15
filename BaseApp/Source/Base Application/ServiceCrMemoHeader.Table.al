@@ -432,6 +432,11 @@ table 5994 "Service Cr.Memo Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(129; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -856,50 +861,25 @@ table 5994 "Service Cr.Memo Header"
         field(11730; "Cash Desk Code"; Code[20])
         {
             Caption = 'Cash Desk Code';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            TableRelation = "Bank Account" WHERE("Account Type" = CONST("Cash Desk"));
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
-#if not CLEAN17
-
-            trigger OnLookup()
-            var
-                BankAcc: Record "Bank Account";
-            begin
-                // NAVCZ
-                if BankAcc.Get("Cash Desk Code") then;
-                if PAGE.RunModal(PAGE::"Cash Desk List", BankAcc) = ACTION::LookupOK then;
-                // NAVCZ
-            end;
-#endif
+            ObsoleteTag = '20.0';
         }
         field(11731; "Cash Document Status"; Option)
         {
             Caption = 'Cash Document Status';
             OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
             OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11760; "VAT Date"; Date)
         {
             Caption = 'VAT Date';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11761; "VAT Currency Factor"; Decimal)
         {
@@ -907,13 +887,9 @@ table 5994 "Service Cr.Memo Header"
             DecimalPlaces = 0 : 15;
             Editable = false;
             MinValue = 0;
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11763; "Postponed VAT"; Boolean)
         {
@@ -936,35 +912,23 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'Credit Memo Type';
             OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
             OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11790; "Registration No."; Text[20])
         {
             Caption = 'Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11791; "Tax Registration No."; Text[20])
         {
             Caption = 'Tax Registration No.';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
         field(11792; "Original User ID"; Code[50])
         {
@@ -1025,13 +989,9 @@ table 5994 "Service Cr.Memo Header"
         field(31066; "EU 3-Party Intermediate Role"; Boolean)
         {
             Caption = 'EU 3-Party Intermediate Role';
-#if CLEAN17
             ObsoleteState = Removed;
-#else
-            ObsoleteState = Pending;
-#endif
             ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '17.0';
+            ObsoleteTag = '20.0';
         }
     }
 
@@ -1076,7 +1036,6 @@ table 5994 "Service Cr.Memo Header"
         ServCrMemoLine: Record "Service Cr.Memo Line";
         DimMgt: Codeunit DimensionManagement;
         UserSetupMgt: Codeunit "User Setup Management";
-        VatDateErr: Label 'VAT Date %1 is not within your range of allowed VAT dates.\Correct the date or change VAT posting period.';
         DeleteErr: Label 'Posted document cannot be deleted!';
 
     procedure Navigate()
@@ -1085,7 +1044,7 @@ table 5994 "Service Cr.Memo Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure SendRecords()
@@ -1163,31 +1122,12 @@ table 5994 "Service Cr.Memo Header"
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
         CustLedgEntry.SetRange("Posting Date", "Posting Date");
-        if not CustLedgEntry.FindFirst then
+        if not CustLedgEntry.FindFirst() then
             exit(false);
 
         exit(true);
     end;
 
-#if not CLEAN17
-    [Scope('OnPrem')]
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.5')]
-    procedure CheckVATDate()
-    var
-        GLSetup: Record "General Ledger Setup";
-        GenJnLCheckLine: Codeunit "Gen. Jnl.-Check Line";
-    begin
-        // NAVCZ
-        GLSetup.Get();
-        if GLSetup."Use VAT Date" then begin
-            TestField("VAT Date");
-            if GenJnLCheckLine.VATDateNotAllowed("VAT Date") then
-                Error(VatDateErr, "VAT Date");
-            GenJnLCheckLine.VATPeriodCheck("VAT Date");
-        end;
-    end;
-
-#endif
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1214,4 +1154,3 @@ table 5994 "Service Cr.Memo Header"
     begin
     end;
 }
-

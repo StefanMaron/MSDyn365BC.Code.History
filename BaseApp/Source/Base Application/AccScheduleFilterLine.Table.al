@@ -2,7 +2,15 @@ table 31081 "Acc. Schedule Filter Line"
 {
     Caption = 'Acc. Schedule Filter Line';
     DataCaptionFields = "Export Acc. Schedule Name";
+#if not CLEAN20
     LookupPageID = "Acc. Schedule Filter Lines";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
+#else
+    ObsoleteState = Removed;
+    ObsoleteTag = '23.0';
+#endif  
+    ObsoleteReason = 'The functionality will be removed and this table should not be used.';
 
     fields
     {

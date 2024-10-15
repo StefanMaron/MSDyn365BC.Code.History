@@ -311,6 +311,22 @@ codeunit 1390 "Document Notifications"
         PurchaseHeader.SetShowExternalDocAlreadyExistNotificationDefaultState(true);
     end;
 
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableWarningWhenPostingSalesQtyZero()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        SalesHeader.SetWarnZeroQuantitySalesPosting();
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure EnableWarningWhenPostingPurchaseQtyZero()
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        PurchaseHeader.SetWarnZeroQuantityPurchasePosting();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomerFullAddress(AddressArray: array[7] of Text; Customer: Record Customer; var Result: Text)
     begin

@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 283 "Recurring General Journal"
 {
     AdditionalSearchTerms = 'accruals';
@@ -59,17 +60,6 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-#if not CLEAN17
-                field("VAT Date"; "VAT Date")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Suite;
@@ -85,12 +75,6 @@ page 283 "Recurring General Journal"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
-                }
-                field("External Document No."; "External Document No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the number of vendor''s document.';
-                    Visible = false;
                 }
                 field("Account Type"; "Account Type")
                 {
@@ -203,6 +187,9 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry as a corrective entry. You can use the field if you need to post a corrective entry to an account.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
@@ -234,18 +221,26 @@ page 283 "Recurring General Journal"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = DebitCreditVisible;
                 }
+#if not CLEAN20
                 field("VAT Amount (LCY)"; "VAT Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of VAT included in the total amount, expressed in LCY.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Bal. VAT Amount (LCY)"; "Bal. VAT Amount (LCY)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of Bal. VAT included in the total amount.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field("VAT Amount"; "VAT Amount")
                 {
                     ApplicationArea = Suite;
@@ -269,6 +264,9 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date on the entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Applies-to Doc. Type"; "Applies-to Doc. Type")
                 {
@@ -378,143 +376,167 @@ page 283 "Recurring General Journal"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the last date the recurring journal will be posted, if you have indicated in the journal is recurring.';
                 }
+#if not CLEAN20
                 field("Job No."; "Job No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job No. It is a required field and must be filled in. When you fill in this field and the Job Task No. field, a job ledger entry will be posted together with the journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Task No."; "Job Task No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Job Task No. It is a required field and must be filled in. When you fill in this field and the Job No. field, a job ledger entry will be posted together with the journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Line Type"; "Job Line Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a Job Planning Line together with the posting of a job ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Unit Of Measure Code"; "Job Unit Of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure code the program uses when it determines the unit price. This code specifies how the quantity is measured, for example, by the box or by the piece.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Quantity"; "Job Quantity")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the quantity for the job ledger entry that is derived from posting the journal line. If the Job Quantity is 0, the total amount on the job ledger entry will also be 0.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Unit Cost"; "Job Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a job quantity to the journal line. It Specifies the Total Job Cost divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Unit Cost (LCY)"; "Job Unit Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number, a job task number, and a Job Quantity on the journal line. The field is calculated based on the Job Total Cost (LCY) divided by Job Quantity for the journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Total Cost"; "Job Total Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you have assigned a job number and a job task number to the journal line. It Specifies the Amount excluding VAT divided by Job Quantity for the journal line. The amount is shown in the currency specified for the job.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Total Cost (LCY)"; "Job Total Cost (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total cost if you have assigned a job number and a job task number to the journal line. It Specifies the Amount (LCY) excluding VAT Amount (LCY)for the journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Unit Price"; "Job Unit Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the job currency, derived from the currency code field in the Job Card.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit price for the selected Account Type and Account No. on the journal line. The unit price is in the local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Line Amount"; "Job Line Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount Amount) of the journal line. The amount shown is in the job currency, which is derived from the Currency Code field in the Job Card.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount (excluding the Job Line Discount (LCY) Amount) of the journal line, in the local currency that will be used for the job ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Line Discount Amount"; "Job Line Discount Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of the discount that will be used for the job ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Line Discount %"; "Job Line Discount %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job line discount percentage that will be used for the job ledger entry.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Total Price"; "Job Total Price")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the job total price in the job currency on the journal line.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
                 field("Job Total Price (LCY)"; "Job Total Price (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total price for the journal line. The total price is in the local currency.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality will be removed and this field should not be used.';
+                    ObsoleteTag = '20.0';
                 }
+#endif
                 field(Comment; Comment)
                 {
                     ApplicationArea = Comments;
                     ToolTip = 'Specifies a comment about the activity on the journal line. Note that the comment is not carried forward to posted entries.';
                     Visible = false;
                 }
-#if not CLEAN17
-                field("Original Document VAT Date"; "Original Document VAT Date")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT date of the original document.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document Partner Type"; "Original Document Partner Type")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the type of partner (customer or vendor). It''s possible for VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-                field("Original Document Partner No."; "Original Document Partner No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the number of partner (customer or vendor). It''s possible for VAT control report.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.0';
-                    Visible = false;
-                }
-#endif
                 field("Job Queue Status"; "Job Queue Status")
                 {
                     ApplicationArea = All;
@@ -659,6 +681,12 @@ page 283 "Recurring General Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies posting date calculation formula for reverse recurring methods.';
+                    Visible = false;
+                }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
                     Visible = false;
                 }
             }
@@ -853,12 +881,16 @@ page 283 "Recurring General Journal"
                     Image = Reconcile;
                     ShortCutKey = 'Ctrl+F11';
                     ToolTip = 'Specifies reconcile page';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '20.0';
+                    Visible = false;
 
                     trigger OnAction()
                     begin
                         // NAVCZ
                         Recon.SetGenJnlLine(Rec);
-                        Recon.Run;
+                        Recon.Run();
                         // NAVCZ
                     end;
                 }
@@ -1150,4 +1182,4 @@ page 283 "Recurring General Journal"
     begin
     end;
 }
-
+#endif

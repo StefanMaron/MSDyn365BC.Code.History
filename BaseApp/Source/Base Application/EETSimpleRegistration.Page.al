@@ -92,17 +92,6 @@ page 31126 "EET Simple Registration"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the source number of the entry.';
-#if not CLEAN17
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        exit(LookupSourceNo(Text));
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        ValidateSourceNo;
-                    end;
-#endif
                 }
                 field("Applied Document Type"; "Applied Document Type")
                 {
@@ -461,8 +450,6 @@ page 31126 "EET Simple Registration"
         AmountExtFromVAT: Decimal;
         AmtForSubseqDrawSettle: Decimal;
         AmtSubseqDrawnSettled: Decimal;
-        NoCashDeskErr: Label 'User %1 does not have access to any Cash Desk.', Comment = '%1 = User ID';
-        CashDeskDeniedErr: Label 'User %1 does not have access to the Cash Desk %2.', Comment = '%1 = User ID;%2 = Cah Desk No.';
         SendToServiceQst: Label 'Do you want to send sales to EET service?';
         MustEnterErr: Label 'You must enter %1.', Comment = '%1 = Field Name';
         OpenNewEntryQst: Label 'The new entry %1 has been created. Do you want to open the new entry?', Comment = '%1 = New EET Entry No.';
@@ -471,25 +458,8 @@ page 31126 "EET Simple Registration"
     begin
         GLSetup.Get();
         EETServiceSetup.Get();
-#if not CLEAN17
-        InitVATRate;
-#endif        
     end;
 
-#if not CLEAN17
-    local procedure InitVATRate()
-    var
-        VATPostingSetup: Record "VAT Posting Setup";
-        i: Integer;
-    begin
-        for i := 1 to 3 do begin
-            VATPostingSetup.SetRange("VAT Rate", i);
-            if VATPostingSetup.FindFirst then
-                VATRate[i] := VATPostingSetup."VAT %";
-        end;
-    end;
-
-#endif    
     local procedure LookupBusinessPremises(var Text: Text): Boolean
     begin
         EETBusinessPremises.Reset();
@@ -535,60 +505,6 @@ page 31126 "EET Simple Registration"
         Clear("Source No.");
     end;
 
-#if not CLEAN17
-    local procedure LookupSourceNo(var Text: Text): Boolean
-    var
-        BankAccount: Record "Bank Account";
-    begin
-        case "Source Type" of
-            "Source Type"::"Cash Desk":
-                begin
-                    BankAccount."No." := "Source No.";
-                    if BankAccount.Find then;
-                    if PAGE.RunModal(PAGE::"Cash Desk List", BankAccount) = ACTION::LookupOK then begin
-                        "Source No." := BankAccount."No.";
-                        ValidateSourceNo;
-                        Text := BankAccount."No.";
-                        exit(true);
-                    end;
-                end;
-        end;
-    end;
-
-    local procedure ValidateSourceNo()
-    var
-        BankAccount: Record "Bank Account";
-        User: Record User;
-        UserSetupMgt: Codeunit "User Setup Management";
-        CashDeskMgt: Codeunit CashDeskManagement;
-        CashFilter: Text;
-        CashDeskFilter: Text;
-    begin
-        if "Source No." <> '' then
-            case "Source Type" of
-                "Source Type"::"Cash Desk":
-                    begin
-                        CashFilter := UserSetupMgt.GetCashFilter;
-                        CashDeskFilter := CashDeskMgt.GetCashDesksFilter;
-                        if (CashDeskFilter = '') and not User.IsEmpty() then
-                            Error(NoCashDeskErr, UserId);
-
-                        BankAccount.Get("Source No.");
-                        BankAccount.TestField("Account Type", BankAccount."Account Type"::"Cash Desk");
-
-                        BankAccount.FilterGroup(2);
-                        if CashFilter <> '' then
-                            BankAccount.SetRange("Responsibility Center", CashFilter);
-                        if CashDeskFilter <> '' then
-                            BankAccount.SetFilter("No.", CashDeskFilter);
-                        BankAccount.FilterGroup(0);
-                        if not BankAccount.Find then
-                            Error(CashDeskDeniedErr, UserId, BankAccount."No.");
-                    end;
-            end;
-    end;
-
-#endif
     local procedure ValidateAppliedDocType()
     begin
         Clear("Applied Document No.");
@@ -688,9 +604,6 @@ page 31126 "EET Simple Registration"
         Clear(AmountExtFromVAT);
         Clear(AmtForSubseqDrawSettle);
         Clear(AmtSubseqDrawnSettled);
-#if not CLEAN17
-        InitVATRate;
-#endif        
 
         SalesAmount[1] := TotalSalesAmount;
         ValidateSalesAmount(1);
@@ -748,9 +661,6 @@ page 31126 "EET Simple Registration"
 
         Init;
         CurrPage.Update();
-#if not CLEAN17
-        InitVATRate;
-#endif        
         Clear(TotalSalesAmount);
         ValidateTotalSalesAmount;
 

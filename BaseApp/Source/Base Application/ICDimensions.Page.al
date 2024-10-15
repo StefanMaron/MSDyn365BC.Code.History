@@ -192,7 +192,7 @@ page 600 "IC Dimensions"
                 ICDimValExists := false;
                 DimVal.SetRange("Dimension Code", Dim.Code);
                 ICDimVal.SetRange("Dimension Code", Dim.Code);
-                ICDimValEmpty := not ICDimVal.FindFirst;
+                ICDimValEmpty := not ICDimVal.FindFirst();
                 if DimVal.Find('-') then
                     repeat
                         if DimVal."Dimension Value Type" = DimVal."Dimension Value Type"::"End-Total" then
@@ -217,16 +217,16 @@ page 600 "IC Dimensions"
 
     local procedure ImportFromXML()
     var
-        CompanyInfo: Record "Company Information";
+        ICSetup: Record "IC Setup";
         ICDimIO: XMLport "IC Dimension Import/Export";
         IFile: File;
         IStr: InStream;
         FileName: Text[1024];
         StartFileName: Text[1024];
     begin
-        CompanyInfo.Get();
+        ICSetup.Get();
 
-        StartFileName := CompanyInfo."IC Inbox Details";
+        StartFileName := ICSetup."IC Inbox Details";
         if StartFileName <> '' then begin
             if StartFileName[StrLen(StartFileName)] <> '\' then
                 StartFileName := StartFileName + '\';
@@ -244,7 +244,7 @@ page 600 "IC Dimensions"
 
     local procedure ExportToXML()
     var
-        CompanyInfo: Record "Company Information";
+        ICSetup: Record "IC Setup";
         FileMgt: Codeunit "File Management";
         ICDimIO: XMLport "IC Dimension Import/Export";
         OFile: File;
@@ -252,9 +252,9 @@ page 600 "IC Dimensions"
         FileName: Text;
         DefaultFileName: Text;
     begin
-        CompanyInfo.Get();
+        ICSetup.Get();
 
-        DefaultFileName := CompanyInfo."IC Inbox Details";
+        DefaultFileName := ICSetup."IC Inbox Details";
         if DefaultFileName <> '' then
             if DefaultFileName[StrLen(DefaultFileName)] <> '\' then
                 DefaultFileName := DefaultFileName + '\';

@@ -32,7 +32,7 @@ codeunit 31050 CreditManagement
             Clear(CreditLine);
             CreditLine.SetRange("Credit No.", CreditHeader."No.");
             LineNo := 10000;
-            if CreditLine.FindLast then
+            if CreditLine.FindLast() then
                 LineNo := CreditLine."Line No." + 10000;
 
             if CustLedgEntry.Find('-') then begin
@@ -123,7 +123,7 @@ codeunit 31050 CreditManagement
             CreditLine.SetFilter("Amount (LCY)", '<0');
         CreditLine.SetRange("Manual Change Only", false);
 
-        if CreditLine.FindSet then
+        if CreditLine.FindSet() then
             repeat
                 if Abs(Amt) >= Abs(CreditLine."Amount (LCY)") then begin
                     Amt -= CreditLine."Amount (LCY)";

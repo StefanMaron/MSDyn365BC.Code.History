@@ -1,3 +1,4 @@
+#if not CLEAN20        
 codeunit 31070 "Undo Transfer Shipment Line"
 {
     Permissions = TableData "Item Application Entry" = rmd,
@@ -5,6 +6,9 @@ codeunit 31070 "Undo Transfer Shipment Line"
                   TableData "Transfer Shipment Line" = imd,
                   TableData "Item Entry Relation" = ri;
     TableNo = "Transfer Shipment Line";
+    ObsoleteReason = 'Moved to Advance Localization Pack for Czech.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     var
@@ -295,7 +299,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
             Copy(TransShptLine);
             SetFilter("Item No.", '<>%1', '');
             SetFilter(Quantity, '<>%1', 0);
-            if FindSet then
+            if FindSet() then
                 repeat
                     ItemList := ItemList + StrSubstNo('%1 %2: %3 %4\', "Item No.", Description, Quantity, "Unit of Measure Code");
                 until Next() = 0;
@@ -363,4 +367,4 @@ codeunit 31070 "Undo Transfer Shipment Line"
     begin
     end;
 }
-
+#endif

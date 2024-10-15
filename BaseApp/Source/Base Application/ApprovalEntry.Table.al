@@ -278,9 +278,6 @@ table 454 "Approval Entry"
         SalesHeader: Record "Sales Header";
         PurchHeader: Record "Purchase Header";
         PaymentOrderHeader: Record "Payment Order Header";
-#if not CLEAN17
-        CashDocumentHeader: Record "Cash Document Header";
-#endif
 #if not CLEAN18
         CreditHeader: Record "Credit Header";
 #endif
@@ -325,15 +322,6 @@ table 454 "Approval Entry"
                     exit(StrSubstNo('%1 ; %2: %3', PaymentOrderHeader."Bank Account Name",
                         PaymentOrderHeader.FieldCaption(Amount), PaymentOrderHeader.Amount));
                 end;
-#if not CLEAN17
-            DATABASE::"Cash Document Header":
-                begin
-                    RecRef.SetTable(CashDocumentHeader);
-                    CashDocumentHeader.CalcFields(Amount);
-                    exit(StrSubstNo('%1 ; %2: %3', CashDocumentHeader."Cash Document Type",
-                        CashDocumentHeader.FieldCaption(Amount), CashDocumentHeader.Amount));
-                end;
-#endif
 #if not CLEAN18
             DATABASE::"Credit Header":
                 begin
@@ -422,7 +410,7 @@ table 454 "Approval Entry"
         WorkflowRecordChange.SetRange("Record ID", "Record ID to Approve");
         WorkflowRecordChange.SetRange("Workflow Step Instance ID", "Workflow Step Instance ID");
 
-        if WorkflowRecordChange.FindSet then
+        if WorkflowRecordChange.FindSet() then
             repeat
                 WorkflowRecordChange.CalcFields("Field Caption");
                 NewValue := WorkflowRecordChange.GetFormattedNewValue(true);
@@ -457,7 +445,7 @@ table 454 "Approval Entry"
         FilterGroup(-1); // Used to support the cross-column search
         SetRange("Approver ID", UserId);
         SetRange("Sender ID", UserId);
-        if FindSet then
+        if FindSet() then
             repeat
                 Mark(true);
             until Next() = 0;

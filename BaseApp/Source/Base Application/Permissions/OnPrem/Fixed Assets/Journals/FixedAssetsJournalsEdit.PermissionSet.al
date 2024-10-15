@@ -50,7 +50,9 @@ permissionset 505 "Fixed Assets Journals - Edit"
                   tabledata Maintenance = R,
                   tabledata "Maintenance Ledger Entry" = R,
                   tabledata "Maintenance Registration" = R,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Reason Code" = R,
                   tabledata "Source Code Setup" = R,
                   tabledata "Tax Area" = R,

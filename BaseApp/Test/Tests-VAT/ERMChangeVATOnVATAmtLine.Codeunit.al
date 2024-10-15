@@ -90,7 +90,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // Verify program allow to changing the VAT Amount when Allow VAT Difference = Yes on the Sales & Receivables Setup.
 
         // Setup: Update General Ledger Setup and Sales & Receivables Setup for VAT Difference.
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(true);
 
         // Create Sales Order and update the VAT Difference on Sales Line.
@@ -120,7 +120,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // Verify program allow to changing the VAT Amount when Allow VAT Difference = Yes on the Purchase & Payables Setup.
 
         // Setup: Update General Ledger Setup and Purchase & Payables Setup for VAT Difference.
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(false);
 
         // Create Purchase Order and update the VAT Difference on Purchase Line.
@@ -151,7 +151,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [SCENARIO] Statistics VAT Amount changes in Invoicing tab are also updates General tab for Sales Order.
 
         // [GIVEN] General Ledger Setup and Sales & Receivables Setup for VAT Difference = 0.05
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(true);
         LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
 
@@ -179,7 +179,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [SCENARIO] Statistics VAT Amount changes in Invoicing tab are also updates General tab for Purchase Order
 
         // [GIVEN] General Ledger Setup and Purchases & Payables Setup for VAT Difference = 0.05
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(false);
         LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
 
@@ -207,7 +207,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [SCENARIO 377509] Statistics VAT Amount changes in VAT Amount Lines tab are also updates General tab for Sales Invoice.
 
         // [GIVEN] General Ledger Setup and Sales & Receivables Setup for VAT Difference = 0.05
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(true);
         LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
 
@@ -236,7 +236,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [SCENARIO 377509] Statistics VAT Amount changes in VAT Amount Lines tab are also updates General tab for Sales Invoice.
 
         // [GIVEN] General Ledger Setup and Purchases & Payables Setup for VAT Difference = 0.05
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(false);
         LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
 
@@ -264,7 +264,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         // [SCENARIO 377509] Statistics VAT Amount changes in VAT Amount Lines tab are also updates General tab for Service Invoice.
 
         // [GIVEN] General Ledger Setup and Sales & Receivables Setup for VAT Difference = 0.05
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := EnableVATDiffAmount(true);
         LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
 
@@ -288,7 +288,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         // [FEATURES] [UT]
         // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT Amount" for 0 VAT Amount Lines
-        Initialize;
+        Initialize();
 
         // [THEN] For 0 lines VATAmountText returns default text
         Assert.AreEqual(DefaultVATAmountLineTxt, TempVATAmountLine.VATAmountText, 'VATAmountText returned wrong text');
@@ -303,7 +303,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         // [FEATURES] [UT]
         // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT X%" for 1 VAT Amount Line with "VAT %" <> 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT %
         VATPercent := LibraryRandom.RandDec(10, 2);
@@ -324,7 +324,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         // [FEATURES] [UT]
         // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT X%" for 2 lines with same "VAT %"
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT %
         VATPercent := LibraryRandom.RandDec(10, 2);
@@ -346,7 +346,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         // [FEATURES] [UT]
         // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "VAT Amount" for 2 lines with different "VAT %"
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 different VAT %
         VATPercent[1] := LibraryRandom.RandDec(10, 2);
@@ -368,7 +368,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         // [FEATURES] [UT]
         // [SCENARIO 281727] VAT Amount Line.VATAmountText() returns "Amount VAT" for 1 VAT Amount Line with VAT % = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] One VAT Amount Line is added with 0 VAT
         CreateVATAmountLine(TempVATAmountLine, LibraryUtility.GenerateGUID, 0, true);
@@ -407,15 +407,15 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Change VAT On VAT Amt Line");
         // Lazy Setup.
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Change VAT On VAT Amt Line");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -450,7 +450,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
 
         // Setup: Update General Ledger Setup, Sales and Receivables Setup, Create a Sales Order with a new Customer, Item and with
         // random Quantity between 11 to 20. Generate the data on VAT Amount Line.
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := LibraryRandom.RandDec(2, 2);  // Use any random decimal value between 0.01 and 1.99, value is not important.
         LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
         LibrarySales.SetAllowVATDifference(true);
@@ -489,7 +489,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
 
         // Setup: Update General Ledger Setup, Purchase and Payables Setup, Create a Purchase Order with a new Vendor, Item and random
         // Quantity between 11 to 20. Generate the data on VAT Amount Line.
-        Initialize;
+        Initialize();
         MaxVATDiffAmt := LibraryRandom.RandDec(2, 2);  // Use any random decimal value between 0.01 and 1.99, value is not important.
         LibraryERM.SetMaxVATDifferenceAllowed(MaxVATDiffAmt);
         LibraryPurchase.SetAllowVATDifference(true);
@@ -519,7 +519,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
         if GeneralPostingSetup."Direct Cost Applied Account" = '' then begin
-            GeneralPostingSetup."Direct Cost Applied Account" := LibraryERM.CreateGLAccountNo;
+            GeneralPostingSetup."Direct Cost Applied Account" := LibraryERM.CreateGLAccountNo();
             GeneralPostingSetup.Modify();
         end;
     end;
@@ -644,7 +644,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     local procedure UpdateVATAmount(var VATAmountLine: Record "VAT Amount Line"; NewVATAmount: Decimal; Positive: Boolean)
     begin
         // Update VAT Amount on VAT Amount Line.
-        VATAmountLine.FindFirst;
+        VATAmountLine.FindFirst();
         if Positive then
             VATAmountLine.Validate("VAT Amount", VATAmountLine."VAT Amount" + NewVATAmount)
         else
@@ -680,7 +680,7 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccount);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 

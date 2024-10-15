@@ -1,4 +1,3 @@
-#if not CLEAN17
 page 474 "VAT Statement Preview"
 {
     Caption = 'VAT Statement Preview';
@@ -15,124 +14,6 @@ page 474 "VAT Statement Preview"
             group(General)
             {
                 Caption = 'General';
-                field(VATPeriodStartDate; VATPeriodStartDate)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Period Start Date';
-                    LookupPageID = "VAT Periods";
-                    TableRelation = "VAT Period";
-                    ToolTip = 'Specifies the starting date for the VAT period.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        if VATPeriodStartDate <> 0D then begin
-                            VATPeriod.Get(VATPeriodStartDate);
-                            if VATPeriod.Next > 0 then
-                                VATPeriodEndDate := CalcDate('<-1D>', VATPeriod."Starting Date");
-                        end;
-                        SetRange("Date Filter", VATPeriodStartDate, VATPeriodEndDate);
-                        DateFilter := GetFilter("Date Filter"); // NAVCZ
-                        UpdateSubForm;
-                    end;
-                }
-                field(VATPeriodEndDate; VATPeriodEndDate)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'VAT Period End Date';
-                    ToolTip = 'Specifies the ending date for the VAT period.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        SetRange("Date Filter", VATPeriodStartDate, VATPeriodEndDate);
-                        DateFilter := GetFilter("Date Filter"); // NAVCZ
-                        UpdateSubForm;
-                    end;
-                }
-                field(DateFilter; DateFilter)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'Date Filter';
-                    ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
-
-                    trigger OnValidate()
-                    var
-                        FilterTokens: Codeunit "Filter Tokens";
-                    begin
-                        FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
-                        CurrPage.Update();
-                        // NAVCZ
-                        if DateFilter <> '' then begin
-                            VATPeriodStartDate := 0D;
-                            VATPeriodEndDate := 0D;
-                        end;
-                        // NAVCZ
-                        UpdateSubForm();
-                    end;
-                }
-                field(DateRowFilter; DateRowFilter)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'Date Row Filter';
-                    ToolTip = 'Specifies the date row filter for VAT entries.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Unsupported functionality';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    var
-                        FilterTokens: Codeunit "Filter Tokens";
-                    begin
-                        // NAVCZ
-                        if DateRowFilter <> '' then begin
-                            FilterTokens.MakeDateFilter(DateRowFilter);
-                            SetFilter("Date Row Filter", DateRowFilter);
-                        end else
-                            SetRange("Date Row Filter");
-                        // NAVCZ
-                        UpdateSubForm;
-                    end;
-                }
-                field(CountryCodeFillFiter; CountryCodeFillFiter)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'Performance Country';
-                    TableRelation = "Country/Region";
-                    ToolTip = 'Specifies performance country code for VAT entries filtr.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSubForm;
-                    end;
-                }
-                field(SettlementNoFilter; SettlementNoFilter)
-                {
-                    ApplicationArea = VAT;
-                    Caption = 'Filter VAT Settlement No.';
-                    ToolTip = 'Specifies the filter setup of document number which the VAT entries were closed.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '17.4';
-                    Visible = false;
-
-                    trigger OnValidate()
-                    begin
-                        UpdateSubForm;
-                    end;
-                }
                 field(Selection; Selection)
                 {
                     ApplicationArea = Basic, Suite;
@@ -175,6 +56,22 @@ page 474 "VAT Statement Preview"
                         UseAmtsInAddCurrOnPush;
                     end;
                 }
+                field(DateFilter; DateFilter)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Date Filter';
+                    ToolTip = 'Specifies the dates that will be used to filter the amounts in the window.';
+
+                    trigger OnValidate()
+                    var
+                        FilterTokens: Codeunit "Filter Tokens";
+                    begin
+                        FilterTokens.MakeDateFilter(DateFilter);
+                        SetFilter("Date Filter", DateFilter);
+                        UpdateSubForm();
+                        CurrPage.Update();
+                    end;
+                }
             }
             part(VATStatementLineSubForm; "VAT Statement Preview Line")
             {
@@ -214,17 +111,8 @@ page 474 "VAT Statement Preview"
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
             DateFilter := PassedDateFilter;
-        end else begin
-            // NAVCZ
-            if DateRowFilter <> '' then
-                SetFilter("Date Row Filter", DateRowFilter);
-            if (VATPeriodStartDate <> 0D) or (VATPeriodEndDate <> 0D) then begin
-                SetRange("Date Filter", VATPeriodStartDate, VATPeriodEndDate);
-                DateFilter := GetFilter("Date Filter");
-            end else
-                // NAVCZ
+        end else
             DateFilter := '';
-        end;
         UpdateSubForm();
     end;
 
@@ -239,17 +127,10 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
-        VATPeriod: Record "VAT Period";
-        VATPeriodStartDate: Date;
-        VATPeriodEndDate: Date;
-        SettlementNoFilter: Text[50];
-        CountryCodeFillFiter: Code[10];
-        DateRowFilter: Text[30];
 
     procedure UpdateSubForm()
     begin
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr,
-          SettlementNoFilter, CountryCodeFillFiter); // NAVCZ
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
@@ -322,4 +203,4 @@ page 474 "VAT Statement Preview"
         BeforeandWithinPeriodSelOnPush;
     end;
 }
-#endif
+

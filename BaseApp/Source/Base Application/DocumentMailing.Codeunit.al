@@ -1,4 +1,4 @@
-﻿#if not CLEAN19
+#if not CLEAN19
 codeunit 260 "Document-Mailing"
 {
     TableNo = "Job Queue Entry";
@@ -429,25 +429,6 @@ codeunit 260 "Document-Mailing"
         exit(ToAddress);
     end;
 
-    local procedure GetSenderEmail(SenderUserID: Code[50]): Text[250]
-    var
-        UserSetup: Record "User Setup";
-    begin
-        if UserSetup.Get(SenderUserID) then
-            exit(UserSetup."E-Mail");
-    end;
-
-    local procedure GetSenderName(SenderUserID: Code[50]): Text[100]
-    var
-        User: Record User;
-    begin
-        User.SetRange("User Name", SenderUserID);
-        if User.FindFirst and (User."Full Name" <> '') then
-            exit(User."Full Name");
-
-        exit('');
-    end;
-
     procedure GetAttachmentFileName(var AttachmentFileName: Text[250]; PostedDocNo: Code[20]; EmailDocumentName: Text[250]; ReportUsage: Integer)
     var
         ReportSelections: Record "Report Selections";
@@ -586,7 +567,6 @@ codeunit 260 "Document-Mailing"
     var
         OfficeMgt: Codeunit "Office Management";
         EmailScenarioMapping: Codeunit "Email Scenario Mapping";
-        EmailFeature: Codeunit "Email Feature";
         Attachments: Codeunit "Temp Blob List";
         Attachment: Codeunit "Temp Blob";
         EmailSentSuccesfully: Boolean;
@@ -596,11 +576,6 @@ codeunit 260 "Document-Mailing"
         Name: Text[250];
     begin
         OnBeforeEmailFileInternal(TempEmailItem, HtmlBodyFilePath, EmailSubject, ToEmailAddress, PostedDocNo, EmailDocName, HideDialog, ReportUsage, IsFromPostedDoc, SenderUserID, EmailScenario);
-        if not EmailFeature.IsEnabled() then
-            if IsAllowedToChangeSender(SenderUserID) then begin
-                TempEmailItem."From Address" := GetSenderEmail(SenderUserID);
-                TempEmailItem."From Name" := GetSenderName(SenderUserID);
-            end;
 
         TempEmailItem."Send to" := ToEmailAddress;
         TempEmailItem.AddCcBcc();
@@ -638,12 +613,9 @@ codeunit 260 "Document-Mailing"
                 OfficeMgt.AttachDocument(TempEmailItem.GetBodyText(), TempEmailItem.Subject);
 
         if not OfficeMgt.AttachAvailable() then begin
-            if EmailFeature.IsEnabled() then begin
-                if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
-                    EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
-                EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario)
-            end else
-                EmailSentSuccesfully := TempEmailItem.Send(HideDialog);
+            if Enum::"Report Selection Usage".Ordinals().Contains(ReportUsage) then
+                EmailScenario := EmailScenarioMapping.FromReportSelectionUsage(Enum::"Report Selection Usage".FromInteger(ReportUsage));
+            EmailSentSuccesfully := TempEmailItem.Send(HideDialog, EmailScenario);
             if EmailSentSuccesfully then
                 OnAfterEmailSentSuccesfully(TempEmailItem, PostedDocNo, ReportUsage);
             exit(EmailSentSuccesfully);
@@ -728,23 +700,6 @@ codeunit 260 "Document-Mailing"
     [IntegrationEvent(false, false)]
     local procedure OnAfterEmailSentSuccesfully(var TempEmailItem: Record "Email Item" temporary; PostedDocNo: Code[20]; ReportUsage: Integer)
     begin
-    end;
-
-    // Sender is chosen based on the scenario to the Send function when using the email feature is enabled, so this function will not be needed anymore
-    [Obsolete('Sender is changed via changing the account for a specified scenario. Use SetScenario from codeunit "Email Scenario".', '17.0')]
-    local procedure IsAllowedToChangeSender(SenderUserID: Code[50]): Boolean
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-        SMTPMail: Codeunit "SMTP Mail";
-    begin
-        if SenderUserID = '' then
-            exit(false);
-
-        if not SMTPMail.IsEnabled() then
-            exit(false);
-
-        SMTPMailSetup.GetSetup();
-        exit(SMTPMailSetup."Allow Sender Substitution");
     end;
 
     [IntegrationEvent(false, false)]

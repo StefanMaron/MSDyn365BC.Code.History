@@ -36,7 +36,9 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "Gen. Journal Template" = RI,
                   tabledata "General Ledger Setup" = r,
                   tabledata "General Posting Setup" = r,
+#if not CLEAN20
                   tabledata "Native - Payment" = RIMD,
+#endif
                   tabledata "Notification Entry" = Rimd,
                   tabledata "Restricted Record" = Rimd,
                   tabledata "Reversal Entry" = RIMD,
@@ -54,9 +56,6 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = Ri,
-#if not CLEAN17
-                  tabledata "VAT Period" = r,
-#endif
                   tabledata "VAT Posting Setup" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,

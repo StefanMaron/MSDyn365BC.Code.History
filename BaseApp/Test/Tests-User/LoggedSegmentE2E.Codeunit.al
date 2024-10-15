@@ -94,7 +94,7 @@ codeunit 135405 "Logged Segment E2E"
 
         LibraryMarketing.CreateSegmentLine(SegmentLine, SegmentHeader."No.");
         Contact.SetFilter("Salesperson Code", '<>''''');
-        Contact.FindFirst;
+        Contact.FindFirst();
         SegmentLine.Validate("Contact No.", Contact."No.");
         SegmentLine.Modify(true);
     end;
@@ -112,7 +112,7 @@ codeunit 135405 "Logged Segment E2E"
         LogSegment.SetSegmentNo(SegmentNo);
         LogSegment.InitializeRequest(false, FollowUp);
         LogSegment.UseRequestPage(false);
-        LogSegment.RunModal;
+        LogSegment.RunModal();
     end;
 
 }

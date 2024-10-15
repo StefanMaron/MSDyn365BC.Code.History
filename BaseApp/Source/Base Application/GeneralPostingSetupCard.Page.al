@@ -54,6 +54,11 @@ page 395 "General Posting Setup Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the general posting setup.';
                 }
+                field(Blocked; Rec.Blocked)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if this particular combination of general business posting group and general product posting group is blocked.';
+                }
                 field("View All Accounts on Lookup"; "View All Accounts on Lookup")
                 {
                     ApplicationArea = Basic, Suite;
@@ -296,7 +301,7 @@ page 395 "General Posting Setup Card"
                 begin
                     CurrPage.SaveRecord;
                     CopyGenPostingSetup.SetGenPostingSetup(Rec);
-                    CopyGenPostingSetup.RunModal;
+                    CopyGenPostingSetup.RunModal();
                     Clear(CopyGenPostingSetup);
                     CurrPage.Update();
                 end;
@@ -312,6 +317,8 @@ page 395 "General Posting Setup Card"
 
     var
         CopyGenPostingSetup: Report "Copy - General Posting Setup";
+
+    protected var
         PmtDiscountVisible: Boolean;
         PmtToleranceVisible: Boolean;
         SalesLineDiscVisible: Boolean;

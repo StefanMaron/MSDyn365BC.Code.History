@@ -1,45 +1,10 @@
+#if not CLEAN20
 permissionset 1001 "LOCAL"
 {
     Access = Public;
     Assignable = true;
     Caption = 'Country/region-specific func.';
     Permissions =
-#if not CLEAN17
-                  tabledata "Cash Desk Cue" = RIMD,
-                  tabledata "Cash Desk Event" = RIMD,
-                  tabledata "Cash Desk Report Selections" = RIMD,
-                  tabledata "Cash Desk User" = RIMD,
-                  tabledata "Cash Document Header" = RIMD,
-                  tabledata "Cash Document Line" = RIMD,
-                  tabledata Commodity = RIMD,
-                  tabledata "Commodity Setup" = RIMD,
-                  tabledata "Company Officials" = RIMD,
-                  tabledata "Currency Nominal Value" = RIMD,
-                  tabledata "Document Footer" = RIMD,
-                  tabledata "Electronically Govern. Setup" = RIMD,
-                  tabledata "Excel Template" = RIMD,
-                  tabledata "Posted Cash Document Header" = RIMD,
-                  tabledata "Posted Cash Document Line" = RIMD,
-                  tabledata "Reg. No. Srv Config" = RIMD,
-                  tabledata "Registration Log" = RIMD,
-                  tabledata "Statement File Mapping" = RIMD,
-                  tabledata "Statistic Indication" = RIMD,
-                  tabledata "Stockkeeping Unit Template" = RIMD,
-                  tabledata "Uncertainty Payer Entry" = RIMD,
-                  tabledata "VAT Attribute Code" = RIMD,
-                  tabledata "VAT Control Report Buffer" = RIMD,
-                  tabledata "VAT Control Report Header" = RIMD,
-                  tabledata "VAT Control Report Line" = RIMD,
-                  tabledata "VAT Control Report Section" = RIMD,
-                  tabledata "VAT Ctrl.Rep. - VAT Entry Link" = RIMD,
-                  tabledata "VAT Period" = RIMD,
-                  tabledata "VAT Statement Attachment" = RIMD,
-                  tabledata "VAT Statement Comment Line" = RIMD,
-                  tabledata "VIES Declaration Header" = RIMD,
-                  tabledata "VIES Declaration Line" = RIMD,
-                  tabledata "VIES Transaction Buffer" = RIMD,
-                  tabledata "Whse. Net Change Template" = RIMD,
-#endif
 #if not CLEAN18
                   tabledata "Certificate CZ Code" = RIMD,
                   tabledata "Classification Code" = RIMD,
@@ -114,3 +79,5 @@ permissionset 1001 "LOCAL"
                   tabledata "Multiple Interest Calc. Line" = RIMD,
                   tabledata "Multiple Interest Rate" = RIMD;
 }
+
+#endif

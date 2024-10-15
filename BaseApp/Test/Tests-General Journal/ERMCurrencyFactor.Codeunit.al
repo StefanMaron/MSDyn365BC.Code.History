@@ -54,7 +54,7 @@ codeunit 134077 "ERM Currency Factor"
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
     begin
         // Setup: Create Currency, Customer and Create Sales Invoice and Post.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
@@ -80,7 +80,7 @@ codeunit 134077 "ERM Currency Factor"
         // Verify Out Of Balance Error with Customer.
 
         // Setup: Create Currency, Customer, General Journal Batch and General Journal Lines with Random Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CustomerNo := CreateCustomer(CurrencyCode);
         AmountLCY :=
@@ -110,7 +110,7 @@ codeunit 134077 "ERM Currency Factor"
         // Verify Out Of Balance Error with Vendor.
 
         // Setup: Create Currency, Vendor, General Journal Batch and General Journal Lines with Random Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         VendorNo := CreateVendor(CurrencyCode);
         AmountLCY :=
@@ -141,7 +141,7 @@ codeunit 134077 "ERM Currency Factor"
         // Verify Currency Factor and Amount(LCY) on Recurring General Journal.
 
         // Setup: Find Recurring Template,Create a Recurring Batch and create a Payment in Recurring General Journal taking Random value for Amount.
-        Initialize;
+        Initialize();
         LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
         LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
@@ -172,10 +172,10 @@ codeunit 134077 "ERM Currency Factor"
         // Verify Currency Factor and Amount(LCY) on General Journal after applying Customer entries.
 
         // Setup: Create a Currency,post an Invoice for new Customer and create a payment in General Journal taking Random values for Amount.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrency;
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
         SelectGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
@@ -269,13 +269,13 @@ codeunit 134077 "ERM Currency Factor"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Currency Factor");
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Currency Factor");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Currency Factor");
@@ -288,12 +288,12 @@ codeunit 134077 "ERM Currency Factor"
     begin
         CustLedgerEntry.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         CustLedgerEntry.SetRange("Customer No.", SalesHeader."Sell-to Customer No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         ApplyCustomerEntries.SetCustLedgEntry(CustLedgerEntry);
         ApplyCustomerEntries.SetCustApplId(false);
 
         CustLedgerEntry.SetFilter("Applies-to ID", '<>''''');
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         TempGenJournalLine.Validate(Amount, -CustLedgerEntry."Amount to Apply");
         TempGenJournalLine.Modify(true);
     end;
