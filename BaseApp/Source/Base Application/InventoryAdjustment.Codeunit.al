@@ -1061,6 +1061,7 @@ codeunit 5895 "Inventory Adjustment"
         ValueEntry: Record "Value Entry";
         CalendarPeriod: Record Date;
         FiscalYearAccPeriod: Record "Accounting Period";
+        ItemApplicationEntry: Record "Item Application Entry";
         FindNextRange: Boolean;
     begin
         with ValueEntry do begin
@@ -1119,11 +1120,12 @@ codeunit 5895 "Inventory Adjustment"
                 DeleteAvgBuffers(OutbndValueEntry, ExcludedValueEntry);
                 FindSet;
                 repeat
-                    if "Entry Type" = "Entry Type"::Revaluation then begin
-                        RevaluationPoint.Number := "Entry No.";
-                        if RevaluationPoint.Insert then;
-                        FillFixApplBuffer("Item Ledger Entry No.");
-                    end;
+                    if "Entry Type" = "Entry Type"::Revaluation then
+                        if "Partial Revaluation" or ItemApplicationEntry.AppliedFromEntryExists("Item Ledger Entry No.") then begin
+                            RevaluationPoint.Number := "Entry No.";
+                            if RevaluationPoint.Insert then;
+                            FillFixApplBuffer("Item Ledger Entry No.");
+                        end;
 
                     if "Valued By Average Cost" and not Adjustment and ("Valued Quantity" < 0) then begin
                         OutbndValueEntry := ValueEntry;

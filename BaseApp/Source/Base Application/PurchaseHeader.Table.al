@@ -453,7 +453,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 if ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and
                    not ("Order Date" = xRec."Order Date")
                 then
@@ -2166,7 +2165,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 if "Promised Receipt Date" <> 0D then
                     Error(
                       Text034,
@@ -2195,7 +2193,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Lead Time Calculation" <> xRec."Lead Time Calculation" then
@@ -2209,7 +2206,6 @@ table 38 "Purchase Header"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 if "Inbound Whse. Handling Time" <> xRec."Inbound Whse. Handling Time" then
                     UpdatePurchLinesByFieldNo(FieldNo("Inbound Whse. Handling Time"), CurrFieldNo <> 0);
             end;
@@ -2579,9 +2575,7 @@ table 38 "Purchase Header"
         BuyFromVendorTxt: Label 'Buy-from Vendor';
         PayToVendorTxt: Label 'Pay-to Vendor';
         DocumentNotPostedClosePageQst: Label 'The document has been saved but is not yet posted.\\Are you sure you want to exit?';
-        PurchOrderDocTxt: Label 'Purchase Order';
         SelectNoSeriesAllowed: Boolean;
-        PurchQuoteDocTxt: Label 'Purchase Quote';
         MixedDropshipmentErr: Label 'You cannot print the purchase order because it contains one or more lines for drop shipment in addition to regular purchase lines.';
         ModifyVendorAddressNotificationLbl: Label 'Update the address';
         DontShowAgainActionLbl: Label 'Don''t show again';
@@ -4774,12 +4768,13 @@ table 38 "Purchase Header"
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         CheckMixedDropShipment;
 
         DocumentSendingProfile.SendVendor(
           DummyReportSelections.Usage::"P.Order", Rec, "No.", "Buy-from Vendor No.",
-          PurchOrderDocTxt, FieldNo("Buy-from Vendor No."), FieldNo("No."));
+          ReportDistributionMgt.GetFullDocumentTypeText(Rec), FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
     local procedure CheckMixedDropShipment()
@@ -5223,18 +5218,15 @@ table 38 "Purchase Header"
     local procedure GetReportSelectionsUsageFromDocumentType(var ReportSelectionsUsage: Option; var DocTxt: Text[150])
     var
         ReportSelections: Record "Report Selections";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
+        DocTxt := ReportDistributionMgt.GetFullDocumentTypeText(Rec);
+
         case "Document Type" of
             "Document Type"::Order:
-                begin
-                    ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
-                    DocTxt := PurchOrderDocTxt;
-                end;
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Order";
             "Document Type"::Quote:
-                begin
-                    ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
-                    DocTxt := PurchQuoteDocTxt;
-                end;
+                ReportSelectionsUsage := ReportSelections.Usage::"P.Quote";
         end;
 
         OnAfterGetReportSelectionsUsageFromDocumentType(Rec, ReportSelectionsUsage, DocTxt);
