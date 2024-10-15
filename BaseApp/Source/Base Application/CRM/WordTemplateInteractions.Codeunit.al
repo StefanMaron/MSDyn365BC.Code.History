@@ -191,10 +191,15 @@ codeunit 5069 "Word Template Interactions"
                     InteractionMergeData.DeleteAll();
                 end;
 
-                WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
-                WordTemplates.GetDocument(DocumentInStream);
-                SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
-                InteractionMergeData.DeleteAll();
+                if InteractionMergeData.FindSet() then
+                    repeat
+                        InteractionLogEntry.Get(InteractionMergeData."Log Entry Number");
+                        TempDeliverySorter.Get(InteractionLogEntry."Entry No.");
+                        WordTemplates.Merge(InteractionMergeData, false, SaveFormat); // Only merge, do not edit as the document has been edited.
+                        WordTemplates.GetDocument(DocumentInStream);
+                        SendMergedDocument(DocumentInStream, TempDeliverySorter, MailToValue, InteractionLogEntry);
+                        InteractionMergeData.Delete();
+                    until InteractionMergeData.Next() = 0;
             end;
         end else begin
             Attachment.Get(TempDeliverySorter."Attachment No.");
