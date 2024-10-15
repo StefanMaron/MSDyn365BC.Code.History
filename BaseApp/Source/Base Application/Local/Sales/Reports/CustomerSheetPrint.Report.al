@@ -127,7 +127,8 @@ report 12104 "Customer Sheet - Print"
             }
             dataitem(PageCounter; "Integer")
             {
-                DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+                DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
+                PrintOnlyIfDetail = true;
                 column(StartOnHand; StartOnHand)
                 {
                     AutoFormatType = 1;

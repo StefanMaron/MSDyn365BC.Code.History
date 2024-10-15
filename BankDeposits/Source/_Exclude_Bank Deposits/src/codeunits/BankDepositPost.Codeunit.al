@@ -434,7 +434,7 @@ codeunit 1690 "Bank Deposit-Post"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        if (CurrentBankDepositHeader."Post as Lump Sum") and (GenJournalLine.Amount = CurrentBankDepositHeader."Total Deposit Amount") then begin
+        if (CurrentBankDepositHeader."Post as Lump Sum") and (GenJournalLine."Account Type" = GenJournalLine."Account Type"::"Bank Account") and (GenJournalLine.Amount = CurrentBankDepositHeader."Total Deposit Amount") then begin
             OnAfterPostBalancingEntry(PostingGenJournalLine);
             OnRunOnAfterPostBalancingEntry(PostingGenJournalLine);
             SetLumpSumBalanceEntry(PostingGenJournalLine);

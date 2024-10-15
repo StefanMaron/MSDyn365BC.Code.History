@@ -13,6 +13,8 @@ codeunit 132501 "Sales Document Posting Errors"
         DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryErrorMessage: Codeunit "Library - Error Message";
+        LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
         PostingDateNotAllowedErr: Label 'Posting Date is not within your range of allowed posting dates.';
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
@@ -31,6 +33,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesShptHeaderConflictErr: Label 'Cannot post the sales shipment because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Shipping No.';
         SalesInvHeaderConflictErr: Label 'Cannot post the sales invoice because its ID, %1, is already assigned to a record. Update the number series and try again.', Comment = '%1 = Posting No.';
         SetupBlockedErr: Label 'Setup is blocked in %1 for %2 %3 and %4 %5.', Comment = '%1 - General/VAT Posting Setup, %2 %3 %4 %5 - posting groups.';
+        CampaignNoErr: Label 'Camaign No. must be not gerenate error on update.';
 
     [Test]
     [Scope('OnPrem')]
@@ -801,6 +804,49 @@ codeunit 132501 "Sales Document Posting Errors"
 
         // [THEN] Verify Post Shipment on Sales Order without errors
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure SalesOrderShouldNotThrowErrorWhenCampaignNoIsUpdated()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Campaign: Record Campaign;
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCINARIO 527088] Line & Invoice Discounts disappears once you re-open Sales Order to add a Campaign no.
+        Initialize();
+
+        // [GIVEN] Create an Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Cretae a Sales Order.
+        LibrarySales.CreateSalesOrder(SalesHeader);
+
+        // [GIVEN] Cretae Sales Line for the Sales Order.
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(5));
+
+        // [GIVEN] Release Sales Document.
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Reoprn Ssales Docuement.
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [GIVEN] Create a Campaign.
+        LibraryMarketing.CreateCampaign(Campaign);
+
+        // [GIVEN] Open Sales Order to put Campaign No.
+        SalesOrder.OpenEdit();
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
+        SalesOrder."Campaign No.".SetValue(Campaign."No.");
+
+        // [THEN] Verify Campaign No. is udpated.
+        Assert.AreEqual(
+            Campaign."No.", 
+            SalesOrder."Campaign No.".Value(), 
+            CampaignNoErr);
     end;
 
     local procedure Initialize()

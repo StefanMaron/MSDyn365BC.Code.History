@@ -625,8 +625,15 @@ table 6650 "Return Shipment Header"
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         ReportSelection: Record "Report Selections";
+        IsHandled: Boolean;
     begin
         ReturnShptHeader.Copy(Rec);
+
+        IsHandled := false;
+        OnBeforePrintRecords(ReturnShptHeader, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         ReportSelection.PrintWithDialogForVend(
           ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, ReturnShptHeader.FieldNo("Buy-from Vendor No."));
     end;
@@ -729,6 +736,11 @@ table 6650 "Return Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; ReturnShipmentHeader: Record "Return Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var ReturnShipmentHeader: Record "Return Shipment Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

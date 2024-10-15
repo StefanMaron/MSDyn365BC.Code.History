@@ -204,7 +204,9 @@ codeunit 134912 "ERM User Personalization"
         CurrentUserSessionSettings.Init();
         CurrentUserSessionSettings.ProfileId := UserPersonalization."Profile ID";
         CurrentUserSessionSettings.ProfileAppId := UserPersonalization."App ID";
+#pragma warning disable AL0667
         CurrentUserSessionSettings.ProfileSystemScope := UserPersonalization.Scope = ProfileScope::System;
+#pragma warning restore AL0667
         CurrentUserSessionSettings.LanguageId := UserPersonalization."Language ID";
         CurrentUserSessionSettings.LocaleId := UserPersonalization."Locale ID";
         CurrentUserSessionSettings.Timezone := UserPersonalization."Time Zone";

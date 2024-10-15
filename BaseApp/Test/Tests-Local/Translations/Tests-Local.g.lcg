@@ -3317,6 +3317,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - SEPA.03 CT Unit Test - NamedType LegacyExpError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3931499979 - NamedType 565480431" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Mandate ID must have a value in the currently selected record.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - SEPA.08 DD Unit Test - NamedType FieldBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3931499979 - NamedType 144135229" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The customer's %1, %2, must be equal to the %1, %3, specified in the collection.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Partner Type, %2 = Company/Person, %3 = Company/Person.]D;]A;(LookupHint=Codeunit IT - SEPA.08 DD Unit Test - NamedType PartnerTypeErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3931499979 - NamedType 1606060615" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Value not found.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit IT - SEPA.08 DD Unit Test - NamedType ValueNotFoundErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3719133911 - NamedType 3417090632" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Block with key %1 did not match the expected value.]]></Val>

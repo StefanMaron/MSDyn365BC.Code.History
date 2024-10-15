@@ -1750,7 +1750,7 @@ codeunit 6620 "Copy Document Mgt."
                     InitSalesDeferralCode(ToSalesLine);
 
             OnUpdateSalesLineOnBeforeClearDropShipmentAndSpecialOrder(ToSalesLine, FromSalesLine);
-            if not (ToSalesLine."Document Type" in ["Sales Document Type"::Order, "Sales Document Type"::Quote]) then begin
+            if not (ToSalesLine."Document Type" in ["Sales Document Type"::Order, "Sales Document Type"::Quote, "Sales Document Type"::"Blanket Order"]) then begin
                 ToSalesLine."Drop Shipment" := false;
                 ToSalesLine."Special Order" := false;
             end;
@@ -4987,6 +4987,11 @@ codeunit 6620 "Copy Document Mgt."
         ToSalesLine2: Record "Sales Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertOldSalesDocNoLineProcedure(ToSalesHeader, ToSalesLine2, OldDocType, OldDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShouldSkipCopyFromDescription() then
             exit;
 
@@ -5057,6 +5062,11 @@ codeunit 6620 "Copy Document Mgt."
         ToPurchLine2: Record "Purchase Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertOldPurchDocNoLineProcedure(ToPurchHeader, ToPurchLine2, OldDocType, OldDocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShouldSkipCopyFromDescription() then
             exit;
 
@@ -8886,7 +8896,7 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertOldSalesDocNoLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -8926,7 +8936,7 @@ codeunit 6620 "Copy Document Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeInsertOldPurchDocNoLine(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -10425,6 +10435,16 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeValidateToSalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var ShouldRecalculateSalesLine: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertOldSalesDocNoLineProcedure(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInsertOldPurchDocNoLineProcedure(ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; OldDocType: Option; OldDocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }

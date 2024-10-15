@@ -2909,7 +2909,7 @@
                                     <Paragraph>
                                       <TextRuns>
                                         <TextRun>
-                                          <Value />
+                                          <Value>=Fields!ImportsFlagValue.Value</Value>
                                           <Style>
                                             <FontSize>9pt</FontSize>
                                           </Style>
@@ -2999,7 +2999,7 @@
                                     <Paragraph>
                                       <TextRuns>
                                         <TextRun>
-                                          <Value EvaluationMode="Constant">X</Value>
+                                          <Value>=Fields!IntentFlagValue.Value</Value>
                                           <Style>
                                             <FontSize>9pt</FontSize>
                                           </Style>
@@ -5918,6 +5918,12 @@ End Function
         </Field>
         <Field Name="CustomAuthorityFlagValue">
           <DataField>CustomAuthorityFlagValue</DataField>
+        </Field>
+        <Field Name="IntentFlagValue">
+          <DataField>IntentFlagValue</DataField>
+        </Field>
+        <Field Name="ImportsFlagValue">
+          <DataField>ImportsFlagValue</DataField>
         </Field>
       </Fields>
       <Query>

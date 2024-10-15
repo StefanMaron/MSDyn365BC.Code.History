@@ -210,12 +210,12 @@ codeunit 12134 "Declaration of Intent Export"
 
     local procedure CreateRecordBStatement(var VATExemption: Record "VAT Exemption"; DescriptionOfGoods: Text[100]; AmountToDeclare: Decimal; IsCustomAuthoruty: Boolean)
     begin
-        if not IsCustomAuthoruty then
-            FlatFileManagement.WritePositionalValue(516, 1, ConstFormat::CB, '1', false); // B-30
         if IsCustomAuthoruty then
             FlatFileManagement.WritePositionalValue(517, 1, ConstFormat::CB, '1', false) // B-31
-        else
+        else begin
+            FlatFileManagement.WritePositionalValue(516, 1, ConstFormat::CB, '1', false); // B-30
             FlatFileManagement.WritePositionalValue(517, 1, ConstFormat::CB, '0', false); // B-31
+        end;
         FlatFileManagement.WritePositionalValue(
           518, 4, ConstFormat::NU, Format(Date2DMY(VATExemption."VAT Exempt. Starting Date", 3)), false); // B-32
         FlatFileManagement.WritePositionalValue(522, 16, ConstFormat::VP, '0', false); // B-33

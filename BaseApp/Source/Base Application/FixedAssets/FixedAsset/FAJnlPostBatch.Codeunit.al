@@ -317,11 +317,25 @@ codeunit 5633 "FA Jnl.-Post Batch"
         CompressDepr[1].SetRange("Posting Date", FAJnlLine."Posting Date");
         OnCreateCompressTableOnAfterCompressDeprSetFilters(CompressDepr, FAJnlLine, FA, DeprBook, FADeprBook);
 
+        CreateCompressDeprTable(FAJnlLine, FA, DeprBook, FADeprBook);
+    end;
+
+    [Scope('OnPrem')]
+    local procedure CreateCompressDeprTable(FAJournalLine: Record "FA Journal Line"; FixedAsset: Record "Fixed Asset"; DepreciationBook: Record "Depreciation Book"; FADepreciationBook: Record "FA Depreciation Book")
+    var
+        IsHandled: Boolean;
+    begin
         CompressDepr[2].Copy(CompressDepr[1]);
-        if not CompressDepr[2].Find('-') then
+
+        IsHandled := false;
+        OnBeforeCreateCompressDeprTable(CompressDepr, FAJournalLine, FixedAsset, DepreciationBook, FADepreciationBook, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not CompressDepr[2].FindFirst() then
             CompressDepr[1].Insert()
         else begin
-            if CompressDepr[2].Find('-') then
+            if CompressDepr[2].FindSet() then
                 repeat
                     if FAJnlLine."Dimension Set ID" = CompressDepr[2]."Dimension Set ID" then begin
                         CompressDepr[2].Amount := CompressDepr[2].Amount + CompressDepr[1].Amount;
@@ -405,7 +419,14 @@ codeunit 5633 "FA Jnl.-Post Batch"
 
     [Scope('OnPrem')]
     procedure TestGLAcc(var GLAcc: Record "G/L Account")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestGLAccount(GLAcc, IsHandled);
+        if IsHandled then
+            exit;
+
         GLAcc.CheckGLAcc();
         GLAcc.TestField("Gen. Posting Type", GLAcc."Gen. Posting Type"::" ");
         GLAcc.TestField("Gen. Bus. Posting Group", '');
@@ -503,7 +524,17 @@ codeunit 5633 "FA Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCompressDeprTable(var CompressDepreciation: array[2] of Record "Compress Depreciation" temporary; FAJournalLine: Record "FA Journal Line"; FixedAsset: Record "Fixed Asset"; DepreciationBook: Record "Depreciation Book"; FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewFAJnlLine(var FAJnlLine: Record "FA Journal Line"; var FAJnlLine2: Record "FA Journal Line"; var FAJnlLine3: Record "FA Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestGLAccount(var GLAccount: Record "G/L Account"; var IsHandled: Boolean)
     begin
     end;
 

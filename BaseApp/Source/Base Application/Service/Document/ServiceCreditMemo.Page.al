@@ -7,6 +7,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
 using Microsoft.Service.Comment;
@@ -673,6 +674,12 @@ page 5935 "Service Credit Memo"
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -1051,6 +1058,7 @@ page 5935 "Service Credit Memo"
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean

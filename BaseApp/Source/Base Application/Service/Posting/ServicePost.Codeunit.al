@@ -140,10 +140,13 @@ codeunit 5980 "Service-Post"
                 WhseShip := not TempWarehouseShipmentHeader.IsEmpty();
             end;
             if Invoice then
-                if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice] then
-                    ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window)
-                else
+                if ServiceHeader."Document Type" in [ServiceHeader."Document Type"::Order, ServiceHeader."Document Type"::Invoice] then begin
+                    ServInvoiceNo := ServDocumentsMgt.PrepareInvoiceHeader(Window);
+                    ServDocumentsMgt.UpdateIncomingDocument(ServiceHeader."Incoming Document Entry No.", ServiceHeader."Posting Date", ServInvoiceNo);
+                end else begin
                     ServCrMemoNo := ServDocumentsMgt.PrepareCrMemoHeader(Window);
+                    ServDocumentsMgt.UpdateIncomingDocument(ServiceHeader."Incoming Document Entry No.", ServiceHeader."Posting Date", ServCrMemoNo);
+                end;
 
             if WhseShip then begin
                 WarehouseShipmentHeader.Get(TempWarehouseShipmentHeader."No.");
@@ -323,10 +326,7 @@ codeunit 5980 "Service-Post"
             TestServLinePostingDate(PassedServiceHeader."Document Type", PassedServiceHeader."No.", PassedServiceHeader."Journal Templ. Name")
         else
             if PassedServiceHeader."Posting Date" <> PassedServiceLine."Posting Date" then begin
-                if PassedServiceLine.Type <> PassedServiceLine.Type::" " then
-                    if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date", PassedServiceHeader."Journal Templ. Name") then
-                        PassedServiceLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
-
+                CheckDateNotAllowedForServiceLine(PassedServiceHeader, PassedServiceLine);
                 if GenJnlCheckLine.DateNotAllowed(PassedServiceHeader."Posting Date", PassedServiceHeader."Journal Templ. Name") then
                     PassedServiceHeader.FieldError(PassedServiceHeader."Posting Date", ErrorInfo.Create(Text007, true));
             end;
@@ -348,6 +348,21 @@ codeunit 5980 "Service-Post"
                         PassedServiceHeader));
 
         PassedServiceHeader.TestMandatoryFields(PassedServiceLine);
+    end;
+
+    local procedure CheckDateNotAllowedForServiceLine(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
+    var
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDateNotAllowedForServiceLine(PassedServiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PassedServiceLine.Type <> PassedServiceLine.Type::" " then
+            if GenJnlCheckLine.DateNotAllowed(PassedServiceLine."Posting Date", PassedServiceHeader."Journal Templ. Name") then
+                PassedServiceLine.FieldError("Posting Date", ErrorInfo.Create(Text007, true));
     end;
 
     procedure SetPostingDate(NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewPostingDate: Date)
@@ -770,6 +785,11 @@ codeunit 5980 "Service-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostingAndDocumentDate(var ServiceHeader: Record "Service Header"; var PostingDateExists: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDateNotAllowedForServiceLine(var PassedServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

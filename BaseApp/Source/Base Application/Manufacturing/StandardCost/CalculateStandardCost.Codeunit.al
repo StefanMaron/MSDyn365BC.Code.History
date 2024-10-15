@@ -1023,6 +1023,7 @@ codeunit 5812 "Calculate Standard Cost"
         CalcRoutingCostPerUnit(
             RoutingLine.Type, RoutingLine."No.", DirUnitCost, IndirCostPct, OvhdRate, UnitCost, UnitCostCalculation,
             Item, RoutingLine."Standard Task Code");
+	    OnCalcRtngLineCostOnAfterCalcRoutingCostPerUnit(RoutingLine, WorkCenter, MfgItemQtyBase, UnitCostCalculation);
         CostTime :=
           CostCalculationMgt.CalculateCostTime(
             MfgItemQtyBase,
@@ -1218,6 +1219,11 @@ codeunit 5812 "Calculate Standard Cost"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetMachineCenterOnBeforeAssignMachineCenterToTemp(var MachineCenter: Record "Machine Center"; var TempItem: Record Item temporary; StdCostWkshName: Text[50])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcRtngLineCostOnAfterCalcRoutingCostPerUnit(RoutingLine: Record "Routing Line"; WorkCenter: Record "Work Center"; var MfgItemQtyBase: Decimal; var UnitCostCalculation: Enum "Unit Cost Calculation Type")
     begin
     end;
 }

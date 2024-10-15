@@ -73,6 +73,7 @@ codeunit 764 "Aged Acc. Payable"
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive, "Due Date");
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
+        OnCalculateAgedAccPayableOnAfterFilterVendLedgEntry(VendLedgEntry);
 
         for Index := 0 to NoOfPeriods - 1 do begin
             RemainingAmountLCY := 0;
@@ -221,6 +222,11 @@ codeunit 764 "Aged Acc. Payable"
         AgedAccReceivable: Codeunit "Aged Acc. Receivable";
     begin
         exit(AgedAccReceivable.AmountText());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateAgedAccPayableOnAfterFilterVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
     end;
 }
 

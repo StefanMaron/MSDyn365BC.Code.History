@@ -671,6 +671,38 @@ codeunit 134092 "ERM Consolidation"
         Assert.AreEqual(ConsolidationPercent, BusinessUnit."Consolidation %", '');
     end;
 
+    [Test]
+    procedure ConsolidationProcessesCanBeDeleted()
+    var
+        ConsolidationProcess: Record "Consolidation Process";
+        BusUnitInConsProcess: Record "Bus. Unit In Cons. Process";
+    begin
+        BusUnitInConsProcess.DeleteAll();
+        ConsolidationProcess.DeleteAll(true);
+        // [SCENARIO 536561] Consolidation Processes are deleted with it's child "Business Units in Consolidation Process".
+        // [GIVEN] Consolidation Processes with "child" "Business Units in Consolidation Process".
+        ConsolidationProcess.Insert();
+        BusUnitInConsProcess."Consolidation Process Id" := ConsolidationProcess."Id";
+        BusUnitInConsProcess."Business Unit Code" := 'BU1';
+        BusUnitInConsProcess.Insert();
+        BusUnitInConsProcess."Consolidation Process Id" := ConsolidationProcess."Id";
+        BusUnitInConsProcess."Business Unit Code" := 'BU2';
+        BusUnitInConsProcess.Insert();
+        ConsolidationProcess.Id += 1;
+        ConsolidationProcess.Insert();
+        BusUnitInConsProcess."Consolidation Process Id" := ConsolidationProcess."Id";
+        BusUnitInConsProcess."Business Unit Code" := 'BU1';
+        BusUnitInConsProcess.Insert();
+        BusUnitInConsProcess."Consolidation Process Id" := ConsolidationProcess."Id";
+        BusUnitInConsProcess."Business Unit Code" := 'BU2';
+        BusUnitInConsProcess.Insert();
+        // [WHEN] Deleting the Consolidation Process.
+        ConsolidationProcess.DeleteAll(true);
+        // [THEN] It also deletes the child "Business Units in Consolidation Process".
+        Assert.AreEqual(0, BusUnitInConsProcess.Count(), 'Business Units in Consolidation Process should be deleted.');
+        Assert.AreEqual(0, ConsolidationProcess.Count(), 'Consolidation Processes should be deleted.');
+    end;
+
     local procedure Initialize()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";

@@ -98,6 +98,8 @@ using System.Upgrade;
 using System.Utilities;
 using Microsoft.FixedAssets.FixedAsset;
 using Microsoft.FixedAssets.Setup;
+using Microsoft.Bank.Setup;
+using Microsoft.Bank.DirectDebit;
 
 codeunit 104000 "Upgrade - BaseApp"
 {
@@ -229,6 +231,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpdateProductionSourceCode();
         UpgradeICGLAccountNoInPostedGenJournalLine();
         UpgradeICGLAccountNoInStandardGeneralJournalLine();
+        UpgradeBankExportImportSetup();
         UpgradePurchasesPayablesAndSalesReceivablesSetups();
         UpgradeLocationBinPolicySetups();
         UpgradeInventorySetupAllowInvtAdjmt();
@@ -241,6 +244,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeVATSetupAllowVATDate();
         CopyItemSalesBlockedToServiceBlocked();
         SetEmployeeLedgerEntryCurrencyFactor();
+        UpgradeCountryVATSchemeDK();
     end;
 
     local procedure ClearTemporaryTables()
@@ -283,6 +287,27 @@ codeunit 104000 "Upgrade - BaseApp"
         ParallelSessionEntry.DeleteAll();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetClearTemporaryTablesUpgradeTag());
+    end;
+
+    local procedure UpgradeBankExportImportSetup()
+    var
+        BankExportImportSetup: Record "Bank Export/Import Setup";
+        CompanyInitialize: Codeunit "Company-Initialize";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag()) then
+            exit;
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPACT09Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPACT09Code(), CompanyInitialize.GetSEPACT09Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.09", CODEUNIT::"SEPA CT-Check Line");
+
+        if not BankExportImportSetup.Get(CompanyInitialize.GetSEPADD08Code()) then
+            CompanyInitialize.InsertBankExportImportSetup(CompanyInitialize.GetSEPADD08Code(), CompanyInitialize.GetSEPADD08Name(), BankExportImportSetup.Direction::Export,
+              CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.08", CODEUNIT::"SEPA DD-Check Line");
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankExportImportSetupSEPACT09UpgradeTag());
     end;
 
     internal procedure UpgradeWordTemplateTables()
@@ -4001,6 +4026,22 @@ codeunit 104000 "Upgrade - BaseApp"
         Clear(EmployeeLedgerEntryDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmployeeLedgerEntryCurrencyFactorUpgradeTag());
+    end;
+    
+    local procedure UpgradeCountryVATSchemeDK()
+    var
+        CountryRegion: Record "Country/Region";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag()) then
+            exit;
+
+        CountryRegion.SetRange("ISO Code", 'DK'); // ISO 3166 Country Codes
+        if not CountryRegion.IsEmpty() then
+            CountryRegion.ModifyAll("VAT Scheme", '0184'); // ISO 6523 ICD Codes
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCountryVATSchemeDKTag());
     end;
 
     [IntegrationEvent(false, false)]

@@ -26,6 +26,7 @@ codeunit 134043 "ERM Additional Currency"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
         BankExchRateAdjustedErr: Label 'Bank Exch Rate should be Adjusted for %1', Comment = '%1 = Bank Account No.';
+        AmountLCYError: Label 'Amount LCY must be %1.', Comment = '%1 = Amount (LCY)';
 
     [Test]
     [Scope('OnPrem')]
@@ -1149,6 +1150,58 @@ codeunit 134043 "ERM Additional Currency"
 
         // [VERIFY]: Verify Entries for Bank Account Ledger Entry Adjusted For Specific Bank
         VerifyAdjExchEntryExistsOnlyForSpecificBank(BankAccountNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AmountLCYShouldNotResetAfterEnteringBalAccNoWithCurrency()
+    var
+        Currency: Record Currency;
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        NewAmountLCY: Decimal;
+    begin
+        // [SCENARIO 537470] Amount LCY should not reset after entering the Bal. Account No.
+        Initialize();
+
+        // [GIVEN] Setup: Create a Currency with it's exchange rate and G/L Account
+        LibraryERM.CreateCurrency(Currency);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), LibraryRandom.RandInt(10), LibraryRandom.RandInt(20));
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Create Customer with Currency
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create General Journal Batch
+        GenJournalTemplate.SetRange(Recurring, false);
+        GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::General);
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+        GenJournalBatch.Modify();
+
+        // [THEN] Gen. Journal Line for customer
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+            Customer."No.", LibraryRandom.RandDecInDecimalRange(100, 100, 2));
+
+        // [WHEN] Change Amount (LCY) on Gen. Journal Line and then update Bal. Account No.
+        GenJournalLine.Validate("Amount (LCY)", LibraryRandom.RandDecInDecimalRange(100, 100, 2));
+        NewAmountLCY := GenJournalLine."Amount (LCY)";
+        GenJournalLine.Validate("Bal. Account No.", GenJournalBatch."Bal. Account No.");
+        GenJournalLine.Modify(true);
+
+        // [THEN] Verify: After updating Bal. Account No. the Amount (LCY) should not reset
+        Assert.AreEqual(
+            NewAmountLcy,
+            GenJournalLine."Amount (LCY)",
+            StrSubstNo(AmountLCYError, GenJournalLine."Amount (LCY)"));
     end;
 
     local procedure Initialize()

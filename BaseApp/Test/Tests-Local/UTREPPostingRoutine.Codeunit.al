@@ -66,8 +66,6 @@ codeunit 144068 "UT REP Posting Routine"
         LedgerAmountCap: Label 'LedgAmount';
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPurchase: Codeunit "Library - Purchase";
-        LibrarySales: Codeunit "Library - Sales";
         UnpostedSalesDocumentsMsg: Label 'An unposted sales document with posting number %1 exists.\\%2.', Comment = '%1=Posting No.,%2=Sales Header RecordID';
         UnpostedPurchDocumentsMsg: Label 'An unposted puchase document with posting number %1 exists.\\%2.', Comment = '%1=Posting No.,%2=Purchase Header RecordID';
         isInitialized: Boolean;
@@ -753,97 +751,6 @@ codeunit 144068 "UT REP Posting Routine"
     end;
 
     [Test]
-    [HandlerFunctions('AccountBookSheetPrintRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure AccountBookPrintStartingBalance()
-    var
-        GLEntry: Record "G/L Entry";
-    begin
-        // [FEATURE] [Account Book Sheet - Print]
-        // [SCENARIO] Report "Account Book Sheet - Print" should print starting and ending balance when net change is zero
-
-        Initialize();
-
-        // [GIVEN] G/L Account "A" with net change on WorkDate() - 1
-        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
-        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
-        GLEntry."Posting Date" := CalcDate('<-1D>', WorkDate());
-        GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
-        GLEntry.Insert();
-
-        LibraryVariableStorage.Enqueue(GLEntry."G/L Account No.");
-
-        // [WHEN] Print report "Account Book Sheet - Print" for g/l account "A" on WORKDATE
-        REPORT.Run(REPORT::"Account Book Sheet - Print");
-
-        // [THEN] Start balance is exported in the report
-        VerifyReportElement('G_L_Account_No_', GLEntry."G/L Account No.", 'StartOnHand', GLEntry.Amount);
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorSheetPrintRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure VendorSheetPrintStartingBalance()
-    var
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-    begin
-        // [FEATURE] [Vendor Sheet - Print]
-        // [SCENARIO] Report "Vendor Sheet - Print" should print starting and ending balance when net change is zero
-
-        Initialize();
-
-        // [GIVEN] Vendor "V" with net change on WorkDate() - 1
-        with DetailedVendorLedgEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Posting Date" := CalcDate('<-1D>', WorkDate());
-            "Amount (LCY)" := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
-
-        LibraryVariableStorage.Enqueue(DetailedVendorLedgEntry."Vendor No.");
-
-        // [WHEN] Print report "Vendor Sheet - Print" for vendor "V" on WORKDATE
-        REPORT.Run(REPORT::"Vendor Sheet - Print");
-
-        // [THEN] Start balance is exported in the report
-        VerifyReportElement('No_Vendor', DetailedVendorLedgEntry."Vendor No.", 'StartOnHand', DetailedVendorLedgEntry."Amount (LCY)");
-    end;
-
-    [Test]
-    [HandlerFunctions('CustomerSheetPrintRequestPageHandler')]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure CustomerSheetPrintStartingBalance()
-    var
-        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-    begin
-        // [FEATURE] [Customer Sheet - Print]
-        // [SCENARIO] Report "Customer Sheet - Print" should print starting and ending balance when net change is zero
-
-        Initialize();
-
-        // [GIVEN] Customer "C" with net change on WorkDate() - 1
-        with DetailedCustLedgEntry do begin
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := LibrarySales.CreateCustomerNo();
-            "Posting Date" := CalcDate('<-1D>', WorkDate());
-            "Amount (LCY)" := LibraryRandom.RandDec(1000, 2);
-            Insert();
-        end;
-
-        LibraryVariableStorage.Enqueue(DetailedCustLedgEntry."Customer No.");
-
-        // [WHEN] Print report "Customer Sheet - Print" for customer "C" on WORKDATE
-        REPORT.Run(REPORT::"Customer Sheet - Print");
-
-        // [THEN] Start balance is exported in the report
-        VerifyReportElement('No_Customer', DetailedCustLedgEntry."Customer No.", 'StartOnHand', DetailedCustLedgEntry."Amount (LCY)");
-    end;
-
-    [Test]
     [HandlerFunctions('BankSheetPrintRequestPageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -1080,6 +987,90 @@ codeunit 144068 "UT REP Posting Routine"
         LibraryReportDataset.Reset();
         VerifyReportCreditDebitAmounts(
           BankAccount[2]."No.", BankAccLedgEntry[4].Amount, BankAccLedgEntry[5].Amount, BankAccLedgEntry[6].Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('AccountBookSheetPrintRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure AccountBookPrintOnAnyAvilableData()
+    var
+        GLEntry: Record "G/L Entry";
+        GLBookEntry: Record "GL Book Entry";
+    begin
+        // [SCENARIO 536209] Report "Account Book Sheet - Print" should print report if data exists.
+        Initialize();
+
+        // [GIVEN] Insert GL Entry with G/L Account on WorkDate() - 1
+        CreateGLBookEntry(
+          GLBookEntry, GLBookEntry."Source Type", LibraryUTUtility.GetNewCode(),
+          CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate()), LibraryRandom.RandInt(10), '');  // Source Number, Official Date less than WORKDATE and Progressive Number.
+        CreateGLEntry(GLEntry, GLBookEntry);
+
+        // [GIVEN] Store GL Account No in a Variable.
+        LibraryVariableStorage.Enqueue(GLEntry."G/L Account No.");
+
+        // [WHEN] RUN report Account Book Sheet - Print.
+        REPORT.Run(REPORT::"Account Book Sheet - Print");
+
+        // [THEN] GL Account No. must have value in report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('G_L_Account_No_', GLEntry."G/L Account No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorSheetPrintRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure VendorSheetPrintOnAnyAvilableData()
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        // [SCENARIO 536209] Report "Vendor Sheet - Print" should print when data is avilable.
+        Initialize();
+
+        // [GIVEN] Insert Detalied Vendor Ledger Entry on WorkDate() - 1
+        CreateVendorEntries(
+            DetailedVendorLedgEntry,
+            CreatePurchaseHeader(''),
+            DetailedVendorLedgEntry."Entry Type"::"Correction of Remaining Amount",
+            LibraryUTUtility.GetNewCode10());
+
+        // [GIVEN] Enqueue value for handler - VendorSheetPrintRequestPageHandler.
+        LibraryVariableStorage.Enqueue(DetailedVendorLedgEntry."Vendor No.");
+
+        // [WHEN] Run report "Vendor Sheet - Print"
+        REPORT.Run(REPORT::"Vendor Sheet - Print");
+
+        // [THEN] Vendor No. must have value in report.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('No_Vendor', DetailedVendorLedgEntry."Vendor No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerSheetPrintRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure CustomerSheetPrintOnAnyAvilableData()
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        // [SCENARIO 536209] Report "Customer Sheet - Print" should print when data is there.
+        Initialize();
+
+        // [GIVEN] Insert Detailed Customer Ledger Entry on WorkDate() - 1.
+        CreateCustomerEntries(
+            DetailedCustLedgEntry,
+            CreateSalesHeader(''),
+            LibraryUTUtility.GetNewCode(),
+            DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
+
+        // [GIVEN] Enqueue Customer No.
+        LibraryVariableStorage.Enqueue(DetailedCustLedgEntry."Customer No.");
+
+        // [WHEN] Run report "Customer Sheet - Print"
+        REPORT.Run(REPORT::"Customer Sheet - Print");
+
+        // [THEN] Amount must have value in report if data is within filter. 
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(StartOnHandAmountLCYCap, DetailedCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure Initialize()

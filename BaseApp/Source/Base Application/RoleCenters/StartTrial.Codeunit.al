@@ -70,7 +70,9 @@ codeunit 1449 "Start Trial"
         if AllProfile.FindFirst() then begin
             SessionSettings.ProfileId := AllProfile."Profile ID";
             SessionSettings.ProfileAppId := AllProfile."App ID";
+#pragma warning disable AL0667
             SessionSettings.ProfileSystemScope := (AllProfile.Scope = AllProfile.Scope::System);
+#pragma warning restore AL0667
         end;
     end;
 }

@@ -63,11 +63,15 @@ codeunit 926 "Assembly Line-Reserve"
             ExpectedReceiptDate := AssemblyLine."Due Date";
         end;
 
-        CreateReservEntry.CreateReservEntryFor(
-          Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
-          AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.", AssemblyLine."Qty. per Unit of Measure",
-          Quantity, QuantityBase, ForReservationEntry);
-        CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        IsHandled := false;
+        OnCreateReservationOnBeforeCreateReservEntry(AssemblyLine, Quantity, QuantityBase, ForReservationEntry, FromTrackingSpecification, IsHandled, ExpectedReceiptDate, Description, ShipmentDate);
+        if not IsHandled then begin
+            CreateReservEntry.CreateReservEntryFor(
+              Database::"Assembly Line", AssemblyLine."Document Type".AsInteger(),
+              AssemblyLine."Document No.", '', 0, AssemblyLine."Line No.", AssemblyLine."Qty. per Unit of Measure",
+              Quantity, QuantityBase, ForReservationEntry);
+            CreateReservEntry.CreateReservEntryFrom(FromTrackingSpecification);
+        end;
         CreateReservEntry.CreateReservEntry(
           AssemblyLine."No.", AssemblyLine."Variant Code", AssemblyLine."Location Code",
           Description, ExpectedReceiptDate, ShipmentDate, 0);
@@ -707,6 +711,11 @@ codeunit 926 "Assembly Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservation(AssemblyLine: Record "Assembly Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry"; FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReservationOnBeforeCreateReservEntry(var AssemblyLine: Record "Assembly Line"; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry"; var FromTrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean; ExpectedReceiptDate: Date; Description: Text[100]; ShipmentDate: Date)
     begin
     end;
 }

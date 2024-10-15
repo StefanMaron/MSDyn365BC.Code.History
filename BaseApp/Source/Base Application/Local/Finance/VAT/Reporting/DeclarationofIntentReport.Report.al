@@ -342,6 +342,12 @@ report 12194 "Declaration of Intent Report"
             column(CustomAuthorityFlagValue; CustomAuthorityFlag)
             {
             }
+            column(IntentFlagValue; IntentFlag)
+            {
+            }
+            column(ImportsFlagValue; ImportsFlag)
+            {
+            }
 
             trigger OnAfterGetRecord()
             begin
@@ -399,6 +405,8 @@ report 12194 "Declaration of Intent Report"
         VendorVATRegNo: Text[20];
         AnnualVATDeclSubmitted: Boolean;
         CustomAuthorityFlag: Text[10];
+        IntentFlag: Text[10];
+        ImportsFlag: Text[10];
         DeclarationOfIntent1Lbl: Label 'DECLARATION OF INTENT';
         DeclarationOfIntent2Lbl: Label 'PURCHASE OR IMPORT OF GOODS AND SERVICES WITHOUT  VALUE ADDED TAX';
         DeclarantNumberLbl: Label 'Number';
@@ -505,10 +513,14 @@ report 12194 "Declaration of Intent Report"
             VendorFiscalCode := '';
             VendorVATRegNo := '';
             CustomAuthorityFlag := 'X';
+            IntentFlag := '';
+            ImportsFlag := 'X';
         end else begin
             VendorFiscalCode := Vendor.GetTaxCode();
             VendorVATRegNo := Vendor."VAT Registration No.";
             CustomAuthorityFlag := '';
+            IntentFlag := 'X';
+            ImportsFlag := '';
         end;
     end;
 
