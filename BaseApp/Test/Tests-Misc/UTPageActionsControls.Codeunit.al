@@ -33,6 +33,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryTemplates: Codeunit "Library - Templates";
         PageFieldNotVisibleErr: Label '%1 must not be visible.';
+        FieldLengthErr: Label 'must not have the length more than 20 symbols';
         IsInitialized: Boolean;
 
     [Test]
@@ -4359,6 +4360,94 @@ codeunit 134341 "UT Page Actions & Controls"
 
         LibraryVariableStorage.AssertEmpty();
         LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorCardRegistrationNumberIsEditable()
+    var
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Vendor]
+        // [SCENARIO 359959] Registration Number field is editable on the Vendor Card page
+        LibraryPurchase.CreateVendor(Vendor);
+        RegistrationNumber := LibraryUtility.GenerateGUID();
+
+        VendorCard.OpenEdit();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+        VendorCard."Registration Number".SetValue(RegistrationNumber);
+        VendorCard.Close();
+
+        Vendor.Find();
+        Vendor.TestField("Registration Number", RegistrationNumber);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorCardRegistrationNumberErrorLength()
+    var
+        Vendor: Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Vendor]        
+        // [SCENARIO 359959] Registration Number field error for legth more than 20 on the Vendor Card page
+        LibraryPurchase.CreateVendor(Vendor);
+        RegistrationNumber := LibraryUtility.GenerateRandomText(21);
+
+        VendorCard.OpenEdit();
+        VendorCard.Filter.SetFilter("No.", Vendor."No.");
+        asserterror VendorCard."Registration Number".SetValue(RegistrationNumber);
+
+        Assert.ExpectedErrorCode('TestValidation');
+        Assert.ExpectedError(FieldLengthErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerCardRegistrationNumberIsEditable()
+    var
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Customer]
+        // [SCENARIO 359959] Registration Number field is editable on the Customer Card page
+        LibrarySales.CreateCustomer(Customer);
+        RegistrationNumber := LibraryUtility.GenerateGUID();
+
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer."No.");
+        CustomerCard."Registration Number".SetValue(RegistrationNumber);
+        CustomerCard.Close();
+
+        Customer.Find();
+        Customer.TestField("Registration Number", RegistrationNumber);
+    end;
+
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerCardRegistrationNumberErrorLength()
+    var
+        Customer: Record Customer;
+        CustomerCard: TestPage "Customer Card";
+        RegistrationNumber: Text[50];
+    begin
+        // [FEATURE] [Customer]
+        // [SCENARIO 359959] Registration Number field error for legth more than 20 on the Customer Card page
+        LibrarySales.CreateCustomer(Customer);
+        RegistrationNumber := LibraryUtility.GenerateRandomText(21);
+
+        CustomerCard.OpenEdit();
+        CustomerCard.Filter.SetFilter("No.", Customer."No.");
+        asserterror CustomerCard."Registration Number".SetValue(RegistrationNumber);
+
+        Assert.ExpectedErrorCode('TestValidation');
+        Assert.ExpectedError(FieldLengthErr);
     end;
 
     local procedure Initialize()
