@@ -1545,6 +1545,55 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.AreNotEqual(CRMID, TempCRMSynchConflictBuffer."CRM ID", 'this record should be deleted');
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure T200_FindMoreMarksBrokenCouplingsAsSkipped()
+    var
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CRMSkippedRecords: TestPage "CRM Skipped Records";
+        PrevDirection: Option;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO] "Find More" action marks broken couplings as skipped.
+        Init();
+
+        // [GIVEN] The CUSTOMER mapping is unidirectional
+        IntegrationTableMapping.Get('CUSTOMER');
+        PrevDirection := IntegrationTableMapping.Direction;
+        IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
+        IntegrationTableMapping.Modify();
+
+        // [GIVEN] The coupled customer and account
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+
+        // [GIVEN] The customer is deleted
+        Customer.Delete();
+
+        // [WHEN] Open Coupled Data Synchronization Errors page
+        CRMSkippedRecords.OpenEdit();
+
+        // [THEN] The coupling for the deleted customer is not listed
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        Assert.IsFalse(CRMSkippedRecords.FindFirstField("Int. Description", CRMAccount.Name), 'Coupling is listed');
+
+        // [THEN] Invoke the action Find More
+        CRMSkippedRecords.FindMore.Invoke();
+
+        // [THEN] The coupling for the deleted customer is listed
+        Assert.IsTrue(CRMSkippedRecords.FindFirstField("Int. Description", CRMAccount.Name), 'Coupling is not listed');
+
+        // [THEN] The coupling is marked as skipped
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        CRMIntegrationRecord.TestField(Skipped, true);
+
+        IntegrationTableMapping.Direction := PrevDirection;
+        IntegrationTableMapping.Modify();
+    end;
+
     local procedure Init()
     var
         MyNotifications: Record "My Notifications";

@@ -57,6 +57,20 @@ table 10303 "ACH RB Header"
         field(13; "Settlement Date"; Date)
         {
             Caption = 'Settlement Date';
+
+            trigger OnValidate()
+            var
+                ExportEFTRB: Codeunit "Export EFT (RB)";
+            begin
+                if "Settlement Date" = 0D then
+                    "Settlement Julian Date" := 0
+                else
+                    "Settlement Julian Date" := ExportEFTRB.JulianDate("Settlement Date");
+            end;
+        }
+        field(14; "Settlement Julian Date"; Integer)
+        {
+            Caption = 'Settlement Julian Date';
         }
     }
 

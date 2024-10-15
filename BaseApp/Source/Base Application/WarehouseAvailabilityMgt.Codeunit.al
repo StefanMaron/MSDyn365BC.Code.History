@@ -599,6 +599,64 @@ codeunit 7314 "Warehouse Availability Mgt."
             until WhseEntry.Next() = 0;
     end;
 
+    procedure CalcQtyOnBlockedItemTracking(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]): Decimal
+    var
+        SerialNoInformation: Record "Serial No. Information";
+        LotNoInformation: Record "Lot No. Information";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SNQtyBlocked: Decimal;
+        LotQtyBlocked: Decimal;
+        SNLotQtyBlocked: Decimal;
+        QtyBlocked: Decimal;
+        IsHandled: Boolean;
+    begin
+        OnBeforeCalcQtyOnBlockedItemTracking(LocationCode, ItemNo, VariantCode, QtyBlocked, IsHandled);
+        if IsHandled then
+            exit(QtyBlocked);
+
+        ItemLedgerEntry.SetRange("Item No.");
+        ItemLedgerEntry.SetRange("Variant Code", VariantCode);
+        ItemLedgerEntry.SetRange("Location Code", LocationCode);
+
+        ItemLedgerEntry.ClearTrackingFilter();
+        SerialNoInformation.SetRange("Item No.", ItemNo);
+        SerialNoInformation.SetRange("Variant Code", VariantCode);
+        SerialNoInformation.SetRange(Blocked, true);
+        if SerialNoInformation.FindSet() then
+            repeat
+                ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
+                ItemLedgerEntry.CalcSums(Quantity);
+                SNQtyBlocked += ItemLedgerEntry.Quantity;
+            until SerialNoInformation.Next() = 0;
+
+        ItemLedgerEntry.ClearTrackingFilter();
+        LotNoInformation.SetRange("Item No.", ItemNo);
+        LotNoInformation.SetRange("Variant Code", VariantCode);
+        LotNoInformation.SetRange(Blocked, true);
+        if LotNoInformation.FindSet() then
+            repeat
+                ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
+                ItemLedgerEntry.CalcSums(Quantity);
+                LotQtyBlocked += ItemLedgerEntry.Quantity;
+            until LotNoInformation.Next() = 0;
+
+        ItemLedgerEntry.ClearTrackingFilter();
+        if SerialNoInformation.FindSet() and not LotNoInformation.IsEmpty() then
+            repeat
+                LotNoInformation.FindSet();
+                repeat
+                    ItemLedgerEntry.SetRange("Lot No.", LotNoInformation."Lot No.");
+                    ItemLedgerEntry.SetRange("Serial No.", SerialNoInformation."Serial No.");
+                    ItemLedgerEntry.CalcSums(Quantity);
+                    SNLotQtyBlocked += ItemLedgerEntry.Quantity;
+                until LotNoInformation.Next() = 0;
+            until SerialNoInformation.Next() = 0;
+
+        QtyBlocked := SNQtyBlocked + LotQtyBlocked - SNLotQtyBlocked;
+
+        exit(QtyBlocked);
+    end;
+
     local procedure CalcQtyPickedOnProdOrderComponentLine(SourceSubtype: Option; SourceID: Code[20]; SourceProdOrderLineNo: Integer; SourceRefNo: Integer): Decimal
     var
         ProdOrderComponent: Record "Prod. Order Component";
@@ -725,6 +783,53 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(WhseActivityLine."Qty. Outstanding (Base)" + WarehouseActivityLine."Qty. Outstanding (Base)");
     end;
 
+    procedure CalcQtyAvailToTakeOnWhseWorksheetLine(WhseWorksheetLine: Record "Whse. Worksheet Line") AvailQtyBase: Decimal
+    var
+        Location: Record Location;
+        Item: Record Item;
+        BinContent: Record "Bin Content";
+        TempWhseActivLine: Record "Warehouse Activity Line" temporary;
+        TypeHelper: Codeunit "Type Helper";
+        QtyReservedOnPickShip: Decimal;
+        QtyReservedForCurrLine: Decimal;
+    begin
+        with WhseWorksheetLine do begin
+            AvailQtyBase := 0;
+
+            Location.GetLocationSetup("Location Code", Location);
+            if Location."Directed Put-away and Pick" then
+                exit(0);
+
+            if Item.Get("Item No.") then;
+
+            if Location."Bin Mandatory" then begin
+                BinContent.SetRange("Location Code", "Location Code");
+                BinContent.SetRange("Item No.", "Item No.");
+                BinContent.SetRange("Variant Code", "Variant Code");
+                if BinContent.FindSet() then
+                    repeat
+                        AvailQtyBase += TypeHelper.Maximum(0, BinContent.CalcQtyAvailToPick(0));
+                    until BinContent.Next() = 0;
+
+                Item.SetRange("Location Filter", "Location Code");
+                Item.SetRange("Variant Filter", "Variant Code");
+                Item.CalcFields("Reserved Qty. on Inventory");
+                AvailQtyBase -= Item."Reserved Qty. on Inventory";
+            end else
+                AvailQtyBase := CalcInvtAvailQty(Item, Location, "Variant Code", TempWhseActivLine);
+
+            if Location."Require Pick" then
+                QtyReservedOnPickShip := CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine);
+
+            QtyReservedForCurrLine :=
+              Abs(
+                CalcLineReservedQtyOnInvt(
+                  "Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", true, TempWhseActivLine));
+
+            AvailQtyBase := AvailQtyBase + QtyReservedOnPickShip + QtyReservedForCurrLine;
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyPicked(var Item: Record Item; var QtyPicked: Decimal; Location: Record Location)
     begin
@@ -757,6 +862,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyAssgndtoPickOnAfterSetFilters(var WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; ItemNo: Code[20]; VariantCode: Code[10]; BinTypeFilter: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcQtyOnBlockedItemTracking(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyBlocked: Decimal; var IsHandled: Boolean)
     begin
     end;
 }

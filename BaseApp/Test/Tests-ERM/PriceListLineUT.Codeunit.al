@@ -39,6 +39,8 @@ codeunit 134123 "Price List Line UT"
         ItemDiscGroupMustNotBePurchaseErr: Label 'Product Type must not be Item Discount Group';
         LineSourceTypeErr: Label 'cannot be set to %1 if the header''s source type is %2.', Comment = '%1 and %2 - the source type value.';
         SourceTypeMustBeErr: Label 'Applies-to Type must be equal to ''%1''', Comment = '%1 - source type value';
+        ParentSourceNoMustBeFilledErr: Label 'Applies-to Parent No. must have a value';
+        ParentSourceNoMustBeBlankErr: Label 'Applies-to Parent No. must be equal to ''''';
         SourceNoMustBeFilledErr: Label 'Applies-to No. must have a value';
         SourceNoMustBeBlankErr: Label 'Applies-to No. must be equal to ''''';
         CannotDeleteActivePriceListLineErr: Label 'You cannot delete the active price list line %1 %2.', Comment = '%1 - the price list code, %2 - line no';
@@ -1114,7 +1116,7 @@ codeunit 134123 "Price List Line UT"
         PriceListLine."Source Type" := "Price Source Type"::"All Locations";
         PriceListLine."Source No." := 'X';
 
-        // [WHEN] Set "Status" as 'Active' and answer 'Yes'
+        // [WHEN] Verify source
         asserterror PriceListLine.VerifySource();
 
         // [THEN] Error: "Applies-to No. must be equal to ''''"
@@ -1129,8 +1131,9 @@ codeunit 134123 "Price List Line UT"
         // [FEATURE] [Price Source Type] [Extended]
         // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to No. is blank.
         Initialize();
-        // [GIVEN] New price list line, where "Source Type"::"Location", "Source No." is <blank>
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
         PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Parent Source No." := 'X';
         PriceListLine."Source No." := '';
 
         // [WHEN] Verify source
@@ -1138,6 +1141,44 @@ codeunit 134123 "Price List Line UT"
 
         // [THEN] Error: "Applies-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
+    end;
+
+    [Test]
+    procedure T072_VerifySourceForSourceAllLocationsParentSourceFilled()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is filled.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
+        PriceListLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceListLine."Parent Source No." := 'X';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to Parent No. must be equal to ''''"
+        Assert.ExpectedError(ParentSourceNoMustBeBlankErr);
+    end;
+
+    [Test]
+    procedure T073_VerifySourceForSourceLocationParentSourceBlank()
+    var
+        PriceListLine: Record "Price List Line";
+    begin
+        // [FEATURE] [Price Source Type] [Extended]
+        // [SCENARIO] Verify sournce in the line fails on inconsistent source: Applies-to Parent No. is blank.
+        Initialize();
+        // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is <blank>
+        PriceListLine."Source Type" := "Price Source Type"::Location;
+        PriceListLine."Parent Source No." := '';
+
+        // [WHEN] Verify source
+        asserterror PriceListLine.VerifySource();
+
+        // [THEN] Error: "Applies-to Parent No. must have a value"
+        Assert.ExpectedError(ParentSourceNoMustBeFilledErr);
     end;
 
     [Test]

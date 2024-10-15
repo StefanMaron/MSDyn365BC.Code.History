@@ -26,7 +26,10 @@ page 409 "SMTP Mail Setup"
                     trigger OnValidate()
                     begin
                         SetCanSendTestMail;
-                        CurrPage.Update;
+                        CurrPage.Update();
+                        SetProperties();
+                        if AuthActionsVisible then
+                            Message(EveryUserShouldPressAuthenticateMsg);
                     end;
                 }
                 field("SMTP Server Port"; "SMTP Server Port")
@@ -48,7 +51,9 @@ page 409 "SMTP Mail Setup"
 
                     trigger OnValidate()
                     begin
-                        AuthenticationOnAfterValidate;
+                        SetProperties();
+                        if AuthActionsVisible then
+                            Message(EveryUserShouldPressAuthenticateMsg);
                     end;
                 }
                 field("User ID"; "User ID")
@@ -130,7 +135,7 @@ page 409 "SMTP Mail Setup"
                             if not ConfirmManagement.GetResponseOrDefault(ConfirmApplyO365Qst, true) then
                                 exit;
                         SMTPMail.ApplyOffice365Smtp(Rec);
-                        AuthenticationOnAfterValidate;
+                        SetProperties;
                         SetCanSendTestMail;
                         CurrPage.Update;
                     end
@@ -152,6 +157,36 @@ page 409 "SMTP Mail Setup"
                     CODEUNIT.Run(CODEUNIT::"SMTP Test Mail");
                 end;
             }
+            action("Authenticate with OAuth 2.0")
+            {
+                Caption = 'Authenticate';
+                ApplicationArea = Basic, Suite;
+                Image = LinkWeb;
+                ToolTip = 'Authenticate with your Exchange Online account.';
+                Visible = AuthActionsVisible;
+
+                trigger OnAction()
+                var
+                    SMTPMail: Codeunit "SMTP Mail";
+                begin
+                    SMTPMail.AuthenticateWithOAuth2();
+                end;
+            }
+            action("Check OAuth 2.0 authentication")
+            {
+                Caption = 'Verify Authentication';
+                ApplicationArea = Basic, Suite;
+                Image = Confirm;
+                ToolTip = 'Verify that OAuth 2.0 authentication was successful.';
+                Visible = AuthActionsVisible;
+
+                trigger OnAction()
+                var
+                    SMTPMail: Codeunit "SMTP Mail";
+                begin
+                    SMTPMail.CheckOAuth2Authentication();
+                end;
+            }
         }
     }
 
@@ -163,16 +198,15 @@ page 409 "SMTP Mail Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
             SetPassword('');
         end else
             Password := '***';
-        UserIDEditable := Authentication = Authentication::Basic;
-        PasswordEditable := Authentication = Authentication::Basic;
-        SetCanSendTestMail;
+        SetProperties();
+        SetCanSendTestMail();
     end;
 
     var
@@ -181,13 +215,20 @@ page 409 "SMTP Mail Setup"
         UserIDEditable: Boolean;
         [InDataSet]
         PasswordEditable: Boolean;
+        [InDataSet]
+        AuthActionsVisible: Boolean;
         CanSendTestMail: Boolean;
         ConfirmApplyO365Qst: Label 'Do you want to override the current data?';
+        EveryUserShouldPressAuthenticateMsg: Label 'Before people can send email they must authenticate their email account. They can do that by choosing the Authenticate action on the SMTP Mail Setup page.';
 
-    local procedure AuthenticationOnAfterValidate()
+    local procedure SetProperties()
+    var
+        SMTPMail: Codeunit "SMTP Mail";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
-        UserIDEditable := Authentication = Authentication::Basic;
+        UserIDEditable := (Authentication = Authentication::Basic) or (Authentication = Authentication::OAuth2);
         PasswordEditable := Authentication = Authentication::Basic;
+        AuthActionsVisible := (not EnvironmentInformation.IsSaaSInfrastructure()) and (Rec.Authentication = Rec.Authentication::OAuth2) and (Rec."SMTP Server" = SMTPMail.GetO365SmtpServer());
     end;
 
     local procedure SetCanSendTestMail()

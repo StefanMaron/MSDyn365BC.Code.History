@@ -3033,7 +3033,7 @@ codeunit 142051 "ERM Sales/Purchase Tax II"
         LibraryReportValidation.VerifyCellValueByRef('T', 44, 1, LibraryReportValidation.FormatDecimalValue(5617.52)); // Amount
         LibraryReportValidation.VerifyCellValueByRef('T', 47, 1, LibraryReportValidation.FormatDecimalValue(280.88)); // PST
         LibraryReportValidation.VerifyCellValueByRef('T', 49, 1, LibraryReportValidation.FormatDecimalValue(393.23)); // GST
-        LibraryReportValidation.VerifyCellValueByRef('T', 50, 1, LibraryReportValidation.FormatDecimalValue(6291.63)); // Total Including VAT
+        LibraryReportValidation.VerifyCellValueByRef('T', 50, 1, Format(6291.63)); // Total Including VAT
         LibraryReportValidation.VerifyCellValueByRef('T', 52, 1, LibraryReportValidation.FormatDecimalValue(674.11)); // Total Tax
 
         // Tear Down
