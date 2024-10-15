@@ -3,7 +3,7 @@
     "name":  "Base Application",
     "publisher":  "Microsoft",
     "description":  "Provides business processes that are typical for small and mid-sized companies, such as sales and purchasing, and customer and vendor management, plus complex processes, such as assembly, manufacturing, service, and directed warehouse management. https://docs.microsoft.com/en-us/dynamics365/business-central/across-business-functionality",
-    "version":  "17.3.20469.20605",
+    "version":  "17.4.21491.21531",
     "logo":  "ExtensionLogo.png",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
@@ -14,7 +14,7 @@
                              "id":  "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
                              "name":  "System Application",
                              "publisher":  "Microsoft",
-                             "version":  "17.3.0.0"
+                             "version":  "17.4.0.0"
                          }
                      ],
     "internalsVisibleTo":  [
@@ -41,6 +41,11 @@
                                {
                                    "id":  "8c9fc75f-dc51-40de-a6fa-55e7bbe0c0c2",
                                    "name":  "Tests-What\u0027s New Notifier Test",
+                                   "publisher":  "Microsoft"
+                               },
+                               {
+                                   "id":  "74e323c4-70a3-49ce-b18e-fe9ccaff01d3",
+                                   "name":  "Tests-Marketing",
                                    "publisher":  "Microsoft"
                                }
                            ],

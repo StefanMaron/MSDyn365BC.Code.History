@@ -2357,7 +2357,14 @@
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestJobPlanningLine();
                 TestField("Qty. per Unit of Measure", 1);
                 if "Quantity (Base)" <> xRec."Quantity (Base)" then
@@ -5051,7 +5058,13 @@
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         ShouldExit: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetFAPostingGroup(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Type <> Type::"Fixed Asset") or ("No." = '') then
             exit;
 
@@ -5078,6 +5091,8 @@
         "Gen. Prod. Posting Group" := LocalGLAcc."Gen. Prod. Posting Group";
         "Tax Group Code" := LocalGLAcc."Tax Group Code";
         Validate("VAT Prod. Posting Group", LocalGLAcc."VAT Prod. Posting Group");
+
+        OnAfterGetFAPostingGroup(Rec, LocalGLAcc);
     end;
 
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
@@ -7526,7 +7541,8 @@
         Reset;
         SetRange(Type, LineType);
         SetRange("No.", OldNo);
-        ModifyAll("No.", NewNo, true);
+        if not Rec.IsEmpty() then
+            ModifyAll("No.", NewNo, true);
     end;
 
     procedure UpdatePlanned(): Boolean
@@ -7805,6 +7821,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFAPostingGroup(var SalesLine: Record "Sales Line"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemTranslation(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemTranslation: Record "Item Translation")
     begin
     end;
@@ -7951,6 +7972,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatType(SalesLine: Record "Sales Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetFAPostingGroup(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8561,6 +8587,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidatePlannedShipmentDate(var IsHandled: boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

@@ -140,6 +140,7 @@
 
     procedure CreateCreditMemoCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesHeader: Record "Sales Header"): Boolean
     begin
+        OnBeforeCreateCreditMemoCopyDocument(SalesInvoiceHeader);
         TestNoFixedAssetInSalesInvoice(SalesInvoiceHeader);
         TestNotSalesPrepaymentlInvoice(SalesInvoiceHeader);
         if not SalesInvoiceHeader.IsFullyOpen then begin
@@ -279,7 +280,13 @@
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CancelledDocument: Record "Cancelled Document";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetTrackInfoForCancellation(SalesInvoiceHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesCrMemoHeader.SetRange("Applies-to Doc. No.", SalesInvoiceHeader."No.");
         if SalesCrMemoHeader.FindLast then
             CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCrMemoHeader."No.");
@@ -863,6 +870,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateCreditMemoCopyDocument(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
     begin
     end;
@@ -870,6 +882,11 @@
     [Obsolete('The event has been replaced with OnBeforeSalesHeaderInsert to fix a typo', '15.1')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSelesHeaderInsert(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header"; CancellingOnly: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTrackInfoForCancellation(var SalesInvoiceHeader: Record "Sales Invoice Header"; var IsHandled: Boolean)
     begin
     end;
 

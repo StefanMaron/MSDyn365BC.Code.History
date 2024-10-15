@@ -683,7 +683,7 @@ page 138 "Posted Purchase Invoice"
                     Promoted = true;
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
-                    ToolTip = 'Reverse this posted invoice and automatically create a new invoice with the same information that you can correct before posting. This posted invoice will automatically be canceled.';
+                    ToolTip = 'Reverse this posted invoice. A credit memo will be created and matched with the invoice, and the invoice will be canceled. Shipments for the invoice will be reversed. To create a new invoice with the same information, use the Copy function. When you copy an invoice, remember to post shipments for the new invoice.';
                     Visible = not Cancelled;
 
                     trigger OnAction()

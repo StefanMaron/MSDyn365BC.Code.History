@@ -101,8 +101,14 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     procedure CreateFromPurchOrder(PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromPurchOrder(PurchHeader);
+        IsHandled := false;
+        OnBeforeCreateFromPurchOrder(PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ShowDialog(CreateFromPurchOrderHideDialog(PurchHeader));
     end;
 
@@ -115,8 +121,14 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     procedure CreateFromSalesReturnOrder(SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromSalesReturnOrder(SalesHeader);
+        IsHandled := false;
+        OnBeforeCreateFromSalesReturnOrder(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ShowDialog(CreateFromSalesReturnOrderHideDialog(SalesHeader));
     end;
 
@@ -129,8 +141,14 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     procedure CreateFromInbndTransferOrder(TransHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateFromInbndTransferOrder(TransHeader);
+        IsHandled := false;
+        OnBeforeCreateFromInbndTransferOrder(TransHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         ShowDialog(CreateFromInbndTransferOrderHideDialog(TransHeader));
     end;
 
@@ -309,17 +327,17 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromPurchOrder(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeCreateFromPurchOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromSalesReturnOrder(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeCreateFromSalesReturnOrder(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateFromInbndTransferOrder(var TransferHeader: Record "Transfer Header")
+    local procedure OnBeforeCreateFromInbndTransferOrder(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -344,7 +362,7 @@ codeunit 5751 "Get Source Doc. Inbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; WarehouseRequest: Record "Warehouse Request"; ServVendDocNo: Code[20])
+    local procedure OnBeforeGetSourceDocumentsRun(var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request"; ServVendDocNo: Code[20])
     begin
     end;
 

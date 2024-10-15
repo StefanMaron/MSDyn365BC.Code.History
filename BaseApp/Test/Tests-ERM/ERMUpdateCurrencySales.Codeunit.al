@@ -11,6 +11,7 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         Assert: Codeunit Assert;
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryResource: Codeunit "Library - Resource";
@@ -29,6 +30,8 @@ codeunit 134087 "ERM Update Currency - Sales"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryVariableStorage.Clear();
+
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -41,14 +44,13 @@ codeunit 134087 "ERM Update Currency - Sales"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,CurrencyExchangeRatesModalPageHandler')]
+    [HandlerFunctions('CurrencyExchangeRateSendNotificationHandler')]
     [Scope('OnPrem')]
     procedure ModifyPostingDateOnInvoice()
     var
         SalesHeader: Record "Sales Header";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         CurrencyDate: Date;
-        CurrencyCode: Code[10];
     begin
         // Check after changing Posting Date, Application generates a confirm dialog if Exchange Rate does not exist and opens page 483.
 
@@ -59,12 +61,12 @@ codeunit 134087 "ERM Update Currency - Sales"
         // 2. Exercise: Modify Posting Date with a date lesser that Existing Starting Date of Exchange Rate.
         SalesHeader.SetHideValidationDialog(true);
         CurrencyDate := CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'D>', CurrencyExchangeRate."Starting Date");
-        LibraryVariableStorage.Enqueue(CurrencyDate);
-        CurrencyCode := CurrencyExchangeRate."Currency Code";
-        LibraryVariableStorage.Enqueue(CurrencyCode);
+
         SalesHeader.Validate("Posting Date", CurrencyDate);
 
-        // 3. Verify in CurrencyExchangeRatesModalPageHandler
+        LibraryNotificationMgt.RecallNotificationsForRecord(SalesHeader);
+
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
@@ -1503,19 +1505,18 @@ codeunit 134087 "ERM Update Currency - Sales"
         LibraryVariableStorage.Enqueue(Question);
     end;
 
-    [ModalPageHandler]
+    [SendNotificationHandler]
     [Scope('OnPrem')]
-    procedure CurrencyExchangeRatesModalPageHandler(var CurrencyExchangeRates: Page "Currency Exchange Rates"; var Response: Action)
+    procedure CurrencyExchangeRateSendNotificationHandler(var NotificationInstance: Notification): Boolean
     var
-        CurrencyExchangeRate: Record "Currency Exchange Rate";
+        UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
     begin
-        CurrencyExchangeRate.Init();
-        CurrencyExchangeRate.Validate("Starting Date", LibraryVariableStorage.DequeueDate);
-        CurrencyExchangeRate.Validate("Currency Code", CopyStr(LibraryVariableStorage.DequeueText, 1, 10));
-        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
-        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 1);
-        CurrencyExchangeRate.Insert();
-        Response := ACTION::OK;
+        Assert.AreEqual(
+          Format(NotificationInstance.Id),
+          Format(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID),
+          '');
+
+        exit(true);
     end;
 }
 

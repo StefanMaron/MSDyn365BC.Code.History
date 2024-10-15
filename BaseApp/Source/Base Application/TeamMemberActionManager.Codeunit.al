@@ -50,12 +50,18 @@ codeunit 9003 "Team Member Action Manager"
 
     local procedure CheckTeamMemberPermissionOnSalesHeaderTable(var SalesHeader: Record "Sales Header")
     begin
+        if SalesHeader.IsTemporary() then
+            exit;
+
         if IsCurrentUserAssignedTeamMemberPlan and (SalesHeader."Document Type" <> SalesHeader."Document Type"::Quote) then
             Error(TeamMemberErr);
     end;
 
     local procedure CheckTeamMemberPermissionOnPurchaseHeaderTable(var PurchaseHeader: Record "Purchase Header")
     begin
+        if PurchaseHeader.IsTemporary() then
+            exit;
+
         if IsCurrentUserAssignedTeamMemberPlan and (PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::Quote) then
             Error(TeamMemberErr);
     end;
