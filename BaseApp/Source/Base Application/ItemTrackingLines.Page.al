@@ -990,6 +990,8 @@ page 6510 "Item Tracking Lines"
         UpdateUndefinedQtyArray;
 
         CurrentPageIsOpen := true;
+
+        NotifyWhenTrackingIsManagedByWhse();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1132,6 +1134,8 @@ page 6510 "Item Tracking Lines"
         ExcludePostedEntries: Boolean;
         ProdOrderLineHandling: Boolean;
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = serial number';
+        ItemTrackingManagedByWhse: Boolean;
+        ItemTrkgManagedByWhseMsg: Label 'You cannot assign a lot or serial number because item tracking for this document line is done through a warehouse activity.';
 
     procedure SetFormRunMode(Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
     begin
@@ -1196,6 +1200,7 @@ page 6510 "Item Tracking Lines"
             SetControls(Controls::Quantity, false);
             QtyToHandleBaseEditable := true;
             DeleteIsBlocked := true;
+            ItemTrackingManagedByWhse := true;
         end;
 
         ReservEntry."Source Type" := TrackingSpecification."Source Type";
@@ -1785,8 +1790,7 @@ page 6510 "Item Tracking Lines"
                 until Next = 0;
         end;
 
-        UpdateOrderTracking;
-        ReestablishReservations; // Late Binding
+        UpdateOrderTrackingAndReestablishReservation();
 
         if not BlockCommit then
             Commit;
@@ -1976,15 +1980,25 @@ page 6510 "Item Tracking Lines"
         SetQtyToHandleAndInvoice(NewTrackingSpecification);
     end;
 
-    local procedure UpdateOrderTracking()
+    local procedure UpdateOrderTrackingAndReestablishReservation()
     var
         TempReservEntry: Record "Reservation Entry" temporary;
+        LateBindingMgt: Codeunit "Late Binding Management";
     begin
-        if not ReservEngineMgt.CollectAffectedSurplusEntries(TempReservEntry) then
-            exit;
-        if Item."Order Tracking Policy" = Item."Order Tracking Policy"::None then
-            exit;
-        ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
+        // Order Tracking
+        if ReservEngineMgt.CollectAffectedSurplusEntries(TempReservEntry) then begin
+            LateBindingMgt.SetOrderTrackingSurplusEntries(TempReservEntry);
+            if Item."Order Tracking Policy" <> Item."Order Tracking Policy"::None then
+                ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
+        end;
+
+        // Late Binding
+        if TempItemTrackLineReserv.FindSet() then
+            repeat
+                LateBindingMgt.ReserveItemTrackingLine(TempItemTrackLineReserv, 0, TempItemTrackLineReserv."Quantity (Base)");
+                SetQtyToHandleAndInvoice(TempItemTrackLineReserv);
+            until TempItemTrackLineReserv.Next() = 0;
+        TempItemTrackLineReserv.DeleteAll();
     end;
 
     local procedure ModifyFieldsWithinFilter(var ReservEntry1: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification")
@@ -2602,18 +2616,6 @@ page 6510 "Item Tracking Lines"
         CurrPage.Update(false);
     end;
 
-    local procedure ReestablishReservations()
-    var
-        LateBindingMgt: Codeunit "Late Binding Management";
-    begin
-        if TempItemTrackLineReserv.FindSet then
-            repeat
-                LateBindingMgt.ReserveItemTrackingLine(TempItemTrackLineReserv, 0, TempItemTrackLineReserv."Quantity (Base)");
-                SetQtyToHandleAndInvoice(TempItemTrackLineReserv);
-            until TempItemTrackLineReserv.Next = 0;
-        TempItemTrackLineReserv.DeleteAll;
-    end;
-
     procedure SetInbound(NewInbound: Boolean)
     begin
         InboundIsSet := true;
@@ -2922,6 +2924,18 @@ page 6510 "Item Tracking Lines"
             1, ReservEntry."Source ID", ReservEntry."Source Batch Name",
             ReservEntry."Source Prod. Order Line", ReservEntry."Source Ref. No.");
         exit(true);
+    end;
+
+    local procedure NotifyWhenTrackingIsManagedByWhse()
+    var
+        TrkgManagedByWhseNotification: Notification;
+    begin
+        if ItemTrackingManagedByWhse then begin
+            TrkgManagedByWhseNotification.Id := CreateGuid();
+            TrkgManagedByWhseNotification.Message(ItemTrkgManagedByWhseMsg);
+            TrkgManagedByWhseNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
+            TrkgManagedByWhseNotification.Send();
+        end;
     end;
 
     [IntegrationEvent(false, false)]

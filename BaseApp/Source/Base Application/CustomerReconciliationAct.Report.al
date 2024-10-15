@@ -1865,7 +1865,8 @@ report 14910 "Customer - Reconciliation Act"
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", EntryNo);
         DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
         DtldCustLedgEntry.SetRange(Unapplied, false);
-        DtldCustLedgEntry.FindFirst;
+        if not DtldCustLedgEntry.FindFirst() then
+            exit(0);
         if DtldCustLedgEntry."Cust. Ledger Entry No." = DtldCustLedgEntry."Applied Cust. Ledger Entry No." then begin
             DtldCustLedgEntry.SetFilter("Cust. Ledger Entry No.", '<>%1', EntryNo);
             DtldCustLedgEntry.SetRange("Applied Cust. Ledger Entry No.", EntryNo);
@@ -1884,7 +1885,8 @@ report 14910 "Customer - Reconciliation Act"
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", EntryNo);
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
         DtldVendLedgEntry.SetRange(Unapplied, false);
-        DtldVendLedgEntry.FindFirst;
+        if not DtldVendLedgEntry.FindFirst() then
+            exit(0);
         if DtldVendLedgEntry."Vendor Ledger Entry No." = DtldVendLedgEntry."Applied Vend. Ledger Entry No." then begin
             DtldVendLedgEntry.SetFilter("Vendor Ledger Entry No.", '<>%1', EntryNo);
             DtldVendLedgEntry.SetRange("Applied Vend. Ledger Entry No.", EntryNo);

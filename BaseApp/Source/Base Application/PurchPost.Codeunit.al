@@ -1973,6 +1973,8 @@
         DeprBook: Record "Depreciation Book";
         FASetup: Record "FA Setup";
         FACharge: Record "FA Charge";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FACheckConsistency: Codeunit "FA Check Consistency";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1991,6 +1993,8 @@
             FixedAsset.Get("No.");
             FixedAsset.TestField("Budgeted Asset", false);
             DeprBook.Get("Depreciation Book Code");
+	    if FADepreciationBook.Get("No.", "Depreciation Book Code") then
+                FACheckConsistency.CheckDisposalDate(FADepreciationBook, FixedAsset);
             if "FA Charge No." <> '' then
                 if not (FixedAsset.Status in [FixedAsset.Status::Inventory, FixedAsset.Status::Montage]) then begin
                     FACharge.Get("FA Charge No.");
@@ -4750,7 +4754,7 @@
 
             CopyDocumentFields(GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PurchHeader."Posting No. Series");
 
-            Validate("Account Type", "Account Type"::"IC Partner");
+            "Account Type" := "Account Type"::"IC Partner";
             Validate("Account No.", PurchLine."IC Partner Code");
             "Source Currency Code" := PurchHeader."Currency Code";
             "Source Currency Amount" := Amount;

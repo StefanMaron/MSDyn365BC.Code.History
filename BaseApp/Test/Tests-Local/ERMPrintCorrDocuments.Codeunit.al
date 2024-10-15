@@ -651,6 +651,103 @@ codeunit 144013 "ERM Print Corr. Documents"
         VerifyCorrReportOnPrint(SalesInvHeader4);
     end;
 
+    [Test]
+    [HandlerFunctions('SalesCorrFacturaInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCorrCrMemoPrintUsingCorrectReport()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderCorrCrMemo: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+        InvNo: Code[20];
+    begin
+        // [SCENARIO 357140] Printing "Corr. Sales Cr. Memo" run report "Sales Corr. Factura-Invoice"
+        Initialize;
+
+        // [WHEN] Create Corr. Sales Cr. Memo
+        InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        CreateReleaseCorrSalesCrMemo(SalesHeaderCorrCrMemo, SalesHeader, InvNo);
+        VerifyCorrReportOnPrint(SalesHeaderCorrCrMemo);
+        Commit;
+
+        // [WHEN] Print Corr. Sales Cr. Memo
+        DocumentPrint.PrintSalesHeader(SalesHeaderCorrCrMemo)
+
+        // [THEN] Report "Sales Corr. Factura-Invoice" run successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('SalesCorrFacturaInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCorrInvoicePrintUsingCorrectReport()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesHeaderCorrInvoice: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+        InvNo: Code[20];
+    begin
+        // [SCENARIO 360437] Printing "Corr. Sales Invoice" run report "Sales Corr. Factura-Invoice"
+        Initialize;
+
+        // [WHEN] Create Corr. Sales Invoice
+        InvNo := CreatePostSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice);
+        CreateReleaseCorrSalesInvoice(SalesHeaderCorrInvoice, SalesHeader, InvNo);
+        VerifyCorrReportOnPrint(SalesHeaderCorrInvoice);
+        Commit;
+
+        // [WHEN] Print Corr. Sales Invoice
+        DocumentPrint.PrintSalesHeader(SalesHeaderCorrInvoice)
+
+        // [THEN] Report "Sales Corr. Factura-Invoice" run successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('ReportSelectionPrintModalPageHandler,OrderProformaInvoiceARequestPageHandler,OrderFacturaInvoiceARequestPageHandler,OrderItemShipmentTORG12RequestPageHandler,OrderItemWaybill1TRequestPageHandler,SalesShipmentM15RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesInvoicePrintCorrectly()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+    begin
+        // [SCENARIO 360437] Printing "Sales Invoice" run reports:
+        // [SCENARIO 360437] 1. "Order Proforma-Invoice (A)"
+        // [SCENARIO 360437] 2. "Order Factura-Invoice (A)"
+        // [SCENARIO 360437] 3. "Order Item Shipment TORG-12"
+        // [SCENARIO 360437] 4. "Order Item Waybill 1-T"
+        // [SCENARIO 360437] 5. "Sales Shipment M-15"
+        Initialize;
+
+        // [WHEN] Create Sales Invoice
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
+        Commit;
+
+        // [WHEN] Print Sales Invoice
+        DocumentPrint.PrintSalesHeader(SalesHeader)
+
+        // [THEN] All Reports run successfully
+    end;
+
+    [Test]
+    [HandlerFunctions('OrderFacturaInvoiceARequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoPrintCorrectly()
+    var
+        SalesHeader: Record "Sales Header";
+        DocumentPrint: Codeunit "Document-Print";
+    begin
+        // [SCENARIO 357140] Printing "Sales Cr. Memo" run report "Order Factura-Invoice (A)"
+        Initialize;
+
+        // [WHEN] Create Sales Cr. Memo
+        CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
+        Commit;
+
+        // [WHEN] Print Sales Cr. Memo
+        DocumentPrint.PrintSalesHeader(SalesHeader)
+
+        // [THEN] Report "Order Factura-Invoice (A)" run successfully
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -813,6 +910,50 @@ codeunit 144013 "ERM Print Corr. Documents"
         CorrDocMgt: Codeunit "Corrective Document Mgt.";
     begin
         Assert.IsFalse(CorrDocMgt.IsCorrDocument(CorrSalesHeader), RepOnPrintErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesCorrFacturaInvoiceRequestPageHandler(var SalesCorrFacturaInvoice: TestRequestPage "Sales Corr. Factura-Invoice")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderFacturaInvoiceARequestPageHandler(var OrderFacturaInvoiceA: TestRequestPage "Order Factura-Invoice (A)")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderProformaInvoiceARequestPageHandler(var OrderProformaInvoiceA: TestRequestPage "Order Proforma-Invoice (A)")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderItemShipmentTORG12RequestPageHandler(var OrderItemShipmentTORG12: TestRequestPage "Order Item Shipment TORG-12")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderItemWaybill1TRequestPageHandler(var OrderItemWaybill1T: TestRequestPage "Order Item Waybill 1-T")
+    begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesShipmentM15RequestPageHandler(var SalesShipmentM15: TestRequestPage "Sales Shipment M-15")
+    begin
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ReportSelectionPrintModalPageHandler(var ReportSelectionPrint: TestPage "Report Selection - Print")
+    begin
+        ReportSelectionPrint."Set All".Invoke;
+        ReportSelectionPrint.OK.Invoke;
     end;
 }
 
