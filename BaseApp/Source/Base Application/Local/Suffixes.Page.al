@@ -21,7 +21,7 @@ page 7000073 Suffixes
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a three-digit number that is used by financial institutions to identify the ordering customer.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the nature of the operation for which the bank has assigned a suffix.';

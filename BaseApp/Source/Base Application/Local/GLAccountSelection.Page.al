@@ -25,7 +25,7 @@ page 10734 "G/L Account Selection"
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the number of the account.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the name of the account.';

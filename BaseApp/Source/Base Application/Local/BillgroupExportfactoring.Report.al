@@ -26,15 +26,15 @@ report 7000089 "Bill group - Export factoring"
                             DocType := ' '
                         else
                             case PaymentMethod."Bill Type" of
-                                1:
+                                "ES Bill Type"::"Bill of Exchange":
                                     DocType := Text1100009;
-                                2:
+                                "ES Bill Type"::Receipt:
                                     DocType := Text1100010;
-                                3:
+                                "ES Bill Type"::IOU:
                                     DocType := Text1100011;
-                                4:
+                                "ES Bill Type"::Check:
                                     DocType := Text1100012;
-                                5:
+                                "ES Bill Type"::Transfer:
                                     DocType := Text1100013;
                                 else
                                     DocType := ' ';

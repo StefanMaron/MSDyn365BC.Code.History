@@ -915,7 +915,7 @@ report 7000008 "Bill Group - Test"
                 if not Doc.Find('-') then
                     AddError(Text1100009);
 
-                BillGrDealingTypeInt := "Dealing Type";
+                BillGrDealingTypeInt := "Dealing Type".AsInteger();
                 BillGrFactoringInt := Factoring
             end;
 

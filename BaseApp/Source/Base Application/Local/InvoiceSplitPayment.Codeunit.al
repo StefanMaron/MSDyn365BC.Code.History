@@ -40,7 +40,6 @@ codeunit 7000005 "Invoice-Split Payment"
         ExistsVATNoReal: Boolean;
         ErrorMessage: Boolean;
 
-    [Scope('OnPrem')]
     procedure SplitSalesInv(var SalesHeader: Record "Sales Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Window: Dialog; SourceCode: Code[10]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocNo: Code[20]; VATAmount: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -289,7 +288,6 @@ codeunit 7000005 "Invoice-Split Payment"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure SplitPurchInv(var PurchHeader: Record "Purchase Header"; var VendLedgEntry: Record "Vendor Ledger Entry"; var Window: Dialog; SourceCode: Code[10]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocNo: Code[20]; VATAmount: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -528,7 +526,6 @@ codeunit 7000005 "Invoice-Split Payment"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure RoundReceivableAmt(Amount: Decimal): Decimal
     begin
         if SalesSetup."Invoice Rounding" then
@@ -539,7 +536,6 @@ codeunit 7000005 "Invoice-Split Payment"
         exit(Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure RoundReceivableAmtLCY(Amount: Decimal): Decimal
     begin
         if SalesSetup."Invoice Rounding" then
@@ -550,7 +546,6 @@ codeunit 7000005 "Invoice-Split Payment"
         exit(Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure RoundPayableAmt(Amount: Decimal): Decimal
     begin
         if SalesSetup."Invoice Rounding" then
@@ -561,7 +556,6 @@ codeunit 7000005 "Invoice-Split Payment"
         exit(Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure RoundPayableAmtLCY(Amount: Decimal): Decimal
     begin
         if SalesSetup."Invoice Rounding" then
@@ -572,7 +566,6 @@ codeunit 7000005 "Invoice-Split Payment"
         exit(Amount);
     end;
 
-    [Scope('OnPrem')]
     procedure FindCustVATSetup(var VATSetup: Record "VAT Posting Setup"; SalesHeader2: Record "Sales Header")
     var
         Customer: Record Customer;
@@ -625,7 +618,6 @@ codeunit 7000005 "Invoice-Split Payment"
         until SalesLine2.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure FindVendVATSetup(var VATSetup: Record "VAT Posting Setup"; PurchHeader2: Record "Purchase Header")
     var
         PostingGroup: Code[20];
@@ -665,7 +657,6 @@ codeunit 7000005 "Invoice-Split Payment"
         until PurchLine2.Next() = 0;
     end;
 
-    [Scope('OnPrem')]
     procedure SplitServiceInv(var ServiceHeader: Record "Service Header"; var CustLedgEntry: Record "Cust. Ledger Entry"; var Window: Dialog; SourceCode: Code[10]; GenJnlLineExtDocNo: Code[35]; GenJnlLineDocNo: Code[20]; VATAmount: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -885,7 +876,6 @@ codeunit 7000005 "Invoice-Split Payment"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure FindCustVATSetupServ(var VATSetup: Record "VAT Posting Setup"; ServiceHeader2: Record "Service Header")
     var
         Customer: Record Customer;
@@ -946,7 +936,6 @@ codeunit 7000005 "Invoice-Split Payment"
         exit(CalcDate(DateFormula, DueDate));
     end;
 
-    [Scope('OnPrem')]
     procedure CheckDueDate(NewDueDate: Date; InitialDocumentDate: Date; MaxNoOfDays: Integer): Boolean
     var
         MaxAllowedDueDate: Date;

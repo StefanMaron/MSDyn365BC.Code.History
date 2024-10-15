@@ -3032,7 +3032,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyItemDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
     end;
 
-
     [Test]
     [HandlerFunctions('CustomerTempModalFormHandler,ConfirmHandlerFalse')]
     procedure VerifyCustomerNotUpdateWhenApplyTemplateFalse()
@@ -3401,7 +3400,6 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         FieldExclusionList.Add(Item.FieldNo("Last Counting Period Update"));
         FieldExclusionList.Add(Item.FieldNo("Next Counting Start Date"));
         FieldExclusionList.Add(Item.FieldNo("Next Counting End Date"));
-        FieldExclusionList.Add(Item.FieldNo("Id"));
         FieldExclusionList.Add(Item.FieldNo("Unit of Measure Id"));
         FieldExclusionList.Add(Item.FieldNo("Tax Group Id"));
         FieldExclusionList.Add(Item.FieldNo("Item Category Id"));

@@ -560,7 +560,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN19
+#if not CLEAN21
         CopySalesPrices();
 #endif
 
@@ -610,7 +610,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         CustomerNo :=
           CreateCustomerWithPostingGroup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-#if not CLEAN19
+#if not CLEAN21
         CopySalesPrices();
 #endif
 
@@ -789,7 +789,7 @@ codeunit 144123 "ERM Sales VAT EC Calculate"
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";

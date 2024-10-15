@@ -499,7 +499,7 @@ report 7000099 "Post Bill Group"
             PostedDoc.Insert();
             CustLedgEntry.Get(PostedDoc."Entry No.");
             CustLedgEntry."Document Situation" := CustLedgEntry."Document Situation"::"Posted BG/PO";
-            CustLedgEntry."Document Status" := PostedDoc.Status + 1;
+            CustLedgEntry."Document Status" := "ES Document Status".FromInteger(PostedDoc.Status.AsInteger() + 1);
             CustLedgEntry.Modify();
         until TempPostedDocBuffer.Next() = 0;
 

@@ -436,7 +436,7 @@ report 10717 "Normalized Account Schedule"
         "Acc. Schedule Name".TestField("Default Column Layout");
         ColumnLayoutName := "Acc. Schedule Name"."Default Column Layout";
 #else
-        if FinancialReport.Get("Acc. Schedule Name"."Acc. Schedule Name") then
+        if FinancialReport.Get("Acc. Schedule Name".Name) then
             ColumnLayoutName := FinancialReport."Financial Report Column Group"
         else
             if LocalColumnLayoutName.FindFirst() then

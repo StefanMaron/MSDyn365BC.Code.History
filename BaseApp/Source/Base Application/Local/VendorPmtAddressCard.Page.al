@@ -21,7 +21,7 @@ page 7000042 "Vendor Pmt. Address Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for the vendor''s payment address .';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a name to help identify this vendor payment address.';
@@ -111,6 +111,5 @@ page 7000042 "Vendor Pmt. Address Card"
         exit(Find(Which));
     end;
 }
-
 
 #endif

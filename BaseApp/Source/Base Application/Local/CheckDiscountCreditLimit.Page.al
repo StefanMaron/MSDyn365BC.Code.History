@@ -20,7 +20,7 @@ page 7000037 "Check Discount Credit Limit"
                 {
                     ApplicationArea = All;
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                 }

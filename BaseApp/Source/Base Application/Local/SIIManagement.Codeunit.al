@@ -117,7 +117,6 @@
           ObjectType::Page, PAGE::"SII Setup", ManualSetupCategory::Service, SIIBusinessSetupKeywordsTxt);
     end;
 
-    [Scope('OnPrem')]
     procedure GetSIIStyle(SIIState: Option Pending,Incorrect,Accepted,"Accepted With Errors","Communication Error",Failed,"Not Supported") StyleText: Text
     begin
         case SIIState of
@@ -219,7 +218,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetNoTaxablePurchAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
@@ -232,7 +230,6 @@
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure GetNoTaxableSalesAmount(var NoTaxableAmount: Decimal; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
     var
         NoTaxableEntry: Record "No Taxable Entry";
@@ -268,7 +265,6 @@
         exit('06');
     end;
 
-    [Scope('OnPrem')]
     procedure SIIStateDrilldown(var SIIDocUploadState: Record "SII Doc. Upload State")
     var
         SIIHistory: Record "SII History";
@@ -280,7 +276,6 @@
         PAGE.Run(PAGE::"SII History", SIIHistory);
     end;
 
-    [Scope('OnPrem')]
     procedure IsVATEntryCashFlowBased(VATEntry: Record "VAT Entry"): Boolean
     begin
         // to know if a payment VAT entry is cash based, we look at "Unrealized VAT Entry No."
@@ -288,7 +283,6 @@
         exit((VATEntry."Unrealized VAT Entry No." <> 0) or (VATEntry."Unrealized Base" <> 0));
     end;
 
-    [Scope('OnPrem')]
     procedure IsDetailedLedgerCashFlowBased(DtldLedgerEntryRecRef: RecordRef): Boolean
     var
         LedgerEntryRecRef: RecordRef;
@@ -297,7 +291,6 @@
         exit(IsLedgerCashFlowBased(LedgerEntryRecRef));
     end;
 
-    [Scope('OnPrem')]
     procedure IsLedgerCashFlowBased(LedgerEntryRecRef: RecordRef): Boolean
     var
         VATEntry: Record "VAT Entry";
@@ -330,7 +323,6 @@
         exit(DummyCustLedgerEntry."Document Type" = DummyCustLedgerEntry."Document Type"::Bill);
     end;
 
-    [Scope('OnPrem')]
     procedure IsIntracommunity(CountryRegionCode: Code[10]): Boolean
     var
         DummyCountryRegion: Record "Country/Region";
@@ -373,7 +365,6 @@
         exit(VATEntry.FindFirst())
     end;
 
-    [Scope('OnPrem')]
     procedure FindVatEntriesFromLedger(LedgerEntryRecRef: RecordRef; var VATEntry: Record "VAT Entry"): Boolean
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -426,7 +417,6 @@
         exit(VATEntry.FindSet());
     end;
 
-    [Scope('OnPrem')]
     procedure FindNoTaxableEntriesFromLedger(LedgerEntryRecRef: RecordRef; var NoTaxableEntry: Record "No Taxable Entry"): Boolean
     var
         SIISetup: Record "SII Setup";
@@ -467,7 +457,6 @@
         exit(NoTaxableEntry.FindSet());
     end;
 
-    [Scope('OnPrem')]
     procedure FindOriginalLedgerFromDetailedPaymentLedger(PaymentDetailedLedgerEntryRecRef: RecordRef; var SalesDocLedgerEntryRecRefOut: RecordRef)
     var
         DummyDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -488,7 +477,6 @@
         FindLedgerFromVatEntry(SalesDocLedgerEntryRecRefOut, SalesDocVATEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure FindOriginalLedgerFromPaymentLedger(PaymentLedgerEntryRecRef: RecordRef; var SalesDocLedgerEntryRecRefOut: RecordRef)
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -509,7 +497,6 @@
         FindLedgerFromVatEntry(SalesDocLedgerEntryRecRefOut, SalesDocVATEntry);
     end;
 
-    [Scope('OnPrem')]
     procedure FindVatEntriesReferringToDocLedger(InvoiceDocLedgerEntryRecRef: RecordRef; var PaymentVATEntry: Record "VAT Entry"): Boolean
     var
         SalesDocVATEntry: Record "VAT Entry";
@@ -521,7 +508,6 @@
         exit(PaymentVATEntry.FindSet());
     end;
 
-    [Scope('OnPrem')]
     procedure FindDetailedPaymentApplicationLedgerFromLedger(PaymentDocLedgerEntryRecRef: RecordRef; var PaymentDetailedDocLedgerEntryRecRefOut: RecordRef; ApplicationDate: Date; DocNumber: Code[20]): Boolean
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -567,7 +553,6 @@
         exit(PaymentDetailedDocLedgerEntryRecRefOut.FindFirst())
     end;
 
-    [Scope('OnPrem')]
     procedure FindDetailedLedgerFromVatEntry(var InvoiceDetailedDocLedgerEntryRecRefOut: RecordRef; InvoiceDocVATEntry: Record "VAT Entry"): Boolean
     var
         DummyDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
@@ -600,7 +585,6 @@
         exit(InvoiceDetailedDocLedgerEntryRecRefOut.FindFirst())
     end;
 
-    [Scope('OnPrem')]
     procedure FindLedgerFromVatEntry(var InvoiceDocLedgerEntryRecRefOut: RecordRef; InvoiceDocVATEntry: Record "VAT Entry")
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -637,7 +621,6 @@
         exit(InvoiceDocLedgerEntryRecRef.FindFirst())
     end;
 
-    [Scope('OnPrem')]
     procedure FindPaymentDetailedCustomerLedgerEntries(var PaymentDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     begin
         PaymentDetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
@@ -648,7 +631,6 @@
         exit(PaymentDetailedCustLedgEntry.FindSet());
     end;
 
-    [Scope('OnPrem')]
     procedure FindPaymentDetailedVendorLedgerEntries(var PaymentDetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"): Boolean
     begin
         PaymentDetailedVendorLedgEntry.SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
@@ -659,7 +641,6 @@
         exit(PaymentDetailedVendorLedgEntry.FindSet());
     end;
 
-    [Scope('OnPrem')]
     procedure NoTaxableEntriesExistPurchase(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date): Boolean
     begin
         NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Purchase.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
@@ -667,7 +648,6 @@
         exit(not NoTaxableEntry.IsEmpty);
     end;
 
-    [Scope('OnPrem')]
     procedure NoTaxableEntriesExistSales(var NoTaxableEntry: Record "No Taxable Entry"; SourceNo: Code[20]; DocumentType: Option; DocumentNo: Code[20]; PostingDate: Date; IsService: Boolean; UseNoTaxableType: Boolean; IsLocalRule: Boolean): Boolean
     begin
         NoTaxableEntry.FilterNoTaxableEntry(NoTaxableEntry.Type::Sale.AsInteger(), SourceNo, DocumentType, DocumentNo, PostingDate, false);
@@ -700,7 +680,6 @@
         LedgerEntryRecRef.FindFirst();
     end;
 
-    [Scope('OnPrem')]
     procedure DoesPaymentDetailedLedgerCloseInvoice(PaymentDetailedLedgerEntryRecRef: RecordRef; IsCustomerPayment: Boolean): Boolean
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -719,7 +698,6 @@
         exit(not IsLedgerEntryOpen);
     end;
 
-    [Scope('OnPrem')]
     procedure DoesPaymentLedgerCloseInvoice(PaymentLedgerEntryRecRef: RecordRef; IsCustomerPayment: Boolean): Boolean
     var
         DummyCustLedgerEntry: Record "Cust. Ledger Entry";
@@ -738,25 +716,21 @@
         exit(not IsLedgerEntryOpen);
     end;
 
-    [Scope('OnPrem')]
     procedure CountryIsLocal(CountryCode: Code[20]): Boolean
     begin
         exit((CountryCode = 'ES') or (CountryCode = ''));
     end;
 
-    [Scope('OnPrem')]
     procedure CountryAndVATRegNoAreLocal(CountryCode: Code[20]; VATRegNo: Code[20]): Boolean
     begin
         exit(CountryIsLocal(CountryCode) or ((StrPos(VATRegNo, 'N') = 1) and not CharIsCapitalLetter(VATRegNo[2]))); // VAT Nos starting with 'N' are local, those with 'NL', 'NO', etc. are not.
     end;
 
-    [Scope('OnPrem')]
     procedure IsDomesticCustomer(Customer: Record Customer): Boolean
     begin
         exit(CountryIsLocal(Customer."Country/Region Code") and (StrPos(Customer."VAT Registration No.", 'N') <> 1));
     end;
 
-    [Scope('OnPrem')]
     procedure CustomerIsIntraCommunity(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
@@ -765,7 +739,6 @@
         exit(IsIntracommunity(Customer."Country/Region Code"));
     end;
 
-    [Scope('OnPrem')]
     procedure VendorIsIntraCommunity(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
@@ -774,13 +747,11 @@
         exit(IsIntracommunity(Vendor."Country/Region Code"));
     end;
 
-    [Scope('OnPrem')]
     procedure CombineOperationDescription(OperationDescription1: Text[250]; OperationDescription2: Text[250]; var Result: Text[500])
     begin
         Result := OperationDescription1 + OperationDescription2;
     end;
 
-    [Scope('OnPrem')]
     procedure SplitOperationDescription(OperationDescription: Text[500]; var Part1: Text[250]; var Part2: Text[250])
     begin
         Part1 := '';
@@ -796,13 +767,11 @@
             Part1 := CopyStr(OperationDescription, 1, StrLen(OperationDescription));
     end;
 
-    [Scope('OnPrem')]
     procedure CharIsCapitalLetter(Char: Char): Boolean
     begin
         exit(Char in ['A' .. 'Z']);
     end;
 
-    [Scope('OnPrem')]
     procedure IsAllowedSalesInvType(InvType: Option): Boolean
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -818,7 +787,6 @@
                          SalesInvoiceHeader."Invoice Type"::"R5 Corrected Invoice in Simplified Invoices".AsInteger()]);
     end;
 
-    [Scope('OnPrem')]
     procedure IsAllowedServInvType(InvType: Option): Boolean
     var
         ServiceInvoiceHeader: Record "Service Invoice Header";
@@ -829,7 +797,6 @@
                          ServiceInvoiceHeader."Invoice Type"::"F4 Invoice summary entry".AsInteger()]);
     end;
 
-    [Scope('OnPrem')]
     procedure Run347DeclarationToGenerateCollectionsInCash()
     var
         Make347Declaration: Report "Make 347 Declaration";

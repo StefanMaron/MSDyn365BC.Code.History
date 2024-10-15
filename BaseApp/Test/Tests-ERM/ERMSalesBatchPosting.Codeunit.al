@@ -1429,7 +1429,11 @@ codeunit 134391 "ERM Sales Batch Posting"
                 GenJournalLine[Index], GenJournalTemplate.Name, GenJournalBatch.Name,
                 GenJournalLine[Index]."Document Type"::Invoice, GenJournalLine[Index]."Account Type"::Customer, Customer."No.",
                 LibraryRandom.RandIntInRange(100, 200));
-            GenJournalLine[Index].Validate("IC Partner G/L Acc. No.", CreateICGLAccountCode());
+            GenJournalLine[Index].Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
+            GenJournalLine[Index].Validate("IC Account No.", CreateICGLAccountCode());
+#if not CLEAN22
+            GenJournalLine[Index].Validate("IC Partner G/L Acc. No.", GenJournalLine[Index]."IC Account No.");
+#endif
             GenJournalLine[Index].Modify(true);
         end;
 

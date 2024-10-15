@@ -1669,6 +1669,7 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure QtyToShipOnSalesOrderNonInventoriableWhenShipmentRequired()
     var
@@ -1696,6 +1697,7 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure QtyToReceiveOnPurchOrderNonInventoriableWhenReceiveRequired()
     var

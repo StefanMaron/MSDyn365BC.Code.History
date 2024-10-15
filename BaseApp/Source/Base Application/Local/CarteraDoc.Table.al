@@ -157,12 +157,10 @@ table 7000002 "Cartera Doc."
             AutoFormatType = 1;
             Caption = 'Original Amount (LCY)';
         }
-        field(40; "Document Type"; Option)
+        field(40; "Document Type"; Enum "Cartera Document Doc. Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Invoice,,Bill';
-            OptionMembers = Invoice,,Bill;
         }
         field(45; "On Hold"; Boolean)
         {

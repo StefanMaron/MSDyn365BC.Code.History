@@ -46,7 +46,7 @@ page 9652 "Report Layout Selection"
                     Editable = false;
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Layout Type';

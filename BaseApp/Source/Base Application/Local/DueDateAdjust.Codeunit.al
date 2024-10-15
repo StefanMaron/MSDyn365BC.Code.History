@@ -13,7 +13,8 @@ codeunit 10700 "Due Date-Adjust"
     begin
         if CustomerNo = '' then
             exit;
-        Customer.Get(CustomerNo);
+        if not Customer.Get(CustomerNo) then
+            exit;
 
         SetNonPaymentPeriodFilterAndFields(NonPaymentPeriod, NonPaymentPeriod."Table Name"::Customer, Customer."Non-Paymt. Periods Code");
         SetPaymentDayFilterAndFields(PaymentDay, PaymentDay."Table Name"::Customer, Customer."Payment Days Code");
@@ -29,7 +30,8 @@ codeunit 10700 "Due Date-Adjust"
     begin
         if VendorNo = '' then
             exit;
-        Vendor.Get(VendorNo);
+        if not Vendor.Get(VendorNo) then
+            exit;
 
         if Vendor."Non-Paymt. Periods Code" <> '' then
             SetNonPaymentPeriodFilterAndFields(NonPaymentPeriod, NonPaymentPeriod."Table Name"::Vendor, Vendor."Non-Paymt. Periods Code")

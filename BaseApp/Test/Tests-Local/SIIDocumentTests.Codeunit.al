@@ -2671,6 +2671,40 @@ codeunit 147520 SIIDocumentTests
     end;
 
     [Test]
+    procedure SalesJnlFechaOperacionWhenPostingDateNotEqualVATDateWithVATDateOptionEnabled()
+    var
+        SIISetup: Record "SII Setup";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Journal] [Sales] [Invoice]
+        // [SCENARIO 448682] FechaOperacion xml node generates when the posting date is not equal the VAT date in the sales journal and the "Document Date" option enables for the "Operation Date"
+
+        Initialize();
+
+        // [GIVEN] Set "VAT Date" option for "Operation Date" in the SII Setup
+        SetOperationDateInSIISetup(SIISetup."Operation Date"::"VAT Reporting Date");
+
+        // [GIVEN] Sales invoice journal line with "Posting Date" = "X", "VAT Date" = "Y"
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandIntInRange(100, 200));
+        GenJournalLine.Validate("VAT Reporting Date", GenJournalLine."Posting Date" + 1);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Posted journal line
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, GenJournalLine."Document Type", GenJournalLine."Document No.");
+
+        // [WHEN] Generate xml file for the posted sales invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion xml node contains "Y"
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:FechaOperacion', SIIXMLCreator.FormatDate(GenJournalLine."VAT Reporting Date"), 0);
+    end;
+
+    [Test]
     procedure PurchJnlFechaOperacionWhenPostingDateNotEqualDocDateWithDocDateOptionEnabled()
     var
         SIISetup: Record "SII Setup";

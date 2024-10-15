@@ -215,7 +215,7 @@ page 10752 "SII History"
                     Editable = false;
                     ToolTip = 'Specifies the upload Type.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
                     Editable = false;

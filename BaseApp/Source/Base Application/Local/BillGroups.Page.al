@@ -34,7 +34,7 @@ page 7000009 "Bill Groups"
                         BankSel.SetCurrBillGr(Rec);
                         if ACTION::LookupOK = BankSel.RunModal() then begin
                             BankSel.GetRecord(BankAcc);
-                            "Dealing Type" := BankSel.IsForDiscount();
+                            "Dealing Type" := "Cartera Dealing Type".FromInteger(BankSel.IsForDiscount());
                             Clear(BankSel);
                             Validate("Bank Account No.", BankAcc."No.");
                         end else
@@ -73,7 +73,7 @@ page 7000009 "Bill Groups"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the bill group.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the sums of the documents included in the bill group.';

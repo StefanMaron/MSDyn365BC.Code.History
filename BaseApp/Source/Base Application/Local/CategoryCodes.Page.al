@@ -18,7 +18,7 @@ page 7000023 "Category Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code to identify how you are sorting the documents.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a text description of the document sorting.';

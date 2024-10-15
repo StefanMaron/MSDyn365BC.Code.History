@@ -842,9 +842,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CountryRegion."EU Country/Region Code" := '';
         CountryRegion.Modify();
 
-        Customer.Get(
-          CreateForeignCustomerWithVATRegNo(
-            CreateCountryWithSpecificVATRegNoFormat(true)));
+        Customer.Get(CreateForeignCustomerWithVATRegNo(CreateCountryWithSpecificVATRegNoFormat(true)));
 
         CreateAndPostSalesInvoice(Customer."No.");
 
@@ -963,9 +961,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of XX######### format
         // [GIVEN] Foreign customer with VAT Registration number of created format
-        Customer.Get(
-          CreateForeignCustomerWithVATRegNo(
-            CreateCountryWithSpecificVATRegNoFormat(true)));
+        Customer.Get(CreateForeignCustomerWithVATRegNo(CreateCountryWithSpecificVATRegNoFormat(true)));
 
         // [GIVEN] Sales invoice posted
         CreateAndPostSalesInvoice(Customer."No.");
@@ -996,9 +992,7 @@ codeunit 144117 "ERM Make 349 Declaration"
 
         // [GIVEN] Country with EU Country/Region Code and VAT Registration number of ######### format
         // [GIVEN] Foreign customer with VAT Registration number of created format
-        Customer.Get(
-          CreateForeignCustomerWithVATRegNo(
-            CreateCountryWithSpecificVATRegNoFormat(false)));
+        Customer.Get(CreateForeignCustomerWithVATRegNo(CreateCountryWithSpecificVATRegNoFormat(false)));
 
         // [GIVEN] Sales invoice posted
         CreateAndPostSalesInvoice(Customer."No.");
@@ -3062,7 +3056,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate := CalcDate('<1M>', PostingDate);
         CreateAndPostCorrectiveSalesCrMemo(CustomerNo, ItemNo, PostingDate, InvNo);
 
-        SetCustVendWarningsOrigDeclarPeriodChangeForHandler(PostingDate, PrevPostingDate, CustomerNo, -InvAmount + CrMemoAmount);
+        SetCustVendWarningsOrigDeclarPeriodChangeForHandler(PostingDate, PrevPostingDate, CustomerNo, InvAmount - CrMemoAmount);
 
         // [GIVEN] 349 Declaration report on period "03" (March) is invoked and page "Customer/Vendor Warnings 349" with "CR2" included into correction is shown
         asserterror RunMake349DeclarationWithDate(PostingDate);

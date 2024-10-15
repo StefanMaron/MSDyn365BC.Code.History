@@ -1,6 +1,9 @@
 {
   "folders": [
     {
+      "path": "./AuditFileExport/Test/Audit File Export Tests"
+    },
+    {
       "path": "./recommendedapps/test/Recommended Apps Tests"
     },
     {
@@ -166,13 +169,16 @@
       "path": "./BaseApp/Test/Tests-Workflow"
     },
     {
-      "path": "./BaseApp/Source/Base Application/Test Framework"
-    },
-    {
       "path": "./onprem permissions/test/OnPrem Permissions Tests"
     },
     {
       "path": "./salesandinventoryforecast/test/Sales and Inventory Forecast Tests"
+    },
+    {
+      "path": "./MasterDataManagement/Test Library/_Exclude_Master_Data_Management_Test_Library"
+    },
+    {
+      "path": "./MasterDataManagement/Test/_Exclude_Master_Data_Management_Tests"
     },
     {
       "path": "./simplifiedbankstatementimport/test/Simplified Bank Statement Import Test"
@@ -182,6 +188,9 @@
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
+    },
+    {
+      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     },
     {
       "path": "./WorldPayPaymentsStandard/Test/WorldPay Payments Standard Tests"
@@ -194,6 +203,9 @@
     },
     {
       "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
+    },
+    {
+      "path": "./statisticalaccounts/test/Statistical Accounts Tests"
     },
     {
       "path": "./APIV1/Test/_Exclude_APIV1_ Tests"

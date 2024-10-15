@@ -48,7 +48,7 @@ page 7000018 "Bank Account Selection"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the bank account number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the name of the account.';

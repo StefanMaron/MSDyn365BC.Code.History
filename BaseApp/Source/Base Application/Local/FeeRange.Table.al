@@ -351,7 +351,6 @@ table 7000019 "Fee Range"
         value := DiscInterests;
     end;
 
-    [Scope('OnPrem')]
     procedure InitRejExpenses(Code2: Code[20]; CurrencyCode2: Code[10])
     begin
         "Currency Code" := CurrencyCode2;
@@ -365,7 +364,6 @@ table 7000019 "Fee Range"
         RejExpenses.DeleteAll();
     end;
 
-    [Scope('OnPrem')]
     procedure CalcRejExpensesAmt(Code2: Code[20]; CurrencyCode2: Code[10]; Amount: Decimal; EntryNo: Integer)
     begin
         "Currency Code" := CurrencyCode2;
@@ -395,13 +393,11 @@ table 7000019 "Fee Range"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTotalRejExpensesAmt(): Decimal
     begin
         exit(TotalRejExpensesAmt);
     end;
 
-    [Scope('OnPrem')]
     procedure NoRegRejExpenses(): Integer
     begin
         RejExpenses.SetRange(Account, Text1100005);
@@ -432,7 +428,6 @@ table 7000019 "Fee Range"
         exit(RejExpenses.Count);
     end;
 
-    [Scope('OnPrem')]
     procedure GetRejExpensesAmt(var value: Record "BG/PO Post. Buffer"; Register: Integer)
     begin
         RejExpenses.SetRange(Account, Text1100005);

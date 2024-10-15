@@ -17,7 +17,7 @@ table 7000006 "Posted Bill Group"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -26,18 +26,16 @@ table 7000006 "Posted Bill Group"
         {
             Caption = 'Posting Description';
         }
-        field(6; "Dealing Type"; Option)
+        field(6; "Dealing Type"; Enum "Cartera Dealing Type")
         {
             Caption = 'Dealing Type';
             Editable = false;
-            OptionCaption = 'Collection,Discount';
-            OptionMembers = Collection,Discount;
         }
         field(7; Amount; Decimal)
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amount" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amount" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               Status = FIELD("Status Filter"),
@@ -63,7 +61,7 @@ table 7000006 "Posted Bill Group"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("BG/PO Comment Line" WHERE("BG/PO No." = FIELD("No."),
+            CalcFormula = Exist("BG/PO Comment Line" WHERE("BG/PO No." = FIELD("No."),
                                                             Type = FILTER(Receivable)));
             Caption = 'Comment';
             Editable = false;
@@ -99,7 +97,7 @@ table 7000006 "Posted Bill Group"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amount for Collection" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amount for Collection" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -114,7 +112,7 @@ table 7000006 "Posted Bill Group"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amount" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amount" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                               "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                               "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                               Status = FIELD("Status Filter"),
@@ -125,12 +123,10 @@ table 7000006 "Posted Bill Group"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(18; "Status Filter"; Option)
+        field(18; "Status Filter"; Enum "Cartera Document Status")
         {
             Caption = 'Status Filter';
             FieldClass = FlowFilter;
-            OptionCaption = 'Open,Honored,Rejected';
-            OptionMembers = Open,Honored,Rejected;
         }
         field(29; "Collection Expenses Amt."; Decimal)
         {
@@ -165,7 +161,7 @@ table 7000006 "Posted Bill Group"
         field(34; "Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                   Status = FIELD("Status Filter"),
@@ -179,7 +175,7 @@ table 7000006 "Posted Bill Group"
         field(35; "Amount Grouped (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        Status = FIELD("Status Filter"),
@@ -193,7 +189,7 @@ table 7000006 "Posted Bill Group"
         field(36; "Remaining Amount (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Posted Cartera Doc."."Remaining Amt. (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                   "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                   "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                   Status = FIELD("Status Filter"),

@@ -73,12 +73,7 @@ report 593 "Intrastat - Make Declaration"
 
                 trigger OnPostDataItem()
                 begin
-#if CLEAN19
                     IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.CheckForJournalBatchError(IntrastatJnlLine, true);
-#endif
 
                     IntrastatFileWriter.AddCurrFileToResultFile();
                 end;
@@ -205,19 +200,7 @@ report 593 "Intrastat - Make Declaration"
 
     local procedure CheckLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
-#if CLEAN19
         IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Declaration", false);
-#else
-        if IntrastatSetup."Use Advanced Checklist" then
-            IntraJnlManagement.ValidateReportWithAdvancedChecklist(IntrastatJnlLine, Report::"Intrastat - Make Declaration", false)
-        else begin
-            IntrastatJnlLine.TestField("Tariff No.");
-            IntrastatJnlLine.TestField("Country/Region Code");
-            IntrastatJnlLine.TestField("Transaction Type");
-            IntrastatJnlLine.TestField("Total Weight");
-            IntrastatJnlLine.TestField(Amount);
-        end;
-#endif
     end;
 
     local procedure IsBlankedLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean

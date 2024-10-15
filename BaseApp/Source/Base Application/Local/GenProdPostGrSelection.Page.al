@@ -24,7 +24,7 @@ page 10735 "Gen. Prod. Post. Gr. Selection"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the posting group code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the posting group.';

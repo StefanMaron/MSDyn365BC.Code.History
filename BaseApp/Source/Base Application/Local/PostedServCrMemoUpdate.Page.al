@@ -23,7 +23,7 @@ page 10769 "Posted Serv. Cr. Memo - Update"
                     Editable = false;
                     ToolTip = 'Specifies the posted credit memo number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
                     Caption = 'Customer';

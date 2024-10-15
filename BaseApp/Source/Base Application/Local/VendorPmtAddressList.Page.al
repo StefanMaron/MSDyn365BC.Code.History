@@ -23,7 +23,7 @@ page 7000043 "Vendor Pmt. Address List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code for the vendor''s payment address .';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a name to help identify this vendor payment address.';

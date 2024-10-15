@@ -43,7 +43,7 @@ page 7000020 "Bill Groups Analysis"
                     Editable = false;
                     ToolTip = 'Specifies the number of documents included.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the sums of the documents included in the bill group.';

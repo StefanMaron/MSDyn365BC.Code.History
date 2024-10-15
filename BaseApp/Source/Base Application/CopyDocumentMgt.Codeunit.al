@@ -378,7 +378,7 @@
             OnCopySalesDocSalesLineOnAfterSetFilters(FromSalesHeader, FromSalesLine, ToSalesHeader, RecalculateLines);
             if FromSalesLine.Find('-') then
                 repeat
-                    ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine."Attached to Line No.");
+                    ShouldRunIteration := not ExtTxtAttachedToPosSalesLine(FromSalesHeader, MoveNegLines, FromSalesLine);
                     OnCopySalesDocSalesLineOnAfterCalcShouldRunIteration(FromSalesHeader, ToSalesHeader, FromSalesLine, ShouldRunIteration);
                     if ShouldRunIteration then begin
                         InitAsmCopyHandling(true);
@@ -514,7 +514,7 @@
         end;
     end;
 
-    local procedure CopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopySalesDocSalesLineArchive(FromSalesHeaderArchive: Record "Sales Header Archive"; var ToSalesHeader: Record "Sales Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToSalesLine: Record "Sales Line";
         FromSalesLineArchive: Record "Sales Line Archive";
@@ -613,6 +613,7 @@
                 if IncludeHeader then
                     ToSalesHeader."Dimension Set ID" := SavedDimSetId;
             end;
+
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -953,7 +954,7 @@
             OnCopyPurchDocPurchLineOnAfterSetFilters(FromPurchHeader, FromPurchLine, ToPurchHeader, RecalculateLines);
             if FromPurchLine.Find('-') then
                 repeat
-                    if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine."Attached to Line No.") then
+                    if not ExtTxtAttachedToPosPurchLine(FromPurchHeader, MoveNegLines, FromPurchLine) then
                         if CopyPurchDocLine(
                              ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, false,
                              ConvertToPurchaseDocumentTypeFrom(FromPurchHeader."Document Type"),
@@ -1025,7 +1026,7 @@
         end;
     end;
 
-    local procedure CopyPurchDocPurchLineArchive(FromPurchHeaderArchive: Record "Purchase Header Archive"; var ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
+    procedure CopyPurchDocPurchLineArchive(FromPurchHeaderArchive: Record "Purchase Header Archive"; var ToPurchHeader: Record "Purchase Header"; var LinesNotCopied: Integer; NextLineNo: Integer)
     var
         ToPurchLine: Record "Purchase Line";
         FromPurchLineArchive: Record "Purchase Line Archive";
@@ -1448,7 +1449,7 @@
         CheckSalesRounding(FromSalesLine, RoundingLineInserted);
 
         CopyThisLine := not (((ToSalesHeader."Language Code" <> FromSalesHeader."Language Code") or RecalculateLines) and
-           (FromSalesLine."Attached to Line No." <> 0) or
+           FromSalesLine.IsExtendedText() or
            FromSalesLine."Prepayment Line" or RoundingLineInserted);
         OnCopySalesDocLineOnAfterCalcCopyThisLine(ToSalesHeader, FromSalesHeader, FromSalesLine, RoundingLineInserted, CopyThisLine, RecalculateLines);
         if not CopyThisLine then
@@ -1844,7 +1845,7 @@
         CheckPurchRounding(FromPurchLine, RoundingLineInserted);
 
         if ((ToPurchHeader."Language Code" <> FromPurchHeader."Language Code") or RecalculateLines) and
-           (FromPurchLine."Attached to Line No." <> 0) or
+           FromPurchLine.IsExtendedText() or
            FromPurchLine."Prepayment Line" or RoundingLineInserted
         then
             exit(false);
@@ -5962,7 +5963,7 @@
         end;
 
         if ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) and
-           (FromSalesLineArchive."Attached to Line No." <> 0)
+           FromSalesLineArchive.IsExtendedText()
         then
             exit(false);
 
@@ -6050,11 +6051,12 @@
         IsHandled := false;
         OnCopyArchSalesLineOnBeforeTransferExtendedText(ToSalesHeader, ToSalesLine, FromSalesHeaderArchive, FromSalesLineArchive, RecalculateLines, NextLineNo, TransferOldExtLines, IsHandled);
         if not IsHandled then
-            if not ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) then
-                ToSalesLine."Attached to Line No." :=
-                TransferOldExtLines.TransferExtendedText(
-                    FromSalesLineArchive."Line No.", NextLineNo, FromSalesLineArchive."Attached to Line No.")
-            else
+            if not ((ToSalesHeader."Language Code" <> FromSalesHeaderArchive."Language Code") or RecalculateLines) then begin
+                if FromSalesLineArchive.IsExtendedText() then
+                    ToSalesLine."Attached to Line No." :=
+                        TransferOldExtLines.TransferExtendedText(
+                          FromSalesLineArchive."Line No.", NextLineNo, FromSalesLineArchive."Attached to Line No.");
+            end else
                 if TransferExtendedText.SalesCheckIfAnyExtText(ToSalesLine, false) then begin
                     TransferExtendedText.InsertSalesExtText(ToSalesLine);
                     ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
@@ -6090,7 +6092,7 @@
         end;
 
         if ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) and
-           (FromPurchLineArchive."Attached to Line No." <> 0)
+           FromPurchLineArchive.IsExtendedText()
         then
             exit(false);
 
@@ -6179,11 +6181,12 @@
         IsHandled := false;
         OnCopyArchPurchLineOnBeforeCopyArchPurchLineExtText(ToPurchHeader, ToPurchLine, FromPurchHeaderArchive, FromPurchLineArchive, NextLineNo, RecalculateLines, IsHandled, TransferOldExtLines);
         if not IsHandled then
-            if not ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) then
-                ToPurchLine."Attached to Line No." :=
-                  TransferOldExtLines.TransferExtendedText(
-                    FromPurchLineArchive."Line No.", NextLineNo, FromPurchLineArchive."Attached to Line No.")
-            else
+            if not ((ToPurchHeader."Language Code" <> FromPurchHeaderArchive."Language Code") or RecalculateLines) then begin
+                if FromPurchLineArchive.IsExtendedText() then
+                    ToPurchLine."Attached to Line No." :=
+                        TransferOldExtLines.TransferExtendedText(
+                          FromPurchLineArchive."Line No.", NextLineNo, FromPurchLineArchive."Attached to Line No.");
+            end else
                 if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then begin
                     TransferExtendedText.InsertPurchExtText(ToPurchLine);
                     ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
@@ -7306,26 +7309,26 @@
         end;
     end;
 
-    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; AttachedToLineNo: Integer): Boolean
+    local procedure ExtTxtAttachedToPosSalesLine(SalesHeader: Record "Sales Header"; MoveNegLines: Boolean; SalesLine: Record "Sales Line"): Boolean
     var
         AttachedToSalesLine: Record "Sales Line";
     begin
         if MoveNegLines then
-            if AttachedToLineNo <> 0 then
-                if AttachedToSalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", AttachedToLineNo) then
+            if SalesLine.IsExtendedText() then
+                if AttachedToSalesLine.Get(SalesHeader."Document Type", SalesHeader."No.", SalesLine."Attached to Line No.") then
                     if AttachedToSalesLine.Quantity >= 0 then
                         exit(true);
 
         exit(false);
     end;
 
-    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; AttachedToLineNo: Integer): Boolean
+    local procedure ExtTxtAttachedToPosPurchLine(PurchHeader: Record "Purchase Header"; MoveNegLines: Boolean; PurchLine: Record "Purchase Line"): Boolean
     var
         AttachedToPurchLine: Record "Purchase Line";
     begin
         if MoveNegLines then
-            if AttachedToLineNo <> 0 then
-                if AttachedToPurchLine.Get(PurchHeader."Document Type", PurchHeader."No.", AttachedToLineNo) then
+            if PurchLine.IsExtendedText() then
+                if AttachedToPurchLine.Get(PurchHeader."Document Type", PurchHeader."No.", PurchLine."Attached to Line No.") then
                     if AttachedToPurchLine.Quantity >= 0 then
                         exit(true);
 

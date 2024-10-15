@@ -957,14 +957,14 @@ codeunit 147533 "Cartera Recv. Factoring"
         CarteraGenJournalTemplate.SetRange(Type, CarteraGenJournalTemplate.Type::Cartera);
         LibraryERM.FindGenJournalTemplate(CarteraGenJournalTemplate);
         LibraryERM.FindGenJournalBatch(CarteraGenJournalBatch, CarteraGenJournalTemplate.Name);
-#if not CLEAN19
+#if not CLEAN21
         CopySalesPrices();
 #endif
 
         IsInitialized := true;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CopySalesPrices()
     var
         SalesPrice: record "Sales Price";

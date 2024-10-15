@@ -45,7 +45,7 @@ page 7000050 "Payment Orders"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code associated with this payment order.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum total of the documents included in this payment order.';

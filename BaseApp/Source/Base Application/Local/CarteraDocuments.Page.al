@@ -76,7 +76,7 @@ page 7000003 "Cartera Documents"
                     Editable = false;
                     ToolTip = 'Specifies the number associated with a specific bill.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

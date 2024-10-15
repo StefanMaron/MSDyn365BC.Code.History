@@ -24,7 +24,7 @@ page 10738 "Rev. Chg. Post. Selection 340"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description.';

@@ -42,7 +42,7 @@ codeunit 1306 "Company Information Mgt."
         PaymentRegistrationSetup: Record "Payment Registration Setup";
     begin
         if not PaymentRegistrationSetup.Get(UserId) then begin
-            PaymentRegistrationSetup."User ID" := UserId;
+            PaymentRegistrationSetup."User ID" := CopyStr(UserId(), 1, MaxStrLen(PaymentRegistrationSetup."User ID"));
             PaymentRegistrationSetup.Insert();
         end;
         PaymentRegistrationSetup."Journal Template Name" := JournalTemplateName;

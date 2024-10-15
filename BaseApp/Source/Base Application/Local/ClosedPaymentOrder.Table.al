@@ -17,7 +17,7 @@ table 7000022 "Closed Payment Order"
         }
         field(4; "Bank Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
+            CalcFormula = Lookup("Bank Account".Name WHERE("No." = FIELD("Bank Account No.")));
             Caption = 'Bank Account Name';
             Editable = false;
             FieldClass = FlowField;
@@ -41,7 +41,7 @@ table 7000022 "Closed Payment Order"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("BG/PO Comment Line" WHERE("BG/PO No." = FIELD("No."),
+            CalcFormula = Exist("BG/PO Comment Line" WHERE("BG/PO No." = FIELD("No."),
                                                             Type = FILTER(Payable)));
             Caption = 'Comment';
             Editable = false;
@@ -65,7 +65,7 @@ table 7000022 "Closed Payment Order"
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amount for Collection" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amount for Collection" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                    "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                    "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                    Status = FIELD("Status Filter"),
@@ -74,13 +74,11 @@ table 7000022 "Closed Payment Order"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(18; "Status Filter"; Option)
+        field(18; "Status Filter"; Enum "Cartera Document Status")
         {
             Caption = 'Status Filter';
             Editable = false;
             FieldClass = FlowFilter;
-            OptionCaption = ',Honored,Rejected';
-            OptionMembers = ,Honored,Rejected;
         }
         field(20; "Closing Date"; Date)
         {
@@ -101,7 +99,7 @@ table 7000022 "Closed Payment Order"
         field(35; "Amount Grouped (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
+            CalcFormula = Sum("Closed Cartera Doc."."Amt. for Collection (LCY)" WHERE("Bill Gr./Pmt. Order No." = FIELD("No."),
                                                                                        "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
                                                                                        "Global Dimension 2 Code" = FIELD("Global Dimension 2 Filter"),
                                                                                        Status = FIELD("Status Filter"),

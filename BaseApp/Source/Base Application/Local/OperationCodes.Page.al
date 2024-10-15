@@ -18,7 +18,7 @@ page 10745 "Operation Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies an operation code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for an operation code.';

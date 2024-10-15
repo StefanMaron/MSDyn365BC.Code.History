@@ -1048,7 +1048,7 @@
         VendorInvoiceDisc.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchaseLineDiscount(ItemNo: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10])
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";

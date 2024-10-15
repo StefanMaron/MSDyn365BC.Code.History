@@ -69,11 +69,9 @@ table 7000005 "Bill Group"
         {
             Caption = 'Posting Description';
         }
-        field(6; "Dealing Type"; Option)
+        field(6; "Dealing Type"; Enum "Cartera Dealing Type")
         {
             Caption = 'Dealing Type';
-            OptionCaption = 'Collection,Discount';
-            OptionMembers = Collection,Discount;
 
             trigger OnValidate()
             begin

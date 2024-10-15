@@ -1,4 +1,4 @@
-﻿codeunit 147553 "SII Batch Submission"
+codeunit 147553 "SII Batch Submission"
 {
     // // [FEATURE] [SII] [Batch Submission]
 

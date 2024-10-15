@@ -35,12 +35,10 @@ table 7000003 "Posted Cartera Doc."
             Caption = 'Bank Account No.';
             TableRelation = "Bank Account";
         }
-        field(8; "Dealing Type"; Option)
+        field(8; "Dealing Type"; Enum "Cartera Dealing Type")
         {
             Caption = 'Dealing Type';
             Editable = false;
-            OptionCaption = 'Collection,Discount';
-            OptionMembers = Collection,Discount;
         }
         field(9; "Amount for Collection"; Decimal)
         {
@@ -132,11 +130,9 @@ table 7000003 "Posted Cartera Doc."
             Caption = 'Global Dimension 2 Code';
             TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
         }
-        field(24; Status; Option)
+        field(24; Status; Enum "Cartera Document Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Open,Honored,Rejected';
-            OptionMembers = Open,Honored,Rejected;
         }
         field(25; "Honored/Rejtd. at Date"; Date)
         {
@@ -170,12 +166,10 @@ table 7000003 "Posted Cartera Doc."
             Caption = 'Original Amt. (LCY)';
             Editable = false;
         }
-        field(40; "Document Type"; Option)
+        field(40; "Document Type"; Enum "Cartera Document Doc. Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = 'Invoice,,Bill';
-            OptionMembers = Invoice,,Bill;
         }
         field(42; Factoring; Option)
         {

@@ -1,4 +1,4 @@
-permissionset 6946 "Foundation UI"
+﻿permissionset 6946 "Foundation UI"
 {
     Access = Public;
     Assignable = false;
@@ -8,8 +8,8 @@ permissionset 6946 "Foundation UI"
                              "System App - Basic";
 
     Permissions = tabledata Field = R,
-                  tabledata Media = imd,
-                  tabledata "Media Set" = imd,
+                  tabledata Media = rimd,
+                  tabledata "Media Set" = rimd,
                   tabledata User = R,
                   tabledata "Acc. Sched. KPI Web Srv. Setup" = Rim,
                   tabledata "Account Schedules Chart Setup" = Rim,
@@ -70,6 +70,7 @@ permissionset 6946 "Foundation UI"
                   tabledata "Incoming Documents Setup" = Rim,
                   tabledata "Interaction Log Entry" = r,
                   tabledata "Interaction Template Setup" = R,
+                  tabledata "Inventory Posting Setup" = Rim,
                   tabledata "Inventory Setup" = R,
                   tabledata "Item Discount Group" = R,
                   tabledata "Item Entry Relation" = Rimd,
@@ -124,9 +125,7 @@ permissionset 6946 "Foundation UI"
                   tabledata "Top Customers By Sales Buffer" = RIMD,
                   tabledata "Trailing Sales Orders Setup" = RIm,
                   tabledata "Trial Balance Setup" = Rim,
-#if not CLEAN19
-                  tabledata "User Callouts" = RIMD,
-#endif
+                  tabledata "Troubleshooting Setup" = Rim,
                   tabledata "User Setup" = Rim,
                   tabledata "User Time Register" = rim,
                   tabledata "Value Entry Relation" = Rimd,

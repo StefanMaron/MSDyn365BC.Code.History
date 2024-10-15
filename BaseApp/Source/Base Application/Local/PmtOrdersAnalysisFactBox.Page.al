@@ -26,7 +26,7 @@ page 35298 "Pmt Orders Analysis Fact Box"
                 Editable = false;
                 ToolTip = 'Specifies the number of documents included.';
             }
-            field(Amount; Amount)
+            field(Amount; Rec.Amount)
             {
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the sum total of the documents included in this payment order.';

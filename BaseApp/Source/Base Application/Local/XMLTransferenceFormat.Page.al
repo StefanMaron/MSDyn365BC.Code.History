@@ -52,7 +52,7 @@ page 10710 "XML Transference Format"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to review this value before creating the final XML file.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies text that will appear on the label.';

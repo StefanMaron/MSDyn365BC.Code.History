@@ -568,7 +568,7 @@ table 5475 "Sales Invoice Entity Aggregate"
         }
         key(Key4; "Document Date", Status)
         {
-            SumIndexFields = "Amount Including VAT";
+            IncludedFields = "Amount Including VAT";
         }
     }
 

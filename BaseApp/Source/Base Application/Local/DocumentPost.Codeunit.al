@@ -259,7 +259,7 @@ codeunit 7000006 "Document-Post"
             if "Document Situation" <> "Document Situation"::Cartera then
                 AppliedAmountLCY := Round(AppliedAmountLCY);
             case "Document Situation" of
-                0, "Document Situation"::Cartera:
+                "Document Situation"::" ", "Document Situation"::Cartera:
                     begin
                         CarteraDoc.Get(CarteraDoc.Type::Receivable, "Entry No.");
                         if CarteraDoc."Currency Code" = '' then
@@ -401,7 +401,7 @@ codeunit 7000006 "Document-Post"
             if "Document Situation" <> "Document Situation"::Cartera then
                 AppliedAmountLCY := Round(AppliedAmountLCY);
             case "Document Situation" of
-                0, "Document Situation"::Cartera:
+                "Document Situation"::" ", "Document Situation"::Cartera:
                     begin
                         CarteraDoc.Get(CarteraDoc.Type::Payable, "Entry No.");
                         if CarteraDoc."Currency Code" = '' then

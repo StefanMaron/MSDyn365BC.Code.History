@@ -32,7 +32,7 @@ page 7000005 "Docs. in Posted BG Subform"
                     Editable = false;
                     ToolTip = 'Specifies the due date of this document in a posted bill group/payment order.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -63,7 +63,7 @@ page 7000005 "Docs. in Posted BG Subform"
                     Editable = false;
                     ToolTip = 'Specifies the number of a bill in a posted bill group/payment order.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;

@@ -30,7 +30,7 @@ page 7000077 "Docs. in Closed PO Subform"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of this closed document.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of the closed document.';
@@ -56,7 +56,7 @@ page 7000077 "Docs. in Closed PO Subform"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the closed bill.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this closed document.';

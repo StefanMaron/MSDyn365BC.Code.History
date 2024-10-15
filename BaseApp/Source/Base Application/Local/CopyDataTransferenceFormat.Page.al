@@ -14,7 +14,7 @@ page 10705 "Copy Data Transference Format"
                 repeater(Control1100001)
                 {
                     ShowCaption = false;
-                    field(Description; Description)
+                    field(Description; Rec.Description)
                     {
                         ApplicationArea = All;
                         Editable = false;

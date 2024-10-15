@@ -743,24 +743,6 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         UsersList.Close();
     end;
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyAccessToUserPersonalizationListFromWorksheet()
-    var
-        ConfigLine: Record "Config. Line";
-        ConfigWorksheet: TestPage "Config. Worksheet";
-        UserPersonList: TestPage "User Personalization List";
-    begin
-        Initialize();
-        AddConfigLine(ConfigLine."Line Type"::Group, 0, '');
-        ConfigWorksheet.OpenView;
-
-        UserPersonList.Trap;
-        ConfigWorksheet."Users Personalization".Invoke;
-        UserPersonList.Close();
-    end;
-#endif
     [Test]
     [HandlerFunctions('ConfigPackageRecordsHandler')]
     [Scope('OnPrem')]
@@ -950,24 +932,6 @@ codeunit 136606 "ERM RS Wizard & Worksheet"
         Assert.ExpectedError(TestPageNotOpenedErr);
     end;
 
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure VerifyAccessToUserPersonalizationListFromWizard()
-    var
-        ConfigWizard: TestPage "Config. Wizard";
-        UserPersonList: TestPage "User Personalization List";
-    begin
-        Initialize();
-        ConfigWizard.OpenView;
-
-        UserPersonList.Trap;
-        ConfigWizard."Users Personalization".Invoke;
-
-        asserterror UserPersonList.OpenView;
-        Assert.ExpectedError(TestPageNotOpenedErr);
-    end;
-#endif
     [Test]
     [Scope('OnPrem')]
     procedure VerifyAssignmentToBlockedLine()

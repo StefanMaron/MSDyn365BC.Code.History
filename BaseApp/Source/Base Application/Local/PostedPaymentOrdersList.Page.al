@@ -36,7 +36,7 @@ page 7000055 "Posted Payment Orders List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code associated with this posted payment order.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum total of the documents included in this posted payment order.';

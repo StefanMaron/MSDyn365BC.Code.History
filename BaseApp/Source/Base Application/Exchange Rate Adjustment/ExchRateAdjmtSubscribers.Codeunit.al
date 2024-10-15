@@ -67,7 +67,7 @@ codeunit 597 "Exch. Rate Adjmt. Subscribers"
         ClosedCarteraDoc: Record "Closed Cartera Doc.";
         PostedCarteraDoc: Record "Posted Cartera Doc.";
     begin
-        if CustLedgerEntry."Document Situation" = 0 then
+        if CustLedgerEntry."Document Situation" = CustLedgerEntry."Document Situation"::" " then
             exit;
 
         CustLedgerEntry.CalcFields(
@@ -144,7 +144,7 @@ codeunit 597 "Exch. Rate Adjmt. Subscribers"
         VendLedgerEntry.CalcFields(
             Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)", "Original Amt. (LCY)",
             "Debit Amount", "Credit Amount", "Debit Amount (LCY)", "Credit Amount (LCY)");
-        if VendLedgerEntry."Document Situation" <> 0 then
+        if VendLedgerEntry."Document Situation" <> VendLedgerEntry."Document Situation"::" " then
             case VendLedgerEntry."Document Situation" of
                 VendLedgerEntry."Document Situation"::Cartera:
                     if CarteraDoc.Get(CarteraDoc.Type::Payable, VendLedgerEntry."Entry No.") then begin

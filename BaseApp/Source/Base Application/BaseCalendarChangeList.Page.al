@@ -35,7 +35,7 @@ page 7607 "Base Calendar Change List"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the day of the week associated with this change entry.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the change in this entry.';

@@ -18,7 +18,7 @@ page 10706 "Statistical Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the statistical code for the payment.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the statistical code.';

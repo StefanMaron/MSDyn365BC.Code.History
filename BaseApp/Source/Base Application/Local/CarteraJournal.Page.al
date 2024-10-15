@@ -104,7 +104,7 @@ page 7000036 "Cartera Journal"
                         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
                     end;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the record.';
@@ -179,7 +179,7 @@ page 7000036 "Cartera Journal"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of, if it is a credit amount.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total on the journal line.';

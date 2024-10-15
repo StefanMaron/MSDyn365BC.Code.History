@@ -22,7 +22,7 @@ page 10701 "Non-Payment Periods"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date of the non-payment period.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the non-payment period.';

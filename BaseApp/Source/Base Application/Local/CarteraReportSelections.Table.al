@@ -4,11 +4,9 @@ table 7000013 "Cartera Report Selections"
 
     fields
     {
-        field(1; Usage; Option)
+        field(1; Usage; Enum "Report Selection Usage Cartera")
         {
             Caption = 'Usage';
-            OptionCaption = 'Bill Group,Posted Bill Group,Closed Bill Group,Bill,Bill Group - Test,Payment Order,Posted Payment Order,Payment Order - Test,Closed Payment Order';
-            OptionMembers = "Bill Group","Posted Bill Group","Closed Bill Group",Bill,"Bill Group - Test","Payment Order","Posted Payment Order","Payment Order - Test","Closed Payment Order";
         }
         field(2; Sequence; Code[10])
         {

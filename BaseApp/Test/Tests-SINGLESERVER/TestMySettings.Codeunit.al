@@ -1,4 +1,3 @@
-#if not CLEAN19
 codeunit 139006 "Test My Settings"
 {
     Subtype = Test;
@@ -24,33 +23,6 @@ codeunit 139006 "Test My Settings"
         RemoveFilterValues: Boolean;
         FilterFormOpened: Boolean;
         MyNotificationFilterTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Table18">VERSION(1) SORTING(Field1) WHERE(Field1=1(%1))</DataItem></DataItems></ReportParameters>';
-
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('AvailableRoleCentersHandler,HandleSessionSettings')]
-    [Scope('OnPrem')]
-    procedure TestChangeRoleCenterFromMySettings()
-    var
-        UserPersonalization: Record "User Personalization";
-        AllProfile: Record "All Profile";
-        MySettings: TestPage "My Settings";
-        ProfileVar: Variant;
-    begin
-        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
-        Initialize();
-
-        MySettings.OpenEdit;
-        MySettings.UserRoleCenter.AssistEdit;
-        LibraryVariableStorage.Dequeue(ProfileVar);
-        AllProfile := ProfileVar;
-        MySettings.UserRoleCenter.AssertEquals(AllProfile.Caption);
-        MySettings.OK.Invoke;
-
-        // [THEN] The chosen Role Center is set as the starting role center for the current user
-        UserPersonalization.Get(UserSecurityId);
-        Assert.AreEqual(AllProfile."Profile ID", UserPersonalization."Profile ID", 'Profile ID not set in User Personalization.');
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('AvailableRoleCentersHandlerBlankProfileIsHidden')]
@@ -426,7 +398,7 @@ codeunit 139006 "Test My Settings"
     local procedure PrepareTotalingGLAccount(TotalingValue: Text[250]; var TotalingGLAccount: Record "G/L Account"; var TotalingBalance: Decimal)
     begin
         LibraryERM.CreateGLAccount(TotalingGLAccount);
-        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::Heading;
+        TotalingGLAccount."Account Type" := TotalingGLAccount."Account Type"::"End-Total";
         TotalingGLAccount.Totaling := TotalingValue;
         TotalingGLAccount.Modify();
         TotalingGLAccount.CalcFields(Balance);
@@ -477,21 +449,6 @@ codeunit 139006 "Test My Settings"
         MyNotifications.Modify();
     end;
 
-#if not CLEAN19
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailableRoleCentersHandler(var AvailableRoleCenters: TestPage "Available Roles")
-    var
-        AllProfile: Record "All Profile";
-    begin
-        AllProfile.SetRange("Default Role Center", false);
-        AllProfile.SetRange(Enabled, true);
-        AllProfile.FindFirst();
-        AvailableRoleCenters.GotoRecord(AllProfile);
-        LibraryVariableStorage.Enqueue(AllProfile);
-        AvailableRoleCenters.OK().Invoke();
-    end;
-#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure AvailableRoleCentersHandlerBlankProfileIsHidden(var Roles: TestPage Roles)
@@ -575,9 +532,14 @@ codeunit 139006 "Test My Settings"
 
     [SessionSettingsHandler]
     [Scope('OnPrem')]
-    procedure HandleSessionSettings(var TestSessionSettings: SessionSettings): Boolean
+    procedure StandardSessionSettingsHandler(var TestSessionSettings: SessionSettings): Boolean
     begin
         exit(false);
     end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Text: Text[1024])
+    begin
+    end;
 }
-#endif

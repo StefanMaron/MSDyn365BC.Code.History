@@ -846,7 +846,7 @@ codeunit 144076 "ERM Payment Discount"
         PurchaseLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreatePurchaseLineDiscount(Item: Record Item; VendorNo: Code[20]; LineDiscountPct: Decimal)
     var
         PurchaseLineDiscount: Record "Purchase Line Discount";

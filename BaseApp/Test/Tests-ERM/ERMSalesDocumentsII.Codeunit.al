@@ -78,31 +78,6 @@ codeunit 134386 "ERM Sales Documents II"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SalesInvoiceWithAlternativeCustmerPostingGroup()
-    var
-        CustPostingGroup: Record "Customer Posting Group";
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-    begin
-        // Create Sales Invoice, Post and Verify Sales Invoice Header and Line.
-
-        // Setup: Create Sales Invoice.
-        Initialize();
-        CreateSalesDocument(
-            SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer(), SalesLine.Type::Item, CreateItem());
-
-        LibrarySales.CreateCustomerPostingGroup(CustPostingGroup);
-        SalesHeader.Validate("Customer Posting Group", CustPostingGroup.Code);
-
-        // Exercise: Post Sales Invoice.
-        LibrarySales.PostSalesDocument(SalesHeader, true, true);
-
-        // Verify customer posting group in posted document and ledger entries
-        VerifySalesInvoiceCustPostingGroup(GetSalesInvoiceHeaderNo(SalesHeader."No."), CustPostingGroup);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure SalesCreditMemo()
     var
         SalesHeader: Record "Sales Header";
@@ -878,7 +853,7 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListPageHandler')]
+    [HandlerFunctions('NoSeriesPageHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderCreation()
     var
@@ -910,7 +885,7 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingPageHandler,EnterQuantityToCreatePageHandler,ConfirmHandlerYes,MessageHandler,NoSeriesListPageHandler,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesPageHadler')]
+    [HandlerFunctions('ItemTrackingPageHandler,EnterQuantityToCreatePageHandler,ConfirmHandlerYes,MessageHandler,NoSeriesPageHandler,ItemTrackingSummaryPageHandler,PostedItemTrackingLinesPageHadler')]
     [Scope('OnPrem')]
     procedure ItemTrackingOnPostedSalesDocument()
     var
@@ -938,7 +913,7 @@ codeunit 134386 "ERM Sales Documents II"
     end;
 
     [Test]
-    [HandlerFunctions('NoSeriesListPageHandler,DimensionSetEntriesPageHandler')]
+    [HandlerFunctions('NoSeriesPageHandler,DimensionSetEntriesPageHandler')]
     [Scope('OnPrem')]
     procedure DimensionOnSalesOrder()
     var
@@ -4253,7 +4228,7 @@ codeunit 134386 "ERM Sales Documents II"
         Assert.IsTrue(SalesQuote.SalesLines.Editable, SalesQuoteLineNotEditableErr);
     end;
 
-        [Test]
+    [Test]
     [Scope('OnPrem')]
     procedure VerifyShipToCountryRegionCodeOnILE()
     var
@@ -4298,10 +4273,17 @@ codeunit 134386 "ERM Sales Documents II"
 
     local procedure Initialize()
     var
+        ICSetup: Record "IC Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Documents II");
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
         DocumentNoVisibility.ClearState();
@@ -4831,7 +4813,7 @@ codeunit 134386 "ERM Sales Documents II"
         Customer.Get(CustomerNo);
 
         SalesOrder.OpenNew();
-        SalesOrder."No.".AssistEdit;  // No. Series Page  is handled in 'NoSeriesListPageHandler'.
+        SalesOrder."No.".AssistEdit;  // No. Series Page  is handled in 'NoSeriesPageHandler'.
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
         SalesOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
@@ -5809,29 +5791,6 @@ codeunit 134386 "ERM Sales Documents II"
         SalesInvoiceLine.TestField("Unit Price", SalesLine."Unit Price");
     end;
 
-    local procedure VerifySalesInvoiceCustPostingGroup(DocumentNo: Code[20]; CustomerPostingGroup: Record "Customer Posting Group")
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-        GLEntry: Record "G/L Entry";
-    begin
-        SalesInvoiceHeader.Get(DocumentNo);
-        SalesInvoiceHeader.TestField("Customer Posting Group", CustomerPostingGroup.Code);
-        SalesInvoiceHeader.CalcFields("Amount Including VAT");
-
-        CustLedgerEntry.SetRange("Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
-        CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
-        CustLedgerEntry.FindFirst();
-        CustLedgerEntry.TestField("Customer Posting Group", CustomerPostingGroup.Code);
-
-        GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.SetRange("Posting Date", SalesInvoiceHeader."Posting Date");
-        GLEntry.SetRange("G/L Account No.", CustomerPostingGroup."Receivables Account");
-        GLEntry.FindFirst();
-        GLEntry.TestField(Amount, SalesInvoiceHeader."Amount Including VAT");
-    end;
-
     local procedure VerifySalesShipment(SalesLine: Record "Sales Line"; DocumentNo: Code[20])
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -6283,9 +6242,9 @@ codeunit 134386 "ERM Sales Documents II"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure NoSeriesListPageHandler(var NoSeriesList: TestPage "No. Series")
+    procedure NoSeriesPageHandler(var NoSeriesPage: TestPage "No. Series")
     begin
-        NoSeriesList.OK.Invoke;
+        NoSeriesPage.OK().Invoke();
     end;
 
     [ModalPageHandler]

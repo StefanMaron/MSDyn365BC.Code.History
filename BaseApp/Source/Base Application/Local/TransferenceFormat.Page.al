@@ -40,7 +40,7 @@ page 10704 "Transference Format"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the field length of the XML label that will be included in the VAT statement text file.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line type of the XML label that will be included in the VAT statement text file.';
@@ -50,7 +50,7 @@ page 10704 "Transference Format"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line subtype of the XML label that will be included in the VAT statement text file.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the XML label that will be included in the VAT statement text file.';

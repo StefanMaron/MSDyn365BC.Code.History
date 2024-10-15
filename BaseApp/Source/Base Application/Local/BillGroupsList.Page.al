@@ -35,7 +35,7 @@ page 7000011 "Bill Groups List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the bill group.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the sums of the documents included in the bill group.';

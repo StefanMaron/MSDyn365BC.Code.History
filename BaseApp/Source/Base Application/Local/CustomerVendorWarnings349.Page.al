@@ -18,7 +18,7 @@ page 10736 "Customer/Vendor Warnings 349"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the general ledger entry correction in the declaration.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line entry invoice type.';
@@ -37,6 +37,11 @@ page 10736 "Customer/Vendor Warnings 349"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the document was posted.';
+                }
+                field("VAT Reporting Date"; Rec."VAT Reporting Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT date when the document was posted.';
                 }
                 field("Document No."; Rec."Document No.")
                 {
@@ -314,7 +319,7 @@ page 10736 "Customer/Vendor Warnings 349"
             SetRange(Type, EntryType);
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetRange("Bill-to/Pay-to No.", CustVendNo);
-            SetRange("Posting Date", FromDate, ToDate);
+            SetRange("VAT Reporting Date", FromDate, ToDate);
             if ExcludeGenProductPostingGroupFilter <> '' then
                 SetFilter("Gen. Prod. Posting Group", ExcludeGenProductPostingGroupFilter);
             if FindSet() then

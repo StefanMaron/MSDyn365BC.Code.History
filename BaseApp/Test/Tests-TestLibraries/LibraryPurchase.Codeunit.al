@@ -259,11 +259,17 @@ codeunit 130512 "Library - Purchase"
         PurchaseLine.Modify(true);
     end;
 
+
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
+    begin
+        CreatePurchaseOrderForVendorNo(PurchaseHeader, CreateVendorNo());
+    end;
+
+    procedure CreatePurchaseOrderForVendorNo(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendorNo);
+        CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
@@ -465,6 +471,16 @@ codeunit 130512 "Library - Purchase"
         VendorPostingGroup.Validate("Credit Curr. Appln. Rndg. Acc.", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Validate("Bills Account", LibraryERM.CreateGLAccountNo);
         VendorPostingGroup.Insert(true);
+    end;
+
+    procedure CreateAltVendorPostingGroup(ParentCode: Code[10]; AltCode: Code[10])
+    var
+        AltVendorPostingGroup: Record "Alt. Vendor Posting Group";
+    begin
+        AltVendorPostingGroup.Init();
+        AltVendorPostingGroup."Vendor Posting Group" := ParentCode;
+        AltVendorPostingGroup."Alt. Vendor Posting Group" := AltCode;
+        AltVendorPostingGroup.Insert();
     end;
 
     procedure CreateVendorWithLocationCode(var Vendor: Record Vendor; LocationCode: Code[10]): Code[20]

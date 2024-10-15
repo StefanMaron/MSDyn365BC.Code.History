@@ -32,13 +32,11 @@ codeunit 7000000 CarteraManagement
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ElectPmtMgmt: Codeunit "Elect. Pmts Management";
 
-    [Scope('OnPrem')]
     procedure CategorizeDocs(var Doc: Record "Cartera Doc.")
     begin
         REPORT.RunModal(REPORT::"Categorize Documents", true, false, Doc);
     end;
 
-    [Scope('OnPrem')]
     procedure DecategorizeDocs(var Doc: Record "Cartera Doc.")
     begin
         Doc.ModifyAll("Category Code", '');
@@ -73,7 +71,6 @@ codeunit 7000000 CarteraManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure NavigateDoc(var CarteraDoc: Record "Cartera Doc.")
     var
         Navigate: Page Navigate;
@@ -99,7 +96,6 @@ codeunit 7000000 CarteraManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure NavigatePostedDoc(var PostedCarteraDoc: Record "Posted Cartera Doc.")
     var
         Navigate: Page Navigate;
@@ -125,7 +121,6 @@ codeunit 7000000 CarteraManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure NavigateClosedDoc(var ClosedCarteraDoc: Record "Closed Cartera Doc.")
     var
         Navigate: Page Navigate;
@@ -421,7 +416,6 @@ codeunit 7000000 CarteraManagement
         exit(true);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckDiscCreditLimit(var BillGr: Record "Bill Group")
     var
         CarteraSetup: Record "Cartera Setup";
@@ -446,7 +440,6 @@ codeunit 7000000 CarteraManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CreateReceivableDocPayment(var GenJnlLine2: Record "Gen. Journal Line"; var CustLedgEntry: Record "Cust. Ledger Entry")
     var
         PostedDoc: Record "Posted Cartera Doc.";
@@ -1057,7 +1050,7 @@ codeunit 7000000 CarteraManagement
         exit(true);
     end;
 
-    local procedure GetDocType(Type: Option Invoice,,Bill): Enum "Gen. Journal Document Type"
+    local procedure GetDocType(Type: Enum "Cartera Document Doc. Type"): Enum "Gen. Journal Document Type"
     begin
         case Type of
             Type::Invoice, Type::Bill:

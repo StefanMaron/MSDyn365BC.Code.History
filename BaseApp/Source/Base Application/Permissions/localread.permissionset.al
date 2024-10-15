@@ -19,7 +19,9 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Closed Cartera Doc." = R,
                   tabledata "Closed Payment Order" = R,
                   tabledata "Customer Cash Buffer" = R,
+#if not CLEAN22
                   tabledata "Customer Pmt. Address" = R,
+#endif
                   tabledata "Customer Rating" = R,
                   tabledata "Customer/Vendor Warning 349" = R,
                   tabledata "Doc. Post. Buffer" = R,
@@ -57,5 +59,7 @@ permissionset 1002 "LOCAL READ"
                   tabledata "SII Setup" = R,
                   tabledata "Statistical Code" = R,
                   tabledata Suffix = R,
+#if not CLEAN22
                   tabledata "Vendor Pmt. Address" = R;
+#endif
 }

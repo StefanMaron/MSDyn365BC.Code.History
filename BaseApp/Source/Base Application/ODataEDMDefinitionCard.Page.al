@@ -15,7 +15,7 @@ page 6726 "OData EDM Definition Card"
                 {
                     ApplicationArea = All;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the Open Data Protocol EDM definition.';

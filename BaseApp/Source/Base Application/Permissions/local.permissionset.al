@@ -19,7 +19,9 @@ permissionset 1001 "LOCAL"
                   tabledata "Closed Cartera Doc." = RIMd,
                   tabledata "Closed Payment Order" = RIMd,
                   tabledata "Customer Cash Buffer" = RIMD,
+#if not CLEAN22
                   tabledata "Customer Pmt. Address" = RIMD,
+#endif
                   tabledata "Customer Rating" = RIMD,
                   tabledata "Customer/Vendor Warning 349" = RIMD,
                   tabledata "Doc. Post. Buffer" = RIMD,
@@ -57,5 +59,7 @@ permissionset 1001 "LOCAL"
                   tabledata "SII Setup" = RIMD,
                   tabledata "Statistical Code" = RIMD,
                   tabledata Suffix = RIMD,
+#if not CLEAN22
                   tabledata "Vendor Pmt. Address" = RIMD;
+#endif
 }

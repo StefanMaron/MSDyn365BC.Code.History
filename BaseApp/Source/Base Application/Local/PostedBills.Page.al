@@ -62,7 +62,7 @@ page 7000067 "Posted Bills"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the due date of this document in a posted bill group/payment order.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the status of this document in a posted bill group/payment order.';
@@ -72,7 +72,7 @@ page 7000067 "Posted Bills"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of document in question.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -469,7 +469,7 @@ page 7000067 "Posted Bills"
             if ActiveFilter = Text1100003 then
                 StatusFilter := StatusFilter::All
             else
-                StatusFilter := Status;
+                StatusFilter := Status.AsInteger();
         end;
 
         if Call = true then

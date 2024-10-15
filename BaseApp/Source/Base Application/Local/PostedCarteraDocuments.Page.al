@@ -43,7 +43,7 @@ page 7000006 "Posted Cartera Documents"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of a bill in a posted bill group/payment order.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description associated with this posted document.';

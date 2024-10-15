@@ -36,7 +36,7 @@ page 7000014 "Posted Bill Groups List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code for the posted bill group.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total for all of the documents included in this bill group.';

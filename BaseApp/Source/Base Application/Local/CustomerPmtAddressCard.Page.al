@@ -21,7 +21,7 @@ page 7000038 "Customer Pmt. Address Card"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code to identify the customer''s payment address.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a number to identify the customer''s payment address.';
@@ -111,6 +111,5 @@ page 7000038 "Customer Pmt. Address Card"
         exit(Find(Which));
     end;
 }
-
 
 #endif

@@ -23,7 +23,7 @@ page 10768 "Posted Serv. Invoice - Update"
                     Editable = false;
                     ToolTip = 'Specifies the posted invoice number.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Service;
                     Caption = 'Customer';

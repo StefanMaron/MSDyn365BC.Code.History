@@ -17,7 +17,7 @@ page 36848 "Bank Cat.Post.Rec.Bills Matrix"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the posted receivables bill. ';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the name of the bill.';
@@ -416,7 +416,7 @@ page 36848 "Bank Cat.Post.Rec.Bills Matrix"
             PostedCarteraDoc.SetRange("Due Date", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End");
 
         PostedCarteraDoc.SetFilter("Category Code", CategoryFilter);
-        PostedCarteraDoc.SetRange(Status, StatusFilterOption);
+        PostedCarteraDoc.SetRange(Status, "Cartera Document Status".FromInteger(StatusFilterOption));
         PostedBills.SetTableView(PostedCarteraDoc);
         PostedBills.RunModal();
     end;

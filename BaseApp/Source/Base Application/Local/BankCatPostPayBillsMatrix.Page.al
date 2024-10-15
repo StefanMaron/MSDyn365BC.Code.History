@@ -17,7 +17,7 @@ page 36850 "Bank Cat.Post.Pay.Bills Matrix"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the posted payables bill. ';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies if the name of the bill.';

@@ -399,7 +399,7 @@ report 7000080 "Post Payment Order"
             PostedDoc.Insert();
             VendLedgEntry.Get(PostedDoc."Entry No.");
             VendLedgEntry."Document Situation" := VendLedgEntry."Document Situation"::"Posted BG/PO";
-            VendLedgEntry."Document Status" := PostedDoc.Status + 1;
+            VendLedgEntry."Document Status" := "ES Document Status".FromInteger(PostedDoc.Status.AsInteger() + 1);
             OnUpdateTablesOnBeforeVendLedgEntryModify(VendLedgEntry, PostedDoc, PmtOrd);
             VendLedgEntry.Modify();
         until PostedDocBuffer.Next() = 0;

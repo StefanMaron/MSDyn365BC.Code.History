@@ -43,7 +43,7 @@ page 10740 "No Taxable Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -51,7 +51,7 @@ page 10740 "No Taxable Entries"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                 }

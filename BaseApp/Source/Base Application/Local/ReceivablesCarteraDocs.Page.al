@@ -81,7 +81,7 @@ page 7000001 "Receivables Cartera Docs"
                     Editable = false;
                     ToolTip = 'Specifies the number associated with a specific bill.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
