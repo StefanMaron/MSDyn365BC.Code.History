@@ -549,7 +549,7 @@ codeunit 7313 "Create Put-away"
             QtyToPutAwayBase := PostedWhseReceiptLine."Qty. (Base)";
 
         OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(
-            PostedWhseReceiptLine, CurrLocation, CurrBin, CrossDockInfo, EmptyZoneBin, QtyToPutAwayBase, EverythingHandled, RemQtyToPutAwayBase);
+            PostedWhseReceiptLine, CurrLocation, CurrBin, CrossDockInfo, EmptyZoneBin, QtyToPutAwayBase, EverythingHandled, RemQtyToPutAwayBase, NewBinContent);
         QtyToPickBase := QtyToPickBase + QtyToPutAwayBase;
         if QtyToPutAwayBase > 0 then begin
             LineNo := LineNo + 10000;
@@ -1168,7 +1168,7 @@ codeunit 7313 "Create Put-away"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin; CrossDockInfo: Option; EmptyZoneBin: Boolean; var QtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var RemQtyToPutAwayBase: Decimal)
+    local procedure OnCalcQtyToPutAwayOnAfterSetQtyToPutAwayBase(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; Location: Record Location; Bin: Record Bin; CrossDockInfo: Option; EmptyZoneBin: Boolean; var QtyToPutAwayBase: Decimal; var EverythingHandled: Boolean; var RemQtyToPutAwayBase: Decimal; NewBinContent: Boolean)
     begin
     end;
 

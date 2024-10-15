@@ -2813,6 +2813,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory 7.0 - NamedType ItemVendorMustNotExistErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1971265218 - NamedType 837926243" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Reordering Policy should not be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory 7.0 - NamedType ReorderingPolicyShouldNotBeVisibleErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1971265218 - NamedType 1973255455" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The Reserved Quantity Outbnd is changed.]]></Val>
@@ -2829,6 +2838,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory 7.0 - NamedType RoundingPrecisionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1971265218 - NamedType 1092168258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[ Special Equipment Code should not be visible.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory 7.0 - NamedType SpecialEquipmentCodeShouldNotBeVisibleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1971265218 - NamedType 1084747160" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -3792,6 +3810,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=Value]D;]A;(LookupHint=Codeunit SCM Inventory Documents - NamedType DimensionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 917041221 - NamedType 1612705530" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Dimension Value must match with %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1= Dimension Value]D;]A;(LookupHint=Codeunit SCM Inventory Documents - NamedType DimensionValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 917041221 - NamedType 4144387699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12020,6 +12047,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ProdOrderRtngLineNotUpdatedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 1473162410" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be %2 in %3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1: Quantity, %2: Consumption Quantity Value, %3: Item Ledger Entry]D;]A;(LookupHint=Codeunit SCM Production Orders II - NamedType QuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 1266228874" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Requisition Line must not exist for Item %1.]]></Val>
@@ -14907,6 +14943,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - III - NamedType WantToContinueMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2987310544 - NamedType 1037624021" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warehouse Activity Header must not be empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse - III - NamedType WhseActivityHeaderMustNotBeEmpty)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2987310544 - NamedType 1058790030" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

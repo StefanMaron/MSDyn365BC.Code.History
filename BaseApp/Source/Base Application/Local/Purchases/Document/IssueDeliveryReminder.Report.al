@@ -85,6 +85,7 @@ report 5005341 "Issue Delivery Reminder"
     trigger OnPostReport()
     begin
         Commit();
+        OnPostReportOnBeforePrintIssuedDeliveryReminder(IssuedDeliveryReminderHeader, PrintDoc);
 
         if PrintDoc then begin
             IssuedDeliveryReminderHeader.MarkedOnly := true;
@@ -123,5 +124,10 @@ report 5005341 "Issue Delivery Reminder"
         ReplacePostingDate: Boolean;
         PrintDoc: Boolean;
         NoOfRecords: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforePrintIssuedDeliveryReminder(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header"; var PrintDoc: Boolean)
+    begin
+    end;
 }
 

@@ -64,7 +64,7 @@ codeunit 81 "Sales-Post (Yes/No)"
         else
             RunSalesPost(SalesHeader);
 
-        OnAfterPost(SalesHeader);
+        OnAfterPost(SalesHeader, PostAndSend);
     end;
 
     local procedure RunSalesPost(var SalesHeader: Record "Sales Header")
@@ -111,7 +111,7 @@ codeunit 81 "Sales-Post (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPost(var SalesHeader: Record "Sales Header")
+    local procedure OnAfterPost(var SalesHeader: Record "Sales Header"; PostAndSend: Boolean)
     begin
     end;
 

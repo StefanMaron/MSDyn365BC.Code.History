@@ -114,17 +114,17 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
         IsHandled := false;
         OnBeforeSetQtysOnShptLine(WarehouseShipmentLine, Qty, QtyBase, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then 
+	        with WarehouseShipmentLine do begin
+	            Quantity := Qty;
+	            "Qty. (Base)" := QtyBase;
+	            InitOutstandingQtys();
+	            CheckSourceDocLineQty();
+	            if Location.Get("Location Code") then
+	                CheckBin(0, 0);
+	        end;	
 
-        with WarehouseShipmentLine do begin
-            Quantity := Qty;
-            "Qty. (Base)" := QtyBase;
-            InitOutstandingQtys();
-            CheckSourceDocLineQty();
-            if Location.Get("Location Code") then
-                CheckBin(0, 0);
-        end;
+        OnAfterSetQtysOnShptLine(WarehouseShipmentLine, Qty, QtyBase);
     end;
 
     internal procedure CreateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
@@ -836,4 +836,9 @@ codeunit 5750 "Whse.-Create Source Document"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetQtysOnShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Qty: Decimal; var QtyBase: Decimal)
+    begin
+    end;
 }
