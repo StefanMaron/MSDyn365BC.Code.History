@@ -135,7 +135,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TempSKU."Item No." := ItemNo;
         TransferPlanningParameters(TempSKU);
         TempSKU."Location Code" := LocationCode;
-        TempSKU.Insert();
+        if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then
+            TempSKU.Insert();
     end;
 
     local procedure DemandToInvtProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date)
@@ -2212,9 +2213,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         ProjectedInventory := ProjectedInventory + DemandInvtProfile."Remaining Quantity (Base)";
                     ReorderQty := CalcReorderQty(ReorderQty, ProjectedInventory, SupplyInvtProfile."Line No.");
                     if ReorderQty < -ProjectedInventory then
-                        ReorderQty :=
-                          Round(-ProjectedInventory / TempSKU."Reorder Quantity" + ExceedROPqty, 1, '>') *
-                          TempSKU."Reorder Quantity";
+                        if ProjectedInventory mod TempSKU."Reorder Quantity" = 0 then
+                            ReorderQty :=
+                              Round(-ProjectedInventory / TempSKU."Reorder Quantity", 1, '>') *
+                              TempSKU."Reorder Quantity"
+                        else
+                            ReorderQty :=
+                              Round(-ProjectedInventory / TempSKU."Reorder Quantity" + ExceedROPqty, 1, '>') *
+                              TempSKU."Reorder Quantity";
                 end;
 
             ReorderQty += AdjustReorderQty(ReorderQty, TempSKU, SupplyInvtProfile."Line No.", SupplyInvtProfile."Min. Quantity");
@@ -3618,6 +3624,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure CheckScheduleOut(var SupplyInvtProfile: Record "Inventory Profile"; TargetDate: Date; var PossibleDate: Date; LimitedHorizon: Boolean): Boolean
     var
         ShouldExitAllowLotAccumulation: Boolean;
+        IsHandled: Boolean;
+        Result: Boolean;
     begin
         OnBeforeCheckScheduleOut(SupplyInvtProfile, TempSKU, BucketSize);
 
@@ -3637,6 +3645,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 else begin
                     // Do not reschedule but may be lot accumulation is still an option
                     PossibleDate := SupplyInvtProfile."Due Date";
+
+                    IsHandled := false;
+                    OnCheckScheduleOutOnBeforeAllowLotAccumulation(PossibleDate, TargetDate, SupplyInvtProfile, IsHandled, Result);
+                    if IsHandled then
+                        exit(Result);
 
                     ShouldExitAllowLotAccumulation := SupplyInvtProfile."Fixed Date" <> 0D;
                     OnCheckScheduleOutOnNotAllowScheduleOut(SupplyInvtProfile, ShouldExitAllowLotAccumulation);
@@ -5964,6 +5977,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAdjustReorderQty(OrderQty: Decimal; var SKU: Record "Stockkeeping Unit"; SupplyLineNo: Integer; MinQty: Decimal; var DeltaQty: Decimal);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckScheduleOutOnBeforeAllowLotAccumulation(PossibleDate: Date; TargetDate: Date; SupplyInvtProfile: Record "Inventory Profile"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

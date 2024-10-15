@@ -648,6 +648,8 @@ permissionset 732 "D365 BASIC ISV"
                   tabledata "Payment Matching Details" = RIMD,
                   tabledata "Payment Method" = RIMD,
                   tabledata "Payment Method Translation" = RIMD,
+                  tabledata "Payment Rec. Related Entry" = RIMD,
+                  tabledata "Pmt. Rec. Applied-to Entry" = RIMD,
                   tabledata "Payment Registration Buffer" = RIMD,
                   tabledata "Payment Registration Setup" = RIMD,
                   tabledata "Payment Reporting Argument" = Rimd,

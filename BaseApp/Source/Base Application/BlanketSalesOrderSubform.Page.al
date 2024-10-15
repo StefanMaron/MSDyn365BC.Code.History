@@ -84,6 +84,12 @@
                             VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
                     end;
                 }
+                field(Nonstock; Nonstock)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that this item is a catalog item.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
@@ -920,6 +926,19 @@
                     trigger OnAction()
                     begin
                         InsertExtendedText(true);
+                    end;
+                }
+                action("Select Nonstoc&k Items")
+                {
+                    AccessByPermission = TableData "Nonstock Item" = R;
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Select Ca&talog Items';
+                    Image = NonStockItem;
+                    ToolTip = 'View the list of catalog items that exist in the system.';
+
+                    trigger OnAction()
+                    begin
+                        ShowNonstock();
                     end;
                 }
             }

@@ -324,7 +324,6 @@
         BankAccLedgEntry.SetFilter("Statement Status", '%1|%2', BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied", BankAccLedgEntry."Statement Status"::"Check Entry Applied");
         BankAccLedgEntry.SetRange("Statement No.", BankAccReconLine."Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", BankAccReconLine."Statement Line No.");
-        BankAccLedgEntry.SetRange("Posting Date", 0D, StatementClosingDate);
         OnCloseBankAccLedgEntryOnAfterBankAccLedgEntrySetFilters(BankAccLedgEntry, BankAccReconLine);
         if BankAccLedgEntry.FindSet(true, true) then
             repeat

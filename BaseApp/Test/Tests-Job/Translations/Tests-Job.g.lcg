@@ -1706,6 +1706,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT C Copy Job - NamedType JobWithManualNoNotCreatedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590873700 - NamedType 1733554046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 must be equal to %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - field caption, %2 - field value]D;]A;(LookupHint=Codeunit UT C Copy Job - NamedType TestFieldValueErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3438364934 - NamedType 2545975569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Blocked Customer error was expected]]></Val>

@@ -235,7 +235,7 @@
             {
                 ApplicationArea = All;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = CONST(156),
+                SubPageLink = "Table ID" = CONST(Database::Resource),
                               "No." = FIELD("No.");
             }
             part(Control1906609707; "Resource Statistics FactBox")

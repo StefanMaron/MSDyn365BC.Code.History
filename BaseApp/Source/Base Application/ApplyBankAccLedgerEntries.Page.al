@@ -279,6 +279,8 @@ page 381 "Apply Bank Acc. Ledger Entries"
         end;
     end;
 
+#if not CLEAN22
+    [Obsolete('Filters on Bank Ledger Entries on the Bank Rec. page are controlled by UpdateBankAccountLedgerEntrySubpage, these filters were ignored', '22.0')]
     procedure ToggleMatchedFilter(SetFilterOn: Boolean)
     begin
         if SetFilterOn then begin
@@ -289,6 +291,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             Reset();
         CurrPage.Update();
     end;
+#endif
 
     local procedure CalcBalanceToReconcile(): Decimal
     var

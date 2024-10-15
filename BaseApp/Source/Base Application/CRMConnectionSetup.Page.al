@@ -283,7 +283,6 @@ page 5330 "CRM Connection Setup"
             group(AdvancedSettings)
             {
                 Caption = 'Advanced Settings';
-                Visible = "Is Enabled";
 #if not CLEAN20
                 field("Is User Mapping Required"; Rec."Is User Mapping Required")
                 {
@@ -323,27 +322,29 @@ page 5330 "CRM Connection Setup"
                 field("Use Newest UI"; Rec."Use Newest UI")
                 {
                     ApplicationArea = Suite;
+                    Editable = "Is Enabled";
                     Caption = 'Open Coupled Entities in Dynamics 365 Sales Hub';
                     ToolTip = 'Specifies that coupled Dynamics 365 Sales entities should open in Sales Hub.';
                 }
                 field("Item Availability Enabled"; Rec."Item Availability Enabled")
                 {
                     ApplicationArea = Suite;
+                    Editable = "Is Enabled";
                     Caption = 'Automatically Synchronize Item Availability';
                     ToolTip = 'Specifies that item availability job queue entry will be scheduled.';
-                }
-                label(Control30)
-                {
-                    ApplicationArea = Suite;
-                    ShowCaption = false;
-                    Caption = '';
                 }
                 field("Unit Group Mapping Enabled"; "Unit Group Mapping Enabled")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Unit Group Mapping';
                     ToolTip = 'Specifies that unit group mapping is enabled.';
-                    Editable = not "Unit Group Mapping Enabled";
+                    Editable = not "Is Enabled";
+                }
+                label(Control30)
+                {
+                    ApplicationArea = Suite;
+                    ShowCaption = false;
+                    Caption = '';
                 }
             }
             group(AuthTypeDetails)
