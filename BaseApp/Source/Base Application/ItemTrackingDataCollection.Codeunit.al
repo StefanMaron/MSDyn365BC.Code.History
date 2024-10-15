@@ -39,11 +39,14 @@ codeunit 6501 "Item Tracking Data Collection"
         QtyOnLine: Decimal;
         QtyHandledOnLine: Decimal;
         NewQtyOnLine: Decimal;
+        IsHandled: Boolean;
     begin
         OnBeforeAssistEditTrackingNo(TempTrackingSpecification, SearchForSupply, CurrentSignFactor, LookupMode, MaxQuantity);
 
         Window.Open(Text004);
 
+        IsHandled := false;
+        OnAssistEditTrackingNoOnBeforeRetrieveLookupData(TempTrackingSpecification, TempGlobalEntrySummary, FullGlobalDataSetExists, IsHandled);
         if not FullGlobalDataSetExists then
             RetrieveLookupData(TempTrackingSpecification, true);
 
@@ -290,7 +293,7 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemTrackingSummaryForm.RunModal;
     end;
 
-    procedure RetrieveLookupData(var TrackingSpecification: Record "Tracking Specification" temporary; FullDataSet: Boolean)
+    procedure RetrieveLookupData(var TempTrackingSpecification: Record "Tracking Specification" temporary; FullDataSet: Boolean)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ReservEntry: Record "Reservation Entry";
@@ -299,7 +302,7 @@ codeunit 6501 "Item Tracking Data Collection"
     begin
         LastSummaryEntryNo := 0;
         LastReservEntryNo := 0;
-        xTrackingSpecification := TrackingSpecification;
+        xTrackingSpecification := TempTrackingSpecification;
         TempGlobalReservEntry.Reset;
         TempGlobalReservEntry.DeleteAll;
         TempGlobalEntrySummary.Reset;
@@ -310,11 +313,10 @@ codeunit 6501 "Item Tracking Data Collection"
             LastReservEntryNo := ReservEntry."Entry No.";
         ReservEntry.SetCurrentKey(
           "Item No.", "Variant Code", "Location Code", "Item Tracking", "Reservation Status", "Lot No.", "Serial No.");
-        ReservEntry.SetRange("Item No.", TrackingSpecification."Item No.");
-        ReservEntry.SetRange("Variant Code", TrackingSpecification."Variant Code");
-        ReservEntry.SetRange("Location Code", TrackingSpecification."Location Code");
+        ReservEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
+        ReservEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
+        ReservEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
         ReservEntry.SetFilter("Item Tracking", '<>%1', ReservEntry."Item Tracking"::None);
-
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
@@ -325,54 +327,56 @@ codeunit 6501 "Item Tracking Data Collection"
         ItemLedgEntry.Reset;
         ItemLedgEntry.SetCurrentKey("Item No.", Open, "Variant Code", "Location Code", "Item Tracking",
           "Lot No.", "Serial No.");
-        ItemLedgEntry.SetRange("Item No.", TrackingSpecification."Item No.");
-        ItemLedgEntry.SetRange("Variant Code", TrackingSpecification."Variant Code");
+        ItemLedgEntry.SetRange("Item No.", TempTrackingSpecification."Item No.");
+        ItemLedgEntry.SetRange("Variant Code", TempTrackingSpecification."Variant Code");
         ItemLedgEntry.SetRange(Open, true);
-        ItemLedgEntry.SetRange("Location Code", TrackingSpecification."Location Code");
+        ItemLedgEntry.SetRange("Location Code", TempTrackingSpecification."Location Code");
+
+        OnRetrieveLookupDataOnBeforeTransferToTempRec(TempTrackingSpecification, TempReservEntry, ItemLedgEntry, FullDataSet);
 
         if FullDataSet then begin
-            TransferReservEntryToTempRec(TempReservEntry, TrackingSpecification);
-            TransferItemLedgToTempRec(ItemLedgEntry, TrackingSpecification);
+            TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
+            TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
         end else begin
-            if TrackingSpecification.FindSet then
+            if TempTrackingSpecification.FindSet then
                 repeat
                     ItemLedgEntry.ClearTrackingFilter;
                     TempReservEntry.ClearTrackingFilter;
 
-                    if TrackingSpecification."Lot No." <> '' then begin
-                        ItemLedgEntry.SetRange("Lot No.", TrackingSpecification."Lot No.");
-                        TempReservEntry.SetRange("Lot No.", TrackingSpecification."Lot No.");
-                        TransferReservEntryToTempRec(TempReservEntry, TrackingSpecification);
-                        TransferItemLedgToTempRec(ItemLedgEntry, TrackingSpecification);
+                    if TempTrackingSpecification."Lot No." <> '' then begin
+                        ItemLedgEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
+                        TempReservEntry.SetRange("Lot No.", TempTrackingSpecification."Lot No.");
+                        TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
+                        TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
                     end;
 
                     ItemLedgEntry.ClearTrackingFilter;
                     TempReservEntry.ClearTrackingFilter;
-                    if TrackingSpecification."CD No." <> '' then begin
-                        ItemLedgEntry.SetRange("CD No.", TrackingSpecification."CD No.");
-                        TempReservEntry.SetRange("CD No.", TrackingSpecification."CD No.");
-                        TransferReservEntryToTempRec(TempReservEntry, TrackingSpecification);
-                        TransferItemLedgToTempRec(ItemLedgEntry, TrackingSpecification);
+                    if TempTrackingSpecification."CD No." <> '' then begin
+                        ItemLedgEntry.SetRange("CD No.", TempTrackingSpecification."CD No.");
+                        TempReservEntry.SetRange("CD No.", TempTrackingSpecification."CD No.");
+                        TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
+                        TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
                     end;
 
-                    if TrackingSpecification."Serial No." <> '' then begin
-                        ItemLedgEntry.SetTrackingFilterFromSpec(TrackingSpecification);
-                        TempReservEntry.SetTrackingFilterFromSpec(TrackingSpecification);
-                        TransferReservEntryToTempRec(TempReservEntry, TrackingSpecification);
-                        TransferItemLedgToTempRec(ItemLedgEntry, TrackingSpecification);
+                    if TempTrackingSpecification."Serial No." <> '' then begin
+                        ItemLedgEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
+                        TempReservEntry.SetTrackingFilterFromSpec(TempTrackingSpecification);
+                        TransferReservEntryToTempRec(TempReservEntry, TempTrackingSpecification);
+                        TransferItemLedgToTempRec(ItemLedgEntry, TempTrackingSpecification);
                     end;
-                until TrackingSpecification.Next = 0;
+                until TempTrackingSpecification.Next = 0;
         end;
 
         TempGlobalEntrySummary.Reset;
         UpdateCurrentPendingQty;
-        TrackingSpecification := xTrackingSpecification;
+        TempTrackingSpecification := xTrackingSpecification;
 
         PartialGlobalDataSetExists := true;
         FullGlobalDataSetExists := FullDataSet;
         AdjustForDoubleEntries;
 
-        OnAfterRetrieveLookupData(TrackingSpecification, FullDataSet, TempGlobalReservEntry, TempGlobalEntrySummary);
+        OnAfterRetrieveLookupData(TempTrackingSpecification, FullDataSet, TempGlobalReservEntry, TempGlobalEntrySummary);
     end;
 
     local procedure TransferItemLedgToTempRec(var ItemLedgEntry: Record "Item Ledger Entry"; var TrackingSpecification: Record "Tracking Specification" temporary)
@@ -1221,6 +1225,11 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAssistEditTrackingNoOnBeforeRetrieveLookupData(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; var FullGlobalDataSetExists: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateEntrySummary(TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary)
     begin
     end;
@@ -1267,6 +1276,11 @@ codeunit 6501 "Item Tracking Data Collection"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBinContent(var TempEntrySummary: Record "Entry Summary" temporary; var TempReservationEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveLookupDataOnBeforeTransferToTempRec(var TempTrackingSpecification: Record "Tracking Specification" temporary; var TempReservationEntry: Record "Reservation Entry" temporary; ItemLedgerEntry: Record "Item Ledger Entry"; var FullDataSet: Boolean)
     begin
     end;
 

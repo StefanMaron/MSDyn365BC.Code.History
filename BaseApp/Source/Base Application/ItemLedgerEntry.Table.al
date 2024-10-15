@@ -521,8 +521,6 @@ table 32 "Item Ledger Entry"
         }
         key(Key17; "Item No.", Open, "Variant Code", Positive, "Lot No.", "Serial No.", "CD No.")
         {
-            MaintainSIFTIndex = false;
-            MaintainSQLIndex = false;
         }
         key(Key18; "Item No.", Open, "Variant Code", "Location Code", "Item Tracking", "Lot No.", "Serial No.", "CD No.")
         {

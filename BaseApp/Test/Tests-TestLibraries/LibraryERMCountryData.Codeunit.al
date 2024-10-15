@@ -9,6 +9,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
 
     procedure InitializeCountry()
     begin
@@ -96,6 +97,7 @@ codeunit 131305 "Library - ERM Country Data"
     begin
         InventorySetup.Get;
         InventorySetup."Automatic Cost Posting" := false;
+        InventorySetup."Posted Direct Transfer Nos." := LibraryUtility.GetGlobalNoSeriesCode;
         InventorySetup.Modify;
     end;
 

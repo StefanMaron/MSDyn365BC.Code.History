@@ -513,6 +513,30 @@ report 1322 "Standard Purchase - Order"
                 column(JobTaskNo_PurchLine_Lbl; JobTaskNoLbl)
                 {
                 }
+                column(PlannedReceiptDateLbl; PlannedReceiptDateLbl)
+                {
+                }
+                column(PlannedReceiptDate; Format("Planned Receipt Date",0,4))
+                {
+                }
+                column(ExpectedReceiptDateLbl; ExpectedReceiptDateLbl)
+                {
+                }
+                column(ExpectedReceiptDate; Format("Expected Receipt Date",0,4))
+                {
+                }
+                column(PromisedReceiptDateLbl; PromisedReceiptDateLbl)
+                {
+                }
+                column(PromisedReceiptDate; Format("Promised Receipt Date",0,4))
+                {
+                }
+                column(RequestedReceiptDateLbl; RequestedReceiptDateLbl)
+                {
+                }
+                column(RequestedReceiptDate; Format("Requested Receipt Date",0,4))
+                {
+                }
 
                 trigger OnAfterGetRecord()
                 begin
@@ -928,7 +952,7 @@ report 1322 "Standard Purchase - Order"
         OrderNoCaptionLbl: Label 'Order No.';
         PageCaptionLbl: Label 'Page';
         DocumentDateCaptionLbl: Label 'Document Date';
-        DirectUniCostCaptionLbl: Label 'Unit Price';
+        DirectUniCostCaptionLbl: Label 'Direct Unit Cost';
         PurchLineLineDiscCaptionLbl: Label 'Discount %';
         VATDiscountAmountCaptionLbl: Label 'Payment Discount on VAT';
         PaymentDetailsCaptionLbl: Label 'Payment Details';
@@ -1041,6 +1065,10 @@ report 1322 "Standard Purchase - Order"
         UnitPriceLbl: Label 'Unit Price (LCY)';
         JobNoLbl: Label 'Job No.';
         JobTaskNoLbl: Label 'Job Task No.';
+        PromisedReceiptDateLbl: Label 'Promised Receipt Date';
+        RequestedReceiptDateLbl: Label 'Requested Receipt Date';
+        ExpectedReceiptDateLbl: Label 'Expected Receipt Date';
+        PlannedReceiptDateLbl: Label 'Planned Receipt Date';
 
     procedure InitializeRequest(LogInteractionParam: Boolean)
     begin

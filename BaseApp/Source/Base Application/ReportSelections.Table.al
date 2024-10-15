@@ -1140,7 +1140,7 @@ table 77 "Report Selections"
         ToAddress: Text[250];
         IsHandled: Boolean;
     begin
-        OnBeforeGetVendorEmailAddress(BuyFromVendorNo, ToAddress, ReportUsage, IsHandled);
+        OnBeforeGetVendorEmailAddress(BuyFromVendorNo, ToAddress, ReportUsage, IsHandled, RecVar);
         if IsHandled then
             exit(ToAddress);
 
@@ -1435,7 +1435,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetVendorEmailAddress(BuyFromVendorNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean)
+    local procedure OnBeforeGetVendorEmailAddress(BuyFromVendorNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean; RecVar: Variant)
     begin
     end;
 

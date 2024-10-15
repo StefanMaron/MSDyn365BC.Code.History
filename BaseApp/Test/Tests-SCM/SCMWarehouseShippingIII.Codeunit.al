@@ -58,6 +58,8 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         UndoConsumptionConfirmQst: Label 'Do you want to undo consumption of the selected shipment line(s)?';
         UndoType: Option UndoShipment,UndoConsumption;
         CannotChangeValueErr: Label 'You cannot change %1 because one or more lines exist.';
+        WhsShpmtHeaderExternalDocumentNoIsWrongErr: Label 'Warehouse Shipment Header."External Document No." is wrong.';
+        WhsRcptHeaderVendorShpmntNoIsWrongErr: Label 'Warehouse Receipt Header."Vendor Shipment No." is wrong.';
 
     [Test]
     [HandlerFunctions('MessageHandler,ItemTrackingLinesPageHandler,ConfirmHandlerAsTrue')]
@@ -1034,6 +1036,246 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseShipmentLine.TestField(Quantity, SalesLine[2].Quantity);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseShipmentAfterReleasedSalesOrderExternalDocNoChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment]
+        // [SCENARIO 325564] "External Document No." in Warehouse Shipment must be same as the latest value in Source Sales Order when "External Document No." was modified after the release
+        Initialize;
+
+        // [GIVEN] Released Sales Order "S1"
+        CreateAndReleaseSalesOrder(
+          SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, 1, LocationWhite.Code, '', false, ReservationMode::" ");
+
+        // [GIVEN] "External Document No." on "S1" changed to "TESTAFTER"
+        SalesHeader.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Create Warehouse Shipment for this Sales Order
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [THEN] "External Document No." = "TESTAFTER" in Warehouse Shipment
+        FindWarehouseShipmentHeaderBySource(
+          WarehouseShipmentHeader, DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1);
+        Assert.AreEqual(
+          SalesHeader."External Document No.",
+          WarehouseShipmentHeader."External Document No.", WhsShpmtHeaderExternalDocumentNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseShipmentAfterReleasedPurchReturnOrderExternalDocNoChanged()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment]
+        // [SCENARIO 325564] "External Document No." in Warehouse Shipment must be same as the latest "Vendor Shipment No." of Source Purchase Return Order when "Vendor Shipment No." was modified after the release
+        Initialize;
+
+        // [GIVEN] Released Purchase Return Order "P1"
+        CreateAndReleaseSimplePurchaseReturnOrder(PurchaseHeader, 1);
+
+        // [GIVEN] "Vendor Shipment No." on "P1" changed to "TESTAFTER"
+        PurchaseHeader.Validate("Vendor Shipment No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Create Warehouse Shipment for this Purchase Return Order
+        LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
+
+        // [THEN] "External Document No." = "TESTAFTER" in Warehouse Shipment
+        FindWarehouseShipmentHeaderBySource(
+          WarehouseShipmentHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1);
+        Assert.AreEqual(
+          PurchaseHeader."Vendor Shipment No.",
+          WarehouseShipmentHeader."External Document No.", WhsShpmtHeaderExternalDocumentNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseShipmentAfterReleasedTransferOrderExternalDocNoChanged()
+    var
+        TransferHeader: Record "Transfer Header";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        // [FEATURE] [Warehouse Shipment]
+        // [SCENARIO 325564] "External Document No." in Warehouse Shipment must be same as the latest value in Source Transfer Order when "External Document No." was modified after the release
+        Initialize;
+
+        // [GIVEN] Released Transfer Order "T1"
+        CreateAndReleaseSimpleTransferOrder(TransferHeader, LocationYellow.Code, LocationWhite.Code, LibraryInventory.CreateItemNo, 1);
+
+        // [GIVEN] "External Document No." on "T1" changed to "TESTAFTER"
+        TransferHeader.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        TransferHeader.Modify(true);
+
+        // [WHEN] Create Warehouse Shipment for this Transfer Order
+        LibraryWarehouse.CreateWhseShipmentFromTO(TransferHeader);
+
+        // [THEN] "External Document No." = "TESTAFTER" in Warehouse Shipment
+        FindWarehouseShipmentHeaderBySource(WarehouseShipmentHeader, DATABASE::"Transfer Line", 0, TransferHeader."No.", -1);
+        Assert.AreEqual(
+          TransferHeader."External Document No.",
+          WarehouseShipmentHeader."External Document No.", WhsShpmtHeaderExternalDocumentNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseReceiptAfterReleasedSalesReturnOrderExternalDocNoChanged()
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // [FEATURE] [Warehouse Receipt]
+        // [SCENARIO 325564] "Vendor Shipment No." in Warehouse Receipt must be same as the latest "External Document No." in Source Sales Return Order when "External Document No." was modified after the release
+        Initialize;
+
+        // [GIVEN] Released Sales Return Order "S1"
+        CreateAndReleaseSimpleSalesReturnOrder(SalesHeader, 1);
+
+        // [GIVEN] "External Document No." on "S1" changed to "TESTAFTER"
+        SalesHeader.Validate("External Document No.", LibraryUtility.GenerateGUID);
+        SalesHeader.Modify(true);
+
+        // [WHEN] Create Warehouse Receipt for this Sales Return Order
+        LibraryWarehouse.CreateWhseReceiptFromSalesReturnOrder(SalesHeader);
+
+        // [THEN] "Vendor Shipment No." = "TESTAFTER" in Warehouse Receipt
+        FindWarehouseReceiptHeaderBySource(
+          WarehouseReceiptHeader, DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.", -1);
+        Assert.AreEqual(
+          SalesHeader."External Document No.", WarehouseReceiptHeader."Vendor Shipment No.", WhsRcptHeaderVendorShpmntNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseReceiptAfterReleasedPurchOrderExternalDocNoChanged()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseReceiptHeader: Record "Warehouse Receipt Header";
+    begin
+        // [FEATURE] [Warehouse Receipt]
+        // [SCENARIO 325564] "Vendor Shipment No." in Warehouse Shipment must be same as the latest value in Source Purchase Order when "Vendor Shipment No." was modified after the release
+        Initialize;
+
+        // [GIVEN] Released Purchase Order "P1"
+        CreateAndReleasePurchaseOrderWithItemTracking(PurchaseHeader, LibraryInventory.CreateItemNo, LocationWhite.Code, 1, false);
+
+        // [GIVEN] "Vendor Shipment No." on "P1" changed to "TESTAFTER"
+        PurchaseHeader.Validate("Vendor Shipment No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Create Warehouse Receipt for this Purchase Order
+        LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
+
+        // [THEN] "Vendor Shipment No." = "TESTAFTER" in Warehouse Receipt
+        FindWarehouseReceiptHeaderBySource(
+          WarehouseReceiptHeader, DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.", -1);
+        Assert.AreEqual(
+          PurchaseHeader."Vendor Shipment No.", WarehouseReceiptHeader."Vendor Shipment No.", WhsRcptHeaderVendorShpmntNoIsWrongErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseRequestReopenSalesOrderNegativeQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        // [FEATURE] [Reopen] [Sales] [Order] [Warehouse Request]
+        // [SCENARIO 329042] Inbound Warehouse Request for Sales Order Line with negative quantity has status "Open" when Sales Order is reopened
+        Initialize;
+
+        // [GIVEN] Released Sales Order "S1" with Sales Line for Quantity = -1
+        CreateAndReleaseSalesOrder(
+          SalesHeader, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo, -1, LocationWhite.Code, '', false, ReservationMode::" ");
+
+        // [WHEN] Reopen the Sales Order
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [THEN] Inbound warehouse request for the sales header has status "Open"
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+        WarehouseRequest.FindFirst;
+        WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseRequestReopenSalesReturnOrderNegativeQuantity()
+    var
+        SalesHeader: Record "Sales Header";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        // [FEATURE] [Reopen] [Sales] [Return Order] [Warehouse Request]
+        // [SCENARIO 329042] Outbound Warehouse Request for Sales Return Order Line with negative quantity has status "Open" when Sales Return Order is reopened
+        Initialize;
+
+        // [GIVEN] Released Return Sales Order "S1" with Sales Line for Quantity = -1
+        CreateAndReleaseSimpleSalesReturnOrder(SalesHeader, -1);
+
+        // [WHEN] Reopen the Sales Order
+        LibrarySales.ReopenSalesDocument(SalesHeader);
+
+        // [THEN] Outbound warehouse request for the sales header has status "Open"
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
+        WarehouseRequest.SetSourceFilter(DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No.");
+        WarehouseRequest.FindFirst;
+        WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseRequestReopenPurchOrderNegativeQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        // [FEATURE] [Reopen] [Purchase] [Order] [Warehouse Request]
+        // [SCENARIO 329042] Outbound Warehouse Request for Purchase Order Line with negative quantity has status "Open" when Purchase Order is reopened
+        Initialize;
+
+        // [GIVEN] Released Purchase Order "P1" with Purchase Line for Quantity = -1
+        CreateAndReleasePurchaseOrderWithItemTracking(PurchaseHeader, LibraryInventory.CreateItemNo, LocationWhite.Code, -1, false);
+
+        // [WHEN] Reopen the Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Outbound warehouse request for the Purchase header has status "Open"
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
+        WarehouseRequest.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.");
+        WarehouseRequest.FindFirst;
+        WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Open);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WhseRequestReopenPurchReturnOrderNegativeQuantity()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        WarehouseRequest: Record "Warehouse Request";
+    begin
+        // [FEATURE] [Reopen] [Purchase] [Return Order] [Warehouse Request]
+        // [SCENARIO 329042] Inbound Warehouse Request for Purchase Return Order Line with negative quantity has status "Open" when Purchase Return Order is reopened
+        Initialize;
+
+        // [GIVEN] Released Return Purchase Order "P1" with Purchase Line for Quantity = -1
+        CreateAndReleaseSimplePurchaseReturnOrder(PurchaseHeader, -1);
+
+        // [WHEN] Reopen the Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [THEN] Inbound warehouse request for the Purchase header has status "Open"
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetSourceFilter(DATABASE::"Purchase Line", PurchaseHeader."Document Type", PurchaseHeader."No.");
+        WarehouseRequest.FindFirst;
+        WarehouseRequest.TestField("Document Status", WarehouseRequest."Document Status"::Open);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1673,6 +1915,22 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
     end;
 
+    local procedure CreateAndReleaseSimplePurchaseReturnOrder(var PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
+    begin
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::"Return Order",
+          LibraryInventory.CreateItemNo, LocationWhite.Code, Quantity, '', false);
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+    end;
+
+    local procedure CreateAndReleaseSimpleSalesReturnOrder(var SalesHeader: Record "Sales Header"; Quantity: Decimal)
+    begin
+        CreateSalesDocument(
+          SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo,
+          LibraryInventory.CreateItemNo, Quantity, LocationWhite.Code, '', false, ReservationMode::" ");
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
     local procedure CreateAndReleaseSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; VariantCode: Code[10]; ItemTracking: Boolean; ReservationMode: Option)
     begin
         CreateSalesDocument(
@@ -1691,6 +1949,15 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, Quantity2);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
+    local procedure CreateAndReleaseSimpleTransferOrder(var TransferHeader: Record "Transfer Header"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, LocationInTransit.Code);
+        LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
     end;
 
     local procedure CreateAndRegisterPutAwayFromPurchaseOrder(var Bin: Record Bin; ItemTrackingMode: Option " ",AssignLotNo,SelectEntries,AssignSerialNo,ApplyFromItemEntry,AssignAutoSerialNo,AssignAutoLotAndSerialNo; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; ExpirationDate: Date; UseTracking: Boolean; DifferentExpirationDate: Boolean) LotNo: Code[20]
@@ -2120,11 +2387,29 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         WarehouseReceiptLine.FindFirst;
     end;
 
+    local procedure FindWarehouseReceiptHeaderBySource(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer)
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+    begin
+        WarehouseReceiptLine.SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, false);
+        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
+    end;
+
     local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.FindFirst;
+    end;
+
+    local procedure FindWarehouseShipmentHeaderBySource(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20]; SourceLineNo: Integer)
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+    begin
+        WarehouseShipmentLine.SetSourceFilter(SourceType, SourceSubtype, SourceNo, SourceLineNo, false);
+        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
     local procedure FindWarehouseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseWorksheetName: Record "Whse. Worksheet Name"; LocationCode: Code[10]; ItemNo: Code[20]; ItemNo2: Code[20])

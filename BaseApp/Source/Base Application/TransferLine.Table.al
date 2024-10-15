@@ -39,6 +39,7 @@ table 5741 "Transfer Line"
                 TempTransferLine := Rec;
                 Init;
                 "Item No." := TempTransferLine."Item No.";
+                OnValidateItemNoOnCopyFromTempTransLine(Rec, TempTransferLine);
                 if "Item No." = '' then
                     exit;
 
@@ -66,6 +67,8 @@ table 5741 "Transfer Line"
                 Validate("Unit Volume", Item."Unit Volume");
                 Validate("Units per Parcel", Item."Units per Parcel");
                 "Item Category Code" := Item."Item Category Code";
+
+                OnAfterAssignItemValues(Rec, Item);
 
                 CreateDim(DATABASE::Item, "Item No.");
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -977,12 +980,16 @@ table 5741 "Transfer Line"
         "Outstanding Quantity" := Quantity - "Quantity Shipped";
         "Outstanding Qty. (Base)" := "Quantity (Base)" - "Qty. Shipped (Base)";
         "Completely Shipped" := (Quantity <> 0) and ("Outstanding Quantity" = 0);
+
+        OnAfterInitOutstandingQty(Rec, CurrFieldNo);
     end;
 
     local procedure InitQtyToShip()
     begin
         "Qty. to Ship" := "Outstanding Quantity";
         "Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
+
+        OnAfterInitQtyToShip(Rec, CurrFieldNo);
     end;
 
     local procedure InitQtyToReceive()
@@ -995,6 +1002,8 @@ table 5741 "Transfer Line"
             "Qty. to Receive" := "Qty. to Ship";
             "Qty. to Receive (Base)" := "Qty. to Ship (Base)";
         end;
+
+        OnAfterInitQtyToReceive(Rec, CurrFieldNo);
     end;
 
     local procedure InitQtyInTransit()
@@ -1007,6 +1016,8 @@ table 5741 "Transfer Line"
             "Qty. in Transit (Base)" := 0;
         end;
         "Completely Received" := (Quantity <> 0) and (Quantity = "Quantity Received");
+
+        OnAfterInitQtyInTransit(Rec, CurrFieldNo);
     end;
 
     procedure ResetPostedQty()
@@ -1066,6 +1077,8 @@ table 5741 "Transfer Line"
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
         VerifyItemLineDim;
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
@@ -1187,6 +1200,8 @@ table 5741 "Transfer Line"
             if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                 Validate("Qty. to Receive", "Qty. to Ship");
         end;
+
+        OnAfterUpdateWithWarehouseShipReceive(Rec, CurrFieldNo);
     end;
 
     procedure RenameNo(OldNo: Code[20]; NewNo: Code[20])
@@ -1422,7 +1437,32 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAssignItemValues(var TransferLine: Record "Transfer Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetTransHeader(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitOutstandingQty(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyInTransit(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToReceive(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToShip(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -1432,10 +1472,20 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var TransferLine: Record "Transfer Line"; xTransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+   
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -1458,6 +1508,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateItemNoOnAfterInitLine(var TransferLine: Record "Transfer Line"; TempTransferLine: Record "Transfer Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnCopyFromTempTransLine(var TransferLine: Record "Transfer Line"; TempTransferLine: Record "Transfer Line" temporary)
     begin
     end;
 

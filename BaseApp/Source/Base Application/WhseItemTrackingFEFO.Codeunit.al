@@ -298,6 +298,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         LotNoInformation: Record "Lot No. Information";
         SerialNoInformation: Record "Serial No. Information";
         CDNoInformation: Record "CD No. Information";
+        IsBlocked: Boolean;
     begin
         if LotNoInformation.Get(ItemNo, VariantCode, LotNo) then
             if LotNoInformation.Blocked then
@@ -309,11 +310,19 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             if CDNoInformation.Blocked then
                 exit(true);
 
-        exit(false);
+        IsBlocked := false;
+        OnAfterIsItemTrackingBlocked(SourceReservationEntry, ItemNo, VariantCode, LotNo, IsBlocked);
+
+        exit(IsBlocked);
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateEntrySummaryFEFO(var TempEntrySummary: Record "Entry Summary" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsItemTrackingBlocked(var ReservEntry: Record "Reservation Entry"; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; var IsBlocked: Boolean)
     begin
     end;
 

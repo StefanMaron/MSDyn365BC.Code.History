@@ -281,7 +281,6 @@ codeunit 5150 "Integration Management"
             AddToIntegrationPageList(PAGE::"Sales Invoice", DATABASE::"Sales Header", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"Sales Credit Memo", DATABASE::"Sales Header", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"General Journal Batches", DATABASE::"Gen. Journal Batch", TempNameValueBuffer, NextId);
-            AddToIntegrationPageList(PAGE::"General Journal", DATABASE::"Gen. Journal Line", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(
               PAGE::"VAT Business Posting Groups", DATABASE::"VAT Business Posting Group", TempNameValueBuffer, NextId);
             AddToIntegrationPageList(PAGE::"VAT Product Posting Groups", DATABASE::"VAT Product Posting Group", TempNameValueBuffer, NextId);
@@ -369,7 +368,6 @@ codeunit 5150 "Integration Management"
            DATABASE::"Sales Invoice Header",
            DATABASE::"Gen. Journal Batch",
            DATABASE::"Sales Cr.Memo Header",
-           DATABASE::"Gen. Journal Line",
            DATABASE::"VAT Business Posting Group",
            DATABASE::"VAT Product Posting Group",
            DATABASE::"VAT Clause",
@@ -656,7 +654,6 @@ codeunit 5150 "Integration Management"
 
     local procedure UpdateReferencedIdField(var Id: Guid; var RecRef: RecordRef; var Handled: Boolean)
     var
-        DummyGenJnlLine: Record "Gen. Journal Line";
         DummyGLAccount: Record "G/L Account";
         DummyTaxGroup: Record "Tax Group";
         DummyVATProductPostingGroup: Record "VAT Product Posting Group";
@@ -688,9 +685,6 @@ codeunit 5150 "Integration Management"
         GraphMgtSalesHeader: Codeunit "Graph Mgt - Sales Header";
     begin
         case RecRef.Number of
-            DATABASE::"Gen. Journal Line":
-                GraphMgtGeneralTools.HandleUpdateReferencedIdFieldOnItem(
-                  RecRef, Id, Handled, DATABASE::"Gen. Journal Line", DummyGenJnlLine.FieldNo(Id));
             DATABASE::"G/L Account":
                 GraphMgtGeneralTools.HandleUpdateReferencedIdFieldOnItem(
                   RecRef, Id, Handled, DATABASE::"G/L Account", DummyGLAccount.FieldNo(Id));

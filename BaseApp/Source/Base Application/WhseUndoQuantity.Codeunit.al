@@ -174,6 +174,7 @@ codeunit 7320 "Whse. Undo Quantity"
         with OldPostedWhseRcptLine do begin
             "Qty. Put Away" := Quantity;
             "Qty. Put Away (Base)" := "Qty. (Base)";
+            OnBeforeOldPostedWhseRcptLineModify(OldPostedWhseRcptLine);
             Modify;
 
             NewPostedWhseRcptLine.SetRange("No.", "No.");
@@ -438,6 +439,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateWhseRequestShpt(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOldPostedWhseRcptLineModify(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 

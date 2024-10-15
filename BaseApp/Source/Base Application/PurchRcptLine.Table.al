@@ -189,7 +189,7 @@ table 121 "Purch. Rcpt. Line"
             Caption = 'Pay-to Vendor No.';
             TableRelation = Vendor;
         }
-        field(70; "Vendor Item No."; Text[20])
+        field(70; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
         }

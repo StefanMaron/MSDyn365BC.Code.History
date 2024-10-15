@@ -14,9 +14,15 @@ codeunit 1405 "Purch. Inv. Header - Edit"
         PurchInvHeader."Creditor No." := "Creditor No.";
         PurchInvHeader."Ship-to Code" := "Ship-to Code";
         PurchInvHeader."Posting Description" := "Posting Description";
+        OnBeforePurchInvHeaderModify(PurchInvHeader, Rec);
         PurchInvHeader.TestField("No.", "No.");
         PurchInvHeader.Modify;
         Rec := PurchInvHeader;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvHeaderModify(var PurchInvHeader: Record "Purch. Inv. Header"; PurchInvHeaderRec: Record "Purch. Inv. Header")
+    begin
     end;
 }
 

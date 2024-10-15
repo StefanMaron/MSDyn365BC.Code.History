@@ -1667,20 +1667,20 @@ codeunit 134988 "ERM Purchase Reports III"
             MaxStrLen(Vendor."Phone No.")));
         Vendor.Validate(Contact,
           CopyStr(
-            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Contact),0),
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Vendor.Contact), 0),
             1,
             MaxStrLen(Vendor.Contact)));
         Vendor.Modify;
         CreatePostPurchaseInvoiceWithDueDateCalc(Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes"
-        RunAgedAccountsPayableWithParameters(Vendor,CalcDate('<2M>',WorkDate),false);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), false);
 
         // [THEN] Vendor "VEND" printed with Not Due amount = "100"
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('VendorNo',Vendor."No.");
-        LibraryReportDataset.AssertElementWithValueExists('VendorPhoneNo',Vendor."Phone No.");
-        LibraryReportDataset.AssertElementWithValueExists('VendorContactName',Vendor.Contact);
+        LibraryReportDataset.AssertElementWithValueExists('VendorNo', Vendor."No.");
+        LibraryReportDataset.AssertElementWithValueExists('VendorPhoneNo', Vendor."Phone No.");
+        LibraryReportDataset.AssertElementWithValueExists('VendorContactName', Vendor.Contact);
     end;
 
     [Test]
@@ -1697,16 +1697,16 @@ codeunit 134988 "ERM Purchase Reports III"
         // [GIVEN] Create and post invoice for vendor "VEND", with "Vendor Invoice No." = "XXX", "Posting Date" = "01.01.2019" and "Due Date" = "01.02.2019"
         LibraryPurchase.CreateVendor(Vendor);
         CreatePostPurchaseInvoiceWithDueDateCalc(Vendor."No.");
-        FindPostedInvoiceHeader(PurchInvHeader,Vendor."No.");
+        FindPostedInvoiceHeader(PurchInvHeader, Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes", "Use External Doc. No." = "Yes"
-        RunAgedAccountsPayableWithParameters(Vendor,CalcDate('<2M>',WorkDate),true);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), true);
 
         // [THEN] Document number label = "External Document No."
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('DocumentNoCaption',ExternalDocNoLbl);
+        LibraryReportDataset.AssertElementWithValueExists('DocumentNoCaption', ExternalDocNoLbl);
         // [THEN] Invoice printed with document number = "XXX"
-        LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryEndDtDocNo',PurchInvHeader."Vendor Invoice No.");
+        LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryEndDtDocNo', PurchInvHeader."Vendor Invoice No.");
     end;
 
     [Test]
@@ -1724,16 +1724,41 @@ codeunit 134988 "ERM Purchase Reports III"
         LibraryPurchase.CreateVendor(Vendor);
         CreatePostPurchaseInvoiceWithDueDateCalc(Vendor."No.");
         // [GIVEN] Posted purchase invoice document number = "YYY"
-        FindPostedInvoiceHeader(PurchInvHeader,Vendor."No.");
+        FindPostedInvoiceHeader(PurchInvHeader, Vendor."No.");
 
         // [WHEN] Run report Aged Accounts Payable with "Print Details" = "Yes", "Use External Doc. No." = "No"
-        RunAgedAccountsPayableWithParameters(Vendor,CalcDate('<2M>',WorkDate),false);
+        RunAgedAccountsPayableWithParameters(Vendor, CalcDate('<2M>', WorkDate), false);
 
         LibraryReportDataset.LoadDataSetFile;
         // [THEN] Document number label = "Document No."
-        LibraryReportDataset.AssertElementWithValueExists('DocumentNoCaption',DocumentNoLbl);
+        LibraryReportDataset.AssertElementWithValueExists('DocumentNoCaption', DocumentNoLbl);
         // [THEN] Invoice printed with document number = "YYY"
-        LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryEndDtDocNo',PurchInvHeader."No.");
+        LibraryReportDataset.AssertElementWithValueExists('VendLedgEntryEndDtDocNo', PurchInvHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardPurchaseOrderRequestPageHandler')]
+    procedure StandardPurchaseOrderReceiptDates()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Standard Purchase - Order]
+        // [SCENARIO 330370] Fields Planned/Expected/Promised/Requested Receipt Date are available in the report Standard Purchase - Order dataset
+
+        // [GIVEN] Create purchase order with one line, where Planned
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [GIVEN] Set Planned/Expected/Promised/Requested Receipt Dates = 01.01, 02.01, 03.01, 04.01
+        UpdatePurchaseLineReceiptDates(PurchaseLine);
+
+        // [WHEN] Report Standard Purchase - Order is being printed
+        Commit;
+        Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
+
+        // [THEN] Report dataset has Planned/Expected/Promised/Requested Receipt Dates = 01.01, 02.01, 03.01, 04.01
+        VerifyStandardPurchaseOrderReceiptDates(PurchaseLine);
     end;
 
     local procedure Initialize()
@@ -2011,14 +2036,14 @@ codeunit 134988 "ERM Purchase Reports III"
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader,PurchaseHeader."Document Type"::Invoice,VendorNo);
-        PurchaseHeader.Validate("Due Date",CalcDate('<1M>',PurchaseHeader."Posting Date"));
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Due Date", CalcDate('<1M>', PurchaseHeader."Posting Date"));
         PurchaseHeader.Modify;
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine,PurchaseHeader,PurchaseLine.Type::Item,LibraryInventory.CreateItemNo,LibraryRandom.RandDec(10,2));
-        PurchaseLine.Validate("Direct Unit Cost",LibraryRandom.RandDec(100,2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
-        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true));
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
         PurchInvHeader.CalcFields("Amount Including VAT");
         exit(PurchInvHeader."Amount Including VAT");
     end;
@@ -2390,9 +2415,9 @@ codeunit 134988 "ERM Purchase Reports III"
             'Amount', StrSubstNo('>%1', PrepaymentSpecificationHeaderRowNo), '');
     end;
 
-    local procedure FindPostedInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header";VendorNo: Code[20])
+    local procedure FindPostedInvoiceHeader(var PurchInvHeader: Record "Purch. Inv. Header"; VendorNo: Code[20])
     begin
-        PurchInvHeader.SetRange("Buy-from Vendor No.",VendorNo);
+        PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchInvHeader.FindLast;
     end;
 
@@ -2503,7 +2528,7 @@ codeunit 134988 "ERM Purchase Reports III"
         Order.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
-    local procedure RunAgedAccountsPayableWithParameters(Vendor: Record Vendor;AgedAsOfDate: Date;UseExternalDocNo: Boolean)
+    local procedure RunAgedAccountsPayableWithParameters(Vendor: Record Vendor; AgedAsOfDate: Date; UseExternalDocNo: Boolean)
     var
         AgedAccountsPayable: Report "Aged Accounts Payable";
     begin
@@ -2642,6 +2667,16 @@ codeunit 134988 "ERM Purchase Reports III"
             Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
             Validate("Purch. Prepayments Account", PurchPrepmtAccountNo);
             Modify(true);
+        end;
+    end;
+
+    local procedure UpdatePurchaseLineReceiptDates(var PurchaseLine: Record "Purchase Line")
+    begin
+        with PurchaseLine do begin
+            "Expected Receipt Date" := CalcDate('<+1D>', "Planned Receipt Date");
+            "Promised Receipt Date" := CalcDate('<+2D>', "Planned Receipt Date");
+            "Requested Receipt Date" := CalcDate('<+3D>', "Planned Receipt Date");
+            Modify;
         end;
     end;
 
@@ -3045,6 +3080,15 @@ codeunit 134988 "ERM Purchase Reports III"
         end;
     end;
 
+    local procedure VerifyStandardPurchaseOrderReceiptDates(PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('PlannedReceiptDate', Format(PurchaseLine."Planned Receipt Date", 0, 4));
+        LibraryReportDataset.AssertElementWithValueExists('ExpectedReceiptDate', Format(PurchaseLine."Expected Receipt Date", 0, 4));
+        LibraryReportDataset.AssertElementWithValueExists('PromisedReceiptDate', Format(PurchaseLine."Promised Receipt Date", 0, 4));
+        LibraryReportDataset.AssertElementWithValueExists('RequestedReceiptDate', Format(PurchaseLine."Requested Receipt Date", 0, 4));
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PostAndApplyVendPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
@@ -3311,12 +3355,19 @@ codeunit 134988 "ERM Purchase Reports III"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure StandardPurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
+    begin
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure AgedAccountsReceivableReportRequestPageHandler(var AgedAccountsPayable: TestRequestPage "Aged Accounts Payable")
     begin
         AgedAccountsPayable.AgedAsOf.SetValue(LibraryVariableStorage.DequeueDate);
         AgedAccountsPayable.PrintDetails.SetValue(true);
         AgedAccountsPayable.UseExternalDocNo.SetValue(LibraryVariableStorage.DequeueBoolean);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName,LibraryReportDataset.GetFileName);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

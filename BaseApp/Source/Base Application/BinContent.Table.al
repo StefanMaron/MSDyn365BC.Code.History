@@ -63,15 +63,21 @@ table 7302 "Bin Content"
             TableRelation = Item WHERE(Type = CONST(Inventory));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if (CurrFieldNo <> 0) and ("Item No." <> xRec."Item No.") then begin
                     CheckManualChange(FieldCaption("Item No."));
-                    "Variant Code" := '';
+                    IsHandled := false;
+                    OnValidateItemNoOnBeforeValidateVariantCode(Rec, IsHandled);
+                    if not IsHandled then
+                        "Variant Code" := '';
                 end;
 
                 if ("Item No." <> xRec."Item No.") and ("Item No." <> '') then begin
                     GetItem("Item No.");
                     Validate("Unit of Measure Code", Item."Base Unit of Measure");
+                    OnValidateItemNoOnAfterValidateUoMCode(Rec, Item);
                 end;
             end;
         }
@@ -506,7 +512,14 @@ table 7302 "Bin Content"
     end;
 
     local procedure CheckManualChange(CaptionField: Text[80])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckManualChange(Rec, xRec, CaptionField, IsHandled);
+        if IsHandled then
+            exit;
+
         xRec.CalcFields(
           "Quantity (Base)", "Positive Adjmt. Qty. (Base)", "Put-away Quantity (Base)",
           "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)");
@@ -1199,6 +1212,11 @@ table 7302 "Bin Content"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckManualChange(var BinContent: Record "Bin Content"; xBinContent: Record "Bin Content"; CaptionField: Text[80]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetWhseLocation(LocationCode: Code[10]; ZoneCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
@@ -1225,6 +1243,16 @@ table 7302 "Bin Content"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTotalQtyBaseOnAfterSetFilters(var WarehouseEntry: Record "Warehouse Entry"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnAfterValidateUoMCode(var BinContent: Record "Bin Content"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateItemNoOnBeforeValidateVariantCode(var BinContent: Record "Bin Content"; var IsHandled: Boolean)
     begin
     end;
 }

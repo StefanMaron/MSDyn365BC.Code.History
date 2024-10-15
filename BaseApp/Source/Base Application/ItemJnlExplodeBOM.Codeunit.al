@@ -5,7 +5,13 @@ codeunit 246 "Item Jnl.-Explode BOM"
     trigger OnRun()
     var
         Selection: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Item No.");
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -108,6 +114,11 @@ codeunit 246 "Item Jnl.-Explode BOM"
         LineSpacing: Integer;
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeToItemJnlLineInsert(var ToItemJournalLine: Record "Item Journal Line"; FromItemJournalLine: Record "Item Journal Line")

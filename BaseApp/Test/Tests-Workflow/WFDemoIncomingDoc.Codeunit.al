@@ -45,6 +45,19 @@ codeunit 134178 "WF Demo Incoming Doc"
 
         WorkflowStep.SetFilter(Argument, '<>%1', Guid);
         Assert.AreEqual(WorkflowStep.Count, WorkflowStepArgument.Count, 'There should not be more arguments than steps.');
+
+        WorkflowStepArgument.SetRange("Notify Sender", true);
+        Assert.isfalse(WorkflowStepArgument.IsEmpty, 'There must be arguments with Notify Sender');
+        if WorkflowStepArgument.FindSet() then
+            repeat
+                WorkflowStep.SetRange(Argument, WorkflowStepArgument.ID);
+                WorkflowStep.FindSet;
+                repeat
+                    Assert.AreEqual(
+                        1, StrPos(WorkflowStep."Function Name", 'REJECT'),
+                        StrSubstNo('Step functions name %1 should start with REJECT', WorkflowStep."Function Name"));
+                until WorkflowStep.Next() = 0;
+            until WorkflowStepArgument.next() = 0;
     end;
 
     [Test]
@@ -109,6 +122,7 @@ codeunit 134178 "WF Demo Incoming Doc"
         NotificationEntry: Record "Notification Entry";
         NotificationSetup: Record "Notification Setup";
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
+        UserSetup: Record "User Setup";
     begin
         WorkflowStepInstanceArchive.DeleteAll;
         NotificationEntry.DeleteAll;
@@ -118,6 +132,12 @@ codeunit 134178 "WF Demo Incoming Doc"
         WorkflowSetup.InitWorkflow;
         if IsInitialized then
             exit;
+
+        if not UserSetup.get(UserId) then begin
+            UserSetup."User ID" := UserId;
+            UserSetup.Insert(true);
+        end;
+
         IsInitialized := true;
         BindSubscription(LibraryJobQueue);
     end;

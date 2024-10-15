@@ -234,6 +234,22 @@ codeunit 130509 "Library - Sales"
         exit(Customer."No.");
     end;
 
+    procedure FilterSalesHeaderArchive(var SalesHeaderArchive: Record "Sales Header Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
+    begin
+        SalesHeaderArchive.SetRange("Document Type", DocumentType);
+        SalesHeaderArchive.SetRange("No.", DocumentNo);
+        SalesHeaderArchive.SetRange("Doc. No. Occurrence", DocNoOccurence);
+        SalesHeaderArchive.SetRange("Version No.", Version);
+    end;
+
+    procedure FilterSalesLineArchive(var SalesLineArchive: Record "Sales Line Archive"; DocumentType: Option; DocumentNo: Code[20]; DocNoOccurence: Integer; Version: Integer)
+    begin
+        SalesLineArchive.SetRange("Document Type", DocumentType);
+        SalesLineArchive.SetRange("Document No.", DocumentNo);
+        SalesLineArchive.SetRange("Doc. No. Occurrence", DocNoOccurence);
+        SalesLineArchive.SetRange("Version No.", Version);
+    end;
+
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalTemplate: Record "Gen. Journal Template";

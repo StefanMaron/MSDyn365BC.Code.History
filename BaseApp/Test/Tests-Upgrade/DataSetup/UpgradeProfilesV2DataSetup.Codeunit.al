@@ -90,7 +90,7 @@ codeunit 128005 "Upgrade Profiles V2 Data Setup"
             ApplicationAreaSetup."Company Name" := CopyStr(CreateGuid(), 1, MaxStrLen(ApplicationAreaSetup."Company Name"));
         ApplicationAreaSetup.Suite := true;
         ApplicationAreaSetup.Basic := true;
-        ApplicationAreaSetup.Insert();
+        if not ApplicationAreaSetup.Insert() then;
 
         // Create a new user personalization referencing the system profile
         UserPersonalization."User SID" := CreateGuid();

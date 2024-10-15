@@ -136,7 +136,6 @@ table 336 "Tracking Specification"
             trigger OnValidate()
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
-                ItemJnlLine: Record "Item Journal Line";
             begin
                 if "Appl.-to Item Entry" = 0 then
                     exit;
@@ -148,30 +147,13 @@ table 336 "Tracking Specification"
                 end;
 
                 ItemLedgEntry.Get("Appl.-to Item Entry");
-                ItemLedgEntry.TestField("Item No.", "Item No.");
-                ItemLedgEntry.TestField(Positive, true);
-                ItemLedgEntry.TestField("Variant Code", "Variant Code");
-                ItemLedgEntry.TestField("Serial No.", "Serial No.");
-                ItemLedgEntry.TestField("Lot No.", "Lot No.");
-                if "Source Type" = DATABASE::"Item Journal Line" then begin
-                    ItemJnlLine.SetRange("Journal Template Name", "Source ID");
-                    ItemJnlLine.SetRange("Journal Batch Name", "Source Batch Name");
-                    ItemJnlLine.SetRange("Line No.", "Source Ref. No.");
-                    ItemJnlLine.SetRange("Entry Type", "Source Subtype");
 
-                    if ItemJnlLine.FindFirst then
-                        if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output then begin
-                            ItemLedgEntry.TestField("Order Type", ItemJnlLine."Order Type"::Production);
-                            ItemLedgEntry.TestField("Order No.", ItemJnlLine."Order No.");
-                            ItemLedgEntry.TestField("Order Line No.", ItemJnlLine."Order Line No.");
-                            ItemLedgEntry.TestField("Entry Type", ItemJnlLine."Entry Type");
-                        end;
-                end;
+                TestApplyToItemLedgEntryNo(ItemLedgEntry);
+
                 if Abs("Quantity (Base)") > Abs(ItemLedgEntry."Remaining Quantity") then
-                    Error(RemainingQtyErr, ItemLedgEntry.FieldCaption("Remaining Quantity"), ItemLedgEntry."Entry No.", FieldCaption("Quantity (Base)"));
-                ItemLedgEntry.TestField("CD No.", "CD No.");
-                if Abs("Quantity (Base)") > Abs(ItemLedgEntry."Remaining Quantity") then
-                    Error(RemainingQtyErr, ItemLedgEntry.FieldCaption("Remaining Quantity"), ItemLedgEntry."Entry No.", FieldCaption("Quantity (Base)"));
+                    Error(
+                      RemainingQtyErr,
+                      ItemLedgEntry.FieldCaption("Remaining Quantity"), ItemLedgEntry."Entry No.", FieldCaption("Quantity (Base)"));
             end;
         }
         field(40; "Warranty Date"; Date)
@@ -899,6 +881,37 @@ table 336 "Tracking Specification"
         exit(("Source Type" = DATABASE::"Item Journal Line") and ("Source Subtype" = 4));
     end;
 
+    local procedure TestApplyToItemLedgEntryNo(ItemLedgEntry: Record "Item Ledger Entry")
+    var
+        ItemJnlLine: Record "Item Journal Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestApplyToItemLedgEntry(Rec, ItemLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemLedgEntry.TestField("Item No.", "Item No.");
+        ItemLedgEntry.TestField(Positive, true);
+        ItemLedgEntry.TestField("Variant Code", "Variant Code");
+        ItemLedgEntry.TestField("Serial No.", "Serial No.");
+        ItemLedgEntry.TestField("Lot No.", "Lot No.");
+        ItemLedgEntry.TestField("CD No.", "CD No.");
+        if "Source Type" = DATABASE::"Item Journal Line" then begin
+            ItemJnlLine.SetRange("Journal Template Name", "Source ID");
+            ItemJnlLine.SetRange("Journal Batch Name", "Source Batch Name");
+            ItemJnlLine.SetRange("Line No.", "Source Ref. No.");
+            ItemJnlLine.SetRange("Entry Type", "Source Subtype");
+            if ItemJnlLine.FindFirst then
+                if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Output then begin
+                    ItemLedgEntry.TestField("Order Type", ItemJnlLine."Order Type"::Production);
+                    ItemLedgEntry.TestField("Order No.", ItemJnlLine."Order No.");
+                    ItemLedgEntry.TestField("Order Line No.", ItemJnlLine."Order Line No.");
+                    ItemLedgEntry.TestField("Entry Type", ItemJnlLine."Entry Type");
+                end;
+        end;
+    end;
+
     procedure TestFieldError(FieldCaptionText: Text[80]; CurrFieldValue: Decimal; CompareValue: Decimal)
     var
         IsHandled: Boolean;
@@ -1339,6 +1352,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitQtyToShip(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestApplyToItemLedgEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 

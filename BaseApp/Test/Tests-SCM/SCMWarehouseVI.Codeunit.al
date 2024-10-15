@@ -2152,6 +2152,219 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.TestField(Quantity, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsCancelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsPickCancel()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhsePicks: TestPage "Registered Whse. Picks";
+    begin
+        // [FEATURE] [Pick] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Picks aren't deleted if you press Cancel in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Pick'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Pick);
+
+        // [WHEN] Invoke 'Delete Registered Picks' on RegisteredWhsePicks page, invoke Cancel on RPH
+        Commit;
+        RegisteredWhsePicks.OpenEdit;
+        RegisteredWhsePicks.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhsePicks."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" isn't deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Pick);
+        Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsPickOK()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhsePicks: TestPage "Registered Whse. Picks";
+    begin
+        // [FEATURE] [Pick] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Picks aren't deleted if you press OK in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Pick'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Pick);
+
+        // [WHEN] Invoke 'Delete Registered Picks' on RegisteredWhsePicks page, invoke OK on RPH
+        Commit;
+        RegisteredWhsePicks.OpenEdit;
+        RegisteredWhsePicks.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhsePicks."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" is deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Pick);
+        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsCancelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocMovementCancel()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhseMovements: TestPage "Registered Whse. Movements";
+    begin
+        // [FEATURE] [Movement] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Movements aren't deleted if you press Cancel in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Movement'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Movement);
+
+        // [WHEN] Invoke 'Delete Registered Movements' on RegisteredWhseMovements page, invoke Cancel on RPH
+        Commit;
+        RegisteredWhseMovements.OpenEdit;
+        RegisteredWhseMovements.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhseMovements."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" isn't deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Movement);
+        Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsMovementOK()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhseMovements: TestPage "Registered Whse. Movements";
+    begin
+        // [FEATURE] [Movement] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Movements are deleted if you press OK in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Movement'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::Movement);
+
+        // [WHEN] Invoke 'Delete Registered Movements' on RegisteredWhseMovements page, invoke OK on RPH
+        Commit;
+        RegisteredWhseMovements.OpenEdit;
+        RegisteredWhseMovements.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhseMovements."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" is deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::Movement);
+        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsCancelRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocPutAwayCancel()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhsePutaways: TestPage "Registered Whse. Put-aways";
+    begin
+        // [FEATURE] [Put-Away] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Put-aways aren't deleted if you press Cancel in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Put-away'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::"Put-away");
+
+        // [WHEN] Invoke 'Delete Registered Put-aways' on RegisteredWhsePutaways page, invoke Cancel on RPH
+        Commit;
+        RegisteredWhsePutaways.OpenEdit;
+        RegisteredWhsePutaways.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhsePutaways."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" isn't deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::"Put-away");
+        Assert.RecordIsNotEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [HandlerFunctions('DeleteRegisteredWhseDocsOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsPutAwayOK()
+    var
+        RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
+        RegisteredWhsePutaways: TestPage "Registered Whse. Put-aways";
+    begin
+        // [FEATURE] [Put-Away] [Delete Registered Whse. Docs] [UI]
+        // [SCENARIO 323185] Registered Warehouse Put-aways are deleted if you press OK in RPH.
+        Initialize;
+
+        // [GIVEN] RegisteredWhseActivityHdr - "X", Type = 'Put-away'
+        CreateRegisteredDocument(RegisteredWhseActivityHdr, RegisteredWhseActivityHdr.Type::"Put-away");
+
+        // [WHEN] Invoke 'Delete Registered Put-aways' on RegisteredWhsePutaways page, invoke OK on RPH
+        Commit;
+        RegisteredWhsePutaways.OpenEdit;
+        RegisteredWhsePutaways.FILTER.SetFilter("No.", RegisteredWhseActivityHdr."No.");
+        RegisteredWhsePutaways."Delete Registered Movements".Invoke;
+
+        // [THEN] "X" is deleted
+        RegisteredWhseActivityHdr.SetRange("Location Code", RegisteredWhseActivityHdr."Location Code");
+        RegisteredWhseActivityHdr.SetRange(Type, RegisteredWhseActivityHdr.Type::"Put-away");
+        Assert.RecordIsEmpty(RegisteredWhseActivityHdr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BreakBulkPickLinesAreRegisteredFirstToProvideQtyInSmallerUoM()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Pick] [Breakbulk] [Unit of Measure]
+        // [SCENARIO 321982] Breakbulk lines in warehouse pick are registered first in order to provide quantity in smaller UoM.
+        Initialize;
+
+        // [GIVEN] Location "White" with "Allow Breakbulk" = TRUE.
+        CreateFullWarehouseSetup(Location);
+        Location.Validate("Allow Breakbulk", true);
+        Location.Modify(true);
+
+        // [GIVEN] Item with base unit of measure = "PCS" and alternate UoM = "BOX".
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Place 10 "BOX" to the location.
+        UpdateInventoryViaWhseJournalWithAlternateUoM(Item, ItemUnitOfMeasure.Code, Location.Code);
+
+        // [GIVEN] Sales order for 1 "PCS".
+        // [GIVEN] Release the order, create shipment and pick.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(10), Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [GIVEN] Sort the pick lines by "Shelf or Bin".
+        FindWarehouseActivityHeader(WarehouseActivityHeader, Location.Code, WarehouseActivityHeader.Type::Pick);
+        WarehouseActivityHeader.Validate("Sorting Method", WarehouseActivityHeader."Sorting Method"::"Shelf or Bin");
+        WarehouseActivityHeader.SortWhseDoc;
+        WarehouseActivityHeader.Modify(true);
+
+        // [WHEN] Register the warehouse pick respecting the sorting.
+        WarehouseActivityLine.SetCurrentKey("Activity Type", "No.", "Sorting Sequence No.");
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.AutofillQtyToHandle(WarehouseActivityLine);
+        CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
+
+        // [THEN] The pick is successfully registered.
+        VerifyRegisteredWarehouseActivityLine(SalesLine, WarehouseActivityLine."Action Type"::Take);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3023,6 +3236,17 @@ codeunit 137408 "SCM Warehouse VI"
         end;
     end;
 
+    local procedure CreateRegisteredDocument(var RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr."; Type: Option)
+    var
+        Location: Record Location;
+    begin
+        RegisteredWhseActivityHdr.Init;
+        RegisteredWhseActivityHdr.Type := Type;
+        RegisteredWhseActivityHdr."No." := LibraryUtility.GenerateGUID;
+        RegisteredWhseActivityHdr."Location Code" := LibraryWarehouse.CreateLocation(Location);
+        RegisteredWhseActivityHdr.Insert;
+    end;
+
     local procedure AddBin(LocationCode: Code[10]): Code[20]
     var
         Bin: Record Bin;
@@ -3618,6 +3842,26 @@ codeunit 137408 "SCM Warehouse VI"
         ItemJournalLine.SetRange("Location Code", LocationCode);
         ItemJournalLine.FindFirst;
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure UpdateInventoryViaWhseJournalWithAlternateUoM(Item: Record Item; UnitOfMeasureCode: Code[10]; LocationCode: Code[10])
+    var
+        Bin: Record Bin;
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+    begin
+        FindBin(Bin, LocationCode);
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, Bin."Location Code");
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name,
+          Bin."Location Code", Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+          Item."No.", LibraryRandom.RandIntInRange(10, 20));
+        WarehouseJournalLine.Validate("Unit of Measure Code", UnitOfMeasureCode);
+        WarehouseJournalLine.Modify;
+        LibraryWarehouse.RegisterWhseJournalLine(
+          WarehouseJournalBatch."Journal Template Name", WarehouseJournalBatch.Name, Bin."Location Code", true);
+        LibraryWarehouse.PostWhseAdjustment(Item);
     end;
 
     local procedure UpdateMaximumCubageOnBin(var Bin: Record Bin; MaximumCubage: Decimal)
@@ -4253,6 +4497,20 @@ codeunit 137408 "SCM Warehouse VI"
     begin
         WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
         WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueInteger);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsCancelRequestPageHandler(var DeleteRegisteredWhseDocs: TestRequestPage "Delete Registered Whse. Docs.")
+    begin
+        DeleteRegisteredWhseDocs.Cancel.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure DeleteRegisteredWhseDocsOKRequestPageHandler(var DeleteRegisteredWhseDocs: TestRequestPage "Delete Registered Whse. Docs.")
+    begin
+        DeleteRegisteredWhseDocs.OK.Invoke;
     end;
 }
 

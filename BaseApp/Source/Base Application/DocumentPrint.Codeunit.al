@@ -474,7 +474,7 @@ codeunit 229 "Document-Print"
                     CopyOfSalesHeader := SalesHeader;
                     if CorrDocMgt.IsCorrDocument(CopyOfSalesHeader) then
                         exit(ReportSelections.Usage::"S.Invoice Draft");
-                    exit(ReportSelections.Usage::"S.Cr.Memo");
+                    exit(ReportSelections.Usage::"S.Invoice Draft");
                 end;
             else begin
                     IsHandled := false;

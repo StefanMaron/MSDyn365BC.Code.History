@@ -1,5 +1,7 @@
 codeunit 137064 "SCM Warehouse Management"
 {
+    EventSubscriberInstance = Manual;
+
     Permissions = TableData "Item Ledger Entry" = rimd,
                   TableData "Warehouse Entry" = rimd;
     Subtype = Test;
@@ -46,6 +48,7 @@ codeunit 137064 "SCM Warehouse Management"
         QtyAvailMustBeZeroErr: Label 'Quantity available to pick must be 0.';
         BinErr: Label 'Incorrect Bin';
         QtyErr: Label 'Incorrect Quantity';
+        FilterError: Label 'Location code based filter value is incorrect.';
 
     [Test]
     [Scope('OnPrem')]
@@ -372,6 +375,49 @@ codeunit 137064 "SCM Warehouse Management"
         // Setup.
         Initialize;
         PickFromShipment(Location."Default Bin Selection"::"Fixed Bin");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFilterGenerationBasedOnLocationCode()
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+        Location: Record Location;
+        WMSManagement: Codeunit "WMS Management";
+        SCMWarehouseManagement: Codeunit "SCM Warehouse Management";
+        FilterValue: Text;
+    begin
+        CreateLocation(Location, 'ALLOW');
+        CreateLocation(Location, 'NOTALLOW');
+
+        BindSubscription(SCMWarehouseManagement);
+
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, '', false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, 'ALLOW', false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, 'NOTALLOW', false);
+
+        FilterValue := WMSManagement.GetWarehouseEmployeeLocationFilter(WarehouseEmployee."User ID");
+        Assert.AreEqual('''''|''ALLOW''', FilterValue, FilterError); // Expected value: "''|'ALLOW'"
+
+        UnbindSubscription(SCMWarehouseManagement);
+    end;
+
+    local procedure CreateLocation(var Location: Record Location; LocationCode: Code[10])
+    begin
+        Location.Init;
+        Location.Validate(Code, LocationCode);
+        Location.Validate(Name, Location.Code);
+        Location.Validate("Require Shipment", true);
+        Location.Insert(true);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnBeforeLocationIsAllowed', '', false, false)]
+    local procedure OnLocationCheck(LocationCode: Code[10]; var LocationAllowed: Boolean)
+    begin
+        LocationAllowed := false;
+
+        if (LocationCode = 'ALLOW') or (LocationCode = '''''') then
+            LocationAllowed := true;
     end;
 
     [Test]
