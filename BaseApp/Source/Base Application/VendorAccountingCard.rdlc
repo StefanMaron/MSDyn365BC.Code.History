@@ -478,7 +478,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=IIF(Fields!SignBalanceBegining.Value &lt;&gt; "Credit",Fields!BalanceBegining.Value,"")</Value>
+                                  <Value>=IIF(Fields!BalanceBegining.Value &lt; 0,Abs(Fields!BalanceBegining.Value),"")</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -509,7 +509,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=IIF(Fields!SignBalanceBegining.Value = "Credit",Fields!BalanceBegining.Value,"")</Value>
+                                  <Value>=IIF(Fields!BalanceBegining.Value &gt;= 0,Fields!BalanceBegining.Value,"")</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2872,7 +2872,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=IIF(Fields!SignBalanceEnding.Value = "Debit",Fields!BalanceEnding.Value,"")</Value>
+                                  <Value>=IIF(Fields!BalanceEnding.Value &lt; 0,Abs(Fields!BalanceEnding.Value),"")</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>
@@ -2903,7 +2903,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=IIF(Fields!SignBalanceEnding.Value = "Credit",Fields!BalanceEnding.Value,"")</Value>
+                                  <Value>=IIF(Fields!BalanceEnding.Value &gt;= 0,Fields!BalanceEnding.Value,"")</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>

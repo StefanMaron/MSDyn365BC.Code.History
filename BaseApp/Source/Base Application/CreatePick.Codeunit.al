@@ -1279,7 +1279,7 @@ codeunit 7312 "Create Pick"
             WhseActivHeader.Validate("Assigned User ID", AssignedID);
         WhseActivHeader."Sorting Method" := SortPick;
         WhseActivHeader."Breakbulk Filter" := BreakbulkFilter;
-        OnBeforeWhseActivHeaderInsert(WhseActivHeader);
+        OnBeforeWhseActivHeaderInsert(WhseActivHeader, TempWhseActivLine);
         WhseActivHeader.Insert(true);
 
         NoOfLines := 1;
@@ -3524,7 +3524,7 @@ codeunit 7312 "Create Pick"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcBWPickBin(var TotalQtyToPick: Decimal; var TotalQtytoPickBase: Decimal; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var TempWhseActivLine: Record "Warehouse Activity Line" temporary; WhseItemTrkgExists: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -3590,7 +3590,7 @@ codeunit 7312 "Create Pick"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header")
+    local procedure OnBeforeWhseActivHeaderInsert(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var TempWhseActivityLine: Record "Warehouse Activity Line" temporary)
     begin
     end;
 

@@ -433,7 +433,7 @@ table 77 "Report Selections"
         AccountNoFilter: Text;
         IsHandled: Boolean;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
 
         RecRef.GetTable(RecordVariant);
         GetUniqueAccountNos(TempNameValueBuffer, RecRef, AccountNoFieldNo);
@@ -461,7 +461,9 @@ table 77 "Report Selections"
                 OnAfterPrintDocument(TempReportSelections, IsGUI, RecVarToPrint);
 
                 ReportLayoutSelection.SetTempLayoutSelected('');
-            until TempReportSelections.Next = 0;
+            until TempReportSelections.Next() = 0;
+
+        OnAfterPrintDocumentsWithCheckGUIYesNoCommon(ReportUsage, RecVarToPrint);
     end;
 
     local procedure GetFilteredRecordRef(var RecRefToPrint: RecordRef; RecRefSource: RecordRef; AccountNoFieldNo: Integer; AccountNoFilter: Text)
@@ -517,7 +519,7 @@ table 77 "Report Selections"
                 CustomReportSelection.SetRange("Report ID", TempReportSelections."Report ID");
             end;
 
-        until TempNameValueBuffer.Next = 0;
+        until TempNameValueBuffer.Next() = 0;
 
         AccountNoFilter := DelChr(AccountNoFilter, '>', '|');
         exit(AccountNoFilter);
@@ -575,8 +577,8 @@ table 77 "Report Selections"
                                 TempReportSelections.Sequence := IncStr(LastSequence);
                             TempReportSelections.Insert;
                         end;
-                    until TempReportSelectionsAccount.Next = 0;
-            until TempNameValueBuffer.Next = 0;
+                    until TempReportSelectionsAccount.Next() = 0;
+            until TempNameValueBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -593,7 +595,7 @@ table 77 "Report Selections"
         FindPrintUsage(ReportUsage, CustNo, TempBodyReportSelections);
 
         ServerEmailBodyFilePath :=
-          SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code");
+            SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
 
         DocumentContent := '';
         if ServerEmailBodyFilePath <> '' then
@@ -610,7 +612,7 @@ table 77 "Report Selections"
         FindPrintUsage(ReportUsage, CustNo, TempBodyReportSelections);
 
         ServerEmailBodyFilePath :=
-          SaveReportAsPDF(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code");
+          SaveReportAsPDF(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Custom Report Layout Code", ReportUsage);
     end;
 
     [Scope('OnPrem')]
@@ -649,10 +651,10 @@ table 77 "Report Selections"
         case "Email Body Layout Type" of
             "Email Body Layout Type"::"Custom Report Layout":
                 ServerEmailBodyFilePath :=
-                  SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Email Body Layout Code");
+                    SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Email Body Layout Code", ReportUsage);
             "Email Body Layout Type"::"HTML Layout":
                 ServerEmailBodyFilePath :=
-                  O365HTMLTemplMgt.CreateEmailBodyFromReportSelections(Rec, RecordVariant, CustEmailAddress, EmailBodyText);
+                    O365HTMLTemplMgt.CreateEmailBodyFromReportSelections(Rec, RecordVariant, CustEmailAddress, EmailBodyText);
         end;
 
         CustEmailAddress := GetEmailAddress(ReportUsage, RecordVariant, CustNo, TempBodyReportSelections);
@@ -695,10 +697,6 @@ table 77 "Report Selections"
                 exit(EmailAddress);
         end;
 
-        EmailAddress := GetCustEmailAddress(CustNo, ReportUsage);
-        if EmailAddress <> '' then
-            exit(EmailAddress);
-
         if not RecordRef.IsEmpty then
             if IsSalesDocument(RecordRef) then
                 if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, 'Sell-to E-Mail') then begin
@@ -706,6 +704,10 @@ table 77 "Report Selections"
                     if EmailAddress <> '' then
                         exit(EmailAddress);
                 end;
+
+        EmailAddress := GetCustEmailAddress(CustNo, ReportUsage);
+        if EmailAddress <> '' then
+            exit(EmailAddress);
 
         exit(EmailAddress);
     end;
@@ -737,7 +739,7 @@ table 77 "Report Selections"
         end;
 
         ServerEmailBodyFilePath :=
-          SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Email Body Layout Code");
+            SaveReportAsHTML(TempBodyReportSelections."Report ID", RecordVariant, TempBodyReportSelections."Email Body Layout Code", ReportUsage);
 
         FoundVendorEmailAddress :=
           FindEmailAddressForEmailLayout(TempBodyReportSelections."Email Body Layout Code", VendorNo, ReportUsage, DATABASE::Vendor);
@@ -809,7 +811,7 @@ table 77 "Report Selections"
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
     end;
 
-    local procedure GetMailingJobCategory(): Code[10]
+    procedure GetMailingJobCategory(): Code[10]
     var
         JobQueueCategory: Record "Job Queue Category";
         MailingJobCategoryCode: Code[10];
@@ -861,15 +863,17 @@ table 77 "Report Selections"
         if ShowDialog or
            (not SMTPMail.IsEnabled) or
            (GetEmailAddressIgnoringLayout(ReportUsage, RecordVariant, CustNo) = '') or
-           OfficeMgt.IsAvailable
+           OfficeMgt.IsAvailable()
         then begin
             SendEmailToCustDirectly(ReportUsage, RecordVariant, DocNo, DocName, true, CustNo);
             exit;
         end;
 
         RecRef.GetTable(RecordVariant);
-        if RecordsCanBeSent(RecRef) then
-            EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo), DocName);
+        if RecRef.FindSet() then
+            repeat
+                EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|', ReportUsage, DocNo, DocName, CustNo), DocName);
+            until RecRef.Next() = 0;
     end;
 
     procedure SendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20])
@@ -907,7 +911,11 @@ table 77 "Report Selections"
             exit;
         end;
 
-        EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor'), DocName);
+        RecRef.GetTable(RecordVariant);
+        if RecRef.FindSet() then
+            repeat
+                EnqueueMailingJob(RecRef.RecordId, StrSubstNo('%1|%2|%3|%4|%5', ReportUsage, DocNo, DocName, VendorNo, 'Vendor'), DocName);
+            until RecRef.Next() = 0;
     end;
 
     local procedure SendEmailToCustDirectly(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]): Boolean
@@ -925,7 +933,7 @@ table 77 "Report Selections"
         if EmailParameter.GetEntryWithReportUsage(DocNo, ReportUsage, EmailParameter."Parameter Type"::Body) then
             EmailBodyText := EmailParameter.GetParameterValue;
 
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         BindSubscription(MailManagement);
         FoundBody := GetEmailBodyCustomText(ServerEmailBodyFilePath, ReportUsage, RecordVariant, CustNo, EmailAddress, EmailBodyText);
         UnbindSubscription(MailManagement);
@@ -948,7 +956,7 @@ table 77 "Report Selections"
         ServerEmailBodyFilePath: Text[250];
         EmailAddress: Text[250];
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         BindSubscription(MailManagement);
         FoundBody := GetEmailBodyVendor(ServerEmailBodyFilePath, ReportUsage, RecordVariant, VendorNo, EmailAddress);
         UnbindSubscription(MailManagement);
@@ -993,7 +1001,7 @@ table 77 "Report Selections"
                     EmailAddress := CopyStr(
                         GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence),
                         1, MaxStrLen(EmailAddress));
-                    ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code");
+                    ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                     AllEmailsWereSuccessful := AllEmailsWereSuccessful and DocumentMailing.EmailFile(
                         ServerAttachmentFilePath,
                         '',
@@ -1003,7 +1011,7 @@ table 77 "Report Selections"
                         DocName,
                         not ShowDialog,
                         ReportUsage);
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
 
@@ -1020,20 +1028,15 @@ table 77 "Report Selections"
         ServerAttachmentFilePath: Text[250];
         ClientAttachmentFileName: Text;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FindPrintUsage(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code");
+                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-
                 FileManagement.DownloadHandler(
-                  ServerAttachmentFilePath,
-                  '',
-                  '',
-                  FileManagement.GetToFilterText('', ClientAttachmentFileName),
-                  ClientAttachmentFileName);
-            until Next = 0;
+                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1045,20 +1048,15 @@ table 77 "Report Selections"
         ServerAttachmentFilePath: Text[250];
         ClientAttachmentFileName: Text;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FindPrintUsageVendor(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code");
+                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 ClientAttachmentFileName := ElectronicDocumentFormat.GetAttachmentFileName(DocNo, DocName, 'pdf');
-
                 FileManagement.DownloadHandler(
-                  ServerAttachmentFilePath,
-                  '',
-                  '',
-                  FileManagement.GetToFilterText('', ClientAttachmentFileName),
-                  ClientAttachmentFileName);
-            until Next = 0;
+                    ServerAttachmentFilePath, '', '', FileManagement.GetToFilterText('', ClientAttachmentFileName), ClientAttachmentFileName);
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1070,17 +1068,16 @@ table 77 "Report Selections"
         ServerAttachmentInStream: InStream;
         ServerAttachmentFilePath: Text;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FindPrintUsage(ReportUsage, CustNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code");
+                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
                 ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
                 DataCompression.AddEntry(
-                  ServerAttachmentInStream,
-                  ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
-            until Next = 0;
+                  ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+            until Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -1092,17 +1089,16 @@ table 77 "Report Selections"
         ServerAttachmentInStream: InStream;
         ServerAttachmentFilePath: Text;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FindPrintUsageVendor(ReportUsage, VendorNo, TempReportSelections);
         with TempReportSelections do
             repeat
-                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code");
+                ServerAttachmentFilePath := SaveReportAsPDF("Report ID", RecordVariant, "Custom Report Layout Code", ReportUsage);
                 FileManagement.BLOBImportFromServerFile(ServerAttachmentTempBlob, ServerAttachmentFilePath);
                 ServerAttachmentTempBlob.CreateInStream(ServerAttachmentInStream);
                 DataCompression.AddEntry(
-                  ServerAttachmentInStream,
-                  ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
-            until Next = 0;
+                    ServerAttachmentInStream, ElectronicDocumentFormat.GetAttachmentFileName(DocNo, Format(Usage), 'pdf'));
+            until Next() = 0;
     end;
 
     procedure GetDocumentEmailAddress(DocumentNo: Code[20]; ReportUsage: Integer): Text[250]
@@ -1179,13 +1175,13 @@ table 77 "Report Selections"
         exit(OrderAddress."E-Mail");
     end;
 
-    local procedure SaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]) FilePath: Text[250]
+    local procedure SaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Integer) FilePath: Text[250]
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         FileMgt: Codeunit "File Management";
         IsHandled: Boolean;
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FilePath := CopyStr(FileMgt.ServerTempFileName('pdf'), 1, 250);
 
         ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
@@ -1197,12 +1193,12 @@ table 77 "Report Selections"
         Commit;
     end;
 
-    local procedure SaveReportAsHTML(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]) FilePath: Text[250]
+    local procedure SaveReportAsHTML(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; ReportUsage: Integer) FilePath: Text[250]
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         FileMgt: Codeunit "File Management";
     begin
-        OnBeforeSetReportLayout(RecordVariant);
+        OnBeforeSetReportLayout(RecordVariant, ReportUsage);
         FilePath := CopyStr(FileMgt.ServerTempFileName('html'), 1, 250);
 
         ReportLayoutSelection.SetTempLayoutSelected(LayoutCode);
@@ -1251,8 +1247,9 @@ table 77 "Report Selections"
                 ToReportSelections."Email Body Layout Code" := CustomReportSelection."Email Body Layout Code";
                 ToReportSelections."Use for Email Attachment" := CustomReportSelection."Use for Email Attachment";
                 ToReportSelections."Use for Email Body" := CustomReportSelection."Use for Email Body";
-                ToReportSelections.Insert;
-            until CustomReportSelection.Next = 0;
+                ToReportSelections.Default := true;
+                ToReportSelections.Insert();
+            until CustomReportSelection.Next() = 0;
     end;
 
     local procedure CopyReportSelectionToReportSelection(var ToReportSelections: Record "Report Selections"): Boolean
@@ -1262,14 +1259,22 @@ table 77 "Report Selections"
         if FindSet then
             repeat
                 ToReportSelections := Rec;
-                if ToReportSelections.Insert then;
-            until Next = 0;
+                if ToReportSelections.Insert() then;
+            until Next() = 0;
 
         exit(ToReportSelections.FindSet);
     end;
 
     local procedure GetCustomReportSelection(var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCustomReportSelection(Rec, CustomReportSelection, AccountNo, TableNo, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
         CustomReportSelection.SetRange("Source Type", TableNo);
         CustomReportSelection.SetRange("Source No.", AccountNo);
         if CustomReportSelection.IsEmpty then
@@ -1319,9 +1324,9 @@ table 77 "Report Selections"
                     TempNameValueBuffer.ID += 1;
                     TempNameValueBuffer.Name := AccountNoFieldRef.Value;
                     TempCustomer."No." := AccountNoFieldRef.Value; // to avoid duplicate No. insertion into Name/Value buffer
-                    if TempCustomer.Insert then
-                        TempNameValueBuffer.Insert;
-                until RecRef.Next = 0;
+                    if TempCustomer.Insert() then
+                        TempNameValueBuffer.Insert();
+                until RecRef.Next() = 0;
         end else begin
             TempNameValueBuffer.Init;
             TempNameValueBuffer.Insert;
@@ -1340,7 +1345,7 @@ table 77 "Report Selections"
         if FindSet then
             repeat
                 REPORT.RunModal("Report ID", true);
-            until Next = 0;
+            until Next() = 0;
     end;
 
     local procedure FindEmailAddressForEmailLayout(LayoutCode: Code[20]; AccountNo: Code[20]; ReportUsage: Integer; TableNo: Integer): Text[200]
@@ -1440,6 +1445,11 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCustomReportSelection(ReportSelections: Record "Report Selections"; var CustomReportSelection: Record "Custom Report Selection"; AccountNo: Code[20]; TableNo: Integer; ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePrint(ReportUsage: Integer; RecordVariant: Variant; CustomerNoFieldNo: Integer; var Handled: Boolean)
     begin
     end;
@@ -1480,7 +1490,7 @@ table 77 "Report Selections"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeSetReportLayout(RecordVariant: Variant)
+    local procedure OnBeforeSetReportLayout(RecordVariant: Variant; ReportUsage: Integer)
     begin
     end;
 
@@ -1526,6 +1536,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPrintDocument(TempReportSelections: Record "Report Selections" temporary; IsGUI: Boolean; RecVarToPrint: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPrintDocumentsWithCheckGUIYesNoCommon(ReportUsage: Integer; RecVarToPrint: Variant)
     begin
     end;
 

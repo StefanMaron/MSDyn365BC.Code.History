@@ -72,7 +72,7 @@ page 5786 "Source Document Filter Card"
 
                     trigger OnValidate()
                     begin
-                        InboundTransfersOnAfterValidat;
+                        EnableControls();
                     end;
                 }
                 field("Shipping Agent Code Filter"; "Shipping Agent Code Filter")
@@ -103,7 +103,7 @@ page 5786 "Source Document Filter Card"
 
                         trigger OnValidate()
                         begin
-                            SalesOrdersOnAfterValidate;
+                            EnableControls();
                         end;
                     }
                     field("Service Orders"; "Service Orders")
@@ -125,7 +125,7 @@ page 5786 "Source Document Filter Card"
 
                         trigger OnValidate()
                         begin
-                            OutboundTransfersOnAfterValida;
+                            EnableControls();
                         end;
                     }
                 }
@@ -232,9 +232,9 @@ page 5786 "Source Document Filter Card"
                     end;
 
                     GetSourceBatch.UseRequestPage("Show Filter Request");
-                    GetSourceBatch.RunModal;
+                    GetSourceBatch.RunModal();
                     if GetSourceBatch.NotCancelled then
-                        CurrPage.Close;
+                        CurrPage.Close();
                 end;
             }
         }
@@ -242,18 +242,12 @@ page 5786 "Source Document Filter Card"
 
     trigger OnInit()
     begin
-        ShippingAgentServiceFilterEnab := true;
-        ShippingAgentCodeFilterEnable := true;
-        InboundTransfersEnable := true;
-        SalesReturnOrdersEnable := true;
-        PurchaseOrdersEnable := true;
-        OutboundTransfersEnable := true;
-        PurchaseReturnOrdersEnable := true;
-        SalesOrdersEnable := true;
     end;
 
     trigger OnOpenPage()
     begin
+        InitializeControls();
+
         DataCaption := CurrPage.Caption;
         FilterGroup := 2;
         if GetFilter(Type) <> '' then
@@ -261,7 +255,7 @@ page 5786 "Source Document Filter Card"
         FilterGroup := 0;
         CurrPage.Caption(DataCaption);
 
-        EnableControls;
+        EnableControls();
     end;
 
     var
@@ -323,19 +317,23 @@ page 5786 "Source Document Filter Card"
         end;
     end;
 
-    local procedure SalesOrdersOnAfterValidate()
+    local procedure InitializeControls()
     begin
-        EnableControls;
+        ShippingAgentServiceFilterEnab := true;
+        ShippingAgentCodeFilterEnable := true;
+        InboundTransfersEnable := true;
+        SalesReturnOrdersEnable := true;
+        PurchaseOrdersEnable := true;
+        OutboundTransfersEnable := true;
+        PurchaseReturnOrdersEnable := true;
+        SalesOrdersEnable := true;
+
+        OnAfterInitializeControls();
     end;
 
-    local procedure InboundTransfersOnAfterValidat()
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterInitializeControls()
     begin
-        EnableControls;
-    end;
-
-    local procedure OutboundTransfersOnAfterValida()
-    begin
-        EnableControls;
     end;
 }
 

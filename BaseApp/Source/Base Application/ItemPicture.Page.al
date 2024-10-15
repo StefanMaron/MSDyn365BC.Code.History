@@ -103,15 +103,12 @@ page 346 "Item Picture"
 
     trigger OnOpenPage()
     begin
-        CameraAvailable := CameraProvider.IsAvailable;
-        if CameraAvailable then
-            CameraProvider := CameraProvider.Create;
+        CameraAvailable := Camera.IsAvailable();
     end;
 
     var
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
+        [InDataSet]
         CameraAvailable: Boolean;
         OverrideImageQst: Label 'The existing picture will be replaced. Do you want to continue?';
         DeleteImageQst: Label 'Are you sure you want to delete the picture?';
@@ -122,7 +119,7 @@ page 346 "Item Picture"
 
     procedure TakeNewPicture()
     var
-        CameraOptions: DotNet CameraOptions;
+        InStream: InStream;
     begin
         Find;
         TestField("No.");
@@ -131,9 +128,19 @@ page 346 "Item Picture"
         if not CameraAvailable then
             exit;
 
-        CameraOptions := CameraOptions.CameraOptions;
-        CameraOptions.Quality := 50;
-        CameraProvider.RequestPictureAsync(CameraOptions);
+        Camera.RunModal();
+
+        if Picture.Count > 0 then
+            if not Confirm(OverrideImageQst) then
+                exit;
+
+        Camera.GetPicture(Instream);
+
+        Clear(Picture);
+        Picture.ImportStream(Instream, 'Item Picture');
+        if not Modify(true) then
+            Insert(true);
+        Clear(Camera);
     end;
 
     [Scope('OnPrem')]
@@ -171,7 +178,7 @@ page 346 "Item Picture"
 
     procedure IsCameraAvailable(): Boolean
     begin
-        exit(CameraProvider.IsAvailable);
+        exit(Camera.IsAvailable());
     end;
 
     procedure SetHideActions()
@@ -188,32 +195,6 @@ page 346 "Item Picture"
 
         Clear(Picture);
         Modify(true);
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    var
-        File: File;
-        Instream: InStream;
-    begin
-        if (PictureName = '') or (PictureFilePath = '') then
-            exit;
-
-        if Picture.Count > 0 then
-            if not Confirm(OverrideImageQst) then begin
-                if Erase(PictureFilePath) then;
-                exit;
-            end;
-
-        File.Open(PictureFilePath);
-        File.CreateInStream(Instream);
-
-        Clear(Picture);
-        Picture.ImportStream(Instream, PictureName);
-        if not Modify(true) then
-            Insert(true);
-
-        File.Close;
-        if Erase(PictureFilePath) then;
     end;
 }
 

@@ -826,7 +826,7 @@ table 5065 "Interaction Log Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnOpenAttachmentOnBeforeShowAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; SegmentLine: Record "Segment Line"; var Attachment: Record Attachment)
+    local procedure OnOpenAttachmentOnBeforeShowAttachment(var InteractionLogEntry: Record "Interaction Log Entry"; var SegmentLine: Record "Segment Line"; var Attachment: Record Attachment)
     begin
     end;
 }

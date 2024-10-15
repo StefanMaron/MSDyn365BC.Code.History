@@ -65,7 +65,7 @@ page 26594 "Stat. Rep. Table Cell Mapping"
                     Editable = false;
                     ToolTip = 'Specifies the internal source row description associated with the statutory report.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         case "Int. Source Type" of
                             "Int. Source Type"::"Acc. Schedule":
@@ -166,7 +166,7 @@ page 26594 "Stat. Rep. Table Cell Mapping"
                     Enabled = IntSourceColumnHeaderEnable;
                     ToolTip = 'Specifies the internal source column header associated with the statutory report.';
 
-                    trigger OnLookup(var Text: Text): Boolean
+                    trigger OnDrillDown()
                     begin
                         case "Int. Source Type" of
                             "Int. Source Type"::"Acc. Schedule":

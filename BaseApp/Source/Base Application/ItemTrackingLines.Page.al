@@ -1958,7 +1958,8 @@ page 6510 "Item Tracking Lines"
                             ItemTrackingCode."SN Specific Tracking", ItemTrackingCode."Lot Specific Tracking",
                             ItemTrackingCode."CD Specific Tracking");
                         TempReservEntry.ClearTrackingFilter;
-                        ReservationMgt.DeleteReservEntries(true, 0, ReservEntry1)
+                        ReservationMgt.DeleteReservEntries(true, 0, ReservEntry1);
+                        OnRegisterChangeOnAfterFullDelete(ReservEntry1);
                     end else begin
                         ReservationMgt.DeleteReservEntries(false, ReservEntry1."Quantity (Base)" -
                           OldTrackingSpecification."Quantity Handled (Base)", ReservEntry1);
@@ -2526,6 +2527,7 @@ page 6510 "Item Tracking Lines"
     procedure SetCalledFromSynchWhseItemTrkg(CalledFromSynchWhseItemTrkg2: Boolean)
     begin
         CalledFromSynchWhseItemTrkg := CalledFromSynchWhseItemTrkg2;
+        BlockCommit := true;
     end;
 
     local procedure UpdateExpDateColor()
@@ -2783,13 +2785,25 @@ page 6510 "Item Tracking Lines"
 
     local procedure GetHandleSource(TrackingSpecification: Record "Tracking Specification"): Boolean
     var
+        WhseActivLine: Record "Warehouse Activity Line";
         QtyToHandleColumnIsHidden: Boolean;
     begin
         with TrackingSpecification do begin
-            if ("Source Type" = DATABASE::"Item Journal Line") and ("Source Subtype" = 6) then begin // 6 => Prod.order line
+            if ("Source Type" = DATABASE::"Item Journal Line") and ("Source Subtype" = 6) then begin // 6 => Prod.order line directly
                 ProdOrderLineHandling := true;
                 exit(true);  // Display Handle column for prod. orders
             end;
+
+            // Prod. order line via inventory put-away
+            if "Source Type" = DATABASE::"Prod. Order Line" then begin
+                WhseActivLine.SetSourceFilter("Source Type", "Source Subtype", "Source ID", "Source Prod. Order Line", "Source Ref. No.", true);
+                WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type"::"Invt. Put-away");
+                if not WhseActivLine.IsEmpty then begin
+                    ProdOrderLineHandling := true;
+                    exit(true);
+                end;
+            end;
+
             QtyToHandleColumnIsHidden :=
               ("Source Type" in
                [DATABASE::"Item Ledger Entry",
@@ -3050,6 +3064,11 @@ page 6510 "Item Tracking Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnRegisterChangeOnAfterCreateReservEntry(var ReservEntry: Record "Reservation Entry"; TrackingSpecification: Record "Tracking Specification"; OldTrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRegisterChangeOnAfterFullDelete(var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

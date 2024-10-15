@@ -88,13 +88,6 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
         }
     }
 
-    trigger OnOpenPage()
-    begin
-        CameraAvailable := GetCameraAvailable;
-        if CameraAvailable then
-            CameraProvider := CameraProvider.Create;
-    end;
-
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         O365SalesAttachmentMgt.AssertIncomingDocumentSizeBelowMax(Rec);
@@ -102,15 +95,13 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
 
     var
         O365SalesAttachmentMgt: Codeunit "O365 Sales Attachment Mgt";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
-        CameraAvailable: Boolean;
+        MediaUpload: Page "Media Upload";
+        Camera: Page Camera;
 
     procedure ImportNewFile()
     begin
-        if CameraAvailable then
-            ImportFromCamera
+        if MediaUpload.IsAvailable() then
+            ImportFromDevice()
         else
             O365SalesAttachmentMgt.ImportAttachmentFromFileSystem(Rec);
 
@@ -118,43 +109,39 @@ page 2322 "BC O365 Inc. Doc. Attch. List"
         O365SalesAttachmentMgt.NotifyIfFileNameIsTruncated(Rec);
     end;
 
-    local procedure ImportFromCamera()
+    local procedure ImportFromDevice()
     var
-        CameraOptions: DotNet CameraOptions;
+        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+        PictureInStream: InStream;
     begin
-        if not CameraAvailable then
+        if not MediaUpload.IsAvailable() then
             exit;
 
-        CameraOptions := CameraOptions.CameraOptions;
-        CameraOptions.SourceType := 'photolibrary';
-        CameraProvider.RequestPictureAsync(CameraOptions);
+        MediaUpload.SetMediaType(Enum::"Media Type"::Picture);
+        MediaUpload.RunModal();
+        MediaUpload.GetMedia(PictureInStream);
+        ImportAttachmentIncDoc.ProcessAndUploadPicture(PictureInStream, Rec);
+        Clear(MediaUpload);
     end;
 
     [TryFunction]
     procedure TakeNewPicture()
     var
-        CameraOptions: DotNet CameraOptions;
+        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
+        PictureInStream: InStream;
     begin
-        if not CameraAvailable then
+        if not Camera.IsAvailable() then
             exit;
-        CameraOptions := CameraOptions.CameraOptions;
-        CameraOptions.Quality := 50;
-        CameraProvider.RequestPictureAsync(CameraOptions);
+
+        Camera.RunModal();
+        Camera.GetPicture(PictureInStream);
+        ImportAttachmentIncDoc.ProcessAndUploadPicture(PictureInStream, Rec);
+        Clear(Camera);
     end;
 
     procedure GetCameraAvailable(): Boolean
     begin
-        exit(CameraProvider.IsAvailable);
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    var
-        ImportAttachmentIncDoc: Codeunit "Import Attachment - Inc. Doc.";
-    begin
-        if (PictureName = '') or (PictureFilePath = '') then
-            exit;
-
-        ImportAttachmentIncDoc.ProcessAndUploadPicture(PictureFilePath, Rec);
+        exit(Camera.IsAvailable());
     end;
 }
 

@@ -36,6 +36,7 @@ codeunit 136203 "Marketing Task Management"
         AttendeeNotAddedErr: Label 'Attendee was not added';
         InviationSentNotSetErr: Label 'Invitation Sent is not set';
         WrongSalespersonCodeErr: Label 'Wrong Salesperson Code';
+        CannotDeleteSalespersonDueToActiveOpportunitiesErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open opportunities.';
 
     [Test]
     [HandlerFunctions('ModalFormHandlerForTeamTask')]
@@ -1204,6 +1205,51 @@ codeunit 136203 "Marketing Task Management"
         InteractionLogEntry.TestField(Date, LibraryVariableStorage.DequeueDate());
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteSalespersonWithOpenOpportunity()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Opportunity: Record Opportunity;
+    begin
+        // [FEATURE] [Salesperson] [UT]
+        // [SCENARIO 338127] Salesperson/Purchaser cannot be deleted if it has open opportunity.
+        Initialize;
+
+        // [GIVEN] Created Salesperson "S" and Opportunity assigned to it
+        CreateSalespersonWithOpportunity(SalespersonPurchaser, Opportunity);
+
+        // [WHEN] Attempt to delete Salesperson
+        asserterror SalespersonPurchaser.Delete(true);
+
+        // [THEN] Error "You cannot delete the salesperson/purchaser with code A because it has open opportunities" has been thrown
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotDeleteSalespersonDueToActiveOpportunitiesErr, SalespersonPurchaser.Code));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DeleteSalespersonWithClosedOpportunity()
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Opportunity: Record Opportunity;
+    begin
+        // [FEATURE] [Salesperson] [UT]
+        // [SCENARIO 338127] Salesperson/Purchaser is deleted if it hasn't open opportunity.
+        Initialize;
+
+        // [GIVEN] Created Salesperson and Opportunity assigned to it, then close it
+        CreateSalespersonWithOpportunity(SalespersonPurchaser, Opportunity);
+        Opportunity.Validate(Closed, true);
+        Opportunity.Modify(true);
+
+        // [WHEN] Attempt to delete Salesperson
+        SalespersonPurchaser.Delete(true);
+
+        // [THEN] Salesperson is deleted successfuly
+        VerifySalespersonDeleted(SalespersonPurchaser.Code);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1236,14 +1282,6 @@ codeunit 136203 "Marketing Task Management"
             TestField("Ending Date", EndingDate);
             TestField("Ending Time", 0T);
         end;
-    end;
-
-    local procedure CreateSalespersonWithTask(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Task: Record "To-do")
-    begin
-        LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        LibraryMarketing.CreateTask(Task);
-        Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
-        Task.Modify(true);
     end;
 
     local procedure CloseSalepersonsTask(CompletedBy: Code[20])
@@ -1357,6 +1395,22 @@ codeunit 136203 "Marketing Task Management"
         SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
         SalespersonPurchaser.Modify(true);
         Commit;
+    end;
+
+    local procedure CreateSalespersonWithTask(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Task: Record "To-do")
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryMarketing.CreateTask(Task);
+        Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Task.Modify(true);
+    end;
+
+    local procedure CreateSalespersonWithOpportunity(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Opportunity: Record Opportunity)
+    begin
+        LibrarySales.CreateSalesperson(SalespersonPurchaser);
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo);
+        Opportunity.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Opportunity.Modify(true);
     end;
 
     local procedure CreateSegmentLine(SegmentHeaderNo: Code[20])

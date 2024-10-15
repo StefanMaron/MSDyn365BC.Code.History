@@ -495,6 +495,9 @@ table 5802 "Value Entry"
         key(Key17; "Item Ledger Entry Type", "Order No.", "Valuation Date")
         {
         }
+        key(Key18; "Item No.", "Item Ledger Entry Type", "Order Type", "Order No.", "Order Line No.")
+        {
+        }
     }
 
     fieldgroups
@@ -544,6 +547,7 @@ table 5802 "Value Entry"
         QtyFactor: Decimal;
     begin
         Item.Get(ValueEntry."Item No.");
+        OnSumCostsTillValuationDateOnAfterGetItem(Item, ValueEntry);
         if Item."Costing Method" = Item."Costing Method"::Average then
             ToDate := GetAvgToDate(ValueEntry."Valuation Date")
         else
@@ -793,6 +797,11 @@ table 5802 "Value Entry"
         ValueEntry.SetRange("Entry Type", "Entry Type"::"Direct Cost");
         ValueEntry.SetRange("Item Charge No.", '');
         exit(not ValueEntry.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSumCostsTillValuationDateOnAfterGetItem(var Item: Record Item; var ValueEntry: Record "Value Entry")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -14,6 +14,7 @@ codeunit 139173 "CRM Synch. Helper Test"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CurrencyNotFoundErr: Label 'The currency with the ISO code ''%1'' cannot be found. Therefore, the exchange rate between ''%2'' and ''%3'' cannot be calculated.', Comment = '%1,%2,%3=the ISO code of a currency (example: DKK);';
         IncorrectUnitGroupNameErr: Label 'Incorrect Unit Group name.';
         IncorrectStateCodeErr: Label 'Incorrect State Code.';
@@ -577,6 +578,7 @@ codeunit 139173 "CRM Synch. Helper Test"
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO] UpdateCRMInvoiceStatus() should update the state and status on the CRM Invoice, when not paid
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Synch. Helper Test");
 
         // [GIVEN] A posted NAV sales invoice, not paid
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
@@ -596,6 +598,8 @@ codeunit 139173 "CRM Synch. Helper Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CRMInvoice: Record "CRM Invoice";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Synch. Helper Test");
+
         // [FEATURE] [Invoice]
         // [SCENARIO] UpdateCRMInvoiceStatus() should update the state and status on the CRM Invoice, fully paid
         // [GIVEN] A posted NAV sales invoice, fully paid
@@ -619,6 +623,8 @@ codeunit 139173 "CRM Synch. Helper Test"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CRMInvoice: Record "CRM Invoice";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Synch. Helper Test");
+
         // [FEATURE] [Invoice]
         // [SCENARIO] UpdateCRMInvoiceStatus() should update the state and status on the CRM Invoice, partial payment applied
         // [GIVEN] A posted NAV sales invoice, and a partial payment applied
@@ -727,6 +733,8 @@ codeunit 139173 "CRM Synch. Helper Test"
         CRMInvoice: Record "CRM Invoice";
         PaymentMethod: Record "Payment Method";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"CRM Synch. Helper Test");
+
         // [SCENARIO 201236] Update the state and status on the CRM Invoice, when not paid and Payment Method has "Create Bills" flag in Spanish version
         InitializeCRMIntegration;
 

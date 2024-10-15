@@ -43,10 +43,10 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Bank_Acc__Reconciliation___Statement_Ending_Balance_; "Bank Acc. Reconciliation"."Statement Ending Balance")
                 {
                 }
-                column(Bank_Acc__Reconciliation___TotalBalOnBankAccount; "Bank Acc. Reconciliation"."Total Balance on Bank Account")
+                column(Bank_Acc__Reconciliation___TotalBalOnBankAccount; BankAcc."Balance at Date")
                 {
                 }
-                column(Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY; "Bank Acc. Reconciliation"."Bank Account Balance (LCY)")
+                column(Bank_Acc__Reconciliation___TotalBalOnBankAccountLCY; BankAcc."Balance at Date (LCY)")
                 {
                 }
                 column(Bank_Acc__Reconciliation___TotalPositiveAdjustments; TotalPositiveDifference)
@@ -133,7 +133,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Statement_BalanceCaption; Statement_BalanceCaptionLbl)
                 {
                 }
-                column(GL_Subtotal; ("Bank Acc. Reconciliation"."Total Balance on Bank Account" + TotalPositiveDifference))
+                column(GL_Subtotal; (BankAcc."Balance at Date" + TotalPositiveDifference))
                 {
                 }
                 column(Ending_GL_Balance; EndingGLBalance)
@@ -145,7 +145,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Adjusted_Statement_Ending_Balance; EndingStatementBalance)
                 {
                 }
-                column(Difference; (EndingGLBalance - EndingStatementBalance))
+                column(Difference; "Bank Acc. Reconciliation"."Total Balance on Bank Account" + TotalPositiveDifference + TotalNegativeDifference - "Bank Acc. Reconciliation"."Statement Ending Balance" - TotalOutstdBankTransac - TotalOutstdPayments)
                 {
                 }
                 dataitem(HeaderErrorCounter; "Integer")
@@ -481,10 +481,6 @@ report 1408 "Bank Acc. Recon. - Test"
                             TotalNegativeDifference := "Total Negative Adjustments";
                         end;
                 end;
-                TotalOutstdPayments := "Total Outstd Payments" - "Total Applied Amount Payments";
-                EndingGLBalance := "Total Balance on Bank Account" + TotalPositiveDifference + TotalNegativeDifference;
-                EndingStatementBalance := "Statement Ending Balance" + TotalOutstdBankTransac + TotalOutstdPayments;
-
                 if "Statement Date" = 0D then
                     AddError(StrSubstNo(StatementDateErr, FieldCaption("Statement Date")));
 
@@ -515,6 +511,13 @@ report 1408 "Bank Acc. Recon. - Test"
                         BankAcc.TableCaption, "Bank Account No."));
                     HeaderError2 := StrSubstNo(TableValueMissingErr, BankAcc.TableCaption, "Bank Account No.");
                 end;
+                if "Statement Date" <> 0D then
+                    BankAcc.SetFilter("Date Filter", '..%1', "Statement Date");
+                BankAcc.CalcFields("Balance at Date", "Balance at Date (LCY)");
+
+                TotalOutstdPayments := "Total Outstd Payments" - "Total Applied Amount Payments";
+                EndingGLBalance := BankAcc."Balance at Date" + TotalPositiveDifference + TotalNegativeDifference;
+                EndingStatementBalance := "Statement Ending Balance" + TotalOutstdBankTransac + TotalOutstdPayments;
             end;
         }
     }

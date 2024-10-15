@@ -4,6 +4,8 @@ page 1910 "Camera Interaction"
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Replaced woth page 1908 Camera';
 
     layout
     {
@@ -30,80 +32,105 @@ page 1910 "Camera Interaction"
 
     trigger OnOpenPage()
     begin
-        CameraAvailable := CameraProvider.IsAvailable;
+        CameraAvailable := Camera.IsAvailable();
 
         if not CameraAvailable then
             exit;
 
-        CameraOptions := CameraOptions.CameraOptions;
-        CameraOptions.Quality := RequestedQuality;
-        CameraOptions.AllowEdit := RequestedAllowEdit;
-        CameraOptions.EncodingType := RequestedEncodingType;
-        CameraOptions.MediaType := RequestedMediaType;
-        CameraOptions.SourceType := RequestedSourceType;
-
-        CameraProvider := CameraProvider.Create;
-        CameraProvider.RequestPictureAsync(CameraOptions);
+        if UseMediaUpload then begin
+            Clear(MediaUpload);
+            MediaUpload.RunModal();
+        end else begin
+            Clear(Camera);
+            Camera.RunModal();
+        end;
     end;
 
     var
-        TempBlob: Codeunit "Temp Blob";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
-        CameraOptions: DotNet CameraOptions;
+        Camera: Page Camera;
+        MediaUpload: Page "Media Upload";
+        UseMediaUpload: Boolean;
         [InDataSet]
         CameraAvailable: Boolean;
-        RequestedAllowEdit: Boolean;
-        SavedPictureName: Text;
-        SavedPictureFilePath: Text;
-        RequestedEncodingType: Text;
-        RequestedMediaType: Text;
-        RequestedSourceType: Text;
-        PictureNotAvailableErr: Label 'The picture is not available.';
         RequestedIgnoreError: Boolean;
-        RequestedQuality: Integer;
+        UnsupportedEncodingErr: Label 'Unsupported image encoding format: %1', Comment = '%1 = format';
+        UnsupportedMediaErr: Label 'Unsupported media type: %1', Comment = '%1 = media type';
+        UnsupportedSourceErr: Label 'Unsupported source type: %1', Comment = '%1 = source type';
 
     procedure AllowEdit(AllowEdit: Boolean)
     begin
-        RequestedAllowEdit := AllowEdit;
+        Camera.SetAllowEdit(AllowEdit);
     end;
 
     procedure GetPictureName(): Text
     begin
-        exit(SavedPictureName);
+        exit('Picture');
+    end;
+
+    [TryFunction]
+    local procedure TryGetPicture(Stream: InStream)
+    begin
+        if UseMediaUpload then
+            MediaUpload.GetMedia(Stream)
+        else
+            Camera.GetPicture(Stream);
     end;
 
     procedure GetPicture(Stream: InStream): Boolean
-    var
-        FileManagement: Codeunit "File Management";
     begin
-        if SavedPictureFilePath = '' then begin
-            if not RequestedIgnoreError then
-                Error(PictureNotAvailableErr);
-
-            exit(false);
-        end;
-
-        FileManagement.BLOBImport(TempBlob, SavedPictureFilePath);
-        TempBlob.CreateInStream(Stream);
-
-        exit(true);
+        if not RequestedIgnoreError then
+            TryGetPicture(Stream);
+        // else ignore error
+        if TryGetPicture(Stream) then;
     end;
 
     procedure EncodingType(EncodingType: Text)
     begin
-        RequestedEncodingType := EncodingType;
+        case EncodingType of
+            'JPEG':
+                Camera.SetEncodingType(Enum::"Image Encoding"::JPEG);
+            'PNG':
+                Camera.SetEncodingType(Enum::"Image Encoding"::PNG);
+            else
+                if not RequestedIgnoreError then
+                    Error(UnsupportedEncodingErr);
+        end;
     end;
 
     procedure MediaType(MediaType: Text)
     begin
-        RequestedMediaType := MediaType;
+        case MediaType of
+            'AllMedia':
+                MediaUpload.SetMediaType(Enum::"Media Type"::"All Media");
+            'Picture':
+                MediaUpload.SetMediaType(Enum::"Media Type"::Picture);
+            'Video':
+                MediaUpload.SetMediaType(Enum::"Media Type"::Video);
+            else
+                if not RequestedIgnoreError then
+                    Error(UnsupportedMediaErr);
+        end;
     end;
 
     procedure SourceType(SourceType: Text)
     begin
-        RequestedSourceType := SourceType;
+        case SourceType of
+            'SavedPhotoAlbum':
+                begin
+                    UseMediaUpload := true;
+                    MediaUpload.SetUploadFromSavedPhotoAlbum(true);
+                end;
+            'PhotoLibrary':
+                begin
+                    UseMediaUpload := true;
+                    MediaUpload.SetUploadFromSavedPhotoAlbum(false);
+                end;
+            'Camera':
+                UseMediaUpload := false;
+            else
+                if not RequestedIgnoreError then
+                    Error(UnsupportedSourceErr);
+        end;
     end;
 
     procedure IgnoreError(IgnoreError: Boolean)
@@ -113,15 +140,7 @@ page 1910 "Camera Interaction"
 
     procedure Quality(Quality: Integer)
     begin
-        RequestedQuality := Quality;
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    begin
-        SavedPictureFilePath := PictureFilePath;
-        SavedPictureName := PictureName;
-
-        CurrPage.Close;
+        Camera.SetQuality(Quality);
     end;
 }
 

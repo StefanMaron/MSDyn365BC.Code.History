@@ -679,7 +679,7 @@ table 121 "Purch. Rcpt. Line"
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
         if not PurchDocLineComments.IsEmpty then
-            PurchDocLineComments.DeleteAll;
+            PurchDocLineComments.DeleteAll();
     end;
 
     var
@@ -723,7 +723,8 @@ table 121 "Purch. Rcpt. Line"
         TranslationHelper: Codeunit "Translation Helper";
         NextLineNo: Integer;
         ExtTextLine: Boolean;
-        Handled: Boolean;
+        IsHandled: Boolean;
+        DirectUnitCost: Decimal;
     begin
         SetRange("Document No.", "Document No.");
 
@@ -737,16 +738,17 @@ table 121 "Purch. Rcpt. Line"
             PurchInvHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
 
         if PurchLine."Receipt No." <> "Document No." then begin
-            PurchLine.Init;
+            PurchLine.Init();
             PurchLine."Line No." := NextLineNo;
             PurchLine."Document Type" := TempPurchLine."Document Type";
             PurchLine."Document No." := TempPurchLine."Document No.";
             TranslationHelper.SetGlobalLanguageByCode(PurchInvHeader."Language Code");
             PurchLine.Description := StrSubstNo(Text000, "Document No.");
             TranslationHelper.RestoreGlobalLanguage;
-            OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, Handled);
-            if not Handled then begin
-                PurchLine.Insert;
+            IsHandled := false;
+            OnBeforeInsertInvLineFromRcptLineBeforeInsertTextLine(Rec, PurchLine, NextLineNo, IsHandled);
+            if not IsHandled then begin
+                PurchLine.Insert();
                 NextLineNo := NextLineNo + 10000;
             end;
         end;
@@ -782,7 +784,7 @@ table 121 "Purch. Rcpt. Line"
                 end;
             end else begin
                 if ExtTextLine then begin
-                    PurchOrderLine.Init;
+                    PurchOrderLine.Init();
                     PurchOrderLine."Line No." := "Order Line No.";
                     PurchOrderLine.Description := Description;
                     PurchOrderLine."Description 2" := "Description 2";
@@ -790,38 +792,21 @@ table 121 "Purch. Rcpt. Line"
                 end else
                     Error(Text001);
             end;
-            PurchLine := PurchOrderLine;
-            PurchLine."Line No." := NextLineNo;
-            PurchLine."Document Type" := TempPurchLine."Document Type";
-            PurchLine."Document No." := TempPurchLine."Document No.";
-            PurchLine."Variant Code" := "Variant Code";
-            PurchLine."Location Code" := "Location Code";
-            PurchLine."Quantity (Base)" := 0;
-            PurchLine.Quantity := 0;
-            PurchLine."Outstanding Qty. (Base)" := 0;
-            PurchLine."Outstanding Quantity" := 0;
-            PurchLine."Quantity Received" := 0;
-            PurchLine."Qty. Received (Base)" := 0;
-            PurchLine."Quantity Invoiced" := 0;
-            PurchLine."Qty. Invoiced (Base)" := 0;
-            PurchLine.Amount := 0;
-            PurchLine."Amount Including VAT" := 0;
-            PurchLine."Sales Order No." := '';
-            PurchLine."Sales Order Line No." := 0;
-            PurchLine."Drop Shipment" := false;
-            PurchLine."Special Order Sales No." := '';
-            PurchLine."Special Order Sales Line No." := 0;
-            PurchLine."Special Order" := false;
-            PurchLine."Receipt No." := "Document No.";
-            PurchLine."Receipt Line No." := "Line No.";
-            PurchLine."Appl.-to Item Entry" := 0;
-            OnAfterCopyFromPurchRcptLine(PurchLine, Rec);
+
+            CopyFromPurchRcptLine(PurchLine, PurchOrderLine, TempPurchLine, NextLineNo);
+
             if not ExtTextLine then begin
-                PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
+                IsHandled := false;
+                OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled);
+                if not IsHandled then
+                    PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
 
                 OnInsertInvLineFromRcptLineOnAfterCalcQuantities(PurchLine, PurchOrderLine);
 
-                PurchLine.Validate("Direct Unit Cost", PurchOrderLine."Direct Unit Cost");
+                IsHandled := false;
+                DirectUnitCost := PurchOrderLine."Direct Unit Cost";
+                OnInsertInvLineFromRcptLineOnBeforeSetDirectUnitCost(PurchLine, PurchOrderLine, DirectUnitCost);
+                PurchLine.Validate("Direct Unit Cost", DirectUnitCost);
                 PurchOrderLine."Line Discount Amount" :=
                   Round(
                     PurchOrderLine."Line Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
@@ -866,7 +851,7 @@ table 121 "Purch. Rcpt. Line"
                 PurchLine."Drop Shipment" := true;
 
             OnBeforeInsertInvLineFromRcptLine(Rec, PurchLine, PurchOrderLine);
-            PurchLine.Insert;
+            PurchLine.Insert();
             OnAfterInsertInvLineFromRcptLine(PurchLine, PurchOrderLine, NextLineNo, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
@@ -877,14 +862,45 @@ table 121 "Purch. Rcpt. Line"
         until (Next = 0) or ("Attached to Line No." = 0);
     end;
 
-    local procedure GetPurchInvLines(var TempPurchInvLine: Record "Purch. Inv. Line" temporary)
+    local procedure CopyFromPurchRcptLine(var PurchLine: Record "Purchase Line"; PurchOrderLine: Record "Purchase Line"; TempPurchLine: Record "Purchase Line"; NextLineNo: Integer)
+    begin
+        PurchLine := PurchOrderLine;
+        PurchLine."Line No." := NextLineNo;
+        PurchLine."Document Type" := TempPurchLine."Document Type";
+        PurchLine."Document No." := TempPurchLine."Document No.";
+        PurchLine."Variant Code" := "Variant Code";
+        PurchLine."Location Code" := "Location Code";
+        PurchLine."Quantity (Base)" := 0;
+        PurchLine.Quantity := 0;
+        PurchLine."Outstanding Qty. (Base)" := 0;
+        PurchLine."Outstanding Quantity" := 0;
+        PurchLine."Quantity Received" := 0;
+        PurchLine."Qty. Received (Base)" := 0;
+        PurchLine."Quantity Invoiced" := 0;
+        PurchLine."Qty. Invoiced (Base)" := 0;
+        PurchLine.Amount := 0;
+        PurchLine."Amount Including VAT" := 0;
+        PurchLine."Sales Order No." := '';
+        PurchLine."Sales Order Line No." := 0;
+        PurchLine."Drop Shipment" := false;
+        PurchLine."Special Order Sales No." := '';
+        PurchLine."Special Order Sales Line No." := 0;
+        PurchLine."Special Order" := false;
+        PurchLine."Receipt No." := "Document No.";
+        PurchLine."Receipt Line No." := "Line No.";
+        PurchLine."Appl.-to Item Entry" := 0;
+
+        OnAfterCopyFromPurchRcptLine(PurchLine, Rec);
+    end;
+
+    procedure GetPurchInvLines(var TempPurchInvLine: Record "Purch. Inv. Line" temporary)
     var
         PurchInvLine: Record "Purch. Inv. Line";
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempPurchInvLine.Reset;
-        TempPurchInvLine.DeleteAll;
+        TempPurchInvLine.Reset();
+        TempPurchInvLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -901,9 +917,9 @@ table 121 "Purch. Rcpt. Line"
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Purchase Invoice" then
                             if PurchInvLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempPurchInvLine.Init;
+                                TempPurchInvLine.Init();
                                 TempPurchInvLine := PurchInvLine;
-                                if TempPurchInvLine.Insert then;
+                                if TempPurchInvLine.Insert() then;
                             end;
                     until ValueEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
@@ -952,7 +968,7 @@ table 121 "Purch. Rcpt. Line"
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Document No.");
         ItemLedgEntry.SetRange("Document No.", "Document No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Purchase Receipt");
@@ -999,7 +1015,7 @@ table 121 "Purch. Rcpt. Line"
     begin
         Init;
         TransferFields(PurchLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := PurchRcptHeader."Posting Date";
         "Document No." := PurchRcptHeader."No.";
@@ -1068,6 +1084,11 @@ table 121 "Purch. Rcpt. Line"
         end;
     end;
 
+    procedure HasTypeToFillMandatoryFields(): Boolean
+    begin
+        exit(Type <> Type::" ");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPurchRcptLine(var PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
@@ -1100,6 +1121,16 @@ table 121 "Purch. Rcpt. Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertInvLineFromRcptLineOnAfterCalcQuantities(var PurchaseLine: Record "Purchase Line"; PurchaseOrderLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnBeforeSetDirectUnitCost(var PurchaseLine: Record "Purchase Line"; PurchaseOrderLine: Record "Purchase Line"; var DirectUnitCost: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

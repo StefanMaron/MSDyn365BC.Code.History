@@ -81,6 +81,8 @@ xmlport 9174 "Import Tenant Permission Sets"
                     begin
                         if TempAggregatePermissionSet.Scope <> TempAggregatePermissionSet.Scope::System then
                             currXMLport.Skip();
+                        if TempPermission.Get(TempPermission."Role ID", TempPermission."Object Type", TempPermission."Object ID") then
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -136,6 +138,8 @@ xmlport 9174 "Import Tenant Permission Sets"
                     begin
                         if TempAggregatePermissionSet.Scope <> TempAggregatePermissionSet.Scope::Tenant then
                             currXMLport.Skip();
+                        if TempTenantPermission.Get(TempTenantPermission."App ID", TempTenantPermission."Role ID", TempTenantPermission."Object Type", TempTenantPermission."Object ID") then
+                            currXMLport.Skip();
                     end;
                 }
 
@@ -145,6 +149,9 @@ xmlport 9174 "Import Tenant Permission Sets"
                     TenantPermissionSet: Record "Tenant Permission Set";
                     PermissionSetExists: Boolean;
                 begin
+                    if TempAggregatePermissionSet.Get(TempAggregatePermissionSet.Scope, TempAggregatePermissionSet."App ID", TempAggregatePermissionSet."Role ID") then
+                        currXMLport.Skip();
+
                     case TempAggregatePermissionSet.Scope of
                         TempAggregatePermissionSet.Scope::System:
                             PermissionSetExists := PermissionSet.Get(TempAggregatePermissionSet."Role ID");

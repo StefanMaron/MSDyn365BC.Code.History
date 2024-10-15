@@ -305,14 +305,16 @@ codeunit 5804 ItemCostManagement
         OnAfterSetFilters(ValueEntry, Item);
     end;
 
-    local procedure CalculateQuantity(var Item: Record Item): Decimal
+    local procedure CalculateQuantity(var Item: Record Item) CalcQty: Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
         with ValueEntry do begin
             SetFilters(ValueEntry, Item);
             CalcSums("Item Ledger Entry Quantity");
-            exit("Item Ledger Entry Quantity");
+            CalcQty := "Item Ledger Entry Quantity";
+            OnAfterCalculateQuantity(ValueEntry, Item, CalcQty);
+            exit(CalcQty);
         end;
     end;
 
@@ -482,6 +484,11 @@ codeunit 5804 ItemCostManagement
             exit(FullActualCost / FullQty);
 
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateQuantity(var ValueEntry: Record "Value Entry"; var Item: Record Item; var CalcQty: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

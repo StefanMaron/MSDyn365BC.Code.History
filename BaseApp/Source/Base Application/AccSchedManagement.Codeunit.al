@@ -325,6 +325,8 @@ codeunit 8 AccSchedManagement
     var
         Result: Decimal;
     begin
+        OnBeforeCalcCell(AccSchedLine, ColumnLayout, CalcAddCurr);
+
         AccountScheduleLine.CopyFilters(AccSchedLine);
         StartDate := AccountScheduleLine.GetRangeMin("Date Filter");
         if EndDate <> AccountScheduleLine.GetRangeMax("Date Filter") then begin
@@ -391,6 +393,8 @@ codeunit 8 AccSchedManagement
         AccSchedExtensionManagement: Codeunit AccSchedExtensionManagement;
     begin
         Result := 0;
+        OnBeforeCalcCellValue(AccSchedLine, ColumnLayout, CalcAddCurr, Result);
+
         if AccSchedLine.Totaling = '' then
             exit(Result);
 
@@ -1415,7 +1419,8 @@ codeunit 8 AccSchedManagement
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Total Accounts"
                         else
                             AccSchedLine."Totaling Type" := AccSchedLine."Totaling Type"::"Posting Accounts";
-                        AccSchedLine.Insert;
+                        OnInsertGLAccountsOnBeforeAccSchedLineInsert(AccSchedLine, GLAcc);
+                        AccSchedLine.Insert();
                     until GLAcc.Next = 0;
             end;
         end;
@@ -2396,8 +2401,18 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCell(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeCalcCellExit(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
     begin
     end;
 
@@ -2453,6 +2468,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnEvaluateExpressionOnBeforeCalcColumnLayoutCellValue(SourceColumnLayout: Record "Column Layout"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var IsHandled: Boolean; var CellValue: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertGLAccountsOnBeforeAccSchedLineInsert(var AccSchedLine: Record "Acc. Schedule Line"; GLAccount: Record "G/L Account")
     begin
     end;
 }

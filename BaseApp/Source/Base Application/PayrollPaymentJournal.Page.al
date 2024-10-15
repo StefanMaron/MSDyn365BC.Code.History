@@ -758,8 +758,8 @@ page 17449 "Payroll Payment Journal"
         GLReconcile: Page Reconciliation;
         ChangeExchangeRate: Page "Change Exchange Rate";
         CurrentJnlBatchName: Code[10];
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowBalance: Boolean;

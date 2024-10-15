@@ -942,6 +942,7 @@ table 5612 "FA Depreciation Book"
         if TaxRegisterSetup.Get then
             if "Depreciation Book Code" = TaxRegisterSetup."Tax Depreciation Book" then
                 "Depr. Bonus %" := TaxRegisterSetup."Default Depr. Bonus %";
+	    CheckApplyDeprBookDefaults();
     end;
 
     trigger OnModify()
@@ -952,6 +953,7 @@ table 5612 "FA Depreciation Book"
         DeprBook.Get("Depreciation Book Code");
         if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
             DeprBook.TestField("Fiscal Year 365 Days", false);
+        CheckApplyDeprBookDefaults();
     end;
 
     trigger OnRename()
@@ -1123,6 +1125,14 @@ table 5612 "FA Depreciation Book"
         FieldError("Depreciation Method", StrSubstNo(Text003, "Depreciation Method"));
     end;
 
+    local procedure CheckApplyDeprBookDefaults()
+    begin
+        if (DeprBook."Default Ending Book Value" <> 0) and ("Ending Book Value" = 0) then
+            "Ending Book Value" := DeprBook."Default Ending Book Value";
+        if (DeprBook."Default Final Rounding Amount" <> 0) and ("Final Rounding Amount" = 0) then
+            "Final Rounding Amount" := DeprBook."Default Final Rounding Amount"
+    end;
+
     procedure Caption(): Text
     var
         FA: Record "Fixed Asset";
@@ -1159,24 +1169,10 @@ table 5612 "FA Depreciation Book"
             TempFALedgEntry.DeleteAll;
             TempFALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             DepreciationCalc.SetFAFilter(FALedgEntry, "FA No.", "Depreciation Book Code", false);
-            with FALedgEntry do begin
-                if Find('-') then
-                    repeat
-                        if (("FA Posting Category" = "FA Posting Category"::Disposal) and
-                            ("FA Posting Type" <> "FA Posting Type"::"Book Value on Disposal") and
-                            ("FA Posting Type" <> "FA Posting Type"::"Salvage Value")) or
-                           "Part of Book Value"
-                        then begin
-                            TempFALedgEntry := FALedgEntry;
-                            TempFALedgEntry.Insert;
-                        end;
-                    until Next = 0;
-                TempFALedgEntry.SetRange("FA No.", TempFALedgEntry."FA No.");
-                TempFALedgEntry.SetRange("Depreciation Book Code", TempFALedgEntry."Depreciation Book Code");
-                PAGE.Run(0, TempFALedgEntry);
-            end;
-        end else begin
             SetBookValueAfterDisposalFiltersOnFALedgerEntry(FALedgEntry);
+            PAGE.Run(0, FALedgEntry);
+        end else begin
+            SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
             PAGE.Run(0, FALedgEntry);
         end;
     end;
@@ -1281,6 +1277,7 @@ table 5612 "FA Depreciation Book"
     local procedure SetBookValueAfterDisposalFiltersOnFALedgerEntry(var FALedgEntry: Record "FA Ledger Entry")
     begin
         SetBookValueFiltersOnFALedgerEntry(FALedgEntry);
+        FALedgEntry.SetRange("Part of Book Value");
         FALedgEntry.SetRange("FA Posting Category", FALedgEntry."FA Posting Category"::Disposal);
         FALedgEntry.SetRange("FA Posting Type", FALedgEntry."FA Posting Type"::"Book Value on Disposal");
         if GetFilter("FA Posting Date Filter") <> '' then

@@ -3,6 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// Displays the extension logo.
+/// </summary>
 page 2506 "Extension Logo Part"
 {
     Extensible = false;
@@ -16,6 +19,9 @@ page 2506 "Extension Logo Part"
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "NAV App";
+    SourceTableView = WHERE("Package Type" = FILTER(= 0 | 2),
+                            "Tenant Visible" = CONST(true));
+    ContextSensitiveHelpPage = 'ui-extensions';
 
     layout
     {

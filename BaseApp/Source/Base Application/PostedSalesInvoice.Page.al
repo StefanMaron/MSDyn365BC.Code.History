@@ -108,6 +108,12 @@
                     Editable = false;
                     ToolTip = 'Specifies any text that is entered to accompany the posting, for example for information to auditors.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;

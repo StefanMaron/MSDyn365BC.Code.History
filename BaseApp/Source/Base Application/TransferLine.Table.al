@@ -269,7 +269,9 @@ table 5741 "Transfer Line"
                         exit;
                     if Item."No." = "Item No." then
                         exit;
-                    if Confirm(AnotherItemWithSameDescrQst, false, Item."No.", Item.Description) then
+                    if ConfirmManagement.GetResponseOrDefault(
+                        StrSubstNo(AnotherItemWithSameDescrQst, Item."No.", Item.Description), true)
+                    then
                         Validate("Item No.", Item."No.");
                     exit;
                 end;
@@ -901,6 +903,9 @@ table 5741 "Transfer Line"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Item No.", Description, Quantity, "Unit of Measure", "Transfer-from Code", "Transfer-to Code")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -972,6 +977,7 @@ table 5741 "Transfer Line"
         CheckDateConflict: Codeunit "Reservation-Check Date Confl.";
         WMSManagement: Codeunit "WMS Management";
         UOMMgt: Codeunit "Unit of Measure Management";
+        ConfirmManagement: Codeunit "Confirm Management";
         Reservation: Page Reservation;
         TrackingBlocked: Boolean;
         Text12402: Label 'Quantity %1 in line %2 cannot be reserved automatically.';
@@ -1039,7 +1045,14 @@ table 5741 "Transfer Line"
     end;
 
     local procedure GetTransHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetTransHeader(Rec, TransHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         GetTransferHeaderNoVerification;
 
         CheckTransferHeader(TransHeader);
@@ -1143,7 +1156,13 @@ table 5741 "Transfer Line"
     local procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
         ItemCheckAvail: Codeunit "Item-Check Avail.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemAvailable(Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if (CurrFieldNo <> 0) and
            (CurrFieldNo = CalledByFieldNo) and
            ("Item No." <> '') and
@@ -1512,12 +1531,22 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemAvailable(var TransferLine: Record "Transfer Line"; CalledByFieldNo: Integer; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTransferHeader(TransferHeader: Record "Transfer Header"; var IsHandled: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(TransferLine: Record "Transfer Line"; Location: Record Location; Receive: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTransHeader(var TransferLine: Record "Transfer Line"; var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 

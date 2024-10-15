@@ -96,8 +96,8 @@ codeunit 131337 "Library - XPath XML Reader"
     var
         Attribute: DotNet XmlAttribute;
     begin
-        asserterror GetAttributeFromElement(ElementName, AttributeName, Attribute);
-        Assert.ExpectedError('Attribute is missing!');
+        GetAttributeFromElement(ElementName, AttributeName, Attribute);
+        Assert.IsTrue(IsNull(Attribute), StrSubstNo(UnexpectedAttributeErr, AttributeName, ElementName));
     end;
 
     procedure VerifyAttributeValue(ElementName: Text; AttributeName: Text; Expected: Text)

@@ -509,7 +509,7 @@ table 6651 "Return Shipment Line"
         PurchDocLineComments.SetRange("No.", "Document No.");
         PurchDocLineComments.SetRange("Document Line No.", "Line No.");
         if not PurchDocLineComments.IsEmpty then
-            PurchDocLineComments.DeleteAll;
+            PurchDocLineComments.DeleteAll();
     end;
 
     var
@@ -568,17 +568,17 @@ table 6651 "Return Shipment Line"
             PurchHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
 
         if PurchLine."Return Shipment No." <> "Document No." then begin
-            PurchLine.Init;
+            PurchLine.Init();
             PurchLine."Line No." := NextLineNo;
             PurchLine."Document Type" := TempPurchLine."Document Type";
             PurchLine."Document No." := TempPurchLine."Document No.";
             PurchLine.Description := StrSubstNo(Text000, "Document No.");
-            PurchLine.Insert;
+            PurchLine.Insert();
             NextLineNo := NextLineNo + 10000;
         end;
 
         TransferOldExtLines.ClearLineNumbers;
-        PurchSetup.Get;
+        PurchSetup.Get();
         repeat
             ExtTextLine := (TransferOldExtLines.GetNewLineNumber("Attached to Line No.") <> 0);
 
@@ -586,7 +586,7 @@ table 6651 "Return Shipment Line"
                  PurchOrderLine."Document Type"::"Return Order", "Return Order No.", "Return Order Line No.")
             then begin
                 if ExtTextLine then begin
-                    PurchOrderLine.Init;
+                    PurchOrderLine.Init();
                     PurchOrderLine."Line No." := "Return Order Line No.";
                     PurchOrderLine.Description := Description;
                     PurchOrderLine."Description 2" := "Description 2";
@@ -665,7 +665,7 @@ table 6651 "Return Shipment Line"
             IsHandled := false;
             OnBeforeInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec, IsHandled);
             if not IsHandled then
-                PurchLine.Insert;
+                PurchLine.Insert();
             OnAfterInsertInvLineFromRetShptLine(PurchLine, PurchOrderLine, Rec);
 
             ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchOrderLine, PurchLine);
@@ -682,8 +682,8 @@ table 6651 "Return Shipment Line"
         ItemLedgEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
     begin
-        TempPurchCrMemoLine.Reset;
-        TempPurchCrMemoLine.DeleteAll;
+        TempPurchCrMemoLine.Reset();
+        TempPurchCrMemoLine.DeleteAll();
 
         if Type <> Type::Item then
             exit;
@@ -700,9 +700,9 @@ table 6651 "Return Shipment Line"
                     repeat
                         if ValueEntry."Document Type" = ValueEntry."Document Type"::"Purchase Credit Memo" then
                             if PurchCrMemoLine.Get(ValueEntry."Document No.", ValueEntry."Document Line No.") then begin
-                                TempPurchCrMemoLine.Init;
+                                TempPurchCrMemoLine.Init();
                                 TempPurchCrMemoLine := PurchCrMemoLine;
-                                if TempPurchCrMemoLine.Insert then;
+                                if TempPurchCrMemoLine.Insert() then;
                             end;
                     until ValueEntry.Next = 0;
             until ItemLedgEntry.Next = 0;
@@ -711,7 +711,7 @@ table 6651 "Return Shipment Line"
 
     procedure FilterPstdDocLnItemLedgEntries(var ItemLedgEntry: Record "Item Ledger Entry")
     begin
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Document No.");
         ItemLedgEntry.SetRange("Document No.", "Document No.");
         ItemLedgEntry.SetRange("Document Type", ItemLedgEntry."Document Type"::"Purchase Return Shipment");
@@ -751,7 +751,7 @@ table 6651 "Return Shipment Line"
     begin
         Init;
         TransferFields(PurchLine);
-        if ("No." = '') and (Type in [Type::"G/L Account" .. Type::"Charge (Item)"]) then
+        if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
         "Posting Date" := ReturnShptHeader."Posting Date";
         "Document No." := ReturnShptHeader."No.";
@@ -771,6 +771,11 @@ table 6651 "Return Shipment Line"
         end;
 
         OnAfterInitFromPurchLine(ReturnShptHeader, PurchLine, Rec);
+    end;
+
+    procedure HasTypeToFillMandatoryFields(): Boolean
+    begin
+        exit(Type <> Type::" ");
     end;
 
     [IntegrationEvent(false, false)]

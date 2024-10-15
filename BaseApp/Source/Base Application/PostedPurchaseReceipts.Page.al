@@ -255,6 +255,8 @@
                 var
                     PurchRcptHeader: Record "Purch. Rcpt. Header";
                 begin
+                    PurchRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, PurchRcptHeader);
                     CurrPage.SetSelectionFilter(PurchRcptHeader);
                     PurchRcptHeader.PrintRecords(true);
                 end;
@@ -302,6 +304,11 @@
                 TempPurchRcptHeader := PurchRcptHeader;
                 TempPurchRcptHeader.Insert;
             until PurchRcptHeader.Next = 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(PurchRcptHeaderRec: Record "Purch. Rcpt. Header"; var ToPrint: Record "Purch. Rcpt. Header")
+    begin
     end;
 }
 

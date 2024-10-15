@@ -77,13 +77,61 @@ table 43 "Purch. Comment Line"
 
         PurchCommentLine.SetRange("Document Type", FromDocumentType);
         PurchCommentLine.SetRange("No.", FromNumber);
-        if PurchCommentLine.FindSet then
+        if PurchCommentLine.FindSet() then
             repeat
                 PurchCommentLine2 := PurchCommentLine;
                 PurchCommentLine2."Document Type" := ToDocumentType;
                 PurchCommentLine2."No." := ToNumber;
-                PurchCommentLine2.Insert;
-            until PurchCommentLine.Next = 0;
+                PurchCommentLine2.Insert(); 
+            until PurchCommentLine.Next() = 0;
+    end;
+
+    procedure CopyLineComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLineNo: Integer)
+    var
+        PurchCommentLineSource: Record "Purch. Comment Line";
+        PurchCommentLineTarget: Record "Purch. Comment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyLineComments(
+          PurchCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber, FromDocumentLineNo, ToDocumentLineNo);
+        if IsHandled then
+            exit;
+
+        PurchCommentLineSource.SetRange("Document Type", FromDocumentType);
+        PurchCommentLineSource.SetRange("No.", FromNumber);
+        PurchCommentLineSource.SetRange("Document Line No.", FromDocumentLineNo);
+        if PurchCommentLineSource.FindSet() then
+            repeat
+                PurchCommentLineTarget := PurchCommentLineSource;
+                PurchCommentLineTarget."Document Type" := ToDocumentType;
+                PurchCommentLineTarget."No." := ToNumber;
+                PurchCommentLineTarget."Document Line No." := ToDocumentLineNo;
+                PurchCommentLineTarget.Insert(); 
+            until PurchCommentLineSource.Next() = 0;
+    end;
+
+    procedure CopyHeaderComments(FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    var
+        PurchCommentLineSource: Record "Purch. Comment Line";
+        PurchCommentLineTarget: Record "Purch. Comment Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyHeaderComments(PurchCommentLineTarget, IsHandled, FromDocumentType, ToDocumentType, FromNumber, ToNumber);
+        if IsHandled then
+            exit;
+
+        PurchCommentLineSource.SetRange("Document Type", FromDocumentType);
+        PurchCommentLineSource.SetRange("No.", FromNumber);
+        PurchCommentLineSource.SetRange("Document Line No.", 0);
+        if PurchCommentLineSource.FindSet() then
+            repeat
+                PurchCommentLineTarget := PurchCommentLineSource;
+                PurchCommentLineTarget."Document Type" := ToDocumentType;
+                PurchCommentLineTarget."No." := ToNumber;
+                PurchCommentLineTarget.Insert(); 
+            until PurchCommentLineSource.Next() = 0;
     end;
 
     procedure DeleteComments(DocType: Option; DocNo: Code[20])
@@ -113,6 +161,16 @@ table 43 "Purch. Comment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyComments(var PurchCommentLine: Record "Purch. Comment Line"; ToDocumentType: Integer; var IsHandled: Boolean; FromDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyLineComments(var PurchCommentLine: Record "Purch. Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20]; FromDocumentLineNo: Integer; ToDocumentLine: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyHeaderComments(var PurchCommentLine: Record "Purch. Comment Line"; var IsHandled: Boolean; FromDocumentType: Integer; ToDocumentType: Integer; FromNumber: Code[20]; ToNumber: Code[20])
     begin
     end;
 }

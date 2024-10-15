@@ -36,6 +36,7 @@ codeunit 231 "Gen. Jnl.-Post"
         ConfirmManagement: Codeunit "Confirm Management";
         TempJnlBatchName: Code[10];
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
         HideDialog := false;
         OnBeforeCode(GenJnlLine, HideDialog);
@@ -82,8 +83,14 @@ codeunit 231 "Gen. Jnl.-Post"
 
                             if GenJnlsScheduled then
                                 Message(JournalsScheduledMsg);
-                        end else
+                        end else begin
+                            IsHandled := false;
+                            OnBeforeGenJnlPostBatchRun(GenJnlLine, IsHandled);
+                            if IsHandled then
+                                exit;
+
                             GenJnlPostBatch.Run(GenJnlLine);
+                        end;
                     end;
                 JnlType::"VAT Settlement":
                     GenJnlPostBatch.VATSettlement(GenJnlLine);
@@ -136,6 +143,11 @@ codeunit 231 "Gen. Jnl.-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCode(var GenJournalLine: Record "Gen. Journal Line"; var HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGenJnlPostBatchRun(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

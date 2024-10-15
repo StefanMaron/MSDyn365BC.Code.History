@@ -1,7 +1,6 @@
 codeunit 135060 "Document Mailing Tests"
 {
     EventSubscriberInstance = Manual;
-    SingleInstance = true;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -11,11 +10,13 @@ codeunit 135060 "Document Mailing Tests"
     end;
 
     var
-        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryUtility: Codeunit "Library - Utility";
+        IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailFileFromStream()
@@ -41,6 +42,7 @@ codeunit 135060 "Document Mailing Tests"
         DocumentMailing.EmailFileFromStream(InStream, 'new file.pdf', 'a nice body', 'a nice subject', 'someone@somewhere.com', true, 0);
 
         // [THEN] A temp file with the stream content is created
+        DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
         LibraryVariableStorage.Dequeue(VariableVariant);
         TempEmailItem := VariableVariant;
         VerifyEmailContents('Some content', TempEmailItem."Attachment File Path");
@@ -57,11 +59,11 @@ codeunit 135060 "Document Mailing Tests"
         // Clean up
         FileManagement.DeleteServerFile(TempEmailItem."Attachment File Path");
 
-        UnbindSubscription(DocumentMailingTests);
+        LibraryVariableStorage.AssertEmpty;
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestEmailHtmlFromStream()
@@ -76,7 +78,6 @@ codeunit 135060 "Document Mailing Tests"
     begin
         // [SCENARIO] A HTML File can be attached to an email using a Stream
         BindSubscription(DocumentMailingTests);
-        Clear(LibraryVariableStorage);
 
         // [GIVEN] A Stream with some content
         InitializeStream('Some content', TempBlob);
@@ -87,6 +88,7 @@ codeunit 135060 "Document Mailing Tests"
         DocumentMailing.EmailHtmlFromStream(InStream, 'someone@somewhere.com', 'a nice subject', true, 0);
 
         // [THEN] A temp file with the stream content is created
+        DocumentMailingTests.GetLibraryVariableStorage(LibraryVariableStorage);
         LibraryVariableStorage.Dequeue(VariableVariant);
         TempEmailItem := VariableVariant;
         VerifyEmailContents('Some content', TempEmailItem."Body File Path");
@@ -101,12 +103,27 @@ codeunit 135060 "Document Mailing Tests"
         // Clean up
         FileManagement.DeleteServerFile(TempEmailItem."Body File Path");
 
-        UnbindSubscription(DocumentMailingTests);
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryVariableStorage.Clear();
+        InitializeSmtpSetup();
+
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+    end;
+
+    procedure GetLibraryVariableStorage(var LibraryVariableStorageResult: Codeunit "Library - Variable Storage")
+    begin
+        LibraryVariableStorageResult := LibraryVariableStorage;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 260, 'OnBeforeSendEmail', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; IsFromPostedDoc: Boolean; PostedDocNo: Code[20]; HideDialog: Boolean; ReportUsage: Integer)
+    local procedure OnBeforeSendEmail(var TempEmailItem: Record "Email Item" temporary; IsFromPostedDoc: Boolean; PostedDocNo: Code[20]; HideDialog: Boolean; ReportUsage: Integer)
     begin
         LibraryVariableStorage.Enqueue(TempEmailItem);
         LibraryVariableStorage.Enqueue(IsFromPostedDoc);
@@ -115,16 +132,7 @@ codeunit 135060 "Document Mailing Tests"
         LibraryVariableStorage.Enqueue(ReportUsage);
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
-    begin
-        Reply := false;
-    end;
-
-    [Normal]
-    [Scope('OnPrem')]
-    procedure InitializeStream(Content: Text; var TempBlob: Codeunit "Temp Blob")
+    local procedure InitializeStream(Content: Text; var TempBlob: Codeunit "Temp Blob")
     var
         OutStream: OutStream;
     begin
@@ -132,9 +140,19 @@ codeunit 135060 "Document Mailing Tests"
         OutStream.WriteText(Content);
     end;
 
-    [Normal]
-    [Scope('OnPrem')]
-    procedure VerifyEmailContents(Content: Text; FilePath: Text)
+    local procedure InitializeSmtpSetup()
+    var
+        SMTPMailSetup: Record "SMTP Mail Setup";
+    begin
+        SMTPMailSetup.DeleteAll();
+
+        SMTPMailSetup.Init();
+        SMTPMailSetup."SMTP Server" := LibraryUtility.GenerateGUID;
+        SMTPMailSetup."SMTP Server Port" := 25;
+        SMTPMailSetup.Insert();
+    end;
+
+    local procedure VerifyEmailContents(Content: Text; FilePath: Text)
     var
         TempFile: File;
         Instream: InStream;
@@ -143,17 +161,22 @@ codeunit 135060 "Document Mailing Tests"
         TempFile.CreateInStream(Instream);
         Instream.ReadText(Content);
         Assert.AreEqual('Some content', Content, 'Content was expected to be Some content');
-        TempFile.Close;
+        TempFile.Close();
     end;
 
-    [Normal]
-    [Scope('OnPrem')]
-    procedure VerifyValues()
+    local procedure VerifyValues()
     begin
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'IsFromPostedDoc was expected to be false');
-        Assert.AreEqual('', LibraryVariableStorage.DequeueText, 'PostedDocNo was expected to be empty');
-        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'HideDialog was expected to be true');
-        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger, 'ReportUsage was expected to be 0');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean(), 'IsFromPostedDoc was expected to be false');
+        Assert.AreEqual('', LibraryVariableStorage.DequeueText(), 'PostedDocNo was expected to be empty');
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'HideDialog was expected to be true');
+        Assert.AreEqual(0, LibraryVariableStorage.DequeueInteger(), 'ReportUsage was expected to be 0');
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text; var Reply: Boolean)
+    begin
+        Reply := false;
     end;
 }
 

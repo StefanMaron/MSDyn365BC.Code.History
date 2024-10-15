@@ -723,8 +723,8 @@ page 12438 "Cash Order Journal"
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
-        AccName: Text[50];
-        BalAccName: Text[50];
+        AccName: Text[100];
+        BalAccName: Text[100];
         Balance: Decimal;
         TotalBalance: Decimal;
         ShowBalance: Boolean;

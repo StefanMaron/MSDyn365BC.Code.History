@@ -159,7 +159,55 @@ codeunit 132502 "Purch. Document Posting Errors"
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
     [Scope('OnPrem')]
-    procedure T950_BatchPostingWithOneLoggedAndOneDirectError()
+    procedure T940_BatchPostingWithOneLoggedAndOneDirectError()
+    var
+        PurchHeader: array[3] of Record "Purchase Header";
+        TempErrorMessage: Record "Error Message" temporary;
+        PurchBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
+        VendorNo: Code[20];
+        RegisterID: Guid;
+    begin
+        // [FEATURE] [Batch Posting]
+        // [SCENARIO] Batch posting of two documents (in current session) opens "Error Messages" page that contains two lines per document.
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(false);
+        // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019, and nothing to post
+        VendorNo := LibraryPurchase.CreateVendorNo;
+        LibraryPurchase.CreatePurchHeader(PurchHeader[1], PurchHeader[1]."Document Type"::Order, VendorNo);
+        PurchHeaderToPost(PurchHeader[1]);
+        // [GIVEN] Invoice '1003', where "Posting Date" is 01.01.2019
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchHeader[2], VendorNo);
+
+        // [WHEN] Post both documents as a batch
+        LibraryErrorMessage.TrapErrorMessages;
+        PurchHeader[3].SetRange("Buy-from Vendor No.", VendorNo);
+        PurchBatchPostMgt.RunWithUI(PurchHeader[3], 2, '');
+
+        // [THEN] Opened page "Error Messages" with 3 lines:
+        // [THEN] 2 lines for Order '1002' and 1 line for Invoice '1003'
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
+        Assert.RecordCount(TempErrorMessage, 3);
+        // [THEN] The first error for Order '1002' is 'Posting Date is not within your range of allowed posting dates.'
+        Clear(RegisterID);
+        TempErrorMessage.Get(1);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
+        // [THEN] The second error for Order '1002' is 'There is nothing to post'
+        TempErrorMessage.Get(2);
+        Assert.ExpectedMessage(NothingToPostErr, TempErrorMessage.Description);
+        Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
+        // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
+        TempErrorMessage.Get(3);
+        Assert.ExpectedMessage(PostingDateNotAllowedErr, TempErrorMessage.Description);
+        Assert.AreEqual(PurchHeader[2].RecordId, TempErrorMessage."Context Record ID", 'Context for 3rd error');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    [Scope('OnPrem')]
+    procedure T950_BatchPostingWithOneLoggedAndOneDirectErrorBackground()
     var
         PurchHeader: array[3] of Record "Purchase Header";
         ErrorMessage: Record "Error Message";
@@ -173,8 +221,9 @@ codeunit 132502 "Purch. Document Posting Errors"
         RegisterID: Guid;
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
-        // [SCENARIO] Batch posting of two documents verifies "Error Messages" that contains two lines per first document and one line for second document
+        // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
@@ -228,6 +277,7 @@ codeunit 132502 "Purch. Document Posting Errors"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purch. Document Posting Errors");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
         Commit;

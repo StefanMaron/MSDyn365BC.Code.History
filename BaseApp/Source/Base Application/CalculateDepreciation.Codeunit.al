@@ -31,7 +31,7 @@ codeunit 5610 "Calculate Depreciation"
         if not FADeprBook.Get(FANo, DeprBookCode) then
             exit;
 
-        CheckDeprDaysInFiscalYear(DateFromProjection = 0D, UntilDate);
+        CheckDeprDaysInFiscalYear(FADeprBook, DateFromProjection = 0D, UntilDate);
 
         if DeprBook."Use Custom 1 Depreciation" and
            (FADeprBook."Depr. Ending Date (Custom 1)" > 0D)
@@ -49,13 +49,19 @@ codeunit 5610 "Calculate Depreciation"
         end;
     end;
 
-    local procedure CheckDeprDaysInFiscalYear(CheckDeprDays: Boolean; UntilDate: Date)
+    local procedure CheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date)
     var
         DepreciationCalc: Codeunit "Depreciation Calculation";
         FADateCalc: Codeunit "FA Date Calculation";
         FiscalYearBegin: Date;
         NoOfDeprDays: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDeprDaysInFiscalYear(FADeprBook, CheckDeprDays, UntilDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if DeprBook."Allow more than 360/365 Days" or not CheckDeprDays then
             exit;
         if (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"Declining-Balance 1") or
@@ -76,6 +82,11 @@ codeunit 5610 "Calculate Depreciation"
     procedure DepreciationBonus(DeprBonus2: Boolean)
     begin
         DeprBonus := DeprBonus2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDeprDaysInFiscalYear(FADeprBook: Record "FA Depreciation Book"; CheckDeprDays: Boolean; UntilDate: Date; var IsHandled: Boolean)
+    begin
     end;
 }
 

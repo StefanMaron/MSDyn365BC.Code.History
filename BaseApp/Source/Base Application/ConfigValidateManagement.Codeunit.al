@@ -32,7 +32,7 @@ codeunit 8617 "Config. Validate Management"
             exit;
 
         if not SkipValidation then
-            OldValue := FieldRef.Value;
+            OldValue := FieldRef.VALUE();
 
         if Field.Type <> Field.Type::Option then begin
             if Value <> '' then
@@ -44,7 +44,7 @@ codeunit 8617 "Config. Validate Management"
         end;
 
         if not SkipValidation then begin
-            NewValue := FieldRef.Value;
+            NewValue := FieldRef.VALUE();
             FieldRef.Value := OldValue;
             FieldRef.Validate(NewValue);
         end;
@@ -72,9 +72,6 @@ codeunit 8617 "Config. Validate Management"
     end;
 
     procedure GetOptionNo(Value: Text; FieldRef: FieldRef): Integer
-    var
-        OptionNo: Integer;
-        i: Integer;
     begin
         if (Value = '') and (FieldRef.GetEnumValueName(1) = ' ') then
             exit(0);
@@ -186,7 +183,7 @@ codeunit 8617 "Config. Validate Management"
             if FieldRefToExclude.Name = SourceFieldRef.Name then
                 exit;
             FieldRef := RecRef.FieldIndex(FieldCount);
-            FieldRef.Value := SourceFieldRef.Value;
+            FieldRef.Value := SourceFieldRef.VALUE();
         end;
     end;
 
@@ -240,6 +237,8 @@ codeunit 8617 "Config. Validate Management"
                 exit(EvaluateValueToGuid(FieldRef, Value, Validate));
             Field.Type::TableFilter:
                 exit(EvaluateValueToTableFilter(FieldRef, Value));
+            Field.Type::RecordId:
+                exit(EvaluateValueToRecordID(FieldRef, Value, Validate));
         end;
     end;
 
@@ -307,7 +306,7 @@ codeunit 8617 "Config. Validate Management"
         Date: Date;
         Decimal: Decimal;
     begin
-        if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat) then
+        if not Evaluate(Date, Value) and not Evaluate(Date, Value, XMLFormat()) then
             if not Evaluate(Decimal, Value) or not Evaluate(Date, Format(DT2Date(OADateToDateTime(Decimal)))) then
                 exit(StrSubstNo(Text003, Value, Format(Field.Type::Date)));
 
@@ -322,7 +321,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         DateFormula: DateFormula;
     begin
-        if not Evaluate(DateFormula, Value) and not Evaluate(DateFormula, Value, XMLFormat) then
+        if not Evaluate(DateFormula, Value) and not Evaluate(DateFormula, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::DateFormula)));
 
         if Validate then
@@ -336,7 +335,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         DateTime: DateTime;
     begin
-        if not Evaluate(DateTime, Value) and not Evaluate(DateTime, Value, XMLFormat) then
+        if not Evaluate(DateTime, Value) and not Evaluate(DateTime, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::DateTime)));
 
         if Validate then
@@ -351,7 +350,7 @@ codeunit 8617 "Config. Validate Management"
         Time: Time;
         Decimal: Decimal;
     begin
-        if not Evaluate(Time, Value) and not Evaluate(Time, Value, XMLFormat) then
+        if not Evaluate(Time, Value) and not Evaluate(Time, Value, XMLFormat()) then
             if not Evaluate(Decimal, Value) or not Evaluate(Time, Format(DT2Time(OADateToDateTime(Decimal)))) then
                 exit(StrSubstNo(Text003, Value, Format(Field.Type::Time)));
 
@@ -366,7 +365,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         Duration: Duration;
     begin
-        if not Evaluate(Duration, Value) and not Evaluate(Duration, Value, XMLFormat) then
+        if not Evaluate(Duration, Value) and not Evaluate(Duration, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::Duration)));
 
         if Validate then
@@ -380,7 +379,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         "Integer": Integer;
     begin
-        if not Evaluate(Integer, Value) and not Evaluate(Integer, Value, XMLFormat) then
+        if not Evaluate(Integer, Value) and not Evaluate(Integer, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::Integer)));
 
         if Validate then
@@ -394,7 +393,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         BigInteger: BigInteger;
     begin
-        if not Evaluate(BigInteger, Value) and not Evaluate(BigInteger, Value, XMLFormat) then
+        if not Evaluate(BigInteger, Value) and not Evaluate(BigInteger, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::BigInteger)));
 
         if Validate then
@@ -408,7 +407,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         Decimal: Decimal;
     begin
-        if not Evaluate(Decimal, Value) and not Evaluate(Decimal, Value, XMLFormat) then
+        if not Evaluate(Decimal, Value) and not Evaluate(Decimal, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::Decimal)));
 
         if Validate then
@@ -422,7 +421,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         Boolean: Boolean;
     begin
-        if not Evaluate(Boolean, Value) and not Evaluate(Boolean, Value, XMLFormat) then
+        if not Evaluate(Boolean, Value) and not Evaluate(Boolean, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::Boolean)));
 
         if Validate then
@@ -436,7 +435,7 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         Guid: Guid;
     begin
-        if not Evaluate(Guid, Value) and not Evaluate(Guid, Value, XMLFormat) then
+        if not Evaluate(Guid, Value) and not Evaluate(Guid, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::GUID)));
 
         if Validate then
@@ -450,10 +449,24 @@ codeunit 8617 "Config. Validate Management"
         "Field": Record "Field";
         TableFilter: Text;
     begin
-        if not Evaluate(TableFilter, Value) and not Evaluate(TableFilter, Value, XMLFormat) then
+        if not Evaluate(TableFilter, Value) and not Evaluate(TableFilter, Value, XMLFormat()) then
             exit(StrSubstNo(Text003, Value, Format(Field.Type::TableFilter)));
 
         Evaluate(FieldRef, TableFilter);
+    end;
+
+    local procedure EvaluateValueToRecordID(var FieldRef: FieldRef; Value: Text[250]; Validate: Boolean): Text[250]
+    var
+        Field: Record Field;
+        RecordID: RecordId;
+    begin
+        IF NOT EVALUATE(RecordID, Value) AND NOT EVALUATE(RecordID, Value, XMLFormat()) THEN
+            EXIT(STRSUBSTNO(Text003, Value, FORMAT(Field.Type::RecordID)));
+
+        IF Validate THEN
+            FieldRef.VALIDATE(RecordID)
+        ELSE
+            FieldRef.VALUE := RecordID;
     end;
 
     local procedure IsNormalField(FieldRef: FieldRef): Boolean
@@ -522,6 +535,8 @@ codeunit 8617 "Config. Validate Management"
                 exit(EvaluateTextToFieldRefDateFormula(InputText, FieldRef, ToValidate));
             'TableFilter':
                 exit(EvaluateTextToFieldRefTableFilter(InputText, FieldRef));
+            'RecordId':
+                exit(EvaluateTextToFieldRefRecordID(InputText, FieldRef, ToValidate));
             else
                 exit(false);
         end;
@@ -539,7 +554,7 @@ codeunit 8617 "Config. Validate Management"
             exit(false);
 
         if ToValidate then begin
-            IntVar1 := FieldRef.Value;
+            IntVar1 := FieldRef.VALUE();
             if IntVar1 <> IntVar then
                 FieldRef.Validate(IntVar);
         end else
@@ -555,7 +570,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(IntVar, InputText) then begin
             if ToValidate then begin
-                IntVar1 := FieldRef.Value;
+                IntVar1 := FieldRef.VALUE();
                 if IntVar1 <> IntVar then
                     FieldRef.Validate(IntVar);
             end else
@@ -573,7 +588,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(DecimalVar, InputText) then begin
             if ToValidate then begin
-                DecimalVar1 := FieldRef.Value;
+                DecimalVar1 := FieldRef.VALUE();
                 if DecimalVar1 <> DecimalVar then
                     FieldRef.Validate(DecimalVar);
             end else
@@ -591,7 +606,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(DateVar, InputText) then begin
             if ToValidate then begin
-                DateVar1 := FieldRef.Value;
+                DateVar1 := FieldRef.VALUE();
                 if DateVar1 <> DateVar then
                     FieldRef.Validate(DateVar);
             end else
@@ -609,7 +624,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(TimeVar, InputText) then begin
             if ToValidate then begin
-                TimeVar1 := FieldRef.Value;
+                TimeVar1 := FieldRef.VALUE();
                 if TimeVar1 <> TimeVar then
                     FieldRef.Validate(TimeVar);
             end else
@@ -627,7 +642,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(DateTimeVar, InputText) then begin
             if ToValidate then begin
-                DateTimeVar1 := FieldRef.Value;
+                DateTimeVar1 := FieldRef.VALUE();
                 if DateTimeVar1 <> DateTimeVar then
                     FieldRef.Validate(DateTimeVar);
             end else
@@ -645,7 +660,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(BoolVar, InputText) then begin
             if ToValidate then begin
-                BoolVar1 := FieldRef.Value;
+                BoolVar1 := FieldRef.VALUE();
                 if BoolVar1 <> BoolVar then
                     FieldRef.Validate(BoolVar);
             end else
@@ -663,7 +678,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(DurationVar, InputText) then begin
             if ToValidate then begin
-                DurationVar1 := FieldRef.Value;
+                DurationVar1 := FieldRef.VALUE();
                 if DurationVar1 <> DurationVar then
                     FieldRef.Validate(DurationVar);
             end else
@@ -681,7 +696,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(BigIntVar, InputText) then begin
             if ToValidate then begin
-                BigIntVar1 := FieldRef.Value;
+                BigIntVar1 := FieldRef.VALUE();
                 if BigIntVar1 <> BigIntVar then
                     FieldRef.Validate(BigIntVar);
             end else
@@ -699,7 +714,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(GUIDVar, InputText) then begin
             if ToValidate then begin
-                GUIDVar1 := FieldRef.Value;
+                GUIDVar1 := FieldRef.VALUE();
                 if GUIDVar1 <> GUIDVar then
                     FieldRef.Validate(GUIDVar);
             end else
@@ -717,7 +732,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if StrLen(InputText) > FieldRef.Length then begin
             if ToValidate then begin
-                TextVar := FieldRef.Value;
+                TextVar := FieldRef.VALUE();
                 TextVar1 := PadStr(InputText, FieldRef.Length);
                 if TextVar <> TextVar1 then
                     FieldRef.Validate(TextVar1);
@@ -725,7 +740,7 @@ codeunit 8617 "Config. Validate Management"
                 FieldRef.Value := PadStr(InputText, FieldRef.Length);
         end else begin
             if ToValidate then begin
-                TextVar := FieldRef.Value;
+                TextVar := FieldRef.VALUE();
                 if TextVar <> InputText then
                     FieldRef.Validate(InputText);
             end else
@@ -742,7 +757,7 @@ codeunit 8617 "Config. Validate Management"
     begin
         if Evaluate(DateFormulaVar, InputText) then begin
             if ToValidate then begin
-                DateFormulaVar1 := FieldRef.Value;
+                DateFormulaVar1 := FieldRef.VALUE();
                 if DateFormulaVar1 <> DateFormulaVar then
                     FieldRef.Validate(DateFormulaVar);
             end else
@@ -757,6 +772,24 @@ codeunit 8617 "Config. Validate Management"
     begin
         Evaluate(FieldRef, InputText);
         exit(true);
+    end;
+
+    local procedure EvaluateTextToFieldRefRecordID(InputText: Text[250]; var FieldRef: FieldRef; ToValidate: Boolean): Boolean
+    var
+        RecordIDVar: RecordId;
+        RecordIDVar1: RecordId;
+    begin
+        IF EVALUATE(RecordIDVar, InputText) THEN BEGIN
+            IF ToValidate THEN BEGIN
+                RecordIDVar1 := FieldRef.VALUE();
+                IF RecordIDVar1 <> RecordIDVar THEN
+                    FieldRef.VALIDATE(RecordIDVar);
+            END ELSE
+                FieldRef.VALUE := RecordIDVar;
+            EXIT(TRUE);
+        END;
+
+        EXIT(FALSE);
     end;
 
     procedure CheckName(FieldName: Text[250]): Text[250]

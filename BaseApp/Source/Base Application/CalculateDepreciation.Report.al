@@ -18,16 +18,20 @@ report 5692 "Calculate Depreciation"
                     CurrReport.Skip;
 
                 CalculateDepr.DepreciationBonus(DeprBonus);
+
+                OnBeforeCalculateDepreciation(
+                    "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
+
                 CalculateDepr.Calculate(
-                  DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays,
-                  "No.", DeprBookCode, DeprUntilDate, EntryAmounts, 0D, DaysInPeriod);
+                    DeprAmount, Custom1Amount, NumberOfDays, Custom1NumberOfDays, "No.", DeprBookCode, DeprUntilDate, EntryAmounts, 0D, DaysInPeriod);
+
                 if (DeprAmount <> 0) or (Custom1Amount <> 0) then
                     Window.Update(1, "No.")
                 else
                     Window.Update(2, "No.");
 
                 OnAfterCalculateDepreciation(
-                  "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
+                    "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
 
                 if Custom1Amount <> 0 then
                     if not DeprBook."G/L Integration - Custom 1" or "Budgeted Asset" then begin
@@ -174,6 +178,7 @@ report 5692 "Calculate Depreciation"
                             GenJnlLineCreatedCount += 1;
                             if BalAccount then
                                 FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
+                            OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount);
                         until TempGenJnlLine.Next = 0;
                 end;
             end;
@@ -380,6 +385,7 @@ report 5692 "Calculate Depreciation"
     var
         PageGenJnlLine: Record "Gen. Journal Line";
         PageFAJnlLine: Record "FA Journal Line";
+        IsHandled: Boolean;
     begin
         Window.Close;
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
@@ -387,11 +393,19 @@ report 5692 "Calculate Depreciation"
             exit;
         end;
 
-        if FAJnlLineCreatedCount > 0 then
-            Message(CompletionStatsFAJnlMsg, FAJnlLineCreatedCount);
+        if FAJnlLineCreatedCount > 0 then begin
+            IsHandled := false;
+            OnPostReportOnBeforeConfirmShowFAJournalLines(DeprBook, FAJnlLine, FAJnlLineCreatedCount, IsHandled);
+            if not IsHandled then
+                Message(CompletionStatsFAJnlMsg, FAJnlLineCreatedCount);
+        end;
 
-        if GenJnlLineCreatedCount > 0 then
-            Message(CompletionStatsGenJnlMsg, GenJnlLineCreatedCount);
+        if GenJnlLineCreatedCount > 0 then begin
+            IsHandled := false;
+            OnPostReportOnBeforeConfirmShowGenJournalLines(DeprBook, GenJnlLine, GenJnlLineCreatedCount, IsHandled);
+            if not IsHandled then
+                Message(CompletionStatsGenJnlMsg, GenJnlLineCreatedCount);
+        end;
     end;
 
     trigger OnPreReport()
@@ -547,12 +561,32 @@ report 5692 "Calculate Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFAInsertGLAccGetBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlNextLineNo: Integer; var BalAccount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFAJnlLineInsert(var TempFAJournalLine: Record "FA Journal Line" temporary; var FAJournalLine: Record "FA Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeConfirmShowFAJournalLines(DeprBook: Record "Depreciation Book"; FAJnlLine: Record "FA Journal Line"; FAJnlLineCreatedCount: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeConfirmShowGenJournalLines(DeprBook: Record "Depreciation Book"; GenJnlLine: Record "Gen. Journal Line"; GenJnlLineCreatedCount: Integer; var IsHandled: Boolean)
     begin
     end;
 }
