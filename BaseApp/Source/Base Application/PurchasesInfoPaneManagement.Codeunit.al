@@ -49,14 +49,12 @@ codeunit 7181 "Purchases Info-Pane Management"
 
     procedure CalcNoOfPurchasePrices(var PurchLine: Record "Purchase Line"): Integer
     begin
-        if GetItem(PurchLine) then
-            exit(PurchLine.CountPrice(true));
+        exit(PurchLine.CountPrice(true));
     end;
 
     procedure CalcNoOfPurchLineDisc(var PurchLine: Record "Purchase Line"): Integer
     begin
-        if GetItem(PurchLine) then
-            exit(PurchLine.CountDiscount(true));
+        exit(PurchLine.CountDiscount(true));
     end;
 
     local procedure GetItem(var PurchLine: Record "Purchase Line"): Boolean
