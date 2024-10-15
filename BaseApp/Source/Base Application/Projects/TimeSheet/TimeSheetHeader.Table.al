@@ -369,7 +369,7 @@ table 950 "Time Sheet Header"
         Reset();
         SetCurrentKey("Resource No.", "Starting Date");
 
-        TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo);
+        TimeSheetMgt.FilterTimeSheets(Rec, FilterFieldNo, true);
         if Rec.IsEmpty then
             Error(Text002);
 

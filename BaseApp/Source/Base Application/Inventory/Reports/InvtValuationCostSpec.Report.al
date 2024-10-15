@@ -124,7 +124,7 @@ report 5801 "Invt. Valuation - Cost Spec."
                 begin
                     ClearTotals();
 
-                    ItemLedgerEntry.SetFilter("Item No.", Item."No.");
+                    ItemLedgerEntry.SetRange("Item No.", Item."No.");
                     ItemLedgerEntry.SetFilter("Variant Code", Item.GetFilter("Variant Filter"));
                     ItemLedgerEntry.SetFilter("Location Code", Item.GetFilter("Location Filter"));
                     ItemLedgerEntry.SetFilter("Global Dimension 1 Code", Item.GetFilter("Global Dimension 1 Filter"));
