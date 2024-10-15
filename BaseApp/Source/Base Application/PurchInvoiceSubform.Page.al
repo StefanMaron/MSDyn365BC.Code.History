@@ -119,6 +119,12 @@ page 55 "Purch. Invoice Subform"
                     ToolTip = 'Specifies that this item is a catalog item.';
                     Visible = false;
                 }
+                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
+                    Visible = false;
+                }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
