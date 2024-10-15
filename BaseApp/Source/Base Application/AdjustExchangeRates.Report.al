@@ -683,6 +683,7 @@ report 595 "Adjust Exchange Rates"
             dataitem("G/L Account"; "G/L Account")
             {
                 DataItemTableView = SORTING("No.") WHERE("Exchange Rate Adjustment" = FILTER("Adjust Amount" .. "Adjust Additional-Currency Amount"));
+                RequestFilterFields = "No.";
                 column(GLAccountsCaption; GLAccountCaptionLbl)
                 {
                 }
@@ -702,24 +703,20 @@ report 595 "Adjust Exchange Rates"
                 column(CurrencyCode_GLAccount; "Currency Code")
                 {
                 }
-                column(BalanceatDateFCY_GLAccount; "Balance at Date (FCY)")
+                column(Balance_GLAccount; "Net Change")
                 {
                 }
-                column(BalanceatDate_GLAccount; "Balance at Date")
+                column(Add_Curr_Bal_GLAccount; "Additional-Currency Net Change")
                 {
                 }
-                column(AvgExRate; AvgExRate)
+                column(AddRepCurrBalAtAdjDt; AddRepCurrBalAtAdjDt)
                 {
-                    DecimalPlaces = 2 : 5;
                 }
-                column(CurrRate; CurrRate)
+                column(CurrRate; 1 / AddCurrCurrencyFactor)
                 {
                     DecimalPlaces = 2 : 5;
                 }
                 column(Correction2; Correction2)
-                {
-                }
-                column(EMU; EMU)
                 {
                 }
 
@@ -730,50 +727,39 @@ report 595 "Adjust Exchange Rates"
                     if "Exchange Rate Adjustment" = "Exchange Rate Adjustment"::"No Adjustment" then
                         CurrReport.Skip();
 
-                    Currency.Get("Currency Code");
-                    if Currency."EMU Currency" then
-                        EMU := 'x'
-                    else
-                        EMU := '';
-
-                    // Calc avg. exrate of existing entries
-                    CalcFields("Balance at Date (FCY)", "Balance at Date");
-                    if "Balance at Date (FCY)" <> 0 then
-                        AvgExRate := Round("Balance at Date" / "Balance at Date (FCY)", 0.00001)
-                    else
-                        AvgExRate := 0;
-
-                    // Calc value of FCY at current exrate
-                    CurrRate := ExchRate.ExchangeRateAdjmt(PostingDate, Currency.Code);
-                    if CurrRate <> 0 then
-                        CurrRate := Round(1 / CurrRate, 0.00001);
-                    Correction2 := Round(("Balance at Date (FCY)" * CurrRate) - "Balance at Date", 0.01);
-
                     TempDimSetEntry.Reset();
                     TempDimSetEntry.DeleteAll();
                     CalcFields("Net Change", "Additional-Currency Net Change");
                     case "Exchange Rate Adjustment" of
                         "Exchange Rate Adjustment"::"Adjust Amount":
-                            PostGLAccAdjmt(
-                              "No.", "Exchange Rate Adjustment"::"Adjust Amount",
-                              Round(
-                                CurrExchRate2.ExchangeAmtFCYToLCYAdjmt(
-                                  PostingDate, GLSetup."Additional Reporting Currency",
-                                  "Additional-Currency Net Change", AddCurrCurrencyFactor) -
-                                "Net Change"),
-                              "Net Change",
-                              "Additional-Currency Net Change");
+                            begin
+                                AddRepCurrBalAtAdjDt := Round("Additional-Currency Net Change" * AddCurrCurrencyFactor, 0.01);
+                                Correction2 := Round(("Additional-Currency Net Change" * AddCurrCurrencyFactor) - "Net Change", 0.01);
+                                PostGLAccAdjmt(
+                                  "No.", "Exchange Rate Adjustment"::"Adjust Amount",
+                                  Round(
+                                    CurrExchRate2.ExchangeAmtFCYToLCYAdjmt(
+                                      PostingDate, GLSetup."Additional Reporting Currency",
+                                      "Additional-Currency Net Change", AddCurrCurrencyFactor) -
+                                    "Net Change"),
+                                  "Net Change",
+                                  "Additional-Currency Net Change");
+                            end;
                         "Exchange Rate Adjustment"::"Adjust Additional-Currency Amount":
-                            PostGLAccAdjmt(
-                              "No.", "Exchange Rate Adjustment"::"Adjust Additional-Currency Amount",
-                              Round(
-                                CurrExchRate2.ExchangeAmtLCYToFCY(
-                                  PostingDate, GLSetup."Additional Reporting Currency",
-                                  "Net Change", AddCurrCurrencyFactor) -
-                                "Additional-Currency Net Change",
-                                Currency3."Amount Rounding Precision"),
-                              "Net Change",
-                              "Additional-Currency Net Change");
+                            begin
+                                AddRepCurrBalAtAdjDt := Round("Net Change" * AddCurrCurrencyFactor, 0.01);
+                                Correction2 := Round(("Net Change" * AddCurrCurrencyFactor) - "Additional-Currency Net Change", 0.01);
+                                PostGLAccAdjmt(
+                                  "No.", "Exchange Rate Adjustment"::"Adjust Additional-Currency Amount",
+                                  Round(
+                                    CurrExchRate2.ExchangeAmtLCYToFCY(
+                                      PostingDate, GLSetup."Additional Reporting Currency",
+                                      "Net Change", AddCurrCurrencyFactor) -
+                                    "Additional-Currency Net Change",
+                                    Currency3."Amount Rounding Precision"),
+                                  "Net Change",
+                                  "Additional-Currency Net Change");
+                            end;
                     end;
                 end;
 
@@ -796,11 +782,6 @@ report 595 "Adjust Exchange Rates"
 
                     GLAccNoTotal := Count;
                     SetRange("Date Filter", StartDate, EndDate);
-
-                    if GetFilter("Currency Code") <> '' then
-                        SetFilter("Currency Code", '<>%1&%2', '', GetFilter("Currency Code"))
-                    else
-                        SetFilter("Currency Code", '<>%1', '');
 
                     Clear(Correction2);
                 end;
@@ -1034,10 +1015,11 @@ report 595 "Adjust Exchange Rates"
         CorrectionCaption = 'Correction';
         ExrateOnKeyDateCaption = 'Exrate on Posting Date';
         AvgExRateCaption = 'Average Exrate';
-        BalanceAtDateCaption = 'Balance in LCY';
-        BalanceAtDateFCYCaption = 'Balance in FCY';
+        BalanceCaption = 'Balance';
+        AddCurrencyBalance = 'Additional Currency Balance';
         EMUCaption = 'EMU';
         TotalRateAdjustmentCaption = 'Total Rate Adjustment';
+        AddReportingCurrBalAtAdjDateCaption = 'Additional reporting currency balance at adjustment date';
     }
 
     trigger OnInitReport()
@@ -1183,7 +1165,6 @@ report 595 "Adjust Exchange Rates"
         CurrExchRate: Record "Currency Exchange Rate";
         CurrExchRate2: Record "Currency Exchange Rate";
         CurrExchRate3: Record "Currency Exchange Rate";
-        ExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
@@ -1279,9 +1260,7 @@ report 595 "Adjust Exchange Rates"
         Vendor_Document_type: Integer;
         CorrRevChargeEntryNo: Integer;
         NextVATEntryNo: Integer;
-        AvgExRate: Decimal;
-        CurrRate: Decimal;
-        EMU: Text[10];
+        AddRepCurrBalAtAdjDt: Decimal;
         Correction2: Decimal;
 
         Text000Err: Label 'Document No. must be entered.';

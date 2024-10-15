@@ -8,8 +8,8 @@ codeunit 134065 "Test Reten. Pol. Doc. Arch."
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        ArchiveSalesDocQst: Label 'Archive Order no.: %1?';
-        ArchiveSalesDocMsg: Label 'Document %1 has been archived.';
+        ArchiveSalesDocQst: Label 'Archive Order no.: %1?', Comment = '%1 is a document number';
+        ArchiveSalesDocMsg: Label 'Document %1 has been archived.', Comment = '%1 is a document number';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]

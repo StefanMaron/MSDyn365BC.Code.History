@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>25.67026cm</Width>
+                  <Width>25.60625cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -3645,34 +3645,34 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.59869in</Width>
+                                    <Width>0.59676in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.99696in</Width>
+                                    <Width>0.99503in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.00178in</Width>
+                                    <Width>0.99985in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.08394in</Width>
+                                    <Width>1.08201in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.0493in</Width>
+                                    <Width>1.04737in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.86943in</Width>
+                                    <Width>0.8675in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.27816in</Width>
+                                    <Width>1.27623in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06764in</Width>
+                                    <Width>1.06571in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.08086in</Width>
+                                    <Width>1.07893in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.06764in</Width>
+                                    <Width>1.06571in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -4591,7 +4591,7 @@
                               </Filters>
                               <Top>2.41232in</Top>
                               <Height>1.67568cm</Height>
-                              <Width>10.0944in</Width>
+                              <Width>10.0751in</Width>
                               <ZIndex>3</ZIndex>
                               <Style />
                             </Tablix>
@@ -4599,31 +4599,28 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.59869in</Width>
+                                    <Width>0.792in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.47241in</Width>
+                                    <Width>2.28405in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.93019in</Width>
+                                    <Width>0.79091in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.37402in</Width>
+                                    <Width>1.58189in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.19816in</Width>
+                                    <Width>1.34288in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.11614in</Width>
+                                    <Width>1.13873in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.03783in</Width>
+                                    <Width>1.0892in</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>1.26687in</Width>
-                                  </TablixColumn>
-                                  <TablixColumn>
-                                    <Width>1.08084in</Width>
+                                    <Width>1.06154in</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -4690,39 +4687,6 @@
                                             <Style>
                                               <VerticalAlign>Bottom</VerticalAlign>
                                               <PaddingLeft>0.15cm</PaddingLeft>
-                                              <PaddingRight>0.075cm</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox15">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox15</rd:DefaultName>
-                                            <Style>
-                                              <VerticalAlign>Bottom</VerticalAlign>
-                                              <PaddingLeft>0.075cm</PaddingLeft>
                                               <PaddingRight>0.075cm</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
                                               <PaddingBottom>2pt</PaddingBottom>
@@ -4903,6 +4867,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="GLAccountNoCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4935,6 +4900,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="GLAccountNameCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4964,6 +4930,7 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="GLAccountCurrencyCodeCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
@@ -4992,44 +4959,14 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EMUCaption">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Parameters!EMUCaption.Value</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <FontWeight>Bold</FontWeight>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <Style>
-                                              <VerticalAlign>Bottom</VerticalAlign>
-                                              <PaddingLeft>0.075cm</PaddingLeft>
-                                              <PaddingRight>0.075cm</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="GLAccountBalanceatDateFCYCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Parameters!BalanceAtDateFCYCaption.Value</Value>
+                                                    <Value>=Parameters!BalanceCaption.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5055,12 +4992,13 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="GLAccountBalanceatDateCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Parameters!BalanceAtDateCaption.Value</Value>
+                                                    <Value>=Parameters!AddCurrencyBalance.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5086,12 +5024,13 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="AvgExRateCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Parameters!AvgExRateCaption.Value</Value>
+                                                    <Value>=Parameters!AddReportingCurrBalAtAdjDateCaption.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5117,12 +5056,13 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="ExrateonKeyDateCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Parameters!ExrateOnKeyDateCaption.Value</Value>
+                                                    <Value>=Parameters!AdjAmountCaption.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5148,12 +5088,13 @@
                                       <TablixCell>
                                         <CellContents>
                                           <Textbox Name="CorrectionCaption">
+                                            <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
                                             <Paragraphs>
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Parameters!CorrectionCaption.Value</Value>
+                                                    <Value>=Parameters!RelAdjmtExchRateAmtCaption.Value</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
@@ -5273,42 +5214,6 @@
                                               </Paragraph>
                                             </Paragraphs>
                                             <rd:DefaultName>Textbox5</rd:DefaultName>
-                                            <Style>
-                                              <Border>
-                                                <Width>0.25pt</Width>
-                                              </Border>
-                                              <BottomBorder>
-                                                <Style>Solid</Style>
-                                              </BottomBorder>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingLeft>2pt</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox4">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontSize>7pt</FontSize>
-                                                      <Color>#ff0000</Color>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox4</rd:DefaultName>
                                             <Style>
                                               <Border>
                                                 <Width>0.25pt</Width>
@@ -5475,10 +5380,9 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -5586,37 +5490,6 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
-                                          <Textbox Name="EMU">
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Fields!EMU.Value</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style>
-                                                  <TextAlign>Left</TextAlign>
-                                                </Style>
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <Style>
-                                              <BackgroundColor>="#EFEFEF"</BackgroundColor>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingLeft>0.075cm</PaddingLeft>
-                                              <PaddingRight>0.075cm</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
                                           <Textbox Name="GLAccountBalanceatDateFCY">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -5624,11 +5497,11 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!BalanceatDateFCY_GLAccount.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!Balance_GLAccount.Value)</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!BalanceatDateFCY_GLAccountFormat.Value</Format>
+                                                      <Format>=Fields!Balance_GLAccountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5657,11 +5530,11 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!BalanceatDate_GLAccount.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!Add_Curr_Bal_GLAccount.Value)</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!BalanceatDate_GLAccountFormat.Value</Format>
+                                                      <Format>=Fields!Add_Curr_Bal_GLAccountFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5690,11 +5563,11 @@
                                               <Paragraph>
                                                 <TextRuns>
                                                   <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!AvgExRate.Value)</Value>
+                                                    <Value>=Code.BlankZero(Fields!AddRepCurrBalAtAdjDt.Value)</Value>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!AvgExRateFormat.Value</Format>
+                                                      <Format>=Fields!AddRepCurrBalAtAdjDtFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5705,6 +5578,38 @@
                                               <BackgroundColor>="#EFEFEF"</BackgroundColor>
                                               <VerticalAlign>Middle</VerticalAlign>
                                               <PaddingLeft>0.1cm</PaddingLeft>
+                                              <PaddingRight>0.075cm</PaddingRight>
+                                              <PaddingTop>2pt</PaddingTop>
+                                              <PaddingBottom>2pt</PaddingBottom>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="Textbox27">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Code.BlankZero(Fields!Correction2.Value)</Value>
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                      <Format>=Fields!Correction2Format.Value</Format>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>Textbox27</rd:DefaultName>
+                                            <Style>
+                                              <BackgroundColor>="#EFEFEF"</BackgroundColor>
+                                              <VerticalAlign>Middle</VerticalAlign>
+                                              <PaddingLeft>0.075cm</PaddingLeft>
                                               <PaddingRight>0.075cm</PaddingRight>
                                               <PaddingTop>2pt</PaddingTop>
                                               <PaddingBottom>2pt</PaddingBottom>
@@ -5741,40 +5646,7 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Correction">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value>=Code.BlankZero(Fields!Correction2.Value)</Value>
-                                                    <Style>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!Correction2Format.Value</Format>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <Style>
-                                              <Border>
-                                                <Style>None</Style>
-                                              </Border>
-                                              <BackgroundColor>="#EFEFEF"</BackgroundColor>
-                                              <VerticalAlign>Middle</VerticalAlign>
-                                              <PaddingLeft>0.075cm</PaddingLeft>
-                                              <PaddingRight>2pt</PaddingRight>
-                                              <PaddingTop>2pt</PaddingTop>
-                                              <PaddingBottom>2pt</PaddingBottom>
-                                            </Style>
-                                          </Textbox>
+                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                     </TablixCells>
@@ -5810,10 +5682,9 @@
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <ColSpan>9</ColSpan>
+                                          <ColSpan>8</ColSpan>
                                         </CellContents>
                                       </TablixCell>
-                                      <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
                                       <TablixCell />
@@ -5827,7 +5698,6 @@
                               </TablixBody>
                               <TablixColumnHierarchy>
                                 <TablixMembers>
-                                  <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
@@ -5906,7 +5776,7 @@
                               </Filters>
                               <Top>3.13381in</Top>
                               <Height>2.51055cm</Height>
-                              <Width>10.07515in</Width>
+                              <Width>10.0812in</Width>
                               <ZIndex>4</ZIndex>
                               <Style />
                             </Tablix>
@@ -5941,14 +5811,14 @@
             <DataSetName>DataSet_Result</DataSetName>
             <Top>0.01042in</Top>
             <Height>11.10444cm</Height>
-            <Width>25.67026cm</Width>
+            <Width>25.60625cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
         <Height>4.38225in</Height>
         <Style />
       </Body>
-      <Width>10.14927in</Width>
+      <Width>10.0812in</Width>
       <Page>
         <PageHeader>
           <Height>1.02236in</Height>
@@ -6374,23 +6244,23 @@
       </DefaultValue>
       <Prompt>AvgExRateCaption</Prompt>
     </ReportParameter>
-    <ReportParameter Name="BalanceAtDateCaption">
+    <ReportParameter Name="BalanceCaption">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>BalanceAtDateCaption</Value>
+          <Value>BalanceCaption</Value>
         </Values>
       </DefaultValue>
-      <Prompt>BalanceAtDateCaption</Prompt>
+      <Prompt>BalanceCaption</Prompt>
     </ReportParameter>
-    <ReportParameter Name="BalanceAtDateFCYCaption">
+    <ReportParameter Name="AddCurrencyBalance">
       <DataType>String</DataType>
       <DefaultValue>
         <Values>
-          <Value>BalanceAtDateFCYCaption</Value>
+          <Value>AddCurrencyBalance</Value>
         </Values>
       </DefaultValue>
-      <Prompt>BalanceAtDateFCYCaption</Prompt>
+      <Prompt>AddCurrencyBalance</Prompt>
     </ReportParameter>
     <ReportParameter Name="EMUCaption">
       <DataType>String</DataType>
@@ -6409,6 +6279,15 @@
         </Values>
       </DefaultValue>
       <Prompt>TotalRateAdjustmentCaption</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="AddReportingCurrBalAtAdjDateCaption">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>AddReportingCurrBalAtAdjDateCaption</Value>
+        </Values>
+      </DefaultValue>
+      <Prompt>AddReportingCurrBalAtAdjDateCaption</Prompt>
     </ReportParameter>
     <ReportParameter Name="No_BankAccCaption">
       <DataType>String</DataType>
@@ -6522,7 +6401,7 @@
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>37</NumberOfRows>
+      <NumberOfRows>38</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -6632,12 +6511,12 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>21</RowIndex>
-          <ParameterName>BalanceAtDateCaption</ParameterName>
+          <ParameterName>BalanceCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>22</RowIndex>
-          <ParameterName>BalanceAtDateFCYCaption</ParameterName>
+          <ParameterName>AddCurrencyBalance</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -6652,61 +6531,66 @@
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>25</RowIndex>
-          <ParameterName>No_BankAccCaption</ParameterName>
+          <ParameterName>AddReportingCurrBalAtAdjDateCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>26</RowIndex>
-          <ParameterName>CurrCode_BankAccCaption</ParameterName>
+          <ParameterName>No_BankAccCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>27</RowIndex>
-          <ParameterName>BalanceatDate_BankAccCaption</ParameterName>
+          <ParameterName>CurrCode_BankAccCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>28</RowIndex>
-          <ParameterName>EntryNo_VATEntryCaption</ParameterName>
+          <ParameterName>BalanceatDate_BankAccCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>29</RowIndex>
-          <ParameterName>PostingDate_VATEntryCaption</ParameterName>
+          <ParameterName>EntryNo_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>30</RowIndex>
-          <ParameterName>DocumentNo_VATEntryCaption</ParameterName>
+          <ParameterName>PostingDate_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>31</RowIndex>
-          <ParameterName>DocumentType_VATEntryCaption</ParameterName>
+          <ParameterName>DocumentNo_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>32</RowIndex>
-          <ParameterName>Type_VATEntryCaption</ParameterName>
+          <ParameterName>DocumentType_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>33</RowIndex>
-          <ParameterName>Base_VATEntryCaption</ParameterName>
+          <ParameterName>Type_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>34</RowIndex>
-          <ParameterName>Amount_VATEntryCaption</ParameterName>
+          <ParameterName>Base_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>35</RowIndex>
-          <ParameterName>CurrencyCode_VATEntryCaption</ParameterName>
+          <ParameterName>Amount_VATEntryCaption</ParameterName>
         </CellDefinition>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>36</RowIndex>
+          <ParameterName>CurrencyCode_VATEntryCaption</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>37</RowIndex>
           <ParameterName>Name_GLAccountCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
@@ -7036,23 +6920,23 @@ End Function
         <Field Name="CurrencyCode_GLAccount">
           <DataField>CurrencyCode_GLAccount</DataField>
         </Field>
-        <Field Name="BalanceatDateFCY_GLAccount">
-          <DataField>BalanceatDateFCY_GLAccount</DataField>
+        <Field Name="Balance_GLAccount">
+          <DataField>Balance_GLAccount</DataField>
         </Field>
-        <Field Name="BalanceatDateFCY_GLAccountFormat">
-          <DataField>BalanceatDateFCY_GLAccountFormat</DataField>
+        <Field Name="Balance_GLAccountFormat">
+          <DataField>Balance_GLAccountFormat</DataField>
         </Field>
-        <Field Name="BalanceatDate_GLAccount">
-          <DataField>BalanceatDate_GLAccount</DataField>
+        <Field Name="Add_Curr_Bal_GLAccount">
+          <DataField>Add_Curr_Bal_GLAccount</DataField>
         </Field>
-        <Field Name="BalanceatDate_GLAccountFormat">
-          <DataField>BalanceatDate_GLAccountFormat</DataField>
+        <Field Name="Add_Curr_Bal_GLAccountFormat">
+          <DataField>Add_Curr_Bal_GLAccountFormat</DataField>
         </Field>
-        <Field Name="AvgExRate">
-          <DataField>AvgExRate</DataField>
+        <Field Name="AddRepCurrBalAtAdjDt">
+          <DataField>AddRepCurrBalAtAdjDt</DataField>
         </Field>
-        <Field Name="AvgExRateFormat">
-          <DataField>AvgExRateFormat</DataField>
+        <Field Name="AddRepCurrBalAtAdjDtFormat">
+          <DataField>AddRepCurrBalAtAdjDtFormat</DataField>
         </Field>
         <Field Name="CurrRate">
           <DataField>CurrRate</DataField>
@@ -7065,9 +6949,6 @@ End Function
         </Field>
         <Field Name="Correction2Format">
           <DataField>Correction2Format</DataField>
-        </Field>
-        <Field Name="EMU">
-          <DataField>EMU</DataField>
         </Field>
       </Fields>
       <Query>
