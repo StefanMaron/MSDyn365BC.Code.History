@@ -60,6 +60,24 @@ page 10766 "Posted Sales Cr. Memo - Update"
                     Editable = true;
                     ToolTip = 'Specifies the Correction Type.';
                 }
+                field("ID Type"; "ID Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the ID Type.';
+                }
+                field("Succeeded Company Name"; "Succeeded Company Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the name of the company sucessor in connection with corporate restructuring.';
+                }
+                field("Succeeded VAT Registration No."; "Succeeded VAT Registration No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the VAT registration number of the company sucessor in connection with corporate restructuring.';
+                }
                 field("Issued By Third Party"; "Issued By Third Party")
                 {
                     ApplicationArea = Basic, Suite;
@@ -93,7 +111,10 @@ page 10766 "Posted Sales Cr. Memo - Update"
         exit(
           ("Special Scheme Code" <> xSalesCrMemoHeader."Special Scheme Code") or
           ("Cr. Memo Type" <> xSalesCrMemoHeader."Cr. Memo Type") or
-          ("Correction Type" <> xSalesCrMemoHeader."Correction Type"));
+          ("Correction Type" <> xSalesCrMemoHeader."Correction Type") or
+          ("ID Type" <> xSalesCrMemoHeader."ID Type") or
+          ("Succeeded Company Name" <> xSalesCrMemoHeader."Succeeded Company Name") or
+          ("Succeeded VAT Registration No." <> xSalesCrMemoHeader."Succeeded VAT Registration No."));
     end;
 
     [Scope('OnPrem')]

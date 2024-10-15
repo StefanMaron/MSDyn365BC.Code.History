@@ -125,6 +125,12 @@ codeunit 147330 "Edit Posted Documents ES"
         Assert.AreNotEqual(Format(SalesCrMemoHeader."Special Scheme Code"), PostedSalesCreditMemo."Special Scheme Code".Value, '');
         Assert.AreNotEqual(Format(SalesCrMemoHeader."Cr. Memo Type"), PostedSalesCreditMemo."Cr. Memo Type".Value, '');
         Assert.AreNotEqual(Format(SalesCrMemoHeader."Correction Type"), PostedSalesCreditMemo."Correction Type".Value, '');
+        // Bug id 452979: Fields added to the posted sales/purchase credit memo page
+        Assert.AreNotEqual(Format(SalesCrMemoHeader."ID Type"), PostedSalesCreditMemo."ID Type".Value, '');
+        Assert.AreNotEqual(
+          Format(SalesCrMemoHeader."Succeeded Company Name"), PostedSalesCreditMemo."Succeeded Company Name".Value, '');
+        Assert.AreNotEqual(
+          Format(SalesCrMemoHeader."Succeeded VAT Registration No."), PostedSalesCreditMemo."Succeeded VAT Registration No.".Value, '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -163,6 +169,12 @@ codeunit 147330 "Edit Posted Documents ES"
         Assert.AreEqual(Format(SalesCrMemoHeader."Special Scheme Code"), PostedSalesCreditMemo."Special Scheme Code".Value, '');
         Assert.AreEqual(Format(SalesCrMemoHeader."Cr. Memo Type"), PostedSalesCreditMemo."Cr. Memo Type".Value, '');
         Assert.AreEqual(Format(SalesCrMemoHeader."Correction Type"::Difference), PostedSalesCreditMemo."Correction Type".Value, '');
+        // Bug id 452979: Fields added to the posted sales/purchase credit memo page
+        Assert.AreEqual(Format(SalesCrMemoHeader."ID Type"), PostedSalesCreditMemo."ID Type".Value, '');
+        Assert.AreEqual(
+          Format(SalesCrMemoHeader."Succeeded Company Name"), PostedSalesCreditMemo."Succeeded Company Name".Value, '');
+        Assert.AreEqual(
+          Format(SalesCrMemoHeader."Succeeded VAT Registration No."), PostedSalesCreditMemo."Succeeded VAT Registration No.".Value, '');
 
         // [THEN] "Is Credit Memo Removal" is disabled in the SII Doc. Upload State
         // Bug 440952: "Is Credit Memo Removal" is disabled when user changeed the correction type from Removal to Difference
@@ -201,6 +213,12 @@ codeunit 147330 "Edit Posted Documents ES"
         Assert.AreNotEqual(Format(PurchCrMemoHdr."Special Scheme Code"), PostedPurchaseCreditMemo."Special Scheme Code".Value, '');
         Assert.AreNotEqual(Format(PurchCrMemoHdr."Cr. Memo Type"), PostedPurchaseCreditMemo."Cr. Memo Type".Value, '');
         Assert.AreNotEqual(Format(PurchCrMemoHdr."Correction Type"), PostedPurchaseCreditMemo."Correction Type".Value, '');
+        // Bug id 452979: Fields added to the posted sales/purchase credit memo page
+        Assert.AreNotEqual(Format(PurchCrMemoHdr."ID Type"), PostedPurchaseCreditMemo."ID Type".Value, '');
+        Assert.AreNotEqual(
+          Format(PurchCrMemoHdr."Succeeded Company Name"), PostedPurchaseCreditMemo."Succeeded Company Name".Value, '');
+        Assert.AreNotEqual(
+          Format(PurchCrMemoHdr."Succeeded VAT Registration No."), PostedPurchaseCreditMemo."Succeeded VAT Registration No.".Value, '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -239,6 +257,12 @@ codeunit 147330 "Edit Posted Documents ES"
         Assert.AreEqual(Format(PurchCrMemoHdr."Special Scheme Code"), PostedPurchaseCreditMemo."Special Scheme Code".Value, '');
         Assert.AreEqual(Format(PurchCrMemoHdr."Cr. Memo Type"), PostedPurchaseCreditMemo."Cr. Memo Type".Value, '');
         Assert.AreEqual(Format(PurchCrMemoHdr."Correction Type"::Difference), PostedPurchaseCreditMemo."Correction Type".Value, '');
+        // Bug id 452979: Fields added to the posted sales/purchase credit memo page
+        Assert.AreEqual(Format(PurchCrMemoHdr."ID Type"), PostedPurchaseCreditMemo."ID Type".Value, '');
+        Assert.AreEqual(
+          Format(PurchCrMemoHdr."Succeeded Company Name"), PostedPurchaseCreditMemo."Succeeded Company Name".Value, '');
+        Assert.AreEqual(
+          Format(PurchCrMemoHdr."Succeeded VAT Registration No."), PostedPurchaseCreditMemo."Succeeded VAT Registration No.".Value, '');
 
         // [THEN] "Is Credit Memo Removal" is disabled in the SII Doc. Upload State
         // Bug 440952: "Is Credit Memo Removal" is disabled when user changeed the correction type from Removal to Difference
@@ -1359,6 +1383,9 @@ codeunit 147330 "Edit Posted Documents ES"
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Special Scheme Code");
         LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Cr. Memo Type");
         LibraryVariableStorage.Enqueue(Format(SalesCrMemoHeader."Correction Type"::Difference));
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."ID Type");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Succeeded Company Name");
+        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."Succeeded VAT Registration No.");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedPurchaseCreditMemo(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -1366,6 +1393,9 @@ codeunit 147330 "Edit Posted Documents ES"
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Special Scheme Code");
         LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Cr. Memo Type");
         LibraryVariableStorage.Enqueue(Format(PurchCrMemoHdr."Correction Type"::Difference));
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."ID Type");
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Succeeded Company Name");
+        LibraryVariableStorage.Enqueue(PurchCrMemoHdr."Succeeded VAT Registration No.");
     end;
 
     local procedure EnqueValuesForEditableFieldsPostedServiceInvoice(ServiceInvoiceHeader: Record "Service Invoice Header")
@@ -1405,6 +1435,9 @@ codeunit 147330 "Edit Posted Documents ES"
         SalesCrMemoHeader."Special Scheme Code" := "SII Sales Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         SalesCrMemoHeader."Cr. Memo Type" := "SII Sales Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         SalesCrMemoHeader."Correction Type" := SalesCrMemoHeader."Correction Type"::Removal;
+        SalesCrMemoHeader."ID Type" := LibraryRandom.RandIntInRange(1, 3);
+        SalesCrMemoHeader."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        SalesCrMemoHeader."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
         SalesInvoiceHeader.Init();
         SalesInvoiceHeader."No." :=
           LibraryUtility.GenerateRandomCode(SalesInvoiceHeader.FieldNo("No."), DATABASE::"Sales Invoice Header");
@@ -1420,6 +1453,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PurchCrMemoHdr."Special Scheme Code" := "SII Purch. Special Scheme Code".FromInteger(LibraryRandom.RandIntInRange(1, 10));
         PurchCrMemoHdr."Cr. Memo Type" := "SII Purch. Credit Memo Type".FromInteger(LibraryRandom.RandIntInRange(1, 5));
         PurchCrMemoHdr."Correction Type" := PurchCrMemoHdr."Correction Type"::Removal;
+        PurchCrMemoHdr."ID Type" := LibraryRandom.RandIntInRange(1, 3);
+        PurchCrMemoHdr."Succeeded Company Name" := LibraryUtility.GenerateGUID;
+        PurchCrMemoHdr."Succeeded VAT Registration No." := LibraryUtility.GenerateGUID;
         PurchInvHeader.Init();
         PurchInvHeader."No." :=
           LibraryUtility.GenerateRandomCode(PurchInvHeader.FieldNo("No."), DATABASE::"Purch. Inv. Header");
@@ -1504,6 +1540,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PstdSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PstdSalesCrMemoUpdate.OK().Invoke();
     end;
 
@@ -1522,6 +1561,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PstdSalesCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PstdSalesCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PstdSalesCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PstdSalesCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PstdSalesCrMemoUpdate.Cancel().Invoke();
     end;
 
@@ -1540,6 +1582,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchCrMemoUpdate.OK().Invoke();
     end;
 
@@ -1558,6 +1603,9 @@ codeunit 147330 "Edit Posted Documents ES"
         PostedPurchCrMemoUpdate."Special Scheme Code".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Cr. Memo Type".SetValue(LibraryVariableStorage.DequeueText());
         PostedPurchCrMemoUpdate."Correction Type".SetValue(LibraryVariableStorage.DequeueText());
+        PostedPurchCrMemoUpdate."ID Type".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Succeeded Company Name".SetValue(LibraryVariableStorage.DequeueText);
+        PostedPurchCrMemoUpdate."Succeeded VAT Registration No.".SetValue(LibraryVariableStorage.DequeueText);
         PostedPurchCrMemoUpdate.Cancel().Invoke();
     end;
 
