@@ -1182,7 +1182,7 @@ report 1322 "Standard Purchase - Order"
         LogInteraction := SegManagement.FindInteractTmplCode(13) <> '';
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterFormatDocumentFields(var PurchaseHeader: Record "Purchase Header")
     begin
     end;

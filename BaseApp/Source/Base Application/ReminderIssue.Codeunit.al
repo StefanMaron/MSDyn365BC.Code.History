@@ -11,6 +11,7 @@ codeunit 393 "Reminder-Issue"
         ReminderLine: Record "Reminder Line";
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         ReminderCommentLine: Record "Reminder Comment Line";
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
         IsHandled: Boolean;
         ShouldInsertReminderEntry: Boolean;
     begin
@@ -25,6 +26,8 @@ codeunit 393 "Reminder-Issue"
                 Validate("Posting Date", PostingDate);
             TestField("Customer No.");
             CheckIfBlocked("Customer No.");
+
+            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
 
             TestField("Posting Date");
             TestField("Document Date");

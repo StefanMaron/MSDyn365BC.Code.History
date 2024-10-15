@@ -315,6 +315,10 @@ table 273 "Bank Acc. Reconciliation"
             FieldClass = FlowField;
             CalcFormula = lookup("Bank Account".Name where("No." = field("Bank Account No.")));
         }
+        field(51; "Allow Duplicated Transactions"; Boolean)
+        {
+            Caption = 'Allow Duplicated Transactions';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

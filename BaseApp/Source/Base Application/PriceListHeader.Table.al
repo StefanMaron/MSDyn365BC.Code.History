@@ -6,6 +6,7 @@ table 7000 "Price List Header"
     {
         field(1; Code; Code[20])
         {
+            Caption = 'Code';
             DataClassification = CustomerContent;
             trigger OnValidate()
             begin
@@ -19,6 +20,7 @@ table 7000 "Price List Header"
         }
         field(2; Description; Text[250])
         {
+            Caption = 'Description';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -220,6 +222,7 @@ table 7000 "Price List Header"
         }
         field(18; Status; Enum "Price Status")
         {
+            Caption = 'Status';
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -231,12 +234,15 @@ table 7000 "Price List Header"
         }
         field(19; "Filter Source No."; Code[20])
         {
+            Caption = 'Filter Source No.';
             DataClassification = CustomerContent;
             Editable = false;
         }
         field(20; "Allow Updating Defaults"; Boolean)
         {
+            Caption = 'Allow Updating Defaults';
             DataClassification = SystemMetadata;
+
             trigger OnValidate()
             begin
                 if xRec."Allow Updating Defaults" and not Rec."Allow Updating Defaults" then
@@ -245,6 +251,7 @@ table 7000 "Price List Header"
         }
         field(21; "Assign-to No."; Code[20])
         {
+            Caption = 'Assign-to No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST(Campaign)) Campaign
             ELSE
@@ -270,6 +277,7 @@ table 7000 "Price List Header"
         }
         field(22; "Assign-to Parent No."; Code[20])
         {
+            Caption = 'Assign-to Parent No.';
             DataClassification = CustomerContent;
             TableRelation = IF ("Source Type" = CONST("Job Task")) Job;
             ValidateTableRelation = false;

@@ -23,14 +23,14 @@ codeunit 132479 "Posting Codeunit Mock"
                         ContextID := ErrorMessageMgt.PopContext(ErrorContextElement[ContextID]);
                     end;
                 -2: // Error in local context
-                    LogLocalError("Record ID", Description, "Additional Information");
+                    LogLocalError("Record ID", "Message", "Additional Information");
                 -1: // global context
                     ContextID :=
-                      ErrorMessageMgt.PushContext(ErrorContextElement[ContextID + 1], "Context Record ID", "Context Field Number", Description);
+                      ErrorMessageMgt.PushContext(ErrorContextElement[ContextID + 1], "Context Record ID", "Context Field Number", "Message");
                 "Message Type"::Warning:
-                    ErrorMessageMgt.LogError("Record ID", Description, '');
+                    ErrorMessageMgt.LogError("Record ID", "Message", '');
                 "Message Type"::Error:
-                    Error(Description);
+                    Error("Message");
                 "Message Type"::Information:
                     ErrorMessageMgt.Finish("Context Record ID");
             end;
@@ -41,7 +41,7 @@ codeunit 132479 "Posting Codeunit Mock"
         ErrorContextElement: array[2] of Codeunit "Error Context Element";
         ContextID: Integer;
 
-    local procedure LogLocalError(RecID: RecordID; Description: Text[250]; AddInfo: Text[250])
+    local procedure LogLocalError(RecID: RecordID; Description: Text[2048]; AddInfo: Text[250])
     var
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";

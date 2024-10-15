@@ -193,6 +193,7 @@ codeunit 73 "Purch.-Explode BOM"
             if TransferExtendedText.PurchCheckIfAnyExtText(ToPurchLine, false) then
                 TransferExtendedText.InsertPurchExtText(ToPurchLine);
         end;
+        OnAfterExplodeBOMCompLines(PurchLine, Selection, LineSpacing);
     end;
 
     local procedure ClearSpecialSalesOrderLineValuesOnExplodeBOM(PurchLine: Record "Purchase Line")
@@ -213,6 +214,11 @@ codeunit 73 "Purch.-Explode BOM"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(ToPurchLine: Record "Purchase Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterExplodeBOMCompLines(var PurchaseLine: Record "Purchase Line"; Selection: Integer; LineSpacing: Integer)
     begin
     end;
 

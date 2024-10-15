@@ -1047,7 +1047,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     [Test]
-    [HandlerFunctions('ReleasedProdOrderMessageHandler,ConfirmHandler')]
+    [HandlerFunctions('ReleasedProdOrderMessageHandler')]
     [Scope('OnPrem')]
     procedure B7615_ChangeFlushingMethodOnProdComponent()
     var

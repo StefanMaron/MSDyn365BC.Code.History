@@ -13,6 +13,7 @@
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         OnBeforeIssueFinChargeMemo(FinChrgMemoHeader);
 
@@ -20,6 +21,8 @@
             UpdateFinanceChargeRounding(FinChrgMemoHeader);
             if (PostingDate <> 0D) and (ReplacePostingDate or ("Posting Date" = 0D)) then
                 Validate("Posting Date", PostingDate);
+
+            GenJnlCheckLine.CheckVATDateAllowed("VAT Reporting Date");
             TestField("Customer No.");
             TestField("Posting Date");
             TestField("Document Date");
