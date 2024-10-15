@@ -950,6 +950,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Caption;%2=Table;%3=Field1;%4=Value1;%5=Field2;%6=Value2;%7=Field3;%8=Value3;]D;]A;(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType ExpectedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2488707860 - NamedType 598370137" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Journal Batch Name must be %1 in %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Suggest Vendor Payment - NamedType JournalBatchNameErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2488707860 - NamedType 2053384910" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Payment of %1 %2 ]]></Val>
