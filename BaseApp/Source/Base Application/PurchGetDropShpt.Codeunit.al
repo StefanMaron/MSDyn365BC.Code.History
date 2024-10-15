@@ -106,7 +106,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                         OnAfterSalesLineModify(SalesLine, PurchLine);
                         ItemTrackingMgt.CopyItemTracking(SalesLine.RowID1, PurchLine.RowID1, true);
 
-                        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
+                        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
                             TransferExtendedText.InsertPurchExtText(PurchLine);
                             PurchLine2.SetRange("Document Type", "Document Type");
                             PurchLine2.SetRange("Document No.", "No.");

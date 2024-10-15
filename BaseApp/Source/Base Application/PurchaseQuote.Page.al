@@ -793,10 +793,7 @@ page 49 "Purchase Quote"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
-                        PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        OpenDocumentStatistics();
                     end;
                 }
                 action(Vendor)
@@ -1051,6 +1048,7 @@ page 49 "Purchase Quote"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualRelease(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
                 action(Reopen)
@@ -1069,6 +1067,7 @@ page 49 "Purchase Quote"
                         ReleasePurchDoc: Codeunit "Release Purchase Document";
                     begin
                         ReleasePurchDoc.PerformManualReopen(Rec);
+                        CurrPage.PurchLines.PAGE.ClearTotalPurchaseHeader();
                     end;
                 }
             }
