@@ -349,7 +349,7 @@ report 492 "Copy Purchase Document"
 
     local procedure LookupPurchDoc()
     begin
-        OnBeforeLookupPurchDoc(FromPurchHeader, PurchHeader);
+        OnBeforeLookupPurchDoc(FromPurchHeader, PurchHeader, FromDocType);
 
         FromPurchHeader.FilterGroup := 0;
         FromPurchHeader.SetRange("Document Type", CopyDocMgt.GetPurchaseDocumentType(FromDocType));
@@ -370,7 +370,7 @@ report 492 "Copy Purchase Document"
     local procedure LookupPurchArchive()
     begin
         FromPurchHeaderArchive.Reset();
-        OnLookupPurchArchiveOnBeforeSetFilters(FromPurchHeaderArchive, PurchHeader);
+        OnLookupPurchArchiveOnBeforeSetFilters(FromPurchHeaderArchive, PurchHeader, FromDocType);
         FromPurchHeaderArchive.FilterGroup := 0;
         FromPurchHeaderArchive.SetRange("Document Type", CopyDocMgt.GetPurchaseDocumentType(FromDocType));
         FromPurchHeaderArchive.FilterGroup := 2;
@@ -529,7 +529,7 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupPurchDoc(var FromPurchaseHeader: Record "Purchase Header"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeLookupPurchDoc(var FromPurchaseHeader: Record "Purchase Header"; PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From")
     begin
     end;
 
@@ -569,7 +569,7 @@ report 492 "Copy Purchase Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupPurchArchiveOnBeforeSetFilters(var FromPurchHeaderArchive: Record "Purchase Header Archive"; var PurchaseHeader: Record "Purchase Header")
+    local procedure OnLookupPurchArchiveOnBeforeSetFilters(var FromPurchHeaderArchive: Record "Purchase Header Archive"; var PurchaseHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From")
     begin
     end;
 

@@ -52,7 +52,7 @@ codeunit 6144 "E-Document Get Response"
             until EDocumentServiceStatus.Next() = 0;
 
         if IsEDocumentPendingResponse() then
-            EDocumentBackgroundjobs.GetEDocumentResponse();
+            EDocumentBackgroundjobs.GetEDocumentResponse(false);
     end;
 
     local procedure GetResponse(EDocService: Record "E-Document Service"; var EDocumentServiceStatus: Record "E-Document Service Status"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage) GetResponseResult: Boolean

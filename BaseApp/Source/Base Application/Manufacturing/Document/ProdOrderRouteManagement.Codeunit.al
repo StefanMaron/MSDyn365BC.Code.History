@@ -27,6 +27,7 @@ codeunit 99000772 "Prod. Order Route Management"
         SetRoutingFilter(ProdOrderRtngLine, ProductionOrderStatus, ProdOrderNo, RoutingNo, RoutingRefNo);
         ProdOrderRtngLine.SetRange(Recalculate, true);
         ProdOrderRtngLine.SetFilter("Routing Status", '<>%1', ProdOrderRtngLine."Routing Status"::Finished);
+        OnNeedsCalculationOnBeforeFindProdOrderRtngLine(ProdOrderRtngLine);
 
         exit(ProdOrderRtngLine.FindFirst());
     end;
@@ -587,6 +588,11 @@ codeunit 99000772 "Prod. Order Route Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateOnBeforeProdOrderRtngLineLoopIteration(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNeedsCalculationOnBeforeFindProdOrderRtngLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
     begin
     end;
 }

@@ -22,7 +22,9 @@ codeunit 30106 "Shpfy Upgrade Mgt."
 
     trigger OnUpgradePerCompany()
     begin
+#if not CLEAN22
         SetShpfyStockCalculation();
+#endif
 #if not CLEAN21
         MoveShpfyRegisteredStore();
 #endif
@@ -331,10 +333,15 @@ codeunit 30106 "Shpfy Upgrade Mgt."
         UpgradeTag.SetUpgradeTag(GetSyncPricesWithProductsUpgradeTag());
     end;
 
+#if not CLEAN22
     internal procedure SetShpfyStockCalculation()
     var
         ShopLocation: Record "Shpfy Shop Location";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
+        if UpgradeTag.HasUpgradeTag(GetStockCalculationUpgradeTag()) then
+            exit;
+
         if ShopLocation.FindSet() then
             repeat
                 if ShopLocation.Disabled then begin
@@ -343,7 +350,10 @@ codeunit 30106 "Shpfy Upgrade Mgt."
                     ShopLocation.Modify();
                 end;
             until ShopLocation.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(GetStockCalculationUpgradeTag());
     end;
+#endif
 
     internal procedure SetAutoReleaseSalesOrder()
     var
@@ -397,6 +407,13 @@ codeunit 30106 "Shpfy Upgrade Mgt."
     begin
         exit('MS-480542-SyncPricesWithProductsUpgradeTag-20230814');
     end;
+
+#if not CLEAN22
+    local procedure GetStockCalculationUpgradeTag(): Code[250]
+    begin
+        exit('MS-495993-StockCalculationUpgradeTag-20240108');
+    end;
+#endif
 
     local procedure GetDateBeforeFeature(): DateTime
     begin
