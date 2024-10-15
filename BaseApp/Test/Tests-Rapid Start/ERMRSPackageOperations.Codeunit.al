@@ -2572,6 +2572,62 @@ codeunit 136603 "ERM RS Package Operations"
         VerifyDummyRSTableRecords(TempDummyRSTable);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure XXX()
+    var
+        ConfigPackage: Array[2] of Record "Config. Package";
+        ConfigPackageTable: Array[2] of Record "Config. Package Table";
+        XMLDOMManagement: Codeunit "XML DOM Management";
+        XmlNodeList: DotNet XmlNodeList;
+        XMLDocument: DotNet XmlDocument;
+        ItemFilter: Text[250];
+        FilePath: Text;
+    begin
+        // [SCENARIO 399994] Export of Config. Package should include Config. Media Buffer for this Config. Package
+        Initialize();
+
+        // [GIVEN] Two Items, first item has a picture (MediaSet value)
+        CreateTwoItemsFirstWithMediaSet(ItemFilter);
+
+        // [GIVEN] Config. Package "1" with Item table
+        CreatePackageWithTable(ConfigPackage[1], ConfigPackageTable[1], DATABASE::Item);
+        ConfigPackage[1].Validate("Exclude Config. Tables", true);
+        ConfigPackage[1].Modify(true);
+
+        // [GIVEN] Config. Package "2" with Item table
+        CreatePackageWithTable(ConfigPackage[2], ConfigPackageTable[2], DATABASE::Item);
+        ConfigPackage[2].Validate("Exclude Config. Tables", true);
+        ConfigPackage[2].Modify(true);
+
+        // [GIVEN] Set filter for two items to decrease package processing time
+        SetItemConfigPackageFilter(ConfigPackage[1].Code, ItemFilter);
+        SetItemConfigPackageFilter(ConfigPackage[2].Code, ItemFilter);
+
+        // [GIVEN] Exported Config. Package "1"
+        FilePath := FileMgt.ServerTempFileName('xml');
+        ExportToXML(ConfigPackage[1].Code, ConfigPackageTable[1], FilePath);
+
+        // [WHEN] Exported Config. Package "2"
+        FilePath := FileMgt.ServerTempFileName('xml');
+        ExportToXML(ConfigPackage[2].Code, ConfigPackageTable[2], FilePath);
+
+        // [THEN] Package contains Config. Media Buffer records only for Config. Package "2"
+        XMLDOMManagement.LoadXMLDocumentFromFile(FilePath, XMLDocument);
+        XMLDOMManagement.FindNodes(XmlDocument.DocumentElement, '/DataList/ConfigMediaBufferList', XmlNodeList);
+
+        // <ConfigMediaBufferList>
+        // <TableID>8630</TableID>
+        // <ConfigMediaBuffer>
+        //  <PackageCode>ConfigPackage[2].Code</PackageCode>
+        //  .. 
+        // <ConfigMediaBuffer>
+        // </ConfigMediaBufferList>
+        Assert.AreEqual(2, XmlNodeList.Item(0).ChildNodes.Count, ''); // 2 nodes TableID and ConfigMediaBuffer for Config. Package "2"
+        Assert.AreEqual(FORMAT(Database::"Config. Media Buffer"), XmlNodeList.ItemOf(0).SelectSingleNode('TableID').InnerText, '');
+        Assert.AreEqual(ConfigPackage[2].Code, XmlNodeList.Item(0).ChildNodes.Item(1).SelectSingleNode('PackageCode').InnerText, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

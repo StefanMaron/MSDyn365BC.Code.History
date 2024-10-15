@@ -544,6 +544,11 @@ codeunit 6153 "API Webhook Notification Mgt."
         if IsDetailedLoggingEnabled() then
             Session.LogMessage('000070M', StrSubstNo(ScheduleJobMsg, DateTimeToString(ProcessingDateTime), DateTimeToString(EarliestStartDateTime), DateTimeToString(LatestStartDateTime)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
 
+        if not CanScheduleJob() then begin
+            Session.LogMessage('0000EWY', NoPermissionsTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', APIWebhookCategoryLbl);
+            exit;
+        end;
+
         JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"API Webhook Notification Send");
         JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryCodeLbl);
@@ -566,6 +571,29 @@ codeunit 6153 "API Webhook Notification Mgt."
             end;
 
         CreateJob(LatestStartDateTime);
+    end;
+
+    internal procedure CanScheduleJob(): Boolean
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        User: Record User;
+        Handled: Boolean;
+        CanCreateTask: Boolean;
+    begin
+        if not (JobQueueEntry.WritePermission() and JobQueueEntry.ReadPermission()) then
+            exit(false);
+        if not (JobQueueEntry.TryCheckRequiredPermissions()) then
+            exit(false);
+        OnCanCreateTask(Handled, CanCreateTask);
+        if Handled then
+            exit(CanCreateTask);
+        if not TASKSCHEDULER.CanCreateTask() then
+            exit(false);
+        if not User.Get(UserSecurityId()) then
+            exit(false);
+        if User."License Type" = User."License Type"::"Limited User" then
+            exit(false);
+        exit(true);
     end;
 
     local procedure DeleteHangingJob(): Boolean
@@ -666,6 +694,11 @@ codeunit 6153 "API Webhook Notification Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDetailedLoggingEnabled(var Handled: Boolean; var Enabled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCanCreateTask(var Handled: Boolean; var CanCreateTask: Boolean)
     begin
     end;
 

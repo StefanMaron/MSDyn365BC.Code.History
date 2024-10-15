@@ -204,16 +204,19 @@ page 1190 "Create Payment"
         TempPaymentBuffer: Record "Payment Buffer" temporary;
         PaymentAmt: Decimal;
         SummarizePerVend: Boolean;
+        VendorLedgerEntryView: Text;
     begin
         TempPaymentBuffer.Reset();
         TempPaymentBuffer.DeleteAll();
 
+        VendorLedgerEntryView := VendorLedgerEntry.GetView();
+        VendorLedgerEntry.SetCurrentKey("Entry No.");
         if VendorLedgerEntry.Find('-') then
             repeat
                 if PostingDate < VendorLedgerEntry."Posting Date" then
                     Error(EarlierPostingDateErr, VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.");
-                VendorLedgerEntry.CalcFields("Remaining Amount");
                 if VendorLedgerEntry."Applies-to ID" = '' then begin
+                    VendorLedgerEntry.CalcFields("Remaining Amount");
                     TempPaymentBuffer."Vendor No." := VendorLedgerEntry."Vendor No.";
                     TempPaymentBuffer."Currency Code" := VendorLedgerEntry."Currency Code";
 
@@ -259,6 +262,7 @@ page 1190 "Create Payment"
             until VendorLedgerEntry.Next = 0;
 
         CopyTempPaymentBufferToGenJournalLines(TempPaymentBuffer, GenJnlLine, SummarizePerVend);
+        VendorLedgerEntry.SetView(VendorLedgerEntryView);
     end;
 
     local procedure CopyTempPaymentBufferToGenJournalLines(var TempPaymentBuffer: Record "Payment Buffer" temporary; var GenJnlLine: Record "Gen. Journal Line"; SummarizePerVend: Boolean)

@@ -1407,6 +1407,7 @@ codeunit 8614 "Config. XML Exchange"
     var
         ConfigMediaBuffer: Record "Config. Media Buffer";
         ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageFilter: Record "Config. Package Filter";
         ConfigPackageManagement: Codeunit "Config. Package Management";
     begin
         ConfigMediaBuffer.SetRange("Package Code", ConfigPackage.Code);
@@ -1414,6 +1415,9 @@ codeunit 8614 "Config. XML Exchange"
             exit;
 
         ConfigPackageManagement.InsertPackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Config. Media Buffer");
+        ConfigPackageManagement.InsertPackageFilter(
+            ConfigPackageFilter, ConfigPackage.Code, DATABASE::"Config. Media Buffer", 0,
+            ConfigMediaBuffer.FieldNo("Package Code"), ConfigPackage.Code);
         ConfigPackageTable.CalcFields("Table Name");
         ExportConfigTableToXML(ConfigPackageTable, PackageXML);
     end;

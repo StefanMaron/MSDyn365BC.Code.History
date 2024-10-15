@@ -861,9 +861,6 @@
         if not AssemblySetup."Stockout Warning" then
             exit;
 
-        if Reserve = Reserve::Always then
-            exit;
-
         if (CalledByFieldNo = CurrFieldNo) or
            ((CalledByFieldNo = FieldNo("No.")) and (CurrFieldNo <> 0)) or
            ((CalledByFieldNo = FieldNo(Quantity)) and (CurrFieldNo = FieldNo("Quantity per")))

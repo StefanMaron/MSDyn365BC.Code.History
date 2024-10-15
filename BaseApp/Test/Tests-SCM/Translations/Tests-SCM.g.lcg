@@ -14090,15 +14090,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse II - NamedType ErrorMessage)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3188199532 - NamedType 2029917995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse II - NamedType QtyErrorText)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3188199532 - NamedType 1063772298" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected Message dialog %1.]]></Val>
@@ -18165,6 +18156,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Order Warehouse Pick - NamedType PickWorksheetPage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2068767680 - NamedType 3057371184" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Indirect Cost % must be equal to '0']]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SMB Service Item - NamedType IndirectCostErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3470196203 - NamedType 2964215133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
