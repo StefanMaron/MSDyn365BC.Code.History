@@ -794,6 +794,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchaseLine."Unit Cost (LCY)" * ServiceLine.Quantity);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure PstdServInvStatisticsUsingServOrderWithLineDisc()
@@ -870,6 +871,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           ServiceLine."Document No.", PurchaseLine."Unit Cost (LCY)" * ServiceLine.Quantity,
           PurchaseLine."Unit Cost (LCY)" * ServiceLine.Quantity);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('ServiceOrderStatisticsPageHandler')]
@@ -1398,6 +1400,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
           PurchRcptLine."Document No.", PurchRcptLine."Line No.", PurchRcptLine."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateItemWithSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount")
     var
         Item: Record Item;
@@ -1409,6 +1412,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         SalesLineDiscount.Validate("Line Discount %", LibraryRandom.RandDec(10, 2));
         SalesLineDiscount.Modify(true);
     end;
+#endif
 
     local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var

@@ -1,5 +1,9 @@
+#if not CLEAN19
 codeunit 3011 DotNet_ImageFormatConverter
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the Image codeunit in the Image Module instead.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -13,6 +17,7 @@ codeunit 3011 DotNet_ImageFormatConverter
         DotNetImageFormatConverter := DotNetImageFormatConverter.ImageFormatConverter
     end;
 
+    [Obsolete('Replaced by GetFormatAsString() in Image module', '19.0')]
     procedure ConvertToString(var DotNet_ImageFormat: Codeunit DotNet_ImageFormat): Text
     var
         DotNetImageFormat: DotNet ImageFormat;
@@ -33,4 +38,4 @@ codeunit 3011 DotNet_ImageFormatConverter
         DotNetImageFormatConverter := DotNetImageFormatConverter2
     end;
 }
-
+#endif

@@ -1,7 +1,7 @@
-page 5919 "Service Mgt. Setup"
+﻿page 5919 "Service Mgt. Setup"
 {
     ApplicationArea = Service;
-    Caption = 'Service Mgt. Setup';
+    Caption = 'Service Management Setup';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Card;
@@ -145,6 +145,13 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posting Date after Operation Occurred Date notification';
                     ToolTip = 'Specifies that you will get a notification when changing the Posting Date field to a date later than currently in the Operation Occurred Date field.';
+                }
+                field("Invoice Posting Setup"; Rec."Invoice Posting Setup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies invoice posting implementation codeunit which is used for posting of service invoices.';
+                    Visible = false;
                 }
             }
             group("Mandatory Fields")

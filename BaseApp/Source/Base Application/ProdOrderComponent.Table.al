@@ -82,8 +82,10 @@
                 GetGLSetup;
 
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
 
                 UpdateUnitCost;
 
@@ -211,6 +213,24 @@
                 GetUpdateFromSKU;
             end;
         }
+        field(22; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(23; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(25; "Expected Quantity"; Decimal)
         {
             Caption = 'Expected Quantity';
@@ -218,12 +238,33 @@
             Editable = false;
 
             trigger OnValidate()
+            var
+                ItemUnitOfMeasure: Record "Item Unit of Measure";
+                UnroundedExpectedQuantity: Decimal;
+                ItemPrecRoundedExpectedQuantity: Decimal;
+                BaseUOMPrecRoundedExpectedQuantity: Decimal;
             begin
+                UnroundedExpectedQuantity := "Expected Quantity";
                 if Item.Get("Item No.") then
                     if Item."Rounding Precision" > 0 then
                         RoundExpectedQuantity();
 
-                "Expected Qty. (Base)" := Round("Expected Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                ItemPrecRoundedExpectedQuantity := "Expected Quantity";
+
+                BaseUOMPrecRoundedExpectedQuantity := UOMMgt.RoundQty("Expected Quantity", "Qty. Rounding Precision");
+
+                if ("Qty. Rounding Precision" > 0) and (BaseUOMPrecRoundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity) then
+                    if UnroundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity then
+                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"))
+                    else
+                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"));
+
+                "Expected Quantity" := BaseUOMPrecRoundedExpectedQuantity;
+                "Expected Qty. (Base)" := CalcBaseQty("Expected Quantity", FieldCaption("Expected Quantity"), FieldCaption("Expected Qty. (Base)"));
+
+                // Recalculate 'Expected Quantity' based on the base value to make sure values are consistent
+                "Expected Quantity" := UOMMgt.RoundQty("Expected Qty. (Base)" / "Qty. per Unit of Measure", "Qty. Rounding Precision");
+
                 if (Status in [Status::Released, Status::Finished]) and
                    (xRec."Item No." <> '') and
                    ("Line No." <> 0)
@@ -234,7 +275,7 @@
                 "Remaining Quantity" := "Expected Quantity" - "Act. Consumption (Qty)" / "Qty. per Unit of Measure";
                 if ("Remaining Quantity" * "Expected Quantity") <= 0 then
                     "Remaining Quantity" := 0;
-                "Remaining Qty. (Base)" := Round("Remaining Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                "Remaining Qty. (Base)" := CalcBaseQty("Remaining Quantity", FieldCaption("Remaining Quantity"), FieldCaption("Remaining Qty. (Base)"));
                 "Completely Picked" := "Qty. Picked" >= "Expected Quantity";
 
                 ProdOrderCompReserve.VerifyQuantity(Rec, xRec);
@@ -329,15 +370,13 @@
                 if Item."No." <> "Item No." then
                     Item.Get("Item No.");
 
-                // Location code in allowed only for inventoriable items
-                if "Location Code" <> '' then
-                    Item.TestField(Type, Item.Type::Inventory);
-
                 UpdateUnitCost;
                 Validate("Expected Quantity");
 
-                GetDefaultBin;
-                WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
+                if Item.IsInventoriableType() then begin
+                    GetDefaultBin;
+                    WhseValidateSourceLine.ProdComponentVerifyChange(Rec, xRec);
+                end;
                 ProdOrderCompReserve.VerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
             end;
@@ -381,6 +420,10 @@
                 OnBeforeBinCodeOnLookup(Rec, IsHandled);
                 if IsHandled then
                     exit;
+
+                if Item.Get(Rec."Item No.") then
+                    if BinCode <> '' then
+                        Item.TestField(Type, Item.Type::Inventory);
 
                 if Quantity > 0 then
                     BinCode := WMSManagement.BinContentLookUp("Location Code", "Item No.", "Variant Code", '', "Bin Code")
@@ -489,8 +532,11 @@
                     else
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
-                "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 UpdateExpectedQuantity();
             end;
         }
@@ -974,6 +1020,8 @@
         Text99000001: Label 'You cannot rename a %1.';
         Text99000002: Label 'You cannot change flushing method to %1 when there is at least one record in table %2 associated with it.';
         Text99000003: Label 'You cannot change %1 when %2 is %3.';
+        WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page, and %3 field on the %4 page, are causing the rounding precision for the %5 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption, %4 = table caption, %5 = field caption';
+        WrongPrecOnUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page is causing the rounding precision for the %3 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption';
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
         GLSetup: Record "General Ledger Setup";
@@ -1156,7 +1204,7 @@
         if PlanningComponent."Bin Code" <> '' then
             "Bin Code" := PlanningComponent."Bin Code"
         else
-            GetDefaultBin;
+            GetDefaultBin();
         Length := PlanningComponent.Length;
         Width := PlanningComponent.Width;
         Weight := PlanningComponent.Weight;
@@ -1184,6 +1232,8 @@
         "Shortcut Dimension 1 Code" := PlanningComponent."Shortcut Dimension 1 Code";
         "Shortcut Dimension 2 Code" := PlanningComponent."Shortcut Dimension 2 Code";
         "Dimension Set ID" := PlanningComponent."Dimension Set ID";
+        "Qty. Rounding Precision" := PlanningComponent."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := PlanningComponent."Qty. Rounding Precision (Base)";
 
         OnAfterCopyFromPlanningComp(Rec, PlanningComponent);
     end;
@@ -1273,13 +1323,16 @@
     local procedure RoundExpectedQuantity()
     var
         IsHandled: Boolean;
+        QtyBeforeRounding: Decimal;
     begin
         IsHandled := false;
         OnBeforeRoundExpectedQuantity(Rec, IsHandled);
         if IsHandled then
             exit;
 
+        QtyBeforeRounding := "Expected Quantity";
         "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
+
         OnAfterRoundExpectedQuantity(Rec);
     end;
 
@@ -1350,8 +1403,12 @@
             exit;
 
         "Bin Code" := '';
-        if ("Location Code" <> '') and ("Item No." <> '') then
-            Validate("Bin Code", GetDefaultConsumptionBin(ProdOrderRtngLine));
+        if ("Location Code" <> '') and ("Item No." <> '') then begin
+            if Item."No." <> "Item No." then
+                Item.Get("Item No.");
+            if Item.IsInventoriableType() then
+                Validate("Bin Code", GetDefaultConsumptionBin(ProdOrderRtngLine));
+        end;
     end;
 
     procedure GetDefaultConsumptionBin(var ProdOrderRtngLine: Record "Prod. Order Routing Line") BinCode: Code[20]
@@ -1744,6 +1801,12 @@
         TestField("Item No.", ItemNo);
         TestField("Variant Code", VariantCode);
         TestField("Location Code", LocationCode);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     [IntegrationEvent(false, false)]

@@ -468,7 +468,7 @@ page 9263 "Contract Gain/Loss Matrix"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(PeriodFormMgt.FindDate(Which, Rec, PeriodType));
+        exit(PeriodPageMgt.FindDate(Which, Rec, PeriodType));
     end;
 
     trigger OnInit()
@@ -509,7 +509,7 @@ page 9263 "Contract Gain/Loss Matrix"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(PeriodFormMgt.NextDate(Steps, Rec, PeriodType));
+        exit(PeriodPageMgt.NextDate(Steps, Rec, PeriodType));
     end;
 
     trigger OnOpenPage()
@@ -523,9 +523,9 @@ page 9263 "Contract Gain/Loss Matrix"
         ReasonCode: Record "Reason Code";
         ContractGainLossEntry: Record "Contract Gain/Loss Entry";
         MatrixRecords: array[32] of Record "Reason Code";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        AmountType: Option "Net Change","Balance at Date";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodPageMgt: Codeunit PeriodPageManagement;
+        AmountType: Enum "Analysis Amount Type";
+        PeriodType: Enum "Analysis Period Type";
         ReasonFilter: Text[250];
         TotalGainLoss: Decimal;
         PeriodStart: Date;
@@ -630,15 +630,26 @@ page 9263 "Contract Gain/Loss Matrix"
         TotalGainLoss := ContractGainLossEntry.Amount;
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix().', '19.0')]
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record "Reason Code"; CurrentNoOfMatrixColumns: Integer; AmountTypeLocal: Option "Net Change","Balance at Date"; PeriodTypeLocal: Option Day,Week,Month,Quarter,Year; ReasonFilterLocal: Text[250]; PeriodStartLocal: Date)
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
-        MATRIX_CurrentNoOfMatrixColumn := CurrentNoOfMatrixColumns;
-        PeriodType := PeriodTypeLocal;
-        AmountType := AmountTypeLocal;
-        ReasonFilter := ReasonFilterLocal;
-        PeriodStart := PeriodStartLocal;
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, CurrentNoOfMatrixColumns,
+            "Analysis Amount Type".FromInteger(AmountTypeLocal), "Analysis Period Type".FromInteger(PeriodTypeLocal),
+            ReasonFilterLocal, PeriodStartLocal);
+    end;
+#endif
+
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record "Reason Code"; NewCurrentNoOfMatrixColumns: Integer; NewAmountType: Enum "Analysis Amount Type"; NewPeriodType: Enum "Analysis Period Type"; NewReasonFilter: Text[250]; NewPeriodStart: Date)
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
+        MATRIX_CurrentNoOfMatrixColumn := NewCurrentNoOfMatrixColumns;
+        PeriodType := NewPeriodType;
+        AmountType := NewAmountType;
+        ReasonFilter := NewReasonFilter;
+        PeriodStart := NewPeriodStart;
     end;
 
     local procedure MATRIX_OnDrillDown(MATRIX_ColumnOrdinal: Integer)

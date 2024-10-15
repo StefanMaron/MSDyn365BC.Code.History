@@ -96,6 +96,7 @@ codeunit 138916 "O365 Translation Tests"
         GlobalLanguage := OrigLang;
     end;
 
+#if not CLEAN18
     // [Test] The test fails with an invalid error message.
     [HandlerFunctions('VerifyNoNotificationsAreSend,HandleO365UOMList')]
     [Scope('OnPrem')]
@@ -139,6 +140,7 @@ codeunit 138916 "O365 Translation Tests"
 
         GlobalLanguage := OrigLang;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('VerifyNoNotificationsAreSend,HandleO365PaymentTermsList,HandleO365PaymentMethodList')]
@@ -203,6 +205,7 @@ codeunit 138916 "O365 Translation Tests"
         CountryRegion.Modify();
     end;
 
+#if not CLEAN18
     local procedure CreateItemWithUOM(var Item: Record Item; LocalUnitOfMeasure: Record "Unit of Measure")
     var
         ItemTemplate: Record "Item Template";
@@ -216,6 +219,7 @@ codeunit 138916 "O365 Translation Tests"
         Item.Validate("Base Unit of Measure", LocalUnitOfMeasure.Code);
         Item.Modify(true);
     end;
+#endif
 
     local procedure InsertCountryRegionTranslation(CRCode: Code[10]; LCode: Code[10]; TranslatedName: Text[50])
     var

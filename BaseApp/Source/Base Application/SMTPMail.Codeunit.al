@@ -28,7 +28,6 @@ codeunit 400 "SMTP Mail"
         EmailFailedWithErrorCodeMsg: Label 'We received the following error code: %1.', Comment = '%1=the SMTP error code returned';
         EmailFailedCheckSendAsMsg: Label 'Check your smtp Send As permissions.';
         SendAsTroubleshootingUrlTxt: Label 'https://aka.ms/EmailSetupHelp', Locked = true;
-        InvoicingTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082472', Locked = true;
         BusinessCentralTroubleshootingUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2082540', Locked = true;
         SmtpConnectTelemetryErrorMsg: Label 'Unable to connect to SMTP server. Smtp server: %1, server port: %2, authentication: %3, error code: %4', Comment = '%1=the smtp server, %2=the server port, %3=authentication, %4=error code';
         SmtpAuthenticateTelemetryErrorMsg: Label 'Unable to authenticate to SMTP server. Authentication email from: %1, smtp server: %2, authentication: %3, server port: %4, error code: %5', Comment = '%1=the from address, %2=the smtp server, %3=authentication, %4=the server port, %5=error code';
@@ -623,21 +622,6 @@ codeunit 400 "SMTP Mail"
     end;
 
     /// <summary>
-    /// Check if the given recipients contain valid addresses.
-    /// </summary>
-    /// <param name="Recipients">The address(es) of recipient(s)</param>
-    /// <remarks>
-    /// If there are multiple addresses, they should be in the following format: 'address1; address2; address3'.
-    /// </remarks>
-    [Obsolete('Please call CheckValidEmailAddresses from the Mail Management codeunit directly.', '16.0')]
-    procedure CheckValidEmailAddresses(Recipients: Text)
-    var
-        MailManagement: Codeunit "Mail Management";
-    begin
-        MailManagement.CheckValidEmailAddresses(Recipients);
-    end;
-
-    /// <summary>
     /// Formats a list into a semicolon separated string.
     /// </summary>
     /// <returns>Semicolon separated string of list of texts.</returns>
@@ -941,15 +925,10 @@ codeunit 400 "SMTP Mail"
 
     [Scope('OnPrem')]
     procedure AddTroubleshootingLinksToNotification(var TargetNotification: Notification)
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         // Currently the only troubleshooting scenario we have in the help is Multi-Factor Authentication.
 
-        if EnvInfoProxy.IsInvoicing then
-            TargetNotification.SetData('TroubleshootingURL', InvoicingTroubleshootingUrlTxt)
-        else
-            TargetNotification.SetData('TroubleshootingURL', BusinessCentralTroubleshootingUrlTxt);
+        TargetNotification.SetData('TroubleshootingURL', BusinessCentralTroubleshootingUrlTxt);
 
         TargetNotification.AddAction(ReadMoreActionLbl, CODEUNIT::"SMTP Mail", 'OpenNotificationHyperlink');
     end;

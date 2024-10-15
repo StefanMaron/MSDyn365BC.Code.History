@@ -555,6 +555,26 @@ page 370 "Bank Account Card"
                     Visible = false;
                 }
             }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
+            }
             action(BankAccountReconciliations)
             {
                 ApplicationArea = Basic, Suite;
@@ -708,6 +728,23 @@ page 370 "Bank Account Card"
                 ToolTip = 'Export a Positive Pay file with relevant payment information that you then send to the bank for reference when you process payments to make sure that your bank only clears validated checks and amounts.';
                 Visible = false;
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
         area(reporting)
         {
@@ -781,7 +818,9 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
@@ -797,6 +836,7 @@ page 370 "Bank Account Card"
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetNoFieldVisible()
     var

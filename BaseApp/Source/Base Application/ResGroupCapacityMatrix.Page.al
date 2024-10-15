@@ -370,9 +370,9 @@ page 9243 "Res. Group Capacity Matrix"
     var
         MatrixRecord: Record Date;
         MatrixRecords: array[32] of Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        QtyType: Option "Net Change","Balance at Date";
+        PeriodPageMgt: Codeunit PeriodPageManagement;
+        PeriodType: Enum "Analysis Period Type";
+        QtyType: Enum "Analysis Amount Type";
         MATRIX_ColumnOrdinal: Integer;
         MATRIX_NoOfMatrixColumns: Integer;
         MATRIX_CellData: array[32] of Text[1024];
@@ -392,12 +392,12 @@ page 9243 "Res. Group Capacity Matrix"
 
     local procedure MATRIX_OnFindRecord(Which: Text[1024]): Boolean
     begin
-        exit(PeriodFormMgt.FindDate(Which, MatrixRecord, PeriodType));
+        exit(PeriodPageMgt.FindDate(Which, MatrixRecord, PeriodType));
     end;
 
     local procedure MATRIX_OnNextRecord(Steps: Integer): Integer
     begin
-        exit(PeriodFormMgt.NextDate(Steps, MatrixRecord, PeriodType));
+        exit(PeriodPageMgt.NextDate(Steps, MatrixRecord, PeriodType));
     end;
 
     local procedure MATRIX_OnAfterGetRecord(ColumnID: Integer)
@@ -427,15 +427,25 @@ page 9243 "Res. Group Capacity Matrix"
         PAGE.Run(0, ResCapacityEntries);
     end;
 
-    procedure Load(PeriodType1: Option Day,Week,Month,Quarter,Year,"Accounting Period"; QtyType1: Option "Net Change","Balance at Date"; MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date)
+#if not CLEAN19
+    [Obsolete('Replaced by LoadMatrix()', '19.0')]
+    procedure Load(PeriodType1: Option; QtyType1: Option "Net Change","Balance at Date"; MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date)
+    begin
+        LoadMatrix(
+            "Analysis Period Type".FromInteger(PeriodType1), "Analysis Amount Type".FromInteger(QtyType1),
+            MatrixColumns1, MatrixRecords1);
+    end;
+#endif
+
+    procedure LoadMatrix(NewPeriodType: Enum "Analysis Period Type"; NewQtyType: Enum "Analysis Amount Type"; NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date)
     var
         i: Integer;
     begin
-        PeriodType := PeriodType1;
-        QtyType := QtyType1;
-        CopyArray(MATRIX_ColumnCaption, MatrixColumns1, 1);
+        PeriodType := NewPeriodType;
+        QtyType := NewQtyType;
+        CopyArray(MATRIX_ColumnCaption, NewMatrixColumns, 1);
         for i := 1 to ArrayLen(MatrixRecords) do
-            MatrixRecords[i].Copy(MatrixRecords1[i]);
+            MatrixRecords[i].Copy(NewMatrixRecords[i]);
     end;
 
     local procedure ValidateCapacity(ColumnID: Integer)

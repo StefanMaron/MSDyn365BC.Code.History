@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135512 "Country/Region Entity E2E Test"
 {
     Subtype = Test;
@@ -203,4 +204,4 @@ codeunit 135512 "Country/Region Entity E2E Test"
         VerifyPropertyInJSON(CountryRegionJSON, 'addressFormat', Format(CountryRegion."Address Format"));
     end;
 }
-
+#endif

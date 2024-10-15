@@ -295,8 +295,8 @@
     procedure InitRecord()
     begin
         "VAT Report Config. Code" := "VAT Report Config. Code"::"VAT Transactions Report";
-        "Start Date" := WorkDate;
-        "End Date" := WorkDate;
+        "Start Date" := WorkDate();
+        "End Date" := WorkDate();
 
         OnAfterInitRecord(Rec);
     end;
@@ -348,8 +348,7 @@
                 Error(Text008, Format(VATReportHeader."VAT Report Type"));
     end;
 
-    [Scope('OnPrem')]
-    procedure isDatifattura(): Boolean
+    procedure IsDatifattura(): Boolean
     begin
         exit("VAT Report Config. Code" = "VAT Report Config. Code"::Datifattura);
     end;

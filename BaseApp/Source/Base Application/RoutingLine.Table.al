@@ -1,4 +1,4 @@
-﻿table 99000764 "Routing Line"
+table 99000764 "Routing Line"
 {
     Caption = 'Routing Line';
 

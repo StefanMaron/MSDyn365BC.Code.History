@@ -1,4 +1,4 @@
-﻿report 99001017 "Calculate Plan - Plan. Wksh."
+report 99001017 "Calculate Plan - Plan. Wksh."
 {
     Caption = 'Calculate Plan - Plan. Wksh.';
     ProcessingOnly = true;

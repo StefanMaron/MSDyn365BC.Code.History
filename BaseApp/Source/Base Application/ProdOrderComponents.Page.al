@@ -541,6 +541,20 @@ page 99000818 "Prod. Order Components"
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.", "Source Subline No.", "Unit of Measure Code", "Action Type", "Breakbulk No.", "Original Breakbulk");
                     ToolTip = 'View the list of ongoing inventory put-aways, picks, or movements for the order.';
                 }
+                action("Item Ledger E&ntries")
+                {
+                    ApplicationArea = Manufacturing;
+                    Caption = 'Item Ledger E&ntries';
+                    Image = ItemLedger;
+                    RunObject = Page "Item Ledger Entries";
+                    RunPageLink = "Order Type" = CONST(Production),
+                                  "Order No." = FIELD("Prod. Order No."),
+                                  "Order Line No." = field("Prod. Order Line No."),
+                                  "Prod. Order Comp. Line No." = field("Line No.");
+                    RunPageView = SORTING("Order Type", "Order No.");
+                    ShortCutKey = 'Ctrl+F7';
+                    ToolTip = 'View the item ledger entries of the item on the document or journal line.';
+                }
             }
         }
         area(processing)

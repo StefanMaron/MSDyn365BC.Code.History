@@ -22,7 +22,6 @@ page 7015 "Sales Price Lists"
                 field(Code; Rec.Code)
                 {
                     ApplicationArea = Basic, Suite;
-                    Visible = false;
                     Caption = 'Code';
                     ToolTip = 'Specifies the unique identifier of the price list.';
                 }
@@ -41,7 +40,6 @@ page 7015 "Sales Price Lists"
                 field("Allow Updating Defaults"; Rec."Allow Updating Defaults")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Multi-Type Price List';
                     ToolTip = 'Specifies whether users can change the values in the fields on the price list line that contain default values from the header.';
                 }
                 field(Defines; Rec."Amount Type")
@@ -188,13 +186,14 @@ page 7015 "Sales Price Lists"
         }
     }
 
+#if not CLEAN19
     trigger OnInit()
     var
         FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
     begin
         FeaturePriceCalculation.FailIfFeatureDisabled();
     end;
-
+#endif
     trigger OnAfterGetRecord()
     begin
         CurrRec := Rec;

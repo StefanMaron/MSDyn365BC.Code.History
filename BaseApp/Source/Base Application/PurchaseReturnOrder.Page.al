@@ -896,10 +896,9 @@ page 6640 "Purchase Return Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1375,6 +1374,7 @@ page 6640 "Purchase Return Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1478,8 +1478,8 @@ page 6640 "Purchase Return Order"
     trigger OnAfterGetRecord()
     begin
         CalculateCurrentShippingOption;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1504,17 +1504,14 @@ page 6640 "Purchase Return Order"
 
     trigger OnOpenPage()
     begin
-        SetDocNoVisible;
+        SetDocNoVisible();
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
+
         if ("No." <> '') and ("Buy-from Vendor No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean

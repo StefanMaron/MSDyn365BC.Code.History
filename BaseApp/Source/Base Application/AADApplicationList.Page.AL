@@ -6,6 +6,7 @@ page 9860 "AAD Application List"
     CardPageId = "AAD Application Card";
     PageType = List;
     PopulateAllFields = true;
+    Editable = false;
     SourceTable = "AAD Application";
 
     layout

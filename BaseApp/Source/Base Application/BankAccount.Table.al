@@ -506,7 +506,7 @@
         field(121; "Bank Stmt. Service Record ID"; RecordID)
         {
             Caption = 'Bank Stmt. Service Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             var
@@ -1207,6 +1207,8 @@
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 4;
+        JobQueueEntry."Rerun Delay (sec.)" := 25 * 60;
         JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;

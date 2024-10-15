@@ -2175,7 +2175,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -2355,7 +2355,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         RegisterWarehouseActivity(PurchaseLine."Document No.", WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
-    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Option)
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";

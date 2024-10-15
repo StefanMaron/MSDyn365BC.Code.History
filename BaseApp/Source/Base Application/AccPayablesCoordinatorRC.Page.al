@@ -1,6 +1,6 @@
 page 9002 "Acc. Payables Coordinator RC"
 {
-    Caption = 'Accounts Payable Coordinator', Comment = '{Dependency=Match,"ProfileDescription_APCOORDINATOR"} ';
+    Caption = 'Accounts Payable Coordinator';
     PageType = RoleCenter;
 
     layout

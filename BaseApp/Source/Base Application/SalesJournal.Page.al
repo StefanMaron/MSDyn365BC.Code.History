@@ -935,7 +935,7 @@ page 253 "Sales Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -948,6 +948,7 @@ page 253 "Sales Journal"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -970,7 +971,7 @@ page 253 "Sales Journal"
 
                     trigger OnAction()
                     begin
-                        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", Rec);
+                        SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
@@ -1161,29 +1162,37 @@ page 253 "Sales Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
         LastGenJnlBatch: Code[10];
+        IsHandled: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
         BalAccName := '';
-        SetControlVisibility;
-        SetDimensionsVisibility;
+        SetControlVisibility();
+        SetDimensionsVisibility();
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
             GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();
             exit;
         end;
-        GenJnlManagement.TemplateSelection(PAGE::"Sales Journal", "Gen. Journal Template Type"::Sales, false, Rec, JnlSelected);
-        if not JnlSelected then
-            Error('');
+
+        IsHandled := false;
+        OnOpenPageOnBeforeTemplateSelection(CurrentJnlBatchName, GenJnlManagement, IsHandled);
+        if not IsHandled then begin
+            GenJnlManagement.TemplateSelection(PAGE::"Sales Journal", "Gen. Journal Template Type"::Sales, false, Rec, JnlSelected);
+            if not JnlSelected then
+                Error('');
+        end;
 
         LastGenJnlBatch := GenJnlManagement.GetLastViewedJournalBatchName(PAGE::"Sales Journal");
         if LastGenJnlBatch <> '' then
             CurrentJnlBatchName := LastGenJnlBatch;
         GenJnlManagement.OpenJnl(CurrentJnlBatchName, Rec);
         SetControlAppearanceFromBatch();
+
+        OnAfterOpenPage();
     end;
 
     var
@@ -1300,6 +1309,8 @@ page 253 "Sales Journal"
               DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetJobQueueVisibility()
@@ -1308,8 +1319,33 @@ page 253 "Sales Journal"
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
     end;
 
+    procedure SetCurrentJnlBatchName(NewCurrentJnlBatchName: code[10])
+    begin
+        CurrentJnlBatchName := NewCurrentJnlBatchName;
+    end;
+
+    procedure GetCurrentJnlBatchName(): Code[10]
+    begin
+        exit(CurrentJnlBatchName);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var GenJournalLine: Record "Gen. Journal Line"; var ShortcutDimCode: array[8] of Code[20]; DimIndex: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenPageOnBeforeTemplateSelection(var CurrentJnlBatchName: Code[10]; GenJnlManagement: Codeunit GenJnlManagement; var IsHandled: Boolean)
     begin
     end;
 }

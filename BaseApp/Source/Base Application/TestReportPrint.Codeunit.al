@@ -1,4 +1,4 @@
-﻿codeunit 228 "Test Report-Print"
+codeunit 228 "Test Report-Print"
 {
 
     trigger OnRun()

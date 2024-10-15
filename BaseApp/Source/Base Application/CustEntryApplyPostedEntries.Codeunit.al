@@ -158,7 +158,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         exit(DtldCustLedgEntry.GetLastEntryNo());
     end;
 
-    [Scope('OnPrem')]
     procedure SetCheckDim(CheckDimTmp: Boolean)
     begin
         CheckDim := CheckDimTmp;
@@ -464,7 +463,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         exit(LastTransactionNo);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckVATSettlement(CustLedgEntryNo: Integer; PostingDate: Date): Boolean
     var
         VATEntry: Record "VAT Entry";

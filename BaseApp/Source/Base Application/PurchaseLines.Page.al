@@ -55,6 +55,13 @@ page 518 "Purchase Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry of the product to be purchased. To add a non-transactional text line, fill in the Description field only.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Location Code"; "Location Code")
                 {
                     ApplicationArea = Location;
@@ -238,7 +245,7 @@ page 518 "Purchase Lines"
                     var
                         PageManagement: Codeunit "Page Management";
                     begin
-                        PurchHeader.Get("Document Type", "Document No.");
+                        PurchHeader.Get(Rec."Document Type", Rec."Document No.");
                         if "Document Type" = "Document Type"::Order then begin
                             if "Prod. Order No." <> '' then
                                 PAGE.Run(PAGE::"Subcontracting Order", PurchHeader)
@@ -246,6 +253,8 @@ page 518 "Purchase Lines"
                                 PAGE.Run(PAGE::"Purchase Order", PurchHeader);
                         end else
                             PageManagement.PageRun(PurchHeader);
+
+                        OnShowDocumentOnAfterOnAction(PurchHeader);
                     end;
                 }
                 action("Reservation Entries")
@@ -286,7 +295,7 @@ page 518 "Purchase Lines"
 
     trigger OnAfterGetRecord()
     begin
-        ShowShortcutDimCode(ShortcutDimCode);
+        Rec.ShowShortcutDimCode(ShortcutDimCode);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -299,5 +308,10 @@ page 518 "Purchase Lines"
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
+
+    [IntegrationEvent(true, false)]
+    local procedure OnShowDocumentOnAfterOnAction(var PurchHeader: Record "Purchase Header")
+    begin
+    end;
 }
 

@@ -118,7 +118,7 @@ page 1350 "Posted Sales Shipment - Update"
     var
         xSalesShipmentHeader: Record "Sales Shipment Header";
 
-    local procedure RecordChanged() IsChanged : Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
         IsChanged :=
           ("Shipping Agent Code" <> xSalesShipmentHeader."Shipping Agent Code") or
@@ -134,11 +134,10 @@ page 1350 "Posted Sales Shipment - Update"
         OnAfterRecordChanged(Rec, xSalesShipmentHeader, IsChanged);
     end;
 
-    [Scope('OnPrem')]
     procedure SetRec(SalesShipmentHeader: Record "Sales Shipment Header")
     begin
         Rec := SalesShipmentHeader;
-        Insert;
+        Insert();
     end;
 
     [IntegrationEvent(false, false)]

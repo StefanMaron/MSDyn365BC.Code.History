@@ -1,4 +1,4 @@
-codeunit 5987 "Serv-Posting Journals Mgt."
+﻿codeunit 5987 "Serv-Posting Journals Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd;
 
@@ -305,6 +305,22 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             until TempWhseJnlLine2.Next() = 0;
     end;
 
+    procedure PostLines(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting"; var Window: Dialog; var TotalAmount: Decimal)
+    begin
+        InvoicePostingInterface.PostLines(ServiceHeader, GenJnlPostLine, Window, TotalAmount);
+    end;
+
+    procedure PostLedgerEntry(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting")
+    begin
+        InvoicePostingInterface.PostLedgerEntry(ServiceHeader, GenJnlPostLine);
+    end;
+
+    procedure PostBalancingEntry(ServiceHeader: Record "Service Header"; var InvoicePostingInterface: Interface "Invoice Posting")
+    begin
+        InvoicePostingInterface.PostBalancingEntry(ServiceHeader, GenJnlPostLine);
+    end;
+
+#if not CLEAN19
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -348,7 +364,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostInvoicePostBuffer(GenJnlLine, InvoicePostBuffer, ServiceHeader, GLEntryNo, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     procedure PostCustomerEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         GenJnlLine: Record "Gen. Journal Line";
@@ -394,13 +412,15 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostCustomerEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     procedure PostBalancingEntry(var TotalServiceLine: Record "Service Line"; var TotalServiceLineLCY: Record "Service Line"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         with GenJnlLine do begin
             InitNewLine(
               ServiceLinePostingDate, ServiceHeader."Document Date", ServiceHeader."Posting Description",
@@ -435,7 +455,9 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             OnAfterPostBalancingEntry(GenJnlLine, ServiceHeader, GenJnlPostLine);
         end;
     end;
+#endif
 
+#if not CLEAN19
     local procedure SetApplyToDocNo(ServiceHeader: Record "Service Header"; var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     begin
         with GenJnlLine do begin
@@ -447,6 +469,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             "Applies-to Occurrence No." := 1;
         end;
     end;
+#endif
 
     procedure PostResJnlLineShip(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
     var

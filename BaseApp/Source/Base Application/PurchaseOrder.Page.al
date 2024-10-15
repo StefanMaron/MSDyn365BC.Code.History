@@ -248,6 +248,7 @@ page 50 "Purchase Order"
                     Caption = 'Alternate Vendor Address Code';
                     Importance = Additional;
                     ToolTip = 'Specifies the order address of the related vendor.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Responsibility Center"; "Responsibility Center")
                 {
@@ -1022,10 +1023,9 @@ page 50 "Purchase Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
-                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1674,6 +1674,7 @@ page 50 "Purchase Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1947,8 +1948,8 @@ page 50 "Purchase Order"
     begin
         CalculateCurrentShippingAndPayToOption;
         ShowOverReceiptNotification();
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1978,23 +1979,10 @@ page 50 "Purchase Order"
     end;
 
     trigger OnOpenPage()
-    var
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SetDocNoVisible;
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        SetOpenPage();
 
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
-        if ("No." <> '') and ("Buy-from Vendor No." = '') then
-            DocumentIsPosted := (not Get("Document Type", "No."));
-
-        SetRange("Date Filter", 0D, WorkDate());
-
-        ActivateFields;
+        ActivateFields();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -2048,6 +2036,23 @@ page 50 "Purchase Order"
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
+    local procedure SetOpenPage()
+    var
+        EnvironmentInfo: Codeunit "Environment Information";
+    begin
+        SetDocNoVisible();
+        IsSaaS := EnvironmentInfo.IsSaaS();
+
+        Rec.SetSecurityFilterOnRespCenter();
+
+        if ("No." <> '') and ("Buy-from Vendor No." = '') then
+            DocumentIsPosted := (not Get("Document Type", "No."));
+
+        SetRange("Date Filter", 0D, WorkDate());
+
+        OnAfterSetOpenPage();
+    end;
+
     local procedure ActivateFields()
     begin
         IsBuyFromCountyVisible := FormatAddress.UseCounty("Buy-from Country/Region Code");
@@ -2091,8 +2096,13 @@ page 50 "Purchase Order"
 
         case Navigate of
             "Navigate After Posting"::"Posted Document":
-                if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
-                    ShowPostedConfirmationMessage;
+                begin
+                    if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
+                        ShowPostedConfirmationMessage;
+
+                    if IsScheduledPosting or DocumentIsPosted then
+                        CurrPage.Close();
+                end;
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -2179,9 +2189,8 @@ page 50 "Purchase Order"
     local procedure SetDocNoVisible()
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Reminder,FinChMemo;
     begin
-        DocNoVisible := DocumentNoVisibility.PurchaseDocumentNoIsVisible(DocType::Order, "No.");
+        DocNoVisible := DocumentNoVisibility.PurchaseDocumentNoIsVisible("Purchase Document Type"::Order, "No.");
     end;
 
     local procedure SetExtDocNoMandatoryCondition()
@@ -2206,6 +2215,8 @@ page 50 "Purchase Order"
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
 
         WorkflowWebhookMgt.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
+
+        OnAfterSetControlAppearance();
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -2315,6 +2326,16 @@ page 50 "Purchase Order"
 
     [IntegrationEvent(true, false)]
     local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetControlAppearance()
     begin
     end;
 }

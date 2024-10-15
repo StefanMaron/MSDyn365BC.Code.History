@@ -1,4 +1,4 @@
-﻿table 38 "Purchase Header"
+table 38 "Purchase Header"
 {
     Caption = 'Purchase Header';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
@@ -234,7 +234,9 @@
                 Validate("Currency Code");
                 Validate("Creditor No.", Vend."Creditor No.");
 
+#if not CLEAN19
                 OnValidatePurchaseHeaderPayToVendorNo(Vend, Rec);
+#endif
                 OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vend, Rec, xRec);
 
                 if "Document Type" = "Document Type"::Order then
@@ -1300,12 +1302,8 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
-            var
-                IsHandled: Boolean;
             begin
-                IsHandled := false;
-                OnBuyFromPostCodeOnBeforeOnLookup(Rec, IsHandled);
-                if IsHandled then
+                if BuyFromPostCodeOnBeforeLookupHandled() then
                     exit;
 
                 LookupPostCode("Buy-from City", "Buy-from Post Code", "Buy-from County", "Buy-from Country/Region Code", CurrFieldNo);
@@ -2906,13 +2904,13 @@
         ShowDocAlreadyExistNotificationDescriptionTxt: Label 'Warn if purchase document with same external document number already exists.';
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdatePurchLinesByFieldNo instead.';
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
-        StatusCheckSuspended: Boolean;
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         CalledFromWhseDoc: Boolean;
 
     protected var
         HideValidationDialog: Boolean;
+        StatusCheckSuspended: Boolean;
 
     procedure InitInsert()
     var
@@ -3480,7 +3478,7 @@
         end;
     end;
 
-    local procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
+    procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
     var
         SalesLine: Record "Sales Line";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
@@ -4459,6 +4457,14 @@
         OnAfterAddShipToAddress(Rec, SalesHeader, ShowError);
     end;
 
+    local procedure BuyFromPostCodeOnBeforeLookupHandled() IsHandled: Boolean
+    begin
+        OnBeforeBuyFromPostCodeOnBeforeLookupHandled(Rec, PostCode, IsHandled);
+#if not CLEAN19
+        OnBuyFromPostCodeOnBeforeOnLookup(Rec, IsHandled);
+#endif
+    end;
+
     local procedure CopyAddressInfoFromOrderAddress()
     var
         OrderAddr: Record "Order Address";
@@ -4964,23 +4970,15 @@
         exit(PAGE::"Purchase Statistics");
     end;
 
+#if not CLEAN19
+    [Obsolete('Use PageManagement.GetPageID() instead.', '19.0')]
     procedure GetCardpageID(): Integer
+    var
+        PageManagement: Codeunit "Page Management";
     begin
-        case "Document Type" of
-            "Document Type"::Quote:
-                exit(PAGE::"Purchase Quote");
-            "Document Type"::Order:
-                exit(PAGE::"Purchase Order");
-            "Document Type"::Invoice:
-                exit(PAGE::"Purchase Invoice");
-            "Document Type"::"Credit Memo":
-                exit(PAGE::"Purchase Credit Memo");
-            "Document Type"::"Blanket Order":
-                exit(PAGE::"Blanket Purchase Order");
-            "Document Type"::"Return Order":
-                exit(PAGE::"Purchase Return Order");
-        end;
+        exit(PageManagement.GetPageID(Rec));
     end;
+#endif
 
     [IntegrationEvent(TRUE, false)]
     procedure OnCheckPurchasePostRestrictions()
@@ -5934,7 +5932,7 @@
         ReportSelectionsUsage := "Report Selection Usage".FromInteger(ReportUsage);
     end;
 
-    local procedure ValidateEmptySellToCustomerAndLocation()
+    procedure ValidateEmptySellToCustomerAndLocation()
     var
         IsHandled: Boolean;
     begin
@@ -6017,7 +6015,7 @@
         StatusCheckSuspended := Suspend;
     end;
 
-    local procedure UpdateInboundWhseHandlingTime()
+    procedure UpdateInboundWhseHandlingTime()
     begin
         if "Location Code" = '' then begin
             if InvtSetup.Get then
@@ -6213,6 +6211,14 @@
             if Abs(PurchaseLine."Inv. Discount Amount" + PurchaseLine."Prepmt. Line Amount") > Abs(PurchaseLine."Line Amount") then
                 PurchaseLine."Prepmt. Line Amount" := PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount";
         end;
+    end;
+
+    procedure GetUseDate(): Date
+    begin
+        if "Posting Date" = 0D then
+            exit(WorkDate());
+
+        exit("Posting Date");
     end;
 
     [IntegrationEvent(false, false)]
@@ -6430,10 +6436,13 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(TRUE, false)]
+    [Obsolete('Replaced by OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '19.0')]
     procedure OnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
@@ -6447,6 +6456,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBuyFromPostCodeOnBeforeLookupHandled(var PurchaseHeader: Record "Purchase Header"; PostCode: Record "Post Code"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6715,10 +6729,13 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnBeforeBuyFromPostCodeOnBeforeLookupHandled', '19.0')]
     procedure OnBuyFromPostCodeOnBeforeOnLookup(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)

@@ -956,7 +956,6 @@
         Text007: Label 'Purchase VAT settlement: #1######## #2########';
         Text008: Label 'Sales VAT settlement  : #1######## #2########';
         ActivityCode: Record "Activity Code";
-        GLAccSettle: Record "G/L Account";
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
@@ -1042,6 +1041,9 @@
         TotalRemainUnrealAmt: Decimal;
         PeriodInputVATYearInputVAT: Decimal;
         PeriodOutputVATYearOutputVATAdvAmt: Decimal;
+
+    protected var
+        GLAccSettle: Record "G/L Account";
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; NewPosRoundAcc: Code[20]; NewNegRoundAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin

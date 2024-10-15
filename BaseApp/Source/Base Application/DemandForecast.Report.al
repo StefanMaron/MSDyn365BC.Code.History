@@ -10,7 +10,7 @@ report 99003804 "Demand Forecast"
     {
         dataitem("Production Forecast Entry"; "Production Forecast Entry")
         {
-            DataItemTableView = SORTING("Production Forecast Name", "Item No.", "Location Code", "Forecast Date", "Component Forecast");
+            DataItemTableView = SORTING("Production Forecast Name", "Item No.", "Variant Code", "Location Code", "Forecast Date", "Component Forecast");
             RequestFilterFields = "Production Forecast Name", "Item No.", "Forecast Date";
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
@@ -22,6 +22,10 @@ report 99003804 "Demand Forecast"
             {
             }
             column(ItemNo_ForecastEntry; "Item No.")
+            {
+                IncludeCaption = true;
+            }
+            column(VariantCode_ForecastEntry; "Variant Code")
             {
                 IncludeCaption = true;
             }
@@ -103,6 +107,8 @@ report 99003804 "Demand Forecast"
                     SetRange("Document Type", "Document Type"::Order);
                     if MfgSetup."Use Forecast on Locations" then
                         SetRange("Location Code", "Production Forecast Entry"."Location Code");
+                    if MfgSetup."Use Forecast on Variants" then
+                        SetRange("Variant Code", "Production Forecast Entry"."Variant Code");
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -126,6 +132,8 @@ report 99003804 "Demand Forecast"
                 ProdForecastEntry.SetRange("Forecast Date", "Forecast Date");
                 if MfgSetup."Use Forecast on Locations" then
                     ProdForecastEntry.SetRange("Location Code", "Location Code");
+                if MfgSetup."Use Forecast on Variants" then
+                    ProdForecastEntry.SetRange("Variant Code", "Variant Code");
                 Total := 0;
                 repeat
                     Total += ProdForecastEntry."Forecast Quantity";

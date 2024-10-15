@@ -63,12 +63,10 @@ codeunit 137101 "SCM Kitting"
     [Test]
     [Scope('OnPrem')]
     procedure ErrorOnUpdateFixedResourceUsageTypeWithItemType()
-    var
-        BOMComponent: Record "BOM Component";
     begin
         // Setup.
         Initialize;
-        ErrorOnUpdateFixedResourceUsageTypeOnAssemblyBOM(BOMComponent.Type::Item);
+        ErrorOnUpdateFixedResourceUsageTypeOnAssemblyBOM("BOM Component Type"::Item);
     end;
 
     [Test]
@@ -82,7 +80,7 @@ codeunit 137101 "SCM Kitting"
         ErrorOnUpdateFixedResourceUsageTypeOnAssemblyBOM(BOMComponent.Type::" ");
     end;
 
-    local procedure ErrorOnUpdateFixedResourceUsageTypeOnAssemblyBOM(Type: Option)
+    local procedure ErrorOnUpdateFixedResourceUsageTypeOnAssemblyBOM(Type: Enum "BOM Component Type")
     var
         Item: Record Item;
         BOMComponent: Record "BOM Component";
@@ -98,6 +96,7 @@ codeunit 137101 "SCM Kitting"
           StrSubstNo(TypeMustBeError, BOMComponent.Type::Resource, BOMComponent."Parent Item No.", BOMComponent."Line No.", BOMComponent.Type));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostAfterCopyAssemblyBOM()
@@ -151,6 +150,7 @@ codeunit 137101 "SCM Kitting"
               LibraryERM.GetAmountRoundingPrecision, AmountMustBeSame);
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -177,15 +177,13 @@ codeunit 137101 "SCM Kitting"
     [Test]
     [Scope('OnPrem')]
     procedure ErrorOnExplodeAssemblyBOMWithItemType()
-    var
-        BOMComponent: Record "BOM Component";
     begin
         // Setup.
         Initialize;
-        ErrorOnExplodeAssemblyBOM(BOMComponent.Type::Item);
+        ErrorOnExplodeAssemblyBOM("BOM Component Type"::Item);
     end;
 
-    local procedure ErrorOnExplodeAssemblyBOM(Type: Option)
+    local procedure ErrorOnExplodeAssemblyBOM(Type: Enum "BOM Component Type")
     var
         Item: Record Item;
         BOMComponent: Record "BOM Component";
@@ -229,6 +227,7 @@ codeunit 137101 "SCM Kitting"
         VerifyBOMComponentAfterExplodeBOM(Item."No.", Item2."No.", QuantityPer);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostWithResourcePrice()
@@ -277,6 +276,7 @@ codeunit 137101 "SCM Kitting"
               LibraryERM.GetAmountRoundingPrecision, AmountMustBeSame);
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -632,13 +632,14 @@ codeunit 137101 "SCM Kitting"
           AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, AssemblyItem."No.", '', Quantity, '');
 
         // Exercise.
-        LibraryAssembly.DeleteAssemblyLine(AssemblyLine.Type::Item, AssemblyHeader."No.");
-        LibraryAssembly.DeleteAssemblyLine(AssemblyLine.Type::Resource, AssemblyHeader."No.");
+        LibraryAssembly.DeleteAssemblyLine("BOM Component Type"::Item, AssemblyHeader."No.");
+        LibraryAssembly.DeleteAssemblyLine("BOM Component Type"::Resource, AssemblyHeader."No.");
 
         // Verify.
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, StrSubstNo(NothingToPostError));
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure CalculateStandardCostWithSalesDiscount()
@@ -705,6 +706,7 @@ codeunit 137101 "SCM Kitting"
               LibraryERM.GetAmountRoundingPrecision, AmountMustBeSame);
         end;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1558,8 +1560,8 @@ codeunit 137101 "SCM Kitting"
         // Exercise: Create and Post Assembly Order.
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, Item."No.",
           Location.Code, LibraryRandom.RandInt(5), '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, AssemblyLine.Type::Resource, Resource."No.",
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Resource, Resource."No.", true),
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Resource, Resource."No.",
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Resource, Resource."No.", true),
           LibraryRandom.RandInt(5), LibraryRandom.RandInt(5), '');
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, ''); // Last parameter stands for ExpectedError.
 
@@ -2522,6 +2524,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent.Type::Item, AssemblyComponentItem."No.", AssemblyItemNo, '', BOMComponent."Resource Usage Type", Quantity, true);  // Use Base Unit of Measure as True.
     end;
 
+#if not CLEAN19
     local procedure AddItemToAssemblyBOM(Item: Record Item; WithSalesPrice: Boolean)
     var
         BOMComponent: Record "BOM Component";
@@ -2551,6 +2554,7 @@ codeunit 137101 "SCM Kitting"
           BOMComponent.Type::Resource, Resource."No.", Item."No.", '', BOMComponent."Resource Usage Type"::Direct,
           LibraryRandom.RandInt(5), true);  // Use Base Unit of Measure as True and Variant as blank.
     end;
+#endif
 
     local procedure CalculateDateUsingDefaultSafetyLeadTime(): Date
     var
@@ -2659,7 +2663,7 @@ codeunit 137101 "SCM Kitting"
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ItemNo, '', Quantity, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ItemNo2, BaseUnitofMeasure, Quantity, Quantity, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemNo2, BaseUnitofMeasure, Quantity, Quantity, '');
     end;
 
     local procedure CreateAssemblyItemsAndBOMComponentsSetup(var Item: Record Item; var Item2: Record Item; var Item3: Record Item)
@@ -2840,6 +2844,7 @@ codeunit 137101 "SCM Kitting"
         LibraryAssembly.AddEntityDimensions(AssemblyLine.Type::Item, Item."No.");
     end;
 
+#if not CLEAN19
     local procedure CreateItemWithSalesLineDiscount(var Item2: Record Item; Item: Record Item)
     var
         SalesLineDiscount: Record "Sales Line Discount";
@@ -2864,6 +2869,7 @@ codeunit 137101 "SCM Kitting"
         SalesPrice.Validate("Unit Price", Item2."Unit Price" + LibraryRandom.RandDec(100, 2));  // Use Different Sales Price.
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateMultipleStockkeepingUnit(ItemNo: Code[20]; LocationCode: Code[10]; LocationCode2: Code[10])
     var
@@ -3156,10 +3162,10 @@ codeunit 137101 "SCM Kitting"
         AssemblyLine: Record "Assembly Line";
     begin
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, CalculateDateUsingDefaultSafetyLeadTime, ItemNo, '', Quantity, '');
-        LibraryAssembly.DeleteAssemblyLine(AssemblyLine.Type::Item, AssemblyHeader."No.");
+        LibraryAssembly.DeleteAssemblyLine("BOM Component Type"::Item, AssemblyHeader."No.");
     end;
 
-    local procedure ExplodeAssemblyBOM(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Option)
+    local procedure ExplodeAssemblyBOM(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type")
     begin
         FindBOMComponent(BOMComponent, ParentItemNo, Type);
         CODEUNIT.Run(CODEUNIT::"BOM-Explode BOM", BOMComponent);
@@ -3187,7 +3193,7 @@ codeunit 137101 "SCM Kitting"
         AssemblyLine.FindFirst;
     end;
 
-    local procedure FindBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Option)
+    local procedure FindBOMComponent(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type")
     begin
         BOMComponent.SetRange("Parent Item No.", ParentItemNo);
         BOMComponent.SetRange(Type, Type);
@@ -3466,7 +3472,7 @@ codeunit 137101 "SCM Kitting"
         AssemblySetup.Modify(true);
     end;
 
-    local procedure UpdateFixedResourceUsageTypeOnAssemblyBOM(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Option)
+    local procedure UpdateFixedResourceUsageTypeOnAssemblyBOM(var BOMComponent: Record "BOM Component"; ParentItemNo: Code[20]; Type: Enum "BOM Component Type")
     begin
         FindBOMComponent(BOMComponent, ParentItemNo, Type);
         BOMComponent.Validate("Resource Usage Type", BOMComponent."Resource Usage Type"::Fixed);

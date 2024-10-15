@@ -79,7 +79,7 @@ table 458 "Overdue Approval Entry"
         field(15; "Record ID to Approve"; RecordID)
         {
             Caption = 'Record ID to Approve';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

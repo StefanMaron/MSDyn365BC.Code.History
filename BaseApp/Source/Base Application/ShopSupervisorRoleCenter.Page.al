@@ -1,6 +1,6 @@
 page 9012 "Shop Supervisor Role Center"
 {
-    Caption = 'Shop Supervisor - Manufacturing Comprehensive', Comment = '{Dependency=Match,"ProfileDescription_SHOPSUPERVISOR"}';
+    Caption = 'Shop Supervisor - Manufacturing Comprehensive';
     PageType = RoleCenter;
 
     layout

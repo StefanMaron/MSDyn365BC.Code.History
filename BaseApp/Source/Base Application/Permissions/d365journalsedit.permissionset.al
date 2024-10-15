@@ -11,6 +11,7 @@ permissionset 242 "D365 JOURNALS, EDIT"
                   tabledata "Detailed Employee Ledger Entry" = Rm,
                   tabledata "Detailed Vendor Ledg. Entry" = Rm,
                   tabledata "Employee Ledger Entry" = Rm,
+                  tabledata "G/L Account" = R,
                   tabledata "G/L Register" = Rimd,
                   tabledata "Gen. Journal Line" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,

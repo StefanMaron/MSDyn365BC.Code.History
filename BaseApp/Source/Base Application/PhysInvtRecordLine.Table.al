@@ -140,6 +140,24 @@ table 5878 "Phys. Invt. Record Line"
         {
             Caption = 'Unit of Measure';
         }
+        field(33; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(34; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(40; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
@@ -149,6 +167,8 @@ table 5878 "Phys. Invt. Record Line"
             begin
                 GetItem;
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
 
                 Validate(Quantity);
             end;
@@ -169,8 +189,13 @@ table 5878 "Phys. Invt. Record Line"
                         Error(QuantityCannotBeErr);
                 GetPhysInvtRecordHeader;
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
+                "Quantity (Base)" := UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity,
+                    "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)",
+                    FieldCaption("Qty. Rounding Precision"), FieldCaption(Quantity), FieldCaption("Quantity (Base)")
+                );
 
                 CheckSerialNo;
                 Recorded := true;

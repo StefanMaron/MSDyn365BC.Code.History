@@ -25,6 +25,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
         ChangeConfirmMsg: Label 'Do you want';
         CalculateInvoiceDiscountQst: Label 'Do you want to calculate the invoice discount?';
@@ -3831,6 +3832,7 @@ codeunit 134393 "ERM Sales Subform"
         Assert.AreEqual('Line Amount Excl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
     end;
 
+#if not CLEAN18
     [Test]
     [Scope('OnPrem')]
     procedure SalesLineVATCaptionOnChangeBillToCustomerTemplate()
@@ -3857,7 +3859,7 @@ codeunit 134393 "ERM Sales Subform"
         Assert.AreEqual('Unit Price Excl. VAT', SalesLine.FieldCaption("Unit Price"), 'Caption must contain Excl. VAT');
         Assert.AreEqual('Line Amount Excl. VAT', SalesLine.FieldCaption("Line Amount"), 'Caption must contain Excl. VAT');
     end;
-
+#endif
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -3905,6 +3907,510 @@ codeunit 134393 "ERM Sales Subform"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType()
+    var
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderDefaultLineType()
+    var
+        Customer: Record Customer;
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        BlanketSalesOrder.OpenNew();
+        BlanketSalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        BlanketSalesOrder.SalesLines.First();
+        BlanketSalesOrder.SalesLines.Type.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceDefaultLineType()
+    var
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        SalesInvoice.SalesLines.First();
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoDefaultLineType()
+    var
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        SalesCreditMemo.SalesLines.First();
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteDefaultLineType()
+    var
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        SalesQuote.SalesLines.First();
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesRetOrderDefaultLineType()
+    var
+        Customer: Record Customer;
+        SalesReturnOrder: TestPage "Sales Return Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType := SalesLineType::Resource;
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = "Resource"
+        SalesReturnOrder.SalesLines.First();
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        BlanketSalesOrder.OpenNew();
+        BlanketSalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        BlanketSalesOrder.SalesLines.First();
+        BlanketSalesOrder.SalesLines.Type.AssertEquals(SalesLineType);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        SalesInvoice.SalesLines.First();
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        SalesCreditMemo.SalesLines.First();
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        SalesQuote.SalesLines.First();
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesRetOrderDefaultLineType_Empty()
+    var
+        Customer: Record Customer;
+        SalesReturnOrder: TestPage "Sales Return Order";
+        SalesLineType: Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] First sales document line "Type" = "Document Default Line Type" from sales setup when create new sales document
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = " "
+        SalesLineType := SalesLineType::" ";
+        SetDocumentDefaultLineType(SalesLineType);
+
+        // [WHEN] Create new sales document
+        LibrarySales.CreateCustomer(Customer);
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer Name".SetValue(Customer.Name);
+
+        // [THEN] First sales document line "Type" = " "
+        SalesReturnOrder.SalesLines.First();
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals('Comment');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        SalesOrder: TestPage "Sales Order";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesOrder.SalesLines.First();
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        SalesOrder.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        SalesOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlanketSalesOrderDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        BlanketSalesOrder: TestPage "Blanket Sales Order";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        BlanketSalesOrder.OpenNew();
+        BlanketSalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
+        BlanketSalesOrder.SalesLines.First();
+        BlanketSalesOrder.SalesLines.Type.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        BlanketSalesOrder.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        BlanketSalesOrder.SalesLines.Type.AssertEquals(SalesLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesQuoteDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        SalesQuote: TestPage "Sales Quote";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        SalesQuote.OpenNew();
+        SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesQuote.SalesLines.First();
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        SalesQuote.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        SalesQuote.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        SalesInvoice: TestPage "Sales Invoice";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        SalesInvoice.OpenNew();
+        SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesInvoice.SalesLines.First();
+        SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        SalesInvoice.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        SalesInvoice.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesCrMemoDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        SalesCreditMemo.OpenNew();
+        SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesCreditMemo.SalesLines.First();
+        SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        SalesCreditMemo.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesRetOrderDefaultLineType_SecondLine()
+    var
+        Customer: Record Customer;
+        SalesReturnOrder: TestPage "Sales Return Order";
+        SalesLineType: array[2] of Enum "Sales Line Type";
+    begin
+        // [SCENARIO 326906] Sales document SECOND line "Type" = xRec.Type, without any dependency on the "Document Default Line Type" from sales setup
+        Initialize();
+        LibraryApplicationArea.EnableEssentialSetup();
+
+        // [GIVEN] Sales & receivables setup "Document Default Line Type" = "Resource"
+        SalesLineType[1] := SalesLineType[1] ::Resource;
+        SetDocumentDefaultLineType(SalesLineType[1]);
+
+        // [GIVEN] New sales document with first line "Type" = "G/L Account"
+        SalesLineType[2] := SalesLineType[2] ::"G/L Account";
+        LibrarySales.CreateCustomer(Customer);
+        SalesReturnOrder.OpenNew();
+        SalesReturnOrder."Sell-to Customer Name".SetValue(Customer.Name);
+        SalesReturnOrder.SalesLines.First();
+        SalesReturnOrder.SalesLines.FilteredTypeField.SetValue(SalesLineType[2]);
+        Commit();
+
+        // [WHEN] Create sales document second line
+        SalesReturnOrder.SalesLines.New();
+
+        // [THEN] Sales document second line "Type" = "G/L Account"
+        SalesReturnOrder.SalesLines.FilteredTypeField.AssertEquals(SalesLineType[2]);
+    end;
+
     local procedure Initialize()
     var
         SalesHeader: Record "Sales Header";
@@ -3915,6 +4421,7 @@ codeunit 134393 "ERM Sales Subform"
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -4461,6 +4968,7 @@ codeunit 134393 "ERM Sales Subform"
         exit(Customer."No.");
     end;
 
+#if not CLEAN18
     local procedure CreateCustomerTemplateCodePricesIncludingVAT(PricesIncludingVAT: Boolean): Code[10]
     var
         CustomerTemplate: Record "Customer Template";
@@ -4473,7 +4981,7 @@ codeunit 134393 "ERM Sales Subform"
         CustomerTemplate.Modify(true);
         exit(CustomerTemplate.Code);
     end;
-
+#endif
     local procedure CreateGLAccountForInvoiceRounding(CustomerPostingGroupCode: Code[20]): Code[20]
     var
         CustomerPostingGroup: Record "Customer Posting Group";
@@ -4795,6 +5303,15 @@ codeunit 134393 "ERM Sales Subform"
     local procedure AnswerYesToAllConfirmDialogs()
     begin
         AnswerYesToConfirmDialogs(10);
+    end;
+
+    local procedure SetDocumentDefaultLineType(SalesLineType: Enum "Sales Line Type")
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Document Default Line Type" := SalesLineType;
+        SalesReceivablesSetup.Modify();
     end;
 
     [ConfirmHandler]

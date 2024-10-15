@@ -41,7 +41,7 @@ table 474 "Job Queue Log Entry"
         }
         field(8; "Object Caption to Run"; Text[250])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("Object Type to Run"),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = FIELD("Object Type to Run"),
                                                                            "Object ID" = FIELD("Object ID to Run")));
             Caption = 'Object Caption to Run';
             FieldClass = FlowField;
@@ -111,6 +111,11 @@ table 474 "Job Queue Log Entry"
         {
             Caption = 'XML';
         }
+        field(22; "System Task Id"; Guid)
+        {
+            Caption = 'System Task Id';
+            DataClassification = SystemMetadata;
+        }
     }
 
     keys
@@ -123,6 +128,9 @@ table 474 "Job Queue Log Entry"
         {
         }
         key(Key3; "Start Date/Time", ID)
+        {
+        }
+        key(Key4; Status)
         {
         }
     }

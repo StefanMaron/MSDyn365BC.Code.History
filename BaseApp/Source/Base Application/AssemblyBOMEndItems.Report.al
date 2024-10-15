@@ -11,7 +11,7 @@ report 812 "Assembly BOM - End Items"
     {
         dataitem(Item; Item)
         {
-            RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.";
+            RequestFilterFields = "No.", "Base Unit of Measure", "Shelf No.", "Assembly BOM";
             column(CompanyName; COMPANYPROPERTY.DisplayName)
             {
             }

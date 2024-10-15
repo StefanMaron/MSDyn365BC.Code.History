@@ -24,6 +24,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ExistErr: Label '%1 for %2 %3 must not exist.';
         SalesCycleCode: Code[10];
@@ -65,7 +66,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // Covers document number TC0021 - refer to TFS ID 21735.
         // Test Opportunity values with Sales Cycle of Probability Calculation Add.
-
+        Initialize();
         SalesCycleProbability(SalesCycle."Probability Calculation"::Add);
     end;
 
@@ -78,7 +79,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // Covers document number TC0021 - refer to TFS ID 21735.
         // Test Opportunity values with Sales Cycle of Probability Calculation Chances of Success %.
-
+        Initialize();
         SalesCycleProbability(SalesCycle."Probability Calculation"::"Chances of Success %");
     end;
 
@@ -91,7 +92,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // Covers document number TC0021 - refer to TFS ID 21735.
         // Test Opportunity values with Sales Cycle of Probability Calculation Completed %.
-
+        Initialize();
         SalesCycleProbability(SalesCycle."Probability Calculation"::"Completed %");
     end;
 
@@ -103,6 +104,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     begin
         // 1. Setup: Create Contact, Sales Cycle, Sales Cycle Stage, update Probability Calculation as per parameter create Opportunity
         // for Contact.
+        Initialize();
         CreateContactWithSalesCycle(SalesCycleStage, Contact);
         SalesCycle.Get(SalesCycleStage."Sales Cycle Code");
         SalesCycle.Validate("Probability Calculation", ProbabilityCalculation);
@@ -839,7 +841,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Contact: Record Contact;
         OpportunityCard: TestPage "Opportunity Card";
         SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         ActionOption: Option LookupOK,Cancel;
     begin
         // [SCENARIO 180155] Create Sales Quote from Opportunity with a new Customer using Customer Template selection.
@@ -861,7 +863,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // [THEN] Sales Quote with a new Customer and "Sell-to Customer Template Code" = "CT" is created
         SalesQuote."Sell-to Contact No.".AssertEquals(Contact."No.");
-        SalesQuote."Sell-to Customer Template Code".AssertEquals(CustomerTemplateCode);
+        SalesQuote."Sell-to Customer Templ. Code".AssertEquals(CustomerTemplateCode);
         Customer.Get(SalesQuote."Sell-to Customer No.");
         Customer.TestField(Name, Contact."Company Name");
         SalesQuote.Close;
@@ -874,7 +876,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
     var
         OpportunityCard: TestPage "Opportunity Card";
         SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         ContactNo: Code[20];
         ActionOption: Option LookupOK,Cancel;
     begin
@@ -900,7 +902,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [THEN] Sales Quote with Sell-to Customer Template Code "CT" is created and new Customer is not created
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
-        SalesQuote."Sell-to Customer Template Code".AssertEquals(CustomerTemplateCode);
+        SalesQuote."Sell-to Customer Templ. Code".AssertEquals(CustomerTemplateCode);
         SalesQuote.Close;
     end;
 
@@ -933,7 +935,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [THEN] Sales Quote is created based on Contact without a new Customer and without a Customer Template
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
-        SalesQuote."Sell-to Customer Template Code".AssertEquals('');
+        SalesQuote."Sell-to Customer Templ. Code".AssertEquals('');
         SalesQuote.Close;
     end;
 
@@ -963,7 +965,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         // [THEN] Sales Quote is created based on Contact without a new Customer and without a Customer Template
         SalesQuote."Sell-to Contact No.".AssertEquals(ContactNo);
         SalesQuote."Sell-to Customer No.".AssertEquals('');
-        SalesQuote."Sell-to Customer Template Code".AssertEquals('');
+        SalesQuote."Sell-to Customer Templ. Code".AssertEquals('');
         SalesQuote.Close;
     end;
 
@@ -1006,7 +1008,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         VATPostingSetup: Record "VAT Posting Setup";
         OpportunityCard: TestPage "Opportunity Card";
         SalesQuote: TestPage "Sales Quote";
-        CustomerTemplateCode: Code[10];
+        CustomerTemplateCode: Code[20];
         ContactNo: Code[20];
         ActionOption: Option LookupOK,Cancel;
     begin
@@ -1676,6 +1678,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Marketing Opportunity Mgmt");
 
+        LibraryTemplates.EnableTemplatesFeature();
         LibraryApplicationArea.EnableRelationshipMgtSetup;
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
@@ -1790,14 +1793,14 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         Contact.Modify(true);
     end;
 
-    local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[10]
+    local procedure CreateCustomerTemplateForContact(VATBusPostingGroupCode: Code[20]): Code[20]
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         GenBusPostingGroup: Record "Gen. Business Posting Group";
         CustomerPostingGroup: Record "Customer Posting Group";
         PaymentTerms: Record "Payment Terms";
     begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         LibraryERM.CreateGenBusPostingGroup(GenBusPostingGroup);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
@@ -2264,9 +2267,9 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: Page "Customer Template List"; var Reply: Action)
+    procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         ActionOption: Option LookupOK,Cancel;
     begin
         case LibraryVariableStorage.DequeueInteger of

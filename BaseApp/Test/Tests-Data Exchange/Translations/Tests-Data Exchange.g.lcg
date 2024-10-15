@@ -421,7 +421,7 @@
   </Item>
   <Item ItemId=";Codeunit 3855974689 - NamedType 172904652" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Cannot find item '%1' based on the vendor %2 item number %3 on the incoming document. Make sure that a card for the item exists with the corresponding item cross reference.]]></Val>
+      <Val><![CDATA[Cannot find item '%1' based on the vendor %2 item number %3 on the incoming document. Make sure that a card for the item exists with the corresponding item reference.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

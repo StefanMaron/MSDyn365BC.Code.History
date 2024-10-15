@@ -1,4 +1,4 @@
-﻿table 5902 "Service Line"
+table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -268,9 +268,9 @@
                             Error(Text026, FieldCaption(Quantity));
                 end;
 
-                "Quantity (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 if "Document Type" <> "Document Type"::"Credit Memo" then begin
                     if (Quantity * "Quantity Shipped" < 0) or
                        ((Abs(Quantity) < Abs("Quantity Shipped")) and ("Shipment No." = ''))
@@ -350,12 +350,13 @@
 
                 if "Qty. to Invoice" = MaxQtyToInvoice then
                     InitQtyToInvoice
-                else
-                    "Qty. to Invoice (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Invoice", "Qty. per Unit of Measure");
+                else begin
+                    "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
+                end;
                 if ("Qty. to Invoice" * Quantity < 0) or
-                   (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
-                then
+               (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice))
+            then
                     Error(
                       Text000,
                       MaxQtyToInvoice);
@@ -396,16 +397,18 @@
                 if "Qty. to Ship" = "Outstanding Quantity" then begin
                     if not LineRequiresShipmentOrReceipt then
                         InitQtyToShip
-                    else
-                        "Qty. to Ship (Base)" :=
-                            UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                    else begin
+                        "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
+                        UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+                    end;
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
                         Validate("Qty. to Consume", 0);
                 end else begin
-                    "Qty. to Ship (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
+                    "Qty. to Ship (Base)" := CalcBaseQty("Qty. to Ship", FieldCaption("Qty. to Ship"), FieldCaption("Qty. to Ship (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
+
                     if "Qty. to Consume" <> 0 then
                         Validate("Qty. to Consume", "Qty. to Ship")
                     else
@@ -1345,9 +1348,7 @@
                             "Job Remaining Qty." := 0;
                     end;
                 end;
-                "Job Remaining Qty. (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Job Remaining Qty.", "Qty. per Unit of Measure");
-
+                "Job Remaining Qty. (Base)" := CalcBaseQty("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"));
                 UpdateRemainingCostsAndAmounts;
             end;
         }
@@ -1554,6 +1555,9 @@
                             "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                             "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
                             "Units per Parcel" := Round(Item."Units per Parcel" / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                            "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                            "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
                             if "Qty. per Unit of Measure" > xRec."Qty. per Unit of Measure" then
                                 InitItemAppl(false);
                         end;
@@ -1581,6 +1585,24 @@
                 CheckItemAvailable(FieldNo("Unit of Measure Code"));
                 UpdateReservation(FieldNo("Unit of Measure Code"));
             end;
+        }
+        field(5408; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(5409; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
         }
         field(5415; "Quantity (Base)"; Decimal)
         {
@@ -2031,14 +2053,16 @@
                 if "Qty. to Consume" = MaxQtyToConsume then
                     InitQtyToConsume
                 else begin
-                    "Qty. to Consume (Base)" :=
-                        UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Consume", "Qty. per Unit of Measure");
+                    "Qty. to Consume (Base)" := CalcBaseQty("Qty. to Consume", FieldCaption("Qty. to Consume"), FieldCaption("Qty. to Consume (Base)"));
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Consume", "Qty. to Consume (Base)", "Quantity Consumed", "Qty. Consumed (Base)");
+
                     InitQtyToInvoice;
                 end;
 
                 if "Qty. to Consume" > 0 then begin
                     "Qty. to Ship" := "Qty. to Consume";
                     "Qty. to Ship (Base)" := "Qty. to Consume (Base)";
+                    UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Ship", "Qty. to Ship (Base)", "Quantity Shipped", "Qty. Shipped (Base)");
                     "Qty. to Invoice" := 0;
                     "Qty. to Invoice (Base)" := 0;
                 end;
@@ -2510,8 +2534,7 @@
 
             trigger OnValidate()
             begin
-                "Qty. Picked (Base)" :=
-                    UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. Picked", "Qty. per Unit of Measure");
+                "Qty. Picked (Base)" := CalcBaseQty("Qty. Picked", FieldCaption("Qty. Picked"), FieldCaption("Qty. Picked (Base)"));
                 "Completely Picked" := "Qty. Picked" >= 0;
             end;
         }
@@ -3516,7 +3539,7 @@
         end;
     end;
 
-    local procedure ClearFields()
+    protected procedure ClearFields()
     var
         TempServLine: Record "Service Line" temporary;
     begin
@@ -3571,17 +3594,6 @@
         end;
 
         OnAfterShowNonstock(Rec);
-    end;
-
-    local procedure TestConfigTemplateLineField(ItemTemplateCode: Code[10]; FieldNo: Integer)
-    var
-        ConfigTemplateLine: Record "Config. Template Line";
-    begin
-        ConfigTemplateLine.SetRange("Data Template Code", ItemTemplateCode);
-        ConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateLine.SetRange("Field ID", FieldNo);
-        ConfigTemplateLine.FindFirst;
-        ConfigTemplateLine.TestField("Default Value");
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -4031,27 +4043,14 @@
         exit(not ReservEntry.IsEmpty);
     end;
 
-#if not CLEAN16
-    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
-    procedure FindResUnitCost()
-    var
-        ResCost: Record "Resource Cost";
-    begin
-        ResCost.Init();
-        ResCost.Code := "No.";
-        ResCost."Work Type Code" := "Work Type Code";
-        CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
-        OnAfterResourseFindCost(Rec, ResCost);
-        Validate("Unit Cost (LCY)", ResCost."Unit Cost" * "Qty. per Unit of Measure");
-    end;
-#endif
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourseFindCost(var ResourceCost: Record "Resource Cost");
     begin
         OnAfterResourseFindCost(Rec, ResourceCost);
     end;
-
+#endif
     procedure InitOutstanding()
     begin
         if "Document Type" = "Document Type"::"Credit Memo" then begin
@@ -5002,12 +5001,12 @@
 
         if ("Contract No." <> '') and (Type <> Type::" ") and not DeleteRecord then begin
             if "Document Type" = "Document Type"::Invoice then
-                ServDocReg.InsertServSalesDocument(
+                ServDocReg.InsertServiceSalesDocument(
                   ServDocReg."Source Document Type"::Contract, "Contract No.",
                   ServDocReg."Destination Document Type"::Invoice, "Document No.")
             else
                 if "Document Type" = "Document Type"::"Credit Memo" then
-                    ServDocReg.InsertServSalesDocument(
+                    ServDocReg.InsertServiceSalesDocument(
                       ServDocReg."Source Document Type"::Contract, "Contract No.",
                       ServDocReg."Destination Document Type"::"Credit Memo", "Document No.")
         end;
@@ -5609,37 +5608,18 @@
     local procedure CheckNonstockItemTemplate(NonstockItem: Record "Nonstock Item")
     var
         ItemTempl: Record "Item Templ.";
-#if not CLEAN18
-        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
-#endif
     begin
-#if not CLEAN18
-        if not ItemTemplMgt.IsEnabled() then begin
-            CheckNonstockOldItemTemplate(NonstockItem);
-            exit;
-        end;
-#endif
         ItemTempl.Get(NonstockItem."Item Templ. Code");
         ItemTempl.TestField("Gen. Prod. Posting Group");
         ItemTempl.TestField("Inventory Posting Group");
     end;
 
-#if not CLEAN18
-    local procedure CheckNonstockOldItemTemplate(NonstockItem: Record "Nonstock Item")
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-        ItemTemplate: Record "Item Template";
-    begin
-        NonstockItem.TestField("Item Template Code");
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Item);
-        ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
-        ConfigTemplateHeader.SetRange(Enabled, true);
-        ConfigTemplateHeader.FindFirst;
 
-        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Gen. Prod. Posting Group"));
-        TestConfigTemplateLineField(NonstockItem."Item Template Code", ItemTemplate.FieldNo("Inventory Posting Group"));
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignHeaderValues(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
@@ -5736,12 +5716,13 @@
     begin
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin

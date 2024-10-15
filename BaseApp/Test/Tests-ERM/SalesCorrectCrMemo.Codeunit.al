@@ -23,6 +23,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         LibraryFixedAsset: Codeunit "Library - Fixed Asset";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         NoSerieSalesCode: Code[20];
         IsInitialized: Boolean;
         BlockedCustomerErr: Label 'You cannot cancel this posted sales credit memo because customer %1 is blocked.', Comment = '%1 = Customer No.';
@@ -38,7 +39,6 @@ codeunit 137026 "Sales Correct Cr. Memo"
         InvRoundingLineDoesNotExistErr: Label 'Invoice rounding line does not exist.';
         FixedAssetNotPossibleToCreateCreditMemoErr: Label 'You cannot cancel this posted sales invoice because it contains lines of type Fixed Asset.\\Use the Cancel Entries function in the FA Ledger Entries window instead.';
         DirectPostingErr: Label 'G/L account %1 does not allow direct posting.', Comment = '%1 - g/l account no.';
-        COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -967,9 +967,11 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Commit();
 
         asserterror CancelPostedSalesCrMemo.TestCorrectCrMemoIsAllowed(SalesCrMemoHeader);
-        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError(
-          StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
+            LibraryErrorMessage.GetMissingAccountErrorMessage(
+                GeneralPostingSetup.FieldCaption("COGS Account"),
+                GeneralPostingSetup.TableCaption()));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
     end;

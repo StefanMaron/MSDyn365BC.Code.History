@@ -386,7 +386,7 @@ codeunit 137010 "SCM Revaluation"
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever;
-        LibraryInventory.SetAverageCostSetup(AverageCostCalcType::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         InventoryPostingGroupRec.FindFirst;

@@ -11,7 +11,6 @@ codeunit 12152 SubcontractingManagement
         RoutingLinkUpdConfQst: Label 'If you change the Work Center, you will also change the default location for components with Routing Link Code=%1.\Do you want to continue anyway?';
         SuccessfullyUpdatedMsg: Label 'Successfully updated.';
 
-    [Scope('OnPrem')]
     procedure GetSubcontractor(WorkCenterNo: Code[20]; var Vendor: Record Vendor): Boolean
     var
         WorkCenter: Record "Work Center";
@@ -26,7 +25,6 @@ codeunit 12152 SubcontractingManagement
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure GetConsLocation(var ProdOrdComponent: Record "Prod. Order Component"; LocationCode: Code[10]): Code[10]
     var
         ProdOrderLine: Record "Prod. Order Line";
@@ -63,7 +61,6 @@ codeunit 12152 SubcontractingManagement
         exit(LocationCode);
     end;
 
-    [Scope('OnPrem')]
     procedure FindSubcOrder(ProdOrdRoutLine: Record "Prod. Order Routing Line"; var PurchLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"): Boolean
     begin
         PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.",
@@ -81,7 +78,6 @@ codeunit 12152 SubcontractingManagement
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure UpdLinkedComponents(ProdOrdRoutingLine: Record "Prod. Order Routing Line"; ShowMsg: Boolean)
     var
         ProdOrdComponent: Record "Prod. Order Component";
@@ -127,7 +123,6 @@ codeunit 12152 SubcontractingManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure DelLocationLinkedComponents(ProdOrdRoutingLine: Record "Prod. Order Routing Line"; ShowMsg: Boolean)
     var
         ProdOrdComponent: Record "Prod. Order Component";
@@ -160,7 +155,6 @@ codeunit 12152 SubcontractingManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckVendorVsWorkCenter(ReqLine: Record "Requisition Line"; Vendor: Record Vendor; ShowMsg: Boolean)
     var
         ProdOrdLine: Record "Prod. Order Line";
@@ -200,7 +194,6 @@ codeunit 12152 SubcontractingManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CalculateHeaderValue(var TransHeader: Record "Transfer Header")
     var
         TransLine: Record "Transfer Line";
@@ -249,11 +242,11 @@ codeunit 12152 SubcontractingManagement
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure TransfSUBOrdCompToSUBTransfOrd(TransferLine: Record "Transfer Line"; ProdOrderComponent: Record "Prod. Order Component")
     var
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
+        TrackingSpecification: Record "Tracking Specification";
         Item: Record Item;
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         ReservMgt: Codeunit "Reservation Management";
@@ -268,12 +261,12 @@ codeunit 12152 SubcontractingManagement
                 TempReservEntry.Insert();
             until ReservEntry.Next() = 0;
 
-        ReservMgt.SetProdOrderComponent(ProdOrderComponent);
+        ReservMgt.SetReservSource(ProdOrderComponent);
         ReservMgt.SetItemTrackingHandling(1); // allow deletion
         ReservMgt.DeleteReservEntries(true, 0);
         Clear(ReservMgt);
 
-        if TempReservEntry.FindSet then
+        if TempReservEntry.FindSet() then
             repeat
                 if Item.Get(TempReservEntry."Item No.") then begin
                     CreateReservEntry.CreateReservEntryFor(
@@ -281,13 +274,11 @@ codeunit 12152 SubcontractingManagement
                       TransferLine."Document No.", TempReservEntry."Source Batch Name",
                       TransferLine."Derived From Line No.", TransferLine."Line No.",
                       TransferLine."Qty. per Unit of Measure", -TempReservEntry.Quantity, -TempReservEntry."Quantity (Base)",
-                      TempReservEntry."Serial No.", TempReservEntry."Lot No.");
-                    CreateReservEntry.CreateReservEntryFrom(
-                      DATABASE::"Prod. Order Component", 3,
-                      ProdOrderComponent."Prod. Order No.", TempReservEntry."Source Batch Name",
-                      ProdOrderComponent."Prod. Order Line No.", ProdOrderComponent."Line No.",
-                      ProdOrderComponent."Qty. per Unit of Measure",
-                      TempReservEntry."Serial No.", TempReservEntry."Lot No.");
+                      TempReservEntry);
+                    TrackingSpecification.InitFromProdOrderComp(ProdOrderComponent);
+                    TrackingSpecification."Source Subtype" := "Production Order Status"::Released.AsInteger();
+                    TrackingSpecification.CopyTrackingFromReservEntry(TempReservEntry);
+                    CreateReservEntry.CreateReservEntryFrom(TrackingSpecification);
                     CreateReservEntry.CreateEntry(
                       TempReservEntry."Item No.", TempReservEntry."Variant Code",
                       TransferLine."Transfer-to Code", TempReservEntry.Description,

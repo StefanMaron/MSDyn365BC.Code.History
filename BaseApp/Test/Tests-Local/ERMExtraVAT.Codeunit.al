@@ -804,39 +804,6 @@ codeunit 144078 "ERM Extra VAT"
     end;
 
     [Test]
-    [HandlerFunctions('OrderConfirmationRequestPageHandler,ConfirmHandler')]
-    [Scope('OnPrem')]
-    procedure VATPrepmtAmtAndYourReferenceOnOrderConfirmationRpt()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesLine: Record "Sales Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        PrepmtAmountIncludingVAT: Decimal;
-    begin
-        // Verify Prepayment VAT Fields and Your Reference Field on Order Confirmation Report.
-
-        // Setup: Update General Ledger Setup and create Sales Order.
-        Initialize;
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        UpdatePrintVATSpecificationInLCYOnGLSetup(true);
-        FindVATPostingSetupWithSalesPrepmtAccount(VATPostingSetup);
-        CreateSalesDocument(SalesLine, VATPostingSetup, SalesHeader."Document Type"::Order, '', '', true);  // Using blank value for Payment Terms Code and Currency Code. True for Prices Including VAT.
-        UpdateSalesOrder(SalesLine, VATPostingSetup."VAT Bus. Posting Group");
-        PrepmtAmountIncludingVAT :=
-          Round(SalesLine."Prepmt. Line Amount" + (SalesLine."Prepmt. Line Amount" * SalesLine."Prepayment VAT %" / 100));
-        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesLine."Document No.");
-
-        // Exercise.
-        RunOrderConfirmationReport(SalesLine."Document No.");
-
-        // Verify: Prepayment VAT Amount Fields and Your Reference Field on Order Confirmation Report.
-        VerifyValuesOnOrderConfirmationReport(
-          SalesHeader."Your Reference", PrepmtAmountIncludingVAT, PrepmtAmountIncludingVAT - SalesLine."Prepmt. Line Amount",
-          SalesLine."Prepmt. Line Amount");
-    end;
-
-    [Test]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithUnrealizedVAT()
     var
@@ -1957,13 +1924,6 @@ codeunit 144078 "ERM Extra VAT"
           CurrencyCode, Format(LibraryRandom.RandInt(100)), LibraryERM.CreateGLAccountWithSalesSetup);
     end;
 
-    local procedure RunOrderConfirmationReport(DocumentNo: Code[20])
-    begin
-        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue value for OrderConfirmationRequestPageHandler.
-        Commit();  // COMMIT is required to run Order Confirmation Report.
-        REPORT.Run(REPORT::"Order Confirmation");
-    end;
-
     local procedure SalesDocumentApplyAndUnApply(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AmountIncludingVAT: Decimal; Base: Decimal; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         DocumentNo: Code[20];
@@ -2653,17 +2613,6 @@ codeunit 144078 "ERM Extra VAT"
         // "Document No." = "Pay3Part3", "Base" = 1800, "Amount" = 360, "Unrealized VAT Entry No." = 2
         // "Document No." = "Pay3Part3", "Base" = 2700, "Amount" = 540, "Unrealized VAT Entry No." = 3
         VerifyThreeVendRealizedVATEntry(UnrealizedVATEntryNo, VendorNo, ThirdPartPaymentNo[3], PurchaseLine, Part[3] * Part[3]);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        OrderConfirmation."Sales Header".SetFilter("No.", No);
-        OrderConfirmation.SaveAsXml(LibraryReportDataSet.GetParametersFileName, LibraryReportDataSet.GetFileName);
     end;
 
     [ModalPageHandler]

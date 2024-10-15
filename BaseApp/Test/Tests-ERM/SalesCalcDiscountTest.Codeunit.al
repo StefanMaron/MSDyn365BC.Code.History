@@ -370,9 +370,11 @@ codeunit 132522 "Sales-Calc. Discount Test"
         SalesHeader.Modify(true);
 
         // PATTERN: Generate Value
-        Item.SetRange("Allow Invoice Disc.", true);
-        Item.SetFilter("Unit Price", '>0');
-        Item.Next(LibraryRandom.RandInt(Item.Count));
+        LibraryInventory.CreateItemWithoutVAT(Item);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Unit Cost", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Allow Invoice Disc.", true);
+        Item.Modify(true);
 
         SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");

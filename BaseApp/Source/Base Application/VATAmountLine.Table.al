@@ -334,7 +334,6 @@
     var
         IsHandled: Boolean;
     begin
-        IsHandled := false;
         OnBeforeGetTotalVATAmount(Rec, VATAmount, IsHandled);
         if IsHandled then
             exit(VATAmount);

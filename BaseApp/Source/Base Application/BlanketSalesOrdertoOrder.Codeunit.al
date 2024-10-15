@@ -181,8 +181,6 @@ codeunit 87 "Blanket Sales Order to Order"
         Text002: Label 'There is nothing to create.';
         Text003: Label 'Full automatic reservation was not possible.\Reserve items manually?';
         Text1130000: Label '%1 cannot be greater than %2.', Comment = '%1 = Document Date; %2 = Posting Date';
-
-    protected var
         HideValidationDialog: Boolean;
 
     local procedure SalesOrderLineValidateQuantity(var SalesOrderLine: Record "Sales Line"; BlanketOrderSalesLine: Record "Sales Line")

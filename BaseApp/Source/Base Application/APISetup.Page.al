@@ -169,6 +169,9 @@ page 5469 "API Setup"
                 Image = Setup;
                 Promoted = false;
                 ToolTip = 'Updates reason codes of the records that are used by the salesCreditMemos API';
+                ObsoleteReason = 'This action will be removed together with the upgrade code.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
 
                 trigger OnAction()
                 var

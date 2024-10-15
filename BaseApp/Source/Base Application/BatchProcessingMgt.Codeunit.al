@@ -1,4 +1,4 @@
-﻿codeunit 1380 "Batch Processing Mgt."
+codeunit 1380 "Batch Processing Mgt."
 {
     Permissions = TableData "Batch Processing Parameter" = rimd,
                   TableData "Batch Processing Session Map" = rimd;
@@ -75,9 +75,10 @@
             if GuiAllowed then begin
                 Window.Close;
                 if not IsHandled then
-                    if (CounterPosted <> CounterTotal) and not FullBatchProcessed then
-                        ErrorMessageHandler.NotifyAboutErrors
-                    else
+                    if (CounterPosted <> CounterTotal) and not FullBatchProcessed then begin
+                        ErrorMessageHandler.NotifyAboutErrors();
+                        ErrorMessageMgt.PopContext(ErrorContextElement);
+                    end else
                         Message(BatchCompletedMsg);
             end;
         end;
@@ -101,7 +102,7 @@
         exit(Result);
     end;
 
-    local procedure FillBatchProcessingMap(var RecRef: RecordRef)
+    procedure FillBatchProcessingMap(var RecRef: RecordRef)
     begin
         with RecRef do begin
             FindSet();
@@ -160,6 +161,7 @@
         if not Result then
             if GetLastErrorText <> '' then begin
                 ErrorMessageMgt.LogError(RecVar, GetLastErrorText, '');
+                ErrorMessageMgt.PopContext(ErrorContextElement);
                 ClearLastError;
             end;
 

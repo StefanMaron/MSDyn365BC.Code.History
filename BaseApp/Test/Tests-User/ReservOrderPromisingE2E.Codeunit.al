@@ -23,7 +23,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,ConfigTemplatesModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
+    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure CreateReservationAndOrderPromisingAsBusinessManager()
     var
@@ -75,7 +75,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,ConfigTemplatesModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
+    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure CreateReservationAndOrderPromisingAsAccountant()
     var
@@ -127,7 +127,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     end;
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,ConfigTemplatesModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
+    [HandlerFunctions('StrMenuHandler,ReservationModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,OrderPromisingLinesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure CreateReservationAndOrderPromisingAsTeamMember()
     var
@@ -235,7 +235,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         LibrarySales.SetCreditWarningsToNoWarnings;
@@ -247,6 +247,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryTemplates.UpdateTemplatesVATGroups();
 
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
 
@@ -443,10 +444,26 @@ codeunit 135415 "Reserv. & Order Promising E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

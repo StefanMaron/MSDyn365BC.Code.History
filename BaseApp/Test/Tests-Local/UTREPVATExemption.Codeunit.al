@@ -239,163 +239,6 @@ codeunit 144073 "UT REP VAT Exemption"
     end;
 
     [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordYourReferenceSalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordBlankYourReferenceSalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo(CreateCurrency, '', LibraryUTUtility.GetNewCode);  // Blank Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordVATRegNoSalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordBlankVATRegNoSalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, '');  // Your Reference and blank VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithCurrencySalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithoutCurrencySalesCreditMemo()
-    begin
-        // Purpose of the test is to validate Sales Credit Memo Header - OnAfterGetRecord Trigger of Report ID - 207 Sales - Credit Memo.
-        OnAfterGetRecordSalesCreditMemo('', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Currency code, Your Reference and VAT Registration Number.
-    end;
-
-    local procedure OnAfterGetRecordSalesCreditMemo(CurrencyCode: Code[10]; YourReference: Code[20]; VATRegistrationNumber: Code[20])
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        VATExemption: Record "VAT Exemption";
-        VATExemptionNumber: Code[20];
-    begin
-        // Setup: Create Sales Credit Memo and VAT Exemption.
-        Initialize;
-        CreateSalesCreditMemoHeader(SalesCrMemoHeader, CurrencyCode, YourReference, VATRegistrationNumber);
-        CreateSalesCreditMemoLine(SalesCrMemoHeader."No.");
-        VATExemptionNumber :=
-          CreateVATExemption(VATExemption.Type::Customer, SalesCrMemoHeader."Sell-to Customer No.", false, WorkDate);  // Printed as False and VAT Exempt Int. Registry Date - Workdate.
-        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");  // Enqueue value in handler - SalesCreditMemoRequestPageHandler.
-        Commit();  // Transaction Model Type Auto Commit is required as Commit is explicitly using on OnRun Trigger of Codeunit - 5904 Service Cr. Memo-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Credit Memo");  // Opens handler - SalesCreditMemoRequestPageHandler.
-
-        // Verify: Verify Sales Credit Memo Header - Currency Code, VAT Registration No, Your Reference and VAT Exemption Number on genereted XML of Report Sales - Credit Memo.
-        VerifyDocumentDetailAndVATExemptionOnReport(
-          SalesCrMemoHeader."Currency Code", SalesCrMemoHeaderVATRegNoCap, SalesCrMemoHeader."VAT Registration No.",
-          SalesCrMemoHeaderYourRefCap, SalesCrMemoHeader."Your Reference", VATExemptionNumber);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordYourReferenceSalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordBlankYourReferenceSalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice(CreateCurrency, '', LibraryUTUtility.GetNewCode);  // Blank Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordVATRegNoSalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordBlankVATRegNoSalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, '');  // Your Reference and blank VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithCurrencySalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice(CreateCurrency, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Your Reference and VAT Registration Number.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordWithoutCurrencySalesInvoice()
-    begin
-        // Purpose of the test is to validate Sales Invoice Header - OnAfterGetRecord Trigger of Report ID - 206 Sales - Invoice.
-        OnAfterGetRecordSalesInvoice('', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Currency code, Your Reference and VAT Registration Number.
-    end;
-
-    local procedure OnAfterGetRecordSalesInvoice(CurrencyCode: Code[10]; YourReference: Code[20]; VATRegistrationNumber: Code[20])
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        VATExemption: Record "VAT Exemption";
-        VATExemptionNumber: Code[20];
-    begin
-        // Setup: Create Sales Invoice and VAT Exemption.
-        Initialize;
-        CreateSalesInvoiceHeader(SalesInvoiceHeader, CurrencyCode, YourReference, VATRegistrationNumber);
-        CreateSalesInvoiceLine(SalesInvoiceHeader."No.");
-        VATExemptionNumber :=
-          CreateVATExemption(VATExemption.Type::Customer, SalesInvoiceHeader."Sell-to Customer No.", false, WorkDate);  // Printed as False and VAT Exempt Int. Registry Date - Workdate.
-        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value in handler - SalesInvoiceRequestPageHandler.
-        Commit();  // Transaction Model Type Auto Commit is required as Commit is explicitly using on OnRun Trigger of Codeunit - 315 Sales Inv.-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Invoice");  // Opens handler - SalesInvoiceRequestPageHandler.
-
-        // Verify: Verify Sales Invoice Header - Currency Code, VAT Registration No, Your Reference and VAT Exemption Number on generated XML of Report Sales - Invoice.
-        VerifyDocumentDetailAndVATExemptionOnReport(
-          SalesInvoiceHeader."Currency Code", SalesInvHeaderVATRegNoCap, SalesInvoiceHeader."VAT Registration No.",
-          SalesInvHeaderYourRefCap, SalesInvoiceHeader."Your Reference", VATExemptionNumber);
-        VerifyPeriodProtocolNoEndingDate(VATExemptionNumber, SalesInvoiceHeader."Posting Date");
-    end;
-
-    [Test]
     [HandlerFunctions('ServiceCreditMemoRequestPageHandler')]
     [Scope('OnPrem')]
     procedure OnAfterGetRecordYourReferenceServiceCreditMemo()
@@ -723,70 +566,6 @@ codeunit 144073 "UT REP VAT Exemption"
 
         // [THEN] VAT Exemption value in the report is "1234-001"
         VerifyDocumentVATExemptionOnReport(VATExemptionNumberCap, VATExemptionNumber);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReportPrintVATExemptNoWithConsecutiveNo()
-    var
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        VATExemption: Record "VAT Exemption";
-        VATExemptionNumber: Text;
-    begin
-        // [FEATURE] [Sales] [Invoice] [Report]
-        // [SCENARIO 341871] Sales Invoice report pints VAT Exemption Number with Consecutive VAT Exempt. No.
-
-        Initialize;
-
-        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
-        // [GIVEN] Sales invoice with customer related to above VAT Exemption
-        CreateSalesInvoiceHeader(SalesInvoiceHeader, '', '', '');
-        CreateSalesInvoiceLine(SalesInvoiceHeader."No.");
-        VATExemptionNumber :=
-          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesInvoiceHeader."Sell-to Customer No.", false, WorkDate);
-        LibraryVariableStorage.Enqueue(SalesInvoiceHeader."No.");  // Enqueue value in handler - SalesInvoiceRequestPageHandler.
-        Commit;
-
-        // [WHEN] Print Sales invoice
-        REPORT.Run(REPORT::"Sales - Invoice");
-
-        // [THEN] VAT Exemption value in the report is "1234-001"
-        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCrMemoReportPrintVATExemptNoWithConsecutiveNo()
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        VATExemption: Record "VAT Exemption";
-        VATExemptionNumber: Text;
-    begin
-        // [FEATURE] [Sales] [Credit Memo] [Report]
-        // [SCENARIO 341871] Sales Credit Memo report pints VAT Exemption Number with Consecutive VAT Exempt. No.
-
-        Initialize;
-
-        // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
-        // [GIVEN] Sales Credit Memo with customer related to above VAT Exemption
-        CreateSalesCreditMemoHeader(SalesCrMemoHeader, '', '', '');
-        CreateSalesCreditMemoLine(SalesCrMemoHeader."No.");
-        VATExemptionNumber :=
-          CreateVATExemptionWithConsecutiveNo(VATExemption.Type::Customer, SalesCrMemoHeader."Sell-to Customer No.", false, WorkDate);
-        LibraryVariableStorage.Enqueue(SalesCrMemoHeader."No.");  // Enqueue value in handler - SalesCreditMemoRequestPageHandler.
-        Commit;
-
-        // [WHEN] Print Sales - Credit Memo
-        REPORT.Run(REPORT::"Sales - Credit Memo");
-
-        // [THEN] VAT Exemption value in the report is "1234-001"
-        VerifyDocumentVATExemptionOnReport(VATExemptionNoCap, VATExemptionNumber);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1252,17 +1031,6 @@ codeunit 144073 "UT REP VAT Exemption"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
     procedure SalesDocumentTestRequestPageHandler(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
     var
         No: Variant;
@@ -1270,17 +1038,6 @@ codeunit 144073 "UT REP VAT Exemption"
         LibraryVariableStorage.Dequeue(No);
         SalesDocumentTest."Sales Header".SetFilter("No.", No);
         SalesDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoRequestPageHandler(var SalesCreditMemo: TestRequestPage "Sales - Credit Memo")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesCreditMemo."Sales Cr.Memo Header".SetFilter("No.", No);
-        SalesCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

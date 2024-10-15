@@ -2,6 +2,7 @@ page 740 "VAT Report"
 {
     Caption = 'VAT Report';
     PageType = Document;
+    PromotedActionCategories = 'New,Process,Report,VAT Settlement';
     SourceTable = "VAT Report Header";
 
     layout
@@ -61,7 +62,7 @@ page 740 "VAT Report"
                 field("Tax Auth. Doc. No."; "Tax Auth. Doc. No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the document number that is provided by the tax authority after you submit a VAT Data transmission.';
+                    ToolTip = 'Specifies the document number that is provided by the tax authority after you submit a VAT data transmission.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Replaced by Tax Auth. Document No.';
                     ObsoleteTag = '19.0';

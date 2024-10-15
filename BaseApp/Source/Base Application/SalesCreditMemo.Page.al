@@ -847,9 +847,9 @@ page 44 "Sales Credit Memo"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -1098,7 +1098,7 @@ page 44 "Sales Credit Memo"
                 action(GetStdCustSalesCodes)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Get St&d. Cust. Sales Codes';
+                    Caption = 'Get Recurring Sales Lines';
                     Ellipsis = true;
                     Enabled = IsCustomerOrContactNotEmpty;
                     Image = CustomerCode;
@@ -1380,6 +1380,7 @@ page 44 "Sales Credit Memo"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1404,8 +1405,8 @@ page 44 "Sales Credit Memo"
     begin
         SetControlAppearance;
         WorkDescription := GetWorkDescription;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.") ;
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1440,7 +1441,7 @@ page 44 "Sales Credit Memo"
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        SetFilterByResponsibilityCenter();
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1453,6 +1454,8 @@ page 44 "Sales Credit Memo"
             DocumentIsPosted := (not Get("Document Type", "No."));
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by procedure SetSecurityFilterOnRespCenter() from Sales Header table.', '19.0')]
     local procedure SetFilterByResponsibilityCenter()
     var
         IsHandled: Boolean;
@@ -1462,12 +1465,9 @@ page 44 "Sales Credit Memo"
         if IsHandled then
             exit;
 
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter());
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
     end;
+#endif
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
@@ -1670,10 +1670,13 @@ page 44 "Sales Credit Memo"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by same event in Sales Header table.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFilterByResponsibilityCenter(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterSetDocumentIsPosted(SalesHeader: Record "Sales Header"; var IsScheduledPosting: Boolean; var DocumentIsPosted: Boolean)

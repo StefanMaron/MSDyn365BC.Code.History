@@ -512,7 +512,7 @@ codeunit 143000 "Library - IT Localization"
         TempNameValueBuffer.SetFilter(Name, '*.xml');
         if TempNameValueBuffer.FindSet then
             repeat
-                FileManagement.DeleteClientFile(TempNameValueBuffer.Name);
+                FileManagement.DeleteServerFile(TempNameValueBuffer.Name);
             until TempNameValueBuffer.Next = 0;
     end;
 }

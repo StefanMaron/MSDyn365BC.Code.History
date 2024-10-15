@@ -8,7 +8,7 @@ Page 1 "Company Information"
     PageType = Card;
     PromotedActionCategories = 'New,Process,Report,Application Settings,System Settings,Currencies,Codes,Regional Settings';
     SourceTable = "Company Information";
-    UsageCategory = Tasks;
+    UsageCategory = Administration;
 
     layout
     {

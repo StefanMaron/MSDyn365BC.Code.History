@@ -165,6 +165,7 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the order address code linked to the relevant vendor''s order address.';
+                    Enabled = Rec."Buy-from Vendor No." <> '';
                 }
                 field("Vendor Order No."; "Vendor Order No.")
                 {
@@ -650,9 +651,9 @@ page 509 "Blanket Purchase Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(DocAttach)
@@ -962,8 +963,8 @@ page 509 "Blanket Purchase Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        if BuyFromContact.Get("Buy-from Contact No.") then;
-        if PayToContact.Get("Pay-to Contact No.") then;
+        BuyFromContact.GetOrClear("Buy-from Contact No.");
+        PayToContact.GetOrClear("Pay-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -982,11 +983,7 @@ page 509 "Blanket Purchase Order"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetPurchasesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetPurchasesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetDocNoVisible;
     end;

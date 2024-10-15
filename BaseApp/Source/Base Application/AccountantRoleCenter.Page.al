@@ -1032,6 +1032,7 @@ page 9027 "Accountant Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';
@@ -1223,7 +1224,7 @@ page 9027 "Accountant Role Center"
                     Caption = 'Adjust E&xchange Rates';
                     Ellipsis = true;
                     Image = AdjustExchangeRates;
-                    RunObject = Report "Adjust Exchange Rates";
+                    RunObject = Codeunit "Exch. Rate Adjmt. Run Handler";
                     ToolTip = 'Adjust general ledger, customer, vendor, and bank account entries to reflect a more updated balance if the exchange rate has changed since the entries were posted.';
                 }
                 action("P&ost Inventory Cost to G/L")
@@ -1396,9 +1397,15 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Run the Consolidation report.';
                 }
             }
+#if not CLEAN19
             group(Setup)
             {
                 Caption = 'Setup';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Setup is no longer shown in this page.';
+                ObsoleteTag = '19.0';
+
                 action(Action112)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1406,6 +1413,9 @@ page 9027 "Accountant Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("General &Ledger Setup")
                 {
@@ -1414,6 +1424,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "General Ledger Setup";
                     ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Sales && Receivables Setup")
                 {
@@ -1422,6 +1435,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Sales & Receivables Setup";
                     ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Purchases && Payables Setup")
                 {
@@ -1430,6 +1446,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Purchases & Payables Setup";
                     ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Fixed Asset Setup")
                 {
@@ -1438,6 +1457,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Fixed Asset Setup";
                     ToolTip = 'Define your accounting policies for fixed assets, such as the allowed posting period and whether to allow posting to main assets. Set up your number series for creating new fixed assets.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Cash Flow Setup")
                 {
@@ -1446,6 +1468,9 @@ page 9027 "Accountant Role Center"
                     Image = CashFlowSetup;
                     RunObject = Page "Cash Flow Setup";
                     ToolTip = 'Set up the accounts where cash flow figures for sales, purchase, and fixed-asset transactions are stored.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Cost Accounting Setup")
                 {
@@ -1454,6 +1479,9 @@ page 9027 "Accountant Role Center"
                     Image = CostAccountingSetup;
                     RunObject = Page "Cost Accounting Setup";
                     ToolTip = 'Specify how you transfer general ledger entries to cost accounting, how you link dimensions to cost centers and cost objects, and how you handle the allocation ID and allocation document number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Business Units")
                 {
@@ -1462,8 +1490,12 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Business Unit List";
                     ToolTip = 'Set up Business Units that you need to consolidate into this company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
             }
+#endif
             group(History)
             {
                 Caption = 'History';

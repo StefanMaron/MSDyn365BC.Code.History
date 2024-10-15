@@ -40,6 +40,13 @@ page 5979 "Posted Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of an item, resource, cost, general ledger account description, or some descriptive text on the service invoice line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Include in VAT Transac. Rep."; "Include in VAT Transac. Rep.")
                 {
                     ApplicationArea = Service;

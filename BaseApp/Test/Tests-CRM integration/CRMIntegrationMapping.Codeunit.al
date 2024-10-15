@@ -15,6 +15,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTemplates: Codeunit "Library - Templates";
         SyncStartedMsg: Label 'The synchronization has been scheduled.';
         ExpectedRecordNotFoundErr: Label 'Expected record not found.';
         UnexpectedRecordFoundErr: Label 'Unexpected record found.';
@@ -644,6 +645,7 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
+#if not CLEAN19
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -659,6 +661,7 @@ codeunit 139183 "CRM Integration Mapping"
           IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -669,13 +672,62 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Price List]
-        Initialize(true);
+        Initialize(true, false);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Price List Header", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 5, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
 
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure UnitGroupMappedToCRMUomschedule()
+    var
+        CRMUomschedule: Record "CRM Uomschedule";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Unit Group]
+        Initialize(false, true);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Unit Group", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 2, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ItemUnitOfMeasureMappedToCRMUom()
+    var
+        CRMUom: Record "CRM Uom";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Item Unit of Measure]
+        Initialize(false, true);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Item Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ResourceUnitOfMeasureMappedToCRMUom()
+    var
+        CRMUom: Record "CRM Uom";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+    begin
+        // [FEATURE] [Resource Unit of Measure]
+        Initialize(false, true);
+
+        VerifyMapping(
+          IntegrationTableMapping, DATABASE::"Resource Unit of Measure", DATABASE::"CRM Uom", CRMUom.FieldNo(UoMId), 2, 1);
+        VerifyJobQueueEntry(IntegrationTableMapping, 1);
+    end;
+
+#if not CLEAN19
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -692,6 +744,7 @@ codeunit 139183 "CRM Integration Mapping"
           CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -702,7 +755,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
         // [FEATURE] [Price List]
-        Initialize(true);
+        Initialize(true, false);
 
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Price List Line", DATABASE::"CRM Productpricelevel",
@@ -1236,7 +1289,7 @@ codeunit 139183 "CRM Integration Mapping"
         // [WHEN] Create the new coupled CRM Invoice
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         CRMIntegrationManagement.CreateNewRecordsInCRM(SalesInvoiceHeader.RecordId);
-        FilteredSalesInvoiceHeader.SetRange("No.", SalesInvoiceHeader."No.");
+        FilteredSalesInvoiceHeader.SetRange(SystemId, SalesInvoiceHeader.SystemId);
         JobQueueEntryID :=
           LibraryCRMIntegration.RunJobQueueEntry(
             DATABASE::"Sales Invoice Header", FilteredSalesInvoiceHeader.GetView, IntegrationTableMapping);
@@ -1861,8 +1914,10 @@ codeunit 139183 "CRM Integration Mapping"
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Header", DATABASE::"CRM Invoice");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Invoice Line", DATABASE::"CRM Invoicedetail");
         ModifyIntegrationTableMappingDirection(DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule");
+#if not CLEAN19
         ModifyIntegrationTableMappingDirection(DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel");
         ModifyIntegrationTableMappingDirection(DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel");
+#endif
         ModifyIntegrationTableMappingDirection(DATABASE::"Shipping Agent", DATABASE::"CRM Account");
         ModifyIntegrationTableMappingDirection(DATABASE::"Shipment Method", DATABASE::"CRM Account");
         ModifyIntegrationTableMappingDirection(DATABASE::"Payment Terms", DATABASE::"CRM Account");
@@ -1920,6 +1975,7 @@ codeunit 139183 "CRM Integration Mapping"
           IntegrationTableMapping, DATABASE::"Unit of Measure", DATABASE::"CRM Uomschedule", CRMUomschedule.FieldNo(UoMScheduleId), 1, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
 
+#if not CLEAN19
         VerifyMapping(
           IntegrationTableMapping, DATABASE::"Customer Price Group", DATABASE::"CRM Pricelevel", CRMPricelevel.FieldNo(PriceLevelId), 1, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
@@ -1928,6 +1984,7 @@ codeunit 139183 "CRM Integration Mapping"
           IntegrationTableMapping, DATABASE::"Sales Price", DATABASE::"CRM Productpricelevel",
           CRMProductpricelevel.FieldNo(ProductPriceLevelId), 6, 1);
         VerifyJobQueueEntry(IntegrationTableMapping, 1);
+#endif
 
         VerifyMapping(
                   IntegrationTableMapping, DATABASE::"Shipping Agent", DATABASE::"CRM Account",
@@ -1971,7 +2028,7 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMappingsNo: Integer;
     begin
         // [FEATURE] [Use CRM/CDS Setup Defaults per Integration Table Mapping record]
-        Initialize(true);
+        Initialize(true, false);
 
         // [WHEN] Reset CRM Configuration
         ResetCRMConfiguration;
@@ -2079,12 +2136,58 @@ codeunit 139183 "CRM Integration Mapping"
         VerifyNoJobQueueEntry(IntegrationTableMapping);
     end;
 
-    local procedure Initialize()
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure CreateSOInNAVCopiesCustomerContactFields()
+    var
+        CRMSalesorder: Record "CRM Salesorder";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        Contact: Record Contact;
+        ContBusRel: Record "Contact Business Relation";
+        CRMSalesOrderToSalesOrder: Codeunit "CRM Sales Order to Sales Order";
     begin
-        Initialize(false);
+        // [FEATURE] [Sales] [Order] [UT]
+        // [SCENARIO] Contact details for a customer should be added to the sales order.
+        Initialize();
+        ResetCRMConfiguration();
+
+        // [GIVEN] A company (and its contact details).
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+
+        ContBusRel.SetCurrentKey("Link to Table", "No.");
+        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
+        ContBusRel.SetRange("No.", Customer."No.");
+        ContBusRel.FindFirst();
+
+        Contact.Get(ContBusRel."Contact No.");
+        Contact.Validate("E-Mail", 'test@test.com');
+        Contact.Validate("Phone No.", '12345678');
+        Contact.Modify(true);
+
+        // [GIVEN] A CRM Salesorder.
+        LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder);
+        CRMSalesorder.OrderNumber := LibraryUtility.GenerateGUID;
+        CRMSalesorder.StateCode := CRMSalesorder.StateCode::Submitted;
+        CRMSalesorder.CustomerId := CRMAccount.AccountId;
+        CRMSalesorder.CustomerIdType := CRMSalesorder.CustomerIdType::account;
+
+        // [WHEN] Running 'Create in NAV'
+        Assert.IsTrue(CRMSalesOrderToSalesOrder.CreateInNAV(CRMSalesorder, SalesHeader), 'CreateInNAV returned FALSE');
+
+        // [THEN] NAV Sales Order contains contact details related to the customer.
+        SalesHeader.TestField("Sell-to E-Mail", Contact."E-Mail");
+        SalesHeader.TestField("Sell-to Phone No.", Contact."Phone No.");
     end;
 
-    local procedure Initialize(EnableExtendedPrice: Boolean)
+    local procedure Initialize()
+    begin
+        Initialize(false, false);
+    end;
+
+    local procedure Initialize(EnableExtendedPrice: Boolean; EnableUnitGroupMapping: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -2096,8 +2199,13 @@ codeunit 139183 "CRM Integration Mapping"
         if EnableExtendedPrice then
             LibraryPriceCalculation.EnableExtendedPriceCalculation();
 
+        LibraryCRMIntegration.DisableUnitGroupMapping();
+        if EnableUnitGroupMapping then
+            LibraryCRMIntegration.EnableUnitGroupMapping();
+
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
+        LibraryTemplates.EnableTemplatesFeature();
 
         CRMConnectionSetup.DeleteAll();
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, '');
@@ -2141,7 +2249,7 @@ codeunit 139183 "CRM Integration Mapping"
         LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
         CompanyContact.Get(Contact."Company No.");
         CompanyContact.SetHideValidationDialog(true);
-        CustomerNo := CompanyContact.CreateCustomer('');
+        CustomerNo := CompanyContact.CreateCustomerFromTemplate('');
         Customer.Get(CustomerNo);
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);

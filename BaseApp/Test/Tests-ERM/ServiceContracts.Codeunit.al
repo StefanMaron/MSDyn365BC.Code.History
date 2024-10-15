@@ -4278,7 +4278,7 @@ codeunit 136102 "Service Contracts"
         ServiceLine.FindSet();
     end;
 
-    local procedure FindServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Option)
+    local procedure FindServiceLedgerEntry(var ServiceLedgerEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20]; DocumentType: Enum "Service Ledger Entry Document Type"; EntryType: Enum "Service Ledger Entry Entry Type")
     begin
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);

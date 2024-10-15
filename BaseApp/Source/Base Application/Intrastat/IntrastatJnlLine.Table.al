@@ -1,4 +1,4 @@
-table 263 "Intrastat Jnl. Line"
+﻿table 263 "Intrastat Jnl. Line"
 {
     Caption = 'Intrastat Jnl. Line';
 
@@ -58,11 +58,9 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Transport Method';
             TableRelation = "Transport Method";
         }
-        field(11; "Source Type"; Option)
+        field(11; "Source Type"; Enum "Intrastat Source Type")
         {
             Caption = 'Source Type';
-            OptionCaption = ' ,Item Entry,Job Entry,VAT Entry';
-            OptionMembers = " ","Item Entry","Job Entry","VAT Entry";
 
             trigger OnValidate()
             begin
@@ -275,7 +273,7 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
-        field(31;"Location Code";Code[10])
+        field(31; "Location Code"; Code[10])
         {
             Caption = 'Location Code';
             TableRelation = Location;
@@ -518,7 +516,7 @@ table 263 "Intrastat Jnl. Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeGetItemDescription(IsHandled);
+        OnBeforeGetItemDescription(IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -1016,7 +1014,7 @@ table 263 "Intrastat Jnl. Line"
         Customer: Record Customer;
         Vendor: Record Vendor;
     begin
-        if not ItemLedgerEntry.Get("Source Entry No.") then 
+        if not ItemLedgerEntry.Get("Source Entry No.") then
             exit('');
         case ItemLedgerEntry."Document Type" of
             ItemLedgerEntry."Document Type"::"Sales Invoice":
@@ -1117,9 +1115,9 @@ table 263 "Intrastat Jnl. Line"
         JobLedgerEntry: Record "Job Ledger Entry";
         Customer: Record Customer;
     begin
-        if not JobLedgerEntry.Get("Source Entry No.") then 
+        if not JobLedgerEntry.Get("Source Entry No.") then
             exit('');
-        if not Job.Get(JobLedgerEntry."Job No.") then 
+        if not Job.Get(JobLedgerEntry."Job No.") then
             exit('');
         if not Customer.Get(Job."Bill-to Customer No.") then
             exit('');
@@ -1172,7 +1170,7 @@ table 263 "Intrastat Jnl. Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
 }

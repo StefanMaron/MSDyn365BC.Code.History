@@ -92,7 +92,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AddItemToInventory(ItemChild, 1, 'SN0001', '');
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
 
         asserterror LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         Assert.IsTrue(StrPos(GetLastErrorText, SNMissingErr) > 0, 'Wrong error: ' + GetLastErrorText + '; Expected: ' + SNMissingErr);
@@ -120,7 +120,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AddItemToInventory(ItemChild, 1, '', '');
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
 
         asserterror LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
         Assert.IsTrue(StrPos(GetLastErrorText, SNMissingErr) > 0, 'Wrong error: ' + GetLastErrorText + '; Expected: ' + SNMissingErr);
@@ -148,7 +148,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AddItemToInventory(ItemChild, 1, '', 'LOT0001');
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, LNMissingErr);
     end;
@@ -174,7 +174,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AddItemToInventory(ItemChild, 1, '', '');
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 1, '');
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
 
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, LNMissingErr);
     end;
@@ -273,8 +273,8 @@ codeunit 137926 "SCM Assembly Item Tracking"
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
         WarehouseRequest: Record "Warehouse Request";
         CreatePick: Report "Create Pick";
-        SerialNo: Code[20];
-        LotNo: Code[20];
+        SerialNo: Code[50];
+        LotNo: Code[50];
     begin
         // Create Location
         if WhseType = WhseType::WMS then
@@ -304,7 +304,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         AssemblyHeader.Validate("Location Code", Location.Code);
         AssemblyHeader.Modify(true);
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
         AssemblyLine.Validate("Location Code", Location.Code);
         AssemblyLine.Validate("Bin Code", 'BIN3');
         AssemblyLine.Modify(true);
@@ -392,7 +392,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
 
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 1, '');
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 1, 1, '');
         LibraryItemTracking.CreateAssemblyHeaderItemTracking(ReservEntry, AssemblyHeader, SNParent, LNParent, 1);
         LibraryItemTracking.CreateAssemblyLineItemTracking(ReservEntry, AssemblyLine, SNChild, LNChild, 1);
 
@@ -471,7 +471,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, ItemParent."No.", '', 3, '');
         AssemblyHeader.Validate("Quantity to Assemble", 2);
         AssemblyHeader.Modify(true);
-        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, 1, ItemChild."No.", ItemChild."Base Unit of Measure", 6, 1, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ItemChild."No.", ItemChild."Base Unit of Measure", 6, 1, '');
         AssemblyLine."Quantity to Consume" := 4;
         AssemblyLine.Modify(true);
         LibraryItemTracking.CreateAssemblyHeaderItemTracking(ReservEntry, AssemblyHeader, SNParent, LNParent, 3);
@@ -505,7 +505,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
     end;
 
     [Normal]
-    local procedure RegisterWhseActivity(ActivityType: Option ,"Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick","Invt. Movement"; SourceNo: Code[20])
+    local procedure RegisterWhseActivity(ActivityType: Enum "Warehouse Activity Type"; SourceNo: Code[20])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";
@@ -606,7 +606,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure AddItemToWhseLocation(Item: Record Item; Location: Record Location; BinCode: Code[20]; Quantity: Decimal; SerialNo: Code[20]; LotNo: Code[20])
+    local procedure AddItemToWhseLocation(Item: Record Item; Location: Record Location; BinCode: Code[20]; Quantity: Decimal; SerialNo: Code[50]; LotNo: Code[50])
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -648,7 +648,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         end;
     end;
 
-    local procedure ValidateT337(AssemblyOrderNo: Code[20]; Item: Record Item; SerialNo: Code[20]; LotNo: Code[20]; Quantity: Decimal; RecordsShouldExist: Boolean; ExpectedNumberOfRecords: Integer)
+    local procedure ValidateT337(AssemblyOrderNo: Code[20]; Item: Record Item; SerialNo: Code[50]; LotNo: Code[50]; Quantity: Decimal; RecordsShouldExist: Boolean; ExpectedNumberOfRecords: Integer)
     var
         ReservEntry: Record "Reservation Entry";
     begin

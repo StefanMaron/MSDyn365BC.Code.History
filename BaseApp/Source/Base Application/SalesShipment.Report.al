@@ -299,7 +299,7 @@ report 208 "Sales - Shipment"
                         column(DocNo_SalesShipLine; "Document No.")
                         {
                         }
-#if not CLEAN18
+#if not CLEAN17
                         column(CrossReferenceNo_Line; "Cross-Reference No.")
                         {
                             ObsoleteState = Pending;

@@ -54,7 +54,7 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
                 }
@@ -74,6 +74,13 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies either the name of, or a description of, the item or general ledger account.';
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Related Entry No."; "Related Entry No.")
                 {
@@ -297,6 +304,32 @@
                                                                   "Dimension Value Type" = CONST(Standard),
                                                                   Blocked = CONST(false));
                     Visible = DimVisible8;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
+                    Visible = false;
                 }
             }
             group(Control31)
@@ -532,6 +565,8 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -539,6 +574,11 @@
         ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
         ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility()
+    begin
     end;
 }
 

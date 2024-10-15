@@ -361,8 +361,11 @@ codeunit 144145 "UT TAB Fiscal Code"
     procedure OnValidateVendorOnContactTypeCompany()
     var
         Contact: Record Contact;
+        VendorTempl: Record "Vendor Templ.";
     begin
         // Purpose of the test is to validate Fiscal Code - OnValidate Trigger of Table ID - 5050 Contact.
+        VendorTempl.DeleteAll(true);
+        LibraryTemplates.CreateVendorTemplateWithData(VendorTempl);
         OnValidateVendorOnContactType(Contact.Type::Company, false);  // Individual Person - False.
     end;
 
@@ -422,7 +425,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         if IsInitialized then
             exit;
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;

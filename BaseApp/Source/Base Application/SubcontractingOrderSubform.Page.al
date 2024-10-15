@@ -31,12 +31,17 @@ page 12153 "Subcontracting Order Subform"
                         NoOnAfterValidate();
                     end;
                 }
+#if not CLEAN19
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the document that is cross-referenced.';
                     Visible = false;
+                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 field("Variant Code"; "Variant Code")
                 {
                     ApplicationArea = Manufacturing;

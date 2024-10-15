@@ -23,6 +23,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         AmtMustBeErr: Label 'The %1 must be %2 in %3.', Comment = '%1 = Field Caption. %2 = Amount, %3 = Table Caption';
         InvDiscCodeErr: Label '%1 must be filled in. Enter a value. (Select Refresh to discard errors)', Comment = '%1 = Invoice Discount Code';
@@ -1131,7 +1132,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     procedure CustomerTemplateInvoiceDiscCodeRenameCustomer()
     var
         Customer: array[2] of Record Customer;
-        CustomerTemplate: array[3] of Record "Customer Template";
+        CustomerTemplate: array[3] of Record "Customer Templ.";
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 217896] Customer Template's "Invoice Disc. Code" is updated with new Customer."No." value OnRename Customer's trigger
@@ -1416,6 +1417,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibraryTemplates.EnableTemplatesFeature();
 
         IsInitialized := true;
         Commit();
@@ -2413,7 +2415,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         end;
     end;
 
-    local procedure MockCustomerTemplate(var CustomerTemplate: Record "Customer Template"; InvoiceDiscCode: Code[20])
+    local procedure MockCustomerTemplate(var CustomerTemplate: Record "Customer Templ."; InvoiceDiscCode: Code[20])
     begin
         with CustomerTemplate do begin
             Code := LibraryUtility.GenerateGUID;

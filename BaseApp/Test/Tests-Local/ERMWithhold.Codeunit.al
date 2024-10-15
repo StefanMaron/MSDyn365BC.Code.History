@@ -1971,7 +1971,7 @@ codeunit 144090 "ERM Withhold"
 
         LibraryVariableStorage.AssertEmpty();
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure WHTAmountAndPercentWereChangedWhenWHTAmountManualValidated()
@@ -2249,7 +2249,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     local procedure CreateAndPostGeneralJnlLineWithAppliesToDoc(DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20];
-                                                                    AppliesToDocType: Enum "Gen. Journal Document Type")
+                                                                                  AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2274,7 +2274,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20];
-                                                                                                     AppliesToDocType: Enum "Gen. Journal Document Type")
+                                                                                                                   AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

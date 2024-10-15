@@ -1,4 +1,4 @@
-﻿codeunit 132500 "Error Message Handling"
+codeunit 132500 "Error Message Handling"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -152,6 +152,82 @@
         Result := ErrorMessageHandler[1].HasErrors();
         // [THEN] There is error message
         Assert.IsTrue(Result, 'first subscriber has no error');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T006_CallstackDoesNotIncludeCOD28Calls()
+    var
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        CallStack: Text;
+        Pos: Integer;
+    begin
+        // [SCENARIO] "Error Call Stack" does not include calls of COD28 methods that lead to TrowError()
+        Initialize();
+        CallStack := ErrorMessageManagement.GetCurrCallStack();
+
+        Pos := StrPos(CallStack, '(CodeUnit 28)');
+        if Pos > 0 then
+            error('Must be no COD28 in returned callstack: %1', CopyStr(CallStack, Pos, 50));
+
+        Assert.AreEqual(1, StrPos(CallStack, '"Error Message Handling"(CodeUnit 132500).T006_CallstackDoesNotIncludeCOD28Calls line'), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T007_CallstackDoesNotAddeForNotError()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+    begin
+        // [SCENARIO] "Error Call Stack" is blank for Info and Warning error messages.
+        Initialize();
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Information, 'Information');
+        Assert.AreEqual('', TempErrorMessage.GetErrorCallStack(), 'CallStack must be blank');
+
+        TempErrorMessage.LogSimpleMessage(TempErrorMessage."Message Type"::Warning, 'Warning');
+        Assert.AreEqual('', TempErrorMessage.GetErrorCallStack(), 'CallStack must be blank');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure T008_CallstackStartsFromLineBeforeCOD28Call()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageManagement: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        CallStack: text;
+        Pos: Integer;
+    begin
+        // [SCENARIO] "Error Call Stack" starts from a call right before first COD28 method call.
+        Initialize();
+
+        ErrorMessageManagement.Activate(ErrorMessageHandler);
+        ErrorMessageManagement.LogSimpleErrorMessage('Error');
+        ErrorMessageManagement.GetErrors(TempErrorMessage);
+        CallStack := TempErrorMessage.GetErrorCallStack();
+        Pos :=
+            StrPos(CallStack, '"Error Message Handling"(CodeUnit 132500).T008_CallstackStartsFromLineBeforeCOD28Call line');
+        Assert.AreEqual(1, Pos, 'wrong start');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('MessageHandler')]
+    procedure T009_ShowErrorCallStack()
+    var
+        TempErrorMessage: Record "Error Message" temporary;
+        CallStack: Text;
+    begin
+        // [SCEANRIO] ShowErrorCallStack shows the error call stack as a message dialog.
+        Initialize();
+        // [GIVEN] Error Message, where "Error Call Stack" is 'X'
+        Callstack := LibraryUtility.GenerateGUID();
+        TempErrorMessage.SetErrorCallStack(Callstack);
+        TempErrorMessage.Insert();
+        // [WHEN] ShowErrorCallStack
+        TempErrorMessage.ShowErrorCallStack();
+        // [THEN] Show the Message: 'X'
+        Assert.AreEqual(CallStack, LibraryVariableStorage.DequeueText(), 'wrong message');
     end;
 
     [Test]
@@ -1187,14 +1263,15 @@
         ForwardLinks.OpenView;
         ForwardLinks.Load.Invoke;
 
-        // [THEN] 6 records added
-        Assert.RecordCount(NamedForwardLink, 6);
+        // [THEN] 7 records added
+        Assert.RecordCount(NamedForwardLink, 7);
         // [THEN] 'Allowed Posting Date', 'Working with dims', 'Blocked Item', 'Blocked Customer' links exist
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForAllowedPostingDate);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForWorkingWithDimensions);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedCustomer);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForBlockedItem);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForSalesLineDropShipmentErr);
+        NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForEmptyPostingSetupAccount);
         NamedForwardLink.Get(ForwardLinkMgt.GetHelpCodeForTroubleshootingDimensions());
 
         // [THEN] none of fields (Name, Description, Link) are blank.
@@ -1225,6 +1302,35 @@
         NamedForwardLink.Get('A');
         NamedForwardLink.Testfield(Description, 'D');
         NamedForwardLink.Testfield(Link, 'L');
+    end;
+
+    [Test]
+    procedure T993_PopContextTopElementId()
+    var
+        ErrorContextElement: array[3] of Codeunit "Error Context Element";
+        ErrorMessageHandler: array[3] of Codeunit "Error Message Handler";
+        ErrorMessageMgt: Codeunit "Error Message Management";
+    begin
+        // [FEATURE] [UT] [PopContext]
+        // [Scenario 395037] PopContext 
+        Initialize;
+
+        // [GIVEN] Initial activation with context '1'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[1]);
+        Assert.AreEqual(1, ErrorMessageMgt.PushContext(ErrorContextElement[1], 4, 0, '1'), 'Push#1');
+
+        // [GIVEN] Nested (skipped) activation with context '2'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[2]);
+        Assert.AreEqual(2, ErrorMessageMgt.PushContext(ErrorContextElement[2], 4, 0, '2'), 'Push#2');
+
+        // [GIVEN] Nested (skipped) activation with context '3'
+        ErrorMessageMgt.Activate(ErrorMessageHandler[3]);
+        Assert.AreEqual(3, ErrorMessageMgt.PushContext(ErrorContextElement[3], 4, 0, '3'), 'Push#3');
+
+        // [WHEN] Invoke PopContext
+        Assert.AreEqual(2, ErrorMessageMgt.PopContext(ErrorContextElement[3]), 'Pop#3');
+        Assert.AreEqual(1, ErrorMessageMgt.PopContext(ErrorContextElement[2]), 'Pop#2');
+        Assert.AreEqual(0, ErrorMessageMgt.PopContext(ErrorContextElement[1]), 'Pop#1');
     end;
 
     local procedure Initialize()
@@ -1333,6 +1439,12 @@
             Counter += 1;
         LibraryVariableStorage.Enqueue(Counter);
         LibraryVariableStorage.Enqueue(ErrorMessagesPage.Description.Value);
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text[1024])
+    begin
+        LibraryVariableStorage.Enqueue(Message);
     end;
 }
 

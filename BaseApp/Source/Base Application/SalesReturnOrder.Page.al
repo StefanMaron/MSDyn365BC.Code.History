@@ -7,6 +7,9 @@ page 6630 "Sales Return Order"
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = FILTER("Return Order"));
 
+    AboutTitle = 'About sales return order details';
+    AboutText = 'When you receive items back from the customer, you post the quantity received and the quantity you choose to credit the customer. Posting issues a related sales credit memo and return-related documents.';
+
     layout
     {
         area(content)
@@ -47,6 +50,9 @@ page 6630 "Sales Return Order"
                     Importance = Promoted;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the name of the customer.';
+
+                    AboutTitle = 'Who''s returning the items?';
+                    AboutText = 'This is the customer that bought the items now being returned, and who will be credited if you choose to accept the return.';
 
                     trigger OnValidate()
                     begin
@@ -858,9 +864,9 @@ page 6630 "Sales Return Order"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -1216,6 +1222,9 @@ page 6630 "Sales Return Order"
                     PromotedOnly = true;
                     ToolTip = 'Copy one or more posted sales document lines in order to reverse the original order.';
 
+                    AboutTitle = 'Choosing what is returned';
+                    AboutText = 'To create lines for the sales return order, you can overview and select lines from the documents posted for a certain customer, and have the information copied here.';
+
                     trigger OnAction()
                     begin
                         GetPstdDocLinesToReverse();
@@ -1268,6 +1277,9 @@ page 6630 "Sales Return Order"
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
+                    AboutTitle = 'Post the quantities you''ve set';
+                    AboutText = 'Choose one of the post actions to trigger receipt and/or crediting of the quantities you entered on the lines. You can post multiple times from the same return order if the items are not received at once.';
+
                     trigger OnAction()
                     begin
                         PostDocument(CODEUNIT::"Sales-Post (Yes/No)");
@@ -1280,6 +1292,7 @@ page 6630 "Sales Return Order"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category6;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -1448,8 +1461,8 @@ page 6630 "Sales Return Order"
     trigger OnAfterGetRecord()
     begin
         SetControlAppearance;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1480,11 +1493,7 @@ page 6630 "Sales Return Order"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         ActivateFields;
 

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135515 "Customer Payments E2E Test"
 {
     Subtype = Test;
@@ -829,4 +830,4 @@ codeunit 135515 "Customer Payments E2E Test"
         exit(ServiceSubpageNameTxt + '(' + LibraryGraphMgt.StripBrackets(CustomerPaymentId) + ')');
     end;
 }
-
+#endif

@@ -359,9 +359,10 @@ codeunit 6620 "Copy Document Mgt."
                     ReleaseSalesDocument.Reopen(ToSalesHeader);
                 end;
 
-        if ShowWarningNotification(ToSalesHeader, MissingExCostRevLink) then
-            ErrorMessageHandler.NotifyAboutErrors;
-
+        if ShowWarningNotification(ToSalesHeader, MissingExCostRevLink) then begin
+            ErrorMessageHandler.NotifyAboutErrors();
+            ErrorMessageMgt.PopContext(ErrorContextElement);
+        end;
         OnAfterCopySalesDocument(
           FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
     end;
@@ -534,9 +535,6 @@ codeunit 6620 "Copy Document Mgt."
     local procedure CopySalesDocUpdateHeader(FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header"; FromSalesHeader: Record "Sales Header"; FromSalesShptHeader: Record "Sales Shipment Header"; FromSalesInvHeader: Record "Sales Invoice Header"; FromReturnRcptHeader: Record "Return Receipt Header"; FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; FromSalesHeaderArchive: Record "Sales Header Archive"; var ReleaseDocument: Boolean);
     var
         OldSalesHeader: Record "Sales Header";
-#if not CLEAN18
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-#endif
     begin
         with ToSalesHeader do begin
             CheckCustomer(FromSalesHeader, ToSalesHeader);
@@ -582,22 +580,12 @@ codeunit 6620 "Copy Document Mgt."
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader);
             if RecalculateLines then
-#if not CLEAN18
-                if not CustomerTemplMgt.IsEnabled() then
-                    CreateDim(
-                        DATABASE::"Responsibility Center", "Responsibility Center",
-                        DATABASE::Customer, "Bill-to Customer No.",
-                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                        DATABASE::Campaign, "Campaign No.",
-                        DATABASE::"Customer Template", "Bill-to Customer Template Code")
-                else
-#endif
-                    CreateDim(
-                        DATABASE::"Responsibility Center", "Responsibility Center",
-                        DATABASE::Customer, "Bill-to Customer No.",
-                        DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                        DATABASE::Campaign, "Campaign No.",
-                        DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                CreateDim(
+                    DATABASE::"Responsibility Center", "Responsibility Center",
+                    DATABASE::Customer, "Bill-to Customer No.",
+                    DATABASE::"Salesperson/Purchaser", "Salesperson Code",
+                    DATABASE::Campaign, "Campaign No.",
+                    DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -888,8 +876,10 @@ codeunit 6620 "Copy Document Mgt."
                     ReleasePurchaseDocument.Reopen(ToPurchHeader);
                 end;
 
-        if ShowWarningNotification(ToPurchHeader, MissingExCostRevLink) then
-            ErrorMessageHandler.NotifyAboutErrors;
+        if ShowWarningNotification(ToPurchHeader, MissingExCostRevLink) then begin
+            ErrorMessageHandler.NotifyAboutErrors();
+            ErrorMessageMgt.PopContext(ErrorContextElement);
+        end;
 
         OnAfterCopyPurchaseDocument(
           FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo, IncludeHeader, RecalculateLines, MoveNegLines);
@@ -1718,7 +1708,7 @@ codeunit 6620 "Copy Document Mgt."
         OnAfterRecalculateSalesLine(ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, CopyThisLine);
     end;
 
-    local procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
+    procedure HandleAsmAttachedToSalesLine(var ToSalesLine: Record "Sales Line")
     var
         Item: Record Item;
     begin

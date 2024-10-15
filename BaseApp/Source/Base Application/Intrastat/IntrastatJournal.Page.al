@@ -393,7 +393,7 @@
                 var
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
-                    VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"Intrastat Report");
+                    VATReportsConfiguration.SetRange("VAT Report Type", "VAT Report Configuration"::"Intrastat Report");
                     if VATReportsConfiguration.FindFirst and (VATReportsConfiguration."Suggest Lines Codeunit ID" <> 0) then begin
                         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", Rec);
                         exit;

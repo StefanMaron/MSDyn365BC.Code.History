@@ -43,11 +43,6 @@
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        WorkCenter: Record "Work Center";
-        MachineCenter: Record "Machine Center";
-        SubcPrices: Record "Subcontractor Prices";
-        SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
-        SubcontractingManagement: Codeunit SubcontractingManagement;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -72,77 +67,79 @@
         if RoutingLine.Find('-') then
             repeat
                 RoutingLine.TestField(Recalculate, false);
-                ProdOrderRoutingLine.Init();
-                ProdOrderRoutingLine.Status := ProdOrderLine.Status;
-                ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
-                ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
-                ProdOrderRoutingLine."Routing No." := ProdOrderLine."Routing No.";
-                ProdOrderRoutingLine."Operation No." := RoutingLine."Operation No.";
-                ProdOrderRoutingLine.CopyFromRoutingLine(RoutingLine);
-                case ProdOrderRoutingLine.Type of
-                    ProdOrderRoutingLine.Type::"Work Center":
-                        begin
-                            WorkCenter.Get(RoutingLine."Work Center No.");
-                            ProdOrderRoutingLine."Flushing Method" := WorkCenter."Flushing Method";
-                        end;
-                    ProdOrderRoutingLine.Type::"Machine Center":
-                        begin
-                            MachineCenter.Get(ProdOrderRoutingLine."No.");
-                            ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
-                        end;
-                end;
-                if (ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center") and
-                   (WorkCenter."Subcontractor No." <> '')
-                then begin
-                    SubcPrices."Vendor No." := WorkCenter."Subcontractor No.";
-                    SubcPrices."Item No." := ProdOrderLine."Item No.";
-                    SubcPrices."Standard Task Code" := ProdOrderRoutingLine."Standard Task Code";
-                    SubcPrices."Work Center No." := WorkCenter."No.";
-                    SubcPrices."Variant Code" := ProdOrderLine."Variant Code";
-                    SubcPrices."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
-                    SubcPrices."Start Date" := WorkDate;
-                    SubcPrices."Currency Code" := '';
-                    SubcontractingPriceMgt.RoutingPricelistCost(
-                      SubcPrices,
-                      WorkCenter,
-                      ProdOrderRoutingLine."Direct Unit Cost",
-                      ProdOrderRoutingLine."Indirect Cost %",
-                      ProdOrderRoutingLine."Overhead Rate",
-                      ProdOrderRoutingLine."Unit Cost per",
-                      ProdOrderRoutingLine."Unit Cost Calculation",
-                      ProdOrderLine.Quantity,
-                      ProdOrderLine."Qty. per Unit of Measure",
-                      ProdOrderLine."Quantity (Base)");
-                end else
-                    CostCalcMgt.RoutingCostPerUnit(
-                      ProdOrderRoutingLine.Type,
-                      ProdOrderRoutingLine."No.",
-                      ProdOrderRoutingLine."Direct Unit Cost",
-                      ProdOrderRoutingLine."Indirect Cost %",
-                      ProdOrderRoutingLine."Overhead Rate",
-                      ProdOrderRoutingLine."Unit Cost per",
-                      ProdOrderRoutingLine."Unit Cost Calculation");
-
-                OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
-
-                ProdOrderRoutingLine."WIP Item" := RoutingLine."WIP Item";
-                if (ProdOrderRoutingLine."Routing Link Code" <> '') and
-                   (WorkCenter."Subcontractor No." <> '')
-                then
-                    SubcontractingManagement.UpdLinkedComponents(ProdOrderRoutingLine, false);
-                ProdOrderRoutingLine.Validate("Direct Unit Cost");
-                ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
-                ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
-                ProdOrderRoutingLine."Ending Time" := ProdOrderLine."Ending Time";
-                ProdOrderRoutingLine."Ending Date" := ProdOrderLine."Ending Date";
-                ProdOrderRoutingLine.UpdateDatetime;
-                OnAfterTransferRoutingLine(ProdOrderLine, RoutingLine, ProdOrderRoutingLine);
-                ProdOrderRoutingLine.Insert();
-                OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+                InitProdOrderRoutingLine(ProdOrderRoutingLine, RoutingLine);
                 TransferTaskInfo(ProdOrderRoutingLine, ProdOrderLine."Routing Version Code");
             until RoutingLine.Next() = 0;
 
         OnAfterTransferRouting(ProdOrderLine);
+    end;
+
+    procedure InitProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; RoutingLine: Record "Routing Line")
+    var
+        WorkCenter: Record "Work Center";
+        MachineCenter: Record "Machine Center";
+        SubcPrices: Record "Subcontractor Prices";
+        SubcontractingPriceMgt: Codeunit SubcontractingPricesMgt;
+        SubcontractingManagement: Codeunit SubcontractingManagement;
+    begin
+        ProdOrderRoutingLine.Init();
+        ProdOrderRoutingLine.Status := ProdOrderLine.Status;
+        ProdOrderRoutingLine."Prod. Order No." := ProdOrderLine."Prod. Order No.";
+        ProdOrderRoutingLine."Routing Reference No." := ProdOrderLine."Routing Reference No.";
+        ProdOrderRoutingLine."Routing No." := ProdOrderLine."Routing No.";
+        ProdOrderRoutingLine."Operation No." := RoutingLine."Operation No.";
+        ProdOrderRoutingLine.CopyFromRoutingLine(RoutingLine);
+        case ProdOrderRoutingLine.Type of
+            ProdOrderRoutingLine.Type::"Work Center":
+                begin
+                    WorkCenter.Get(RoutingLine."Work Center No.");
+                    ProdOrderRoutingLine."Flushing Method" := WorkCenter."Flushing Method";
+                end;
+            ProdOrderRoutingLine.Type::"Machine Center":
+                begin
+                    MachineCenter.Get(ProdOrderRoutingLine."No.");
+                    ProdOrderRoutingLine."Flushing Method" := MachineCenter."Flushing Method";
+                end;
+        end;
+
+        if (ProdOrderRoutingLine.Type = ProdOrderRoutingLine.Type::"Work Center") and
+           (WorkCenter."Subcontractor No." <> '')
+        then begin
+            SubcPrices."Vendor No." := WorkCenter."Subcontractor No.";
+            SubcPrices."Item No." := ProdOrderLine."Item No.";
+            SubcPrices."Standard Task Code" := ProdOrderRoutingLine."Standard Task Code";
+            SubcPrices."Work Center No." := WorkCenter."No.";
+            SubcPrices."Variant Code" := ProdOrderLine."Variant Code";
+            SubcPrices."Unit of Measure Code" := ProdOrderLine."Unit of Measure Code";
+            SubcPrices."Start Date" := WorkDate;
+            SubcPrices."Currency Code" := '';
+            SubcontractingPriceMgt.RoutingPricelistCost(
+                SubcPrices, WorkCenter,
+                ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
+                ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation",
+                ProdOrderLine.Quantity, ProdOrderLine."Qty. per Unit of Measure", ProdOrderLine."Quantity (Base)");
+            end else
+                CostCalcMgt.RoutingCostPerUnit(
+                    ProdOrderRoutingLine.Type, ProdOrderRoutingLine."No.",
+                    ProdOrderRoutingLine."Direct Unit Cost", ProdOrderRoutingLine."Indirect Cost %", ProdOrderRoutingLine."Overhead Rate",
+                    ProdOrderRoutingLine."Unit Cost per", ProdOrderRoutingLine."Unit Cost Calculation");
+
+        OnTransferRoutingOnbeforeValidateDirectUnitCost(ProdOrderRoutingLine, ProdOrderLine, RoutingLine);
+
+        ProdOrderRoutingLine."WIP Item" := RoutingLine."WIP Item";
+        if (ProdOrderRoutingLine."Routing Link Code" <> '') and
+           (WorkCenter."Subcontractor No." <> '')
+        then
+            SubcontractingManagement.UpdLinkedComponents(ProdOrderRoutingLine, false);
+        ProdOrderRoutingLine.Validate("Direct Unit Cost");
+        ProdOrderRoutingLine."Starting Time" := ProdOrderLine."Starting Time";
+        ProdOrderRoutingLine."Starting Date" := ProdOrderLine."Starting Date";
+        ProdOrderRoutingLine."Ending Time" := ProdOrderLine."Ending Time";
+        ProdOrderRoutingLine."Ending Date" := ProdOrderLine."Ending Date";
+        ProdOrderRoutingLine.UpdateDatetime;
+        OnAfterTransferRoutingLine(ProdOrderLine, RoutingLine, ProdOrderRoutingLine);
+        ProdOrderRoutingLine.Insert();
+        OnAfterInsertProdRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
     end;
 
     procedure TransferTaskInfo(var FromProdOrderRoutingLine: Record "Prod. Order Routing Line"; VersionCode: Code[20])
@@ -155,7 +152,7 @@
         OnAfterTransferTaskInfo(FromProdOrderRoutingLine, VersionCode);
     end;
 
-    local procedure TransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal): Boolean
+    procedure TransferBOM(ProdBOMNo: Code[20]; Level: Integer; LineQtyPerUOM: Decimal; ItemQtyPerUOM: Decimal): Boolean
     var
         BOMHeader: Record "Production BOM Header";
         ProductionBOMVersion: Record "Production BOM Version";

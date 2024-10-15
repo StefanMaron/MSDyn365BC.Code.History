@@ -136,7 +136,7 @@ codeunit 8614 "Config. XML Exchange"
             repeat
                 FieldNode :=
                   PackageXML.CreateElement(
-                    GetElementName(ConfigValidateMgt.CheckName(ConfigPackageField."Field Name")));
+                    GetElementName(CopyStr(ConfigValidateMgt.CheckName(ConfigPackageField."Field Name"), 1, 250)));
                 if ExportValue then begin
                     DimCode := CopyStr(ConfigPackageField."Field Name", 1, 20);
                     FieldNode.InnerText := GetDimValueFromTable(RecRef, DimCode);
@@ -159,10 +159,10 @@ codeunit 8614 "Config. XML Exchange"
         if not (ConfigMgt.IsDimSetIDTable(ConfigPackageTable."Table ID") or ConfigMgt.IsDefaultDimTable(ConfigPackageTable."Table ID")) then
             exit;
         i := 1;
-        if Dimension.FindSet then
+        if Dimension.FindSet() then
             repeat
                 ConfigPackageMgt.InsertPackageField(
-                  TempConfigPackageField, ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", ConfigMgt.DimensionFieldID + i,
+                  TempConfigPackageField, ConfigPackageTable."Package Code", ConfigPackageTable."Table ID", ConfigMgt.DimensionFieldID() + i,
                   Dimension.Code, Dimension."Code Caption", true, false, false, true);
                 if FieldNodeExists(RecordNode, GetElementName(TempConfigPackageField."Field Name")) then begin
                     ConfigPackageField := TempConfigPackageField;
@@ -689,6 +689,9 @@ codeunit 8614 "Config. XML Exchange"
                     end;
             end;
         end;
+
+        Commit(); // to ensure no deadlock occurs when waiting for background processes
+
         if not HideDialog then
             ConfigProgressBar.Close;
         if not ExcelMode then
@@ -750,6 +753,10 @@ codeunit 8614 "Config. XML Exchange"
         TableID: Integer;
     begin
         if Evaluate(TableID, Format(TableNode.FirstChild.InnerText)) then begin
+#if not CLEAN19
+            if TableID = 8628 then // "Config. Field Mapping"
+                TableID := Database::"Config. Field Map";
+#endif
             FillPackageMetadataFromXML(PackageCode, TableID, TableNode);
             if not TableObjectExists(TableID) then begin
                 ConfigPackageMgt.InsertPackageTableWithoutValidation(ConfigPackageTable, PackageCode, TableID);
@@ -998,7 +1005,7 @@ codeunit 8614 "Config. XML Exchange"
                             if not TempConfigPackageField.Dimension then begin
                                 FieldRef := RecRef.Field(ConfigPackageData."Field ID");
                                 if ConfigPackageData.Value <> '' then begin
-                                    ErrorText := ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, not ExcelMode);
+                                    ErrorText := CopyStr(ConfigValidateMgt.EvaluateValue(FieldRef, ConfigPackageData.Value, not ExcelMode), 1, MaxStrLen(ErrorText));
                                     if ErrorText <> '' then
                                         ConfigPackageMgt.FieldError(ConfigPackageData, ErrorText, ErrorTypeEnum::General)
                                     else

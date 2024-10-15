@@ -869,6 +869,7 @@ codeunit 136306 "Job Invoicing"
           DimensionSetEntrySalesLine."Dimension Value Code", WrongSalesInvoiceDimensionsErr);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure ChangeQuantityInJobJournalLine()
@@ -905,6 +906,7 @@ codeunit 136306 "Job Invoicing"
         // [THEN] Line's "Unit Price" must be calculated using Item's Unit Cost and Job Item Price factor.
         Assert.AreEqual(Round(ExpectedUnitPrice, 2), Round(JobJournalLine."Unit Price", 2), UnitPriceMustNotBeZeroErr);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('TransferToInvoiceHandler,MessageHandler')]
@@ -3380,6 +3382,7 @@ codeunit 136306 "Job Invoicing"
         SalesInvoiceLine.FindFirst;
     end;
 
+#if not CLEAN19
     local procedure CreateJobJnlLine(var JobJournalLine: Record "Job Journal Line"): Decimal
     var
         Item: Record Item;
@@ -3405,6 +3408,7 @@ codeunit 136306 "Job Invoicing"
         end;
         exit(JobItemPrice."Unit Cost Factor" * Item."Unit Cost");
     end;
+#endif
 
     local procedure UpdateDesriptionInSalesLine(DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"): Text[50]
     var

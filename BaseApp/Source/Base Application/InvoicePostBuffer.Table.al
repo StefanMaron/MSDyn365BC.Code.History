@@ -622,37 +622,51 @@
         OnAfterInvPostBufferPrepareService(ServiceLine, Rec);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by PreparePrepmtAdjBuffer().', '19.0')]
     procedure FillPrepmtAdjBuffer(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
-    var
-        PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer";
     begin
-        with PrepmtAdjInvPostBuffer do begin
-            Init;
-            Type := Type::"Prepmt. Exch. Rate Difference";
-            "G/L Account" := GLAccountNo;
-            Amount := AdjAmount;
-            if RoundingEntry then
-                "Amount (ACY)" := AdjAmount
-            else
-                "Amount (ACY)" := 0;
-            "Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
-            "Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
-            "Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
-            "System-Created Entry" := true;
-            "Entry Description" := InvoicePostBuffer."Entry Description";
-            OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(PrepmtAdjInvPostBuffer, InvoicePostBuffer);
-            InvoicePostBuffer := PrepmtAdjInvPostBuffer;
+        TempInvoicePostBuffer.PreparePrepmtAdjBuffer(InvoicePostBuffer, GLAccountNo, AdjAmount, RoundingEntry);
+    end;
+#endif
 
-            TempInvoicePostBuffer := InvoicePostBuffer;
-            if TempInvoicePostBuffer.Find then begin
-                TempInvoicePostBuffer.Amount += InvoicePostBuffer.Amount;
-                TempInvoicePostBuffer."Amount (ACY)" += InvoicePostBuffer."Amount (ACY)";
-                TempInvoicePostBuffer.Modify();
-            end else begin
-                TempInvoicePostBuffer := InvoicePostBuffer;
-                TempInvoicePostBuffer.Insert();
-            end;
+    procedure PreparePrepmtAdjBuffer(InvoicePostBuffer: Record "Invoice Post. Buffer"; GLAccountNo: Code[20]; AdjAmount: Decimal; RoundingEntry: Boolean)
+    var
+        PrepmtAdjInvoicePostBuffer: Record "Invoice Post. Buffer";
+    begin
+        PrepmtAdjInvoicePostBuffer.Init();
+        PrepmtAdjInvoicePostBuffer.Type := Type::"Prepmt. Exch. Rate Difference";
+        PrepmtAdjInvoicePostBuffer."G/L Account" := GLAccountNo;
+        PrepmtAdjInvoicePostBuffer.Amount := AdjAmount;
+        if RoundingEntry then
+            PrepmtAdjInvoicePostBuffer."Amount (ACY)" := AdjAmount
+        else
+            PrepmtAdjInvoicePostBuffer."Amount (ACY)" := 0;
+        PrepmtAdjInvoicePostBuffer."Dimension Set ID" := InvoicePostBuffer."Dimension Set ID";
+        PrepmtAdjInvoicePostBuffer."Global Dimension 1 Code" := InvoicePostBuffer."Global Dimension 1 Code";
+        PrepmtAdjInvoicePostBuffer."Global Dimension 2 Code" := InvoicePostBuffer."Global Dimension 2 Code";
+        PrepmtAdjInvoicePostBuffer."System-Created Entry" := true;
+        PrepmtAdjInvoicePostBuffer."Entry Description" := InvoicePostBuffer."Entry Description";
+        OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(PrepmtAdjInvoicePostBuffer, InvoicePostBuffer);
+        InvoicePostBuffer := PrepmtAdjInvoicePostBuffer;
+
+        Rec := InvoicePostBuffer;
+        if Rec.Find() then begin
+            Rec.Amount += InvoicePostBuffer.Amount;
+            Rec."Amount (ACY)" += InvoicePostBuffer."Amount (ACY)";
+            Rec.Modify();
+        end else begin
+            Rec := InvoicePostBuffer;
+            Rec.Insert();
         end;
+    end;
+
+    procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer")
+    var
+        InvDefLineNo: Integer;
+        DeferralLineNo: Integer;
+    begin
+        Update(InvoicePostBuffer, InvDefLineNo, DeferralLineNo);
     end;
 
     procedure Update(InvoicePostBuffer: Record "Invoice Post. Buffer"; var InvDefLineNo: Integer; var DeferralLineNo: Integer)
@@ -795,6 +809,54 @@
         end;
     end;
 
+    procedure CopyToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlLine."Account No." := Rec."G/L Account";
+        GenJnlLine."System-Created Entry" := Rec."System-Created Entry";
+        GenJnlLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        GenJnlLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        GenJnlLine."VAT Bus. Posting Group" := Rec."VAT Bus. Posting Group";
+        GenJnlLine."VAT Prod. Posting Group" := Rec."VAT Prod. Posting Group";
+        GenJnlLine."Tax Area Code" := Rec."Tax Area Code";
+        GenJnlLine."Tax Liable" := Rec."Tax Liable";
+        GenJnlLine."Tax Group Code" := Rec."Tax Group Code";
+        GenJnlLine."Use Tax" := Rec."Use Tax";
+        GenJnlLine.Quantity := Rec.Quantity;
+        GenJnlLine."VAT %" := Rec."VAT %";
+        GenJnlLine."VAT Calculation Type" := Rec."VAT Calculation Type";
+        GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
+        GenJnlLine."Job No." := Rec."Job No.";
+        GenJnlLine."Deferral Code" := Rec."Deferral Code";
+        GenJnlLine."Deferral Line No." := Rec."Deferral Line No.";
+        GenJnlLine.Amount := Rec.Amount;
+        GenJnlLine."Source Currency Amount" := Rec."Amount (ACY)";
+        GenJnlLine."VAT Base Amount" := Rec."VAT Base Amount";
+        GenJnlLine."Source Curr. VAT Base Amount" := Rec."VAT Base Amount (ACY)";
+        GenJnlLine."VAT Amount" := Rec."VAT Amount";
+        GenJnlLine."Source Curr. VAT Amount" := Rec."VAT Amount (ACY)";
+        GenJnlLine."VAT Difference" := Rec."VAT Difference";
+        GenJnlLine."VAT Base Before Pmt. Disc." := Rec."VAT Base Before Pmt. Disc.";
+
+        OnAfterCopyToGenJnlLine(GenJnlLine, Rec);
+    end;
+
+    procedure CopyToGenJnlLineFA(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        GenJnlLine."Account Type" := "Gen. Journal Account Type"::"Fixed Asset";
+        GenJnlLine."FA Posting Date" := Rec."FA Posting Date";
+        GenJnlLine."Depreciation Book Code" := Rec."Depreciation Book Code";
+        GenJnlLine."Salvage Value" := Rec."Salvage Value";
+        GenJnlLine."Depr. until FA Posting Date" := Rec."Depr. until FA Posting Date";
+        GenJnlLine."Depr. Acquisition Cost" := Rec."Depr. Acquisition Cost";
+        GenJnlLine."Maintenance Code" := Rec."Maintenance Code";
+        GenJnlLine."Insurance No." := Rec."Insurance No.";
+        GenJnlLine."Budgeted FA No." := Rec."Budgeted FA No.";
+        GenJnlLine."Duplicate in Depreciation Book" := Rec."Duplicate in Depreciation Book";
+        GenJnlLine."Use Duplication List" := Rec."Use Duplication List";
+
+        OnAfterCopyToGenJnlLineFA(GenJnlLine, Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -857,6 +919,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnFillPrepmtAdjBufferOnBeforeAssignInvoicePostBuffer(var PrepmtAdjInvPostBuffer: Record "Invoice Post. Buffer"; InvoicePostBuffer: Record "Invoice Post. Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToGenJnlLineFA(var GenJnlLine: Record "Gen. Journal Line"; InvoicePostBuffer: Record "Invoice Post. Buffer");
     begin
     end;
 }

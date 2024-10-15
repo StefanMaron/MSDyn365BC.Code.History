@@ -7,7 +7,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
     var
         Item: Record Item;
         SourceCodeSetup: Record "Source Code Setup";
-        InvtSetup: Record "Inventory Setup";
         ValueEntry: Record "Value Entry";
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemApplnEntry: Record "Item Application Entry";
@@ -111,10 +110,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
             OnRunOnAfterInsertTransRcptLines(TransRcptHeader, TransLine, TransHeader, Location, WhseReceive);
 
-            if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
-                InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
-                InvtAdjmt.MakeMultiLevelAdjmt;
-            end;
+            MakeInventoryAdjustment();
 
             ValueEntry.LockTable();
             ItemLedgEntry.LockTable();
@@ -153,7 +149,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Receive");
             DeleteOne := ShouldDeleteOneTransferOrder(TransLine);
-            OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne);
+            OnBeforeDeleteOneTransferHeader(TransHeader, DeleteOne, TransRcptHeader);
             if DeleteOne then
                 DeleteOneTransferOrder(TransHeader, TransLine)
             else begin
@@ -168,7 +164,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
             Clear(WhsePostRcpt);
-            Clear(InvtAdjmt);
             if GuiAllowed then
                 Window.Close;
         end;
@@ -187,6 +182,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
         Text006: Label 'The combination of dimensions used in transfer order %1, line no. %2 is blocked. %3.';
         Text007: Label 'The dimensions that are used in transfer order %1, line no. %2 are not valid. %3.';
         Text008: Label 'Base Qty. to Receive must be 0.';
+        InvtSetup: Record "Inventory Setup";
         TransRcptHeader: Record "Transfer Receipt Header";
         TransRcptLine: Record "Transfer Receipt Line";
         TransHeader: Record "Transfer Header";
@@ -208,7 +204,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         WhseTransferRelease: Codeunit "Whse.-Transfer Release";
         ReserveTransLine: Codeunit "Transfer Line-Reserve";
         WhsePostRcpt: Codeunit "Whse.-Post Receipt";
-        InvtAdjmt: Codeunit "Inventory Adjustment";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         SourceCode: Code[10];
         WhsePosting: Boolean;
@@ -218,8 +213,6 @@ codeunit 5705 "TransferOrder-Post Receipt"
         WhseReceive: Boolean;
         InvtPickPutaway: Boolean;
         SuppressCommit: Boolean;
-
-    protected var
         TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 
@@ -692,6 +685,14 @@ codeunit 5705 "TransferOrder-Post Receipt"
         end;
     end;
 
+    local procedure MakeInventoryAdjustment()
+    var
+        InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
+    begin
+        if InvtSetup.AutomaticCostAdjmtRequired() then
+            InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
+    end;
+
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
@@ -753,7 +754,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteOneTransferHeader(TransferHeader: Record "Transfer Header"; var DeleteOne: Boolean)
+    local procedure OnBeforeDeleteOneTransferHeader(TransferHeader: Record "Transfer Header"; var DeleteOne: Boolean; TransferReceiptHeader: Record "Transfer Receipt Header")
     begin
     end;
 

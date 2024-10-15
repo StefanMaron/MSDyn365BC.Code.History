@@ -16,11 +16,12 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         SalesQuoteMustNotExistError: Label '%1 with %2=%3, %4=%5 must not exist.';
         SalesQuoteAlreadyAssignedError: Label 'A sales quote has already been assigned to this opportunity.';
         UnknownError: Label 'Unknown error.';
-        CustomerTemplateCode2: Code[10];
+        CustomerTemplateCode2: Code[20];
         SalesQuoteMustBeInProgressErr: Label '%1 must be equal to ''%2''  in Opportunity: No.=%3. Current value is ''%4''.', Comment = '%1=Opportunity Status;%2=Status Value;%3=Opportunity No.;%4=Status Value.';
 
     [Test]
@@ -31,7 +32,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesHeader: Record "Sales Header";
         Contact: Record Contact;
         Opportunity: Record Opportunity;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // Covers document number TC0011 - refer to TFS ID 21733.
         // [SCENARIO 21733] Test creation of a Sales Quote from the Opportunity for a Contact that is not registered as a Customer.
@@ -94,7 +95,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     procedure ConvertSalesQuoteToOrder()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         SalesOrder: TestPage "Sales Order";
         CustomerNo: Code[20];
@@ -130,7 +131,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         Contact: Record Contact;
         Opportunity: Record Opportunity;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // Covers document number TC0013 - refer to TFS ID 21733.
         // [SCENARIO 21733] Test that the application generates an error on assigning a Sales Quote to an Opportunity that has already been assigned a Sales Quote.
@@ -158,7 +159,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesHeader2: Record "Sales Header";
         Contact: Record Contact;
         Opportunity: Record Opportunity;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
     begin
         // Covers document number TC0013 - refer to TFS ID 21733.
         // [SCENARIO 21733] Test that the application allows changing Sales Quote assigned to an Opportunity that has already been assigned a Sales Quote.
@@ -171,7 +172,7 @@ codeunit 136204 "Marketing Quotations Contacts"
 
         CreateAndAssignQuoteToOpportunity(Opportunity, Contact."No.");
         FindSalesDocument(SalesHeader, CustomerTemplate.Code, Contact."No.", SalesHeader."Document Type"::Quote);
-        CreateSalesQuoteWOCustomer(SalesHeader2, SalesHeader."Sell-to Contact No.", SalesHeader."Sell-to Customer Template Code");
+        CreateSalesQuoteWOCustomer(SalesHeader2, SalesHeader."Sell-to Contact No.", SalesHeader."Sell-to Customer Templ. Code");
 
         // [WHEN] Try changing the Sales Quote on the Opportunity created earlier.
         Opportunity.Validate("Sales Document No.", SalesHeader2."No.");
@@ -192,7 +193,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         SalesHeader: Record "Sales Header";
         Contact: Record Contact;
         Opportunity: Record Opportunity;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         TempOpportunity: Record Opportunity temporary;
     begin
         // [SCENARIO] Test that the application allows Assigning a Sales Quote to an Opportunity from the Sales Quote window.
@@ -461,7 +462,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     procedure DeleteSalesOrderRelatedToOpportunity()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Opportunity: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
         SalesHeader: Record "Sales Header";
@@ -508,7 +509,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     procedure EstimatedValueInClosedOpportunityHavingEstimatedValue()
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Opportunity: Record Opportunity;
         OpportunityEntry: Record "Opportunity Entry";
         SalesHeader: Record "Sales Header";
@@ -556,7 +557,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     var
         Contact: Record Contact;
         Opportunity: Record Opportunity;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         SalesHeader: Record "Sales Header";
         ActionOption: Option LookupOK,Cancel;
     begin
@@ -591,6 +592,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibrarySales.SetCreditWarningsToNoWarnings;
+        LibraryTemplates.EnableTemplatesFeature();
 
         IsInitialized := true;
         Commit();
@@ -621,12 +623,12 @@ codeunit 136204 "Marketing Quotations Contacts"
         AssignQuoteToOpportunity(Opportunity, ContactNo);
     end;
 
-    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template")
+    local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Templ.")
     var
         Customer2: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer2);
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
+        LibraryTemplates.CreateCustomerTemplate(CustomerTemplate);
         CustomerTemplate.Validate("Gen. Bus. Posting Group", Customer2."Gen. Bus. Posting Group");
         CustomerTemplate.Validate("Customer Posting Group", Customer2."Customer Posting Group");
         CustomerTemplate.Validate("VAT Bus. Posting Group", Customer2."VAT Bus. Posting Group");
@@ -649,21 +651,21 @@ codeunit 136204 "Marketing Quotations Contacts"
         ContactBusinessRelation.Modify(true);
     end;
 
-    local procedure CreateSalesQuoteWOCustomer(var SalesHeader: Record "Sales Header"; ContactNo: Code[20]; CustomerTemplateCode: Code[10])
+    local procedure CreateSalesQuoteWOCustomer(var SalesHeader: Record "Sales Header"; ContactNo: Code[20]; CustomerTemplateCode: Code[20])
     begin
         LibrarySales.SetStockoutWarning(false);
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         SalesHeader.Insert(true);
         SalesHeader.Validate("Sell-to Contact No.", ContactNo);
-        SalesHeader.Validate("Sell-to Customer Template Code", CustomerTemplateCode);
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesHeader);
     end;
 
     local procedure CreateSalesQuoteWOCustomerWithOpportunity(var SalesHeader2: Record "Sales Header"; SalesHeader: Record "Sales Header")
     begin
-        CreateSalesQuoteWOCustomer(SalesHeader2, SalesHeader."Sell-to Contact No.", SalesHeader."Sell-to Customer Template Code");
+        CreateSalesQuoteWOCustomer(SalesHeader2, SalesHeader."Sell-to Contact No.", SalesHeader."Sell-to Customer Templ. Code");
         SalesHeader2.Validate("Opportunity No.", SalesHeader."Opportunity No.");
         SalesHeader2.Modify(true);
     end;
@@ -680,7 +682,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     local procedure CreateSetupForOpportunity(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         Contact: Record Contact;
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         Opportunity: Record Opportunity;
     begin
         CreateCustomerTemplate(CustomerTemplate);
@@ -690,11 +692,11 @@ codeunit 136204 "Marketing Quotations Contacts"
         exit(CustomerTemplate.Code);
     end;
 
-    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; CustomerTemplateCode: Code[10]; SellToContactNo: Code[20]; DocumentType: Enum "Sales Document Type")
+    local procedure FindSalesDocument(var SalesHeader: Record "Sales Header"; CustomerTemplateCode: Code[20]; SellToContactNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         if CustomerTemplateCode <> '' then
-            SalesHeader.SetRange("Sell-to Customer Template Code", CustomerTemplateCode);
+            SalesHeader.SetRange("Sell-to Customer Templ. Code", CustomerTemplateCode);
         SalesHeader.SetRange("Sell-to Contact No.", SellToContactNo);
         SalesHeader.FindFirst;
     end;
@@ -727,7 +729,7 @@ codeunit 136204 "Marketing Quotations Contacts"
         end;
     end;
 
-    local procedure VerifyCustomerCreatedFromQuote(CustomerNo: Code[20]; CustomerTemplate: Record "Customer Template")
+    local procedure VerifyCustomerCreatedFromQuote(CustomerNo: Code[20]; CustomerTemplate: Record "Customer Templ.")
     var
         Customer: Record Customer;
     begin
@@ -802,7 +804,7 @@ codeunit 136204 "Marketing Quotations Contacts"
     begin
         SalesHeader.Init();
         SalesQuote.GetRecord(SalesHeader);
-        SalesHeader.Validate("Sell-to Customer Template Code", CustomerTemplateCode2);
+        SalesHeader.Validate("Sell-to Customer Templ. Code", CustomerTemplateCode2);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesHeader);
     end;
@@ -834,9 +836,9 @@ codeunit 136204 "Marketing Quotations Contacts"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure CustomerTemplateModalPageHandler(var CustomerTemplateList: Page "Customer Template List"; var Reply: Action)
+    procedure CustomerTemplateModalPageHandler(var CustomerTemplateList: Page "Select Customer Templ. List"; var Reply: Action)
     var
-        CustomerTemplate: Record "Customer Template";
+        CustomerTemplate: Record "Customer Templ.";
         ActionOption: Option LookupOK,Cancel;
     begin
         case LibraryVariableStorage.DequeueInteger of

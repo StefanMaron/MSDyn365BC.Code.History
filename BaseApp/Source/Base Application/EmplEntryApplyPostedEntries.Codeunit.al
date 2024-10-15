@@ -329,7 +329,6 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
                 Error(CannotUnapplyExchRateErr, NewPostingDate);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckVATSettlement(EmplLedgEntryNo: Integer; PostingDate: Date): Boolean
     var
         VATEntry: Record "VAT Entry";

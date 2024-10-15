@@ -345,9 +345,9 @@ page 9307 "Purchase Order List"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -717,6 +717,7 @@ page 9307 "Purchase Order List"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category8;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -821,16 +822,16 @@ page 9307 "Purchase Order List"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        if GetFilter(Receive) <> '' then
-            FilterPartialReceived;
-        if GetFilter(Invoice) <> '' then
-            FilterPartialInvoiced;
+        if Rec.GetFilter(Receive) <> '' then
+            Rec.FilterPartialReceived();
+        if Rec.GetFilter(Invoice) <> '' then
+            Rec.FilterPartialInvoiced();
 
-        SetSecurityFilterOnRespCenter;
+        Rec.SetSecurityFilterOnRespCenter();
 
-        JobQueueActive := PurchasesPayablesSetup.JobQueueActive;
+        JobQueueActive := PurchasesPayablesSetup.JobQueueActive();
 
-        CopyBuyFromVendorFilter;
+        CopyBuyFromVendorFilter();
     end;
 
     var

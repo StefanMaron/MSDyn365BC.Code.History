@@ -27,42 +27,6 @@ codeunit 144137 "UT REP Free Invoice"
         FreeInvVATAmtCap: Label 'FreeInvVATAmt';
         FreeInvTxtCap: Label 'FreeInvTxt';
 
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordFreeTypeTotalAmtSalesInvoice()
-    var
-        PaymentMethod: Record "Payment Method";
-    begin
-        // Purpose of the test is to verify On After Get Record trigger of Sales Invoice Line for Report ID 206 - Sales Invoice when Free Type is Total Amt.
-
-        // Setup and Exercise.
-        CreatePostedSalesInvoiceAndRunReportSalesInvoice(PaymentMethod."Free Type"::"Total Amt.");
-
-        // Verify.
-        VerifyValuesOnXML(FreeInvoiceTxt, 0);  // Using 0 for VAT Amount.
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OnAfterGetRecordFreeTypeOnlyVATAmtSalesInvoice()
-    var
-        SalesInvoiceLine: Record "Sales Invoice Line";
-        PaymentMethod: Record "Payment Method";
-        DocumentNo: Code[20];
-    begin
-        // Purpose of the test is to verify On After Get Record trigger of Sales Invoice Line for Report ID 206 - Sales Invoice when Free Type is Only VAT Amt.
-
-        // Setup and Exercise.
-        DocumentNo := CreatePostedSalesInvoiceAndRunReportSalesInvoice(PaymentMethod."Free Type"::"Only VAT Amt.");
-
-        // Verify.
-        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
-        VerifyValuesOnXML('', SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount);  // Using blank for FreeInvTxt.
-    end;
-
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -83,18 +47,6 @@ codeunit 144137 "UT REP Free Invoice"
         exit(SalesInvoiceHeader."No.");
     end;
 
-    local procedure CreatePostedSalesInvoiceAndRunReportSalesInvoice(FreeType: Option) DocumentNo: Code[20]
-    begin
-        // Setup.
-        Initialize;
-        DocumentNo := CreatePostedSalesInvoice(CreatePaymentMethod(FreeType));
-        LibraryVariableStorage.Enqueue(DocumentNo);  // Enqueue for SalesInvoiceReqPageHandler.
-        Commit();  // COMMIT is explicitly called on OnRun of COD315 - Sales Inv.-Printed.
-
-        // Exercise.
-        REPORT.Run(REPORT::"Sales - Invoice");  // Invokes handler SalesInvoiceReqPageHandler.
-    end;
-
     local procedure CreatePaymentMethod(FreeType: Option): Code[10]
     var
         PaymentMethod: Record "Payment Method";
@@ -113,15 +65,5 @@ codeunit 144137 "UT REP Free Invoice"
         LibraryReportDataset.AssertElementWithValueExists(FreeInvTxtCap, FreeInvText);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceRequestPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    var
-        No: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(No);
-        SalesInvoice."Sales Invoice Header".SetFilter("No.", No);
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
 }
 

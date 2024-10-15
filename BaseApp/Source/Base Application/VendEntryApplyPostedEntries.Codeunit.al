@@ -458,7 +458,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         exit(LastTransactionNo);
     end;
 
-    [Scope('OnPrem')]
     procedure CheckVATSettlement(VendLedgEntryNo: Integer; PostingDate: Date): Boolean
     var
         VATEntry: Record "VAT Entry";

@@ -1,4 +1,4 @@
-table 3 "Payment Terms"
+﻿table 3 "Payment Terms"
 {
     Caption = 'Payment Terms';
     DataCaptionFields = "Code", Description;
@@ -95,18 +95,10 @@ table 3 "Payment Terms"
     trigger OnDelete()
     var
         PaymentTermsTranslation: Record "Payment Term Translation";
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if EnvInfoProxy.IsInvoicing then
-            if O365SalesInitialSetup.Get and
-               (O365SalesInitialSetup."Default Payment Terms Code" = Code)
-            then
-                Error(CannotRemoveDefaultPaymentTermsErr);
-
         with PaymentTermsTranslation do begin
             SetRange("Payment Term", Code);
-            DeleteAll
+            DeleteAll();
         end;
         FilterPaymentLines;
         if PaymentTermsLine.Find('-') then
@@ -136,7 +128,6 @@ table 3 "Payment Terms"
 
     var
         PaymentTermsLine: Record "Payment Lines";
-        CannotRemoveDefaultPaymentTermsErr: Label 'You cannot remove the default payment terms.';
         Text000: Label 'Impossible to rename %1 because there are payment lines associated with it.';
 
     local procedure SetLastModifiedDateTime()

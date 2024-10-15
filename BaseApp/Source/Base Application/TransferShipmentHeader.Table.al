@@ -569,6 +569,7 @@ table 5744 "Transfer Shipment Header"
         "Goods Appearance" := TransHeader."Goods Appearance";
         Volume := TransHeader.Volume;
         "Shipping Notes" := TransHeader."Shipping Notes";
+        "TDD Prepared By" := TransHeader."TDD Prepared By";
 
         OnAfterCopyFromTransferHeader(Rec, TransHeader);
     end;

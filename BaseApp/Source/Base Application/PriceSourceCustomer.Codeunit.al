@@ -38,7 +38,7 @@ codeunit 7032 "Price Source - Customer" implements "Price Source"
     begin
         xPriceSource := PriceSource;
         if Customer.Get(xPriceSource."Source No.") then;
-        if Page.RunModal(Page::"Customer List", Customer) = ACTION::LookupOK then begin
+        if Page.RunModal(Page::"Customer Lookup", Customer) = ACTION::LookupOK then begin
             xPriceSource.Validate("Source No.", Customer."No.");
             PriceSource := xPriceSource;
             exit(true);

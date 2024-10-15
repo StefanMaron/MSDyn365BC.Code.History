@@ -730,7 +730,11 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     end;
 
     [Test]
+#if not CLEAN19
     [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
+#else
+    [HandlerFunctions('ConfirmMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure TestDeleteArchiveOrderWithDeferral()
     var

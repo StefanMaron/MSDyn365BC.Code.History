@@ -698,6 +698,9 @@ page 143 "Posted Sales Invoices"
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         HasPostedSalesInvoices := true;
+        if not GuiAllowed() then
+            exit;
+
         CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CRMIsCoupledToRecord := CRMIntegrationEnabled;
         if CRMIsCoupledToRecord then

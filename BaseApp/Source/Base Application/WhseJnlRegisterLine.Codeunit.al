@@ -58,7 +58,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
         OnAfterCode(WhseJnlLine, WhseEntryNo);
     end;
 
-    local procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
+    procedure InitWhseEntry(var WhseEntry: Record "Warehouse Entry"; ZoneCode: Code[10]; BinCode: Code[20]; Sign: Integer)
     var
         ToBinContent: Record "Bin Content";
         WMSMgt: Codeunit "WMS Management";
@@ -386,7 +386,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                 BinContent.Default := true;
     end;
 
-    local procedure UpdateDefaultBinContent(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
+    procedure UpdateDefaultBinContent(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; BinCode: Code[20])
     var
         BinContent: Record "Bin Content";
         BinContent2: Record "Bin Content";

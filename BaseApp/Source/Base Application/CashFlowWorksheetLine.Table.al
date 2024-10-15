@@ -287,6 +287,92 @@ table 846 "Cash Flow Worksheet Line"
             Rec, CurrFieldNo, TableID2, No2, '', Dimension, Dimension, 0, 0);
     end;
 
+    procedure CalculateCFAmountAndCFDate()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        PaymentTerms: Record "Payment Terms";
+        CashFlowForecast: Record "Cash Flow Forecast";
+        DiscountDateCalculation: DateFormula;
+        PaymentTermsToApply: Code[10];
+        CFDiscountDate: Date;
+        CheckCrMemo: Boolean;
+        ApplyCFPaymentTerm: Boolean;
+    begin
+        if "Document Date" = 0D then
+            "Document Date" := WorkDate();
+        if "Cash Flow Date" = 0D then
+            "Cash Flow Date" := "Document Date";
+        if "Amount (LCY)" = 0 then
+            exit;
+
+        case "Document Type" of
+            "Document Type"::Invoice:
+                CheckCrMemo := false;
+            "Document Type"::"Credit Memo":
+                CheckCrMemo := true;
+            else
+                exit;
+        end;
+
+        if not CashFlowForecast.Get("Cash Flow Forecast No.") then
+            exit;
+
+        PaymentTermsToApply := "Payment Terms Code";
+        ApplyCFPaymentTerm := CashFlowForecast."Consider CF Payment Terms" and PaymentTerms.Get(PaymentTermsToApply);
+        if "Source Type" in ["Source Type"::"Sales Orders", "Source Type"::"Purchase Orders", "Source Type"::"Service Orders",
+                             "Source Type"::Job]
+        then
+            ApplyCFPaymentTerm := true;
+
+        OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(Rec, ApplyCFPaymentTerm);
+
+        if not ApplyCFPaymentTerm then begin
+            if not CashFlowForecast."Consider Discount" then
+                exit;
+
+            if CashFlowForecast."Consider Pmt. Disc. Tol. Date" then
+                CFDiscountDate := "Pmt. Disc. Tolerance Date"
+            else
+                CFDiscountDate := "Pmt. Discount Date";
+
+            if CFDiscountDate <> 0D then
+                if CFDiscountDate >= WorkDate() then begin
+                    "Cash Flow Date" := CFDiscountDate;
+                    "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
+                end else
+                    "Payment Discount" := 0;
+            exit;
+        end;
+
+        if not PaymentTerms.Get(PaymentTermsToApply) then
+            exit;
+
+        if CheckCrMemo and not PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" then
+            exit;
+
+        if CashFlowForecast."Consider Discount" then begin
+            GeneralLedgerSetup.Get();
+
+            DiscountDateCalculation := PaymentTerms."Discount Date Calculation";
+            if Format(DiscountDateCalculation) = '' then
+                DiscountDateCalculation := PaymentTerms."Due Date Calculation";
+            CFDiscountDate := CalcDate(DiscountDateCalculation, "Document Date");
+            if CashFlowForecast."Consider Pmt. Disc. Tol. Date" then
+                CFDiscountDate := CalcDate(GeneralLedgerSetup."Payment Discount Grace Period", CFDiscountDate);
+
+            if CFDiscountDate >= WorkDate() then begin
+                "Cash Flow Date" := CFDiscountDate;
+
+                "Payment Discount" := Round("Amount (LCY)" * PaymentTerms."Discount %" / 100);
+                "Amount (LCY)" := "Amount (LCY)" - "Payment Discount";
+            end else begin
+                "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+                "Payment Discount" := 0;
+            end;
+        end else
+            "Cash Flow Date" := CalcDate(PaymentTerms."Due Date Calculation", "Document Date");
+    end;
+
     local procedure CalculateForPostedDocuments(CashFlowForecast: Record "Cash Flow Forecast")
     var
         CFDiscountDate: Date;
@@ -319,7 +405,6 @@ table 846 "Cash Flow Worksheet Line"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CalculateCFAmountAndCFDate(var MaxPmtTolerance: Decimal)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -343,7 +428,6 @@ table 846 "Cash Flow Worksheet Line"
             CalculateForPostedDocuments(CashFlowForecast);
     end;
 
-    [Scope('OnPrem')]
     procedure InsertNewLinesForUnpostedDocuments(CashFlowForecast: Record "Cash Flow Forecast"; var MaxPmtTolerance: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -426,7 +510,6 @@ table 846 "Cash Flow Worksheet Line"
         MaxPmtTolerance := 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckForCrMemoCalculation(PaymentTermsToApply: Code[10]): Boolean
     var
         PaymentTerms: Record "Payment Terms";
@@ -474,6 +557,11 @@ table 846 "Cash Flow Worksheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var xCashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateCFAmountAndCFDateOnAfterAssignApplyCFPaymentTerm(CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; var ApplyCFPaymentTerm: Boolean)
     begin
     end;
 

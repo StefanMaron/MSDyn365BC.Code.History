@@ -78,7 +78,7 @@
 #if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
                     ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
@@ -103,7 +103,7 @@
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -222,6 +222,13 @@
                         OnAfterValidateDescription(Rec, xRec);
                     end;
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Drop Shipment"; "Drop Shipment")
                 {
                     ApplicationArea = Suite;
@@ -281,6 +288,9 @@
                     Enabled = NOT IsCommentLine;
                     ShowMandatory = (NOT IsCommentLine) AND ("No." <> '');
                     ToolTip = 'Specifies how many units are being sold.';
+
+                    AboutTitle = 'How much is being ordered';
+                    AboutText = 'The quantity on a line specifies how much of an item a customer is ordering. This quantity determines whether the order qualifies for special prices or discounts.';
 
                     trigger OnValidate()
                     begin
@@ -491,6 +501,9 @@
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity of items that remain to be shipped.';
 
+                    AboutTitle = 'Partially shipping the order?';
+                    AboutText = 'If you want to ship only parts of the order, adjust the ‘Qty. to Ship’ value to that quantity. By common default, the total quantity is shipped.';
+
                     trigger OnValidate()
                     begin
                         if "Qty. to Asm. to Order (Base)" <> 0 then begin
@@ -511,6 +524,9 @@
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ToolTip = 'Specifies the quantity that remains to be invoiced. It is calculated as Quantity - Qty. Invoiced.';
+
+                    AboutTitle = 'Invoicing more or less than you ship?';
+                    AboutText = 'Adjust the ‘Qty. to Invoice’ to specify the quantity you want to invoice now. If that is more than you ship, use the prepayment functionality.';
                 }
                 field("Quantity Invoiced"; "Quantity Invoiced")
                 {
@@ -851,6 +867,32 @@
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
+                }
             }
             group(Control51)
             {
@@ -966,6 +1008,7 @@
                 {
                     Caption = 'F&unctions';
                     Image = "Action";
+#if not CLEAN19
                     action(GetPrice)
                     {
                         AccessByPermission = TableData "Sales Price" = R;
@@ -1002,6 +1045,7 @@
                             ShowLineDisc();
                         end;
                     }
+#endif
                     action(GetPrices)
                     {
                         AccessByPermission = TableData "Sales Price Access" = R;
@@ -1464,9 +1508,13 @@
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel('Sales_Order_Line', CurrPage.ObjectId(false), StrSubstNo('Document_No eq ''%1''', Rec."Document No."));
+                        EditinExcel.EditPageInExcel(
+                            'Sales_Order_Line',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo('Document_No eq ''%1''', Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
                     end;
 
                 }
@@ -1544,22 +1592,8 @@
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
-        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        Location: Record Location;
     begin
-        AddLoadFields(
-            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
-            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
-
-        if Location.ReadPermission then
-            LocationCodeVisible := not Location.IsEmpty();
-
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
-        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        SetOpenPage();
 
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
@@ -1569,7 +1603,6 @@
         Currency: Record Currency;
         SalesSetup: Record "Sales & Receivables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
@@ -1587,6 +1620,7 @@
         ItemChargeStyleExpression: Text;
         TypeAsText: Text[30];
         SuppressTotals: Boolean;
+        ExcelFileNameTxt: Label 'Sales Order %1 - Lines', Comment = '%1 = document number, ex. 10000';
 
     protected var
         TotalSalesHeader: Record "Sales Header";
@@ -1608,6 +1642,27 @@
         [InDataSet]
         ItemReferenceVisible: Boolean;
         VATAmount: Decimal;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        Location: Record Location;
+    begin
+        OnBeforeSetOpenPage();
+
+        AddLoadFields(
+            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
+            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
+
+        if Location.ReadPermission then
+            LocationCodeVisible := not Location.IsEmpty();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1946,7 +2001,7 @@
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not SalesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1990,6 +2045,8 @@
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -2005,10 +2062,11 @@
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)
@@ -2110,6 +2168,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenSpecialPurchOrderForm(SalesOrderLine: Record "Sales Line"; var PageEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility();
     begin
     end;
 }

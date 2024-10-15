@@ -82,6 +82,9 @@ table 99000829 "Planning Component"
                 end else
                     "Qty. per Unit of Measure" := 1;
 
+                "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
+                "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
+
                 "Indirect Cost %" := Round(Item."Indirect Cost %" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
                 "Overhead Rate" := Item."Overhead Rate";
@@ -199,6 +202,24 @@ table 99000829 "Planning Component"
                 GetUpdateFromSKU;
             end;
         }
+        field(22; "Qty. Rounding Precision"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
+        field(23; "Qty. Rounding Precision (Base)"; Decimal)
+        {
+            Caption = 'Qty. Rounding Precision (Base)';
+            InitValue = 0;
+            DecimalPlaces = 0 : 5;
+            MinValue = 0;
+            MaxValue = 1;
+            Editable = false;
+        }
         field(25; "Expected Quantity"; Decimal)
         {
             Caption = 'Expected Quantity';
@@ -210,7 +231,7 @@ table 99000829 "Planning Component"
                 if Item.Get("Item No.") and ("Ref. Order Type" <> "Ref. Order Type"::Assembly) then
                     if Item."Rounding Precision" > 0 then
                         "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
-                "Expected Quantity (Base)" := Round("Expected Quantity" * "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                "Expected Quantity (Base)" := CalcBaseQty("Expected Quantity", FieldCaption("Expected Quantity"), FieldCaption("Expected Quantity (Base)"));
                 "Net Quantity (Base)" := "Expected Quantity (Base)" - "Original Expected Qty. (Base)";
 
                 ReservePlanningComponent.VerifyQuantity(Rec, xRec);
@@ -359,8 +380,11 @@ table 99000829 "Planning Component"
                     else
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
+
+                Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
+
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
-                "Quantity (Base)" := Quantity * "Qty. per Unit of Measure";
+                "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
                 Validate("Expected Quantity", Quantity * PlanningNeeds);
             end;
         }
@@ -700,8 +724,10 @@ table 99000829 "Planning Component"
               (1 + PlanningRtngLine."Scrap Factor % (Accumulated)") * (1 + "Scrap %" / 100) +
               PlanningRtngLine."Fixed Scrap Qty. (Accum.)"
         else
-            NeededQty :=
-              ReqLine.Quantity * (1 + ReqLine."Scrap %" / 100) * (1 + "Scrap %" / 100);
+            if ReqLine."Replenishment System" = ReqLine."Replenishment System"::Assembly then
+                NeededQty := ReqLine.Quantity
+            else
+                NeededQty := ReqLine.Quantity * (1 + ReqLine."Scrap %" / 100) * (1 + "Scrap %" / 100);
 
         OnAfterPlanningNeeds(Rec, ReqLine, PlanningRtngLine, NeededQty);
         exit(NeededQty);
@@ -766,6 +792,8 @@ table 99000829 "Planning Component"
         "Direct Cost Amount" := ProdOrderComp."Direct Cost Amount";
         "Overhead Amount" := ProdOrderComp."Overhead Amount";
         "Qty. per Unit of Measure" := ProdOrderComp."Qty. per Unit of Measure";
+        "Qty. Rounding Precision" := ProdOrderComp."Qty. Rounding Precision";
+        "Qty. Rounding Precision (Base)" := ProdOrderComp."Qty. Rounding Precision (Base)";
         "Quantity (Base)" := ProdOrderComp."Quantity (Base)";
         "Expected Quantity (Base)" := ProdOrderComp."Expected Qty. (Base)";
         "Original Expected Qty. (Base)" := ProdOrderComp."Expected Qty. (Base)";
@@ -1111,6 +1139,12 @@ table 99000829 "Planning Component"
         "Planning Line Origin" := RequisitionLine."Planning Line Origin";
 
         OnAfterInitFromRequisitionLine(Rec, RequisitionLine);
+    end;
+
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    begin
+        exit(UOMMgt.CalcBaseQty(
+            "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
     [IntegrationEvent(false, false)]
