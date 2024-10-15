@@ -120,7 +120,8 @@ page 1355 "Posted Sales Inv. - Update"
           (Rec."Company Bank Account Code" <> xSalesInvoiceHeader."Company Bank Account Code") or
           (Rec."Posting Description" <> xSalesInvoiceHeader."Posting Description") or
           (Rec."Promised Pay Date" <> xSalesInvoiceHeader."Promised Pay Date") or
-          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status");
+          (Rec."Dispute Status" <> xSalesInvoiceHeader."Dispute Status") or
+          (Rec."Due Date" <> xSalesInvoiceHeader."Due Date");
 
         OnAfterRecordChanged(Rec, xSalesInvoiceHeader, IsChanged);
     end;
