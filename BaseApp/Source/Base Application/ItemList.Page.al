@@ -2063,8 +2063,6 @@
     trigger OnAfterGetRecord()
     begin
         EnableControls;
-        if IsNonInventoriable then
-            Inventory := 0;
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
