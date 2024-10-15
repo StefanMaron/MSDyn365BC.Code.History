@@ -312,6 +312,48 @@ codeunit 138200 "Normal DemoData"
     end;
 
     [Test]
+    procedure AdvancedIntrastatChecklist()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        Assert.RecordCount(AdvancedIntrastatChecklist, 17);
+
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
+        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Make Disk Tax Auth");
+
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Net Weight"), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo("Shpt. Method Code"), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo("Total Weight"), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Total Weight"), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo("Shpt. Method Code"), '');
+        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
+    end;
+
+    local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
+    end;
+
+    local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
+    var
+        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
+    begin
+        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
+        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
+        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
+        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
+        Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
+    end;
+
+    [Test]
     procedure VATStatementSetupGB_BoxCaptions()
     var
         VATStatementLine: Record "VAT Statement Line";

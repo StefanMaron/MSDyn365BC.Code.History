@@ -1,7 +1,7 @@
 report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './IntrastatChecklist.rdlc';
+    RDLCLayout = './Intrastat/IntrastatChecklist.rdlc';
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Checklist';
     UsageCategory = ReportsAndAnalysis;
@@ -132,13 +132,14 @@ report 502 "Intrastat - Checklist"
                     then
                         CurrReport.Skip();
 
-                    if IntrastatChecklistSetup.FindSet then
-                        repeat
-                            ErrorMessage.LogIfEmpty(
-                              "Intrastat Jnl. Line",
-                              IntrastatChecklistSetup."Field No.",
-                              ErrorMessage."Message Type"::Error);
-                        until IntrastatChecklistSetup.Next = 0;
+#if CLEAN19
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false);
+#else
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist", false)
+                    else
+                        IntraJnlManagement.ValidateChecklistReport("Intrastat Jnl. Line");
+#endif
 
                     if Country.Get("Country/Region Code") then;
                     IntrastatJnlLineTemp.Reset();
@@ -173,8 +174,6 @@ report 502 "Intrastat - Checklist"
                 end;
 
                 trigger OnPreDataItem()
-                var
-                    IntrastatSetup: Record "Intrastat Setup";
                 begin
                     IntrastatJnlLineTemp.DeleteAll();
                     NoOfRecordsRTC := 0;
@@ -197,8 +196,7 @@ report 502 "Intrastat - Checklist"
 
             trigger OnAfterGetRecord()
             begin
-                ErrorMessage.SetContext("Intrastat Jnl. Batch");
-                ErrorMessage.ClearLog;
+                IntraJnlManagement.ChecklistClearBatchErrors("Intrastat Jnl. Batch");
 
                 GLSetup.Get();
                 if "Amounts in Add. Currency" then begin
@@ -267,8 +265,8 @@ report 502 "Intrastat - Checklist"
         GLSetup: Record "General Ledger Setup";
         IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ErrorMessage: Record "Error Message";
-        IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         NoOfRecords: Integer;
         NoOfRecordsRTC: Integer;
         PrintJnlLines: Boolean;

@@ -80,6 +80,7 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimHeader: Record "Change Global Dim. Header";
         GeneralLedgerSetup: Record "General Ledger Setup";
         ChangeGlobalDimLogMgt: Codeunit "Change Global Dim. Log Mgt.";
+        DepRecNo: Dictionary of [Integer, List of [Integer]]; // [TableId, [RecRefIndex, StartFromRecNo, CurrRecNo]]
         Window: Dialog;
         CloseActiveSessionsMsg: Label 'Close all other active sessions.';
         CloseSessionNotificationTok: Label 'A2C57B69-B056-4B3B-8D0F-C0D997145EE7', Locked = true;
@@ -239,28 +240,37 @@ codeunit 483 "Change Global Dimensions"
         ChangeGlobalDimLogMgt.FillBuffer;
     end;
 
-    local procedure FindChildTableNo(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"): Integer
+    local procedure FindChildTables(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary): Boolean
     begin
         if ChangeGlobalDimLogEntry."Is Parent Table" then
-            exit(ChangeGlobalDimLogMgt.FindChildTable(ChangeGlobalDimLogEntry."Table ID"));
-        exit(0);
+            exit(ChangeGlobalDimLogMgt.FindChildTables(ChangeGlobalDimLogEntry."Table ID", TempChildChangeGlobalDimLogEntry));
     end;
 
-    local procedure FindDependentTableNo(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var DependentRecRef: RecordRef): Boolean
+    local procedure FindDependentTables(var ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var DependentRecRef: array[7] of RecordRef): Boolean
     var
-        ChildTableNo: Integer;
+        TempChildChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry" temporary;
+        RecRefIndex: Integer;
+        TotalRecords: Integer;
     begin
-        with ChangeGlobalDimLogEntry do begin
-            ChildTableNo := FindChildTableNo(ParentChangeGlobalDimLogEntry);
-            if ChildTableNo > 0 then
-                if Get(ChildTableNo) then begin
-                    DependentRecRef.Open("Table ID");
-                    DependentRecRef.LockTable(true);
-                    "Total Records" := DependentRecRef.Count();
-                    "Session ID" := SessionId;
-                    "Server Instance ID" := ServiceInstanceId;
-                    exit("Total Records" > 0);
+        RecRefIndex := 0;
+        if FindChildTables(ParentChangeGlobalDimLogEntry, TempChildChangeGlobalDimLogEntry) then
+            repeat
+                if ChangeGlobalDimLogEntry.Get(TempChildChangeGlobalDimLogEntry."Table ID") then begin
+                    RecRefIndex += 1;
+                    InitDependentRecNo(ChangeGlobalDimLogEntry."Table ID", RecRefIndex, ChangeGlobalDimLogEntry."Completed Records");
+                    DependentRecRef[RecRefIndex].Open(ChangeGlobalDimLogEntry."Table ID");
+                    DependentRecRef[RecRefIndex].LockTable(true);
+                    ChangeGlobalDimLogEntry."Total Records" := DependentRecRef[RecRefIndex].Count();
+                    ChangeGlobalDimLogEntry."Session ID" := SessionId;
+                    ChangeGlobalDimLogEntry."Server Instance ID" := ServiceInstanceId;
+                    ChangeGlobalDimLogEntry.Modify();
+                    TotalRecords += ChangeGlobalDimLogEntry."Total Records";
                 end;
+            until TempChildChangeGlobalDimLogEntry.Next() = 0;
+        if TotalRecords > 0 then begin
+            ChangeGlobalDimLogEntry.Reset();
+            ChangeGlobalDimLogEntry.SetRange("Parent Table ID", ChangeGlobalDimLogEntry."Parent Table ID");
+            exit(ChangeGlobalDimLogEntry.Findset());
         end;
     end;
 
@@ -290,42 +300,55 @@ codeunit 483 "Change Global Dimensions"
     var
         DependentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
         RecRef: RecordRef;
-        DependentRecRef: RecordRef;
+        DependentRecRef: array[7] of RecordRef;
         CurrentRecNo: Integer;
         DependentRecNo: Integer;
         RecordsWithinCommit: Integer;
         StartedFromRecord: Integer;
-        StartedFromDependentRecord: Integer;
+        HasDependentTable: Boolean;
         DependentEntryCompleted: Boolean;
     begin
         RecRef.Open(ChangeGlobalDimLogEntry."Table ID");
         RecRef.LockTable(true);
-        if not RecRef.IsEmpty then begin
+        if not RecRef.IsEmpty() then begin
+            Clear(DepRecNo);
             CurrentRecNo := ChangeGlobalDimLogEntry."Completed Records";
             StartedFromRecord := CurrentRecNo;
             ChangeGlobalDimLogEntry."Total Records" := RecRef.Count();
             RecordsWithinCommit := CalcRecordsWithinCommit(ChangeGlobalDimLogEntry."Total Records");
             if RecRef.FindSet(true) then begin
-                if FindDependentTableNo(DependentChangeGlobalDimLogEntry, ChangeGlobalDimLogEntry, DependentRecRef) then begin
-                    DependentChangeGlobalDimLogEntry.SetSessionInProgress;
-                    DependentRecNo := DependentChangeGlobalDimLogEntry."Completed Records";
-                    StartedFromDependentRecord := DependentRecNo;
-                    DependentChangeGlobalDimLogEntry."Earliest Start Date/Time" := CurrentDateTime;
-                end;
+                HasDependentTable := FindDependentTables(DependentChangeGlobalDimLogEntry, ChangeGlobalDimLogEntry, DependentRecRef);
+                if HasDependentTable then
+                    repeat
+                        DependentChangeGlobalDimLogEntry."Earliest Start Date/Time" := CurrentDateTime;
+                        DependentChangeGlobalDimLogEntry.SetSessionInProgress;
+                    until DependentChangeGlobalDimLogEntry.Next() = 0;
                 if ChangeGlobalDimLogEntry."Completed Records" > 0 then
                     RecRef.Next(ChangeGlobalDimLogEntry."Completed Records");
                 ChangeGlobalDimLogEntry."Earliest Start Date/Time" := CurrentDateTime;
                 repeat
                     ChangeDimsOnRecord(ChangeGlobalDimLogEntry, RecRef);
                     CurrentRecNo += 1;
-                    if DependentChangeGlobalDimLogEntry."Total Records" > 0 then
-                        ChangeDependentRecords(ChangeGlobalDimLogEntry, DependentChangeGlobalDimLogEntry, RecRef, DependentRecRef, DependentRecNo);
+
+                    if HasDependentTable then
+                        if DependentChangeGlobalDimLogEntry.FindSet() then
+                            repeat
+                                if DependentChangeGlobalDimLogEntry."Total Records" > 0 then
+                                    ChangeDependentRecords(
+                                        ChangeGlobalDimLogEntry, DependentChangeGlobalDimLogEntry,
+                                        RecRef, DependentRecRef[GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 1)]);
+                            until DependentChangeGlobalDimLogEntry.Next() = 0;
 
                     if CurrentRecNo >= (ChangeGlobalDimLogEntry."Completed Records" + RecordsWithinCommit) then begin
-                        DependentChangeGlobalDimLogEntry.Update(DependentRecNo, StartedFromDependentRecord);
-                        Completed := UpdateWithCommit(ChangeGlobalDimLogEntry, CurrentRecNo, StartedFromRecord);
-                        if DependentRecNo > 0 then
-                            DependentRecRef.LockTable();
+                        if HasDependentTable then
+                            if DependentChangeGlobalDimLogEntry.FindSet() then
+                                repeat
+                                    DependentRecNo := GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 3);
+                                    DependentChangeGlobalDimLogEntry.Update(DependentRecNo, GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 2));
+                                    Completed := UpdateWithCommit(ChangeGlobalDimLogEntry, CurrentRecNo, StartedFromRecord);
+                                    if DependentRecNo > 0 then
+                                        DependentRecRef[GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 1)].LockTable();
+                                until DependentChangeGlobalDimLogEntry.Next() = 0;
                         RecRef.LockTable();
                     end;
                     if IsWindowOpen then begin
@@ -333,21 +356,53 @@ codeunit 483 "Change Global Dimensions"
                         if CurrRecord mod Round(NoOfRecords / 100, 1, '>') = 1 then
                             Window.Update(2, Round(CurrRecord / NoOfRecords * 10000, 1));
                     end;
-                until RecRef.Next = 0;
+                until RecRef.Next() = 0;
             end;
-            if DependentRecNo > 0 then begin
-                DependentRecRef.Close;
-                DependentChangeGlobalDimLogEntry.Update(DependentRecNo, StartedFromDependentRecord);
-                if DependentChangeGlobalDimLogEntry.Status = DependentChangeGlobalDimLogEntry.Status::Completed then
-                    DependentEntryCompleted := DeleteEntry(DependentChangeGlobalDimLogEntry);
-                if not DependentEntryCompleted then begin
-                    DependentChangeGlobalDimLogEntry.Update(0, 0);
-                    CurrentRecNo := 0; // set the parent to Incomplete
-                end;
-            end;
+            if HasDependentTable then
+                if DependentChangeGlobalDimLogEntry.FindSet() then
+                    repeat
+                        DependentRecNo := GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 3);
+                        if DependentRecNo > 0 then begin
+                            DependentRecRef[GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 1)].Close;
+                            DependentChangeGlobalDimLogEntry.Update(DependentRecNo, GetDependentRecNo(DependentChangeGlobalDimLogEntry."Table ID", 2));
+                            if DependentChangeGlobalDimLogEntry.Status = DependentChangeGlobalDimLogEntry.Status::Completed then
+                                DependentEntryCompleted := DeleteEntry(DependentChangeGlobalDimLogEntry);
+                            if not DependentEntryCompleted then begin
+                                DependentChangeGlobalDimLogEntry.Update(0, 0);
+                                CurrentRecNo := 0; // set the parent to Incomplete
+                            end;
+                        end;
+                    until DependentChangeGlobalDimLogEntry.Next() = 0;
             Completed := UpdateWithCommit(ChangeGlobalDimLogEntry, CurrentRecNo, StartedFromRecord);
         end;
         RecRef.Close;
+    end;
+
+    local procedure GetDependentRecNo(TableId: Integer; Index: Integer) RecNo: Integer;
+    var
+        RecNoList: List of [Integer];
+    begin
+        RecNoList := DepRecNo.Get(TableID);
+        RecNo := RecNoList.Get(Index);
+    end;
+
+    local procedure InitDependentRecNo(TableId: Integer; RecRefIndex: Integer; RecNo: Integer)
+    var
+        RecNoList: List of [Integer];
+    begin
+        RecNoList.Add(RecRefIndex);
+        RecNoList.Add(RecNo);
+        RecNoList.Add(RecNo);
+        DepRecNo.Add(TableId, RecNoList);
+    end;
+
+    local procedure SetDependentRecNo(TableId: Integer; Index: Integer; RecNo: Integer)
+    var
+        RecNoList: List of [Integer];
+    begin
+        RecNoList := DepRecNo.Get(TableID);
+        RecNoList.Set(Index, RecNo);
+        DepRecNo.Set(TableID, RecNoList);
     end;
 
     local procedure ChangeDimsOnRecord(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; var RecRef: RecordRef): Boolean
@@ -381,15 +436,18 @@ codeunit 483 "Change Global Dimensions"
         end;
     end;
 
-    local procedure ChangeDependentRecords(ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentRecRef: RecordRef; var RecRef: RecordRef; var CurrentRecNo: Integer)
+    local procedure ChangeDependentRecords(ParentChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry"; ParentRecRef: RecordRef; var RecRef: RecordRef)
     var
         ParentKeyValue: Variant;
         GlobalDimFieldRef: array[2] of FieldRef;
         ParentKeyFieldRef: FieldRef;
         ParentDimValueCode: array[2] of Code[20];
         DimValueCode: array[2] of Code[20];
+        CurrentRecNo: Integer;
         IsHandled: Boolean;
     begin
+        CurrentRecNo := GetDependentRecNo(ChangeGlobalDimLogEntry."Table ID", 3);
+
         ParentChangeGlobalDimLogEntry.GetFieldRefValues(ParentRecRef, GlobalDimFieldRef, ParentDimValueCode);
         ChangeGlobalDimLogEntry.GetPrimaryKeyFieldRef(ParentRecRef, ParentKeyFieldRef);
         ParentKeyValue := ParentKeyFieldRef.Value;
@@ -406,8 +464,10 @@ codeunit 483 "Change Global Dimensions"
                     RecRef.Modify();
                     CurrentRecNo += 1;
                 end;
-            until RecRef.Next = 0;
+            until RecRef.Next() = 0;
         end;
+
+        SetDependentRecNo(ChangeGlobalDimLogEntry."Table ID", 3, CurrentRecNo);
     end;
 
     local procedure RerunEntry(ChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry")
@@ -566,9 +626,9 @@ codeunit 483 "Change Global Dimensions"
                 TotalRecords += ChangeGlobalDimLogEntry."Total Records";
                 TempParentTableInteger.Number := ChangeGlobalDimLogEntry."Parent Table ID";
                 if TempParentTableInteger.Number <> 0 then
-                    TempParentTableInteger.Insert();
+                    if TempParentTableInteger.Insert() then;
                 ChangeGlobalDimLogEntry.Insert();
-            until TempAllObjWithCaption.Next = 0;
+            until TempAllObjWithCaption.Next() = 0;
 
             if TempParentTableInteger.FindSet then
                 repeat

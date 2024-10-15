@@ -6544,6 +6544,7 @@
         Customer: Record Customer;
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
+        Customer.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Sell-to Customer No." <> '' then
             Customer.Get("Sell-to Customer No.");
 

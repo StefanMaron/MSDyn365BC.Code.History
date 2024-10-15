@@ -14,14 +14,21 @@ report 593 "Intrastat - Make Disk Tax Auth"
             begin
                 LineCount := LineCount + 1;
                 Window.Update(2, LineCount);
-                TestField("Tariff No.");
-                TestField("Country/Region Code");
-                TestField("Transaction Type");
-                TestField("Total Weight");
-                TestField("Shpt. Method Code");
-                if "Supplementary Units" then
-                    TestField(Quantity);
-
+#if CLEAN19
+                IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true);
+#else
+                if IntrastatSetup."Use Advanced Checklist" then
+                    IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                else begin
+                    TestField("Tariff No.");
+                    TestField("Country/Region Code");
+                    TestField("Transaction Type");
+                    TestField("Total Weight");
+                    TestField("Shpt. Method Code");
+                    if "Supplementary Units" then
+                        TestField(Quantity);
+                end;
+#endif
                 IntrastatJnlLineTemp := "Intrastat Jnl. Line";
                 IntrastatJnlLineTemp.Insert();
             end;
@@ -87,6 +94,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     IntrastatJnlBatch.Validate("Dispatches Reported", true);
                 end;
                 IntrastatJnlBatch.Modify();
+                IntraJnlManagement.ChecklistClearBatchErrors(IntrastatJnlBatch);
 
                 CompanyInfo.Get();
                 if FileName = '' then
@@ -119,8 +127,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
         }
 
         trigger OnOpenPage()
-        var
-            IntrastatSetup: Record "Intrastat Setup";
         begin
             if not IntrastatSetup.Get then
                 exit;
@@ -147,6 +153,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     var
         CompanyInfo: Record "Company Information";
+        IntrastatSetup: Record "Intrastat Setup";
+        IntraJnlManagement: Codeunit IntraJnlManagement;
         FileMgt: Codeunit "File Management";
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;

@@ -873,7 +873,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
 
         CreateItemWithCost(Item, Item.Type::Inventory, 1);
         CreateBuyFromWithDifferentPayToVendor(BuyFromVendor, PayToVendor);
-        BuyItem(BuyFromVendor, Item, 1, PurchInvHeader);
+        BuyItemWithDiscount(BuyFromVendor, Item, 1, PurchInvHeader, LibraryRandom.RandIntInRange(1, 10));
 
         GenPostingSetup.Get(PayToVendor."Gen. Bus. Posting Group", Item."Gen. Prod. Posting Group");
         GLAcc.SetFilter("No.", '%1|%2|%3',
@@ -1771,6 +1771,15 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader));
     end;
 
+    local procedure BuyItemWithDiscount(BuyFromVendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header"; LineDiscountPct: Integer)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        CreatePurchaseInvoiceWithDiscountForItem(BuyFromVendor, Item, Qty, PurchaseHeader, PurchaseLine, LineDiscountPct);
+        PurchInvHeader.Get(LibrarySmallBusiness.PostPurchaseInvoice(PurchaseHeader));
+    end;
+
     local procedure CopyGLAccToGLAcc(var FromGLAcc: Record "G/L Account"; var ToGLAcc: Record "G/L Account")
     begin
         FromGLAcc.FindSet;
@@ -1822,6 +1831,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         LibrarySmallBusiness.CreatePurchaseInvoiceHeader(PurchaseHeader, Vendor);
         LibrarySmallBusiness.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Item, Qty);
+    end;
+
+    local procedure CreatePurchaseInvoiceWithDiscountForItem(Vendor: Record Vendor; Item: Record Item; Qty: Decimal; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; LineDiscountPct: Integer)
+    begin
+        CreatePurchaseInvoiceForItem(Vendor, Item, Qty, PurchaseHeader, PurchaseLine);
+        PurchaseLine.Validate("Line Discount %", LineDiscountPct);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateAndPostPurchaseOrderForNewItemAndVendor(var Item: Record Item; Type: Enum "Item Type"; var Vendor: Record Vendor; UnitCost: Decimal; Qty: Decimal; var PurchInvHeader: Record "Purch. Inv. Header")

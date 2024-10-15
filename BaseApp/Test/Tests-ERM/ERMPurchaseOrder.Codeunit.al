@@ -75,6 +75,7 @@ codeunit 134327 "ERM Purchase Order"
         QtyToReceiveUpdateErr: Label 'Qty. to Receive must be equal to %1 in Purchase Line';
         YouMustDeleteExistingLinesErr: Label 'You must delete the existing purchase lines before you can change %1.';
         RecreatePurchaseLinesQst: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?';
+        GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DisposedErr: Label '%1 is disposed.';
 
     [Test]
@@ -6132,6 +6133,51 @@ codeunit 134327 "ERM Purchase Order"
         PurchInvLine.TestField(Amount, PurchaseLine.Amount);
     end;
 
+    [Test]
+    //[HandlerFunctions('ConfirmHandler')]
+    procedure ErrorGLAccountMustHaveAValueIsShownForPurchaseOrderWithMissingGenBusPostingGroupInGLAccount()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        // [FEATURE] [Invoice Rounding] [Posting Group]
+        // [SCENARIO 391619] Create Purchase Order with missing "Invoice Rounding Account" in "Vendor Posting Group"
+        Initialize();
+
+        // [GIVEN] "Inv. Rounding Precision (LCY)" = 1 in General Ledger Setup
+        LibraryERM.SetInvRoundingPrecisionLCY(1);
+        LibraryPurchase.SetInvoiceRounding(true);
+
+        // [GIVEN] Created Vendor with new Vendor Posting Group
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        Vendor.Validate("Vendor Posting Group", VendorPostingGroup.Code);
+        Vendor.Modify(true);
+
+        // [GIVEN] Delete "Gen. Prod. Posting Group" code from  "Invoice Rounding Account"
+        GLAccount.Get(VendorPostingGroup."Invoice Rounding Account");
+        GLAccount."Gen. Prod. Posting Group" := '';
+        GLAccount.Modify();
+
+        // [GIVEN] Created Purchase Order
+        LibraryPurchase.CreatePurchHeader(
+            PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Purchase Order with Invoice Rounding Line
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Error has been thrown: "Gen. Prod. Posting Group  is not set for the Prepayment G/L account with no. XXXXX."
+        Assert.ExpectedError(
+          StrSubstNo(GenProdPostingGroupErr, PurchaseLine.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -6154,8 +6200,9 @@ codeunit 134327 "ERM Purchase Order"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Purchase Order");

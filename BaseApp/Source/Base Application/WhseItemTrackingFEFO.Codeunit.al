@@ -12,7 +12,6 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         LastSummaryEntryNo: Integer;
         StrictExpirationPosting: Boolean;
         HasExpiredItems: Boolean;
-        SourceSet: Boolean;
         ExpiredItemsForPickMsg: Label '\\Some items were not included in the pick due to their expiration date.';
         CalledFromMovementWksh: Boolean;
 
@@ -65,8 +64,9 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 FindSet();
                 if not IsItemTrackingBlocked("Item No.", "Variant Code", ItemTrackingSetup) then begin
                     repeat
-                        CalcFields("Reserved Quantity");
-                        NonReservedQtyLotSN += "Remaining Quantity" - ("Reserved Quantity" - CalcReservedToSource("Entry No."));
+                        NonReservedQtyLotSN += "Remaining Quantity";
+                        if not CalledFromMovementWksh then
+                            NonReservedQtyLotSN -= CalcReservedFromILEWithItemTracking(ItemLedgEntry);
                     until Next() = 0;
 
                     if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
@@ -81,6 +81,25 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 ClearTrackingFilter();
             until Next = 0;
         end;
+    end;
+
+    local procedure CalcReservedFromILEWithItemTracking(ItemLedgerEntry: Record "Item Ledger Entry") ReservedQty: Decimal
+    var
+        ReservationEntry: Record "Reservation Entry";
+        OppositeReservationEntry: Record "Reservation Entry";
+        ItemLedgerEntryReserve: Codeunit "Item Ledger Entry-Reserve";
+    begin
+        ReservedQty := 0;
+
+        ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntry);
+        if ReservationEntry.FindSet() then
+            repeat
+                OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
+                if (OppositeReservationEntry."Entry No." <> SourceReservationEntry."Entry No.") and
+                   (OppositeReservationEntry."Item Tracking" <> OppositeReservationEntry."Item Tracking"::None)
+                then
+                    ReservedQty += ReservationEntry."Quantity (Base)";
+            until ReservationEntry.Next() = 0;
     end;
 
     local procedure CalcNonRegisteredQtyOutstanding(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; HasExpirationDate: Boolean): Decimal
@@ -252,42 +271,11 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         SourceReservationEntry.Reset();
         CreatePick.SetFiltersOnReservEntry(
           SourceReservationEntry, SourceType2, SourceSubType2, SourceNo2, SourceLineNo2, SourceSubLineNo2);
-        SourceSet := true;
     end;
 
     procedure SetCalledFromMovementWksh(NewCalledFromMovementWksh: Boolean)
     begin
         CalledFromMovementWksh := NewCalledFromMovementWksh;
-    end;
-
-    local procedure CalcReservedToSource(ILENo: Integer) Result: Decimal
-    begin
-        Result := 0;
-        if not SourceSet then
-            exit(Result);
-
-        with SourceReservationEntry do begin
-            if FindSet then
-                repeat
-                    if ReservedFromILE(SourceReservationEntry, ILENo) then
-                        Result -= "Quantity (Base)"; // "Quantity (Base)" is negative
-                until Next = 0;
-        end;
-
-        exit(Result);
-    end;
-
-    local procedure ReservedFromILE(ReservationEntry: Record "Reservation Entry"; ILENo: Integer): Boolean
-    begin
-        with ReservationEntry do begin
-            Positive := not Positive;
-            Find;
-            exit(
-              ("Source ID" = '') and ("Source Ref. No." = ILENo) and
-              ("Source Type" = DATABASE::"Item Ledger Entry") and ("Source Subtype" = 0) and
-              ("Source Batch Name" = '') and ("Source Prod. Order Line" = 0) and
-              ("Reservation Status" = "Reservation Status"::Reservation));
-        end;
     end;
 
     local procedure CalcAvailQtyOnWarehouse(var WhseEntry: Record "Warehouse Entry"): Decimal

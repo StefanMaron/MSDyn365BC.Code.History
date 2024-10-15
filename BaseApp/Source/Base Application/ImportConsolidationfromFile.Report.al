@@ -66,8 +66,6 @@ report 92 "Import Consolidation from File"
 
     requestpage
     {
-        SaveValues = true;
-
         layout
         {
             area(content)

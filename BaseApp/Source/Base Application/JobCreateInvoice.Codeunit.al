@@ -177,7 +177,8 @@
                 end;
             until JobPlanningLine.Next = 0;
 
-        JobPlanningLineSource.FindFirst;
+        JobPlanningLineSource.Get(
+          JobPlanningLineSource."Job No.", JobPlanningLineSource."Job Task No.", JobPlanningLineSource."Line No.");
         JobPlanningLineSource.CalcFields("Qty. Transferred to Invoice");
 
         if NoOfSalesLinesCreated = 0 then
