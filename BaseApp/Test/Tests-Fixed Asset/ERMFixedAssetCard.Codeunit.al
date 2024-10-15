@@ -614,7 +614,7 @@ codeunit 134456 "ERM Fixed Asset Card"
         FASetup.Get();
         BookValue := LibraryRandom.RandDecInRange(10, 1000, 2);
         CreateFADepreciationBookWithValue(
-	  FADepreciationBook,FixedAsset."No.",FASetup."Default Depr. Book",FAPostingGroup.Code,BookValue);
+      FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code, BookValue);
         DisposeFADepreciationBook(FADepreciationBook, BookValue);
 
         // [WHEN] Fixed Asset Card is loaded and Drill Down on "Book Value"
@@ -1044,6 +1044,40 @@ codeunit 134456 "ERM Fixed Asset Card"
 
         // [THEN] FA Posting group did not change
         FixedAsset.TestField("FA Posting Group", FAPostingGroup[1].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UserCanChangeDeprBookInSimpleModeNewFixedAssetCard()
+    var
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UT] [UI]
+        // [SCENARIO 401954] User can change Depreciation Book in simple mode of Fixed Asset card for new FA
+
+        FixedAssetCard.OpenNew();
+        Assert.IsTrue(FixedAssetCard.DepreciationBookCode.Editable(), 'The field "Depreciation Book Code" must be editable.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UserCannotChangeDeprBookInSimpleModeEditFixedAssetCard()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DepreciationBook: Record "Depreciation Book";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [FEATURE] [UT] [ui]
+        // [SCENARIO 401954] User can change Depreciation Book in simple mode of Fixed Asset card for new FA
+
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+        LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
+
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.FILTER.SetFilter("No.", FixedAsset."No.");
+        Assert.IsFalse(FixedAssetCard.DepreciationBookCode.Editable(), 'The field "Depreciation Book Code" must not be editable.');
     end;
 
     local procedure FixedAssetAndDeprecationBookSetup(var FASubclass: Record "FA Subclass")

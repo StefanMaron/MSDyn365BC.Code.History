@@ -2460,7 +2460,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         if VATReportType <> VATReportHeader."VAT Report Type"::Standard then begin
             VATReportNo := VATReportHeader."No.";
             VATReportHeader.Validate("Tax Auth. Receipt No.", Format(LibraryRandom.RandInt(100)));
-            VATReportHeader.Validate("Tax Auth. Doc. No.", Format(LibraryRandom.RandInt(100)));
+            VATReportHeader.Validate("Tax Auth. Document No.", Format(LibraryRandom.RandInt(100)));
             VATReportHeader.Modify(true);
             VATReportReleaseReopen.Release(VATReportHeader);
             VATReportReleaseReopen.Submit(VATReportHeader);

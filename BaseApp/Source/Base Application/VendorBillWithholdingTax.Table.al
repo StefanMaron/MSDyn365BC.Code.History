@@ -32,6 +32,11 @@ table 12185 "Vendor Bill Withholding Tax"
                 ValidateWithhSocSec
             end;
         }
+        field(11; "Original Total Amount"; Decimal)
+        {
+            Caption = 'Original Total Amount';
+            AutoFormatType = 1;
+        }
         field(13; "Base - Excluded Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -261,6 +266,7 @@ table 12185 "Vendor Bill Withholding Tax"
         WithholdCode: Record "Withhold Code";
         WithholdCodeLine: Record "Withhold Code Line";
         WithholdingSocSec: Codeunit "Withholding - Contribution";
+        TotalAmount: Decimal;
     begin
         if not WithholdCode.Get("Withholding Tax Code") then
             Error(Text12101, WithholdCode.FieldCaption(Code), "Withholding Tax Code", WithholdCode.TableCaption);
@@ -268,9 +274,13 @@ table 12185 "Vendor Bill Withholding Tax"
         "Withholding Account" := WithholdCode."Withholding Taxes Payable Acc.";
         "Withholding Tax %" := WithholdCodeLine."Withholding Tax %";
         "Non Taxable %" := 100 - WithholdCodeLine."Taxable Base %";
+        if "Original Total Amount" = 0 then
+            TotalAmount := "Total Amount"
+        else
+            TotalAmount := "Original Total Amount";
         "Taxable Base" :=
           Round(
-            (("Total Amount" - "Base - Excluded Amount" - "Non Taxable Amount By Treaty") * WithholdCodeLine."Taxable Base %") / 100);
+            ((TotalAmount - "Base - Excluded Amount" - "Non Taxable Amount By Treaty") * WithholdCodeLine."Taxable Base %") / 100);
         "Non Taxable Amount" :=
           "Total Amount" - "Base - Excluded Amount" - "Non Taxable Amount By Treaty" - "Taxable Base";
         GetCurrency("Currency Code");

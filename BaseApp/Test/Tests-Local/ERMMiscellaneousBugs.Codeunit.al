@@ -1566,6 +1566,50 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('ManualVendorPaymentLinePageHandler,ConfirmHandler,MessageHandler,ApplyVendorEntriesModalPageHandler,PostApplicationModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorBillIsCorrectAfterApplyingPmtToInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        VendorLedgerEntries: TestPage "Vendor Ledger Entries";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 395832] The information in the vendor bill is correct after applying invoice to payment
+
+        Initialize();
+        // [GIVEN] Create Vendor with Withhold Code
+        // [GIVEN] Vendor Bill document
+        VendorNo := CreateVendorBillWithholdCodeSetup(VendorBillHeader);
+        PostUsingVendorBillListSentCardPage(VendorBillHeader."No.");
+
+        // [GIVEN] Posted invoice
+        CreatePurchaseDocument(
+          PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, CreateAndUpdateGLAccount(), PurchaseLine.Type::"G/L Account",
+          LibraryRandom.RandInt(10));  // Random as Line Discount.
+
+        // [GIVEN] Withholding tax amount is "X" in the "Withholding Taxes Contribution" card
+        OpenWithholdTaxesContributionCardUsingPurchInvoicePage(PurchaseHeader);
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Payment applied to invoice
+        OpenVendorLedgerEntriesPage(VendorLedgerEntries, LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+        LibraryVariableStorage.Enqueue(VendorNo);  // Enqueue value for ApplyVendorEntriesModalPageHandler.
+        VendorLedgerEntries.ActionApplyEntries.Invoke();  // Opens ApplyVendorEntriesModalPageHandler.
+        VendorLedgerEntries.OK.Invoke();
+
+        // [WHEN] Run report "Suggest Vendor Bills"
+        RunSuggestVendorBillsForVendorNo(VendorBillHeader, PurchaseHeader."Buy-from Vendor No.");
+
+        // [THEN] Withholding tax amount is "X" in Vendor Bill Line
+        VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
+        VendorBillLine.FindFirst();
+        VendorBillLine.TestField("Withholding Tax Amount", PurchWithhContribution."Withholding Tax Amount");
+    end;
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -2537,6 +2581,18 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         WithholdingTax.SetRange("Vendor No.", VendorNo);
         WithholdingTaxes.SetTableView(WithholdingTax);
         WithholdingTaxes.Run;  // Invoke Handler - WithholdingTaxesRequestPageHandler.
+    end;
+
+    local procedure RunSuggestVendorBillsForVendorNo(VendorBillHeader: Record "Vendor Bill Header"; VendorNo: Code[20])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SuggestVendorBills: Report "Suggest Vendor Bills";
+    begin
+        SuggestVendorBills.InitValues(VendorBillHeader);
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        SuggestVendorBills.SetTableView(VendorLedgerEntry);
+        SuggestVendorBills.UseRequestPage(false);
+        SuggestVendorBills.RunModal;
     end;
 
     local procedure ShowComputedWithholdContributionOnPayment(JnlBatchName: Code[10])

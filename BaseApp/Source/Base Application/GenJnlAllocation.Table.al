@@ -57,7 +57,8 @@ table 221 "Gen. Jnl. Allocation"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -69,7 +70,8 @@ table 221 "Gen. Jnl. Allocation"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -180,7 +182,7 @@ table 221 "Gen. Jnl. Allocation"
         }
         field(17; "Account Name"; Text[100])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("Account No.")));
             Caption = 'Account Name';
             Editable = false;
             FieldClass = FlowField;

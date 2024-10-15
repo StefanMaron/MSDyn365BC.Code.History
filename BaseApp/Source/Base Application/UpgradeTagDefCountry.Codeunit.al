@@ -10,6 +10,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         PerCompanyUpgradeTags.Add(GetFixRemainingAmountCLEUpgradeTag);
         PerCompanyUpgradeTags.Add(GetFixRemainingAmountVLEUpgradeTag);
+        PerCompanyUpgradeTags.Add(GetVATReportTaxAuthDocNoUpgradeTag());
     end;
 
     procedure GetFixRemainingAmountCLEUpgradeTag(): Code[250]
@@ -20,6 +21,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetFixRemainingAmountVLEUpgradeTag(): Code[250]
     begin
         exit('MS-314721-FixRemainingAmountsVLE-20190927');
+    end;
+
+    procedure GetVATReportTaxAuthDocNoUpgradeTag(): Code[250]
+    begin
+        exit('MS-402795-VATReportHeaderTaxAuthDocNo-20210527');
     end;
 }
 

@@ -190,6 +190,18 @@
         field(12101; "Tax Auth. Doc. No."; Code[6])
         {
             Caption = 'Tax Auth. Doc. No.';
+            ObsoleteReason = 'Replaced by Tax Auth. Document No.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
+
+            trigger OnValidate()
+            begin
+                "Tax Auth. Document No." := "Tax Auth. Doc. No.";
+            end;
+        }
+        field(12102; "Tax Auth. Document No."; Code[18])
+        {
+            Caption = 'Tax Auth. Document No.';
         }
     }
 
@@ -267,6 +279,7 @@
         "VAT Report Config. Code" := "VAT Report Config. Code"::"VAT Transactions Report";
         "Start Date" := WorkDate;
         "End Date" := WorkDate;
+        
     end;
 
     procedure CheckEditingAllowed()
@@ -292,7 +305,7 @@
     begin
         TestField(Status, Status::Released);
         TestField("Tax Auth. Receipt No.");
-        TestField("Tax Auth. Doc. No.");
+        TestField("Tax Auth. Document No.");
     end;
 
     procedure CheckIfCanBeReopened(VATReportHeader: Record "VAT Report Header")

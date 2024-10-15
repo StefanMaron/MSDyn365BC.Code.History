@@ -224,7 +224,7 @@ report 12193 "Export VAT Transactions"
             if "VAT Report Header"."VAT Report Type" <> "VAT Report Header"."VAT Report Type"::Standard then begin
                 OrgVATReportHeader.Get("VAT Report Header"."Original Report No.");
                 SetReportTypeData(MapVATReportType("VAT Report Header"."VAT Report Type"),
-                  OrgVATReportHeader."Tax Auth. Doc. No.", OrgVATReportHeader."Tax Auth. Receipt No.");
+                  OrgVATReportHeader."Tax Auth. Document No.", OrgVATReportHeader."Tax Auth. Receipt No.");
             end;
 
             // Set framework count

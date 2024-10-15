@@ -16,7 +16,7 @@ codeunit 12131 "Spesometro Export"
         ModuleCount: array[15] of Integer;
         TotalFrameworkCount: array[15] of Integer;
         ReportType: Option Standard,Corrective,Cancellation;
-        OrgReportNo: Code[6];
+        OrgReportNo: Code[18];
         OrgReportReceiptNo: Code[17];
         StartDate: Date;
         EndDate: Date;
@@ -69,7 +69,7 @@ codeunit 12131 "Spesometro Export"
     end;
 
     [Scope('OnPrem')]
-    procedure SetReportTypeData(NewReportType: Option Standard,Corrective,Cancellation; NewOrgReportNo: Code[6]; NewOrgReceiptNo: Code[17])
+    procedure SetReportTypeData(NewReportType: Option Standard,Corrective,Cancellation; NewOrgReportNo: Code[18]; NewOrgReceiptNo: Code[17])
     begin
         ReportType := NewReportType;
         OrgReportNo := NewOrgReportNo;
@@ -157,20 +157,23 @@ codeunit 12131 "Spesometro Export"
 
     [Scope('OnPrem')]
     procedure StartNewRecord(Type: Option A,B,C,D,E,G,H,Z)
+    var
+        IDFileOffset: integer;
     begin
         if FlatFileManagement.RecordsPerFileExceeded(Type) then begin
             EndFile;
             StartNewFile;
         end;
         FlatFileManagement.StartNewRecord(Type); // TODO: addr record H
-
+        if Type = ConstRecordType::B then
+            IDFileOffset := 12;
         if Type = ConstRecordType::A then
             if GetTotalTransmissions > 1 then begin
-                WritePositionalValue(522, 4, ConstFormat::NU, Format(ProgressiveTransmissionNo), false);
-                WritePositionalValue(526, 4, ConstFormat::NU, Format(GetTotalTransmissions), false);
+                WritePositionalValue(522 + IDFileOffset, 4, ConstFormat::NU, Format(ProgressiveTransmissionNo), false);
+                WritePositionalValue(526 + IDFileOffset, 4, ConstFormat::NU, Format(GetTotalTransmissions), false);
             end else begin
-                WritePositionalValue(522, 4, ConstFormat::NU, '0', false);
-                WritePositionalValue(526, 4, ConstFormat::NU, '0', false);
+                WritePositionalValue(522 + IDFileOffset, 4, ConstFormat::NU, '0', false);
+                WritePositionalValue(526 + IDFileOffset, 4, ConstFormat::NU, '0', false);
             end;
 
         if Type in [ConstRecordType::B] then
@@ -275,7 +278,10 @@ codeunit 12131 "Spesometro Export"
     end;
 
     local procedure WriteRecordBDocTypeValues()
+    var
+        IDFileOffset: integer;
     begin
+        IDFileOffset := 12;
         case ReportType of
             ReportType::Standard:
                 WritePositionalValue(90, 3, ConstFormat::CB, '100', false);
@@ -287,32 +293,35 @@ codeunit 12131 "Spesometro Export"
 
         if ReportType <> ReportType::Standard then begin
             WritePositionalValue(93, 17, ConstFormat::NU, OrgReportReceiptNo, false); //B11
-            WritePositionalValue(110, 6, ConstFormat::NU, OrgReportNo, false);
+            WritePositionalValue(110, 18, ConstFormat::NU, OrgReportNo, false);
         end else begin
             WritePositionalValue(93, 17, ConstFormat::NU, '0', false);
-            WritePositionalValue(110, 6, ConstFormat::NU, '0', false);
+            WritePositionalValue(110, 18, ConstFormat::NU, '0', false);
         end;
 
         if ReportType = ReportType::Cancellation then
-            WritePositionalValue(116, 2, ConstFormat::CB, '00', false)
+            WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '00', false)
         else begin
             if DetailedExport then
-                WritePositionalValue(116, 2, ConstFormat::CB, '01', false)
+                WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '01', false)
             else
-                WritePositionalValue(116, 2, ConstFormat::CB, '10', false);
+                WritePositionalValue(116 + IDFileOffset, 2, ConstFormat::CB, '10', false);
         end;
     end;
 
     local procedure WriteRecordBCompanyInfoValues()
+    var
+        IDFileOffset: integer;
     begin
+        IDFileOffset := 12;
         WritePositionalValue(
-          130, 11, ConstFormat::PI, FlatFileManagement.CopyStringEnding(NumericalVal(CompanyInfo."VAT Registration No."), 11), false);
-        WritePositionalValue(141, 6, ConstFormat::AN, DelChr(CompanyInfo."Industrial Classification", '=', '.'), true);
-        WritePositionalValue(147, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInfo."Phone No."), true);
-        WritePositionalValue(159, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInfo."Fax No."), true);
-        WritePositionalValue(171, 50, ConstFormat::AN, CompanyInfo."E-Mail", true);
-        WritePositionalValue(266, 8, ConstFormat::DT, '00000000', false);
-        WritePositionalValue(316, 60, ConstFormat::AN, CompanyInfo.Name, true);
+          130 + IdFileOffset, 11, ConstFormat::PI, FlatFileManagement.CopyStringEnding(NumericalVal(CompanyInfo."VAT Registration No."), 11), false);
+        WritePositionalValue(141 + IDFileOffset, 6, ConstFormat::AN, DelChr(CompanyInfo."Industrial Classification", '=', '.'), true);
+        WritePositionalValue(147 + IDFileOffset, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInfo."Phone No."), true);
+        WritePositionalValue(159 + IDFileOffset, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInfo."Fax No."), true);
+        WritePositionalValue(171 + IDFileOffset, 50, ConstFormat::AN, CompanyInfo."E-Mail", true);
+        WritePositionalValue(266 + IDFileOffset, 8, ConstFormat::DT, '00000000', false);
+        WritePositionalValue(316 + IDFileOffset, 60, ConstFormat::AN, CompanyInfo.Name, true);
     end;
 
     local procedure WriteRecordBContentIndicatorValues()
@@ -321,14 +330,16 @@ codeunit 12131 "Spesometro Export"
         Index: Integer;
         FileStart: Integer;
         FileEnd: Integer;
+        IDFileOffset: integer;
     begin
+        IDFileOffset := 12;
         // Content of submission
         CumRecordCount[1] := 0;
         for Index := 1 to 10 do
             CumRecordCount[Index + 1] := CumRecordCount[Index] + TotalFrameworkCount[Index];
 
         // Calculate which frameworks that are going in the current file
-        WritePositionalValue(118, 12, ConstFormat::CN, '000000000000', false);
+        WritePositionalValue(118 + IDFileOffset, 12, ConstFormat::CN, '000000000000', false);
         FileStart := FlatFileManagement.GetMaxRecordsPerFile * (ProgressiveTransmissionNo - 1);
         FileEnd := FlatFileManagement.GetMaxRecordsPerFile * ProgressiveTransmissionNo;
         for Index := 1 to 10 do
@@ -336,10 +347,10 @@ codeunit 12131 "Spesometro Export"
                 if ((CumRecordCount[Index] >= FileStart) and (CumRecordCount[Index] < FileEnd)) or
                    ((CumRecordCount[Index] <= FileStart) and (CumRecordCount[Index + 1] > FileStart))
                 then
-                    WritePositionalValue(117 + Index, 1, ConstFormat::CB, '1', false);
+                    WritePositionalValue(117 + Index + IDFileOffset, 1, ConstFormat::CB, '1', false);
             end;
         if FlatFileManagement.GetEstimatedNumberOfRecords > 0 then
-            WritePositionalValue(129, 1, ConstFormat::CB, '1', false);
+            WritePositionalValue(129 + IDFileOffset, 1, ConstFormat::CB, '1', false);
     end;
 
     local procedure GetSpesometroAppointment(var SpesometroAppointment: Record "Spesometro Appointment"): Boolean
@@ -364,52 +375,57 @@ codeunit 12131 "Spesometro Export"
     local procedure WriteRecordBAppointmentValues()
     var
         SpesometroAppointment: Record "Spesometro Appointment";
+        IDFileOffset: integer;
     begin
+        IDFileOffset := 12;
         if GetSpesometroAppointment(SpesometroAppointment) then begin
-            WritePositionalValue(382, 16, ConstFormat::CF, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Fiscal Code"), false);
-            WritePositionalValue(398, 2, ConstFormat::NU, SpesometroAppointment."Appointment Code", false);
-            WritePositionalValue(400, 8, ConstFormat::DT, FormatDate(SpesometroAppointment."Starting Date", ConstFormat::DT), false);
+            WritePositionalValue(382 + IDFileOffset, 16, ConstFormat::CF, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Fiscal Code"), false);
+            WritePositionalValue(398 + IDFileOffset, 2, ConstFormat::NU, SpesometroAppointment."Appointment Code", false);
+            WritePositionalValue(400 + IDFileOffset, 8, ConstFormat::DT, FormatDate(SpesometroAppointment."Starting Date", ConstFormat::DT), false);
             if SpesometroAppointment."Ending Date" <> 0D then
-                WritePositionalValue(408, 8, ConstFormat::DT, FormatDate(SpesometroAppointment."Ending Date", ConstFormat::DT), false)
+                WritePositionalValue(408 + IDFileOffset, 8, ConstFormat::DT, FormatDate(SpesometroAppointment."Ending Date", ConstFormat::DT), false)
             else
-                WritePositionalValue(408, 8, ConstFormat::NU, '00000000', false);
+                WritePositionalValue(408 + IDFileOffset, 8, ConstFormat::NU, '00000000', false);
 
             if SpesometroAppointment.IsIndividual then begin
-                WritePositionalValue(416, 24, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::"First Name"), true);
-                WritePositionalValue(440, 20, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Last Name"), true);
-                WritePositionalValue(460, 1, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Gender), true);
-                WritePositionalValue(461, 8, ConstFormat::DT, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Date of Birth"), true);
-                WritePositionalValue(469, 40, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Municipality), true);
-                WritePositionalValue(509, 2, ConstFormat::PN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Province), true);
+                WritePositionalValue(416 + IDFileOffset, 24, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::"First Name"), true);
+                WritePositionalValue(440 + IDFileOffset, 20, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Last Name"), true);
+                WritePositionalValue(460 + IDFileOffset, 1, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Gender), true);
+                WritePositionalValue(461 + IDFileOffset, 8, ConstFormat::DT, SpesometroAppointment.GetValueOf(AppointmentFieldName::"Date of Birth"), true);
+                WritePositionalValue(469 + IDFileOffset, 40, ConstFormat::AN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Municipality), true);
+                WritePositionalValue(509 + IDFileOffset, 2, ConstFormat::PN, SpesometroAppointment.GetValueOf(AppointmentFieldName::Province), true);
             end else begin
-                WritePositionalValue(461, 8, ConstFormat::DT, '00000000', false);
-                WritePositionalValue(511, 24, ConstFormat::AN, SpesometroAppointment.Designation, false);
+                WritePositionalValue(461 + IDFileOffset, 8, ConstFormat::DT, '00000000', false);
+                WritePositionalValue(511 + IDFileOffset, 24, ConstFormat::AN, SpesometroAppointment.Designation, false);
             end;
         end else begin
-            WritePositionalValue(398, 2, ConstFormat::NU, '00', false);
-            WritePositionalValue(400, 8, ConstFormat::NU, '00000000', false);
-            WritePositionalValue(408, 8, ConstFormat::NU, '00000000', false);
-            WritePositionalValue(461, 8, ConstFormat::DT, '00000000', false);
+            WritePositionalValue(398 + IDFileOffset, 2, ConstFormat::NU, '00', false);
+            WritePositionalValue(400 + IDFileOffset, 8, ConstFormat::NU, '00000000', false);
+            WritePositionalValue(408 + IDFileOffset, 8, ConstFormat::NU, '00000000', false);
+            WritePositionalValue(461 + IDFileOffset, 8, ConstFormat::DT, '00000000', false);
         end;
     end;
 
     local procedure WriteRecordBIntermediaryValues()
+    var
+        IDFileOffset: Integer;
     begin
+        IDFileOffset := 12;
         if VATReportSetup."Intermediary VAT Reg. No." <> '' then begin
-            WritePositionalValue(571, 16, ConstFormat::CF, VATReportSetup."Intermediary VAT Reg. No.", false); //B52
-            WritePositionalValue(587, 5, ConstFormat::NU, VATReportSetup."Intermediary CAF Reg. No.", false); //B53
+            WritePositionalValue(571 + IDFileOffset, 16, ConstFormat::CF, VATReportSetup."Intermediary VAT Reg. No.", false); //B52
+            WritePositionalValue(587 + IDFileOffset, 5, ConstFormat::NU, VATReportSetup."Intermediary CAF Reg. No.", false); //B53
             if VATReportSetup."Intermediary CAF Reg. No." <> '' then
-                WritePositionalValue(592, 1, ConstFormat::NU, '2', false) //B54
+                WritePositionalValue(592 + IDFileOffset, 1, ConstFormat::NU, '2', false) //B54
             else
-                WritePositionalValue(592, 1, ConstFormat::NU, '1', false); //B54
+                WritePositionalValue(592 + IDFileOffset, 1, ConstFormat::NU, '1', false); //B54
             if VATReportSetup."Intermediary Date" <> 0D then
-                WritePositionalValue(594, 8, ConstFormat::DT, FormatDate(VATReportSetup."Intermediary Date", ConstFormat::DT), false)
+                WritePositionalValue(594 + IDFileOffset, 8, ConstFormat::DT, FormatDate(VATReportSetup."Intermediary Date", ConstFormat::DT), false)
             else
-                WritePositionalValue(594, 8, ConstFormat::NU, '00000000', false);
+                WritePositionalValue(594 + IDFileOffset, 8, ConstFormat::NU, '00000000', false);
         end else begin
-            WritePositionalValue(587, 5, ConstFormat::NU, '00000', false); //B53
-            WritePositionalValue(592, 1, ConstFormat::NU, '0', false); //B54
-            WritePositionalValue(594, 8, ConstFormat::NU, '00000000', false); //B55
+            WritePositionalValue(587 + IDFileOffset, 5, ConstFormat::NU, '00000', false); //B53
+            WritePositionalValue(592 + IDFileOffset, 1, ConstFormat::NU, '0', false); //B54
+            WritePositionalValue(594 + IDFileOffset, 8, ConstFormat::NU, '00000000', false); //B55
         end;
     end;
 
@@ -417,7 +433,9 @@ codeunit 12131 "Spesometro Export"
     var
         Date: Record Date;
         DateRef: Code[2];
+        IDFileOffset: integer;
     begin
+        IDFileOffset := 12;
         case PeriodType of
             PeriodType::Month:
                 DateRef := CopyStr(FormatPadding(ConstFormat::NUp, Format(Date2DMY(StartDate, 2)), 2), 1, 2);
@@ -434,9 +452,9 @@ codeunit 12131 "Spesometro Export"
                 DateRef := '  ';
         end;
 
-        WritePositionalValue(376, 4, ConstFormat::DA, FormatDate(StartDate, ConstFormat::DA), false);
+        WritePositionalValue(376 + IDFileOffset, 4, ConstFormat::DA, FormatDate(StartDate, ConstFormat::DA), false);
         if PeriodType <> PeriodType::Hide then
-            WritePositionalValue(380, 2, ConstFormat::AN, DateRef, false);
+            WritePositionalValue(380 + IDFileOffset, 2, ConstFormat::AN, DateRef, false);
     end;
 }
 

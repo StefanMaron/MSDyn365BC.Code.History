@@ -26,8 +26,8 @@ report 12150 "VAT Payment Communication"
                 field(YearOfDeclaration; YearOfDeclaration)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Year of declaration';
-                    ToolTip = 'Specifies the year, in 2 digits, for which the VAT communication is prepared.';
+                    Caption = 'Supply code';
+                    ToolTip = 'Specifies the two digits that will be added to the IVP value of the CodiceFornitura XML node in the exported file.';
 
                     trigger OnValidate()
                     begin
@@ -115,7 +115,7 @@ report 12150 "VAT Payment Communication"
         begin
             GeneralLedgerSetup.Get();
             StartDate := CalcDate('<CQ-1Q+1D>', GeneralLedgerSetup."Last Settlement Date" + 1);
-            YearOfDeclaration := Date2DMY(StartDate, 3) - 2000;
+            YearOfDeclaration := 18;
         end;
     }
 
