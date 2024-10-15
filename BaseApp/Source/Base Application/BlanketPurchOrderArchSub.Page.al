@@ -272,13 +272,73 @@
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                    Visible = false;
+                    Visible = DimVisible1;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
-                    Visible = false;
+                    Visible = DimVisible2;
+                }
+                field(ShortcutDimCode3; ShortcutDimCode[3])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,3';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(3),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible3;
+                }
+                field(ShortcutDimCode4; ShortcutDimCode[4])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,4';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(4),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible4;
+                }
+                field(ShortcutDimCode5; ShortcutDimCode[5])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,5';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(5),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible5;
+                }
+                field(ShortcutDimCode6; ShortcutDimCode[6])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,6';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(6),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible6;
+                }
+                field(ShortcutDimCode7; ShortcutDimCode[7])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,7';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(7),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible7;
+                }
+                field(ShortcutDimCode8; ShortcutDimCode[8])
+                {
+                    ApplicationArea = Dimensions;
+                    ToolTip = 'Specifies the dimension value code that is linked to the purchase line archive';
+                    CaptionClass = '1,2,8';
+                    TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(8),
+                                                                  "Dimension Value Type" = CONST(Standard),
+                                                                  Blocked = CONST(false));
+                    Visible = DimVisible8;
                 }
             }
         }
@@ -332,6 +392,29 @@
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        SetDimensionsVisibility();
+    end;
+
+    trigger OnAfterGetRecord()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimMgt.GetShortcutDimensions("Dimension Set ID", ShortcutDimCode);
+    end;
+
+    var
+        ShortcutDimCode: array[8] of Code[20];
+        DimVisible1: Boolean;
+        DimVisible2: Boolean;
+        DimVisible3: Boolean;
+        DimVisible4: Boolean;
+        DimVisible5: Boolean;
+        DimVisible6: Boolean;
+        DimVisible7: Boolean;
+        DimVisible8: Boolean;
+
     procedure ShowDocumentLineTracking()
     var
         DocumentLineTracking: Page "Document Line Tracking";
@@ -339,6 +422,25 @@
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(3, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
         DocumentLineTracking.RunModal;
+    end;
+
+    local procedure SetDimensionsVisibility()
+    var
+        DimMgt: Codeunit DimensionManagement;
+    begin
+        DimVisible1 := false;
+        DimVisible2 := false;
+        DimVisible3 := false;
+        DimVisible4 := false;
+        DimVisible5 := false;
+        DimVisible6 := false;
+        DimVisible7 := false;
+        DimVisible8 := false;
+
+        DimMgt.UseShortcutDims(
+          DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
+
+        Clear(DimMgt);
     end;
 }
 
