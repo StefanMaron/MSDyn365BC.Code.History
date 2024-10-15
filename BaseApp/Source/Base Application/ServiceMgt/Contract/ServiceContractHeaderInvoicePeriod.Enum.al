@@ -1,3 +1,5 @@
+namespace Microsoft.Service.Contract;
+
 enum 5997 "Service Contract Header Invoice Period"
 {
     Extensible = true;

@@ -1,21 +1,30 @@
+namespace System.Test.Tooling;
+
+using Microsoft.Foundation.NoSeries;
+using Microsoft.Inventory.Item;
+using Microsoft.Purchases.Document;
+using Microsoft.Purchases.Setup;
+using Microsoft.Purchases.Vendor;
+using System.Tooling;
+
 codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provider"
 {
     SingleInstance = true;
 
     trigger OnRun();
     begin
-        If not IsInitialized or true then begin
+        if not IsInitialized or true then begin
             InitTest();
             IsInitialized := true;
         end;
-        CreatePurchaseOrder(BCPTTestContext);
+        CreatePurchaseOrder(GlobalBCPTTestContext);
     end;
 
     var
-        BCPTTestContext: Codeunit "BCPT Test Context";
+        GlobalBCPTTestContext: Codeunit "BCPT Test Context";
         IsInitialized: Boolean;
         NoOfLinesParamLbl: Label 'Lines';
-        ParamValidationErr: Label 'Parameter is not defined in the correct format. The expected format is "%1"';
+        ParamValidationErr: Label 'Parameter is not defined in the correct format. The expected format is "%1"', Comment = '%1 = a string';
         NoOfLinesToCreate: Integer;
 
 
@@ -27,7 +36,7 @@ codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provi
         PurchaseSetup.Get();
         PurchaseSetup.TestField("Order Nos.");
         NoSeriesLine.SetRange("Series Code", PurchaseSetup."Order Nos.");
-        NoSeriesLine.findset(true, true);
+        NoSeriesLine.FindSet(true);
         repeat
             if NoSeriesLine."Ending No." <> '' then begin
                 NoSeriesLine."Ending No." := '';
@@ -37,10 +46,10 @@ codeunit 149103 "BCPT Create PO with N Lines" implements "BCPT Test Param. Provi
         until NoSeriesLine.Next() = 0;
         commit();
 
-        if Evaluate(NoOfLinesToCreate, BCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
+        if Evaluate(NoOfLinesToCreate, GlobalBCPTTestContext.GetParameter(NoOfLinesParamLbl)) then;
     end;
 
-    local procedure CreatePurchaseOrder(Var BCPTTestContext: Codeunit "BCPT Test Context")
+    local procedure CreatePurchaseOrder(var BCPTTestContext: Codeunit "BCPT Test Context")
     var
         Vendor: Record Vendor;
         Item: Record Item;

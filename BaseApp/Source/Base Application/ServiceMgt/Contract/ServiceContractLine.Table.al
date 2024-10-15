@@ -1,3 +1,16 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Finance.Currency;
+using Microsoft.Foundation.UOM;
+using Microsoft.Inventory.Item;
+using Microsoft.Sales.Customer;
+using Microsoft.Service.Comment;
+using Microsoft.Service.Document;
+using Microsoft.Service.Item;
+using Microsoft.Service.Ledger;
+using Microsoft.Service.Setup;
+using System.Utilities;
+
 table 5964 "Service Contract Line"
 {
     Caption = 'Service Contract Line';
@@ -13,7 +26,7 @@ table 5964 "Service Contract Line"
         field(2; "Contract No."; Code[20])
         {
             Caption = 'Contract No.';
-            TableRelation = "Service Contract Header"."Contract No." WHERE("Contract Type" = FIELD("Contract Type"));
+            TableRelation = "Service Contract Header"."Contract No." where("Contract Type" = field("Contract Type"));
         }
         field(3; "Line No."; Integer)
         {
@@ -212,12 +225,12 @@ table 5964 "Service Contract Line"
         {
             Caption = 'Ship-to Code';
             Editable = false;
-            TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
+            TableRelation = "Ship-to Address".Code where("Customer No." = field("Customer No."));
         }
         field(11; "Item No."; Code[20])
         {
             Caption = 'Item No.';
-            TableRelation = Item WHERE(Type = CONST(Inventory));
+            TableRelation = Item where(Type = const(Inventory));
 
             trigger OnValidate()
             begin
@@ -258,8 +271,8 @@ table 5964 "Service Contract Line"
         field(12; "Unit of Measure Code"; Code[10])
         {
             Caption = 'Unit of Measure Code';
-            TableRelation = IF ("Item No." = FILTER(<> '')) "Item Unit of Measure".Code WHERE("Item No." = FIELD("Item No."))
-            ELSE
+            TableRelation = if ("Item No." = filter(<> '')) "Item Unit of Measure".Code where("Item No." = field("Item No."))
+            else
             "Unit of Measure";
 
             trigger OnValidate()
@@ -476,7 +489,7 @@ table 5964 "Service Contract Line"
         field(28; "Variant Code"; Code[10])
         {
             Caption = 'Variant Code';
-            TableRelation = "Item Variant".Code WHERE("Item No." = FIELD("Item No."));
+            TableRelation = "Item Variant".Code where("Item No." = field("Item No."));
 
             trigger OnValidate()
             begin
@@ -681,7 +694,7 @@ table 5964 "Service Contract Line"
             if "Contract Type" = "Contract Type"::Contract then
                 LogContractLineChanges(xRec);
 
-        if "Line Amount" <> xRec."Line Amount" then
+        if Rec."Line Amount" <> xRec."Line Amount" then
             UpdateContractAnnualAmount(false);
 
         if "Service Item No." <> xRec."Service Item No." then begin

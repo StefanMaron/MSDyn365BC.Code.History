@@ -1,3 +1,7 @@
+namespace Microsoft.Finance.Dimension;
+
+using Microsoft.Finance.GeneralLedger.Setup;
+
 codeunit 480 "Get Shortcut Dimension Values"
 {
     SingleInstance = true;

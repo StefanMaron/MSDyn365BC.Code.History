@@ -94,7 +94,7 @@ page 2105 "O365 Monthly Customer Listpart"
                 var
                     O365SalesDocument: Record "O365 Sales Document";
                 begin
-                    O365SalesDocument.SetRange("Sell-to Customer Name", Name);
+                    O365SalesDocument.SetRange("Sell-to Customer Name", Rec.Name);
                     O365SalesDocument.SetRange(Posted, true);
                     O365SalesDocument.SetRange("Document Date", StartOfMonthDate, EndOfMonthDate);
                     PAGE.RunModal(PAGE::"BC O365 Invoice List", O365SalesDocument);
@@ -105,12 +105,12 @@ page 2105 "O365 Monthly Customer Listpart"
 
     trigger OnAfterGetRecord()
     begin
-        OverdueAmount := CalcOverdueBalance();
+        OverdueAmount := Rec.CalcOverdueBalance();
     end;
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter", 0D, WorkDate());
     end;
 
     var
@@ -137,14 +137,14 @@ page 2105 "O365 Monthly Customer Listpart"
         EndOfMonthDate := CalcDate(CurrentMonthDateFormula, StartOfMonthDate);
         Customer.SetRange("Date Filter", StartOfMonthDate, EndOfMonthDate);
 
-        DeleteAll();
+        Rec.DeleteAll();
 
         repeat
             Customer.CalcFields("Net Change (LCY)");
-            TransferFields(Customer, true);
-            "Inv. Amounts (LCY)" := Customer."Net Change (LCY)";
+            Rec.TransferFields(Customer, true);
+            Rec."Inv. Amounts (LCY)" := Customer."Net Change (LCY)";
             OnInsertDataOnBeforeInsert(Rec, Customer);
-            Insert(true);
+            Rec.Insert(true);
         until Customer.Next() = 0;
 
         CurrPage.Update();

@@ -1,3 +1,14 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Manufacturing.Capacity;
+using Microsoft.Inventory.Item;
+using Microsoft.Manufacturing.MachineCenter;
+using Microsoft.Manufacturing.Comment;
+using Microsoft.Manufacturing.ProductionBOM;
+using Microsoft.Manufacturing.Routing;
+using Microsoft.Manufacturing.WorkCenter;
+using Microsoft.Manufacturing.Setup;
+
 permissionset 5053 "Manufacturing Design - Edit"
 {
     Access = Public;

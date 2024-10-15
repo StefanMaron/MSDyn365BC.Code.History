@@ -553,16 +553,17 @@ codeunit 134236 "ERM Analysis View Excel Export"
         AnalysisViewEntry.FindFirst();
         ExportAnalysisView.SetSkipDownload;
         MakeAnalysisByDimParameters(AnalysisByDimParameters, AmountField, DateFilter, AccFilter, BudgetFilter, Dim1Filter, Dim2Filter, Dim3Filter,
-          Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter);
+          Dim4Filter, AmountType, ClosingEntryFilter, ShowActualBudg, BusUnitFilter, AnalysisView);
         ExportAnalysisView.ExportData(AnalysisViewEntry, AnalysisByDimParameters);
 
         exit(ExportAnalysisView.GetServerFileName);
     end;
 
-    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text)
+    local procedure MakeAnalysisByDimParameters(var AnalysisByDimParameters: Record "Analysis by Dim. Parameters"; AmountField: Option; DateFilter: Text; AccFilter: Text; BudgetFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; Dim4Filter: Text; AmountType: Enum "Analysis Amount Type"; ClosingEntryFilter: Option; ShowActualBudg: Option; BusUnitFilter: Text; AnalysisView: Record "Analysis View")
     begin
         with AnalysisByDimParameters do begin
             "Show Amount Field" := AmountField;
+            "Analysis View Code" := AnalysisView.Code;
             "Date Filter" := DateFilter;
             "Account Filter" := AccFilter;
             "Budget Filter" := BudgetFilter;
@@ -573,6 +574,7 @@ codeunit 134236 "ERM Analysis View Excel Export"
             "Amount Type" := AmountType;
             "Closing Entries" := ClosingEntryFilter;
             "Show Actual/Budgets" := ShowActualBudg;
+            "Analysis Account Source" := AnalysisView."Account Source";
             "Bus. Unit Filter" := BusUnitFilter;
         end;
     end;

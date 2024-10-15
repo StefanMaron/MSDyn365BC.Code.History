@@ -958,7 +958,7 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Sale);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRates(
           Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
 #else
@@ -1018,7 +1018,7 @@ codeunit 134043 "ERM Additional Currency"
             VATPostingSetup[2], GenJournalLine."Bal. Gen. Posting Type"::Purchase);
 
         // [WHEN] Adjust Exchange Rate from Date "D1" to "D3" for Currency "FCY"
-#if not CLEAN20
+#if not CLEAN23
         LibraryERM.RunAdjustExchangeRates(
           Currency.Code, StartingDate, StartingDate + 2, AdjustExchRateDefaultDescTxt, StartingDate + 2, Currency.Code, true);
 #else
@@ -1525,14 +1525,14 @@ codeunit 134043 "ERM Additional Currency"
     local procedure RunAdjustExchangeRates(CurrencyExchangeRate: Record "Currency Exchange Rate"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
-#if not CLEAN20
+#if not CLEAN23
         AdjustExchangeRates: Report "Adjust Exchange Rates";
 #else
         ExchRateAdjustment: Report "Exch. Rate Adjustment";
 #endif
     begin
         Currency.SetRange(Code, CurrencyExchangeRate."Currency Code");
-#if not CLEAN20
+#if not CLEAN23
         Clear(AdjustExchangeRates);
         AdjustExchangeRates.SetTableView(Currency);
         AdjustExchangeRates.InitializeRequest2(

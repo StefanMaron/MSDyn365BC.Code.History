@@ -1,3 +1,9 @@
+namespace Microsoft.Finance.VAT;
+
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Ledger;
+using Microsoft.Finance.VAT.Ledger;
+
 #if not CLEAN22 
 report 13620 "VAT Reconciliation"
 {
@@ -14,7 +20,7 @@ report 13620 "VAT Reconciliation"
     {
         dataitem("G/L Entry"; "G/L Entry")
         {
-            DataItemTableView = SORTING("G/L Account No.", "Posting Date");
+            DataItemTableView = sorting("G/L Account No.", "Posting Date");
             RequestFilterFields = "G/L Account No.", "Posting Date";
             column(CompanyName; COMPANYPROPERTY.DisplayName())
             {

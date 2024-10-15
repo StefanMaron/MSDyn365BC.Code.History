@@ -1,3 +1,5 @@
+namespace Microsoft.Inventory.Requisition;
+
 page 295 "Req. Wksh. Names"
 {
     Caption = 'Req. Wksh. Names';
@@ -72,7 +74,7 @@ page 295 "Req. Wksh. Names"
 
     trigger OnInit()
     begin
-        SetRange("Worksheet Template Name");
+        Rec.SetRange("Worksheet Template Name");
     end;
 
     trigger OnOpenPage()
@@ -88,9 +90,9 @@ page 295 "Req. Wksh. Names"
         ReqWkshTmpl: Record "Req. Wksh. Template";
     begin
         if not CurrPage.LookupMode then
-            if GetFilter("Worksheet Template Name") <> '' then
-                if GetRangeMin("Worksheet Template Name") = GetRangeMax("Worksheet Template Name") then
-                    if ReqWkshTmpl.Get(GetRangeMin("Worksheet Template Name")) then
+            if Rec.GetFilter("Worksheet Template Name") <> '' then
+                if Rec.GetRangeMin("Worksheet Template Name") = Rec.GetRangeMax("Worksheet Template Name") then
+                    if ReqWkshTmpl.Get(Rec.GetRangeMin("Worksheet Template Name")) then
                         exit(ReqWkshTmpl.Name + ' ' + ReqWkshTmpl.Description);
     end;
 }

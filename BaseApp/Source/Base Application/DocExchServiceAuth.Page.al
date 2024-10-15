@@ -1,3 +1,7 @@
+namespace Microsoft.EServices.EDocument;
+
+using System.Security.Authentication;
+
 page 1276 "Doc. Exch. Service Auth."
 {
     Extensible = false;

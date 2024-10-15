@@ -1,3 +1,13 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Inventory.MarketingText;
+
+using Microsoft.Inventory.Item;
+using Microsoft.Inventory.Item.Attribute;
+using System.Text;
+
 codeunit 5825 "Marketing Text"
 {
     procedure EditMarketingText(ItemNo: Code[20])

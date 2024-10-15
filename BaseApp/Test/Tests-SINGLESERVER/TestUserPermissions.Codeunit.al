@@ -1671,9 +1671,6 @@ codeunit 134610 "Test User Permissions"
         UserGroupPermissionSet: Record "User Group Permission Set";
         UserGroupPlan: Record "User Group Plan";
         Plan: Query Plan;
-#if not CLEAN20
-        PlanPermissionSet: Record "Plan Permission Set";
-#endif
     begin
         // verify User Group Plan exists
         UserGroupPlan.SetRange("Plan ID", PlanID);
@@ -1691,11 +1688,6 @@ codeunit 134610 "Test User Permissions"
         Assert.IsTrue(Plan.Open(), 'Plan doesn''t exist');
         Plan.Read();
         LibraryXMLRead.VerifyNodeValue('roleCenterId', Plan.Role_Center_ID);
-
-#if not CLEAN20
-        // verify PlanPermissionset
-        Assert.IsTrue(PlanPermissionSet.Get(PlanID, XTestPermissionTxt), 'PlanPermissionset doesn''t exist');
-#endif
     end;
 #endif
 

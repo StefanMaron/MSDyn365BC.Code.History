@@ -1,3 +1,8 @@
+namespace System.Security.AccessControl;
+
+using System.Integration;
+using Microsoft.Foundation.Address;
+
 permissionset 2613 "Web Services - Admin"
 {
     Access = Public;

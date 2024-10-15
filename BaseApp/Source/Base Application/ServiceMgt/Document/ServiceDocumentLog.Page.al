@@ -1,3 +1,9 @@
+namespace Microsoft.Service.Document;
+
+using Microsoft.Service.History;
+using Microsoft.Utilities;
+using System.Security.User;
+
 page 5920 "Service Document Log"
 {
     ApplicationArea = Service;
@@ -7,8 +13,8 @@ page 5920 "Service Document Log"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "Service Document Log";
-    SourceTableView = SORTING("Change Date", "Change Time")
-                      ORDER(Descending);
+    SourceTableView = sorting("Change Date", "Change Time")
+                      order(Descending);
     UsageCategory = Lists;
 
     layout
@@ -42,18 +48,18 @@ page 5920 "Service Document Log"
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                     Visible = false;
                 }
-                field("ServLogMgt.ServOrderEventDescription(""Event No."")"; ServLogMgt.ServOrderEventDescription("Event No."))
+                field("ServLogMgt.ServOrderEventDescription(""Event No."")"; ServLogMgt.ServOrderEventDescription(Rec."Event No."))
                 {
                     ApplicationArea = Service;
                     Caption = 'Description';
                     ToolTip = 'Specifies the description of the event that occurred to a particular service document.';
                 }
-                field(After; After)
+                field(After; Rec.After)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contents of the modified field after the event takes place.';
                 }
-                field(Before; Before)
+                field(Before; Rec.Before)
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the contents of the modified field before the event takes place.';
@@ -77,7 +83,7 @@ page 5920 "Service Document Log"
                     var
                         UserMgt: Codeunit "User Management";
                     begin
-                        UserMgt.DisplayUserInformation("User ID");
+                        UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
             }
@@ -118,19 +124,19 @@ page 5920 "Service Document Log"
                         ServOrderLog: Record "Service Document Log";
                         DeleteServOrderLog: Report "Delete Service Document Log";
                     begin
-                        ServOrderLog.SetRange("Document Type", "Document Type");
-                        ServOrderLog.SetRange("Document No.", "Document No.");
+                        ServOrderLog.SetRange("Document Type", Rec."Document Type");
+                        ServOrderLog.SetRange("Document No.", Rec."Document No.");
                         DeleteServOrderLog.SetTableView(ServOrderLog);
                         DeleteServOrderLog.RunModal();
 
                         if DeleteServOrderLog.GetOnPostReportStatus() then begin
                             ServOrderLog.Reset();
                             DeleteServOrderLog.GetServDocLog(ServOrderLog);
-                            CopyFilters(ServOrderLog);
-                            DeleteAll();
-                            Reset();
-                            SetCurrentKey("Change Date", "Change Time");
-                            Ascending(false);
+                            Rec.CopyFilters(ServOrderLog);
+                            Rec.DeleteAll();
+                            Rec.Reset();
+                            Rec.SetCurrentKey("Change Date", "Change Time");
+                            Rec.Ascending(false);
                         end;
                     end;
                 }
@@ -150,37 +156,37 @@ page 5920 "Service Document Log"
                     PageManagement: Codeunit "Page Management";
                     isError: Boolean;
                 begin
-                    if "Document Type" in
-                       ["Document Type"::Order, "Document Type"::Quote,
-                        "Document Type"::Invoice, "Document Type"::"Credit Memo"]
+                    if Rec."Document Type" in
+                       [Rec."Document Type"::Order, Rec."Document Type"::Quote,
+                        Rec."Document Type"::Invoice, Rec."Document Type"::"Credit Memo"]
                     then
-                        if ServOrderHeaderRec.Get("Document Type", "Document No.") then begin
+                        if ServOrderHeaderRec.Get(Rec."Document Type", Rec."Document No.") then begin
                             isError := false;
                             PageManagement.PageRun(ServOrderHeaderRec);
                         end else
                             isError := true
                     else begin // posted documents
                         isError := true;
-                        case "Document Type" of
-                            "Document Type"::Shipment:
-                                if ServShptHeader.Get("Document No.") then begin
+                        case Rec."Document Type" of
+                            Rec."Document Type"::Shipment:
+                                if ServShptHeader.Get(Rec."Document No.") then begin
                                     isError := false;
                                     PAGE.Run(PAGE::"Posted Service Shipment", ServShptHeader);
                                 end;
-                            "Document Type"::"Posted Invoice":
-                                if ServInvHeader.Get("Document No.") then begin
+                            Rec."Document Type"::"Posted Invoice":
+                                if ServInvHeader.Get(Rec."Document No.") then begin
                                     isError := false;
                                     PAGE.Run(PAGE::"Posted Service Invoice", ServInvHeader);
                                 end;
-                            "Document Type"::"Posted Credit Memo":
-                                if ServCrMemoHeader.Get("Document No.") then begin
+                            Rec."Document Type"::"Posted Credit Memo":
+                                if ServCrMemoHeader.Get(Rec."Document No.") then begin
                                     isError := false;
                                     PAGE.Run(PAGE::"Posted Service Credit Memo", ServCrMemoHeader);
                                 end;
                         end;
                     end;
                     if isError then
-                        Error(Text001, "Document Type", "Document No.");
+                        Error(Text001, Rec."Document Type", Rec."Document No.");
                 end;
             }
         }
@@ -207,22 +213,20 @@ page 5920 "Service Document Log"
         ServOrderHeaderRec: Record "Service Header";
         ServLogMgt: Codeunit ServLogManagement;
         Text001: Label 'Service %1 %2 does not exist.', Comment = 'Service Order 2001 does not exist.';
-        [InDataSet]
         DocumentTypeVisible: Boolean;
-        [InDataSet]
         DocumentNoVisible: Boolean;
 
     local procedure GetCaptionHeader(): Text[250]
     var
         ServHeader: Record "Service Header";
     begin
-        if GetFilter("Document No.") <> '' then begin
+        if Rec.GetFilter(Rec."Document No.") <> '' then begin
             DocumentTypeVisible := false;
             DocumentNoVisible := false;
-            if ServHeader.Get("Document Type", "Document No.") then
-                exit(Format("Document Type") + ' ' + "Document No." + ' ' + ServHeader.Description);
+            if ServHeader.Get(Rec."Document Type", Rec."Document No.") then
+                exit(Format(Rec."Document Type") + ' ' + Rec."Document No." + ' ' + ServHeader.Description);
 
-            exit(Format("Document Type") + ' ' + "Document No.");
+            exit(Format(Rec."Document Type") + ' ' + Rec."Document No.");
         end;
 
         DocumentTypeVisible := true;

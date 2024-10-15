@@ -332,7 +332,7 @@ codeunit 134924 "ERM Cues"
         AverageDelayActual := SalesCue.CalculateAverageDaysDelayed;
 
         // [THEN] "Average Days Delayed" is equal to average delay of "X1" and "Y1"
-        // [THEN] (In the example, average delay of "X1" = Max(3, 8) = 8, "X2" = Max(10, 20) = 20. "Average Days Delayed" = (8 + 20) / 2 = 14 days).
+        // [THEN] (In the example, average delay of "X1" = max(3, 8) = 8, "X2" = max(10, 20) = 20. "Average Days Delayed" = (8 + 20) / 2 = 14 days).
         AverageDelayExpected := (Maximum(FirstDelays[1], FirstDelays[2]) + Maximum(SecondDelays[1], SecondDelays[2])) / 2;
         Assert.AreEqual(AverageDelayExpected, AverageDelayActual, AverageDaysDelayedErr);
     end;

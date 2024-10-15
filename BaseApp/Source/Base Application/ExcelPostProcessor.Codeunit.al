@@ -1,10 +1,19 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace System.Integration;
+
+using Microsoft.Inventory.Item;
+using System.IO;
+
 codeunit 1811 "Excel Post Processor"
 {
     TableNo = "Config. Package Record";
 
     trigger OnRun()
     begin
-        case "Table ID" of
+        case Rec."Table ID" of
             DATABASE::Item:
                 PostProcessItem(Rec);
             else

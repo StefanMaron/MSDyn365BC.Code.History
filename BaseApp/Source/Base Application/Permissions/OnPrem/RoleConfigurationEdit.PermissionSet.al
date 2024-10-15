@@ -1,3 +1,9 @@
+namespace System.Security.AccessControl;
+
+using System.Reflection;
+using System.Environment.Configuration;
+using System.Tooling;
+
 permissionset 6607 "Role Configuration - Edit"
 {
     Access = Public;
@@ -9,7 +15,9 @@ permissionset 6607 "Role Configuration - Edit"
 
     Permissions = tabledata "All Profile" = IMD,
                   tabledata "Profile Configuration Symbols" = IMD,
+#pragma warning disable AL0432
                   tabledata "Tenant Profile" = IMD,
+#pragma warning restore AL0432
                   tabledata "Tenant Profile Extension" = IMD,
                   tabledata "Tenant Profile Page Metadata" = IMD,
                   tabledata "Tenant Profile Setting" = IMD,

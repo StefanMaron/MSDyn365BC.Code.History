@@ -1,3 +1,24 @@
+namespace System.Security.AccessControl;
+
+using Microsoft.Bank.BankAccount;
+using Microsoft.Foundation.Comment;
+using Microsoft.Finance.Currency;
+using Microsoft.Sales.FinanceCharge;
+using Microsoft.Sales.Receivables;
+using Microsoft.Sales.Customer;
+using Microsoft.Finance.Dimension;
+using Microsoft.Finance.GeneralLedger.Account;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.GeneralLedger.Journal;
+using Microsoft.Foundation.PaymentTerms;
+using Microsoft.Finance.SalesTax;
+using Microsoft.Foundation.AuditCodes;
+using Microsoft.CRM.Team;
+using Microsoft.Finance.VAT.Setup;
+using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Reporting;
+using Microsoft.Finance.VAT.Calculation;
+
 permissionset 8785 "Recievables Journals - Edit"
 {
     Access = Public;
@@ -25,9 +46,6 @@ permissionset 8785 "Recievables Journals - Edit"
                   tabledata "Gen. Product Posting Group" = R,
                   tabledata "General Ledger Setup" = RM,
                   tabledata "General Posting Setup" = R,
-#if not CLEAN20
-                  tabledata "Native - Payment" = RIMD,
-#endif
                   tabledata "Payment Terms" = R,
                   tabledata "Reason Code" = R,
                   tabledata "Salesperson/Purchaser" = R,

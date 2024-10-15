@@ -1,3 +1,8 @@
+namespace Microsoft.Utilities;
+
+using Microsoft.Integration.Dataverse;
+using System.Environment.Configuration;
+
 page 1279 "Service Connections"
 {
     ApplicationArea = Basic, Suite;
@@ -75,12 +80,12 @@ page 1279 "Service Connections"
     var
         RefreshPressed: Boolean;
     begin
-        RefreshPressed := CurrRecordNo = "No.";
+        RefreshPressed := CurrRecordNo = Rec."No.";
         if RefreshPressed then
             Refresh()
         else
-            CurrRecordNo := "No.";
-        SetupActive := "Page ID" <> 0;
+            CurrRecordNo := Rec."No.";
+        SetupActive := Rec."Page ID" <> 0;
         SetStyle();
     end;
 
@@ -119,37 +124,37 @@ page 1279 "Service Connections"
     begin
         if not SetupActive then
             exit;
-        if ((Status = Status::Error) or (Status = Status::Disabled)) and
-           ("Assisted Setup Page ID" > 0) and
-           (GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, "Assisted Setup Page ID"))
+        if ((Rec.Status = Rec.Status::Error) or (Rec.Status = Rec.Status::Disabled)) and
+           (Rec."Assisted Setup Page ID" > 0) and
+           (GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, Rec."Assisted Setup Page ID"))
         then
-            GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, "Assisted Setup Page ID")
+            GuidedExperience.Run(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Rec."Assisted Setup Page ID")
         else begin
-            CurrentRecordId := "Record ID";
+            CurrentRecordId := Rec."Record ID";
 
             if CurrentRecordId = DummyRecordID then
-                Page.RunModal("Page ID")
+                Page.RunModal(Rec."Page ID")
             else
-                if not RecordRef.Get("Record ID") then
-                    Page.RunModal("Page ID")
+                if not RecordRef.Get(Rec."Record ID") then
+                    Page.RunModal(Rec."Page ID")
                 else begin
                     RecordRefVariant := RecordRef;
-                    Page.RunModal("Page ID", RecordRefVariant);
+                    Page.RunModal(Rec."Page ID", RecordRefVariant);
                 end;
         end;
         ReloadServiceConnections();
-        if Get(xRec."No.") then;
+        if Rec.Get(xRec."No.") then;
         CurrPage.Update(false);
     end;
 
     local procedure SetStyle()
     begin
-        case Status of
-            Status::Disabled:
+        case Rec.Status of
+            Rec.Status::Disabled:
                 StyleExpression := 'Standard';
-            Status::Connected, Status::Enabled:
+            Rec.Status::Connected, Rec.Status::Enabled:
                 StyleExpression := 'Favorable';
-            Status::Error:
+            Rec.Status::Error:
                 StyleExpression := 'Unfavorable';
         end
     end;
@@ -158,14 +163,14 @@ page 1279 "Service Connections"
     begin
         ReloadServiceConnections();
         CurrRecordNo := Format(CreateGuid());
-        if Get(xRec."No.") then;
+        if Rec.Get(xRec."No.") then;
         CurrPage.Activate(true);
     end;
 
     local procedure ReloadServiceConnections()
     begin
-        DeleteAll();
-        OnRegisterServiceConnection(Rec);
+        Rec.DeleteAll();
+        Rec.OnRegisterServiceConnection(Rec);
     end;
 }
 

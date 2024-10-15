@@ -1,8 +1,10 @@
+namespace Microsoft.Warehouse.Comment;
+
 page 5776 "Warehouse Comment Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = FormCaption();
+    DataCaptionExpression = Rec.FormCaption();
     DelayedInsert = true;
     LinksAllowed = false;
     MultipleNewLines = true;
@@ -16,17 +18,17 @@ page 5776 "Warehouse Comment Sheet"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Date; Date)
+                field(Date; Rec.Date)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the date when the comment was created.';
                 }
-                field(Comment; Comment)
+                field(Comment; Rec.Comment)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the comment.';
                 }
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code for the comment.';
@@ -42,7 +44,7 @@ page 5776 "Warehouse Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine();
+        Rec.SetUpNewLine();
     end;
 }
 

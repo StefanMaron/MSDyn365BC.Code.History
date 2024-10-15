@@ -1,3 +1,9 @@
+namespace Microsoft.Warehouse.ADCS;
+
+using Microsoft.Warehouse.Journal;
+using System;
+using System.Xml;
+
 codeunit 7713 "Miniform Phys.-Inventory"
 {
     TableNo = "Miniform Header";
@@ -11,7 +17,7 @@ codeunit 7713 "Miniform Phys.-Inventory"
           RootNode, XMLDOMMgt, ADCSCommunication, ADCSUserId,
           CurrentCode, StackCode, WhseEmpId, LocationFilter);
 
-        if Code <> CurrentCode then
+        if Rec.Code <> CurrentCode then
             PrepareData()
         else
             ProcessInput();
@@ -101,9 +107,9 @@ codeunit 7713 "Miniform Phys.-Inventory"
                         WhseJournalLine.FieldNo("Item No."):
                             CheckItemNo(UpperCase(TextValue));
                         else begin
-                                ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
-                                RecRef.SetTable(WhseJournalLine);
-                            end;
+                            ADCSCommunication.FieldSetvalue(RecRef, FldNo, TextValue);
+                            RecRef.SetTable(WhseJournalLine);
+                        end;
                     end;
 
                     WhseJournalLine.Modify();

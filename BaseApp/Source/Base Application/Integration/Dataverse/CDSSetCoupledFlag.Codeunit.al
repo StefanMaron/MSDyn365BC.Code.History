@@ -1,4 +1,15 @@
-#if not CLEAN23
+﻿#if not CLEAN23
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Dataverse;
+
+using Microsoft.Sales.History;
+using Microsoft.Upgrade;
+using System.Threading;
+using System.Upgrade;
+
 codeunit 5363 "CDS Set Coupled Flag"
 {
     TableNo = "Job Queue Entry";
@@ -18,7 +29,7 @@ codeunit 5363 "CDS Set Coupled Flag"
     begin
         RestartFailedJobQueueEntriesOnce();
 
-        if not CRMIntegrationRecord.Get("Record ID to Process") then
+        if not CRMIntegrationRecord.Get(Rec."Record ID to Process") then
             exit;
 
         if CRMIntegrationRecord."Table ID" = 0 then

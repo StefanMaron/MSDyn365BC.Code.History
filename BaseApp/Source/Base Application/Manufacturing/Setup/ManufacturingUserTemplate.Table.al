@@ -1,3 +1,13 @@
+namespace Microsoft.Inventory.Requisition;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Inventory.Planning;
+using Microsoft.Inventory.Transfer;
+using Microsoft.Manufacturing.Document;
+using Microsoft.Purchases.History;
+using System.Security.AccessControl;
+using System.Security.User;
+
 table 5525 "Manufacturing User Template"
 {
     Caption = 'Manufacturing User Template';
@@ -10,8 +20,6 @@ table 5525 "Manufacturing User Template"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
             TableRelation = User."User Name";
-            //This property is currently not supported
-            //TestTableRelation = false;
             ValidateTableRelation = false;
 
             trigger OnValidate()
@@ -37,7 +45,7 @@ table 5525 "Manufacturing User Template"
         }
         field(5; "Create Assembly Order"; Enum "Planning Create Assembly Order")
         {
-            AccessByPermission = TableData "BOM Component" = R;
+            AccessByPermission = TableData "Assembly Header" = R;
             Caption = 'Create Assembly Order';
         }
         field(11; "Purchase Req. Wksh. Template"; Code[10])
@@ -48,7 +56,7 @@ table 5525 "Manufacturing User Template"
         field(12; "Purchase Wksh. Name"; Code[10])
         {
             Caption = 'Purchase Wksh. Name';
-            TableRelation = "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Purchase Req. Wksh. Template"));
+            TableRelation = "Requisition Wksh. Name".Name where("Worksheet Template Name" = field("Purchase Req. Wksh. Template"));
         }
         field(15; "Prod. Req. Wksh. Template"; Code[10])
         {
@@ -58,7 +66,7 @@ table 5525 "Manufacturing User Template"
         field(16; "Prod. Wksh. Name"; Code[10])
         {
             Caption = 'Prod. Wksh. Name';
-            TableRelation = "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Prod. Req. Wksh. Template"));
+            TableRelation = "Requisition Wksh. Name".Name where("Worksheet Template Name" = field("Prod. Req. Wksh. Template"));
         }
         field(19; "Transfer Req. Wksh. Template"; Code[10])
         {
@@ -68,7 +76,7 @@ table 5525 "Manufacturing User Template"
         field(20; "Transfer Wksh. Name"; Code[10])
         {
             Caption = 'Transfer Wksh. Name';
-            TableRelation = "Requisition Wksh. Name".Name WHERE("Worksheet Template Name" = FIELD("Transfer Req. Wksh. Template"));
+            TableRelation = "Requisition Wksh. Name".Name where("Worksheet Template Name" = field("Transfer Req. Wksh. Template"));
         }
         field(21; "Make Orders"; Option)
         {

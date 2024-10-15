@@ -1,3 +1,9 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.D365Sales;
+
 table 5350 "CRM Incidentresolution"
 {
     // Dynamics CRM Version: 7.1.0.2040
@@ -114,9 +120,9 @@ table 5350 "CRM Incidentresolution"
             Description = 'Unique identifier of the user or team who owns the case resolution activity.';
             ExternalName = 'ownerid';
             ExternalType = 'Owner';
-            TableRelation = IF (OwnerIdType = CONST(systemuser)) "CRM Systemuser".SystemUserId
-            ELSE
-            IF (OwnerIdType = CONST(team)) "CRM Team".TeamId;
+            TableRelation = if (OwnerIdType = const(systemuser)) "CRM Systemuser".SystemUserId
+            else
+            if (OwnerIdType = const(team)) "CRM Team".TeamId;
         }
         field(14; TimeSpent; Integer)
         {
@@ -196,7 +202,7 @@ table 5350 "CRM Incidentresolution"
             Description = 'Unique identifier of the case.';
             ExternalName = 'incidentid';
             ExternalType = 'Lookup';
-            TableRelation = IF (IncidentIdType = CONST(incident)) "CRM Incident".IncidentId;
+            TableRelation = if (IncidentIdType = const(incident)) "CRM Incident".IncidentId;
         }
         field(24; Subcategory; Text[250])
         {
@@ -216,7 +222,7 @@ table 5350 "CRM Incidentresolution"
         }
         field(26; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -225,7 +231,7 @@ table 5350 "CRM Incidentresolution"
         }
         field(27; IncidentIdName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Incident".Title WHERE(IncidentId = FIELD(IncidentId)));
+            CalcFormula = Lookup("CRM Incident".Title where(IncidentId = field(IncidentId)));
             Caption = 'IncidentIdName';
             ExternalAccess = Read;
             ExternalName = 'incidentidname';
@@ -234,7 +240,7 @@ table 5350 "CRM Incidentresolution"
         }
         field(28; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -301,7 +307,7 @@ table 5350 "CRM Incidentresolution"
         }
         field(36; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(CreatedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -319,7 +325,7 @@ table 5350 "CRM Incidentresolution"
         }
         field(38; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup ("CRM Systemuser".FullName WHERE(SystemUserId = FIELD(ModifiedOnBehalfBy)));
+            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';

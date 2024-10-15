@@ -1,0 +1,562 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Sales.Document;
+
+using Microsoft.Assembly.Document;
+using Microsoft.Inventory.Tracking;
+using Microsoft.Sales.History;
+using Microsoft.Warehouse.Document;
+using Microsoft.Warehouse.Journal;
+using Microsoft.Warehouse.Request;
+
+codeunit 5991 "Sales Warehouse Mgt."
+{
+    var
+#if not CLEAN23
+        WMSManagement: Codeunit "WMS Management";
+#endif
+        WhseValidateSourceHeader: Codeunit "Whse. Validate Source Header";
+        WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
+        WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', false, false)]
+    local procedure OnShowSourceDocLine(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
+    begin
+        if SourceType = Database::"Sales Line" then begin
+            SalesLine.Reset();
+            SalesLine.SetRange("Document Type", SourceSubType);
+            SalesLine.SetRange("Document No.", SourceNo);
+            SalesLine.SetRange("Line No.", SourceLineNo);
+            IsHandled := false;
+#if not CLEAN23
+            WMSManagement.RunOnShowSourceDocLineOnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+#endif
+            OnBeforeShowSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+            if not IsHandled then
+                ShowSalesLines(SalesLine);
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocAttachedLines', '', false, false)]
+    local procedure OnShowSourceDocAttachedLines(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
+    begin
+        if SourceType = Database::"Sales Line" then begin
+            SalesLine.Reset();
+            SalesLine.SetRange("Document Type", SourceSubType);
+            SalesLine.SetRange("Document No.", SourceNo);
+            SalesLine.SetRange("Attached to Line No.", SourceLineNo);
+            IsHandled := false;
+            OnBeforeShowAttachedSalesLines(SalesLine, SourceSubType, SourceNo, SourceLineNo, IsHandled);
+            if not IsHandled then
+                ShowSalesLines(SalesLine);
+        end;
+    end;
+
+    local procedure ShowSalesLines(var SalesLine: Record "Sales Line")
+    begin
+        Page.Run(Page::"Sales Lines", SalesLine);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowPostedSourceDoc', '', false, false)]
+    local procedure OnShowPostedSourceDoc(PostedSourceDoc: Option; PostedSourceNo: Code[20])
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PostedSourceDocEnum: Enum "Warehouse Shipment Posted Source Document";
+    begin
+        PostedSourceDocEnum := Enum::"Warehouse Shipment Posted Source Document".FromInteger(PostedSourceDoc);
+        case PostedSourceDocEnum of
+            PostedSourceDocEnum::"Posted Shipment":
+                begin
+                    SalesShipmentHeader.Reset();
+                    SalesShipmentHeader.SetRange("No.", PostedSourceNo);
+                    PAGE.RunModal(PAGE::"Posted Sales Shipment", SalesShipmentHeader);
+                end;
+            PostedSourceDocEnum::"Posted Return Receipt":
+                begin
+                    ReturnReceiptHeader.Reset();
+                    ReturnReceiptHeader.SetRange("No.", PostedSourceNo);
+                    PAGE.RunModal(PAGE::"Posted Return Receipt", ReturnReceiptHeader);
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocCard', '', false, false)]
+    local procedure OnShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        if SourceType = DATABASE::"Sales Line" then begin
+            SalesHeader.Reset();
+            SalesHeader.SetRange("Document Type", SourceSubType);
+            if SalesHeader.Get(SourceSubType, SourceNo) then
+                if SalesHeader."Document Type" = SalesHeader."Document Type"::Order then
+                    PAGE.RunModal(PAGE::"Sales Order", SalesHeader)
+                else
+                    PAGE.RunModal(PAGE::"Sales Return Order", SalesHeader);
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSalesLines(var SalesLine: Record "Sales Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowAttachedSalesLines(var SalesLine: Record "Sales Line"; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    procedure SalesLineVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line")
+    var
+        NewRecordRef: RecordRef;
+        OldRecordRef: RecordRef;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN23
+        WhseValidateSourceLine.RunOnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
+#endif
+        OnBeforeSalesLineVerifyChange(NewSalesLine, OldSalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not WhseValidateSourceLine.WhseLinesExist(
+             DATABASE::"Sales Line", NewSalesLine."Document Type".AsInteger(), NewSalesLine."Document No.", NewSalesLine."Line No.", 0,
+             NewSalesLine.Quantity)
+        then
+            exit;
+
+        NewRecordRef.GetTable(NewSalesLine);
+        OldRecordRef.GetTable(OldSalesLine);
+        with NewSalesLine do begin
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Type));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("No."));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Drop Shipment"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Purchase Order No."));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Purch. Order Line No."));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Job No."));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Qty. to Ship"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Qty. to Assemble to Order"));
+            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Shipment Date"));
+        end;
+
+        OnAfterSalesLineVerifyChange(NewRecordRef, OldRecordRef);
+#if not CLEAN23
+        WhseValidateSourceLine.RunOnAfterSalesLineVerifyChange(NewRecordRef, OldRecordRef);
+#endif
+    end;
+
+    procedure SalesLineDelete(var SalesLine: Record "Sales Line")
+    begin
+        if WhseValidateSourceLine.WhseLinesExist(
+             DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.",
+             SalesLine."Line No.", 0, SalesLine.Quantity)
+        then
+            WhseValidateSourceLine.RaiseCannotBeDeletedErr(SalesLine.TableCaption());
+
+        OnAfterSalesLineDelete(SalesLine);
+#if not CLEAN23
+        WhseValidateSourceLine.RunOnAfterSalesLineDelete(SalesLine);
+#endif        
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnWhseLineExistOnBeforeCheckReceipt', '', false, false)]
+    local procedure OnWhseLineExistOnBeforeCheckReceipt(SourceType: Integer; SourceSubType: Option; SourceQty: Decimal; var CheckReceipt: Boolean)
+    begin
+        CheckReceipt := CheckReceipt or
+           ((SourceType = DATABASE::"Sales Line") and (SourceSubType = 1) and (SourceQty < 0)) or
+           ((SourceType = DATABASE::"Sales Line") and (SourceSubType = 5) and (SourceQty >= 0));
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Validate Source Line", 'OnWhseLineExistOnBeforeCheckShipment', '', false, false)]
+    local procedure OnWhseLineExistOnBeforeCheckShipment(SourceType: Integer; SourceSubType: Option; SourceQty: Decimal; var CheckShipment: Boolean)
+    begin
+        CheckShipment := CheckShipment or
+            ((SourceType = DATABASE::"Sales Line") and (SourceSubType = 1) and (SourceQty >= 0)) or
+            ((SourceType = DATABASE::"Sales Line") and (SourceSubType = 5) and (SourceQty < 0));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLineVerifyChange(var NewRecordRef: RecordRef; var OldRecordRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSalesLineDelete(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineVerifyChange(var NewSalesLine: Record "Sales Line"; var OldSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Request", 'OnShowSourceDocumentCard', '', false, false)]
+    local procedure OnShowSourceDocumentCard(var WarehouseRequest: Record "Warehouse Request")
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        case WarehouseRequest."Source Document" of
+            "Warehouse Request Source Document"::"Sales Order":
+                begin
+                    SalesHeader.Get(WarehouseRequest."Source Subtype", WarehouseRequest."Source No.");
+                    PAGE.Run(PAGE::"Sales Order", SalesHeader);
+                end;
+            "Warehouse Request Source Document"::"Sales Return Order":
+                begin
+                    SalesHeader.Get(WarehouseRequest."Source Subtype", WarehouseRequest."Source No.");
+                    PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
+                end;
+        end;
+    end;
+
+    procedure SalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN23
+        WhseValidateSourceHeader.RunOnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
+#endif
+        OnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        with NewSalesHeader do begin
+            if "Shipping Advice" = OldSalesHeader."Shipping Advice" then
+                exit;
+
+            SalesLine.Reset();
+            SalesLine.SetRange("Document Type", OldSalesHeader."Document Type");
+            SalesLine.SetRange("Document No.", OldSalesHeader."No.");
+            if SalesLine.FindSet() then
+                repeat
+                    WhseValidateSourceHeader.ChangeWarehouseLines(
+                        DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0,
+                        "Shipping Advice");
+                until SalesLine.Next() = 0;
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]
+    local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents")
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        SalesHeader.SetFilter("Sell-to Customer No.", WarehouseSourceFilter."Sell-to Customer No. Filter");
+
+        SalesLine.SetFilter("No.", WarehouseSourceFilter."Item No. Filter");
+        SalesLine.SetFilter("Variant Code", WarehouseSourceFilter."Variant Code Filter");
+        SalesLine.SetFilter("Unit of Measure Code", WarehouseSourceFilter."Unit of Measure Filter");
+        SalesLine.SetFilter("Planned Delivery Date", WarehouseSourceFilter."Planned Delivery Date");
+        SalesLine.SetFilter("Planned Shipment Date", WarehouseSourceFilter."Planned Shipment Date");
+        SalesLine.SetFilter("Shipment Date", WarehouseSourceFilter."Sales Shipment Date");
+        SalesLine.SetFilter("Shipping Agent Code", WarehouseSourceFilter."Shipping Agent Code Filter");
+        SalesLine.SetFilter("Shipping Agent Service Code", WarehouseSourceFilter."Shipping Agent Service Filter");
+
+        GetSourceDocuments.SetTableView(SalesHeader);
+        GetSourceDocuments.SetTableView(SalesLine);
+    end;
+
+    procedure FromSalesLine2ShptLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line") Result: Boolean
+    var
+        AssemblyHeader: Record "Assembly Header";
+        TotalOutstandingWhseShptQty: Decimal;
+        TotalOutstandingWhseShptQtyBase: Decimal;
+        ATOWhseShptLineQty: Decimal;
+        ATOWhseShptLineQtyBase: Decimal;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
+#endif
+        OnBeforeFromSalesLine2ShptLine(SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        SalesLine.CalcFields("Whse. Outstanding Qty.", "ATO Whse. Outstanding Qty.",
+          "Whse. Outstanding Qty. (Base)", "ATO Whse. Outstd. Qty. (Base)");
+        TotalOutstandingWhseShptQty := Abs(SalesLine."Outstanding Quantity") - SalesLine."Whse. Outstanding Qty.";
+        TotalOutstandingWhseShptQtyBase := Abs(SalesLine."Outstanding Qty. (Base)") - SalesLine."Whse. Outstanding Qty. (Base)";
+        if SalesLine.AsmToOrderExists(AssemblyHeader) then begin
+            ATOWhseShptLineQty := AssemblyHeader."Remaining Quantity" - SalesLine."ATO Whse. Outstanding Qty.";
+            ATOWhseShptLineQtyBase := AssemblyHeader."Remaining Quantity (Base)" - SalesLine."ATO Whse. Outstd. Qty. (Base)";
+#if not CLEAN23
+            WhseCreateSourceDocument.RunOnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader, AssemblyHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase);
+#endif
+            OnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader, AssemblyHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase);
+            if ATOWhseShptLineQtyBase > 0 then begin
+                if not CreateShptLineFromSalesLine(WarehouseShipmentHeader, SalesLine, ATOWhseShptLineQty, ATOWhseShptLineQtyBase, true) then
+                    exit(false);
+                TotalOutstandingWhseShptQty -= ATOWhseShptLineQty;
+                TotalOutstandingWhseShptQtyBase -= ATOWhseShptLineQtyBase;
+            end;
+        end;
+
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase);
+#endif
+        OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase);
+
+        if TotalOutstandingWhseShptQtyBase > 0 then
+            exit(CreateShptLineFromSalesLine(WarehouseShipmentHeader, SalesLine, TotalOutstandingWhseShptQty, TotalOutstandingWhseShptQtyBase, false));
+        exit(true);
+    end;
+
+    local procedure CreateShptLineFromSalesLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; AssembleToOrder: Boolean): Boolean
+    var
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        SalesHeader: Record "Sales Header";
+        IsHandled, Return : Boolean;
+    begin
+        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
+
+        with WarehouseShipmentLine do begin
+            InitNewLine(WarehouseShipmentHeader."No.");
+            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+            SalesLine.TestField("Unit of Measure Code");
+            SetItemData(
+              SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
+              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+              SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
+#if not CLEAN23
+            WhseCreateSourceDocument.RunOnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder);
+#endif
+            IsHandled := false;
+            Return := false;
+            OnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder, WhseShptLineQty, WhseShptLineQtyBase, IsHandled, Return);
+            if IsHandled then
+                exit(Return);
+            WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, WhseShptLineQty, WhseShptLineQtyBase);
+            "Assemble to Order" := AssembleToOrder;
+            if SalesLine."Document Type" = SalesLine."Document Type"::Order then
+                "Due Date" := SalesLine."Planned Shipment Date";
+            if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
+                "Due Date" := WorkDate();
+            if WarehouseShipmentHeader."Shipment Date" = 0D then
+                "Shipment Date" := SalesLine."Shipment Date"
+            else
+                "Shipment Date" := WarehouseShipmentHeader."Shipment Date";
+            "Destination Type" := "Destination Type"::Customer;
+            "Destination No." := SalesLine."Sell-to Customer No.";
+            "Shipping Advice" := SalesHeader."Shipping Advice";
+            if "Location Code" = WarehouseShipmentHeader."Location Code" then
+                "Bin Code" := WarehouseShipmentHeader."Bin Code";
+            if "Bin Code" = '' then
+                "Bin Code" := SalesLine."Bin Code";
+            WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
+#if not CLEAN23
+            WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+#endif
+            OnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+            WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
+#if not CLEAN23
+            WhseCreateSourceDocument.RunOnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+#endif
+            OnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+            exit(not HasErrorOccured());
+        end;
+    end;
+
+    procedure SalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"): Boolean
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        IsHandled: Boolean;
+        Result: Boolean;
+    begin
+        IsHandled := false;
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader, SalesLine, Result, IsHandled);
+#endif
+        OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader, SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        WarehouseReceiptLine.InitNewLine(WarehouseReceiptHeader."No.");
+        WarehouseReceiptLine.SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Unit of Measure Code");
+        WarehouseReceiptLine.SetItemData(
+            SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
+            SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+            SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnSalesLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+#endif
+        OnSalesLine2ReceiptLineOnAfterInitNewLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+        case SalesLine."Document Type" of
+            SalesLine."Document Type"::Order:
+                begin
+                    WarehouseReceiptLine.Validate("Qty. Received", Abs(SalesLine."Quantity Shipped"));
+                    WarehouseReceiptLine."Due Date" := SalesLine."Planned Shipment Date";
+                end;
+            SalesLine."Document Type"::"Return Order":
+                begin
+                    WarehouseReceiptLine.Validate("Qty. Received", Abs(SalesLine."Return Qty. Received"));
+                    WarehouseReceiptLine."Due Date" := WorkDate();
+                end;
+        end;
+        WhseCreateSourceDocument.SetQtysOnRcptLine(WarehouseReceiptLine, Abs(SalesLine.Quantity), Abs(SalesLine."Quantity (Base)"));
+        WarehouseReceiptLine."Starting Date" := SalesLine."Shipment Date";
+        if WarehouseReceiptLine."Location Code" = WarehouseReceiptHeader."Location Code" then
+            WarehouseReceiptLine."Bin Code" := WarehouseReceiptHeader."Bin Code";
+        if WarehouseReceiptLine."Bin Code" = '' then
+            WarehouseReceiptLine."Bin Code" := SalesLine."Bin Code";
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WarehouseReceiptLine, SalesLine);
+#endif
+        OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(WarehouseReceiptLine, SalesLine);
+        WhseCreateSourceDocument.UpdateReceiptLine(WarehouseReceiptLine, WarehouseReceiptHeader);
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnBeforeCreateReceiptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+#endif
+        OnBeforeCreateReceiptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+        WhseCreateSourceDocument.CreateReceiptLine(WarehouseReceiptLine);
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnAfterCreateRcptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+#endif
+        OnAfterCreateRcptLineFromSalesLine(WarehouseReceiptLine, WarehouseReceiptHeader, SalesLine);
+        exit(not WarehouseReceiptLine.HasErrorOccured());
+    end;
+
+    procedure CheckIfFromSalesLine2ShptLine(SalesLine: Record "Sales Line"): Boolean
+    begin
+        exit(CheckIfFromSalesLine2ShptLine(SalesLine, "Reservation From Stock"::" "));
+    end;
+
+    procedure CheckIfFromSalesLine2ShptLine(SalesLine: Record "Sales Line"; ReservedFromStock: Enum "Reservation From Stock"): Boolean
+    var
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
+    begin
+        IsHandled := false;
+        ReturnValue := false;
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnBeforeCheckIfSalesLine2ShptLine(SalesLine, ReturnValue, IsHandled);
+#endif
+        OnBeforeCheckIfSalesLine2ShptLine(SalesLine, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        if SalesLine.IsNonInventoriableItem() then
+            exit(false);
+
+        if not SalesLine.CheckIfSalesLineMeetsReservedFromStockSetting(Abs(SalesLine."Outstanding Qty. (Base)"), ReservedFromStock) then
+            exit(false);
+
+        SalesLine.CalcFields("Whse. Outstanding Qty. (Base)");
+        exit(Abs(SalesLine."Outstanding Qty. (Base)") > Abs(SalesLine."Whse. Outstanding Qty. (Base)"));
+    end;
+
+    procedure CheckIfSalesLine2ReceiptLine(SalesLine: Record "Sales Line"): Boolean
+    var
+        WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        WhseManagement: Codeunit "Whse. Management";
+        IsHandled: Boolean;
+        ReturnValue: Boolean;
+    begin
+        IsHandled := false;
+        ReturnValue := false;
+#if not CLEAN23
+        WhseCreateSourceDocument.RunOnBeforeCheckIfSalesLine2ReceiptLine(SalesLine, ReturnValue, IsHandled);
+#endif
+        OnBeforeCheckIfSalesLine2ReceiptLine(SalesLine, ReturnValue, IsHandled);
+        if IsHandled then
+            exit(ReturnValue);
+
+        if SalesLine.IsNonInventoriableItem() then
+            exit(false);
+
+        with WarehouseReceiptLine do begin
+            WhseManagement.SetSourceFilterForWhseRcptLine(
+              WarehouseReceiptLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
+            CalcSums("Qty. Outstanding (Base)");
+            exit(Abs(SalesLine."Outstanding Qty. (Base)") > Abs("Qty. Outstanding (Base)"));
+        end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFromSalesLine2ShptLine(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromSalesLine2ShptLineOnBeforeCreateATOShipmentLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; AssemblyHeader: Record "Assembly Header"; var SalesLine: Record "Sales Line"; var ATOWhseShptLineQty: Decimal; var ATOWhseShptLineQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromSalesLine2ShptLineOnBeforeCreateShipmentLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; var TotalOutstandingWhseShptQty: Decimal; var TotalOutstandingWhseShptQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitNewWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; AssembleToOrder: Boolean; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; var IsHandled: Boolean; var Return: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateShptLineFromSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateShptLineFromSalesLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLine2ReceiptLineOnAfterInitNewLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesLine2ReceiptLineOnBeforeUpdateReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateReceiptLineFromSalesLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateRcptLineFromSalesLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfSalesLine2ShptLine(var SalesLine: Record "Sales Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckIfSalesLine2ReceiptLine(var SalesLine: Record "Sales Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+}

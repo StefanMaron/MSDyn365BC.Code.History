@@ -202,6 +202,65 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         GLPostingPreview.OK.Invoke;
     end;
 
+    [Test]
+    procedure PreviewWarehouseShipmentForTwoSalesOrders()
+    var
+        Location: Record Location;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseSourceFilter: Record "Warehouse Source Filter";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+        WhsePostShipmentYesNo: Codeunit "Whse.-Post Shipment (Yes/No)";
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        // [FEATURE] [Sales] [Warehouse Shipment] [Preview Posting]
+        // [SCENARIO 463437] Preview Warehouse Shipment posting shows the ledger entries for two sales orders included in the shipment.
+        Initialize();
+
+        // [GIVEN] Location set up for required shipment.
+        CreateLocationWMSWithWhseEmployee(Location, false, false, false, false, true);
+
+        // [GIVEN] Sales order "1", release.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Sales order "2", release.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment, add two sales orders.
+        LibraryWarehouse.CreateWarehouseShipmentHeader(WarehouseShipmentHeader);
+        WarehouseShipmentHeader.Validate("Location Code", Location.Code);
+        WarehouseShipmentHeader.Modify(true);
+        LibraryWarehouse.CreateWarehouseSourceFilter(WarehouseSourceFilter, WarehouseSourceFilter.Type::Outbound);
+        WarehouseSourceFilter.Validate("Sales Orders", true);
+        WarehouseSourceFilter.Modify(true);
+        LibraryWarehouse.GetSourceDocumentsShipment(WarehouseShipmentHeader, WarehouseSourceFilter, Location.Code);
+        WarehouseShipmentLine.SetRange("No.", WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.FindSet();
+
+        Commit();
+
+        // [WHEN] Run posting preview for the warehouse shipment.
+        GLPostingPreview.Trap;
+        asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
+        Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
+
+        // [THEN] Preview shows item and value entries for both sales orders.
+        GLPostingPreview.Filter.SetFilter("Table Name", ItemLedgerEntry.TableCaption());
+        GLPostingPreview."No. of Records".AssertEquals(2);
+        GLPostingPreview.Filter.SetFilter("Table Name", ValueEntry.TableCaption());
+        GLPostingPreview."No. of Records".AssertEquals(2);
+        GLPostingPreview.OK().Invoke();
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";

@@ -1,3 +1,16 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.Graph;
+
+using Microsoft.CRM.Comment;
+using Microsoft.CRM.Contact;
+using Microsoft.Foundation.Address;
+using System;
+using System.Reflection;
+using System.Text;
+
 codeunit 5458 "Graph Collection Mgt - Contact"
 {
 

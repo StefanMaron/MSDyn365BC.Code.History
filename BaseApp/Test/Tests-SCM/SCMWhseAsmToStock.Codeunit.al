@@ -120,6 +120,26 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
             Location.Modify(true);
         end;
 
+        if Location."Require Pick" then
+            if Location."Require Shipment" then begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+            end else begin
+                Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+                Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Inventory Movement";
+                Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Inventory Pick";
+            end
+        else begin
+            Location."Prod. Consump. Whse. Handling" := Location."Prod. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Asm. Consump. Whse. Handling" := Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)";
+            Location."Job Consump. Whse. Handling" := Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)";
+        end;
+
+        if Location."Require Put-away" and not Location."Require Receive" then
+            Location."Prod. Output Whse. Handling" := Location."Prod. Output Whse. Handling"::"Inventory Put-away";
+        Location.Modify(true);
+
         // create 4 bins - 2 for Picking and 2 for put-awaying and one for receiving
         LibraryWarehouse.CreateBin(Bin, Location.Code, Bin1, Zone.Code, BinTypePick.Code);
         LibraryWarehouse.CreateBin(Bin, Location.Code, Bin2, Zone.Code, BinTypePick.Code);
@@ -667,26 +687,38 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.SetRange("Document No.", AsmHeader."No.");
         AsmLine.DeleteAll(true); // delete all lines
         MockLocation(Location1, false, false, false, false); // no bin location
+        Location1."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"No Warehouse Handling";
+        Location1.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location1.Code);
         AsmLine.Modify(true);
         MockLocation(Location2, true, false, false, false); // Bin Mandatory location
+        Location2."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"No Warehouse Handling";
+        Location2.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location2.Code);
         AsmLine.Modify(true);
         MockLocation(Location3, true, true, false, false); // Require Pick location
+        Location3."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Inventory Movement";
+        Location3.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location3.Code);
         AsmLine.Modify(true);
         MockLocation(Location4, true, true, true, false); // Require Shipment location
+        Location4."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+        Location4.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location4.Code);
         AsmLine.Modify(true);
         MockLocation(Location5, true, false, true, false); // Require Shipment but not pick location
+        Location5."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"No Warehouse Handling";
+        Location5.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location5.Code);
         AsmLine.Modify(true);
         MockLocation(Location6, false, false, false, true); // WMS location
+        Location6."Asm. Consump. Whse. Handling" := Enum::"Asm. Consump. Whse. Handling"::"Warehouse Pick (mandatory)";
+        Location6.Modify();
         LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", 1, 1, '');
         AsmLine.Validate("Location Code", Location6.Code);
         AsmLine.Modify(true);
@@ -814,9 +846,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // reuse above order
         MockLocation(Location, false, true, false, false); // Require Pick location
         AddItemToInventory(CompItem, Location, '', 10);
+        LibraryAssembly.ReopenAO(AsmHeader);
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Modify(true);
+        LibraryAssembly.ReleaseAO(AsmHeader);        
         CreateInvtPickMvmt(false, true); // create movement
         Assert.AreEqual(CountOfWhseActivityLines, WhseActivityLine.Count, 'Count should be the same as before');
 
@@ -824,6 +858,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, false, false); // Require Pick location
         AddItemToInventory(CompItem, Location, Bin1, 10);
+        LibraryAssembly.ReopenAO(AsmHeader);        
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin1);
@@ -1068,7 +1103,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     begin
         Initialize();
         // create inventory pick location
-        MockLocation(Location, true, true, false, false); // Require Pick location
+        MockLocation(Location, true, true, false, false);// Require Pick location
         Location.Validate("To-Assembly Bin Code", Bin1);
         Location.Validate("From-Assembly Bin Code", Bin3);
         Location.Modify();

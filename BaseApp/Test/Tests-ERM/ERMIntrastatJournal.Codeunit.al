@@ -465,48 +465,6 @@ codeunit 134150 "ERM Intrastat Journal"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestPackageNoIsIncludedInInternetAddressLink()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, '%1');
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(
-          SalesShipmentHeader."Package Tracking No.",
-          CopyStr(ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), StrLen(HttpTxt) + 1),
-          PackageTrackingNoErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithoutHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestInternetAddressWithHttp()
-    var
-        SalesShipmentHeader: Record "Sales Shipment Header";
-        ShippingAgent: Record "Shipping Agent";
-    begin
-        Initialize();
-        CreateSalesShipmentHeader(SalesShipmentHeader, HttpTxt + InternetURLTxt);
-        ShippingAgent.Get(SalesShipmentHeader."Shipping Agent Code");
-        Assert.AreEqual(HttpTxt + InternetURLTxt, ShippingAgent.GetTrackingInternetAddr(SalesShipmentHeader."Package Tracking No."), InvalidURLTxt);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestNoPackageNoExistIfNoPlaceHolderExistInURL()
     var
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -1091,63 +1049,6 @@ codeunit 134150 "ERM Intrastat Journal"
     procedure CreateFileMessageHandler(Message: Text)
     begin
         Assert.AreEqual('One or more errors were found. You must resolve all the errors before you can proceed.', Message, '');
-    end;
-
-    [Test]
-    [HandlerFunctions('IntrastatJnlTemplateListPageHandler,GetItemLedgerEntriesReportHandler,GreateFileReportHandler')]
-    [Scope('OnPrem')]
-    procedure E2EErrorHandlingOfIntrastatJournal()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        SalesLine: Record "Sales Line";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ShipmentMethod: Record "Shipment Method";
-        TransactionType: Record "Transaction Type";
-        IntrastatJournalPage: TestPage "Intrastat Journal";
-        InvoiceDate: Date;
-    begin
-        // [FEATURE] [Intrastat Journal] [Error handling]
-        // [SCENARIO 219210] Deliverable 219210:Reporting - Errors and warnings and export in case of zero "Total Weight"
-        // [GIVEN] Posted Sales Order for intrastat
-        // [GIVEN] Journal Template and Batch
-        Initialize();
-        InvoiceDate := CalcDate('<-5Y>');
-        CreateAndPostSalesOrder(SalesLine, InvoiceDate);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, InvoiceDate);
-        Commit();
-
-        // [GIVEN] A Intrastat Journal
-        OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
-
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You got a error
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
-
-        // [WHEN] Fixing the error
-        TransactionType.Code := LibraryUtility.GenerateGUID();
-        TransactionType.Insert();
-        IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [WHEN] Fixing the error
-        IntrastatJournalPage."Total Weight".Value('1');
-        // [WHEN] Fixing the error
-        ShipmentMethod.FindFirst();
-        IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
-        // [WHEN] Running Checklist
-        IntrastatJournalPage.ChecklistReport.Invoke;
-
-        // [THEN] You no more errors
-        IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals('');
-
-        // [WHEN] Running Create File
-        // [THEN] You do not get any errors
-        IntrastatJournalPage.CreateFile.Invoke;
-
-        IntrastatJournalPage.Close();
     end;
 
     [Test]
@@ -2365,52 +2266,6 @@ codeunit 134150 "ERM Intrastat Journal"
     end;
 
     [Test]
-    procedure IntrastatExport2021()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Export]
-        // [SCENARIO 402338] Intrastat journal basic file export in format of 2021
-        Initialize();
-        IntrastatJnlLine.DeleteAll();
-
-        // [GIVEN] Intrastat journal line
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
-
-        // [WHEN] Export Intrastat journal to file using format 2021
-        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2021");
-
-        // [THEN] Basic fields are exported in format of 2021
-        // [THEN] Total Weight value is rounded up to integer
-        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
-        VerifyIntrastatExportedFile2021(FileTempBlob, IntrastatJnlLine);
-    end;
-
-    [Test]
-    procedure IntrastatExport2022()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Export]
-        // [SCENARIO 402338] Intrastat journal basic file export in format of 2022
-        Initialize();
-        IntrastatJnlLine.DeleteAll();
-
-        // [GIVEN] Intrastat journal line
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
-
-        // [WHEN] Export Intrastat journal to file using format 2022
-        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
-
-        // [THEN] Basic fields are exported in format of 2022
-        // [THEN] Total Weight value is rounded up to integer
-        // [THEN] Tariff No value is exported w\o spaces (TFS 423720)
-        VerifyIntrastatExportedFile2022(FileTempBlob, IntrastatJnlLine);
-    end;
-
-    [Test]
     procedure TotalWeightRounding()
     var
         IntraJnlManagement: Codeunit IntraJnlManagement;
@@ -2531,74 +2386,6 @@ codeunit 134150 "ERM Intrastat Journal"
         Assert.ExpectedError(StatPeriodMonthErr);
 
         IntrastatJnlBatch.Validate("Statistics Period", '2201'); // YYMM
-    end;
-
-    [Test]
-    procedure IntrastatExportBlankedCouuntyrOfOriginIntrastatCode()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        CountryRegion: Record "Country/Region";
-        FileTempBlob: Codeunit "Temp Blob";
-        FileInStream: InStream;
-        Line: Text;
-    begin
-        // [FEATURE] [Intrastat] [Export] [Country Of Origin]
-        // [SCENARIO 420221] Intrastat journal file export in case of blanked "Intrastat Code" of Country Of Origin
-        Initialize();
-        IntrastatJnlLine.DeleteAll();
-
-        // [GIVEN] Intrastat journal line with Country Of Origin "X" having blanked "Intrastat Code"
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
-        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
-        CountryRegion."Intrastat Code" := '';
-        CountryRegion.Modify();
-
-        // [WHEN] Export Intrastat journal to file using format 2022
-        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
-
-        // [THEN] Country Of Origin is exported with "X" value
-        FileTempBlob.CreateInStream(FileInStream);
-        FileInStream.ReadText(Line);
-        Assert.AreEqual(CountryRegion.Code, CopyStr(Line, 104, 3), '');
-    end;
-
-    [Test]
-    procedure IntrastatExportGroupByCountryOfOriginAndPartnerVATID()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-        FileInStream: InStream;
-        Line: Text;
-        LineCount: Integer;
-    begin
-        // [FEATURE] [Intrastat] [Export] [Country Of Origin] [Partner VAT ID]
-        // [SCENARIO 420221] Intrastat journal file export is grouped by Country Of Origin and Partner VAT ID
-        Initialize();
-        IntrastatJnlLine.DeleteAll();
-
-        // [GIVEN] Several Intrastat journal lines with mixture of equal\different Country Of Origin and "Partner VAT ID" values
-        PrepareIntrastatJnlLine(IntrastatJnlLine);
-        IntrastatJnlLine."Country/Region of Origin Code" := 'DE';
-        IntrastatJnlLine."Partner VAT ID" := '1';
-        IntrastatJnlLine.Modify();
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'DE', '2');
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'AT', '1');
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'AT', '2');
-
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'DE', '1');
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'DE', '2');
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'AT', '1');
-        AddIntrastatJnlLineWithNewCountryOfOriginAndPartnerVATID(IntrastatJnlLine, 'AT', '2');
-
-        // [WHEN] Export Intrastat journal to file using format 2022
-        RunIntrastatExport(FileTempBlob, IntrastatJnlLine, ExportFormat::"2022");
-
-        // [THEN] Data is grouped by Country Of Origin and "Partner VAT ID"
-        FileTempBlob.CreateInStream(FileInStream);
-        while FileInStream.ReadText(Line) <> 0 do
-            LineCount += 1;
-
-        Assert.AreEqual(4, LineCount, '');
     end;
 
     [Test]
@@ -3725,20 +3512,6 @@ codeunit 134150 "ERM Intrastat Journal"
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         GetItemLedgerEntries.UseRequestPage(false);
         GetItemLedgerEntries.Run();
-    end;
-
-    local procedure RunIntrastatExport(var FileTempBlob: Codeunit "Temp Blob"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ExportFormat: Enum "Intrastat Export Format")
-    var
-        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
-        FileOutStream: OutStream;
-    begin
-        FileTempBlob.CreateOutStream(FileOutStream);
-        IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
-        IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntrastatMakeDiskTaxAuth.InitializeRequest(FileOutStream, ExportFormat);
-        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
-        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
-        IntrastatMakeDiskTaxAuth.Run();
     end;
 
     local procedure ValidateIntrastatContact(ContactType: Option; ContactNo: Code[20])

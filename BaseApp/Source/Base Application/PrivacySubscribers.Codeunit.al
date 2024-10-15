@@ -1,3 +1,17 @@
+namespace System.Privacy;
+
+using Microsoft.CRM.Team;
+using Microsoft.CRM.Contact;
+using Microsoft.HumanResources.Employee;
+using Microsoft.Purchases.Vendor;
+using Microsoft.Projects.Resources.Resource;
+using Microsoft.Sales.Customer;
+using Microsoft.Utilities;
+using System.Apps;
+using System.Reflection;
+using System.Security.User;
+using System.Security.AccessControl;
+
 codeunit 1755 "Privacy Subscribers"
 {
 

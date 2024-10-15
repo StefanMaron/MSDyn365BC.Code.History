@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Foundation.Reporting;
+
+using System.Reflection;
+
 page 363 "Electronic Document Format"
 {
     ApplicationArea = Suite;
@@ -37,7 +45,7 @@ page 363 "Electronic Document Format"
 
                         if PAGE.RunModal(PAGE::"Electronic Document Formats", TempElectronicDocumentFormat) = ACTION::LookupOK then begin
                             ElectronicDocumentFormat.Code := TempElectronicDocumentFormat.Code;
-                            SetRange(Code, ElectronicDocumentFormat.Code);
+                            Rec.SetRange(Code, ElectronicDocumentFormat.Code);
                             CurrPage.Update();
                         end;
                     end;
@@ -45,9 +53,9 @@ page 363 "Electronic Document Format"
                     trigger OnValidate()
                     begin
                         if ElectronicDocumentFormat.Code <> '' then
-                            SetRange(Code, ElectronicDocumentFormat.Code)
+                            Rec.SetRange(Code, ElectronicDocumentFormat.Code)
                         else
-                            SetRange(Code);
+                            Rec.SetRange(Code);
 
                         CurrPage.Update();
                     end;
@@ -62,11 +70,11 @@ page 363 "Electronic Document Format"
                     begin
                         case SelectedUsage of
                             SelectedUsage::" ":
-                                SetRange(Usage);
+                                Rec.SetRange(Usage);
                             SelectedUsage::"Sales Invoice":
-                                SetRange(Usage, Usage::"Sales Invoice");
+                                Rec.SetRange(Usage, Rec.Usage::"Sales Invoice");
                             SelectedUsage::"Sales Credit Memo":
-                                SetRange(Usage, Usage::"Sales Credit Memo");
+                                Rec.SetRange(Usage, Rec.Usage::"Sales Credit Memo");
                         end;
 
                         CurrPage.Update();
@@ -75,7 +83,7 @@ page 363 "Electronic Document Format"
             }
             repeater(Group)
             {
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a code to identify the electronic document format in the system.';
@@ -85,7 +93,7 @@ page 363 "Electronic Document Format"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the electronic document format.';
                 }
-                field(Usage; Usage)
+                field(Usage; Rec.Usage)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies if the electronic document format is used for sales invoices or sales credit memos.';
@@ -97,7 +105,7 @@ page 363 "Electronic Document Format"
                     ToolTip = 'Specifies which codeunit is used to manage electronic document sending for this document sending method.';
                     trigger OnValidate()
                     begin
-                        if ("Codeunit ID" <> 0) and ("Codeunit ID" = "Delivery Codeunit ID") then
+                        if (Rec."Codeunit ID" <> 0) and (Rec."Codeunit ID" = Rec."Delivery Codeunit ID") then
                             Error(InvalidCodeunitIDErr);
                     end;
                 }
@@ -113,7 +121,7 @@ page 363 "Electronic Document Format"
                     ToolTip = 'Specifies which delivery codeunit is used to manage electronic document sending for this document sending method.';
                     trigger OnValidate()
                     begin
-                        if ("Delivery Codeunit ID" <> 0) and ("Codeunit ID" = "Delivery Codeunit ID") then
+                        if (Rec."Delivery Codeunit ID" <> 0) and (Rec."Codeunit ID" = Rec."Delivery Codeunit ID") then
                             Error(InvalidCodeunitIDErr);
                     end;
                 }

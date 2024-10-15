@@ -1,3 +1,11 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft;
+
+using System.Utilities;
+
 page 7609 "Monthly Calendar"
 {
     Caption = 'Monthly Calendar';
@@ -8,7 +16,7 @@ page 7609 "Monthly Calendar"
     PageType = Card;
     SaveValues = true;
     SourceTable = Date;
-    SourceTableView = WHERE("Period Type" = CONST(Week));
+    SourceTableView = where("Period Type" = const(Week));
 
     layout
     {

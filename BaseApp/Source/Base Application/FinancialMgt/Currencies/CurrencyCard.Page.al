@@ -1,8 +1,17 @@
+namespace Microsoft.Finance.Currency;
+
+using Microsoft.Finance.GeneralLedger.Reports;
+using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Integration.Dataverse;
+using Microsoft.Purchases.Reports;
+using Microsoft.Sales.Reports;
+
 page 495 "Currency Card"
 {
     Caption = 'Currency Card';
     PageType = Card;
     SourceTable = Currency;
+    AdditionalSearchTerms = 'Foreign Currency, Monetary Page, Exchange Page, Forex, Money Page, Cash Page, Trade Currencies, Financial Unit Page, Transaction Money Page, Business Currency Page, Capital Type Page';
 
     layout
     {
@@ -11,7 +20,7 @@ page 495 "Currency Card"
             group(General)
             {
                 Caption = 'General';
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Suite;
                     Importance = Promoted;
@@ -33,7 +42,7 @@ page 495 "Currency Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a three-digit code number defined in ISO 4217.';
                 }
-                field(Symbol; Symbol)
+                field(Symbol; Rec.Symbol)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the symbol for this currency that you wish to appear on checks and charts, $ for USD, CAD or MXP for example.';
@@ -223,7 +232,7 @@ page 495 "Currency Card"
                 Caption = 'Exch. &Rates';
                 Image = CurrencyExchangeRates;
                 RunObject = Page "Currency Exchange Rates";
-                RunPageLink = "Currency Code" = FIELD(Code);
+                RunPageLink = "Currency Code" = field(Code);
                 ToolTip = 'View updated exchange rates for the currencies that you use.';
             }
         }
@@ -280,7 +289,7 @@ page 495 "Currency Card"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(RecordId);
+                        CRMIntegrationManagement.ShowCRMEntityFromRecordID(Rec.RecordId);
                     end;
                 }
                 action(CRMSynchronizeNow)
@@ -329,7 +338,7 @@ page 495 "Currency Card"
                         var
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
-                            CRMIntegrationManagement.DefineCoupling(RecordId);
+                            CRMIntegrationManagement.DefineCoupling(Rec.RecordId);
                         end;
                     }
                     action(DeleteCRMCoupling)
@@ -347,7 +356,7 @@ page 495 "Currency Card"
                         var
                             CRMCouplingManagement: Codeunit "CRM Coupling Management";
                         begin
-                            CRMCouplingManagement.RemoveCoupling(RecordId);
+                            CRMCouplingManagement.RemoveCoupling(Rec.RecordId);
                         end;
                     }
                 }
@@ -362,7 +371,7 @@ page 495 "Currency Card"
                     var
                         CRMIntegrationManagement: Codeunit "CRM Integration Management";
                     begin
-                        CRMIntegrationManagement.ShowLog(RecordId);
+                        CRMIntegrationManagement.ShowLog(Rec.RecordId);
                     end;
                 }
             }
@@ -436,8 +445,8 @@ page 495 "Currency Card"
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
         if CRMIntegrationEnabled or CDSIntegrationEnabled then begin
-            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
-            if Code <> xRec.Code then
+            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(Rec.RecordId);
+            if Rec.Code <> xRec.Code then
                 CRMIntegrationManagement.SendResultNotification(Rec);
         end;
     end;

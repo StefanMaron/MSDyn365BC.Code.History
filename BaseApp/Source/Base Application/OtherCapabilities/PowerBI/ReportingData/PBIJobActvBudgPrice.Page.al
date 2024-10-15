@@ -1,3 +1,11 @@
+﻿// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+namespace Microsoft.Integration.PowerBI;
+
+using Microsoft.Projects.Project.Analysis;
+
 page 6310 "PBI Job Act. v. Budg. Price"
 {
     Caption = 'PBI Job Act. v. Budg. Price';
@@ -24,7 +32,7 @@ page 6310 "PBI Job Act. v. Budg. Price"
                     Caption = 'Measure Name';
                     ToolTip = 'Specifies the name.';
                 }
-                field(Value; Value)
+                field(Value; Rec.Value)
                 {
                     ApplicationArea = All;
                     Caption = 'Value';

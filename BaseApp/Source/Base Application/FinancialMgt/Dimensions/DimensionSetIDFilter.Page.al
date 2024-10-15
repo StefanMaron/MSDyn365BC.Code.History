@@ -1,3 +1,5 @@
+namespace Microsoft.Finance.Dimension;
+
 page 481 "Dimension Set ID Filter"
 {
     Caption = 'Dimension Filter';
@@ -17,7 +19,7 @@ page 481 "Dimension Set ID Filter"
             repeater(Control4)
             {
                 ShowCaption = false;
-                field("Code"; Code)
+                field("Code"; Rec.Code)
                 {
                     ApplicationArea = Dimensions;
                     TableRelation = Dimension.Code;
@@ -27,17 +29,17 @@ page 481 "Dimension Set ID Filter"
                     var
                         Dimension: Record Dimension;
                     begin
-                        if not Dimension.Get(Code) then begin
-                            Dimension.SetFilter(Code, '%1', '@' + Code + '*');
+                        if not Dimension.Get(Rec.Code) then begin
+                            Dimension.SetFilter(Code, '%1', '@' + Rec.Code + '*');
                             if not Dimension.FindFirst() then
-                                Dimension.Get(Code);
-                            Code := Dimension.Code;
+                                Dimension.Get(Rec.Code);
+                            Rec.Code := Dimension.Code;
                         end;
-                        if Get(Code) then
+                        if Rec.Get(Rec.Code) then
                             Error(RecordAlreadyExistsErr);
-                        Insert();
+                        Rec.Insert();
                         TempDimensionSetIDFilterLine.Code := '';
-                        TempDimensionSetIDFilterLine."Dimension Code" := Code;
+                        TempDimensionSetIDFilterLine."Dimension Code" := Rec.Code;
                         TempDimensionSetIDFilterLine.SetDimensionValueFilter('');
                         CurrPage.Update(false);
                     end;
@@ -52,13 +54,13 @@ page 481 "Dimension Set ID Filter"
                     var
                         DimensionValue: Record "Dimension Value";
                     begin
-                        exit(DimensionValue.LookUpDimFilter(Code, Text));
+                        exit(DimensionValue.LookUpDimFilter(Rec.Code, Text));
                     end;
 
                     trigger OnValidate()
                     begin
                         TempDimensionSetIDFilterLine.Code := '';
-                        TempDimensionSetIDFilterLine."Dimension Code" := Code;
+                        TempDimensionSetIDFilterLine."Dimension Code" := Rec.Code;
                         TempDimensionSetIDFilterLine.SetDimensionValueFilter(DimensionValueFilter);
                     end;
                 }
@@ -81,7 +83,7 @@ page 481 "Dimension Set ID Filter"
                 begin
                     TempDimensionSetIDFilterLine.Reset();
                     TempDimensionSetIDFilterLine.DeleteAll();
-                    DeleteAll();
+                    Rec.DeleteAll();
                 end;
             }
         }
@@ -100,16 +102,16 @@ page 481 "Dimension Set ID Filter"
 
     trigger OnAfterGetRecord()
     begin
-        DimensionValueFilter := TempDimensionSetIDFilterLine.GetDimensionValueFilter('', Code);
+        DimensionValueFilter := TempDimensionSetIDFilterLine.GetDimensionValueFilter('', Rec.Code);
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
         TempDimensionSetIDFilterLine.Reset();
         TempDimensionSetIDFilterLine.SetRange(Code, '');
-        TempDimensionSetIDFilterLine.SetRange("Dimension Code", Code);
+        TempDimensionSetIDFilterLine.SetRange("Dimension Code", Rec.Code);
         TempDimensionSetIDFilterLine.DeleteAll();
-        Delete();
+        Rec.Delete();
         CurrPage.Update(false);
         exit(false);
     end;
@@ -130,8 +132,8 @@ page 481 "Dimension Set ID Filter"
         TempDimensionSetIDFilterLine.SetRange("Line No.", 1);
         if TempDimensionSetIDFilterLine.FindSet() then
             repeat
-                Code := TempDimensionSetIDFilterLine."Dimension Code";
-                Insert();
+                Rec.Code := TempDimensionSetIDFilterLine."Dimension Code";
+                Rec.Insert();
             until TempDimensionSetIDFilterLine.Next() = 0;
     end;
 

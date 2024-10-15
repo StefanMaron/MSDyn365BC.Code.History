@@ -29,7 +29,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         EndingDateErr: Label 'You must specify an Ending Date.';
         FaDeprBookAcquDateCaption: Label 'FaDeprBookAcquDate';
         FANoCaption: Label 'FANo';
-        FixedAssetFilter: Label '%1|%2';
+        FixedAssetFilter: Label '%1|%2', Locked = true;
         FieldError: Label '%1 must be specified.';
         FieldError2: Label '%1 is not different than %2.';
         FieldError3: Label '%1 %2 %3 does not exist.', Comment = '%1=Table name,%2=Field value,%3=Field value';
@@ -1044,7 +1044,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         LibraryReportDataset.SetRange('FA_Journal_Line__FA_No__', FAJournalLine."FA No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'FA_Journal_Line__FA_No__', FAJournalLine."FA No."));
+            Error(RowNotFound, 'FA_Journal_Line__FA_No__', FAJournalLine."FA No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Journal_Line__FA_Posting_Type_', Format(FAJournalLine."FA Posting Type"));
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Journal_Line_Description', FAJournalLine.Description);
         LibraryReportDataset.AssertCurrentRowValueEquals('FA_Journal_Line__Depr__until_FA_Posting_Date_', true);
@@ -1069,7 +1069,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
 
         LibraryReportDataset.SetRange('Insurance_Journal_Line__Insurance_No__', InsuranceJournalLine."Insurance No.");
         if not LibraryReportDataset.GetNextRow then
-            Error(StrSubstNo(RowNotFound, 'Insurance_Journal_Line__Insurance_No__', InsuranceJournalLine."Insurance No."));
+            Error(RowNotFound, 'Insurance_Journal_Line__Insurance_No__', InsuranceJournalLine."Insurance No.");
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance_Journal_Line_Description', InsuranceJournalLine.Description);
         LibraryReportDataset.AssertCurrentRowValueEquals('Insurance_Journal_Line_Amount', InsuranceJournalLine.Amount);
     end;

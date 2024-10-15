@@ -280,26 +280,6 @@
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestDeleteBuiltInLayoutFails()
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-        LayoutDescription: Text[80];
-    begin
-        // Init
-        Initialize();
-        CustomReportLayout.Init();
-        CustomReportLayout."Report ID" := StandardSalesInvoiceReportID;
-        LayoutDescription := LibraryUtility.GenerateGUID();
-        CustomReportLayout.Description := LayoutDescription;
-        CustomReportLayout."Built-In" := true;
-        CustomReportLayout.Insert();
-
-        asserterror CustomReportLayout.Delete(true);
-        Assert.ExpectedError(DeleteBuiltInLayoutErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure TestValidateCustomRrdlcOk()
     var
         CustomReportLayout: Record "Custom Report Layout";
@@ -354,97 +334,6 @@
         // Validate
         Assert.IsTrue(StrPos(GetLastErrorText, 'The RDLC layout does not comply with the current report design (for example') = 1, '');
     end;
-
-#if not CLEAN20
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCod1MergeDocument()
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        DocumentReportMgt: Codeunit "Document Report Mgt.";
-        FileManagement: Codeunit "File Management";
-        InStr: InStream;
-        OutStream: OutStream;
-        FileXml: File;
-        FileNameDocx: Text;
-        FileNameXml: Text;
-    begin
-        Initialize();
-        FileNameXml := FileManagement.ServerTempFileName('xml');
-        FileNameDocx := FileManagement.ServerTempFileName('docx');
-
-        // Negative test, 'SaveAsWord'
-
-        InitCompanySetup;
-        if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete();
-
-        // Activate built-in Word layout
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
-        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Word (built-in)";
-        ReportLayoutSelection.Insert(true);
-
-        if SalesInvoiceHeader.FindFirst() then
-            SalesInvoiceHeader.SetRecFilter();
-        REPORT.SaveAsXml(StandardSalesInvoiceReportID, FileNameXml, SalesInvoiceHeader);
-        FileXml.Open(FileNameXml, TEXTENCODING::UTF16);
-        FileXml.CreateInStream(InStr);
-        DocumentReportMgt.MergeWordLayout(StandardSalesInvoiceReportID, 1, InStr, FileNameDocx, OutStream);
-        Assert.IsTrue(Exists(FileNameDocx), '');
-
-        FileXml.Close();
-        Erase(FileNameXml);
-        Erase(FileNameDocx);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure TestCod1GetCustomRDLC()
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-        CustomReportLayout: Record "Custom Report Layout";
-        InStr: InStream;
-        File1: File;
-        File2: File;
-        BuiltInRdlcTxt: Text;
-        CustomRdlcTxt: Text;
-        LayoutCode: Code[20];
-    begin
-        Initialize();
-        CustomReportLayout.SetRange("Report ID", StandardSalesInvoiceReportID);
-        CustomReportLayout.DeleteAll();
-
-        if ReportLayoutSelection.Get(StandardSalesInvoiceReportID, CompanyName) then
-            ReportLayoutSelection.Delete();
-
-        LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
-        CustomReportLayout.Get(LayoutCode);
-
-        ReportLayoutSelection.Init();
-        ReportLayoutSelection."Report ID" := StandardSalesInvoiceReportID;
-        ReportLayoutSelection.Type := ReportLayoutSelection.Type::"Custom Layout";
-        ReportLayoutSelection."Custom Report Layout Code" := CustomReportLayout.Code;
-        ReportLayoutSelection.Insert(true);
-
-        REPORT.RdlcLayout(StandardSalesInvoiceReportID, InStr);
-        InStr.Read(BuiltInRdlcTxt);
-        CustomRdlcTxt := CustomReportLayout.GetCustomRdlc(StandardSalesInvoiceReportID);
-
-        File1.TextMode := true;
-        File2.TextMode := true;
-        File1.Create(TemporaryPath + 'BuiltInRdlc.xml', TEXTENCODING::UTF8);
-        File2.Create(TemporaryPath + 'CustomRdlc.xml', TEXTENCODING::UTF8);
-        File1.Write(BuiltInRdlcTxt);
-        File2.Write(CustomRdlcTxt);
-        File1.Close();
-        File2.Close();
-
-        Assert.AreNotEqual('', CustomRdlcTxt, '');
-        Assert.AreNotEqual('', CustomRdlcTxt, '');
-    end;
-#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -856,18 +745,6 @@
         Assert.AreEqual(CompanyInformation."Registration No.", CompanyInformation.GetRegistrationNumber(), WrongRegNoErr);
         Assert.AreEqual(
           CompanyInformation.FieldCaption("Registration No."), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure DemodataContainsDefaultEmailMergeReport()
-    var
-        DummyCustomReportLayout: Record "Custom Report Layout";
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO] Demodata contains default Email Merge report
-        DummyCustomReportLayout.SetRange("Report ID", REPORT::"Email Merge");
-        Assert.RecordIsNotEmpty(DummyCustomReportLayout);
     end;
 
     [Test]

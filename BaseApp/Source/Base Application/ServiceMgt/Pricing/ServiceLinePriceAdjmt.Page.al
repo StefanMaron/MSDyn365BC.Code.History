@@ -1,3 +1,7 @@
+namespace Microsoft.Service.Pricing;
+
+using Microsoft.Service.Document;
+
 page 6084 "Service Line Price Adjmt."
 {
     Caption = 'Service Line Price Adjmt.';
@@ -217,8 +221,8 @@ page 6084 "Service Line Price Adjmt."
                         ServInvLinePriceAdjmt: Record "Service Line Price Adjmt.";
                         ServPriceMgmt: Codeunit "Service Price Management";
                     begin
-                        ServHeader.Get("Document Type", "Document No.");
-                        ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.");
+                        ServHeader.Get(Rec."Document Type", Rec."Document No.");
+                        ServItemLine.Get(Rec."Document Type", Rec."Document No.", Rec."Service Item Line No.");
                         ServPriceMgmt.GetServPriceGrSetup(ServPriceGrSetup, ServHeader, ServItemLine);
                         ServInvLinePriceAdjmt := Rec;
                         ServPriceMgmt.AdjustLines(ServInvLinePriceAdjmt, ServPriceGrSetup);
@@ -268,13 +272,13 @@ page 6084 "Service Line Price Adjmt."
 
     procedure UpdateAmounts()
     begin
-        if not ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.") then
+        if not ServItemLine.Get(Rec."Document Type", Rec."Document No.", Rec."Service Item Line No.") then
             Clear(ServItemLine);
         ServInvLinePriceAdjmt := Rec;
         ServInvLinePriceAdjmt.Reset();
-        ServInvLinePriceAdjmt.SetRange("Document Type", "Document Type");
-        ServInvLinePriceAdjmt.SetRange("Document No.", "Document No.");
-        ServInvLinePriceAdjmt.SetRange("Service Item Line No.", "Service Item Line No.");
+        ServInvLinePriceAdjmt.SetRange("Document Type", Rec."Document Type");
+        ServInvLinePriceAdjmt.SetRange("Document No.", Rec."Document No.");
+        ServInvLinePriceAdjmt.SetRange("Service Item Line No.", Rec."Service Item Line No.");
         ServInvLinePriceAdjmt.CalcSums("New Amount", "New Amount incl. VAT", "New Amount Excl. VAT");
         if InclVat then begin
             AmountToAdjust := ServInvLinePriceAdjmt."New Amount incl. VAT";

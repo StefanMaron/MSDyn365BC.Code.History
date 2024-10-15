@@ -2106,7 +2106,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingProductionSerialNoPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler,AvailabilityWarningsConfirmHandler,QuantityToCreatePageHandler')]
+    [HandlerFunctions('ItemTrackingProductionSerialNoPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler,AvailabilityWarningsWithQtyZeroConfirmHandler,QuantityToCreatePageHandler')]
     [Scope('OnPrem')]
     procedure ReserveSerialNoOnProdOrderFromSalesOrderAndSalesWithPartialTrackingPostingError()
     begin
@@ -2116,7 +2116,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingProductionSerialNoPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler,AvailabilityWarningsConfirmHandler,QuantityToCreatePageHandler,PostedLinesPageHandler')]
+    [HandlerFunctions('ItemTrackingProductionSerialNoPageHandler,ItemTrackingListPageHandler,ReservationPageHandler,ItemTrackingSummaryPageHandler,AvailabilityWarningsWithQtyZeroConfirmHandler,QuantityToCreatePageHandler,PostedLinesPageHandler')]
     [Scope('OnPrem')]
     procedure ReserveSerialNoOnProdOrderFromSalesOrderAndSalesWithTrackingPosting()
     begin
@@ -2308,7 +2308,7 @@ codeunit 137052 "SCM RTAM Item Tracking"
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingSerialNoPageHandler,QuantityToCreatePageHandler,TrackingAlreadyExistMessageHandler')]
+    [HandlerFunctions('ItemTrackingSerialNoPageHandler,QuantityToCreatePageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithSameSerialNo()
     var
@@ -2326,13 +2326,14 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AvailabilitySerialNo;  // Assign Global Variable for Page Handler.
 
         // Exercise: Change Serial No as duplicate on Page Handler.
-        AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
+        asserterror AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
 
-        // Verify: Verify Message on Message Handler on TrackingAlreadyExistMessageHandler
+        // Verify: Verify Message of Error
+        Assert.ExpectedError(TrackingAlreadyExistMsg);
     end;
 
     [Test]
-    [HandlerFunctions('ItemTrackingSerialNoPageHandler,QuantityToCreatePageHandler,TrackingAlreadyExistMessageHandler,AvailabilityConfirmHandler')]
+    [HandlerFunctions('ItemTrackingSerialNoPageHandler,QuantityToCreatePageHandler,AvailabilityConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithSameSerialNo()
     var
@@ -2352,9 +2353,10 @@ codeunit 137052 "SCM RTAM Item Tracking"
         ItemTrackingAction := ItemTrackingAction::AvailabilitySerialNo;  // Assign Global Variable for Page Handler.
 
         // Exercise: Change Serial No as duplicate on Page Handler.
-        SalesLine.OpenItemTrackingLines();  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
+        asserterror SalesLine.OpenItemTrackingLines();  // Change Identical Tracking on Page Handler ItemTrackingSerialNoPageHandler.
 
         // Verify: Verify Message on Message Handler TrackingAlreadyExistMessageHandler.
+        Assert.ExpectedError(TrackingAlreadyExistMsg);
     end;
 
     [Test]
@@ -3096,6 +3098,8 @@ codeunit 137052 "SCM RTAM Item Tracking"
         LocationGreen.Validate("Require Receive", true);
         LocationGreen.Validate("Require Pick", true);
         LocationGreen.Validate("Require Shipment", true);
+        LocationGreen.Validate("Prod. Output Whse. Handling", "Prod. Output Whse. Handling"::"Inventory Put-away");
+        LocationGreen.Validate("Prod. Consump. Whse. Handling", "Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)");
         LocationGreen.Modify(true);
 
         // Location -Intransit.
@@ -4960,13 +4964,6 @@ codeunit 137052 "SCM RTAM Item Tracking"
 
     [MessageHandler]
     [Scope('OnPrem')]
-    procedure TrackingAlreadyExistMessageHandler(Message: Text[1024])
-    begin
-        Assert.IsTrue(StrPos(Message, TrackingAlreadyExistMsg) > 0, Message);
-    end;
-
-    [MessageHandler]
-    [Scope('OnPrem')]
     procedure CombinedShipmentsMessageHandler(Message: Text[1024])
     begin
         Assert.IsTrue(StrPos(Message, CombinedShipmentsMsg) > 0, Message);
@@ -5021,6 +5018,24 @@ codeunit 137052 "SCM RTAM Item Tracking"
             2:
                 Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText) > 0, ConfirmMessage);
             3:
+                Assert.IsTrue(StrPos(ConfirmMessage, SomeOutputMissingMsg) > 0, ConfirmMessage);
+        end;
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure AvailabilityWarningsWithQtyZeroConfirmHandler(ConfirmMessage: Text[1024]; var Reply: Boolean)
+    begin
+        MessageCounter += 1;
+        case MessageCounter of
+            1:
+                Assert.IsTrue(StrPos(ConfirmMessage, AvailabilityWarningsMsg) > 0, ConfirmMessage);
+            2:
+                Assert.IsTrue(StrPos(ConfirmMessage, LibraryInventory.GetReservConfirmText) > 0, ConfirmMessage);
+            3:
+                Assert.IsTrue(StrPos(ConfirmMessage, 'One or more lines have tracking specified, but Quantity (Base) is zero') > 0, ConfirmMessage);
+            4:
                 Assert.IsTrue(StrPos(ConfirmMessage, SomeOutputMissingMsg) > 0, ConfirmMessage);
         end;
         Reply := true;

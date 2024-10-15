@@ -1,3 +1,8 @@
+namespace Microsoft.Service.Contract;
+
+using Microsoft.Service.Item;
+using System.Utilities;
+
 page 6057 "Contract Line Selection"
 {
     Caption = 'Contract Line Selection';
@@ -101,7 +106,7 @@ page 6057 "Contract Line Selection"
                     Caption = '&Card';
                     Image = EditLines;
                     RunObject = Page "Service Item Card";
-                    RunPageLink = "No." = FIELD("No.");
+                    RunPageLink = "No." = field("No.");
                     RunPageOnRec = true;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information for the service contract.';
@@ -118,12 +123,12 @@ page 6057 "Contract Line Selection"
     trigger OnOpenPage()
     begin
         OKButton := false;
-        SetCurrentKey("Customer No.", "Ship-to Code");
-        FilterGroup(2);
-        SetRange("Customer No.", CustomerNo);
-        SetFilter(Status, '<>%1', Status::Defective);
-        FilterGroup(0);
-        SetRange("Ship-to Code", ShipToCode);
+        Rec.SetCurrentKey("Customer No.", "Ship-to Code");
+        Rec.FilterGroup(2);
+        Rec.SetRange("Customer No.", CustomerNo);
+        Rec.SetFilter(Status, '<>%1', Rec.Status::Defective);
+        Rec.FilterGroup(0);
+        Rec.SetRange("Ship-to Code", ShipToCode);
         SetSelectionFilter();
     end;
 
@@ -135,10 +140,10 @@ page 6057 "Contract Line Selection"
             ServContract.Get(ContractType, ContractNo);
             CurrPage.SetSelectionFilter(Rec);
             ServContractLine.HideDialogBox(true);
-            if Find('-') then
+            if Rec.Find('-') then
                 repeat
                     CheckServContractLine();
-                until Next() = 0;
+                until Rec.Next() = 0;
             CreateServContractLines();
             Commit();
         end;
@@ -251,9 +256,9 @@ page 6057 "Contract Line Selection"
     begin
         case SelectionFilter of
             SelectionFilter::"All Service Items":
-                SetRange("No. of Active Contracts");
+                Rec.SetRange("No. of Active Contracts");
             SelectionFilter::"Service Items without Contract":
-                SetRange("No. of Active Contracts", 0);
+                Rec.SetRange("No. of Active Contracts", 0);
         end;
         OnSetSelectionFilterOnBeforeUpdate(Rec, SelectionFilter);
         CurrPage.Update(false);
@@ -267,7 +272,7 @@ page 6057 "Contract Line Selection"
 
     local procedure LookupOKOnPush()
     begin
-        OKButton := "No." <> '';
+        OKButton := Rec."No." <> '';
         OnAfterLookupOKOnPush(Rec, OKButton);
     end;
 

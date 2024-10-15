@@ -1,17 +1,17 @@
 page 2123 "O365 Incoming Doc. Att. Pict."
 {
     Caption = 'Attachment Picture';
-    DataCaptionExpression = Name;
+    DataCaptionExpression = Rec.Name;
     Editable = false;
     PageType = Card;
     SourceTable = "Incoming Document Attachment";
-    SourceTableView = WHERE(Type = CONST(Image));
+    SourceTableView = where(Type = const(Image));
 
     layout
     {
         area(content)
         {
-            field(AttachmentContent; Content)
+            field(AttachmentContent; Rec.Content)
             {
                 ApplicationArea = Invoicing, Basic, Suite;
                 ShowCaption = false;
@@ -34,7 +34,7 @@ page 2123 "O365 Incoming Doc. Att. Pict."
                 begin
                     if not Confirm(DeleteQst, true) then
                         exit;
-                    Delete();
+                    Rec.Delete();
                     CurrPage.Close();
                 end;
             }
@@ -58,10 +58,10 @@ page 2123 "O365 Incoming Doc. Att. Pict."
 
     trigger OnAfterGetRecord()
     begin
-        if not IncomingDocumentAttachment.Get("Incoming Document Entry No.", "Line No.") then
+        if not IncomingDocumentAttachment.Get(Rec."Incoming Document Entry No.", Rec."Line No.") then
             IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.CalcFields(Content);
-        SetRecFilter();
+        Rec.SetRecFilter();
     end;
 
     var

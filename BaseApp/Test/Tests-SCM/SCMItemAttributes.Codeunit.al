@@ -33,6 +33,7 @@ codeunit 137413 "SCM Item Attributes"
         ItemAttributeValueNotFoundErr: Label 'Item Attribute Value of type %1 and value %2 was not found.';
         MissingAttributeNameErr: Label 'Name must have a value in Item Attribute: ID=0. It cannot be zero or empty.';
 
+
     local procedure CreateItemAndSetOfItemsAttributes(var Item: Record Item)
     begin
         CreateTestOptionItemAttributes;
